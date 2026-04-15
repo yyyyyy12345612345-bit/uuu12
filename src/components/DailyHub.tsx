@@ -48,7 +48,7 @@ export function DailyHub() {
     }
   }, []);
 
-  const handleThikrClick = (thikrId: number, maxCount: number, type: "morning" | "evening") => {
+  const handleThikrClick = (thikrId: number, maxCount: number, type: "morning" | "evening" | "sleep") => {
     const key = `${type}_${thikrId}`;
     const current = athkarProgress[key] || 0;
     
@@ -153,7 +153,7 @@ export function DailyHub() {
   }, []);
 
 
-  const renderAthkarList = (type: "morning" | "evening") => {
+  const renderAthkarList = (type: "morning" | "evening" | "sleep") => {
     return ATHKAR[type].map((thikr) => {
       const key = `${type}_${thikr.id}`;
       const current = athkarProgress[key] || 0;
