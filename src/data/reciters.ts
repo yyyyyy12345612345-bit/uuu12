@@ -1,8 +1,8 @@
 export interface Reciter {
   id: string;
   name: string;
-  serverType: "everyayah" | "mp3quran_verse"; 
-  folder: string;         // Folder name on the selected server
+  serverType: "everyayah" | "mp3quran_verse" | "qurancdn"; 
+  folder: string;         // Folder name or ID on the selected server
   mp3quranServer: string;  // Used for Audio Library (Full Surah)
 }
 
@@ -52,8 +52,8 @@ export const RECITERS: Reciter[] = [
   { 
     id: "haitham", 
     name: "هيثم الدخين", 
-    serverType: "mp3quran_verse",
-    folder: "haitham_aldukhin", 
+    serverType: "qurancdn", // Using Quran.com CDN (Stable)
+    folder: "176", 
     mp3quranServer: "server16.mp3quran.net/h_dukhain/Rewayat-Hafs-A-n-Assem"
   },
   { 
@@ -115,8 +115,8 @@ export const RECITERS: Reciter[] = [
   { 
     id: "hassan_saleh", 
     name: "حسن صالح", 
-    serverType: "mp3quran_verse",
-    folder: "hassan_saleh", 
+    serverType: "qurancdn", // Using Quran.com CDN (Stable)
+    folder: "177", 
     mp3quranServer: "server16.mp3quran.net/h_saleh/Rewayat-Hafs-A-n-Assem"
   },
 ];
