@@ -53,23 +53,14 @@ export default function CatchAllPage({ params }: { params: Promise<{ slug?: stri
           <h1 className="text-xl font-bold hidden sm:block">قرآن</h1>
         </Link>
         <div className="flex items-center gap-3">
-          {/* Universal Render Button */}
           {activeView === 'video' && (
-            <div className="flex items-center gap-2">
-               <button 
-                  onClick={() => setIsMobileControlsOpen(true)} 
-                  className="lg:hidden p-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-all"
-                >
-                  <Settings className="w-5 h-5" />
-                </button>
-                <button 
-                  onClick={() => setIsRenderOpen(true)} 
-                  className="p-3 bg-primary text-black rounded-xl font-bold shadow-lg flex items-center gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  <span className="text-sm">تصدير</span>
-                </button>
-            </div>
+            <button 
+                onClick={() => setIsRenderOpen(true)} 
+                className="p-3 bg-primary text-black rounded-xl font-bold shadow-lg flex items-center gap-2"
+            >
+                <Download className="w-4 h-4" />
+                <span className="text-sm">تصدير</span>
+            </button>
           )}
           <PWAInstallButton />
           <button onClick={() => setIsFeedbackOpen(true)} className="p-3 bg-white/5 rounded-xl"><MessageSquare className="w-5 h-5" /></button>
@@ -89,7 +80,18 @@ export default function CatchAllPage({ params }: { params: Promise<{ slug?: stri
                 <aside className="hidden lg:flex w-[350px] h-full border-r border-white/5 flex-col p-6 overflow-y-auto no-scrollbar gap-6">
                    <SurahSelector /><Controls />
                 </aside>
-                <div className="flex-1 flex items-center justify-center p-4 relative">
+                <div className="flex-1 flex items-center justify-center p-4 relative capitalize">
+                   {/* Mobile Settings Button Overlay */}
+                   <button 
+                      onClick={() => setIsMobileControlsOpen(true)}
+                      className="lg:hidden absolute top-10 right-8 z-50 flex flex-col items-center gap-1 active:scale-95 transition-all"
+                   >
+                      <div className="p-4 bg-primary/20 backdrop-blur-xl border border-primary/40 rounded-full shadow-2xl">
+                        <Settings className="w-7 h-7 text-primary animate-spin-slow" />
+                      </div>
+                      <span className="text-[10px] font-bold text-primary bg-black/50 px-2 py-0.5 rounded-full">إعدادات الفيديو</span>
+                   </button>
+
                    <VideoPreview key={state.reciterId} />
                 </div>
              </div>
@@ -99,7 +101,6 @@ export default function CatchAllPage({ params }: { params: Promise<{ slug?: stri
 
       <Navigation />
 
-      {/* Mobile Controls Drawer */}
       {isMobileControlsOpen && (
         <div className="fixed inset-0 z-[300] lg:hidden">
             <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={() => setIsMobileControlsOpen(false)} />
@@ -108,7 +109,7 @@ export default function CatchAllPage({ params }: { params: Promise<{ slug?: stri
                     <h2 className="text-xl font-bold">تعديل الفيديو</h2>
                     <button onClick={() => setIsMobileControlsOpen(false)} className="p-3 bg-white/5 rounded-full"><X className="w-6 h-6" /></button>
                 </div>
-                <div className="flex-1 overflow-y-auto no-scrollbar pb-10">
+                <div className="flex-1 overflow-y-auto no-scrollbar pb-10 px-2">
                     <SurahSelector />
                     <div className="h-8" />
                     <Controls />
