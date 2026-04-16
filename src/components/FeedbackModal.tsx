@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, MessageSquare, Send, Instagram, CheckCircle2, AlertCircle } from "lucide-react";
+import { X, MessageSquare, Send, AtSign, CheckCircle2, AlertCircle } from "lucide-react";
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -125,7 +125,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                     target="_blank"
                     className="w-full py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-bold text-base flex items-center justify-center gap-3 hover:bg-white/10 transition-all"
                 >
-                    <Instagram className="w-5 h-5 text-pink-500" />
+                    <AtSign className="w-5 h-5 text-pink-500" />
                     <span>@youssef_osama04</span>
                 </a>
             </div>
