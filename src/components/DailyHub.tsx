@@ -56,6 +56,10 @@ export function DailyHub() {
       const newProgress = { ...athkarProgress, [key]: current + 1 };
       setAthkarProgress(newProgress);
       localStorage.setItem("athkar_progress", JSON.stringify(newProgress));
+      
+      // Analytics: تتبع النقر على الذكر (بدء التفاعل)
+      // @ts-ignore
+      window.gtag?.('event', 'thikr_click', { 'thikr_type': type, 'thikr_id': thikrId, 'current_count': current + 1 });
 
       // Analytics: تتبع الأذكار
       if (current + 1 === maxCount) {
@@ -264,7 +268,12 @@ export function DailyHub() {
            return (
              <button
                key={t.id}
-               onClick={() => setActiveTab(t.id as any)}
+               onClick={() => {
+                  setActiveTab(t.id as any);
+                  // Analytics: تتبع التبديل بين أقسام اليوميات
+                  // @ts-ignore
+                  window.gtag?.('event', 'daily_hub_tab_switch', { 'tab_name': t.label });
+               }}
                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl transition-all whitespace-nowrap snap-center min-w-[100px] ${
                  isActive ? 'bg-white/10 text-white shadow-lg border border-white/5' : 'text-white/40 hover:text-white/80'
                }`}
