@@ -2,10 +2,12 @@
 
 import React from "react";
 import { Video, BookOpen, Timer, Headphones, Calendar } from "lucide-react";
-import { useEditor } from "@/store/useEditor";
+import { usePathname, useRouter } from "next/navigation";
 
 export function Navigation() {
   const { state, updateState } = useEditor();
+  const router = useRouter();
+  const pathname = usePathname();
 
   const tabs = [
     { id: "mushaf" as const, label: "المصحف", icon: BookOpen },
@@ -33,6 +35,8 @@ export function Navigation() {
               key={tab.id}
               onClick={() => {
                  updateState({ view: tab.id });
+                 router.push(tab.id === "video" ? "/" : `/${tab.id}`);
+                 
                  // Analytics: تتبع التنقل بين الأقسام الرئيسية
                  // @ts-ignore
                  window.gtag?.('event', 'navigation_click', { 'target_view': tab.id, 'label': tab.label });

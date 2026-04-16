@@ -1,9 +1,12 @@
 "use client";
 
-import React, { useState, useRef, useEffect, memo } from "react";
+import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useEditor } from "@/store/useEditor";
+import { usePathname, useRouter } from "next/navigation";
+import { Download, Menu, X, MessageSquare } from "lucide-react";
 
+// Dynamic Imports
 const SurahSelector = dynamic(() => import("@/components/SurahSelector").then(mod => mod.SurahSelector), { ssr: false });
 const VideoPreview = dynamic(() => import("@/components/VideoPreview").then(mod => mod.VideoPreview), { ssr: false });
 const Controls = dynamic(() => import("@/components/Controls").then(mod => mod.Controls), { ssr: false });
@@ -16,31 +19,33 @@ const Navigation = dynamic(() => import("@/components/Navigation").then(mod => m
 const PWAInstallButton = dynamic(() => import("@/components/PWAInstallButton").then(mod => mod.PWAInstallButton), { ssr: false });
 const FeedbackModal = dynamic(() => import("@/components/FeedbackModal").then(mod => mod.FeedbackModal), { ssr: false });
 
-import { Download, Menu, X, MessageSquare } from "lucide-react";
-
-import { usePathname } from "next/navigation";
-
-export default function Home() {
+export default function CatchAllPage({ params }: { params: { slug?: string[] } }) {
   const { state, updateState } = useEditor();
   const pathname = usePathname();
+  const router = useRouter();
   
   const [isRenderOpen, setIsRenderOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
 
-  // Sync URL to state on load
+  // Sync URL to State
   useEffect(() => {
-    const view = pathname.split('/').pop() || 'video';
-    if (['mushaf', 'library', 'daily', 'prayers', 'video'].includes(view)) {
-      updateState({ view: view as any });
+    const slug = params.slug?.[0] || "video"; // Default to video maker or mushaf
+    if (["mushaf", "library", "daily", "prayers", "video"].includes(slug)) {
+      updateState({ view: slug as any });
+    } else {
+      // If root '/', check current state or default
+      if (pathname === "/") {
+         // Keep current or set default
+      }
     }
-  }, [pathname, updateState]);
+  }, [params.slug, updateState]);
 
-  // Prevent flash by showing splash until hydrated
+  // Prevent flash until hydrated
   if (!state.isHydrated) {
     return (
       <div className="fixed inset-0 bg-[#050505] flex flex-col items-center justify-center z-[200]">
-        <div className="w-24 h-24 rounded-3xl overflow-hidden border border-primary/20 bg-primary/5 flex items-center justify-center animate-pulse shadow-[0_0_50px_rgba(var(--primary-rgb),0.1)]">
+        <div className="w-24 h-24 rounded-3xl overflow-hidden border border-primary/20 bg-primary/5 flex items-center justify-center animate-pulse shadow-[0_0_50px_rgba(212,175,55,0.1)]">
           <img src="/logo/logo.png?v=4" alt="Logo" className="w-16 h-16 object-contain" />
         </div>
         <div className="mt-8 flex flex-col items-center">
@@ -57,124 +62,64 @@ export default function Home() {
 
   return (
     <div className="fixed inset-0 bg-[#050505] text-white overflow-x-hidden overflow-y-hidden islamic-pattern font-arabic select-none flex flex-col w-full max-w-full">
-
-
-      
-      {/* ── App Header ────────────────────────────────────────────── */}
       <header className="h-20 shrink-0 glass-effect border-b border-white/5 px-4 md:px-14 flex items-center justify-between z-[110] relative">
-
-
-
-
-
-        <div className="flex items-center gap-3 md:gap-5 group cursor-pointer">
+        <div className="flex items-center gap-3 md:gap-5 group cursor-pointer" onClick={() => router.push("/")}>
           <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl overflow-hidden border border-primary/20 bg-primary/10 flex items-center justify-center transition-all group-hover:scale-110 shadow-lg shrink-0">
             <img src="/logo/logo.png?v=4" alt="Logo" className="w-full h-full object-cover" />
           </div>
-
-
           <div className="flex flex-col">
             <h1 className="text-lg md:text-xl font-bold tracking-tight text-white leading-none">قرآن</h1>
             <span className="hidden xs:block text-[10px] text-primary/60 font-bold uppercase tracking-[0.2em] mt-1">Premium PWA</span>
           </div>
         </div>
 
-
         <div className="flex items-center gap-3 md:gap-4">
           <PWAInstallButton />
-          
           <div className="h-6 w-px bg-white/10 mx-1 hidden xs:block" />
-          
-          {/* Feedback Trigger */}
           <button 
             onClick={() => setIsFeedbackOpen(true)}
             className="p-3 bg-white/5 rounded-xl border border-white/5 text-white/40 hover:text-primary hover:bg-primary/10 transition-all flex items-center gap-2 group"
-            title="تواصل معنا"
           >
              <MessageSquare className="w-4 h-4 md:w-5 h-5 group-hover:scale-110 transition-transform" />
-             <span className="hidden sm:block text-[10px] font-bold font-arabic uppercase">تواصل</span>
+             <span className="hidden sm:block text-[10px] font-bold font-arabic uppercase tracking-tighter">تواصل</span>
           </button>
-
           <div className="h-6 w-px bg-white/10 mx-1 hidden xs:block" />
-          
           <div className="flex flex-col items-end shrink-0 hidden xs:flex">
              <p className="text-[8px] md:text-[9px] text-white/30 uppercase tracking-widest font-bold">Developed By</p>
-             <a 
-               href="https://www.instagram.com/youssef_osama04?igsh=MXV2Y2o5MzE0d2c1dA==" 
-               target="_blank" 
-               className="text-[10px] md:text-xs font-bold text-primary/80 hover:text-primary transition-all"
-             >
-                Youssef Osama
-             </a>
+             <a href="https://www.instagram.com/youssef_osama04?igsh=MXV2Y2o5MzE0d2c1dA==" target="_blank" className="text-[10px] md:text-xs font-bold text-primary/80 hover:text-primary transition-all">Youssef Osama</a>
           </div>
         </div>
-
       </header>
 
-      {/* ── Main Viewport ──────────────────────────────────────────── */}
       <main className="flex-1 relative overflow-hidden">
-
-
-
-
-
-
-        
-
-
-        {/* View Switcher */}
         <div className="h-full w-full min-h-0 relative">
           {state.view === "video" && (
-            <div className={`flex h-full w-full animate-premium-in overflow-hidden ${state.view === 'video' ? 'items-center justify-center' : ''}`}>
-               {/* Desktop Sidebar */}
+            <div className="flex h-full w-full animate-premium-in overflow-hidden items-center justify-center">
               <aside className="hidden lg:flex w-[420px] h-full glass-effect border-r border-white/5 flex-col p-8 pb-28 overflow-y-auto no-scrollbar gap-8 shrink-0">
-
-
-
                  <div className="flex items-center gap-4 mb-2">
                     <div className="w-2 h-2 rounded-full bg-primary" />
                     <h2 className="text-sm font-bold uppercase tracking-widest text-primary/80">صانع الفيديوهات</h2>
                  </div>
-                 
                  <div className="space-y-10">
-                    <section>
-                       <SurahSelector />
-                    </section>
-                    <section>
-                       <Controls />
-                    </section>
+                    <section><SurahSelector /></section>
+                    <section><Controls /></section>
                  </div>
-
                  <div className="mt-auto pt-8 border-t border-white/5">
-                    <button 
-                       onClick={() => setIsRenderOpen(true)}
-                       className="w-full bg-primary text-black py-5 rounded-[2rem] font-bold text-lg flex items-center justify-center gap-3 hover:scale-[1.02] shadow-2xl shadow-primary/20 transition-all"
-                    >
+                    <button onClick={() => setIsRenderOpen(true)} className="w-full bg-primary text-black py-5 rounded-[2rem] font-bold text-lg flex items-center justify-center gap-3 hover:scale-[1.02] shadow-2xl shadow-primary/20 transition-all">
                        <Download className="w-5 h-5" />
                        <span>تصدير الفيديو النهائي</span>
                     </button>
                  </div>
               </aside>
-
-              {/* Preview Area - Surgically Centered & Responsive */}
               <div className="flex-1 relative flex items-center justify-center p-4 min-h-[500px] w-full">
-                <div className="relative w-full max-w-[320px] aspect-[9/16] h-auto max-h-[80vh] shadow-[0_0_150px_rgba(0,0,0,0.8)] z-10 transition-all duration-700 rounded-[2.5rem] overflow-hidden backdrop-blur-sm lg:translate-y-[-2%] flex items-center justify-center">
+                <div className="relative w-full max-w-[320px] aspect-[9/16] h-auto max-h-[80vh] shadow-[0_0_150px_rgba(0,0,0,0.8)] z-10 rounded-[2.5rem] overflow-hidden backdrop-blur-sm lg:translate-y-[-2%] flex items-center justify-center">
                    <VideoPreview key={state.reciterId} />
                 </div>
-
-
-                {/* Mobile Floating Controls - Clean Edge Alignment */}
                 <div className="lg:hidden absolute bottom-44 right-6 flex flex-col gap-6 z-50">
-                  <button 
-                    onClick={() => setIsMobileControlsOpen(true)}
-                    className="w-16 h-16 rounded-full bg-white/10 border border-white/10 text-white backdrop-blur-3xl flex items-center justify-center shadow-2xl hover:bg-white/20 transition-all"
-                  >
+                  <button onClick={() => setIsMobileControlsOpen(true)} className="w-16 h-16 rounded-full bg-white/10 border border-white/10 text-white backdrop-blur-3xl flex items-center justify-center shadow-2xl hover:bg-white/20 transition-all">
                     <Menu className="w-7 h-7" />
                   </button>
-                  <button 
-                    onClick={() => setIsRenderOpen(true)}
-                    className="w-16 h-16 rounded-full bg-primary text-black shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-primary/20"
-                  >
+                  <button onClick={() => setIsRenderOpen(true)} className="w-16 h-16 rounded-full bg-primary text-black shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-primary/20">
                     <Download className="w-7 h-7" />
                   </button>
                 </div>
@@ -182,43 +127,15 @@ export default function Home() {
             </div>
           )}
 
-
-
-          {state.view === "mushaf" && (
-            <div className="h-full w-full animate-premium-in pb-0">
-
-              <Mushaf />
-            </div>
-          )}
-
-          {state.view === "library" && (
-            <div className="h-full w-full animate-premium-in pb-0">
-
-              <AudioLibrary />
-            </div>
-          )}
-
-          {state.view === "prayers" && (
-            <div className="h-full w-full animate-premium-in pb-0">
-              <PrayerTimes />
-            </div>
-          )}
-
-          {state.view === "daily" && (
-            <div className="h-full w-full animate-premium-in pb-0">
-              <DailyHub />
-            </div>
-          )}
-
-
+          {state.view === "mushaf" && <div className="h-full w-full animate-premium-in"><Mushaf /></div>}
+          {state.view === "library" && <div className="h-full w-full animate-premium-in"><AudioLibrary /></div>}
+          {state.view === "prayers" && <div className="h-full w-full animate-premium-in"><PrayerTimes /></div>}
+          {state.view === "daily" && <div className="h-full w-full animate-premium-in"><DailyHub /></div>}
         </div>
       </main>
 
-
-      {/* ── Universal Navigation ─────────────────────────────────── */}
       <Navigation />
 
-      {/* ── Mobile Controls Drawer ────────────────────────────────── */}
       {isMobileControlsOpen && (
         <div className="fixed inset-0 z-[120] animate-in fade-in duration-300">
            <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={() => setIsMobileControlsOpen(false)} />
@@ -227,26 +144,13 @@ export default function Home() {
                  <h2 className="text-2xl font-bold font-arabic text-primary">إعدادات الفيديو</h2>
                  <button onClick={() => setIsMobileControlsOpen(false)} className="p-3 bg-white/5 rounded-2xl"><X /></button>
               </div>
-              
-              <div className="space-y-12 pb-20">
-                 <SurahSelector />
-                 <Controls />
-              </div>
+              <div className="space-y-12 pb-20"><SurahSelector /><Controls /></div>
            </div>
         </div>
       )}
 
-      {/* Feedback Modal */}
-      <FeedbackModal 
-        isOpen={isFeedbackOpen} 
-        onClose={() => setIsFeedbackOpen(false)} 
-      />
-
-      {/* Render Progress Modal */}
-      <RenderModal 
-        isOpen={isRenderOpen} 
-        onClose={() => setIsRenderOpen(false)}
-      />
+      <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
+      <RenderModal isOpen={isRenderOpen} onClose={() => setIsRenderOpen(false)} />
     </div>
   );
 }
