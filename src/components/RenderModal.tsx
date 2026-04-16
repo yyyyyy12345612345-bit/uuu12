@@ -5,6 +5,7 @@ import { Download, Loader2, CheckCircle2, AlertCircle, Play } from "lucide-react
 import { useEditor } from "@/store/useEditor";
 import { useSurahData } from "@/hooks/useSurahData";
 import { RECITERS } from "@/data/reciters";
+import { getAudioUrl } from "@/lib/quranUtils";
 
 export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { state } = useEditor();
@@ -86,16 +87,14 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
       const verseAudios = [];
       setMessage("جاري تجهيز الآيات...");
       for (let v of verses) {
-        // More stable audio source
-        const reciter = RECITERS.find(r => r.id === state.reciterId) || RECITERS[0];
-        const sUrl = `https://everyayah.com/data/${reciter.everyAyahServer}/${state.surahId.toString().padStart(3,'0')}${v.id.toString().padStart(3,'0')}.mp3`;
+        const sUrl = getAudioUrl(Number(state.surahId), v.id, state.reciterId);
         const audio = new Audio(sUrl);
         audio.crossOrigin = "anonymous";
         
         const loaded = await new Promise(r => { 
           audio.onloadedmetadata = () => r(true); 
           audio.onerror = () => r(false);
-          setTimeout(() => r(false), 8000); 
+          setTimeout(() => r(false), 15000); 
         });
 
         if (!loaded) {
