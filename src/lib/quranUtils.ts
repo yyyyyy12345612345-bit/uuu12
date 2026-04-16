@@ -11,6 +11,11 @@ export const getAudioUrl = (surahId: number, ayahId: number, reciterId: string) 
   const sId = pad(surahId, 3);
   const aId = pad(ayahId, 3);
 
-  // Simple, Direct, One Mirror for everyone to restore logic
+  // If it's Haitham or Hassan Saleh, use Quran.com QDC CDN
+  if (reciter.serverType === "qurancdn") {
+    return `https://audio.qurancdn.com/${reciter.folder}/${sId}${aId}.mp3`;
+  }
+
+  // Everyone else uses the stable everyayah server
   return `https://www.everyayah.com/data/${reciter.folder}/${sId}${aId}.mp3`;
 };
