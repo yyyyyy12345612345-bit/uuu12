@@ -13,5 +13,5 @@ export const getAudioUrl = (surahId: number, ayahId: number, reciterId: string) 
   const sId = pad(surahId, 3);
   const aId = pad(ayahId, 3);
 
-  return `https://mirrors.quranicaudio.com/everyayah/data/${reciterPath}/${sId}${aId}.mp3`;
+  return `https://www.everyayah.com/data/${reciterPath}/${sId}${aId}.mp3`;
 };
