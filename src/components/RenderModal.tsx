@@ -24,6 +24,13 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   const handleStart = async () => {
     if (!surahData || status === "rendering") return;
     
+    // Safety check for browser support
+    if (typeof MediaRecorder === 'undefined' || !HTMLCanvasElement.prototype.captureStream) {
+      setStatus("error");
+      setMessage("متصفحك لا يدعم خاصية تسجيل الفيديو. يرجى استخدام متصفح حديث مثل Chrome أو Edge.");
+      return;
+    }
+    
     isRenderingRef.current = true;
     activeAudiosRef.current = [];
 
@@ -36,11 +43,19 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     });
 
     // Create and Resume AudioContext
-    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    audioCtxRef.current = audioCtx;
-    
-    if (audioCtx.state === "suspended") {
-      await audioCtx.resume();
+    let audioCtx: AudioContext;
+    try {
+        audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioCtxRef.current = audioCtx;
+        
+        if (audioCtx.state === "suspended") {
+          await audioCtx.resume();
+        }
+    } catch (e) {
+        console.error("AudioContext initialization failed", e);
+        setStatus("error");
+        setMessage("تعذر تشغيل معالج الصوت في متصفحك. يرجى محاولة استخدام متصفح حديث.");
+        return;
     }
 
     setStatus("rendering");

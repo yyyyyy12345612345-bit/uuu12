@@ -177,10 +177,4 @@ body {
   line-height: 1.8;
 }
 
-/* Hide Next.js Dev Overlay/Issues Badge to keep UI clean */
-nextjs-portal, 
-[data-nextjs-dialog-overlay],
-[data-nextjs-toast],
-#nextjs-portal {
-  display: none !important;
-}
+/* No longer hiding error overlays to help debugging */
