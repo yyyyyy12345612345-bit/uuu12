@@ -25,7 +25,7 @@ interface EditorContextType {
 const EditorContext = createContext<EditorContextType | undefined>(undefined);
 
 const initialState: Omit<EditorState, 'isHydrated'> = {
-  view: "video",
+  view: "mushaf",
   surahId: "1",
   startAyah: 1,
   endAyah: 7,
