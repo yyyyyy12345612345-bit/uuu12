@@ -4,9 +4,8 @@ import React, { useState } from "react";
 import surahsData from "@/data/surahs.json";
 import { X, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
-// GOOGLE PROXY + ARCHIVE.ORG (The Ultimate Combination)
-const GOOGLE_PROXY = "https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&refresh=2592000&url=";
-const SHAMRELY_ROOT = "https://quran.archive.org/data/shamreli/";
+// THE ONLY STABLE SHAMRELY SERVER LEFT ON EARTH
+const SHAMRELY_SRC = "https://surah.my/images/pages/shamreli/";
 
 export function Shamrely() {
   const [selectedSurah, setSelectedSurah] = useState<typeof surahsData[0] | null>(null);
@@ -25,16 +24,16 @@ export function Shamrely() {
   const prevPage = () => { setIsLoading(true); setCurrentPage((p) => Math.max(1, p - 1)); };
 
   return (
-    <div className="h-full flex flex-col bg-[#050505] relative overflow-hidden font-arabic">
-      <div className="flex-1 overflow-y-auto pt-28 pb-40 px-4 md:px-20">
-        <div className="max-w-5xl mx-auto space-y-12 text-center">
-            <h2 className="text-6xl md:text-8xl font-black text-white italic">طبعة الشمرلي</h2>
-            <div className="grid grid-cols-1 gap-4 mt-16">
+    <div className="h-full flex flex-col bg-[#050505] relative overflow-hidden">
+      <div className="flex-1 overflow-y-auto pt-28 pb-40 px-4 md:px-20 font-arabic">
+        <div className="max-w-5xl mx-auto space-y-12">
+            <h2 className="text-6xl font-bold text-center text-white tracking-tighter">مصحف الشمرلي</h2>
+            <div className="grid grid-cols-1 gap-5">
                 {surahsData.map((surah) => (
-                <button key={surah.id} onClick={() => openSurah(surah)} className="flex items-center justify-between p-8 rounded-[3rem] bg-white/[0.04] border border-white/5 hover:bg-primary/10 transition-all group">
+                <button key={surah.id} onClick={() => openSurah(surah)} className="flex items-center justify-between p-8 rounded-[2.5rem] bg-white/[0.04] border border-white/5 hover:bg-primary/5 transition-all">
                     <div className="flex items-center gap-10">
-                        <div className="w-16 h-16 rounded-2xl bg-black flex items-center justify-center border border-white/10 group-hover:bg-primary/20"><span className="text-xl font-bold text-primary">{surah.id}</span></div>
-                        <span className="text-4xl font-bold text-white tracking-tighter">{surah.name}</span>
+                        <div className="w-16 h-16 rounded-2xl bg-black flex items-center justify-center border border-white/10 ring-1 ring-primary/20"><span className="text-xl font-bold text-primary">{surah.id}</span></div>
+                        <span className="text-4xl font-bold text-white tracking-widest">{surah.name}</span>
                     </div>
                 </button>
                 ))}
@@ -43,36 +42,37 @@ export function Shamrely() {
       </div>
 
       {selectedSurah && (
-        <div className="fixed inset-0 z-[800] flex flex-col bg-black animate-in fade-in duration-300">
-            <header className="h-20 flex items-center justify-between px-6 bg-black border-b border-white/10">
-              <button onClick={closeSurah} className="p-3 bg-white/5 rounded-2xl"><X className="w-6 h-6 text-white" /></button>
-              <div className="flex items-center gap-4">
-                 <button onClick={prevPage} className="p-2"><ChevronRight className="w-8 h-8 text-white" /></button>
-                 <div className="text-center"><h3 className="text-xl font-bold text-primary">سورة {selectedSurah.name}</h3><p className="text-[10px] text-white/40">ص {currentPage}</p></div>
-                 <button onClick={nextPage} className="p-2"><ChevronLeft className="w-8 h-8 text-white" /></button>
+        <div className="fixed inset-0 z-[900] flex flex-col bg-black animate-in fade-in duration-300">
+            <header className="h-24 flex items-center justify-between px-8 bg-black/90 border-b border-white/5">
+              <button onClick={closeSurah} className="p-4 bg-white/5 rounded-3xl"><X className="w-7 h-7 text-white" /></button>
+              <div className="flex items-center gap-6">
+                 <button onClick={prevPage} className="p-2 active:scale-95"><ChevronRight className="w-10 h-10 text-white" /></button>
+                 <div className="text-center min-w-[200px]"><h3 className="text-3xl font-bold text-primary font-arabic">سورة {selectedSurah.name}</h3><p className="text-[12px] text-white/30 tracking-widest">PAGE {currentPage}</p></div>
+                 <button onClick={nextPage} className="p-2 active:scale-95"><ChevronLeft className="w-10 h-10 text-white" /></button>
               </div>
-              <div className="w-10 h-10" />
+              <div className="w-12 h-12" />
             </header>
 
-            <div className="flex-1 overflow-y-auto bg-[#111] relative">
+            <div className="flex-1 overflow-y-auto no-scrollbar bg-[#080808] relative">
                 {isLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-[#111] z-50">
-                        <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black z-50">
+                        <Loader2 className="w-14 h-14 text-primary animate-spin" />
                     </div>
                 )}
-                <div className="w-full flex justify-center py-4">
+                <div className="w-full flex justify-center py-6">
                     <img 
                         key={currentPage}
-                        src={`${GOOGLE_PROXY}${encodeURIComponent(`${SHAMRELY_ROOT}${currentPage}.png`)}`}
-                        className="w-full max-w-[1200px] h-auto object-contain shadow-2xl"
-                        alt="Shamrely Page"
+                        src={`${SHAMRELY_SRC}${currentPage.toString().padStart(3, '0')}.png`}
+                        className="w-full max-w-[1200px] h-auto object-contain shadow-[0_0_100px_rgba(196,164,132,0.1)]"
+                        alt="Shamrely HD"
                         onLoad={() => setIsLoading(false)}
+                        onError={() => setIsLoading(false)}
                     />
                 </div>
                 
-                <div className="fixed bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/90 px-12 py-6 rounded-full border border-white/10 shadow-3xl">
-                    <button onClick={prevPage} className="text-white hover:text-primary active:scale-90"><ChevronRight className="w-12 h-12" /></button>
-                    <button onClick={nextPage} className="text-white hover:text-primary active:scale-90"><ChevronLeft className="w-12 h-12" /></button>
+                <div className="fixed bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-20 bg-black/80 px-12 py-6 rounded-full border border-white/5 shadow-3xl backdrop-blur-xl">
+                    <button onClick={prevPage} className="text-white hover:text-primary transition-all"><ChevronRight className="w-12 h-12" /></button>
+                    <button onClick={nextPage} className="text-white hover:text-primary transition-all"><ChevronLeft className="w-12 h-12" /></button>
                 </div>
             </div>
         </div>
