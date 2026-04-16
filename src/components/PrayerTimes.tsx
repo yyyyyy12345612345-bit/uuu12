@@ -283,9 +283,9 @@ export function PrayerTimes() {
                         <div key={id} className={`premium-card p-8 flex flex-col items-center gap-6 relative group/card ${isNext ? 'border-primary/40 bg-primary/5' : ''}`}>
                             <button 
                                 onClick={() => setActiveSettingsPrayer(id)}
-                                className="absolute top-4 left-4 p-2 rounded-lg bg-white/5 opacity-0 group-hover/card:opacity-100 transition-all hover:text-primary"
+                                className="absolute top-4 left-4 p-2.5 rounded-xl bg-white/5 md:opacity-0 md:group-hover/card:opacity-100 transition-all text-primary/60 border border-white/5 shadow-inner"
                             >
-                                <Settings2 className="w-4 h-4" />
+                                <Settings2 className="w-5 h-5" />
                             </button>
                             
                             <h3 className={`text-xl font-bold font-arabic transition-all ${isNext ? 'text-primary' : 'text-white/60'}`}>{name}</h3>
