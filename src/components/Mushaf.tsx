@@ -4,14 +4,12 @@ import React, { useState, useEffect, useRef, memo } from "react";
 import { Play, Pause, Book, Headphones, ChevronRight, Search, LayoutGrid, X, Volume2, Bookmark, User } from "lucide-react";
 import { RECITERS } from "@/data/reciters";
 import { useEditor } from "@/store/useEditor";
-import { useRouter } from "next/navigation";
 import surahsData from "@/data/surahs.json";
 import { getAudioUrl } from "@/lib/quranUtils";
 
 export function Mushaf() {
   const { state, updateState } = useEditor();
-  const router = useRouter();
-  const [selectedSurah, setSelectedSurah] = useState<string | null>(state.surahId || null);
+  const [selectedSurah, setSelectedSurah] = useState<string | null>(null);
   const [surahContent, setSurahContent] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [playingAyah, setPlayingAyah] = useState<number | null>(null);
@@ -22,13 +20,6 @@ export function Mushaf() {
   const selectedReciter = RECITERS.find(r => r.id === state.reciterId) || RECITERS[0];
 
   useEffect(() => {
-    if (selectedSurah) {
-      router.push(`/mushaf/${selectedSurah}`, { scroll: false });
-      updateState({ surahId: selectedSurah });
-    } else {
-      router.push(`/mushaf`, { scroll: false });
-    }
-
     if (!selectedSurah) return;
     async function fetchSurah() {
       setLoading(true);

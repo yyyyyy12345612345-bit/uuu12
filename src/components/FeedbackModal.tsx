@@ -28,6 +28,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
       'message_content': message,
       'device_info': navigator.userAgent
     });
+    console.log("Feedback Sent to GA:", { type, message });
 
     // محاكاة إرسال ناجح
     setTimeout(() => {

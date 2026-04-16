@@ -60,12 +60,11 @@ export function Controls() {
     if (!feedback.trim()) return;
     setIsSending(true);
     
-    // Analytics: إرسال الشكوى أو الاقتراح
-    // @ts-ignore
     window.gtag?.('event', 'user_feedback', { 
-        'message': feedback.slice(0, 100), // الحد الأقصى للجوجل أناليتكس
-        'full_message': feedback
+        'message_content': feedback,
+        'feedback_type': 'support_tab'
     });
+    console.log("Support Feedback Sent to GA:", feedback);
 
     setTimeout(() => {
         setIsSending(false);
@@ -73,8 +72,6 @@ export function Controls() {
         alert("تم إرسال اقتراحك بنجاح.. شكراً لك!");
     }, 1000);
   };
-
-  const displayMedia = bgMode === "library" ? STATIC_LIBRARY : (media.length > 0 ? media : STATIC_LIBRARY);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
