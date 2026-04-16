@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quran-pwa-v2';
+const CACHE_NAME = 'quran-pwa-v3';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
@@ -8,10 +8,7 @@ const ASSETS_TO_CACHE = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      // Only cache essential small assets on install
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
   );
   self.skipWaiting();
 });
@@ -25,31 +22,7 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
-
-  // For PDFs, we use a "Cache-First" but don't pre-fetch them all at once
-  if (url.pathname.startsWith('/pdf/')) {
-    event.respondWith(
-      caches.match(request).then((cachedResponse) => {
-        if (cachedResponse) return cachedResponse;
-        
-        return fetch(request).then((networkResponse) => {
-          const cacheCopy = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, cacheCopy);
-          });
-          return networkResponse;
-        });
-      })
-    );
-    return;
-  }
-
-  // Standard caching for other assets
   event.respondWith(
-    caches.match(request).then((response) => {
-      return response || fetch(request);
-    })
+    caches.match(event.request).then((response) => response || fetch(event.request))
   );
 });
