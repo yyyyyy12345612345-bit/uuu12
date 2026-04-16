@@ -14,6 +14,12 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   const isRenderingRef = useRef(false);
   const activeAudiosRef = useRef<HTMLAudioElement[]>([]);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const [status, setStatus] = useState<"idle" | "rendering" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
+  const [progressPct, setProgressPct] = useState(0);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
 
   const handleStart = async () => {
     if (!surahData || status === "rendering") return;
