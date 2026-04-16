@@ -31,17 +31,9 @@ export default function CatchAllPage({ params }: { params: { slug?: string[] } }
 
   // Sync URL to State
   useEffect(() => {
-    const view = params.slug?.[0] || "video";
-    const subId = params.slug?.[1]; // e.g., surah ID or reciter ID
-
-    if (["mushaf", "library", "daily", "prayers", "video"].includes(view)) {
-      const updates: any = { view: view as any };
-      if (subId) {
-        if (view === "mushaf" || view === "library") {
-           updates.surahId = subId;
-        }
-      }
-      updateState(updates);
+    const slug = params.slug?.[0] || "video";
+    if (["mushaf", "library", "daily", "prayers", "video"].includes(slug)) {
+      updateState({ view: slug as any });
     }
   }, [params.slug, updateState]);
 
