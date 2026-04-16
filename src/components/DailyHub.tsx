@@ -113,9 +113,15 @@ export function DailyHub() {
                startListening(bearing);
             } else {
                setQibla(prev => ({ ...prev, loading: false, error: "تم رفض صلاحية استخدام بوصلة الجهاز" }));
+               // @ts-ignore
+               window.gtag?.('event', 'qibla_error', { 'type': 'permission_denied' });
             }
           })
-          .catch(console.error);
+          .catch(err => {
+             console.error(err);
+             // @ts-ignore
+             window.gtag?.('event', 'qibla_error', { 'type': 'permission_catch', 'msg': err.message });
+          });
       } else {
         startListening(bearing);
       }
@@ -146,11 +152,17 @@ export function DailyHub() {
 
           setupOrientation(bearing);
         },
-        () => setQibla(prev => ({ ...prev, loading: false, error: "فشل الوصول للموقع الجغرافي. تأكد من تفعيله في جهازك." })),
+        () => {
+            setQibla(prev => ({ ...prev, loading: false, error: "فشل الوصول للموقع الجغرافي. تأكد من تفعيله في جهازك." }));
+            // @ts-ignore
+            window.gtag?.('event', 'qibla_error', { 'type': 'geolocation_denied' });
+        },
         { enableHighAccuracy: true }
       );
     } else {
       setQibla(prev => ({ ...prev, loading: false, error: "جهازك لا يدعم تحديد الموقع." }));
+      // @ts-ignore
+      window.gtag?.('event', 'qibla_error', { 'type': 'geolocation_not_supported' });
     }
   }, []);
 

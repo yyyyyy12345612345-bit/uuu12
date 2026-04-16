@@ -14,12 +14,14 @@ const AudioLibrary = dynamic(() => import("@/components/AudioLibrary").then(mod 
 const DailyHub = dynamic(() => import("@/components/DailyHub").then(mod => mod.DailyHub), { ssr: false });
 const Navigation = dynamic(() => import("@/components/Navigation").then(mod => mod.Navigation), { ssr: false });
 const PWAInstallButton = dynamic(() => import("@/components/PWAInstallButton").then(mod => mod.PWAInstallButton), { ssr: false });
+const FeedbackModal = dynamic(() => import("@/components/FeedbackModal").then(mod => mod.FeedbackModal), { ssr: false });
 
-import { Download, Menu, X } from "lucide-react";
+import { Download, Menu, X, MessageSquare } from "lucide-react";
 
 export default function Home() {
   const { state } = useEditor();
   const [isRenderOpen, setIsRenderOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
 
   // Prevent flash by showing splash until hydrated
@@ -68,8 +70,22 @@ export default function Home() {
 
         <div className="flex items-center gap-3 md:gap-4">
           <PWAInstallButton />
+          
           <div className="h-6 w-px bg-white/10 mx-1 hidden xs:block" />
-          <div className="flex flex-col items-end shrink-0">
+          
+          {/* Feedback Trigger */}
+          <button 
+            onClick={() => setIsFeedbackOpen(true)}
+            className="p-3 bg-white/5 rounded-xl border border-white/5 text-white/40 hover:text-primary hover:bg-primary/10 transition-all flex items-center gap-2 group"
+            title="تواصل معنا"
+          >
+             <MessageSquare className="w-4 h-4 md:w-5 h-5 group-hover:scale-110 transition-transform" />
+             <span className="hidden sm:block text-[10px] font-bold font-arabic uppercase">تواصل</span>
+          </button>
+
+          <div className="h-6 w-px bg-white/10 mx-1 hidden xs:block" />
+          
+          <div className="flex flex-col items-end shrink-0 hidden xs:flex">
              <p className="text-[8px] md:text-[9px] text-white/30 uppercase tracking-widest font-bold">Developed By</p>
              <a 
                href="https://www.instagram.com/youssef_osama04?igsh=MXV2Y2o5MzE0d2c1dA==" 
@@ -207,6 +223,12 @@ export default function Home() {
            </div>
         </div>
       )}
+
+      {/* Feedback Modal */}
+      <FeedbackModal 
+        isOpen={isFeedbackOpen} 
+        onClose={() => setIsFeedbackOpen(false)} 
+      />
 
       {/* Render Progress Modal */}
       <RenderModal 
