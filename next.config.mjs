@@ -5,21 +5,24 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // CRITICAL: Standalone mode reduces the bundle size significantly
+  output: "standalone",
   typescript: {
     ignoreBuildErrors: true,
   },
-  // We removed eslint block to fix the "unrecognized key" error
   serverExternalPackages: [
     "remotion",
     "@remotion/bundler",
     "@remotion/renderer",
     "@remotion/player",
     "@remotion/next",
-    "@remotion/google-fonts"
+    "@remotion/google-fonts",
+    "chromium",
+    "playwright"
   ],
   experimental: {
     serverActions: {
-      bodySizeLimit: "10mb",
+      bodySizeLimit: "20mb",
     },
   },
   async headers() {
