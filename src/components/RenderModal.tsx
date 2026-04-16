@@ -11,18 +11,20 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   const { state } = useEditor();
   const { data: surahData } = useSurahData(state.surahId);
   
-  const [status, setStatus] = useState<"idle" | "rendering" | "success" | "error">("idle");
-  const [message, setMessage] = useState("");
-  const [progressPct, setProgressPct] = useState(0);
-  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
-
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const isRenderingRef = useRef(false);
+  const activeAudiosRef = useRef<HTMLAudioElement[]>([]);
+  const audioCtxRef = useRef<AudioContext | null>(null);
 
   const handleStart = async () => {
     if (!surahData || status === "rendering") return;
     
-    // Resume AudioContext immediately on user gesture
+    isRenderingRef.current = true;
+    activeAudiosRef.current = [];
+
+    // Create and Resume AudioContext
     const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    audioCtxRef.current = audioCtx;
+    
     if (audioCtx.state === "suspended") {
       await audioCtx.resume();
     }
@@ -81,6 +83,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         if (isVideo) {
           setMessage("جاري تحميل الفيديو...");
           bgVideo = await loadVideo(state.backgroundUrl);
+          if (bgVideo) activeAudiosRef.current.push(bgVideo as any);
         } else {
           setMessage("جاري تحميل الخلفية...");
           bgImage = await loadImage(state.backgroundUrl); 
@@ -89,13 +92,21 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         console.error("Failed to load background", e);
       }
 
+      if (!isRenderingRef.current) {
+        recorder.stop();
+        return;
+      }
+
       const verseAudios = [];
       setMessage("جاري تجهيز الآيات الصوتية...");
       for (let v of verses) {
+        if (!isRenderingRef.current) break;
         const sUrl = getAudioUrl(Number(state.surahId), v.id, state.reciterId);
         const audio = new Audio();
         audio.crossOrigin = "anonymous";
         audio.src = sUrl;
+        
+        activeAudiosRef.current.push(audio);
         
         const loaded = await new Promise(r => { 
           audio.onloadedmetadata = () => r(true); 
@@ -110,27 +121,31 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         }
       }
 
+      if (!isRenderingRef.current) {
+        recorder.stop();
+        return;
+      }
+
       const totalDuration = verseAudios.reduce((a, b) => a + b.duration, 0);
       let elapsed = 0;
 
       setMessage("بدء الرندرة...");
       
       for (let i = 0; i < verseAudios.length; i++) {
+        if (!isRenderingRef.current) break;
         const item = verseAudios[i];
         if (!item.failed) {
           const source = audioCtx.createMediaElementSource(item.audio);
           source.connect(dest);
-          // source.connect(audioCtx.destination); // ممسوح لعدم سماع الصوت أثناء الرندرة
           
           try {
             await item.audio.play();
           } catch(e) {
-            console.warn("Audio play blocked, attempting to continue...", e);
+            console.warn("Audio play blocked", e);
           }
 
           const startTime = Date.now();
-          // Render loop for this verse
-          while (!item.audio.ended && (Date.now() - startTime) < (item.duration * 1000 + 1000)) {
+          while (isRenderingRef.current && !item.audio.ended && (Date.now() - startTime) < (item.duration * 1000 + 1000)) {
             const vTime = item.audio.currentTime;
             renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state);
             
@@ -147,6 +162,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           const duration = 5;
           const steps = duration * 30;
           for (let s = 0; s < steps; s++) {
+            if (!isRenderingRef.current) break;
             renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state);
             const progress = Math.min(99, Math.round(((elapsed + (s/30)) / totalDuration) * 100));
             setProgressPct(progress);
@@ -157,65 +173,98 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         elapsed += item.duration;
       }
 
+      if (!isRenderingRef.current) {
+        recorder.stop();
+        return;
+      }
+
       setMessage("جاري إنهاء الملف...");
       recorder.stop();
       recorder.onstop = () => {
         const finalBlob = new Blob(chunks, { type: mimeType || 'video/webm' });
-        const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
         setDownloadUrl(URL.createObjectURL(finalBlob));
         setStatus("success");
       };
 
     } catch (e: any) {
       console.error(e);
-      setStatus("error");
-      setMessage(e.message || "حدث خطأ غير متوقع");
+      if (isRenderingRef.current) {
+        setStatus("error");
+        setMessage(e.message || "حدث خطأ غير متوقع");
+      }
     }
   };
 
+  const handleClose = () => {
+    isRenderingRef.current = false;
+    
+    // Stop and clear all audio objects
+    activeAudiosRef.current.forEach(a => {
+      try {
+        a.pause();
+        a.src = "";
+        a.load();
+        a.remove();
+      } catch(e) {}
+    });
+    activeAudiosRef.current = [];
+
+    // Close AudioContext if exists
+    if (audioCtxRef.current) {
+      audioCtxRef.current.close().catch(() => {});
+      audioCtxRef.current = null;
+    }
+
+    onClose();
+    setStatus("idle");
+    setMessage("");
+    setProgressPct(0);
+  };
+
   const renderFrame = (ctx: any, canvas: any, bg: HTMLImageElement | null, video: HTMLVideoElement | null, verse: any, state: any) => {
+    // ... (logic remains same, just ensure it's called)
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     if (video) {
-      const sc = Math.max(canvas.width / video.videoWidth, canvas.height / video.videoHeight);
-      const w = video.videoWidth * sc;
-      const h = video.videoHeight * sc;
-      ctx.drawImage(video, (canvas.width - w) / 2, (canvas.height - h) / 2, w, h);
-    } else if (bg) {
-      const sc = Math.max(canvas.width / bg.width, canvas.height / bg.height);
-      const w = bg.width * sc;
-      const h = bg.height * sc;
-      ctx.drawImage(bg, (canvas.width - w) / 2, (canvas.height - h) / 2, w, h);
-    }
-
-    ctx.fillStyle = "rgba(0,0,0,0.5)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.textAlign = "center";
-    ctx.fillStyle = state.textColor;
-    ctx.font = `${state.fontWeight} ${state.fontSize * 1.5}px serif`;
-    
-    const lines = wrapText(ctx, verse.text, canvas.width - 120);
-    const lineHeight = state.fontSize * 1.8;
-    const totalHeight = lines.length * lineHeight;
-    let startY = (canvas.height / 2) - (totalHeight / 4);
-
-    lines.forEach((l, idx) => {
-      ctx.fillText(l, canvas.width / 2, startY + (idx * lineHeight));
-    });
-
-    // Translation
-    ctx.fillStyle = "rgba(255,255,255,0.8)";
-    ctx.font = `500 32px serif`;
-    const tLines = wrapText(ctx, verse.translation, canvas.width - 150);
-    tLines.forEach((l, idx) => {
-      ctx.fillText(l, canvas.width / 2, startY + totalHeight + 80 + (idx * 45));
-    });
-
-    ctx.fillStyle = "rgba(212,175,55,1)";
-    ctx.font = "bold 35px serif";
-    ctx.fillText(`﴿ ${verse.id} ﴾`, canvas.width/2, canvas.height - 150);
+        const sc = Math.max(canvas.width / video.videoWidth, canvas.height / video.videoHeight);
+        const w = video.videoWidth * sc;
+        const h = video.videoHeight * sc;
+        ctx.drawImage(video, (canvas.width - w) / 2, (canvas.height - h) / 2, w, h);
+      } else if (bg) {
+        const sc = Math.max(canvas.width / bg.width, canvas.height / bg.height);
+        const w = bg.width * sc;
+        const h = bg.height * sc;
+        ctx.drawImage(bg, (canvas.width - w) / 2, (canvas.height - h) / 2, w, h);
+      }
+  
+      ctx.fillStyle = "rgba(0,0,0,0.5)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+      ctx.textAlign = "center";
+      ctx.fillStyle = state.textColor;
+      ctx.font = `${state.fontWeight} ${state.fontSize * 1.5}px serif`;
+      
+      const lines = wrapText(ctx, verse.text, canvas.width - 120);
+      const lineHeight = state.fontSize * 1.8;
+      const totalHeight = lines.length * lineHeight;
+      let startY = (canvas.height / 2) - (totalHeight / 4);
+  
+      lines.forEach((l, idx) => {
+        ctx.fillText(l, canvas.width / 2, startY + (idx * lineHeight));
+      });
+  
+      // Translation
+      ctx.fillStyle = "rgba(255,255,255,0.8)";
+      ctx.font = `500 32px serif`;
+      const tLines = wrapText(ctx, verse.translation, canvas.width - 150);
+      tLines.forEach((l, idx) => {
+        ctx.fillText(l, canvas.width / 2, startY + totalHeight + 80 + (idx * 45));
+      });
+  
+      ctx.fillStyle = "rgba(212,175,55,1)";
+      ctx.font = "bold 35px serif";
+      ctx.fillText(`﴿ ${verse.id} ﴾`, canvas.width/2, canvas.height - 150);
   };
 
   if (!isOpen) return null;
@@ -285,7 +334,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           </>
         )}
 
-        <button onClick={onClose} className="mt-8 text-white/20 text-xs hover:text-white/40 transition-colors">إغلاق النافذة</button>
+        <button onClick={handleClose} className="mt-8 text-white/20 text-xs hover:text-white/40 transition-colors">إغلاق النافذة</button>
       </div>
     </div>
   );
