@@ -31,7 +31,12 @@ export function Navigation() {
           return (
             <button
               key={tab.id}
-              onClick={() => updateState({ view: tab.id })}
+              onClick={() => {
+                 updateState({ view: tab.id });
+                 // Analytics: تتبع التنقل بين الأقسام الرئيسية
+                 // @ts-ignore
+                 window.gtag?.('event', 'navigation_click', { 'target_view': tab.id, 'label': tab.label });
+              }}
               className={`group flex flex-col items-center gap-1.5 transition-all duration-500 relative py-1 ${isActive ? 'text-primary' : 'text-white/30 hover:text-white/60'}`}
             >
               <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-500 ${isActive ? 'bg-primary/10 scale-110 shadow-lg shadow-primary/5' : 'bg-transparent group-hover:bg-white/5'}`}>

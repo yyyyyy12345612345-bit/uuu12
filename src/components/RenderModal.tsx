@@ -193,11 +193,14 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         setDownloadUrl(URL.createObjectURL(finalBlob));
         setStatus("success");
 
-        // Analytics: Track Render Success
+        // Analytics: تفاصيل الفيديو الناجح
         // @ts-ignore
         window.gtag?.('event', 'render_video_success', {
-          'surah': state.surahId,
-          'reciter': state.reciterId
+          'surah_id': state.surahId,
+          'reciter_name': RECITERS.find(r => r.id === state.reciterId)?.name || "Unknown",
+          'background_type': state.backgroundUrl.includes(".mp4") ? "Video" : "Image",
+          'font_size': state.fontSize,
+          'text_color': state.textColor
         });
       };
 

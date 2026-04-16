@@ -30,6 +30,9 @@ export function PWAInstallButton() {
       setIsInstalled(true);
       setDeferredPrompt(null);
       console.log("PWA was installed");
+      // Analytics: تتبع التثبيت الفعلي والنهائي
+      // @ts-ignore
+      window.gtag?.('event', 'app_installed_final_success');
     };
 
     window.addEventListener("beforeinstallprompt", handler);
@@ -42,15 +45,30 @@ export function PWAInstallButton() {
   }, []);
 
   const handleInstallClick = async () => {
+    // Analytics: تتبع الضغط على زر التثبيت
+    // @ts-ignore
+    window.gtag?.('event', 'pwa_install_button_click', {
+      'is_ios': isIOS,
+      'is_standalone': isStandalone
+    });
+
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
+      
+      // Analytics: تتبع نتيجة قرار المستخدم
+      // @ts-ignore
+      window.gtag?.('event', 'pwa_prompt_result', { 'outcome': outcome });
+
       if (outcome === "accepted") {
         setIsInstalled(true);
       }
       setDeferredPrompt(null);
     } else {
       setShowInstructions(true);
+      // Analytics: تتبع ظهور تعليمات التثبيت اليدوية
+      // @ts-ignore
+      window.gtag?.('event', 'pwa_instructions_view', { 'device_type': isIOS ? 'iOS' : 'Android/Desktop' });
     }
   };
 

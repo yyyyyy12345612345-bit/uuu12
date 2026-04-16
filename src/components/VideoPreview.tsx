@@ -4,6 +4,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { useEditor } from "@/store/useEditor";
 import { useSurahData } from "@/hooks/useSurahData";
 import { getAudioUrl } from "@/lib/quranUtils";
+import { RECITERS } from "@/data/reciters";
 
 const isVideoUrl = (url: string) => {
   if (!url) return false;
@@ -75,12 +76,15 @@ export function VideoPreview() {
         videoRef.current?.play();
         setIsPlaying(true);
         
-        // Analytics: Track Play
+        // Analytics: تفاصيل دقيقة عن الاستماع
         // @ts-ignore
-        window.gtag?.('event', 'play_quran', {
-            'reciter': state.reciterId,
-            'surah': state.surahId,
-            'ayah': currentAyahIndex
+        window.gtag?.('event', 'play_quran_detailed', {
+            'reciter_id': state.reciterId,
+            'reciter_name': RECITERS.find(r => r.id === state.reciterId)?.name || "Unknown",
+            'surah_id': state.surahId,
+            'ayah_id': currentAyahIndex,
+            'font_size': state.fontSize,
+            'text_color': state.textColor
         });
       } catch (error) {
         console.error("Initial play failed:", error);

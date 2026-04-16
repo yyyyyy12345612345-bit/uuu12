@@ -94,6 +94,10 @@ export function PrayerTimes() {
   const detectLocation = () => {
     if (!navigator.geolocation) return;
     setLoading(true);
+    // Analytics: تتبع التحديد التلقائي للموقع
+    // @ts-ignore
+    window.gtag?.('event', 'location_detect_gps');
+    
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const { latitude, longitude } = pos.coords;
@@ -378,6 +382,10 @@ export function PrayerTimes() {
                                             const newSet = { ...prayerSettings, [activeSettingsPrayer]: { ...prayerSettings[activeSettingsPrayer], muezzinId: m.id } };
                                             setPrayerSettings(newSet);
                                             localStorage.setItem("prayer_settings_v2", JSON.stringify(newSet));
+
+                                            // Analytics: تتبع اختيار المؤذن
+                                            // @ts-ignore
+                                            window.gtag?.('event', 'muezzin_select', { 'muezzin_name': m.name });
                                         }}
                                         className={`flex items-center justify-between p-4 rounded-xl border transition-all ${prayerSettings[activeSettingsPrayer].muezzinId === m.id ? 'border-primary bg-primary/10 text-primary' : 'bg-white/5 border-white/5 text-white/40 hover:bg-white/10'}`}
                                     >
@@ -423,7 +431,20 @@ export function PrayerTimes() {
                     <div className="space-y-6">
                         <input value={customCity} onChange={(e) => setCustomCity(e.target.value)} placeholder="City (e.g. Cairo)" className="w-full bg-white/5 border border-white/5 rounded-2xl py-5 px-8 text-white outline-none focus:border-primary/40 transition-all font-bold" />
                         <input value={customCountry} onChange={(e) => setCustomCountry(e.target.value)} placeholder="Country (e.g. Egypt)" className="w-full bg-white/5 border border-white/5 rounded-2xl py-5 px-8 text-white outline-none focus:border-primary/40 transition-all font-bold" />
-                        <button onClick={async () => { if (customCity && customCountry) { await fetchTimes(customCity, customCountry); setShowLocationPicker(false); } }} className="w-full py-5 bg-primary text-black rounded-[2rem] font-bold text-lg shadow-2xl shadow-primary/20 hover:scale-105 transition-all mt-4">تحديث</button>
+                        <button 
+                            onClick={async () => { 
+                                if (customCity && customCountry) { 
+                                    await fetchTimes(customCity, customCountry); 
+                                    setShowLocationPicker(false); 
+                                    // Analytics: تتبع التغيير اليدوي للموقع
+                                    // @ts-ignore
+                                    window.gtag?.('event', 'location_update_manual', { 'city': customCity, 'country': customCountry });
+                                } 
+                            }} 
+                            className="w-full py-5 bg-primary text-black rounded-[2rem] font-bold text-lg shadow-2xl shadow-primary/20 hover:scale-105 transition-all mt-4"
+                        >
+                            تحديث
+                        </button>
                     </div>
                 </div>
             </div>
