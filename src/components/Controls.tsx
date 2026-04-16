@@ -53,9 +53,6 @@ export function Controls() {
 
   const displayMedia = bgMode === "library" ? STATIC_LIBRARY : (media.length > 0 ? media : STATIC_LIBRARY);
 
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex p-1 bg-black/40 rounded-2xl border border-white/5 shadow-inner">
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     // Analytics: تتبع التبويبات

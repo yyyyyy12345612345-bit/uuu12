@@ -167,6 +167,13 @@ export function AudioLibrary() {
   const playSurah = (surah: any) => {
     setCurrentSurah(surah);
     setIsPlaying(true);
+    // Analytics: تتبع تشغل السورة من المكتبة
+    // @ts-ignore
+    window.gtag?.('event', 'audio_library_play', {
+        'surah_id': surah.id,
+        'surah_name': surah.name,
+        'reciter_name': selectedReciter.name
+    });
   };
 
 
@@ -246,7 +253,12 @@ export function AudioLibrary() {
                 {RECITERS.map((rec) => (
                     <button 
                       key={rec.id}
-                      onClick={() => setSelectedReciter(rec)}
+                      onClick={() => {
+                         setSelectedReciter(rec);
+                         // Analytics: تتبع اختيار القارئ في المكتبة
+                         // @ts-ignore
+                         window.gtag?.('event', 'audio_library_reciter', { 'reciter_name': rec.name });
+                      }}
                       className={`flex flex-col items-center gap-3 transition-all snap-center ${selectedReciter.id === rec.id ? 'scale-110 opacity-100' : 'opacity-30 hover:opacity-70'}`}
                     >
 
