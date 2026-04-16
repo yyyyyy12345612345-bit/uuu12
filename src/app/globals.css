@@ -171,6 +171,12 @@ body {
   scrollbar-width: none;
 }
 
+.horizontal-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+}
+
 /* Arabic Text */
 .font-arabic {
   font-family: 'Amiri', serif;
