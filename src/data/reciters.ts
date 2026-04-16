@@ -10,113 +10,113 @@ export const RECITERS: Reciter[] = [
   { 
     id: "afasy", 
     name: "مشاري العفاسي", 
-    serverType: "qurancdn",
-    folder: "7", 
+    serverType: "everyayah",
+    folder: "Alafasy_128kbps", 
     mp3quranServer: "server8.mp3quran.net/afs"
   },
   { 
     id: "abdulbasit_m", 
     name: "عبد الباسط (مرتل)", 
-    serverType: "qurancdn",
-    folder: "2", 
+    serverType: "everyayah",
+    folder: "Abdul_Basit_Murattal_64kbps", 
     mp3quranServer: "server7.mp3quran.net/basit"
   },
   { 
     id: "abdulbasit_j", 
     name: "عبد الباسط (مجود)", 
-    serverType: "qurancdn",
-    folder: "10", 
+    serverType: "everyayah",
+    folder: "Abdul_Basit_Mujawwad_128kbps", 
     mp3quranServer: "server7.mp3quran.net/basit/Almusshaf-Al-Mojawwad"
   },
   { 
     id: "maher", 
     name: "ماهر المعيقلي", 
-    serverType: "qurancdn",
-    folder: "8", 
+    serverType: "everyayah",
+    folder: "Maher_AlMuaiqly_64kbps", 
     mp3quranServer: "server12.mp3quran.net/maher"
   },
   { 
     id: "menshawi_m", 
     name: "المنشاوي (مرتل)", 
-    serverType: "qurancdn",
-    folder: "12", 
+    serverType: "everyayah",
+    folder: "Minshawy_Murattal_128kbps", 
     mp3quranServer: "server10.mp3quran.net/minsh"
   },
   { 
     id: "menshawi_j", 
     name: "المنشاوي (مجود)", 
-    serverType: "qurancdn",
-    folder: "1", 
+    serverType: "everyayah",
+    folder: "Minshawy_Mujawwad_128kbps", 
     mp3quranServer: "server10.mp3quran.net/minsh/Almusshaf-Al-Mojawwad"
   },
   { 
     id: "haitham", 
     name: "هيثم الدخين", 
-    serverType: "qurancdn",
-    folder: "176", 
+    serverType: "mp3quran_verse",
+    folder: "haitham_aldukhin", 
     mp3quranServer: "server16.mp3quran.net/h_dukhain/Rewayat-Hafs-A-n-Assem"
   },
   { 
     id: "husr", 
     name: "محمود خليل الحصري", 
-    serverType: "qurancdn",
-    folder: "5", 
+    serverType: "everyayah",
+    folder: "Husary_128kbps", 
     mp3quranServer: "server13.mp3quran.net/husr"
   },
   { 
     id: "mustafa_ismail", 
     name: "مصطفي إسماعيل", 
-    serverType: "qurancdn",
-    folder: "1", // Fallback to stable Minshawi if unavailable
+    serverType: "everyayah",
+    folder: "Mustafa_Ismail_48kbps", 
     mp3quranServer: "server8.mp3quran.net/mustafa"
   },
   { 
     id: "sudais", 
     name: "عبد الرحمن السديس", 
-    serverType: "qurancdn",
-    folder: "3", 
+    serverType: "everyayah",
+    folder: "Sudais_64kbps", 
     mp3quranServer: "server11.mp3quran.net/sds"
   },
   { 
     id: "ghamadi", 
     name: "سعد الغامدي", 
-    serverType: "qurancdn",
-    folder: "4", 
+    serverType: "everyayah",
+    folder: "Ghamadi_40kbps", 
     mp3quranServer: "server7.mp3quran.net/s_gmd"
   },
   { 
     id: "qatami", 
     name: "ناصر القطامي", 
-    serverType: "qurancdn",
-    folder: "6", 
+    serverType: "everyayah",
+    folder: "Nasser_Alqatami_128kbps", 
     mp3quranServer: "server6.mp3quran.net/qtm"
   },
   { 
     id: "dussary", 
     name: "ياسر الدوسري", 
-    serverType: "qurancdn",
-    folder: "11", 
+    serverType: "everyayah",
+    folder: "Dussary_128kbps", 
     mp3quranServer: "server11.mp3quran.net/yasser"
   },
   { 
     id: "ajamy", 
     name: "أحمد العجمي", 
-    serverType: "qurancdn",
-    folder: "9", 
+    serverType: "everyayah",
+    folder: "Ahmed_ibn_Ali_al-Ajamy_64kbps", 
     mp3quranServer: "server10.mp3quran.net/ajm"
   },
   { 
     id: "abbad", 
     name: "فارس عباد", 
-    serverType: "qurancdn",
-    folder: "6", 
+    serverType: "everyayah",
+    folder: "Fares_Abbad_64kbps", 
     mp3quranServer: "server8.mp3quran.net/frs_a"
   },
   { 
     id: "hassan_saleh", 
     name: "حسن صالح", 
-    serverType: "qurancdn",
-    folder: "177", 
+    serverType: "mp3quran_verse",
+    folder: "hassan_saleh", 
     mp3quranServer: "server16.mp3quran.net/h_saleh/Rewayat-Hafs-A-n-Assem"
   },
 ];
