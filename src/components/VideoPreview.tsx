@@ -88,6 +88,13 @@ export function VideoPreview() {
         });
       } catch (error) {
         console.error("Initial play failed:", error);
+        // Analytics: تتبع فشل تشغيل الصوت
+        // @ts-ignore
+        window.gtag?.('event', 'audio_play_error', {
+            'reciter_id': state.reciterId,
+            'surah_id': state.surahId,
+            'error_msg': "Initial play failed"
+        });
       }
     }
   };

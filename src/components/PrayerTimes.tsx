@@ -123,13 +123,19 @@ export function PrayerTimes() {
   };
 
   useEffect(() => {
-    // 1. Initial Data Fetch
+    // 1. Loading cached data immediately for offline speed
+    const cachedTimes = localStorage.getItem("prayer_times_cache");
+    const cachedLoc = localStorage.getItem("prayer_location_cache");
+    if (cachedTimes) setTimes(JSON.parse(cachedTimes));
+    if (cachedLoc) setLocationName(cachedLoc);
+
+    // 2. Refresh from network in background
     const savedCity = localStorage.getItem("user_city");
     const savedCountry = localStorage.getItem("user_country");
     if (savedCity && savedCountry) fetchTimes(savedCity, savedCountry);
     else fetchTimes("Cairo", "Egypt");
 
-    // 2. Load Per-Prayer Settings
+    // 3. Load Per-Prayer Settings
     try {
         const savedSettings = localStorage.getItem("prayer_settings_v2");
         if (savedSettings) {
@@ -141,7 +147,7 @@ export function PrayerTimes() {
         localStorage.removeItem("prayer_settings_v2");
     }
 
-    // 3. Setup Timer
+    // 4. Setup Timer
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);

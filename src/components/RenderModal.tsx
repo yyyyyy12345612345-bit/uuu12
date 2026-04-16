@@ -209,6 +209,14 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
       if (isRenderingRef.current) {
         setStatus("error");
         setMessage(e.message || "حدث خطأ غير متوقع");
+        
+        // Analytics: تتبع الأخطاء بالتفصيل
+        // @ts-ignore
+        window.gtag?.('event', 'render_video_error', {
+          'error_msg': e.message || "Unknown error",
+          'surah_id': state.surahId,
+          'reciter_id': state.reciterId
+        });
       }
     }
   };
