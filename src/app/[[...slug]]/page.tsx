@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEditor } from "@/store/useEditor";
 import { usePathname } from "next/navigation";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Download } from "lucide-react";
 
 // Pre-load components
 const SurahSelector = dynamic(() => import("@/components/SurahSelector").then(mod => mod.SurahSelector), { ssr: false });
@@ -52,6 +52,16 @@ export default function CatchAllPage({ params }: { params: Promise<{ slug?: stri
           <h1 className="text-xl font-bold">قرآن</h1>
         </Link>
         <div className="flex items-center gap-3">
+          {/* Mobile Render Button */}
+          {activeView === 'video' && (
+            <button 
+              onClick={() => setIsRenderOpen(true)} 
+              className="lg:hidden p-3 bg-primary text-black rounded-xl font-bold shadow-lg flex items-center gap-2"
+            >
+              <Download className="w-4 h-4" />
+              <span>تصدير</span>
+            </button>
+          )}
           <PWAInstallButton />
           <button onClick={() => setIsFeedbackOpen(true)} className="p-3 bg-white/5 rounded-xl"><MessageSquare className="w-5 h-5" /></button>
         </div>
@@ -69,9 +79,9 @@ export default function CatchAllPage({ params }: { params: Promise<{ slug?: stri
              <div className="flex h-full w-full overflow-hidden">
                 <aside className="hidden lg:flex w-[350px] h-full border-r border-white/5 flex-col p-6 overflow-y-auto no-scrollbar gap-6">
                    <SurahSelector /><Controls />
-                   <button onClick={() => setIsRenderOpen(true)} className="w-full bg-primary text-black py-4 rounded-xl font-bold mt-auto shadow-lg">تصدير</button>
+                   <button onClick={() => setIsRenderOpen(true)} className="w-full bg-primary text-black py-4 rounded-xl font-bold mt-auto shadow-lg hover:bg-primary/90 transition-all">تصدير الفيديو</button>
                 </aside>
-                <div className="flex-1 flex items-center justify-center p-4">
+                <div className="flex-1 flex items-center justify-center p-4 relative capitalize">
                    <VideoPreview key={state.reciterId} />
                 </div>
              </div>
