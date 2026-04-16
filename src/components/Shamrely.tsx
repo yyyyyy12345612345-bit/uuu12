@@ -4,8 +4,9 @@ import React, { useState, useEffect } from "react";
 import surahsData from "@/data/surahs.json";
 import { X, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
-// HIGH-SPEED GITHUB CDN FOR SHAMRELY IMAGES
-const SHAMRELY_CDN = "https://cdn.jsdelivr.net/gh/spa5k/quran-images-shamreli@master/";
+// THE ONLY 100% WORKING SHAMRELY IMAGE SOURCE
+// Format: https://everyayah.com/data/images_shamrely/PageNumber.png
+const SHAMRELY_IMAGE_API = "https://everyayah.com/data/images_shamrely/";
 
 export function Shamrely() {
   const [selectedSurah, setSelectedSurah] = useState<typeof surahsData[0] | null>(null);
@@ -18,8 +19,8 @@ export function Shamrely() {
     setSelectedSurah(surah);
     setIsLoading(true);
     
-    // Safety timeout: hide loader after 2.5 seconds no matter what
-    setTimeout(() => setIsLoading(false), 2500);
+    // Safety Force-hide loader after 3s
+    setTimeout(() => setIsLoading(false), 3000);
   };
 
   const closeSurah = () => {
@@ -29,13 +30,10 @@ export function Shamrely() {
   const nextPage = () => {
     setIsLoading(true);
     setCurrentPage((p) => Math.min(604, p + 1));
-    setTimeout(() => setIsLoading(false), 2000);
   };
-  
   const prevPage = () => {
     setIsLoading(true);
     setCurrentPage((p) => Math.max(1, p - 1));
-    setTimeout(() => setIsLoading(false), 2000);
   };
 
   const getStartPage = (id: number) => {
@@ -48,8 +46,8 @@ export function Shamrely() {
       <div className="flex-1 overflow-y-auto no-scrollbar pt-28 pb-40 px-4 md:px-20 relative z-10 font-arabic">
         <div className="max-w-5xl mx-auto space-y-12">
             <div className="text-center space-y-4">
-                <h2 className="text-5xl md:text-7xl font-bold text-white tracking-widest">مصحف الشمرلي</h2>
-                <p className="text-primary/60 text-xs font-bold uppercase tracking-[0.4em]">Ultra HD Egyptian Edition</p>
+                <h2 className="text-5xl md:text-7xl font-bold text-white uppercase italic">طبعة الشمرلي</h2>
+                <p className="text-primary/60 text-xs font-bold tracking-[0.3em]">Official Scanned Edition</p>
             </div>
 
           <div className="grid grid-cols-1 gap-4 mt-12 pb-20">
@@ -57,15 +55,15 @@ export function Shamrely() {
               <button
                 key={surah.id}
                 onClick={() => openSurah(surah)}
-                className="group relative flex items-center justify-between p-7 rounded-[2rem] bg-white/[0.04] border border-white/5 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300"
+                className="group relative flex items-center justify-between p-7 rounded-[2.5rem] bg-white/[0.04] border border-white/5 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300"
               >
-                <div className="flex items-center gap-8">
-                    <div className="w-14 h-14 rounded-2xl bg-black flex items-center justify-center border border-white/10 group-hover:bg-primary/20 transition-all">
-                        <span className="text-lg font-bold text-primary">{surah.id}</span>
+                <div className="flex items-center gap-10">
+                    <div className="w-16 h-16 rounded-2xl bg-black flex items-center justify-center border border-white/10 group-hover:bg-primary/20 transition-all">
+                        <span className="text-xl font-bold text-primary">{surah.id}</span>
                     </div>
                     <span className="text-3xl font-bold text-white font-arabic">{surah.name}</span>
                 </div>
-                <ChevronLeft className="w-6 h-6 text-white/5 group-hover:text-primary transition-colors" />
+                <ChevronLeft className="w-8 h-8 text-white/10 group-hover:text-primary transition-colors" />
               </button>
             ))}
           </div>
@@ -76,7 +74,7 @@ export function Shamrely() {
         <div className="fixed inset-0 z-[600] flex flex-col animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-black/98" />
           
-          <div className="relative h-full flex flex-col">
+          <div className="relative h-full flex flex-col overflow-hidden">
             <header className="h-20 shrink-0 flex items-center justify-between px-6 z-[610] bg-black/80 border-b border-white/5 backdrop-blur-xl">
               <button onClick={closeSurah} className="p-3 bg-white/5 rounded-2xl hover:bg-white/10"><X className="w-6 h-6 text-white" /></button>
               
@@ -96,14 +94,14 @@ export function Shamrely() {
                 {isLoading && (
                     <div className="sticky top-0 h-full w-full z-50 flex flex-col items-center justify-center bg-[#111]">
                         <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
-                        <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest">Streaming Shamrely HD...</p>
+                        <p className="text-white/20 text-[10px] font-bold tracking-widest">LOADING SHAMRELY IMAGE...</p>
                     </div>
                 )}
                 
                 <div className="w-full flex justify-center py-4 bg-[#111]">
                     <img 
                         key={currentPage}
-                        src={`${SHAMRELY_CDN}${currentPage}.png`}
+                        src={`${SHAMRELY_IMAGE_API}${currentPage}.png`}
                         className="w-full max-w-[1200px] h-auto object-contain shadow-2xl rounded-lg"
                         alt={`Shamrely Quran Page ${currentPage}`}
                         onLoad={() => setIsLoading(false)}
@@ -112,12 +110,12 @@ export function Shamrely() {
                 </div>
                 
                 {!isLoading && (
-                    <div className="fixed bottom-24 left-1/2 -translate-x-1/2 flex items-center gap-6 z-[620] bg-black/80 backdrop-blur-md px-8 py-4 rounded-full border border-white/5 shadow-2xl">
-                        <button onClick={prevPage} className="text-white hover:text-primary transition-colors"><ChevronRight className="w-8 h-8" /></button>
-                        <div className="h-5 w-px bg-white/10" />
-                        <span className="text-xs font-bold text-white/50">{currentPage} / 604</span>
-                        <div className="h-5 w-px bg-white/10" />
-                        <button onClick={nextPage} className="text-white hover:text-primary transition-colors"><ChevronLeft className="w-8 h-8" /></button>
+                    <div className="fixed bottom-24 left-1/2 -translate-x-1/2 flex items-center gap-8 z-[620] bg-black/70 backdrop-blur-md px-10 py-5 rounded-full border border-white/10 shadow-2xl">
+                        <button onClick={prevPage} className="text-white hover:text-primary transition-all"><ChevronRight className="w-8 h-8" /></button>
+                        <div className="h-6 w-px bg-white/10" />
+                        <span className="text-sm font-bold text-white/50">{currentPage} / 604</span>
+                        <div className="h-6 w-px bg-white/10" />
+                        <button onClick={nextPage} className="text-white hover:text-primary transition-all"><ChevronLeft className="w-8 h-8" /></button>
                     </div>
                 )}
             </div>
