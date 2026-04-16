@@ -102,8 +102,14 @@ export function DailyHub() {
     window.gtag?.('event', 'sibha_reset');
   };
 
+  const removeOrientationListeners = () => {
+    window.removeEventListener('deviceorientationabsolute', handleOrientation, true);
+    window.removeEventListener('deviceorientation', handleOrientationFallback, true);
+  };
+
   const requestQibla = useCallback(() => {
-    setQibla(prev => ({ ...prev, loading: true, error: null }));
+    removeOrientationListeners();
+    setQibla(prev => ({ ...prev, loading: true, error: null, heading: null, angle: null }));
     
     // Analytics: تتبع طلب القبلة
     // @ts-ignore
@@ -123,6 +129,7 @@ export function DailyHub() {
           })
           .catch(err => {
              console.error(err);
+             setQibla(prev => ({ ...prev, loading: false, error: "تعذر الوصول لصلاحية بوصلة الجهاز. حاول مرة أخرى." }));
              // @ts-ignore
              window.gtag?.('event', 'qibla_error', { 'type': 'permission_catch', 'msg': err.message });
           });
@@ -161,7 +168,7 @@ export function DailyHub() {
             // @ts-ignore
             window.gtag?.('event', 'qibla_error', { 'type': 'geolocation_denied' });
         },
-        { enableHighAccuracy: true }
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 10000 }
       );
     } else {
       setQibla(prev => ({ ...prev, loading: false, error: "جهازك لا يدعم تحديد الموقع." }));
