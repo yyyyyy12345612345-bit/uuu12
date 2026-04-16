@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 interface EditorState {
-  view: "video" | "mushaf" | "prayers" | "library" | "daily";
+  view: "video" | "mushaf" | "prayers" | "library" | "daily" | "shamrely";
   surahId: string;
   startAyah: number;
   endAyah: number;
