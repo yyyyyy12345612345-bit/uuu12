@@ -163,10 +163,10 @@ export function DailyHub() {
         <div 
           key={thikr.id} 
           onClick={() => handleThikrClick(thikr.id, thikr.count, type)}
-          className={`p-6 rounded-3xl border transition-all cursor-pointer relative overflow-hidden ${
+          className={`p-6 rounded-3xl border transition-all cursor-pointer relative overflow-hidden active:scale-[0.97] duration-300 ${
              isComplete 
               ? 'bg-primary/5 border-primary/20 scale-[0.98] opacity-70' 
-              : 'glass-effect border-white/5 hover:border-white/10 shadow-lg'
+              : 'glass-effect border-white/5 hover:border-white/20 shadow-xl'
           }`}
         >
           {isComplete && (
@@ -275,7 +275,7 @@ export function DailyHub() {
                      <div className="absolute inset-x-0 bottom-0 bg-primary/10 transition-all duration-300" style={{ height: `${(sibhaCount % 33 === 0 && sibhaCount > 0 && sibhaCount % 100 !== 0 ? 33 : sibhaCount % 33) / 33 * 100}%` }} />
                      
                      <div className="flex flex-col items-center gap-2">
-                        <span className="text-6xl md:text-7xl font-bold text-white tracking-wider drop-shadow-lg" style={{ direction: 'ltr' }}>{sibhaCount}</span>
+                        <span key={sibhaCount} className="text-6xl md:text-7xl font-bold text-white tracking-wider drop-shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all animate-reveal" style={{ direction: 'ltr' }}>{sibhaCount}</span>
                         <Fingerprint className="w-8 h-8 text-primary/50 mt-2" />
                      </div>
                   </div>

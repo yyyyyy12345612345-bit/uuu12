@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Video, BookOpen, Clock, Headphones } from "lucide-react";
+import { Video, BookOpen, Timer, Headphones, Calendar } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
 
 export function Navigation() {
@@ -9,9 +9,9 @@ export function Navigation() {
 
   const tabs = [
     { id: "mushaf" as const, label: "المصحف", icon: BookOpen },
-    { id: "daily" as const, label: "يومياتي", icon: Clock },
+    { id: "daily" as const, label: "يومياتي", icon: Calendar },
     { id: "library" as const, label: "المكتبة", icon: Headphones },
-    { id: "prayers" as const, label: "المواقيت", icon: Clock },
+    { id: "prayers" as const, label: "المواقيت", icon: Timer },
     { id: "video" as const, label: "صانع الفيديو", icon: Video },
   ];
 

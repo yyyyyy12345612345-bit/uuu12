@@ -271,11 +271,14 @@ export function AudioLibrary() {
 
           {/* Mobile Surah Button */}
           <button 
-              onClick={() => setIsSurahListOpen(true)}
-              className="lg:hidden flex items-center gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-white/60 hover:text-white transition-all active:scale-95 mb-6"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsSurahListOpen(true);
+              }}
+              className="lg:hidden flex items-center gap-3 px-6 py-3 bg-white/10 border border-white/20 rounded-2xl text-white font-bold hover:bg-white/20 transition-all active:scale-95 mb-6 z-[60] relative shadow-lg"
           >
-              <List className="w-4 h-4" />
-              <span className="text-sm font-bold font-arabic">اختر سورة أخرى</span>
+              <List className="w-4 h-4 text-primary" />
+              <span className="text-sm font-arabic">اختر سورة أخرى</span>
           </button>
 
           {/* Spinning Disc */}
@@ -322,21 +325,21 @@ export function AudioLibrary() {
             </div>
 
             {/* Playback Buttons */}
-            <div className="flex items-center gap-6 md:gap-10">
-                <button onClick={() => setIsRepeat(!isRepeat)} className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isRepeat ? 'text-primary bg-primary/10' : 'text-white/20 hover:text-white/40'}`}>
-                    <Repeat className="w-5 h-5" />
+            <div className="flex items-center gap-5 md:gap-8">
+                <button onClick={() => setIsRepeat(!isRepeat)} className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${isRepeat ? 'text-primary bg-primary/10' : 'text-white/20 hover:text-white/40'}`}>
+                    <Repeat className="w-4 h-4" />
                 </button>
-                <button onClick={prevSurah} className="w-12 h-12 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all active:scale-95">
-                    <SkipBack className="w-5 h-5" />
+                <button onClick={prevSurah} className="w-10 h-10 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all active:scale-95">
+                    <SkipBack className="w-4 h-4" />
                 </button>
-                <button onClick={togglePlay} className="w-20 h-20 rounded-full bg-primary text-black flex items-center justify-center shadow-[0_20px_60px_rgba(212,175,55,0.35)] hover:scale-105 active:scale-95 transition-all">
-                    {isPlaying ? <Pause className="w-8 h-8 fill-current" /> : <Play className="w-8 h-8 fill-current ml-1.5" />}
+                <button onClick={togglePlay} className="w-15 h-15 rounded-full bg-primary text-black flex items-center justify-center shadow-[0_15px_40px_rgba(212,175,55,0.3)] hover:scale-105 active:scale-95 transition-all">
+                    {isPlaying ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current ml-1" />}
                 </button>
-                <button onClick={nextSurah} className="w-12 h-12 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all active:scale-95">
-                    <SkipForward className="w-5 h-5" />
+                <button onClick={nextSurah} className="w-10 h-10 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all active:scale-95">
+                    <SkipForward className="w-4 h-4" />
                 </button>
-                <button onClick={() => setIsShuffle(!isShuffle)} className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isShuffle ? 'text-primary bg-primary/10' : 'text-white/20 hover:text-white/40'}`}>
-                    <Shuffle className="w-5 h-5" />
+                <button onClick={() => setIsShuffle(!isShuffle)} className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${isShuffle ? 'text-primary bg-primary/10' : 'text-white/20 hover:text-white/40'}`}>
+                    <Shuffle className="w-4 h-4" />
                 </button>
             </div>
 
