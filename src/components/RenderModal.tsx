@@ -96,19 +96,12 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         }
       }
 
-      const recorder = new MediaRecorder(stream, { 
-        mimeType: mimeType || undefined,
-        videoBitsPerSecond: 5000000 
-      });
-
-      const chunks: Blob[] = [];
-      recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
-      recorder.start(100);
-
       let bgImage: HTMLImageElement | null = null;
       let bgVideo: HTMLVideoElement | null = null;
       
-      const isVideo = state.backgroundUrl.includes(".mp4") || state.backgroundUrl.includes("video") || state.backgroundUrl.includes("pexels.com");
+      const isVideo = /\.(mp4|webm|mov|ogg|m4v|3gp|flv|avi)(\?.*|#.*)?$/i.test(state.backgroundUrl) || 
+                      state.backgroundUrl.includes("video") || 
+                      state.backgroundUrl.includes("vimeo.com/external");
 
       try { 
         if (isVideo) {
@@ -123,10 +116,16 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         console.error("Failed to load background", e);
       }
 
-      if (!isRenderingRef.current) {
-        recorder.stop();
-        return;
-      }
+      if (!isRenderingRef.current) return;
+
+      const recorder = new MediaRecorder(stream, { 
+        mimeType: mimeType || undefined,
+        videoBitsPerSecond: 5000000 
+      });
+
+      const chunks: Blob[] = [];
+      recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+      recorder.start(100);
 
       const verseAudios = [];
       setMessage("جاري تجهيز الآيات الصوتية...");
