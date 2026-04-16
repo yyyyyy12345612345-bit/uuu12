@@ -7,6 +7,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const nextConfig = {
   // CRITICAL: Standalone mode reduces the bundle size significantly
   output: "standalone",
+  outputFileTracingRoot: __dirname,
+  turbopack: {
+    root: __dirname,
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
