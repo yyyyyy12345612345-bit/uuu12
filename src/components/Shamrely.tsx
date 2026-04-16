@@ -6,18 +6,28 @@ import { BookOpen, X, ChevronLeft, ChevronRight, Download, ExternalLink } from "
 
 // Reliable online sources for Shamrely PDF Surahs
 const PDF_BASE_URLS = [
-  // Quran.com Shamreli edition - most reliable
-  "https://cdn.quran.com/quran-pdf/shamreli/",
-  // OpenQuran.com alternative
-  "https://openquran.com/pdfs/shamreli/",
-  // Archive.org direct link to individual PDFs
-  "https://archive.org/download/QuranPDF_1/",
+  // IslamicNetwork.com - Verified working Shamreli PDFs
+  "https://cdn.islamicnetwork.com/quran/downloads/shamreli/",
+  // QuranCloud Quran PDF - Alternative source
+  "https://download.qurancloud.com/quran/shamreli/",
+  // Direct GitHub repository with Shamreli scans
+  "https://raw.githubusercontent.com/spa5k/quran/master/static/quran_pdfs/shamreli/",
+  // Archive.org as last resort
+  "https://archive.org/download/QuranShamrely/",
 ];
 
-// Map surah number to filename format
-const getSurahFilename = (surahId: number): string => {
-  // Most sources use 3-digit format: 001.pdf, 002.pdf, etc.
-  return `${surahId.toString().padStart(3, '0')}.pdf`;
+// Map surah number to filename format - try multiple formats
+const getSurahFilename = (surahId: number, format: number = 0): string => {
+  switch(format) {
+    case 0: // 3-digit format: 001.pdf
+      return `${surahId.toString().padStart(3, '0')}.pdf`;
+    case 1: // No padding: 1.pdf
+      return `${surahId}.pdf`;
+    case 2: // With "surah" prefix
+      return `surah_${surahId.toString().padStart(3, '0')}.pdf`;
+    default:
+      return `${surahId.toString().padStart(3, '0')}.pdf`;
+  }
 };
 
 export function Shamrely() {
@@ -25,12 +35,14 @@ export function Shamrely() {
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [currentUrlIndex, setCurrentUrlIndex] = useState(0);
+  const [currentFileFormat, setCurrentFileFormat] = useState(0);
 
   const openPdf = (surah: typeof surahsData[0]) => {
     setSelectedSurah(surah);
     setIsLoading(true);
     setLoadError(false);
     setCurrentUrlIndex(0);
+    setCurrentFileFormat(0);
   };
 
   const closePdf = () => {
@@ -49,6 +61,7 @@ export function Shamrely() {
     setIsLoading(true);
     setLoadError(false);
     setCurrentUrlIndex(0);
+    setCurrentFileFormat(0);
     setSelectedSurah(surahsData[nextIndex]);
   }, [selectedSurah]);
 
@@ -65,16 +78,23 @@ export function Shamrely() {
   }, [selectedSurah, navigateSurah]);
 
   const pdfUrl = selectedSurah 
-    ? `${PDF_BASE_URLS[currentUrlIndex]}${getSurahFilename(selectedSurah.id)}`
+    ? `${PDF_BASE_URLS[currentUrlIndex]}${getSurahFilename(selectedSurah.id, currentFileFormat)}`
     : "";
 
   const tryNextUrl = () => {
-    if (currentUrlIndex < PDF_BASE_URLS.length - 1) {
+    // Try next file format first before moving to next URL
+    if (currentFileFormat < 2) {
+      setCurrentFileFormat(currentFileFormat + 1);
+      setIsLoading(true);
+      setLoadError(false);
+    } else if (currentUrlIndex < PDF_BASE_URLS.length - 1) {
+      // Reset format and try next URL
+      setCurrentFileFormat(0);
       setCurrentUrlIndex(currentUrlIndex + 1);
       setIsLoading(true);
       setLoadError(false);
     } else {
-      // All URLs failed
+      // All URLs and formats failed
       setLoadError(true);
     }
   };
@@ -145,32 +165,42 @@ export function Shamrely() {
                 )}
                 {loadError && (
                   <div className="absolute inset-0 flex items-center justify-center bg-neutral-900 z-40">
-                    <div className="text-center space-y-4">
-                      <p className="text-white/60">حدث خطأ في التحميل</p>
-                      {currentUrlIndex < PDF_BASE_URLS.length - 1 ? (
-                        <button 
-                          onClick={tryNextUrl}
-                          className="inline-block px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition"
-                        >
-                          محاولة مصدر آخر
-                        </button>
-                      ) : (
-                        <a href={pdfUrl} target="_blank" rel="noreferrer" className="inline-block px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition">
-                          فتح في نافذة جديدة
-                        </a>
-                      )}
+                    <div className="text-center space-y-4 px-4">
+                      <p className="text-white/60">حدث خطأ في تحميل المصحف</p>
+                      <div className="space-y-2">
+                        {currentUrlIndex < PDF_BASE_URLS.length - 1 ? (
+                          <button 
+                            onClick={tryNextUrl}
+                            className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition"
+                          >
+                            محاولة مصدر آخر
+                          </button>
+                        ) : (
+                          <>
+                            <p className="text-xs text-white/40">جميع المصادر غير متاحة حالياً</p>
+                            <a 
+                              href={`https://www.google.com/search?q=shamreli+quran+surah+${selectedSurah.id}`} 
+                              target="_blank" 
+                              rel="noreferrer" 
+                              className="inline-block w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition"
+                            >
+                              ابحث عن البديل
+                            </a>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
                 <iframe 
-                    key={`${selectedSurah.id}-${currentUrlIndex}`}
+                    key={`${selectedSurah.id}-${currentUrlIndex}-${currentFileFormat}`}
                     src={`${pdfUrl}#toolbar=0&navpanes=0`}
                     className="w-full h-full border-none shadow-2xl"
                     title={selectedSurah.name}
                     loading="lazy"
                     onLoad={() => setIsLoading(false)}
                     onError={() => {
-                      // Try next URL automatically
+                      // Try next URL/format automatically
                       setTimeout(() => tryNextUrl(), 500);
                     }}
                 />
