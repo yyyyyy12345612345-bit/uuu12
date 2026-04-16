@@ -250,26 +250,30 @@ export function AudioLibrary() {
 
              <div className="flex items-center gap-10 px-8 w-max">
 
-                {RECITERS.map((rec) => (
-                    <button 
-                      key={rec.id}
-                      onClick={() => {
-                         setSelectedReciter(rec);
-                         // Analytics: تتبع اختيار القارئ في المكتبة
-                         // @ts-ignore
-                         window.gtag?.('event', 'audio_library_reciter', { 'reciter_name': rec.name });
-                      }}
-                      className={`flex flex-col items-center gap-3 transition-all snap-center ${selectedReciter.id === rec.id ? 'scale-110 opacity-100' : 'opacity-30 hover:opacity-70'}`}
-                    >
-
-                        <div className={`w-14 h-14 rounded-full border-2 p-0.5 transition-all ${selectedReciter.id === rec.id ? 'border-primary' : 'border-transparent'}`}>
-                             <div className="w-full h-full rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
-                                <User className={`w-6 h-6 ${selectedReciter.id === rec.id ? 'text-primary' : 'text-white'}`} />
-                             </div>
-                        </div>
-                        <span className={`text-[9px] font-bold font-arabic transition-all text-center px-1 whitespace-nowrap ${selectedReciter.id === rec.id ? 'text-primary' : 'text-white/40'}`}>{rec.name}</span>
-                    </button>
-                ))}
+                {RECITERS.map((rec) => {
+                    const isActive = selectedReciter.id === rec.id;
+                    return (
+                        <button 
+                          key={rec.id}
+                          onClick={() => {
+                             setSelectedReciter(rec);
+                             // Analytics: تتبع اختيار القارئ في المكتبة
+                             // @ts-ignore
+                             window.gtag?.('event', 'audio_library_reciter', { 'reciter_name': rec.name });
+                          }}
+                          className={`flex flex-col items-center gap-3 transition-all snap-center ${isActive ? 'scale-110' : 'hover:scale-105'}`}
+                        >
+                            <div className={`w-16 h-16 rounded-full border-2 p-1 transition-all flex items-center justify-center ${isActive ? 'border-primary shadow-lg shadow-primary/20' : 'border-white/10 hover:border-white/30'}`}>
+                                 <div className={`w-full h-full rounded-full flex items-center justify-center overflow-hidden ${isActive ? 'bg-primary/20' : 'bg-white/5'}`}>
+                                    <User className={`w-7 h-7 ${isActive ? 'text-primary' : 'text-white/60'}`} />
+                                 </div>
+                            </div>
+                            <span className={`text-[12px] font-black font-arabic transition-all text-center px-1 whitespace-nowrap drop-shadow-md ${isActive ? 'text-primary' : 'text-white'}`}>
+                                {rec.name}
+                            </span>
+                        </button>
+                    );
+                })}
              </div>
         </div>
 
