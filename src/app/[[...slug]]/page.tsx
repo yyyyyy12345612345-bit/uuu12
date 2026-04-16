@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useEditor } from "@/store/useEditor";
 import { usePathname, useRouter } from "next/navigation";
 import { Download, Menu, X, MessageSquare } from "lucide-react";
@@ -63,7 +64,7 @@ export default function CatchAllPage({ params }: { params: { slug?: string[] } }
   return (
     <div className="fixed inset-0 bg-[#050505] text-white overflow-x-hidden overflow-y-hidden islamic-pattern font-arabic select-none flex flex-col w-full max-w-full">
       <header className="h-20 shrink-0 glass-effect border-b border-white/5 px-4 md:px-14 flex items-center justify-between z-[110] relative">
-        <div className="flex items-center gap-3 md:gap-5 group cursor-pointer" onClick={() => router.push("/")}>
+<Link href="/" className="flex items-center gap-3 md:gap-5 group">
           <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl overflow-hidden border border-primary/20 bg-primary/10 flex items-center justify-center transition-all group-hover:scale-110 shadow-lg shrink-0">
             <img src="/logo/logo.png?v=4" alt="Logo" className="w-full h-full object-cover" />
           </div>
@@ -71,7 +72,7 @@ export default function CatchAllPage({ params }: { params: { slug?: string[] } }
             <h1 className="text-lg md:text-xl font-bold tracking-tight text-white leading-none">قرآن</h1>
             <span className="hidden xs:block text-[10px] text-primary/60 font-bold uppercase tracking-[0.2em] mt-1">Premium PWA</span>
           </div>
-        </div>
+        </Link>
 
         <div className="flex items-center gap-3 md:gap-4">
           <PWAInstallButton />

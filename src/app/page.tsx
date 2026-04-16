@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect, memo } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useEditor } from "@/store/useEditor";
 
 const SurahSelector = dynamic(() => import("@/components/SurahSelector").then(mod => mod.SurahSelector), { ssr: false });
@@ -67,17 +68,16 @@ export default function Home() {
 
 
 
-        <div className="flex items-center gap-3 md:gap-5 group cursor-pointer">
-          <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl overflow-hidden border border-primary/20 bg-primary/10 flex items-center justify-center transition-all group-hover:scale-110 shadow-lg shrink-0">
-            <img src="/logo/logo.png?v=4" alt="Logo" className="w-full h-full object-cover" />
-          </div>
+<Link href="/" className="flex items-center gap-3 md:gap-5 group">
+            <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl overflow-hidden border border-primary/20 bg-primary/10 flex items-center justify-center transition-all group-hover:scale-110 shadow-lg shrink-0">
+              <img src="/logo/logo.png?v=4" alt="Logo" className="w-full h-full object-cover" />
+            </div>
 
-
-          <div className="flex flex-col">
-            <h1 className="text-lg md:text-xl font-bold tracking-tight text-white leading-none">قرآن</h1>
-            <span className="hidden xs:block text-[10px] text-primary/60 font-bold uppercase tracking-[0.2em] mt-1">Premium PWA</span>
-          </div>
-        </div>
+            <div className="flex flex-col">
+              <h1 className="text-lg md:text-xl font-bold tracking-tight text-white leading-none">قرآن</h1>
+              <span className="hidden xs:block text-[10px] text-primary/60 font-bold uppercase tracking-[0.2em] mt-1">Premium PWA</span>
+            </div>
+          </Link>
 
 
         <div className="flex items-center gap-3 md:gap-4">
