@@ -8,10 +8,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  // This is the CRITICAL fix for the 300MB limit issue
+  // We removed eslint block to fix the "unrecognized key" error
   serverExternalPackages: [
     "remotion",
     "@remotion/bundler",
