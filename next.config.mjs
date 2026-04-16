@@ -5,30 +5,20 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // CRITICAL: Standalone mode reduces the bundle size significantly
-  output: "standalone",
-  outputFileTracingRoot: __dirname,
-  turbopack: {
-    root: __dirname,
-  },
+  // We remove standalone and excludes to ensure ALL files are present
   typescript: {
     ignoreBuildErrors: true,
   },
-  serverExternalPackages: [
-    "remotion",
-    "@remotion/bundler",
-    "@remotion/renderer",
-    "@remotion/player",
-    "@remotion/next",
-    "@remotion/google-fonts",
-    "chromium",
-    "playwright"
-  ],
   experimental: {
     serverActions: {
       bodySizeLimit: "20mb",
     },
   },
+  serverExternalPackages: [
+    "remotion",
+    "@remotion/bundler",
+    "@remotion/renderer"
+  ],
   async headers() {
     return [
       {
