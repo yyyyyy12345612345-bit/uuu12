@@ -289,28 +289,39 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
       ctx.fillRect(0, 0, canvas.width, canvas.height);
   
       ctx.textAlign = "center";
-      ctx.fillStyle = state.textColor;
-      ctx.font = `${state.fontWeight} ${state.fontSize * 1.5}px serif`;
+      
+      // Add text shadow for clarity
+      ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetY = 4;
+
+      // Main Verse Text
+      ctx.fillStyle = state.textColor || "#ffffff";
+      ctx.font = `${state.fontWeight} ${state.fontSize * 1.8}px serif`;
       
       const lines = wrapText(ctx, verse.text, canvas.width - 120);
-      const lineHeight = state.fontSize * 1.8;
+      const lineHeight = state.fontSize * 2.0;
       const totalHeight = lines.length * lineHeight;
-      let startY = (canvas.height / 2) - (totalHeight / 4);
+      let startY = (canvas.height / 2) - (totalHeight / 3); // Slightly higher than center
   
       lines.forEach((l, idx) => {
         ctx.fillText(l, canvas.width / 2, startY + (idx * lineHeight));
       });
   
-      // Translation
-      ctx.fillStyle = "rgba(255,255,255,0.8)";
-      ctx.font = `500 32px serif`;
+      // Reset shadow for translation or keep it for better readability
+      ctx.shadowBlur = 5;
+
+      // Translation Text
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `500 42px serif`;
       const tLines = wrapText(ctx, verse.translation, canvas.width - 150);
       tLines.forEach((l, idx) => {
-        ctx.fillText(l, canvas.width / 2, startY + totalHeight + 80 + (idx * 45));
+        ctx.fillText(l, canvas.width / 2, startY + totalHeight + 100 + (idx * 55));
       });
   
       ctx.fillStyle = "rgba(212,175,55,1)";
-      ctx.font = "bold 35px serif";
+      ctx.font = "bold 40px serif";
+      ctx.shadowBlur = 0; // Disable shadow for ornament
       ctx.fillText(`﴿ ${verse.id} ﴾`, canvas.width/2, canvas.height - 150);
   };
 
