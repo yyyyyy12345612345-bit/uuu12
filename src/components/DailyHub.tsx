@@ -56,6 +56,12 @@ export function DailyHub() {
       const newProgress = { ...athkarProgress, [key]: current + 1 };
       setAthkarProgress(newProgress);
       localStorage.setItem("athkar_progress", JSON.stringify(newProgress));
+
+      // Analytics: تتبع الأذكار
+      if (current + 1 === maxCount) {
+        // @ts-ignore
+        window.gtag?.('event', 'thikr_complete', { 'thikr_type': type, 'thikr_id': thikrId });
+      }
     }
   };
 
@@ -63,12 +69,23 @@ export function DailyHub() {
     const newCount = pagesRead + 1;
     setPagesRead(newCount);
     localStorage.setItem("pages_read", newCount.toString());
+    
+    // Analytics: تتبع الورد اليومي
+    // @ts-ignore
+    window.gtag?.('event', 'daily_page_read', { 'total_pages': newCount });
   };
 
   const handleSibhaClick = () => {
     const newCount = sibhaCount + 1;
     setSibhaCount(newCount);
     localStorage.setItem("sibha_count", newCount.toString());
+    
+    // Analytics: تتبع السبحة (كل 33 تسبيحة مثلاً لتقليل عدد الطلبات)
+    if (newCount % 33 === 0) {
+        // @ts-ignore
+        window.gtag?.('event', 'sibha_milestone', { 'count': newCount });
+    }
+
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       navigator.vibrate(50); // Haptic feedback
     }
@@ -77,10 +94,16 @@ export function DailyHub() {
   const resetSibha = () => {
     setSibhaCount(0);
     localStorage.setItem("sibha_count", "0");
+    // @ts-ignore
+    window.gtag?.('event', 'sibha_reset');
   };
 
   const requestQibla = useCallback(() => {
     setQibla(prev => ({ ...prev, loading: true, error: null }));
+    
+    // Analytics: تتبع طلب القبلة
+    // @ts-ignore
+    window.gtag?.('event', 'qibla_request_start');
 
     const setupOrientation = (bearing: number) => {
       if (typeof (DeviceOrientationEvent as any) !== 'undefined' && typeof (DeviceOrientationEvent as any).requestPermission === 'function') {

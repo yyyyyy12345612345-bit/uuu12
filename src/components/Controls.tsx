@@ -56,6 +56,26 @@ export function Controls() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex p-1 bg-black/40 rounded-2xl border border-white/5 shadow-inner">
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    // Analytics: تتبع التبويبات
+    // @ts-ignore
+    window.gtag?.('event', 'tab_switch', { 'tab_name': tab });
+  };
+
+  const handleBgSelect = (item: PexelsMediaItem) => {
+    updateState({ backgroundUrl: item.src });
+    // Analytics: تتبع اختيار الخلفيات
+    // @ts-ignore
+    window.gtag?.('event', 'bg_select', { 
+        'bg_url': item.src,
+        'bg_type': item.type 
+    });
+  };
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex p-1 bg-black/40 rounded-2xl border border-white/5 shadow-inner">
         {[
           { id: "bg", label: "الخلفية" },
           { id: "reciter", label: "القاريء" },
@@ -63,7 +83,7 @@ export function Controls() {
         ].map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => handleTabChange(tab.id)}
             className={`flex-1 px-2 py-3 text-[10px] font-bold rounded-xl transition-all duration-300 ${activeTab === tab.id ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-white/40 hover:text-white/60'}`}
           >
             {tab.label}
@@ -80,13 +100,21 @@ export function Controls() {
             {/* Mode Switcher */}
             <div className="flex p-1 bg-black/30 rounded-xl border border-white/5 gap-1">
               <button
-                onClick={() => setBgMode("library")}
+                onClick={() => {
+                   setBgMode("library");
+                   // @ts-ignore
+                   window.gtag?.('event', 'bg_mode_switch', { 'mode': 'library' });
+                }}
                 className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all duration-300 ${bgMode === "library" ? "bg-primary text-black shadow shadow-primary/20" : "text-white/30 hover:text-white/60"}`}
               >
                 📚 المكتبة الثابتة
               </button>
               <button
-                onClick={() => setBgMode("search")}
+                onClick={() => {
+                   setBgMode("search");
+                   // @ts-ignore
+                   window.gtag?.('event', 'bg_mode_switch', { 'mode': 'search' });
+                }}
                 className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all duration-300 ${bgMode === "search" ? "bg-primary text-black shadow shadow-primary/20" : "text-white/30 hover:text-white/60"}`}
               >
                 🔍 بحث إضافي
@@ -104,7 +132,11 @@ export function Controls() {
                   className="flex-1 rounded-2xl border border-white/5 bg-black/40 px-5 py-3 text-sm text-white outline-none focus:border-primary/40 focus:ring-4 focus:ring-primary/5 transition-all shadow-inner"
                 />
                 <button
-                  onClick={() => setQuery(search || "islamic")}
+                  onClick={() => {
+                    setQuery(search || "islamic");
+                    // @ts-ignore
+                    window.gtag?.('event', 'bg_search', { 'query': search });
+                  }}
                   className="rounded-2xl bg-white/5 px-5 py-3 text-sm font-bold text-white hover:bg-primary/20 hover:text-primary transition-all border border-white/5"
                 >
                   بحث
@@ -130,7 +162,7 @@ export function Controls() {
                 {displayMedia.map((item, index) => (
                   <button
                     key={`${item.src}-${index}`}
-                    onClick={() => updateState({ backgroundUrl: item.src })}
+                    onClick={() => handleBgSelect(item)}
                     className={`relative aspect-[9/16] overflow-hidden rounded-[1.5rem] border-2 transition-all duration-500 group/item ${state.backgroundUrl === item.src ? 'border-primary shadow-[0_0_30px_rgba(212,175,55,0.2)] scale-[0.98]' : 'border-white/5 hover:border-white/20'}`}
                   >
                     {item.type === "video" ? (
@@ -169,16 +201,21 @@ export function Controls() {
 
 
         {activeTab === "reciter" && (
-          <div className="flex flex-col gap-3 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar animate-in fade-in slide-in-from-bottom-8 duration-700">
-            {RECITERS.map((reciter) => (
+          <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-8 duration-700 overflow-y-auto max-h-[450px] pr-2 custom-scrollbar">
+            {RECITERS.map((r) => (
               <button
-                key={reciter.id}
-                onClick={() => updateState({ reciterId: reciter.id })}
-                className={`w-full rounded-2xl border p-5 text-right transition-all duration-500 group/rec ${state.reciterId === reciter.id ? 'border-primary bg-primary/5 text-primary shadow-[0_0_20px_rgba(212,175,55,0.1)]' : 'border-white/5 bg-white/[0.01] text-white/40 hover:bg-white/[0.03] hover:text-white/80'}`}
+                key={r.id}
+                onClick={() => {
+                   updateState({ reciterId: r.id });
+                   // Analytics: تتبع اختيار القارئ
+                   // @ts-ignore
+                   window.gtag?.('event', 'reciter_select', { 'reciter_name': r.name, 'reciter_id': r.id });
+                }}
+                className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all duration-300 group/reciter ${state.reciterId === r.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-black/40 border-white/5 hover:border-white/20'}`}
               >
-                <div className="flex items-center justify-between">
-                   <div className={`w-2 h-2 rounded-full transition-all ${state.reciterId === reciter.id ? 'bg-primary scale-125' : 'bg-white/10 group-hover/rec:bg-white/30'}`} />
-                   <span className="text-sm font-bold font-arabic">{reciter.name}</span>
+                <div className="flex items-center gap-3">
+                   <div className={`w-2 h-2 rounded-full transition-all ${state.reciterId === r.id ? 'bg-primary scale-125' : 'bg-white/10 group-hover/reciter:bg-white/30'}`} />
+                   <span className={`text-sm font-bold font-arabic ${state.reciterId === r.id ? 'text-white' : 'text-white/60'}`}>{r.name}</span>
                 </div>
               </button>
             ))}
@@ -197,7 +234,12 @@ export function Controls() {
                 ].map((color) => (
                   <button
                     key={color}
-                    onClick={() => updateState({ textColor: color })}
+                    onClick={() => {
+                       updateState({ textColor: color });
+                       // Analytics: تتبع الألوان
+                       // @ts-ignore
+                       window.gtag?.('event', 'color_select', { 'color_hex': color });
+                    }}
                     style={{ backgroundColor: color }}
                     className={`h-10 w-10 rounded-full border-2 transition-all duration-500 ${state.textColor === color ? 'border-white scale-110 ring-8 ring-primary/10 shadow-lg shadow-black/40' : 'border-white/10 hover:scale-110'}`}
                   />
@@ -206,52 +248,66 @@ export function Controls() {
                   <input
                     type="color"
                     value={state.textColor}
-                    onChange={(e) => updateState({ textColor: e.target.value })}
+                    onChange={(e) => {
+                       updateState({ textColor: e.target.value });
+                       // Analytics: تتبع اختيار لون مخصص
+                       // @ts-ignore
+                       window.gtag?.('event', 'color_custom', { 'color_hex': e.target.value });
+                    }}
                     className="h-10 w-10 rounded-full border-2 border-white/10 bg-transparent cursor-pointer overflow-hidden opacity-0 absolute inset-0 z-10"
                   />
                   <div 
                     className="h-10 w-10 rounded-full border-2 border-white/20 flex items-center justify-center text-xs font-bold transition-all group-hover/cp:scale-110 shadow-lg"
-                    style={{ background: 'conic-gradient(from 45deg, #ff0000, #ff00ff, #0000ff, #00ffff, #00ff00, #ffff00, #ff0000)' }}
+                    style={{ backgroundColor: state.textColor }}
                   >
-                    <span className="text-white drop-shadow-md">+</span>
+                    🎨
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col gap-5 p-6 rounded-3xl bg-black/40 border border-white/5 shadow-inner">
-              <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.2em] text-primary/60">
-                <span>حجم النص</span>
-                <span className="text-white px-3 py-1 bg-white/5 rounded-full border border-white/10">{state.fontSize}PX</span>
+            <div className="space-y-8 px-1">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center bg-white/[0.02] p-3 rounded-xl border border-white/5">
+                  <span className="text-[11px] font-bold text-white/50 uppercase tracking-widest">حجم الخط</span>
+                  <span className="text-sm font-black text-primary font-mono">{state.fontSize}px</span>
+                </div>
+                <input
+                  type="range"
+                  min="24"
+                  max="72"
+                  value={state.fontSize}
+                  onChange={(e) => {
+                     updateState({ fontSize: Number(e.target.value) });
+                  }}
+                  onMouseUp={(e: any) => {
+                     // @ts-ignore
+                     window.gtag?.('event', 'font_size_change', { 'size': Number(e.target.value) });
+                  }}
+                  className="w-full h-1.5 bg-white/5 rounded-full appearance-none cursor-pointer accent-primary hover:accent-primary/80 transition-all"
+                />
               </div>
-              <input
-                type="range"
-                min="5"
-                max="120"
-                value={state.fontSize}
-                onChange={(e) => updateState({ fontSize: parseInt(e.target.value, 10) })}
-                className="w-full accent-primary h-1.5 rounded-full appearance-none bg-white/5 cursor-pointer"
-              />
-            </div>
 
-            <div className="flex flex-col gap-5 p-6 rounded-3xl bg-black/40 border border-white/5 shadow-inner">
-              <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.2em] text-primary/60">
-                <span>سمك الخط</span>
-                <span className="text-white px-3 py-1 bg-white/5 rounded-full border border-white/10">{state.fontWeight}</span>
-              </div>
-              <input
-                type="range"
-                min="100"
-                max="900"
-                step="100"
-                value={state.fontWeight}
-                onChange={(e) => updateState({ fontWeight: parseInt(e.target.value, 10) })}
-                className="w-full accent-primary h-1.5 rounded-full appearance-none bg-white/5 cursor-pointer"
-              />
-              <div className="flex items-center justify-between text-[9px] text-white/20 font-bold">
-                <span>رفيع</span>
-                <span>عادي</span>
-                <span>سميك</span>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center bg-white/[0.02] p-3 rounded-xl border border-white/5">
+                  <span className="text-[11px] font-bold text-white/50 uppercase tracking-widest">سُمك الخط</span>
+                  <span className="text-sm font-black text-primary font-mono">{state.fontWeight}</span>
+                </div>
+                <div className="flex gap-2">
+                   {[300, 400, 500, 600, 700, 800].map(weight => (
+                     <button
+                        key={weight}
+                        onClick={() => {
+                           updateState({ fontWeight: weight });
+                           // @ts-ignore
+                           window.gtag?.('event', 'font_weight_change', { 'weight': weight });
+                        }}
+                        className={`flex-1 py-3 rounded-xl border-2 transition-all font-bold text-xs ${state.fontWeight === weight ? 'bg-primary/10 border-primary text-primary' : 'bg-black/40 border-white/5 text-white/30 hover:bg-white/5'}`}
+                     >
+                        {weight === 400 ? 'عادي' : weight === 700 ? 'عريض' : weight}
+                     </button>
+                   ))}
+                </div>
               </div>
             </div>
           </div>
