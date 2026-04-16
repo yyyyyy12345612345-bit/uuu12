@@ -60,7 +60,7 @@ export default function Home() {
 
 
           <div className="flex flex-col">
-            <h1 className="text-lg md:text-xl font-bold tracking-tight text-white leading-none">قرآن كريم</h1>
+            <h1 className="text-lg md:text-xl font-bold tracking-tight text-white leading-none">قرآن</h1>
             <span className="hidden xs:block text-[10px] text-primary/60 font-bold uppercase tracking-[0.2em] mt-1">Premium PWA</span>
           </div>
         </div>
