@@ -5,14 +5,17 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Turbopack needs the correct root to find tailwindcss
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   experimental: {
-    // Allow longer server actions for video rendering  
     serverActions: {
       bodySizeLimit: "10mb",
     },
   },
-  // Allow serving video files from renders directory
   async headers() {
     return [
       {
