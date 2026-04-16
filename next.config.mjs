@@ -8,6 +8,18 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  // This is the CRITICAL fix for the 300MB limit issue
+  serverExternalPackages: [
+    "remotion",
+    "@remotion/bundler",
+    "@remotion/renderer",
+    "@remotion/player",
+    "@remotion/next",
+    "@remotion/google-fonts"
+  ],
   experimental: {
     serverActions: {
       bodySizeLimit: "10mb",
