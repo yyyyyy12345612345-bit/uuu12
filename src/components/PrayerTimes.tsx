@@ -252,12 +252,12 @@ export function PrayerTimes() {
         </div>
 
         {/* Main Countdown Card */}
-        <div className="premium-card p-12 flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-br from-primary/[0.03] to-secondary/[0.03]">
+        <div className="premium-card p-8 md:p-12 flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-br from-primary/[0.03] to-secondary/[0.03]">
              <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
              {nextPrayer ? (
                 <>
                     <p className="text-primary text-[10px] font-bold uppercase tracking-[0.4em] mb-4 drop-shadow-sm">الصلاة القادمة: {nextPrayer.name}</p>
-                    <p className="text-white text-6xl md:text-8xl font-mono font-bold tracking-widest gold-shimmer-pro leading-none">
+                    <p className="text-white text-3xl md:text-8xl font-mono font-bold tracking-widest gold-shimmer-pro leading-none">
                       -{nextPrayer.remaining}
                     </p>
                     <div className="mt-8 flex items-center gap-3 glass-effect px-6 py-2 rounded-full border-white/10 shadow-lg">
