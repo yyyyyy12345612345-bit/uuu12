@@ -19,6 +19,7 @@ const DailyHub = dynamic(() => import("@/components/DailyHub").then(mod => mod.D
 const Navigation = dynamic(() => import("@/components/Navigation").then(mod => mod.Navigation), { ssr: false });
 const PWAInstallButton = dynamic(() => import("@/components/PWAInstallButton").then(mod => mod.PWAInstallButton), { ssr: false });
 const FeedbackModal = dynamic(() => import("@/components/FeedbackModal").then(mod => mod.FeedbackModal), { ssr: false });
+const Shamrely = dynamic(() => import("@/components/Shamrely").then(mod => mod.Shamrely), { ssr: false });
 
 export default function CatchAllPage({ params }: { params: { slug?: string[] } }) {
   const { state, updateState } = useEditor();
@@ -32,7 +33,7 @@ export default function CatchAllPage({ params }: { params: { slug?: string[] } }
   // Sync URL to State
   useEffect(() => {
     const slug = params.slug?.[0] || "video";
-    if (["mushaf", "library", "daily", "prayers", "video"].includes(slug)) {
+    if (["mushaf", "library", "daily", "prayers", "video", "shamrely"].includes(slug)) {
       updateState({ view: slug as any });
     }
   }, [params.slug, updateState]);
@@ -127,6 +128,7 @@ export default function CatchAllPage({ params }: { params: { slug?: string[] } }
           {state.view === "library" && <div className="h-full w-full animate-premium-in"><AudioLibrary /></div>}
           {state.view === "prayers" && <div className="h-full w-full animate-premium-in"><PrayerTimes /></div>}
           {state.view === "daily" && <div className="h-full w-full animate-premium-in"><DailyHub /></div>}
+          {state.view === "shamrely" && <div className="h-full w-full animate-premium-in"><Shamrely /></div>}
         </div>
       </main>
 

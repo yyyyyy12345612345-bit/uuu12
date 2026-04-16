@@ -16,6 +16,7 @@ const DailyHub = dynamic(() => import("@/components/DailyHub").then(mod => mod.D
 const Navigation = dynamic(() => import("@/components/Navigation").then(mod => mod.Navigation), { ssr: false });
 const PWAInstallButton = dynamic(() => import("@/components/PWAInstallButton").then(mod => mod.PWAInstallButton), { ssr: false });
 const FeedbackModal = dynamic(() => import("@/components/FeedbackModal").then(mod => mod.FeedbackModal), { ssr: false });
+const Shamrely = dynamic(() => import("@/components/Shamrely").then(mod => mod.Shamrely), { ssr: false });
 
 import { Download, Menu, X, MessageSquare } from "lucide-react";
 
@@ -32,7 +33,7 @@ export default function Home() {
   // Sync URL to state on load
   useEffect(() => {
     const view = pathname.split('/').pop() || 'video';
-    if (['mushaf', 'library', 'daily', 'prayers', 'video'].includes(view)) {
+    if (['mushaf', 'library', 'daily', 'prayers', 'video', 'shamrely'].includes(view)) {
       updateState({ view: view as any });
     }
   }, [pathname, updateState]);
@@ -207,6 +208,12 @@ export default function Home() {
           {state.view === "daily" && (
             <div className="h-full w-full animate-premium-in pb-0">
               <DailyHub />
+            </div>
+          )}
+
+          {state.view === "shamrely" && (
+            <div className="h-full w-full animate-premium-in pb-0">
+              <Shamrely />
             </div>
           )}
 
