@@ -48,7 +48,7 @@ export function DailyHub() {
     }
   }, []);
 
-  const handleThikrClick = (thikrId: number, maxCount: number, type: "morning" | "evening" | "sleep") => {
+  const handleThikrClick = (thikrId: number, maxCount: number, type: any) => {
     const key = `${type}_${thikrId}`;
     const current = athkarProgress[key] || 0;
     
@@ -153,7 +153,7 @@ export function DailyHub() {
   }, []);
 
 
-  const renderAthkarList = (type: "morning" | "evening" | "sleep") => {
+  const renderAthkarList = (type: any) => {
     return ATHKAR[type].map((thikr) => {
       const key = `${type}_${thikr.id}`;
       const current = athkarProgress[key] || 0;
@@ -299,7 +299,7 @@ export function DailyHub() {
 
          {activeTab === "sleep" && (
             <div className="grid grid-cols-1 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-               {renderAthkarList("sleep")}
+                {renderAthkarList("sleep" as any)}
             </div>
          )}
 
