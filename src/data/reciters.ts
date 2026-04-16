@@ -46,7 +46,7 @@ export const RECITERS: Reciter[] = [
   { 
     id: "menshawi_j", 
     name: "المنشاوي (مجود)", 
-    everyAyahServer: "Minshawy_Mujawwad_128kbps", 
+    everyAyahServer: "Minshawy_Mujawwad_64kbps", 
     mp3quranServer: "server10.mp3quran.net/minsh/Almusshaf-Al-Mojawwad",
     fullSurahPath: "muhammad_siddeeq_al-minshaawee_mujawwad" 
   },
@@ -116,8 +116,8 @@ export const RECITERS: Reciter[] = [
   { 
     id: "hassan_saleh", 
     name: "حسن صالح", 
-    everyAyahServer: "Fares_Abbad_64kbps", 
+    everyAyahServer: "Hassan_Saleh_128kbps", 
     mp3quranServer: "server16.mp3quran.net/h_saleh/Rewayat-Hafs-A-n-Assem",
-    fullSurahPath: "fares_abbad" 
+    fullSurahPath: "h_saleh/Rewayat-Hafs-A-n-Assem" 
   },
 ];
