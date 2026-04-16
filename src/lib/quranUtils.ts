@@ -11,12 +11,15 @@ export const getAudioUrl = (surahId: number, ayahId: number, reciterId: string) 
   const sId = pad(surahId, 3);
   const aId = pad(ayahId, 3);
 
-  // Smart Routing based on the Sheikh
-  if (reciter.serverType === "mp3quran_verse") {
-    // Sources like Haitham Al-Dukhin & Hassan Saleh from mp3quran server
+  // Intelligent Fallback Routing
+  if (reciter.serverType === "qurancdn") {
+    // Top-tier server (Quran.com) for Shaikhs like Haitham & Hassan Saleh
+    return `https://audio.qurancdn.com/${reciter.folder}/${sId}${aId}.mp3`;
+  } else if (reciter.serverType === "mp3quran_verse") {
+    // Secondary verse server
     return `https://verse.mp3quran.net/arabic/${reciter.folder}/${sId}${aId}.mp3`;
   } else {
-    // Famous reciters from the stable EveryAyah server
+    // Standard Stable Server (EveryAyah)
     return `https://www.everyayah.com/data/${reciter.folder}/${sId}${aId}.mp3`;
   }
 };
