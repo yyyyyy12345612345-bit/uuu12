@@ -46,7 +46,7 @@ export const RECITERS: Reciter[] = [
   { 
     id: "menshawi_j", 
     name: "المنشاوي (مجود)", 
-    everyAyahServer: "Minshawy_Mujawwad_64kbps", 
+    everyAyahServer: "Minshawy_Mujawwad_128kbps", 
     mp3quranServer: "server10.mp3quran.net/minsh/Almusshaf-Al-Mojawwad",
     fullSurahPath: "muhammad_siddeeq_al-minshaawee_mujawwad" 
   },
