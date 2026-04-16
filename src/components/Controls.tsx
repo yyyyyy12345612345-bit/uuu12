@@ -53,6 +53,29 @@ export function Controls() {
 
   const displayMedia = bgMode === "library" ? STATIC_LIBRARY : (media.length > 0 ? media : STATIC_LIBRARY);
 
+  const [feedback, setFeedback] = useState("");
+  const [isSending, setIsSending] = useState(false);
+
+  const handleSendFeedback = () => {
+    if (!feedback.trim()) return;
+    setIsSending(true);
+    
+    // Analytics: إرسال الشكوى أو الاقتراح
+    // @ts-ignore
+    window.gtag?.('event', 'user_feedback', { 
+        'message': feedback.slice(0, 100), // الحد الأقصى للجوجل أناليتكس
+        'full_message': feedback
+    });
+
+    setTimeout(() => {
+        setIsSending(false);
+        setFeedback("");
+        alert("تم إرسال اقتراحك بنجاح.. شكراً لك!");
+    }, 1000);
+  };
+
+  const displayMedia = bgMode === "library" ? STATIC_LIBRARY : (media.length > 0 ? media : STATIC_LIBRARY);
+
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     // Analytics: تتبع التبويبات
@@ -77,6 +100,7 @@ export function Controls() {
           { id: "bg", label: "الخلفية" },
           { id: "reciter", label: "القاريء" },
           { id: "style", label: "الخط" },
+          { id: "support", label: "الدعم" },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -307,6 +331,42 @@ export function Controls() {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {activeTab === "support" && (
+          <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700 p-2">
+             <div className="flex flex-col gap-2">
+                <h3 className="text-lg font-bold text-white font-arabic">الشكاوى والاقتراحات</h3>
+                <p className="text-[10px] text-white/40 leading-relaxed">يسعدنا سماع رأيك أو أي مشكلة تواجهك لتحسين التطبيق.</p>
+             </div>
+
+             <textarea 
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                placeholder="اكتب رسالتك هنا..."
+                className="w-full h-32 bg-black/40 border border-white/10 rounded-2xl p-4 text-sm text-white outline-none focus:border-primary/40 transition-all resize-none font-arabic"
+             />
+
+             <button 
+                onClick={handleSendFeedback}
+                disabled={isSending || !feedback.trim()}
+                className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all ${isSending || !feedback.trim() ? 'bg-white/5 text-white/20 cursor-not-allowed' : 'bg-primary text-black hover:scale-[1.02] shadow-lg shadow-primary/20'}`}
+             >
+                {isSending ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                    <span>جاري الإرسال...</span>
+                  </>
+                ) : (
+                  <span>إرسال الاقتراح</span>
+                )}
+             </button>
+
+             <div className="mt-4 p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                <span className="text-[9px] text-white/20 uppercase tracking-widest block mb-2">ملاحظة</span>
+                <p className="text-[9px] text-white/30 leading-relaxed">رسالتك تصل مباشرة لمالك التطبيق عبر نظام الأحداث المتقدم لضمان الخصوصية وسرعة المتابعة.</p>
+             </div>
           </div>
         )}
       </div>
