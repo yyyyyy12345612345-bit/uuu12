@@ -6,6 +6,12 @@ const ASSETS_TO_CACHE = [
   '/icons/icon-512x512.png',
 ];
 
+// Generate list of 114 Surah PDF paths
+const SURAHS_PDFS = Array.from({ length: 114 }, (_, i) => {
+    const id = (i + 1).toString().padStart(3, '0');
+    return `/pdf/${id}.pdf`;
+});
+
 // Install Event: Cache Static Assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -17,29 +23,36 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate Event: Clean up old caches
+// Activate Event: Clean up old caches and cache ALL Surahs in background
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
+      return Promise.all([
+        // Delete old caches
+        ...cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
             return caches.delete(cacheName);
           }
+        }),
+        // Cache All PDFs in background
+        caches.open(CACHE_NAME).then((cache) => {
+            console.log('Pre-caching all 114 Surahs for offline use...');
+            return cache.addAll(SURAHS_PDFS);
         })
-      );
+      ]);
     })
   );
   self.clients.claim();
 });
 
-// Fetch Event: Cache Audio and External Assets on the fly
+// Fetch Event: Cache Audio, PDF and External Assets on the fly
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Strategy for Audio and Media (Cache First)
+  // Strategy for Media and Documents (Cache First)
   if (
+    url.href.includes('.pdf') || // Added PDF support
     url.href.includes('.mp3') || 
     url.href.includes('.wav') || 
     url.href.includes('.mp4') ||
@@ -56,7 +69,7 @@ self.addEventListener('fetch', (event) => {
         if (cachedResponse) return cachedResponse;
         
         return fetch(request).then((networkResponse) => {
-          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic' && networkResponse.type !== 'cors') {
+          if (!networkResponse || networkResponse.status !== 200) {
             return networkResponse;
           }
 

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import surahsData from "@/data/surahs.json";
-import { BookOpen, X, ChevronLeft, Download, ExternalLink } from "lucide-react";
+import { BookOpen, X, ChevronLeft, ChevronRight, Download, ExternalLink } from "lucide-react";
 
 export function Shamrely() {
   const [selectedSurah, setSelectedSurah] = useState<typeof surahsData[0] | null>(null);
@@ -14,6 +14,32 @@ export function Shamrely() {
   const closePdf = () => {
     setSelectedSurah(null);
   };
+
+  const navigateSurah = useCallback((direction: 'next' | 'prev') => {
+    if (!selectedSurah) return;
+    
+    const currentIndex = surahsData.findIndex(s => s.id === selectedSurah.id);
+    let nextIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+
+    // Loop around
+    if (nextIndex >= surahsData.length) nextIndex = 0;
+    if (nextIndex < 0) nextIndex = surahsData.length - 1;
+
+    setSelectedSurah(surahsData[nextIndex]);
+  }, [selectedSurah]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!selectedSurah) return;
+      if (e.key === "ArrowRight") navigateSurah('prev');
+      if (e.key === "ArrowLeft") navigateSurah('next');
+      if (e.key === "Escape") closePdf();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedSurah, navigateSurah]);
 
   return (
     <div className="h-full flex flex-col bg-[#050505] relative overflow-hidden">
@@ -36,7 +62,6 @@ export function Shamrely() {
                 onClick={() => openPdf(surah)}
                 className="group relative flex items-center justify-between p-6 rounded-3xl bg-white/[0.03] border border-white/5 hover:border-primary/40 hover:bg-white/[0.06] transition-all duration-500 text-right overflow-hidden shadow-xl"
               >
-                {/* Number Badge */}
                 <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:bg-primary/20 transition-colors">
                         <span className="text-xs font-bold text-primary">{surah.id}</span>
@@ -51,7 +76,6 @@ export function Shamrely() {
                     <ChevronLeft className="w-5 h-5 text-primary" />
                 </div>
 
-                {/* Shimmer Effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent -translate-x-full group-hover:animate-shimmer" />
               </button>
             ))}
@@ -62,31 +86,49 @@ export function Shamrely() {
       {/* PDF Viewer Modal */}
       {selectedSurah && (
         <div className="fixed inset-0 z-[200] flex flex-col animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={closePdf} />
+          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" />
           
           <div className="relative h-full flex flex-col">
             {/* Header */}
-            <div className="h-20 shrink-0 flex items-center justify-between px-6 md:px-10 border-b border-white/10 glass-effect">
-              <div className="flex items-center gap-4">
+            <div className="h-20 shrink-0 flex items-center justify-between px-6 md:px-10 border-b border-white/10 glass-effect z-50">
+              <div className="flex items-center gap-2 md:gap-6">
                 <button 
                   onClick={closePdf} 
                   className="p-3 bg-white/5 rounded-2xl hover:bg-white/10 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
-                <div className="flex flex-col">
-                  <h3 className="text-xl font-bold text-white font-arabic">سورة {selectedSurah.name}</h3>
-                  <span className="text-[10px] text-primary/60 font-bold uppercase">Shamrely Edition</span>
+                
+                <div className="h-8 w-px bg-white/10 hidden md:block" />
+
+                <div className="flex items-center gap-2">
+                    <button 
+                        onClick={() => navigateSurah('prev')}
+                        className="p-2.5 bg-white/5 rounded-xl hover:bg-primary/20 hover:text-primary transition-all"
+                    >
+                        <ChevronRight className="w-5 h-5" />
+                    </button>
+                    <div className="flex flex-col items-center min-w-[100px]">
+                        <h3 className="text-lg md:text-xl font-bold text-white font-arabic">سورة {selectedSurah.name}</h3>
+                        <span className="text-[8px] md:text-[10px] text-primary/60 font-bold uppercase">Surah {selectedSurah.id}</span>
+                    </div>
+                    <button 
+                        onClick={() => navigateSurah('next')}
+                        className="p-2.5 bg-white/5 rounded-xl hover:bg-primary/20 hover:text-primary transition-all"
+                    >
+                        <ChevronLeft className="w-5 h-5" />
+                    </button>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="hidden sm:flex items-center gap-3">
                 <a
                   href={`/pdf/${selectedSurah.id.toString().padStart(3, '0')}.pdf`}
                   download
-                  className="p-3 bg-primary/10 text-primary rounded-2xl border border-primary/20 hover:bg-primary/20 transition-all"
+                  className="p-3 bg-primary/10 text-primary rounded-2xl border border-primary/20 hover:bg-primary/20 transition-all font-bold text-xs flex items-center gap-2"
                 >
-                  <Download className="w-5 h-5" />
+                  <Download className="w-4 h-4" />
+                  تحميل
                 </a>
                 <a
                   href={`/pdf/${selectedSurah.id.toString().padStart(3, '0')}.pdf`}
@@ -100,9 +142,24 @@ export function Shamrely() {
             </div>
 
             {/* Viewer */}
-            <div className="flex-1 bg-neutral-900 overflow-hidden">
+            <div className="flex-1 bg-neutral-900 overflow-hidden relative group/viewer">
+                <button 
+                    onClick={() => navigateSurah('prev')}
+                    className="absolute right-0 top-0 bottom-0 w-20 z-10 bg-gradient-to-l from-black/50 to-transparent opacity-0 group-hover/viewer:opacity-100 transition-opacity flex items-center justify-center text-white/20 hover:text-primary"
+                >
+                    <ChevronRight className="w-10 h-10" />
+                </button>
+                
+                <button 
+                    onClick={() => navigateSurah('next')}
+                    className="absolute left-0 top-0 bottom-0 w-20 z-10 bg-gradient-to-r from-black/50 to-transparent opacity-0 group-hover/viewer:opacity-100 transition-opacity flex items-center justify-center text-white/20 hover:text-primary"
+                >
+                    <ChevronLeft className="w-10 h-10" />
+                </button>
+
                 <iframe 
-                    src={`/pdf/${selectedSurah.id.toString().padStart(3, '0')}.pdf#toolbar=0&navpanes=0&scrollbar=0`}
+                    key={selectedSurah.id}
+                    src={`/pdf/${selectedSurah.id.toString().padStart(3, '0')}.pdf#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
                     className="w-full h-full border-none"
                     title={selectedSurah.name}
                 />
