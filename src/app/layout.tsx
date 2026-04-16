@@ -68,6 +68,8 @@ export const viewport: Viewport = {
 import { EditorProvider } from "@/store/useEditor";
 import Script from "next/script";
 
+const GA_ID = "G-M167S42G7X";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -80,6 +82,21 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       style={{ overflowX: 'hidden', width: '100vw' }}
     >
+      <head>
+        {/* Google Analytics */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_ID}');
+          `}
+        </Script>
+      </head>
       <body 
         className="h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground"
         style={{ overflowX: 'clip', width: '100%', maxWidth: '100%', touchAction: 'pan-y' }}
