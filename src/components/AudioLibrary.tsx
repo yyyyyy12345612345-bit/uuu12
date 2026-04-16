@@ -310,7 +310,7 @@ export function AudioLibrary() {
         </div>
 
         {/* ─ Fixed Controls Bar (always visible above nav) ─ */}
-        <div className="shrink-0 w-full bg-[#050505]/80 backdrop-blur-xl border-t border-white/5 px-6 pt-4 pb-28 flex flex-col items-center gap-4">
+        <div className="shrink-0 w-full bg-[#050505]/80 backdrop-blur-xl border-t border-white/5 px-6 pt-2 pb-28 flex flex-col items-center gap-2">
 
             {/* Progress Bar */}
             <div className="w-full max-w-xl space-y-2">
@@ -325,21 +325,21 @@ export function AudioLibrary() {
             </div>
 
             {/* Playback Buttons */}
-            <div className="flex items-center gap-5 md:gap-8">
-                <button onClick={() => setIsRepeat(!isRepeat)} className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${isRepeat ? 'text-primary bg-primary/10' : 'text-white/20 hover:text-white/40'}`}>
-                    <Repeat className="w-4 h-4" />
+            <div className="flex items-center gap-4 md:gap-6">
+                <button onClick={() => setIsRepeat(!isRepeat)} className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${isRepeat ? 'text-primary bg-primary/10' : 'text-white/20 hover:text-white/40'}`}>
+                    <Repeat className="w-3.5 h-3.5" />
                 </button>
-                <button onClick={prevSurah} className="w-10 h-10 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all active:scale-95">
-                    <SkipBack className="w-4 h-4" />
+                <button onClick={prevSurah} className="w-8 h-8 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all active:scale-95">
+                    <SkipBack className="w-3.5 h-3.5" />
                 </button>
-                <button onClick={togglePlay} className="w-15 h-15 rounded-full bg-primary text-black flex items-center justify-center shadow-[0_15px_40px_rgba(212,175,55,0.3)] hover:scale-105 active:scale-95 transition-all">
-                    {isPlaying ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current ml-1" />}
+                <button onClick={togglePlay} className="w-12 h-12 rounded-full bg-primary text-black flex items-center justify-center shadow-[0_10px_30px_rgba(212,175,55,0.25)] hover:scale-105 active:scale-95 transition-all">
+                    {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
                 </button>
-                <button onClick={nextSurah} className="w-10 h-10 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all active:scale-95">
-                    <SkipForward className="w-4 h-4" />
+                <button onClick={nextSurah} className="w-8 h-8 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all active:scale-95">
+                    <SkipForward className="w-3.5 h-3.5" />
                 </button>
-                <button onClick={() => setIsShuffle(!isShuffle)} className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${isShuffle ? 'text-primary bg-primary/10' : 'text-white/20 hover:text-white/40'}`}>
-                    <Shuffle className="w-4 h-4" />
+                <button onClick={() => setIsShuffle(!isShuffle)} className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${isShuffle ? 'text-primary bg-primary/10' : 'text-white/20 hover:text-white/40'}`}>
+                    <Shuffle className="w-3.5 h-3.5" />
                 </button>
             </div>
 
