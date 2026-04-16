@@ -86,10 +86,10 @@ export default function CatchAllPage({ params }: { params: Promise<{ slug?: stri
                       onClick={() => setIsMobileControlsOpen(true)}
                       className="lg:hidden absolute top-10 right-8 z-50 flex flex-col items-center gap-1 active:scale-95 transition-all"
                    >
-                      <div className="p-4 bg-primary/20 backdrop-blur-xl border border-primary/40 rounded-full shadow-2xl">
+                      <div className="p-4 bg-primary/25 backdrop-blur-2xl border border-primary/40 rounded-full shadow-2xl ring-4 ring-primary/5">
                         <Settings className="w-7 h-7 text-primary animate-spin-slow" />
                       </div>
-                      <span className="text-[10px] font-bold text-primary bg-black/50 px-2 py-0.5 rounded-full">إعدادات الفيديو</span>
+                      <span className="text-[10px] font-bold text-primary bg-black/60 px-2 py-0.5 rounded-full shadow-lg">إعدادات الفيديو</span>
                    </button>
 
                    <VideoPreview key={state.reciterId} />
