@@ -1,6 +1,1 @@
-# Exclude heavy assets from being bundled into Serverless Functions
-public/pdf/**
-.next/cache/**
-node_modules/.cache/**
-*.mp4
-*.zip
+# Empty files
