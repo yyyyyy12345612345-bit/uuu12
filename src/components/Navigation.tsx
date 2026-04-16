@@ -3,6 +3,7 @@
 import React from "react";
 import { Video, BookOpen, Timer, Headphones, Calendar } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import { useEditor } from "@/store/useEditor";
 
 export function Navigation() {
   const { state, updateState } = useEditor();
