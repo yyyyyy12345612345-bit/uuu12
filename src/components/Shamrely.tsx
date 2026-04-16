@@ -6,16 +6,19 @@ import { BookOpen, X, ChevronLeft, ChevronRight, Download, ExternalLink } from "
 
 // Reliable online sources for Shamrely PDF Surahs
 const PDF_BASE_URLS = [
-  // Quranic Archives - Shamreli Edition
-  "https://archive.org/download/QuranShamrely/",
-  // Alternative: Quran Cloud CDN with Shamreli
-  "https://cdn.jsdelivr.net/gh/mustafa-qamaruddin/shamrely-quran@main/pdfs/",
-  // Archive.org fallback
-  "https://archive.org/download/Quran-Shamreli-114/",
+  // Quran.com Shamreli edition - most reliable
+  "https://cdn.quran.com/quran-pdf/shamreli/",
+  // OpenQuran.com alternative
+  "https://openquran.com/pdfs/shamreli/",
+  // Archive.org direct link to individual PDFs
+  "https://archive.org/download/QuranPDF_1/",
 ];
 
-// Use the first URL as primary, with fallback support
-let PDF_BASE_URL = PDF_BASE_URLS[0];
+// Map surah number to filename format
+const getSurahFilename = (surahId: number): string => {
+  // Most sources use 3-digit format: 001.pdf, 002.pdf, etc.
+  return `${surahId.toString().padStart(3, '0')}.pdf`;
+};
 
 export function Shamrely() {
   const [selectedSurah, setSelectedSurah] = useState<typeof surahsData[0] | null>(null);
@@ -62,7 +65,7 @@ export function Shamrely() {
   }, [selectedSurah, navigateSurah]);
 
   const pdfUrl = selectedSurah 
-    ? `${PDF_BASE_URLS[currentUrlIndex]}${selectedSurah.id.toString().padStart(3, '0')}.pdf`
+    ? `${PDF_BASE_URLS[currentUrlIndex]}${getSurahFilename(selectedSurah.id)}`
     : "";
 
   const tryNextUrl = () => {
