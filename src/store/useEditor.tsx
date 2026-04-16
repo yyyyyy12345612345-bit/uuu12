@@ -29,7 +29,7 @@ const initialState: Omit<EditorState, 'isHydrated'> = {
   surahId: "1",
   startAyah: 1,
   endAyah: 7,
-  backgroundUrl: "https://videos.pexels.com/video-files/4458517/4458517-hd_1080_1920_25fps.mp4",
+  backgroundUrl: "https://images.pexels.com/photos/1537086/pexels-photo-1537086.jpeg",
   reciterId: "afasy",
   textColor: "#ffffff",
   fontSize: 50,
