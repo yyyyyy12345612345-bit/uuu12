@@ -4,14 +4,24 @@ import React, { useState, useEffect, useCallback } from "react";
 import surahsData from "@/data/surahs.json";
 import { BookOpen, X, ChevronLeft, ChevronRight, Download, ExternalLink } from "lucide-react";
 
-// Reliable online source for Shamrely PDF Surahs
-const PDF_BASE_URL = "https://archive.org/download/Quran-Shamreli-114/";
+// Reliable online sources for Shamrely PDF Surahs
+const PDF_BASE_URLS = [
+  "https://cdn.quran.ksu.edu.sa/downloads/SHAMRELI/",
+  "https://archive.org/download/Quran-Shamreli-114/",
+];
+
+// Use the first URL as primary, with fallback support
+let PDF_BASE_URL = PDF_BASE_URLS[0];
 
 export function Shamrely() {
   const [selectedSurah, setSelectedSurah] = useState<typeof surahsData[0] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   const openPdf = (surah: typeof surahsData[0]) => {
     setSelectedSurah(surah);
+    setIsLoading(true);
+    setLoadError(false);
   };
 
   const closePdf = () => {
@@ -27,6 +37,8 @@ export function Shamrely() {
     if (nextIndex >= surahsData.length) nextIndex = 0;
     if (nextIndex < 0) nextIndex = surahsData.length - 1;
 
+    setIsLoading(true);
+    setLoadError(false);
     setSelectedSurah(surahsData[nextIndex]);
   }, [selectedSurah]);
 
@@ -44,6 +56,10 @@ export function Shamrely() {
 
   const pdfUrl = selectedSurah 
     ? `${PDF_BASE_URL}${selectedSurah.id.toString().padStart(3, '0')}.pdf`
+    : "";
+
+  const fallbackPdfUrl = selectedSurah && PDF_BASE_URL !== PDF_BASE_URLS[1]
+    ? `${PDF_BASE_URLS[1]}${selectedSurah.id.toString().padStart(3, '0')}.pdf`
     : "";
 
   return (
@@ -101,13 +117,36 @@ export function Shamrely() {
               </div>
             </div>
 
-            <div className="flex-1 bg-neutral-900 overflow-hidden">
+            <div className="flex-1 bg-neutral-900 overflow-hidden relative">
+                {isLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-neutral-900 z-40">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary mx-auto mb-3"></div>
+                      <p className="text-white/60 text-sm">جاري تحميل PDF...</p>
+                    </div>
+                  </div>
+                )}
+                {loadError && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-neutral-900 z-40">
+                    <div className="text-center space-y-4">
+                      <p className="text-white/60">حدث خطأ في التحميل</p>
+                      <a href={fallbackPdfUrl || pdfUrl} target="_blank" rel="noreferrer" className="inline-block px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition">
+                        فتح في نافذة جديدة
+                      </a>
+                    </div>
+                  </div>
+                )}
                 <iframe 
                     key={selectedSurah.id}
                     src={`${pdfUrl}#toolbar=0&navpanes=0`}
                     className="w-full h-full border-none shadow-2xl"
                     title={selectedSurah.name}
                     loading="lazy"
+                    onLoad={() => setIsLoading(false)}
+                    onError={() => {
+                      setLoadError(true);
+                      setIsLoading(false);
+                    }}
                 />
             </div>
           </div>
