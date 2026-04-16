@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEditor } from "@/store/useEditor";
 import { usePathname } from "next/navigation";
-import { MessageSquare, Download } from "lucide-react";
+import { MessageSquare, Download, Share2 } from "lucide-react";
 
 // Pre-load components
 const SurahSelector = dynamic(() => import("@/components/SurahSelector").then(mod => mod.SurahSelector), { ssr: false });
@@ -46,20 +46,20 @@ export default function CatchAllPage({ params }: { params: Promise<{ slug?: stri
 
   return (
     <div className="fixed inset-0 bg-black text-white flex flex-col w-full font-arabic overflow-hidden">
-      <header className="h-20 shrink-0 bg-black/40 border-b border-white/5 px-4 flex items-center justify-between z-[110]">
+      <header className="h-20 shrink-0 bg-black/40 border-b border-white/5 px-4 md:px-10 flex items-center justify-between z-[110]">
         <Link href="/" className="flex items-center gap-3">
           <img src="/logo/logo.png?v=4" alt="Logo" className="w-10 h-10" />
-          <h1 className="text-xl font-bold">قرآن</h1>
+          <h1 className="text-xl font-bold hidden sm:block">قرآن</h1>
         </Link>
         <div className="flex items-center gap-3">
-          {/* Mobile Render Button */}
+          {/* Universal Render Button in Header */}
           {activeView === 'video' && (
             <button 
               onClick={() => setIsRenderOpen(true)} 
-              className="lg:hidden p-3 bg-primary text-black rounded-xl font-bold shadow-lg flex items-center gap-2"
+              className="p-3 bg-primary text-black rounded-xl font-bold shadow-lg flex items-center gap-2 hover:scale-105 transition-transform"
             >
               <Download className="w-4 h-4" />
-              <span>تصدير</span>
+              <span className="text-sm">تصدير الفيديو</span>
             </button>
           )}
           <PWAInstallButton />
@@ -79,9 +79,8 @@ export default function CatchAllPage({ params }: { params: Promise<{ slug?: stri
              <div className="flex h-full w-full overflow-hidden">
                 <aside className="hidden lg:flex w-[350px] h-full border-r border-white/5 flex-col p-6 overflow-y-auto no-scrollbar gap-6">
                    <SurahSelector /><Controls />
-                   <button onClick={() => setIsRenderOpen(true)} className="w-full bg-primary text-black py-4 rounded-xl font-bold mt-auto shadow-lg hover:bg-primary/90 transition-all">تصدير الفيديو</button>
                 </aside>
-                <div className="flex-1 flex items-center justify-center p-4 relative capitalize">
+                <div className="flex-1 flex items-center justify-center p-4 relative">
                    <VideoPreview key={state.reciterId} />
                 </div>
              </div>

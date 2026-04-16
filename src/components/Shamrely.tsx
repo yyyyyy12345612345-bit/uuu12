@@ -6,7 +6,11 @@ import { BookOpen, X, ChevronLeft, ChevronRight, Download, ExternalLink } from "
 
 // Reliable online sources for Shamrely PDF Surahs
 const PDF_BASE_URLS = [
-  "https://cdn.quran.ksu.edu.sa/downloads/SHAMRELI/",
+  // Quranic Archives - Shamreli Edition
+  "https://archive.org/download/QuranShamrely/",
+  // Alternative: Quran Cloud CDN with Shamreli
+  "https://cdn.jsdelivr.net/gh/mustafa-qamaruddin/shamrely-quran@main/pdfs/",
+  // Archive.org fallback
   "https://archive.org/download/Quran-Shamreli-114/",
 ];
 
@@ -17,11 +21,13 @@ export function Shamrely() {
   const [selectedSurah, setSelectedSurah] = useState<typeof surahsData[0] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState(false);
+  const [currentUrlIndex, setCurrentUrlIndex] = useState(0);
 
   const openPdf = (surah: typeof surahsData[0]) => {
     setSelectedSurah(surah);
     setIsLoading(true);
     setLoadError(false);
+    setCurrentUrlIndex(0);
   };
 
   const closePdf = () => {
@@ -39,6 +45,7 @@ export function Shamrely() {
 
     setIsLoading(true);
     setLoadError(false);
+    setCurrentUrlIndex(0);
     setSelectedSurah(surahsData[nextIndex]);
   }, [selectedSurah]);
 
@@ -55,12 +62,19 @@ export function Shamrely() {
   }, [selectedSurah, navigateSurah]);
 
   const pdfUrl = selectedSurah 
-    ? `${PDF_BASE_URL}${selectedSurah.id.toString().padStart(3, '0')}.pdf`
+    ? `${PDF_BASE_URLS[currentUrlIndex]}${selectedSurah.id.toString().padStart(3, '0')}.pdf`
     : "";
 
-  const fallbackPdfUrl = selectedSurah && PDF_BASE_URL !== PDF_BASE_URLS[1]
-    ? `${PDF_BASE_URLS[1]}${selectedSurah.id.toString().padStart(3, '0')}.pdf`
-    : "";
+  const tryNextUrl = () => {
+    if (currentUrlIndex < PDF_BASE_URLS.length - 1) {
+      setCurrentUrlIndex(currentUrlIndex + 1);
+      setIsLoading(true);
+      setLoadError(false);
+    } else {
+      // All URLs failed
+      setLoadError(true);
+    }
+  };
 
   return (
     <div className="h-full flex flex-col bg-[#050505] relative overflow-hidden">
@@ -130,22 +144,31 @@ export function Shamrely() {
                   <div className="absolute inset-0 flex items-center justify-center bg-neutral-900 z-40">
                     <div className="text-center space-y-4">
                       <p className="text-white/60">حدث خطأ في التحميل</p>
-                      <a href={fallbackPdfUrl || pdfUrl} target="_blank" rel="noreferrer" className="inline-block px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition">
-                        فتح في نافذة جديدة
-                      </a>
+                      {currentUrlIndex < PDF_BASE_URLS.length - 1 ? (
+                        <button 
+                          onClick={tryNextUrl}
+                          className="inline-block px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition"
+                        >
+                          محاولة مصدر آخر
+                        </button>
+                      ) : (
+                        <a href={pdfUrl} target="_blank" rel="noreferrer" className="inline-block px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition">
+                          فتح في نافذة جديدة
+                        </a>
+                      )}
                     </div>
                   </div>
                 )}
                 <iframe 
-                    key={selectedSurah.id}
+                    key={`${selectedSurah.id}-${currentUrlIndex}`}
                     src={`${pdfUrl}#toolbar=0&navpanes=0`}
                     className="w-full h-full border-none shadow-2xl"
                     title={selectedSurah.name}
                     loading="lazy"
                     onLoad={() => setIsLoading(false)}
                     onError={() => {
-                      setLoadError(true);
-                      setIsLoading(false);
+                      // Try next URL automatically
+                      setTimeout(() => tryNextUrl(), 500);
                     }}
                 />
             </div>
