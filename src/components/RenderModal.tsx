@@ -11,6 +11,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   const { state } = useEditor();
   const { data: surahData } = useSurahData(state.surahId);
   
+  // Refs defined AT THE TOP of the component
   const isRenderingRef = useRef(false);
   const activeAudiosRef = useRef<HTMLAudioElement[]>([]);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -22,6 +23,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
 
   const handleStart = async () => {
+    // Basic checks
     if (!surahData || status === "rendering") return;
     
     // Safety check for browser support
@@ -155,7 +157,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         return;
       }
 
-      const totalDuration = verseAudios.reduce((a, b) => a + b.duration, 0);
+      const totalDuration = verseAudios.reduce((a, b) => a + Number(b.duration), 0);
       let elapsed = 0;
 
       setMessage("بدء الرندرة...");
@@ -268,8 +270,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     setProgressPct(0);
   };
 
-  const renderFrame = (ctx: any, canvas: any, bg: HTMLImageElement | null, video: HTMLVideoElement | null, verse: any, state: any) => {
-    // ... (logic remains same, just ensure it's called)
+  const renderFrame = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, bg: HTMLImageElement | null, video: HTMLVideoElement | null, verse: any, state: any) => {
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
@@ -318,7 +319,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/98 backdrop-blur-3xl font-arabic">
-      {/* Canvas must be in DOM and not display:none for some browsers to render correctly */}
+      {/* Target of the ReferenceError: ensures it's attached to the component scope */}
       <canvas ref={canvasRef} style={{ position: 'fixed', left: '-10000px', top: 0 }} />
       
       <div className="w-full max-w-sm bg-[#050505] border border-white/10 rounded-[3rem] p-10 flex flex-col items-center shadow-2xl">
@@ -416,7 +417,7 @@ function loadVideo(src: string): Promise<HTMLVideoElement> {
   });
 }
 
-function wrapText(ctx: any, text: string, maxWidth: number) {
+function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number) {
   if (!text) return [];
   const words = text.split(' ');
   const lines = [];
