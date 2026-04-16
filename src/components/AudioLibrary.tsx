@@ -244,7 +244,7 @@ export function AudioLibrary() {
 
         
         {/* Reciter Selector Horizontal (Universal Top) */}
-        <div className="w-full max-w-full shrink-0 z-50 mb-4 overflow-x-auto no-scrollbar py-4 sticky top-0 snap-x snap-mandatory scroll-smooth">
+        <div className="w-full max-w-full shrink-0 z-50 mb-4 overflow-x-auto no-scrollbar py-4 sticky top-0 horizontal-scroll" style={{ WebkitOverflowScrolling: 'touch' }}>
 
 
 

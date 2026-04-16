@@ -261,7 +261,7 @@ export function DailyHub() {
       </div>
 
       {/* Tabs */}
-      <div className="flex w-full max-w-3xl mx-auto rounded-3xl p-1.5 glass-effect border border-white/5 mb-10 overflow-x-auto no-scrollbar snap-x z-10 shrink-0">
+      <div className="flex w-full max-w-3xl mx-auto rounded-3xl p-1.5 glass-effect border border-white/5 mb-10 overflow-x-auto no-scrollbar horizontal-scroll z-10 shrink-0">
         {[
           { id: "sibha", icon: Fingerprint, label: "السبحة" },
           { id: "morning", icon: Sun, label: "الصباح" },
