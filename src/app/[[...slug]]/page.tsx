@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEditor } from "@/store/useEditor";
 import { usePathname } from "next/navigation";
-import { MessageSquare, Download, Share2 } from "lucide-react";
+import { MessageSquare, Download, Settings, X } from "lucide-react";
 
 // Pre-load components
 const SurahSelector = dynamic(() => import("@/components/SurahSelector").then(mod => mod.SurahSelector), { ssr: false });
@@ -26,6 +26,7 @@ export default function CatchAllPage({ params }: { params: Promise<{ slug?: stri
   const pathname = usePathname();
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isRenderOpen, setIsRenderOpen] = useState(false);
+  const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
   
   use(params);
 
@@ -52,15 +53,23 @@ export default function CatchAllPage({ params }: { params: Promise<{ slug?: stri
           <h1 className="text-xl font-bold hidden sm:block">قرآن</h1>
         </Link>
         <div className="flex items-center gap-3">
-          {/* Universal Render Button in Header */}
+          {/* Universal Render Button */}
           {activeView === 'video' && (
-            <button 
-              onClick={() => setIsRenderOpen(true)} 
-              className="p-3 bg-primary text-black rounded-xl font-bold shadow-lg flex items-center gap-2 hover:scale-105 transition-transform"
-            >
-              <Download className="w-4 h-4" />
-              <span className="text-sm">تصدير الفيديو</span>
-            </button>
+            <div className="flex items-center gap-2">
+               <button 
+                  onClick={() => setIsMobileControlsOpen(true)} 
+                  className="lg:hidden p-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-all"
+                >
+                  <Settings className="w-5 h-5" />
+                </button>
+                <button 
+                  onClick={() => setIsRenderOpen(true)} 
+                  className="p-3 bg-primary text-black rounded-xl font-bold shadow-lg flex items-center gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  <span className="text-sm">تصدير</span>
+                </button>
+            </div>
           )}
           <PWAInstallButton />
           <button onClick={() => setIsFeedbackOpen(true)} className="p-3 bg-white/5 rounded-xl"><MessageSquare className="w-5 h-5" /></button>
@@ -89,6 +98,25 @@ export default function CatchAllPage({ params }: { params: Promise<{ slug?: stri
       </main>
 
       <Navigation />
+
+      {/* Mobile Controls Drawer */}
+      {isMobileControlsOpen && (
+        <div className="fixed inset-0 z-[300] lg:hidden">
+            <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={() => setIsMobileControlsOpen(false)} />
+            <div className="absolute bottom-0 left-0 right-0 h-[85vh] bg-[#0a0a0a] rounded-t-[3rem] border-t border-white/10 flex flex-col p-6 overflow-hidden animate-in slide-in-from-bottom duration-300">
+                <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-xl font-bold">تعديل الفيديو</h2>
+                    <button onClick={() => setIsMobileControlsOpen(false)} className="p-3 bg-white/5 rounded-full"><X className="w-6 h-6" /></button>
+                </div>
+                <div className="flex-1 overflow-y-auto no-scrollbar pb-10">
+                    <SurahSelector />
+                    <div className="h-8" />
+                    <Controls />
+                </div>
+            </div>
+        </div>
+      )}
+
       <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
       <RenderModal isOpen={isRenderOpen} onClose={() => setIsRenderOpen(false)} />
     </div>
