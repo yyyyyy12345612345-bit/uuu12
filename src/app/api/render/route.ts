@@ -3,14 +3,15 @@ import { exec } from "child_process";
 import path from "path";
 import fs from "fs";
 
-export const maxDuration = 300; // Increase timeout for Vercel
+export const maxDuration = 300; 
 
 export async function POST(req: Request) {
-  const rendersDir = path.resolve("public", "renders");
+  // Use Turbopack ignore to prevent tracing the whole public folder
+  const rendersDir = path.join(/* turbopackIgnore: true */ process.cwd(), "public", "renders");
   if (!fs.existsSync(rendersDir)) fs.mkdirSync(rendersDir, { recursive: true });
 
   const jobId = Date.now();
-  const configPath = path.resolve(rendersDir, `config-${jobId}.json`);
+  const configPath = path.join(rendersDir, `config-${jobId}.json`);
 
   try {
     const body = await req.json();
@@ -19,14 +20,15 @@ export async function POST(req: Request) {
     const renderConfig = { ...body, outputName };
     fs.writeFileSync(configPath, JSON.stringify(renderConfig));
 
-    const scriptPath = path.resolve("render.mjs");
+    // Also use ignore comment for the script path
+    const scriptPath = path.join(/* turbopackIgnore: true */ process.cwd(), "render.mjs");
     const command = `node "${scriptPath}" "${configPath}"`;
 
     await new Promise<void>((resolve, reject) => {
       const child = exec(command, {
         maxBuffer: 50 * 1024 * 1024,
-        timeout: 250 * 1000, // 4.5 minutes
-        cwd: path.resolve("."),
+        timeout: 250 * 1000, 
+        cwd: process.cwd(),
       });
 
       child.on("close", (code) => {
@@ -37,7 +39,7 @@ export async function POST(req: Request) {
       child.on("error", (err) => reject(new Error(`Failed to start render: ${err.message}`)));
     });
 
-    const outputPath = path.resolve(rendersDir, outputName);
+    const outputPath = path.join(rendersDir, outputName);
     if (!fs.existsSync(outputPath)) throw new Error("Video file not found after render");
 
     return NextResponse.json({ success: true, url: `/renders/${outputName}` });
