@@ -13,34 +13,20 @@ export function SurahSelector() {
     const surah = surahsData.find(s => s.id.toString() === state.surahId);
     if (surah) {
       setMaxVerses(surah.total_verses);
-      let updates: Partial<{ startAyah: number; endAyah: number }> = {};
-
-      if (state.startAyah < 1) {
-        updates.startAyah = 1;
-      }
-
+      // Only clamp if surah changed and current values are definitely out of range
       if (state.startAyah > surah.total_verses) {
-        updates.startAyah = surah.total_verses;
+        updateState({ startAyah: 1 });
       }
-
-      if (state.endAyah < state.startAyah) {
-        updates.endAyah = state.startAyah;
-      }
-
       if (state.endAyah > surah.total_verses) {
-        updates.endAyah = surah.total_verses;
-      }
-
-      if (Object.keys(updates).length > 0) {
-        updateState(updates);
+        updateState({ endAyah: surah.total_verses });
       }
     }
-  }, [state.surahId, state.startAyah, state.endAyah, updateState]);
+  }, [state.surahId, updateState]);
 
   const [startInput, setStartInput] = useState(state.startAyah.toString());
   const [endInput, setEndInput] = useState(state.endAyah.toString());
 
-  // Sync back if global state changes (e.g. surah changed)
+  // Sync back if global state changes
   useEffect(() => {
     setStartInput(state.startAyah.toString());
     setEndInput(state.endAyah.toString());
@@ -73,15 +59,20 @@ export function SurahSelector() {
           <label className="text-[10px] uppercase tracking-[0.2em] text-white/30 mr-2 font-bold">بداية المقطع</label>
           <input 
             type="number" 
-            min="1"
-            max={maxVerses}
             value={startInput}
             onChange={(e) => {
-              setStartInput(e.target.value);
-              const value = parseInt(e.target.value, 10);
-              if (!Number.isNaN(value) && value > 0 && value <= maxVerses) {
+              const val = e.target.value;
+              setStartInput(val);
+              const value = parseInt(val, 10);
+              if (!Number.isNaN(value)) {
                 updateState({ startAyah: value });
               }
+            }}
+            onBlur={() => {
+                if (!startInput || parseInt(startInput) < 1) {
+                    setStartInput("1");
+                    updateState({ startAyah: 1 });
+                }
             }}
             className="w-full bg-white/[0.03] border border-white/5 p-4 rounded-2xl focus:border-primary/40 focus:bg-white/[0.05] outline-none transition-all text-base font-bold text-white text-center"
           />
@@ -90,15 +81,20 @@ export function SurahSelector() {
           <label className="text-[10px] uppercase tracking-[0.2em] text-white/30 mr-2 font-bold">نهاية المقطع</label>
           <input 
             type="number" 
-            min="1"
-            max={maxVerses}
             value={endInput}
             onChange={(e) => {
-              setEndInput(e.target.value);
-              const value = parseInt(e.target.value, 10);
-              if (!Number.isNaN(value) && value > 0 && value <= maxVerses) {
+              const val = e.target.value;
+              setEndInput(val);
+              const value = parseInt(val, 10);
+              if (!Number.isNaN(value)) {
                 updateState({ endAyah: value });
               }
+            }}
+            onBlur={() => {
+                if (!endInput || parseInt(endInput) < 1) {
+                    setEndInput(maxVerses.toString());
+                    updateState({ endAyah: maxVerses });
+                }
             }}
             className="w-full bg-white/[0.03] border border-white/5 p-4 rounded-2xl focus:border-primary/40 focus:bg-white/[0.05] outline-none transition-all text-base font-bold text-white text-center"
           />

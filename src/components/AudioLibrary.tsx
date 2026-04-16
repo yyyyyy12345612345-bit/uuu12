@@ -7,6 +7,7 @@ import {
   Headphones, Repeat, Shuffle, ChevronDown, User, Heart, 
   Disc, Music, Star, Zap, X
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import surahsData from "@/data/surahs.json";
 
 // Memoized Surah Item to prevent entire list re-render
@@ -37,8 +38,18 @@ const SurahItem = memo(({ surah, isCurrent, isPlaying, onClick }: any) => (
 ));
 
 export function AudioLibrary() {
-  const [currentSurah, setCurrentSurah] = useState(surahsData[0]);
-  const [selectedReciter, setSelectedReciter] = useState(RECITERS[0]);
+  const router = useRouter();
+  const [currentSurah, setCurrentSurah] = useState(() => {
+    return surahsData.find(s => s.id.toString() === state.surahId) || surahsData[0];
+  });
+  const [selectedReciter, setSelectedReciter] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search);
+      const rId = sp.get('reciter');
+      return RECITERS.find(r => r.id === rId) || RECITERS[0];
+    }
+    return RECITERS[0];
+  });
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
@@ -56,6 +67,7 @@ export function AudioLibrary() {
 
   // Centralized Audio Sync
   useEffect(() => {
+    router.push(`/library/${currentSurah.id}`, { scroll: false });
     const audio = audioRef.current;
     if (!audio) return;
 
