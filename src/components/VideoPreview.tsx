@@ -15,7 +15,7 @@ const isVideoUrl = (url: string) => {
 export function VideoPreview() {
   const { state } = useEditor();
   const { data: surahData, loading: surahLoading } = useSurahData(state.surahId);
-  
+
   const [currentAyahIndex, setCurrentAyahIndex] = useState(state.startAyah);
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -49,16 +49,16 @@ export function VideoPreview() {
   // Watch for index change and play immediately if we are in "isPlaying" mode
   useEffect(() => {
     if (isPlaying && audioRef.current) {
-        // Essential: load the new source
-        audioRef.current.load();
-        
-        const playPromise = audioRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.error("Auto-play blocked after end:", error);
-            // Optional: Show a subtle hint to user if it fails
-          });
-        }
+      // Essential: load the new source
+      audioRef.current.load();
+
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.error("Auto-play blocked after end:", error);
+          // Optional: Show a subtle hint to user if it fails
+        });
+      }
     }
   }, [currentAyahIndex, isPlaying]);
 
@@ -95,11 +95,11 @@ export function VideoPreview() {
   return (
     <div className="relative aspect-[9/16] h-full max-h-[85vh] group select-none" id="video-render-container">
       <div className="absolute inset-0 bg-black rounded-[2.5rem] border-[8px] border-white/5 shadow-[0_0_100px_rgba(0,0,0,1)] overflow-hidden">
-        
+
         {/* Background Media */}
         {state.backgroundUrl && (
           isVideoUrl(state.backgroundUrl) ? (
-            <video 
+            <video
               ref={videoRef}
               src={state.backgroundUrl}
               className="absolute inset-0 w-full h-full object-cover opacity-60"
@@ -129,42 +129,42 @@ export function VideoPreview() {
             <div key={currentAyahIndex} className="flex flex-col gap-6 animate-in fade-in zoom-in duration-700">
               <div className="flex flex-col gap-1 items-center">
                 <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] text-white/70 font-bold uppercase">
-                   {surahData?.name} · {state.startAyah} - {state.endAyah}
+                  {surahData?.name} · {state.startAyah} - {state.endAyah}
                 </span>
                 {isPlaying && (
-                   <span className="text-[10px] text-primary font-bold animate-pulse">آية {currentAyahIndex}</span>
+                  <span className="text-[10px] text-primary font-bold animate-pulse">آية {currentAyahIndex}</span>
                 )}
               </div>
-              
-              <p 
-                className="text-4xl md:text-5xl text-white font-arabic leading-[1.6] text-center w-full" 
-                style={{ 
-                   color: state.textColor,
-                   fontSize: `${state.fontSize}px`,
-                   fontFamily: 'serif',
-                   fontWeight: state.fontWeight,
-                   textAlign: 'center'
+
+              <p
+                className="text-4xl md:text-5xl text-white font-arabic leading-[1.6] text-center w-full"
+                style={{
+                  color: state.textColor,
+                  fontSize: `${state.fontSize}px`,
+                  fontFamily: 'serif',
+                  fontWeight: state.fontWeight,
+                  textAlign: 'center'
                 }}
               >
                 {currentVerse?.text || "لم يتم العثور على الآية"}
               </p>
-              
+
               <div className="w-16 h-[2px] bg-primary/40 self-center" />
-              
+
               <p className="text-[15px] text-white/80 font-medium italic leading-relaxed text-center w-full">
                 {currentVerse?.translation}
               </p>
             </div>
           ) : (
-             <div className="flex flex-col items-center gap-4 p-8 glass rounded-3xl border-red-500/20">
-                <span className="text-red-400 text-sm font-bold font-arabic">تعذر تحميل بيانات السورة</span>
-                <button 
-                  onClick={() => window.location.reload()}
-                  className="px-4 py-2 bg-white/10 rounded-xl text-[10px] text-white hover:bg-white/20 transition-all font-bold"
-                >
-                  إعادة المحاولة
-                </button>
-             </div>
+            <div className="flex flex-col items-center gap-4 p-8 glass rounded-3xl border-red-500/20">
+              <span className="text-red-400 text-sm font-bold font-arabic">تعذر تحميل بيانات السورة</span>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-white/10 rounded-xl text-[10px] text-white hover:bg-white/20 transition-all font-bold"
+              >
+                إعادة المحاولة
+              </button>
+            </div>
           )}
         </div>
 
@@ -193,7 +193,6 @@ export function VideoPreview() {
           onEnded={handleAyahEnd}
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
-          crossOrigin="anonymous"
         />
       </div>
     </div>
