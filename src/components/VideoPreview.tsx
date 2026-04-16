@@ -74,6 +74,14 @@ export function VideoPreview() {
         await audioRef.current.play();
         videoRef.current?.play();
         setIsPlaying(true);
+        
+        // Analytics: Track Play
+        // @ts-ignore
+        window.gtag?.('event', 'play_quran', {
+            'reciter': state.reciterId,
+            'surah': state.surahId,
+            'ayah': currentAyahIndex
+        });
       } catch (error) {
         console.error("Initial play failed:", error);
       }

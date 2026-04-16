@@ -21,6 +21,14 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     isRenderingRef.current = true;
     activeAudiosRef.current = [];
 
+    // Analytics: Track Render Start
+    // @ts-ignore
+    window.gtag?.('event', 'render_video_start', {
+      'surah': state.surahId,
+      'reciter': state.reciterId,
+      'range': `${state.startAyah}-${state.endAyah}`
+    });
+
     // Create and Resume AudioContext
     const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
     audioCtxRef.current = audioCtx;
@@ -184,6 +192,13 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         const finalBlob = new Blob(chunks, { type: mimeType || 'video/webm' });
         setDownloadUrl(URL.createObjectURL(finalBlob));
         setStatus("success");
+
+        // Analytics: Track Render Success
+        // @ts-ignore
+        window.gtag?.('event', 'render_video_success', {
+          'surah': state.surahId,
+          'reciter': state.reciterId
+        });
       };
 
     } catch (e: any) {
