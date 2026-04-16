@@ -1,8 +1,8 @@
 export interface Reciter {
   id: string;
   name: string;
-  folder: string;         
-  mp3quranServer: string; 
+  folder: string;
+  mp3quranServer: string;
   serverType?: "everyayah" | "qurancdn"; // Optional type for special cases
 }
 
