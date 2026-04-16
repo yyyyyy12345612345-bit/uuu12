@@ -95,7 +95,7 @@ export const RECITERS: Reciter[] = [
   { 
     id: "dussary", 
     name: "ياسر الدوسري", 
-    identifier: "ar.yasserad-dussary", 
+    identifier: "ar.yasseradhussary", 
     mp3quranServer: "server11.mp3quran.net/yasser",
     fullSurahPath: "yasser_ad-dussary" 
   },
