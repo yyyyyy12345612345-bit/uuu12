@@ -20,8 +20,6 @@ export const getAudioUrl = (surahId: number, ayahId: number, reciterId: string, 
     return `https://cdn.islamic.network/quran/audio/verses/128/ar.alafasy/${sId}${aId}.mp3`;
   }
 
-  const sId = pad(surahId, 3);
-  
   // Handle specific reciter overrides
   switch (reciter.id) {
     case "menshawi_j":
