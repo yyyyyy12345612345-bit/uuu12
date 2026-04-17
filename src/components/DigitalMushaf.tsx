@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight, Loader2, BookOpen, Bookmark, Search, Maximize2, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, BookOpen, Play, Maximize2, X, List } from "lucide-react";
+import surahsData from "@/data/surahs.json";
 
 /**
- * DigitalMushaf Component
- * Replaces image-based Shamrely with dynamic text from Quran.com
- * Features: Page-by-page navigation (1-604), Premium UI, Live Text
+ * DigitalMushaf Component - Version 3.0 (Quran.com Reading Mode Style)
+ * Mimics the exact look and feel of Quran.com's reading interface.
  */
 
 const API_ROOT = "https://api.quran.com/api/v4";
@@ -24,23 +24,19 @@ export function DigitalMushaf() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const wordAudioRef = useRef<HTMLAudioElement>(null);
 
-  // Fetch page data whenever currentPage changes
   useEffect(() => {
     async function fetchPage() {
       setIsLoading(true);
       setIsPlayingPage(false);
       setCurrentPlayingVerse(null);
       try {
-        // Fetch verses by page with words and word audio
         const response = await fetch(
-          `${API_ROOT}/verses/by_page/${currentPage}?language=ar&words=true&word_fields=text_uthmani,audio_url&fields=text_uthmani,verse_key`
+          `${API_ROOT}/verses/by_page/${currentPage}?language=ar&words=true&word_fields=text_uthmani,audio_url&fields=text_uthmani,verse_key,juz_number,hizb_number`
         );
         const data = await response.json();
         
         if (data.verses) {
             setPageData(data.verses);
-            
-            // Extract Juz and Hizb info from first verse
             if (data.verses.length > 0) {
                 setMeta({
                     juz: data.verses[0].juz_number,
@@ -58,7 +54,6 @@ export function DigitalMushaf() {
     fetchPage();
   }, [currentPage]);
 
-  // Function to play a single word
   const playWord = (word: any) => {
     if (!word.audio_url) return;
     setActiveWordId(word.id);
@@ -66,11 +61,9 @@ export function DigitalMushaf() {
         wordAudioRef.current.src = `https:${word.audio_url}`;
         wordAudioRef.current.play().catch(console.error);
     }
-    // Haptic feedback
     if (navigator.vibrate) navigator.vibrate(20);
   };
 
-  // Function to start playing the whole page
   const togglePlayPage = () => {
     if (isPlayingPage) {
         setIsPlayingPage(false);
@@ -88,27 +81,15 @@ export function DigitalMushaf() {
         setCurrentPlayingVerse(null);
         return;
     }
-
     const verse = pageData[index];
     setCurrentPlayingVerse(index);
-    
-    // Auto-scroll to verse
     const el = document.getElementById(`digital-verse-${verse.id}`);
     el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     if (audioRef.current) {
-        // Using a standard high-quality reciter for page playback (Alafasy)
-        audioRef.current.src = `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${verse.verse_key.split(':')[0]}.mp3`;
-        
-        // Note: For real sequential playback of verses, we'd need specialized verse audio URLs.
-        // For now, we'll use the API's verse sounds if possible or a stable provider.
         const [sura, ayah] = verse.verse_key.split(':');
         audioRef.current.src = `https://cdn.islamic.network/quran/audio/verses/128/${sura}${ayah.padStart(3, '0')}.mp3`;
-        
-        audioRef.current.play().catch(() => {
-            // Fallback for audio
-            setIsPlayingPage(false);
-        });
+        audioRef.current.play().catch(() => setIsPlayingPage(false));
     }
   };
 
@@ -122,133 +103,140 @@ export function DigitalMushaf() {
   const prevPage = () => setCurrentPage(p => Math.max(1, p - 1));
 
   return (
-    <div className="h-full flex flex-col bg-[#050505] text-white font-arabic relative overflow-hidden">
+    <div className="h-full flex flex-col bg-[#121212] text-white font-arabic relative overflow-hidden selection:bg-primary/30">
       
-      {/* Hidden Audio Elements */}
       <audio ref={audioRef} onEnded={handleAudioEnd} />
       <audio ref={wordAudioRef} onEnded={() => setActiveWordId(null)} />
 
-      {/* Dynamic Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50" />
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px]" />
-
-      {/* Header - Glassmorphism */}
-      <header className="h-24 shrink-0 border-b border-white/5 bg-black/40 backdrop-blur-2xl px-6 md:px-12 flex items-center justify-between z-50">
-        <div className="flex items-center gap-5">
-             <div className="w-12 h-12 rounded-[1.25rem] bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-                <BookOpen className="w-6 h-6" />
+      {/* Top Header - Mirroring the screenshot */}
+      <header className="h-[70px] shrink-0 border-b border-white/5 bg-[#121212]/80 backdrop-blur-xl px-4 md:px-10 flex items-center justify-between z-50">
+        <div className="flex items-center gap-4">
+             <button onClick={prevPage} className="p-2 hover:bg-white/5 rounded-lg transition-all text-white/40 hover:text-white"><ChevronRight className="w-5 h-5" /></button>
+             <div className="flex items-center gap-2 text-sm font-bold text-white/60">
+                <Bookmark className="w-4 h-4" />
+                <span>Page {currentPage}</span>
+                <span className="opacity-20 mx-1">|</span>
+                <span>Juz {meta?.juz || ".."} / Hizb {meta?.hizb || ".."}</span>
              </div>
-             <div className="text-right">
-                <h2 className="text-xl font-bold bg-gradient-to-l from-white to-white/60 bg-clip-text text-transparent">المصحف الكامل</h2>
-                <p className="text-[9px] text-white/20 uppercase tracking-[0.3em] font-bold">Word-by-Word Edition</p>
-             </div>
+             <button onClick={nextPage} className="p-2 hover:bg-white/5 rounded-lg transition-all text-white/40 hover:text-white"><ChevronLeft className="w-5 h-5" /></button>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
             <button 
                 onClick={togglePlayPage}
-                className={`flex items-center gap-3 px-6 py-3 rounded-2xl border transition-all ${isPlayingPage ? 'bg-primary text-black border-primary' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'}`}
+                className={`p-2 rounded-lg transition-all ${isPlayingPage ? 'bg-primary text-black' : 'hover:bg-white/5 text-white/40 hover:text-white'}`}
             >
-                {isPlayingPage ? <Maximize2 className="w-4 h-4 animate-pulse" /> : <Play className="w-4 h-4" />}
-                <span className="text-sm font-bold font-arabic">{isPlayingPage ? 'جاري الاستماع...' : 'استماع للصفحة'}</span>
+                {isPlayingPage ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5" />}
             </button>
-            <div className="h-10 w-[1px] bg-white/10 mx-2 hidden lg:block" />
-            <div className="bg-primary/10 px-8 py-3 rounded-2xl border border-primary/20 hidden md:block">
-                <span className="text-lg font-bold text-primary font-mono tracking-tighter">PAGE {currentPage}</span>
-            </div>
+            <button className="p-2 hover:bg-white/5 rounded-lg text-white/40 hover:text-white transition-all"><List className="w-5 h-5" /></button>
         </div>
       </header>
 
-      {/* Main Content Space */}
-      <main className="flex-1 relative overflow-hidden flex justify-center items-center p-4 lg:p-12">
-        
-        {/* Navigation Buttons (Desktop) */}
-        <button onClick={prevPage} disabled={currentPage === 1} className="hidden lg:flex absolute left-8 z-[60] w-14 h-14 rounded-full glass-effect border border-white/10 items-center justify-center text-white/30 hover:text-primary transition-all disabled:opacity-0"><ChevronRight className="w-8 h-8" /></button>
-        <button onClick={nextPage} disabled={currentPage === 604} className="hidden lg:flex absolute right-8 z-[60] w-14 h-14 rounded-full glass-effect border border-white/10 items-center justify-center text-white/30 hover:text-primary transition-all disabled:opacity-0"><ChevronLeft className="w-8 h-8" /></button>
-
-        {/* The Digital Page Frame */}
-        <div className="w-full max-w-[1000px] h-full relative group">
-            <div 
-                ref={scrollRef}
-                className={`w-full h-full lg:h-auto lg:max-h-[78vh] overflow-y-auto no-scrollbar glass-effect-dark border-white/5 rounded-[3.5rem] p-8 md:p-20 shadow-2xl relative transition-all duration-700 ${isLoading ? 'opacity-20 translate-y-4 blur-xl' : 'opacity-100 translate-y-0 blur-0'}`}
-            >
-                {isLoading ? (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
-                        <div className="w-16 h-16 border-4 border-primary/10 border-t-primary rounded-full animate-spin" />
-                    </div>
-                ) : (
-                    <div className="relative z-10 text-center select-none">
-                        <div className="flex flex-wrap justify-center gap-x-2 md:gap-x-4 gap-y-10 md:gap-y-16">
-                            {pageData.map((verse: any, vIdx: number) => (
-                                <div 
-                                    key={verse.id} 
-                                    id={`digital-verse-${verse.id}`}
-                                    className={`flex flex-wrap justify-center items-center gap-x-1 md:gap-x-2 transition-all duration-500 rounded-[2rem] p-4 ${currentPlayingVerse === vIdx ? 'bg-primary/5 ring-1 ring-primary/20 scale-105 shadow-2xl' : ''}`}
-                                >
-                                    {verse.words.map((word: any) => (
-                                        <span 
-                                            key={word.id}
-                                            onClick={() => playWord(word)}
-                                            className={`cursor-pointer transition-all duration-300 text-[2.2rem] md:text-[3.5rem] leading-[1.6] px-1 md:px-2 rounded-xl group/word relative ${activeWordId === word.id ? 'text-primary scale-125 bg-primary/5' : 'text-white/90 hover:text-primary hover:scale-110'}`}
-                                        >
-                                            {word.text_uthmani}
-                                            {/* Word Highlight Underline */}
-                                            <span className={`absolute bottom-0 left-0 h-[2px] bg-primary transition-all duration-500 ${activeWordId === word.id ? 'w-full' : 'w-0'}`} />
-                                        </span>
-                                    ))}
-                                    
-                                    {/* Verse End Marker */}
-                                    <div className="inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/5 border border-white/10 text-primary text-xs md:text-sm font-bold mx-2 shadow-inner">
-                                        {verse.verse_number}
+      {/* Main Reading Flow */}
+      <main className="flex-1 relative overflow-y-auto custom-scrollbar pt-10 pb-32 overscroll-contain" ref={scrollRef}>
+        <div className="max-w-[1000px] mx-auto px-6 md:px-20 text-center">
+            
+            {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-40 gap-6">
+                    <div className="w-12 h-12 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+                    <span className="text-[10px] text-white/20 font-bold uppercase tracking-[0.4em]">Loading Verses...</span>
+                </div>
+            ) : (
+                <div className="flex flex-col gap-0">
+                    {pageData.map((verse: any, idx: number) => {
+                        const [sId, vId] = verse.verse_key.split(':');
+                        const isFirstVerse = vId === "1";
+                        const surahName = surahsData.find(s => s.id === parseInt(sId))?.name;
+                        
+                        return (
+                            <React.Fragment key={verse.id}>
+                                {isFirstVerse && (
+                                    <div className="my-16 animate-in fade-in duration-1000">
+                                        <div className="relative inline-block px-16 py-6 border border-white/5 bg-white/[0.02] rounded-3xl mb-8">
+                                            <h3 className="text-3xl md:text-4xl font-bold font-arabic text-primary/80">سورة {surahName}</h3>
+                                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#121212] px-4 text-[9px] font-bold text-white/10 uppercase tracking-widest">Beginning of Chapter</div>
+                                        </div>
+                                        {sId !== "1" && sId !== "9" && (
+                                            <div className="text-3xl md:text-[3.2rem] font-arabic text-white/70 mb-12 opacity-90 leading-normal">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+                                        )}
                                     </div>
+                                )}
+                                <div 
+                                    id={`digital-verse-${verse.id}`}
+                                    className={`inline transition-all duration-700 leading-[3] ${currentPlayingVerse === idx ? 'bg-primary/5 rounded-2xl' : ''}`}
+                                >
+                                    <span className="inline flex-wrap justify-center font-arabic text-[2.4rem] md:text-[3.2rem] text-white/90">
+                                        {verse.words.map((word: any) => (
+                                            <span 
+                                                key={word.id}
+                                                onClick={() => playWord(word)}
+                                                className={`inline-block cursor-pointer transition-all duration-200 px-0.5 rounded-xl ${activeWordId === word.id ? 'text-primary scale-110 bg-white/5 shadow-[0_0_20px_rgba(212,175,55,0.2)]' : 'hover:text-primary'}`}
+                                            >
+                                                {word.text_uthmani}
+                                            </span>
+                                        ))}
+                                        {/* Ayah Marker with precise styling */}
+                                        <span className="inline-flex items-center justify-center w-11 h-11 md:w-14 md:h-14 rounded-full border border-white/10 text-[11px] md:text-sm font-bold text-white/20 mx-2 md:mx-4 relative top-[-6px] bg-white/[0.02] hover:border-primary/40 transition-colors">
+                                            {vId}
+                                        </span>
+                                    </span>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-            </div>
+                            </React.Fragment>
+                        );
+                    })}
+                </div>
+            )}
         </div>
       </main>
 
-      {/* Footer Controls */}
-      <footer className="h-32 shrink-0 bg-[#080808]/90 backdrop-blur-3xl border-t border-white/10 px-8 flex flex-col items-center justify-center gap-4 z-[100] pb-10 lg:pb-0">
-          <div className="flex items-center gap-8 w-full max-w-2xl px-6 py-4 bg-white/[0.03] rounded-2xl border border-white/5 shadow-2xl">
-                <button onClick={prevPage} className="p-3 bg-white/5 rounded-xl text-white/40"><ChevronRight className="w-5 h-5" /></button>
-                <input type="range" min="1" max="604" value={currentPage} onChange={(e) => setCurrentPage(parseInt(e.target.value))} className="flex-1 h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary" />
-                <button onClick={nextPage} className="p-3 bg-white/5 rounded-xl text-white/40"><ChevronLeft className="w-5 h-5" /></button>
-                <div className="min-w-[60px] text-right">
-                    <span className="text-xl font-black text-primary font-mono">{currentPage}</span>
-                </div>
+      {/* Interaction Hint */}
+      {!isLoading && (
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-bottom-4 duration-1000">
+            <div className="bg-black/60 backdrop-blur-2xl border border-white/10 px-6 py-3 rounded-full shadow-2xl flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">اضغط على أي كلمة لسماع نطقها</span>
+            </div>
+        </div>
+      )}
+
+      {/* Floating Action Menu (Like quran.com) */}
+      <footer className="h-16 shrink-0 bg-[#0a0a0a] border-t border-white/5 px-8 flex items-center justify-center z-50">
+          <div className="flex items-center gap-10 w-full max-w-xl">
+                <input 
+                    type="range" 
+                    min="1" 
+                    max="604" 
+                    value={currentPage} 
+                    onChange={(e) => setCurrentPage(parseInt(e.target.value))}
+                    className="flex-1 h-1 bg-white/5 rounded-full appearance-none cursor-pointer accent-primary" 
+                />
           </div>
-          <p className="text-[10px] text-white/20 font-bold uppercase tracking-widest hidden md:block">اضغط على أي كلمة لسماع نطقها</p>
       </footer>
 
       <style jsx global>{`
         .font-arabic {
-            font-family: var(--font-amiri), serif;
-            word-spacing: 0.15em;
-        }
-        .glass-effect-dark {
-            background: rgba(10, 10, 10, 0.7);
-            backdrop-filter: blur(40px);
-            -webkit-backdrop-filter: blur(40px);
+            font-family: 'Amiri', serif;
+            word-spacing: 0.12em;
+            text-rendering: optimizeLegibility;
         }
         input[type='range']::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 24px;
-            height: 24px;
+            width: 14px;
+            height: 14px;
             background: #D4AF37;
             border-radius: 50%;
             cursor: pointer;
-            border: 4px solid #111;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
-            transition: all 0.2s;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
         }
-        input[type='range']::-webkit-slider-thumb:hover {
-            transform: scale(1.15);
-            background: #fff;
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
         }
       `}</style>
     </div>
   );
+}
+
+// Sub-icons for the screen
+function Bookmark(props: any) {
+    return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
 }
