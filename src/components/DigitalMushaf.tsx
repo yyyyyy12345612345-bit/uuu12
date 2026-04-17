@@ -3,15 +3,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, Loader2, BookOpen, Play, Search, X, List, Bookmark as BookmarkIcon } from "lucide-react";
 import surahsData from "@/data/surahs.json";
+import { useEditor } from "@/store/useEditor";
+import { getAudioUrl } from "@/lib/quranUtils";
 
 /**
- * DigitalMushaf Component - Version 4.0 (Enhanced Index & Persistence)
- * Mimics Quran.com perfectly with an integrated Surah Index and Last Page Resume.
+ * DigitalMushaf Component - Version 5.0 (Final Audio Fix)
  */
 
 const API_ROOT = "https://api.quran.com/api/v4";
 
 export function DigitalMushaf() {
+  const { state } = useEditor();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageData, setPageData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,7 +28,6 @@ export function DigitalMushaf() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const wordAudioRef = useRef<HTMLAudioElement>(null);
 
-  // Load last page from localStorage on mount
   useEffect(() => {
     const savedPage = localStorage.getItem("last_read_page");
     if (savedPage) {
@@ -34,7 +35,6 @@ export function DigitalMushaf() {
     }
   }, []);
 
-  // Sync current page to localStorage
   useEffect(() => {
     if (currentPage > 0) {
         localStorage.setItem("last_read_page", currentPage.toString());
@@ -75,7 +75,8 @@ export function DigitalMushaf() {
     if (!word.audio_url) return;
     setActiveWordId(word.id);
     if (wordAudioRef.current) {
-        wordAudioRef.current.src = `https:${word.audio_url}`;
+        const audioUrl = word.audio_url.startsWith('http') ? word.audio_url : `https:${word.audio_url}`;
+        wordAudioRef.current.src = audioUrl;
         wordAudioRef.current.play().catch(console.error);
     }
     if (navigator.vibrate) navigator.vibrate(20);
@@ -105,7 +106,8 @@ export function DigitalMushaf() {
 
     if (audioRef.current) {
         const [sura, ayah] = verse.verse_key.split(':');
-        audioRef.current.src = `https://cdn.islamic.network/quran/audio/verses/128/${sura}${ayah.padStart(3, '0')}.mp3`;
+        const audioUrl = getAudioUrl(parseInt(sura), parseInt(ayah), state.reciterId);
+        audioRef.current.src = audioUrl;
         audioRef.current.play().catch(() => setIsPlayingPage(false));
     }
   };
@@ -124,12 +126,11 @@ export function DigitalMushaf() {
   );
 
   return (
-    <div className="h-full flex flex-col bg-[#111111] text-white font-arabic relative overflow-hidden">
+    <div className="h-full flex flex-col bg-[#111111] text-white font-arabic relative overflow-hidden text-right">
       
       <audio ref={audioRef} onEnded={handleAudioEnd} />
       <audio ref={wordAudioRef} onEnded={() => setActiveWordId(null)} />
 
-      {/* Optimized Header */}
       <header className="h-[70px] shrink-0 border-b border-white/5 bg-[#111111]/90 backdrop-blur-xl px-4 md:px-10 flex items-center justify-between z-50">
         <div className="flex items-center gap-4">
              <button onClick={() => setIsIndexOpen(true)} className="p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-all text-white/60">
@@ -153,13 +154,12 @@ export function DigitalMushaf() {
             </button>
             <div className="w-px h-6 bg-white/10 mx-1" />
             <div className="flex items-center gap-1">
-                <button onClick={prevPage} disabled={currentPage === 1} className="p-2 hover:bg-white/5 rounded-lg disabled:opacity-10"><ChevronRight className="w-5 h-5" /></button>
-                <button onClick={nextPage} disabled={currentPage === 604} className="p-2 hover:bg-white/5 rounded-lg disabled:opacity-10"><ChevronLeft className="w-5 h-5" /></button>
+                <button onClick={prevPage} disabled={currentPage === 1} className="p-2 hover:bg-white/5 rounded-lg disabled:opacity-10"><ChevronRight className="w-5 h-5 transition-all active:scale-95" /></button>
+                <button onClick={nextPage} disabled={currentPage === 604} className="p-2 hover:bg-white/5 rounded-lg disabled:opacity-10"><ChevronLeft className="w-5 h-5 transition-all active:scale-95" /></button>
             </div>
         </div>
       </header>
 
-      {/* Main Flow */}
       <main className="flex-1 overflow-y-auto no-scrollbar pt-8 pb-32 overscroll-contain" ref={scrollRef}>
         <div className="max-w-[950px] mx-auto px-6 md:px-16 text-center">
             {isLoading ? (
@@ -176,7 +176,7 @@ export function DigitalMushaf() {
                         return (
                             <React.Fragment key={verse.id}>
                                 {isFirstVerse && (
-                                    <div className="my-12 animate-in fade-in duration-700">
+                                    <div className="my-12 animate-in fade-in duration-700 w-full text-center">
                                         <div className="inline-block px-20 py-6 border border-white/5 bg-white/[0.01] rounded-[2rem] mb-10 overflow-hidden relative">
                                             <div className="absolute inset-0 bg-primary/[0.01]" />
                                             <h3 className="text-3xl md:text-5xl font-bold font-arabic text-primary/80">سورة {surahName}</h3>
@@ -200,7 +200,6 @@ export function DigitalMushaf() {
                                                 {word.text_uthmani}
                                             </span>
                                         ))}
-                                        {/* Ayah Ornament - Custom Design */}
                                         <span className="inline-flex items-center justify-center w-12 h-12 md:w-[60px] md:h-[60px] relative top-[-6px] md:top-[-10px] mx-2 md:mx-4 group/ayah">
                                             <svg className="absolute inset-0 w-full h-full text-white/10 group-hover/ayah:text-primary/20 transition-colors" viewBox="0 0 100 100">
                                                 <path fill="currentColor" d="M50 0 L100 50 L50 100 L0 50 Z" />
@@ -218,33 +217,32 @@ export function DigitalMushaf() {
         </div>
       </main>
 
-      {/* Surah Index Drawer (The Answer to 'bidedkhlni 3al fatiha') */}
       {isIndexOpen && (
-        <div className="fixed inset-0 z-[600] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[600] flex items-center justify-center p-4 text-right">
             <div className="absolute inset-0 bg-[#0a0a0a]/98 backdrop-blur-2xl" />
             <div className="relative w-full max-w-6xl h-full max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-500 overflow-hidden">
                 
                 <div className="flex items-center justify-between p-8 shrink-0">
-                    <div>
-                        <h3 className="text-3xl font-black font-arabic text-primary mb-2">فهرس السور</h3>
-                        <p className="text-[10px] text-white/20 uppercase tracking-[0.4em] font-bold">Select a Surah to Read</p>
-                    </div>
                     <button 
                         onClick={() => setIsIndexOpen(false)} 
                         className="w-14 h-14 bg-white/5 rounded-full flex items-center justify-center hover:bg-white/10 transition-all border border-white/10 group"
                     >
                         <X className="w-6 h-6 text-white/40 group-hover:text-white" />
                     </button>
+                    <div>
+                        <h3 className="text-3xl font-black font-arabic text-primary mb-2">فهرس السور</h3>
+                        <p className="text-[10px] text-white/20 uppercase tracking-[0.4em] font-bold">Select a Surah to Read</p>
+                    </div>
                 </div>
 
-                <div className="px-8 pb-8 shrink-0">
-                    <div className="relative group max-w-2xl">
+                <div className="px-8 pb-8 shrink-0 flex justify-end">
+                    <div className="relative group w-full max-w-2xl">
                         <Search className="absolute right-6 top-1/2 -translate-y-1/2 text-primary w-5 h-5" />
                         <input 
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="ابحث عن سورة... (مثلاً: البقرة، الكهف)"
-                            className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-5 pr-16 pl-8 text-xl outline-none focus:border-primary/40 focus:bg-white/5 transition-all font-arabic text-white"
+                            placeholder="ابحث عن سورة... (البقرة، الكهف)"
+                            className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-5 pr-16 pl-8 text-xl outline-none focus:border-primary/40 focus:bg-white/5 transition-all font-arabic text-white text-right"
                         />
                     </div>
                 </div>
@@ -260,11 +258,11 @@ export function DigitalMushaf() {
                                 }}
                                 className="flex flex-col gap-3 p-5 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-primary/40 hover:bg-primary/[0.03] transition-all group overflow-hidden relative"
                             >
-                                <div className="absolute top-0 left-0 px-3 py-1 bg-white/5 text-[9px] font-bold text-white/10 rounded-br-xl group-hover:text-primary transition-colors">#{s.id}</div>
+                                <div className="absolute top-0 right-0 px-3 py-1 bg-white/5 text-[9px] font-bold text-white/10 rounded-bl-xl group-hover:text-primary transition-colors">#{s.id}</div>
                                 <span className="font-arabic text-xl md:text-2xl font-bold group-hover:text-white transition-colors mt-2 text-right">{s.name}</span>
                                 <div className="flex items-center justify-between mt-auto pt-3 border-t border-white/5 group-hover:border-primary/10">
-                                    <span className="text-[9px] text-white/20 font-bold uppercase tracking-widest font-mono">P. {s.pages[0]}</span>
-                                    <ChevronLeft className="w-4 h-4 text-white/10 group-hover:text-primary transition-all group-hover:translate-x-[-4px]" />
+                                    <ChevronRight className="w-4 h-4 text-white/10 group-hover:text-primary transition-all group-hover:translate-x-[4px]" />
+                                    <span className="text-[10px] font-bold text-white/20 font-mono">P. {s.pages[0]}</span>
                                 </div>
                             </button>
                         ))}
@@ -274,7 +272,6 @@ export function DigitalMushaf() {
         </div>
       )}
 
-      {/* Persistence Bar */}
       <footer className="h-16 shrink-0 bg-black/60 border-t border-white/5 px-8 flex items-center justify-center z-50">
           <input 
             type="range" 
