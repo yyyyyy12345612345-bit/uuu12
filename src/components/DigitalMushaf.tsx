@@ -31,7 +31,11 @@ export function DigitalMushaf() {
   const [hasMore, setHasMore] = useState(true);
   
   const [isPlayingPage, setIsPlayingPage] = useState(false);
+  const [currentPlayingVerse, setCurrentPlayingVerse] = useState<{pageIndex: number, verseIndex: number} | null>(null);
+  const [activeWordId, setActiveWordId] = useState<number | null>(null);
   const [showReciterPicker, setShowReciterPicker] = useState(false);
+  const [isIndexOpen, setIsIndexOpen] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
