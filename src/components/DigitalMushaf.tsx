@@ -249,11 +249,7 @@ export function DigitalMushaf() {
                                             {verse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => (
                                                 <span 
                                                     key={word.id}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        playWord(word);
-                                                    }}
-                                                    className={`inline-block px-0.5 md:px-1 rounded-lg transition-all duration-200 ${activeWordId === word.id ? 'text-primary scale-110' : 'hover:text-primary'}`}
+                                                    className="inline-block px-0.5 md:px-1"
                                                 >
                                                     {word.text_uthmani}
                                                 </span>
