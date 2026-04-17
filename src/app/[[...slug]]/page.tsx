@@ -91,37 +91,37 @@ function CatchAllContent() {
                 <aside className="hidden lg:flex w-[350px] h-full border-r border-white/5 flex-col p-6 overflow-y-auto no-scrollbar gap-6">
                    <SurahSelector /><Controls />
                 </aside>
-                <div className="flex-1 overflow-y-auto no-scrollbar relative">
-                   {/* Mobile Controls Button */}
-                   <div className="lg:hidden flex items-center justify-between px-6 pt-6 pb-2">
+                <div className="flex-1 flex flex-col h-full overflow-y-auto no-scrollbar">
+                   {/* Mobile Controls + Export */}
+                   <div className="lg:hidden flex items-center justify-between px-4 pt-4 pb-2 shrink-0">
                       <button 
                          onClick={() => setIsMobileControlsOpen(true)}
-                         className="flex items-center gap-3 px-5 py-3 bg-primary/10 border border-primary/20 rounded-2xl active:scale-95 transition-all"
+                         className="flex items-center gap-2 px-4 py-2.5 bg-primary/10 border border-primary/20 rounded-2xl active:scale-95 transition-all"
                       >
-                         <Settings className="w-5 h-5 text-primary" />
-                         <span className="text-sm font-bold font-arabic text-primary">إعدادات الفيديو</span>
+                         <Settings className="w-4 h-4 text-primary" />
+                         <span className="text-xs font-bold font-arabic text-primary">الإعدادات</span>
                       </button>
                       <button 
                          onClick={() => setIsRenderOpen(true)}
-                         className="flex items-center gap-3 px-5 py-3 bg-primary text-black rounded-2xl font-bold text-sm active:scale-95 transition-all shadow-lg shadow-primary/20"
+                         className="flex items-center gap-2 px-4 py-2.5 bg-primary text-black rounded-2xl font-bold text-xs active:scale-95 transition-all shadow-lg shadow-primary/20"
                       >
-                         <Download className="w-5 h-5" />
+                         <Download className="w-4 h-4" />
                          <span className="font-arabic">تصدير</span>
                       </button>
                    </div>
                    
-                   {/* Video Preview - Centered with padding */}
-                   <div className="flex flex-col items-center justify-center p-4 md:p-8 min-h-[60vh]">
+                   {/* Video Preview */}
+                   <div className="flex-1 flex items-center justify-center p-4 min-h-0">
                       <VideoPreview key={state.reciterId} />
                    </div>
 
                    {/* Desktop Export Button */}
-                   <div className="hidden lg:flex justify-center pb-8">
+                   <div className="hidden lg:flex justify-center py-4 shrink-0">
                       <button 
                          onClick={() => setIsRenderOpen(true)}
-                         className="flex items-center gap-3 px-10 py-4 bg-primary text-black rounded-2xl font-bold text-lg active:scale-95 hover:scale-105 transition-all shadow-2xl shadow-primary/20"
+                         className="flex items-center gap-3 px-8 py-3 bg-primary text-black rounded-2xl font-bold text-base active:scale-95 hover:scale-105 transition-all shadow-2xl shadow-primary/20"
                       >
-                         <Download className="w-6 h-6" />
+                         <Download className="w-5 h-5" />
                          <span className="font-arabic">تصدير الفيديو</span>
                       </button>
                    </div>
