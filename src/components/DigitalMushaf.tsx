@@ -230,6 +230,13 @@ export function DigitalMushaf() {
 
                             return (
                                 <React.Fragment key={verse.id}>
+                                    {isFirstVerse && (
+                                        <div className="w-full flex items-center gap-4 my-8 opacity-40">
+                                            <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-primary/30"></div>
+                                            <span className="font-arabic text-sm font-bold text-primary tracking-widest px-4 py-1 border border-primary/20 rounded-full">سورة {surahName}</span>
+                                            <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-primary/30"></div>
+                                        </div>
+                                    )}
                                     <span 
                                         id={`digital-verse-${verse.id}`}
                                         onClick={() => playVerse(pIdx, vIdx)}
@@ -268,12 +275,12 @@ export function DigitalMushaf() {
       </main>
 
       {isIndexOpen && (
-        <div className="fixed inset-0 z-[600] flex items-center justify-center p-4 text-right">
-            <div className="absolute inset-0 bg-[#0a0a0a]/98 backdrop-blur-2xl" />
-            <div className="relative w-full max-w-6xl h-full max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-500 overflow-hidden">
-                <div className="flex items-center justify-between p-8 shrink-0">
-                    <button onClick={() => setIsIndexOpen(false)} className="w-14 h-14 bg-white/5 rounded-full flex items-center justify-center hover:bg-white/10 transition-all border border-white/10 group"><X className="w-6 h-6 text-white/40 group-hover:text-white" /></button>
-                    <div><h3 className="text-3xl font-black font-arabic text-primary mb-2">فهرس السور</h3><p className="text-[10px] text-white/20 font-bold uppercase tracking-[0.4em]">Select a Surah</p></div>
+        <div className="fixed inset-0 z-[600] flex flex-col justify-end">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsIndexOpen(false)} />
+            <div className="relative w-full h-[85vh] bg-[#0a0a0a] border-t border-white/10 rounded-t-[3rem] flex flex-col animate-in slide-in-from-bottom duration-500 overflow-hidden shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
+                <div className="flex items-center justify-between p-6 shrink-0">
+                    <button onClick={() => setIsIndexOpen(false)} className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center hover:bg-white/10 transition-all border border-white/10 group"><X className="w-5 h-5 text-white/40 group-hover:text-white" /></button>
+                    <div className="text-right"><h3 className="text-xl font-bold font-arabic text-primary">فهرس السور</h3></div>
                 </div>
                 <div className="px-8 pb-8 shrink-0 flex justify-end">
                     <div className="relative group w-full max-w-2xl">
