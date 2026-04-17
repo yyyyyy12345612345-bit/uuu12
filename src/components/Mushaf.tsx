@@ -255,16 +255,9 @@ export function Mushaf() {
                                         {verse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => (
                                             <span
                                                 key={word.id}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    playWord(word);
-                                                }}
-                                                className={`cursor-pointer transition-all duration-300 text-4xl md:text-6xl px-1 md:px-2 rounded-xl relative ${activeWordId === word.id ? 'text-primary scale-110' : 'text-white/80 hover:text-primary hover:scale-105'}`}
+                                                className="text-4xl md:text-6xl px-1 md:px-2 text-white/80"
                                             >
                                                 {word.text_uthmani}
-                                                {activeWordId === word.id && (
-                                                    <span className="absolute bottom-[-5px] left-0 w-full h-[2px] bg-primary animate-pulse" />
-                                                )}
                                             </span>
                                         ))}
                                     </div>

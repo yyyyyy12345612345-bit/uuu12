@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useEditor } from "@/store/useEditor";
 import { usePathname } from "next/navigation";
-import { Settings, X, MessageCircle } from "lucide-react";
+import { Settings, X, MessageCircle, Download } from "lucide-react";
 
 // Pre-load components with ssr: false for all to ensure stability in Next.js 16
 const SurahSelector = dynamic(() => import("@/components/SurahSelector").then(mod => mod.SurahSelector), { ssr: false });
@@ -91,16 +91,40 @@ function CatchAllContent() {
                 <aside className="hidden lg:flex w-[350px] h-full border-r border-white/5 flex-col p-6 overflow-y-auto no-scrollbar gap-6">
                    <SurahSelector /><Controls />
                 </aside>
-                <div className="flex-1 flex items-center justify-center p-4 relative">
-                   <button 
-                      onClick={() => setIsMobileControlsOpen(true)}
-                      className="lg:hidden absolute top-10 right-8 z-50 flex flex-col items-center gap-1 active:scale-95 transition-all"
-                   >
-                      <div className="p-4 bg-primary/25 backdrop-blur-2xl border border-primary/40 rounded-full shadow-2xl ring-4 ring-primary/5">
-                        <Settings className="w-7 h-7 text-primary animate-spin-slow" />
-                      </div>
-                   </button>
-                   <VideoPreview key={state.reciterId} />
+                <div className="flex-1 overflow-y-auto no-scrollbar relative">
+                   {/* Mobile Controls Button */}
+                   <div className="lg:hidden flex items-center justify-between px-6 pt-6 pb-2">
+                      <button 
+                         onClick={() => setIsMobileControlsOpen(true)}
+                         className="flex items-center gap-3 px-5 py-3 bg-primary/10 border border-primary/20 rounded-2xl active:scale-95 transition-all"
+                      >
+                         <Settings className="w-5 h-5 text-primary" />
+                         <span className="text-sm font-bold font-arabic text-primary">إعدادات الفيديو</span>
+                      </button>
+                      <button 
+                         onClick={() => setIsRenderOpen(true)}
+                         className="flex items-center gap-3 px-5 py-3 bg-primary text-black rounded-2xl font-bold text-sm active:scale-95 transition-all shadow-lg shadow-primary/20"
+                      >
+                         <Download className="w-5 h-5" />
+                         <span className="font-arabic">تصدير</span>
+                      </button>
+                   </div>
+                   
+                   {/* Video Preview - Centered with padding */}
+                   <div className="flex flex-col items-center justify-center p-4 md:p-8 min-h-[60vh]">
+                      <VideoPreview key={state.reciterId} />
+                   </div>
+
+                   {/* Desktop Export Button */}
+                   <div className="hidden lg:flex justify-center pb-8">
+                      <button 
+                         onClick={() => setIsRenderOpen(true)}
+                         className="flex items-center gap-3 px-10 py-4 bg-primary text-black rounded-2xl font-bold text-lg active:scale-95 hover:scale-105 transition-all shadow-2xl shadow-primary/20"
+                      >
+                         <Download className="w-6 h-6" />
+                         <span className="font-arabic">تصدير الفيديو</span>
+                      </button>
+                   </div>
                 </div>
              </div>
           </div>
