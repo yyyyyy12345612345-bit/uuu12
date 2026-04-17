@@ -72,7 +72,9 @@ export function Mushaf() {
     if (!word.audio_url) return;
     setActiveWordId(word.id);
     if (wordAudioRef.current) {
-        wordAudioRef.current.src = `https:${word.audio_url}`;
+        // Safe check for URL protocol
+        const audioUrl = word.audio_url.startsWith('http') ? word.audio_url : `https:${word.audio_url}`;
+        wordAudioRef.current.src = audioUrl;
         wordAudioRef.current.play().catch(console.error);
     }
     if (navigator.vibrate) navigator.vibrate(20);
