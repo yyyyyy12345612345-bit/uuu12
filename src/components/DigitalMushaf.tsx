@@ -82,14 +82,36 @@ export function DigitalMushaf() {
   }, [currentPage]);
 
   const playWord = (word: any) => {
-    if (!word?.audio_url) return;
-    setActiveWordId(word.id);
-    if (wordAudioRef.current) {
-        const audioUrl = word.audio_url.startsWith('http') ? word.audio_url : `https:${word.audio_url}`;
-        wordAudioRef.current.src = audioUrl;
-        wordAudioRef.current.play().catch(console.error);
+    if (!word || !word.audio_url) {
+        console.warn("No audio URL found for this word.");
+        return;
     }
+    
+    setActiveWordId(word.id);
+    
+    // Clean and verify URL (Handle relative paths as suggested)
+    let audioUrl = word.audio_url;
+    if (audioUrl.startsWith('/')) {
+        if (audioUrl.startsWith('//')) {
+            audioUrl = `https:${audioUrl}`;
+        } else {
+            audioUrl = `https://verses.quran.com${audioUrl}`;
+        }
+    } else if (!audioUrl.startsWith('http')) {
+        audioUrl = `https://${audioUrl}`;
+    }
+
+    const audio = new Audio(audioUrl);
+    audio.play().catch((err) => {
+        console.error("Word audio playback failed, trying secondary fallback...", err);
+        // Try with audio.quran.com if verses.quran.com fails
+        const altUrl = audioUrl.replace('verses.quran.com', 'audio.quran.com');
+        new Audio(altUrl).play().catch(console.error);
+    });
+
     if (navigator.vibrate) navigator.vibrate(20);
+    
+    audio.onended = () => setActiveWordId(null);
   };
 
   const togglePlayPage = () => {
