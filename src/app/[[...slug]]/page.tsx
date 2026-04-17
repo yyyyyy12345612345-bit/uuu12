@@ -19,15 +19,24 @@ const DailyHub = dynamic(() => import("@/components/DailyHub").then(mod => mod.D
 const Navigation = dynamic(() => import("@/components/Navigation").then(mod => mod.Navigation), { ssr: false });
 const PWAInstallButton = dynamic(() => import("@/components/PWAInstallButton").then(mod => mod.PWAInstallButton), { ssr: false });
 const FeedbackModal = dynamic(() => import("@/components/FeedbackModal").then(mod => mod.FeedbackModal), { ssr: false });
-const Shamrely = dynamic(() => import("@/components/Shamrely").then(mod => mod.Shamrely), { ssr: false });
+const DigitalMushaf = dynamic(() => import("@/components/DigitalMushaf").then(mod => mod.DigitalMushaf), { ssr: false });
 
 export default function CatchAllPage({ params }: { params: Promise<{ slug?: string[] }> }) {
+  return (
+    <React.Suspense fallback={<LoadingShell />}>
+      <CatchAllContent params={params} />
+    </React.Suspense>
+  );
+}
+
+function CatchAllContent({ params }: { params: Promise<{ slug?: string[] }> }) {
   const { state } = useEditor();
   const pathname = usePathname();
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isRenderOpen, setIsRenderOpen] = useState(false);
   const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
   
+  // Unwrap params using React.use()
   use(params);
 
   const activeView = useMemo(() => {
@@ -43,10 +52,11 @@ export default function CatchAllPage({ params }: { params: Promise<{ slug?: stri
     }
   }, [activeView, visited]);
 
-  if (!state.isHydrated) return null;
+  // Handle Hydration with a Shell instead of null to prevent SSR crash
+  if (!state.isHydrated) return <LoadingShell />;
 
   return (
-    <div className="fixed inset-0 bg-black text-white flex flex-col w-full font-arabic overflow-hidden">
+    <div className="fixed inset-0 bg-black text-white flex flex-col w-full font-arabic overflow-hidden transition-opacity duration-1000">
       <header className="h-20 shrink-0 bg-black/40 border-b border-white/5 px-4 md:px-10 flex items-center justify-between z-[110]">
         <Link href="/" className="flex items-center gap-3">
           <img src="/logo/logo.png?v=4" alt="Logo" className="w-10 h-10" />
@@ -69,7 +79,7 @@ export default function CatchAllPage({ params }: { params: Promise<{ slug?: stri
 
       <main className="flex-1 relative overflow-hidden bg-[#050505]">
         {visited.mushaf && <div className={`h-full w-full ${activeView === 'mushaf' ? 'block' : 'hidden'}`}><Mushaf /></div>}
-        {visited.shamrely && <div className={`h-full w-full ${activeView === 'shamrely' ? 'block' : 'hidden'}`}><Shamrely /></div>}
+        {visited.shamrely && <div className={`h-full w-full ${activeView === 'shamrely' ? 'block' : 'hidden'}`}><DigitalMushaf /></div>}
         {visited.daily && <div className={`h-full w-full ${activeView === 'daily' ? 'block' : 'hidden'}`}><DailyHub /></div>}
         {visited.library && <div className={`h-full w-full ${activeView === 'library' ? 'block' : 'hidden'}`}><AudioLibrary /></div>}
         {visited.prayers && <div className={`h-full w-full ${activeView === 'prayers' ? 'block' : 'hidden'}`}><PrayerTimes /></div>}
@@ -81,7 +91,6 @@ export default function CatchAllPage({ params }: { params: Promise<{ slug?: stri
                    <SurahSelector /><Controls />
                 </aside>
                 <div className="flex-1 flex items-center justify-center p-4 relative capitalize">
-                   {/* Mobile Settings Button Overlay */}
                    <button 
                       onClick={() => setIsMobileControlsOpen(true)}
                       className="lg:hidden absolute top-10 right-8 z-50 flex flex-col items-center gap-1 active:scale-95 transition-all"
@@ -91,7 +100,6 @@ export default function CatchAllPage({ params }: { params: Promise<{ slug?: stri
                       </div>
                       <span className="text-[10px] font-bold text-primary bg-black/60 px-2 py-0.5 rounded-full shadow-lg">إعدادات الفيديو</span>
                    </button>
-
                    <VideoPreview key={state.reciterId} />
                 </div>
              </div>
@@ -122,4 +130,15 @@ export default function CatchAllPage({ params }: { params: Promise<{ slug?: stri
       <RenderModal isOpen={isRenderOpen} onClose={() => setIsRenderOpen(false)} />
     </div>
   );
+}
+
+function LoadingShell() {
+    return (
+        <div className="fixed inset-0 bg-black flex items-center justify-center">
+            <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+                <span className="text-[10px] text-white/20 font-bold uppercase tracking-[0.4em]">جارٍ التهيئة...</span>
+            </div>
+        </div>
+    );
 }
