@@ -62,8 +62,15 @@ export function Mushaf() {
     } else {
       setPlayingAyah(ayahId);
       if (audioRef.current) {
-        audioRef.current.src = getAudioUrl(Number(selectedSurah), ayahId, state.reciterId);
-        audioRef.current.play().catch(e => console.error("Audio blocked", e));
+        const audioUrl = getAudioUrl(Number(selectedSurah), ayahId, state.reciterId);
+        audioRef.current.src = audioUrl;
+        audioRef.current.play().catch(e => {
+            console.warn("Primary audio failed, trying fallback...", e);
+            if (audioRef.current) {
+                audioRef.current.src = getAudioUrl(Number(selectedSurah), ayahId, state.reciterId, 'fallback');
+                audioRef.current.play().catch(console.error);
+            }
+        });
       }
     }
   };
@@ -265,12 +272,21 @@ export function Mushaf() {
           </div>
       </div>
 
-      <audio ref={audioRef} onEnded={() => {
+      <audio ref={audioRef} 
+        onEnded={() => {
             if (playingAyah && playingAyah < (surahContent?.verses.length || 0)) {
                 toggleAudio(playingAyah + 1);
                 document.getElementById(`verse-${playingAyah + 1}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             } else { setPlayingAyah(null); }
-      }} />
+        }} 
+        onError={() => {
+            if (playingAyah && audioRef.current) {
+                console.warn("Retrying with fallback...");
+                audioRef.current.src = getAudioUrl(Number(selectedSurah), playingAyah, state.reciterId, 'fallback');
+                audioRef.current.play().catch(console.error);
+            }
+        }}
+      />
     </div>
   );
 }

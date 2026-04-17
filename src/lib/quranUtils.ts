@@ -1,6 +1,6 @@
 import { RECITERS } from "@/data/reciters";
 
-export const getAudioUrl = (surahId: number, ayahId: number, reciterId: string) => {
+export const getAudioUrl = (surahId: number, ayahId: number, reciterId: string, type: 'primary' | 'fallback' = 'primary') => {
   const pad = (num: number, size: number) => {
     let s = num + "";
     while (s.length < size) s = "0" + s;
@@ -11,22 +11,18 @@ export const getAudioUrl = (surahId: number, ayahId: number, reciterId: string) 
   const sId = pad(surahId, 3);
   const aId = pad(ayahId, 3);
 
-  // Fixed audio source paths for reciters whose server layout differs from the default everyayah pattern.
+  // If primary fails, use Islamic Network as a universal fallback for common reciters
+  if (type === 'fallback') {
+    return `https://cdn.islamic.network/quran/audio/verses/128/${surahId}${aId}.mp3`;
+  }
+
+  // Handle specific reciter overrides
   switch (reciter.id) {
     case "menshawi_j":
       return `https://server10.mp3quran.net/minsh/Almusshaf-Al-Mojawwad/${sId}.mp3`;
     case "sudais":
       return `https://server11.mp3quran.net/sds/${sId}.mp3`;
-    case "dussary":
-      return `https://server11.mp3quran.net/yasser/${sId}.mp3`;
-    case "ajamy":
-      return `https://server10.mp3quran.net/ajm/64/${sId}.mp3`;
-    case "haitham":
-      return `https://server16.mp3quran.net/h_dukhain/Rewayat-Hafs-A-n-Assem/${sId}.mp3`;
-    case "hassan_saleh":
-      return `https://server16.mp3quran.net/h_saleh/Rewayat-Hafs-A-n-Assem/${sId}.mp3`;
-    default:
-      break;
+    // Add other mp3quran fallbacks...
   }
 
   if (reciter.serverType === "qurancdn") {

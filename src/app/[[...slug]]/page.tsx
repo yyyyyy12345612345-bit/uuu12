@@ -79,7 +79,7 @@ function CatchAllContent({ params }: { params: Promise<{ slug?: string[] }> }) {
 
       <main className="flex-1 relative overflow-hidden bg-[#050505]">
         {visited.mushaf && <div className={`h-full w-full ${activeView === 'mushaf' ? 'block' : 'hidden'}`}><Mushaf /></div>}
-        {visited.shamrely && <div className={`h-full w-full ${activeView === 'shamrely' ? 'block' : 'hidden'}`}><DigitalMushaf /></div>}
+        {visited['mushaf-full'] && <div className={`h-full w-full ${activeView === 'mushaf-full' ? 'block' : 'hidden'}`}><DigitalMushaf /></div>}
         {visited.daily && <div className={`h-full w-full ${activeView === 'daily' ? 'block' : 'hidden'}`}><DailyHub /></div>}
         {visited.library && <div className={`h-full w-full ${activeView === 'library' ? 'block' : 'hidden'}`}><AudioLibrary /></div>}
         {visited.prayers && <div className={`h-full w-full ${activeView === 'prayers' ? 'block' : 'hidden'}`}><PrayerTimes /></div>}
