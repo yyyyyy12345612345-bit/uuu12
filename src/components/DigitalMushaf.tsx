@@ -230,20 +230,12 @@ export function DigitalMushaf() {
 
                             return (
                                 <React.Fragment key={verse.id}>
-                                        <div className="block w-full text-center my-6">
-                                            <div className="inline-block px-8 md:px-12 py-2 md:py-3 border border-primary/20 bg-primary/5 rounded-2xl mb-4">
-                                                <h3 className="text-xl md:text-2xl font-bold font-arabic text-primary">سورة {surahName}</h3>
-                                            </div>
-                                            {sId !== "1" && sId !== "9" && (
-                                                <div className="text-xl md:text-2xl font-arabic text-white/40 mb-4 opacity-60">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
-                                            )}
-                                        </div>
                                     <span 
                                         id={`digital-verse-${verse.id}`}
                                         onClick={() => playVerse(pIdx, vIdx)}
                                         className={`inline transition-all duration-700 rounded-xl cursor-pointer ${isPlaying ? 'bg-primary/10 text-white' : 'text-white/80 hover:text-white hover:bg-white/5'}`}
                                     >
-                                        <span className="inline text-[1.5rem] md:text-[2.2rem] font-arabic">
+                                        <span className="inline text-[1.9rem] md:text-[3rem] font-arabic">
                                             {verse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => (
                                                 <span 
                                                     key={word.id}
@@ -301,22 +293,17 @@ export function DigitalMushaf() {
                                     fetchPage(startPage, true);
                                     setIsIndexOpen(false);
                                 }}
-                                className="w-full flex items-center gap-6 p-5 md:p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 hover:border-primary/40 hover:bg-primary/[0.03] transition-all group relative overflow-hidden text-right shadow-sm"
+                                className="w-full flex items-center justify-between p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:bg-primary/10 hover:border-primary/20 transition-all group"
                             >
-                                <div className="w-12 h-12 shrink-0 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-sm font-black font-mono text-white/20 group-hover:text-primary transition-colors">
-                                    {s.id}
-                                </div>
-                                
-                                <div className="flex-1 flex flex-col items-end text-right">
-                                    <span className="font-arabic text-xl md:text-2xl font-bold group-hover:text-white transition-colors">سورة {s.name}</span>
-                                    <div className="flex items-center gap-3 mt-1 opacity-40">
-                                        <span className="text-[9px] font-bold uppercase tracking-wider">{s.revelation_place === 'makkah' ? 'مكية' : 'مدنية'}</span>
-                                        <span className="w-1 h-1 rounded-full bg-white/20"></span>
-                                        <span className="text-[9px] font-bold uppercase tracking-wider">{s.total_verses} آية</span>
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-lg bg-black/40 flex items-center justify-center text-xs font-bold text-white/20 group-hover:text-primary transition-colors border border-white/5">
+                                        {s.id}
                                     </div>
+                                    <span className="font-arabic text-xl font-bold text-white/80 group-hover:text-white transition-colors">{s.name}</span>
                                 </div>
-                                <div className="w-8 h-8 shrink-0 rounded-full border border-white/5 flex items-center justify-center group-hover:border-primary/40 group-hover:bg-primary/5 transition-all">
-                                    <ChevronRight className="w-4 h-4 text-white/10 group-hover:text-primary transition-all group-hover:translate-x-[2px] rotate-180" />
+                                <div className="flex flex-col items-end opacity-40 group-hover:opacity-100 transition-opacity">
+                                    <span className="text-[9px] font-bold uppercase tracking-wider">{s.total_verses} آية</span>
+                                    <span className="text-[9px] font-bold uppercase tracking-wider opacity-60">P. {SURAH_START_PAGES[s.id] || "?"}</span>
                                 </div>
                             </button>
                         ))}
