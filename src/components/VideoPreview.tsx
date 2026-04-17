@@ -112,7 +112,7 @@ export function VideoPreview() {
   const currentVerse = surahData?.verses.find(v => v.id === currentAyahIndex);
 
   return (
-    <div className="relative aspect-[9/16] h-full max-h-[85vh] group select-none" id="video-render-container">
+    <div className="relative aspect-[9/16] h-full max-h-[72vh] group select-none" id="video-render-container">
       <div className="absolute inset-0 bg-black rounded-[2.5rem] border-[8px] border-white/5 shadow-[0_0_100px_rgba(0,0,0,1)] overflow-hidden">
 
         {/* Background Media */}
