@@ -116,17 +116,54 @@ export function PrayerTimes() {
   const requestNotificationPermission = async () => {
      if (!("Notification" in window)) return;
      const permission = await Notification.requestPermission();
-     if (permission === "granted") {
-        setNotificationsEnabled(true);
-        localStorage.setItem("notifications", "true");
-     }
+     console.log("Notification permission:", permission);
   };
+
+  // Send prayer times and settings to Service Worker for background notifications
+  const syncPrayerTimesToSW = (timesData: PrayerTimesData | null, settingsData: Record<string, PrayerSetting>) => {
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller && timesData) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'PRAYER_DATA_UPDATE',
+        times: timesData,
+        settings: settingsData
+      });
+      console.log('[App] Prayer data synced to SW');
+    }
+  };
+
+  // Sync with SW whenever times or settings change
+  useEffect(() => {
+    syncPrayerTimesToSW(times, prayerSettings);
+  }, [times, prayerSettings]);
+
+  // Listen for PLAY_ADHAN messages from Service Worker
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    
+    const handleSWMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'PLAY_ADHAN' && audioRef.current) {
+        const prayerKey = event.data.prayer;
+        const setting = prayerSettings[prayerKey];
+        if (setting?.athanEnabled) {
+          const muezzin = MUEZZINS.find(m => m.id === setting.muezzinId) || MUEZZINS[0];
+          audioRef.current.src = muezzin.file;
+          audioRef.current.play().catch(console.error);
+        }
+      }
+    };
+    
+    navigator.serviceWorker.addEventListener('message', handleSWMessage);
+    return () => navigator.serviceWorker.removeEventListener('message', handleSWMessage);
+  }, [prayerSettings]);
 
   useEffect(() => {
     // 1. Loading cached data immediately for offline speed
     const cachedTimes = localStorage.getItem("prayer_times_cache");
     const cachedLoc = localStorage.getItem("prayer_location_cache");
-    if (cachedTimes) setTimes(JSON.parse(cachedTimes));
+    if (cachedTimes) {
+      const parsed = JSON.parse(cachedTimes);
+      setTimes(parsed);
+    }
     if (cachedLoc) setLocationName(cachedLoc);
 
     // 2. Refresh from network in background
@@ -149,6 +186,13 @@ export function PrayerTimes() {
 
     // 4. Setup Timer
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+
+    // 5. Auto-request notification permission
+    if ("Notification" in window && Notification.permission === "default") {
+      // Small delay so it doesn't block the UI
+      setTimeout(() => requestNotificationPermission(), 3000);
+    }
+
     return () => clearInterval(timer);
   }, []);
 
