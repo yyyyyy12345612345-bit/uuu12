@@ -107,9 +107,29 @@ export function DigitalMushaf() {
     if (audioRef.current) {
         const [sura, ayah] = verse.verse_key.split(':');
         const audioUrl = getAudioUrl(parseInt(sura), parseInt(ayah), state.reciterId);
+        
+        // Use a state-local fallback tracker if needed, but for now simple retry
         audioRef.current.src = audioUrl;
-        audioRef.current.play().catch(() => setIsPlayingPage(false));
+        audioRef.current.play().catch((err) => {
+            console.warn("Primary audio failed, trying fallback...", err);
+            if (audioRef.current) {
+                audioRef.current.src = getAudioUrl(parseInt(sura), parseInt(ayah), state.reciterId, 'fallback');
+                audioRef.current.play().catch(console.error);
+            }
+        });
     }
+  };
+
+  const handleAudioError = (e: any) => {
+      console.error("Audio playback error detected:", e);
+      // If we are playing a page, we might want to skip or retry
+      if (isPlayingPage && currentPlayingVerse !== null) {
+          const [sura, ayah] = pageData[currentPlayingVerse].verse_key.split(':');
+          if (audioRef.current) {
+             audioRef.current.src = getAudioUrl(parseInt(sura), parseInt(ayah), state.reciterId, 'fallback');
+             audioRef.current.play().catch(() => playVerse(currentPlayingVerse + 1));
+          }
+      }
   };
 
   const handleAudioEnd = () => {
@@ -128,7 +148,7 @@ export function DigitalMushaf() {
   return (
     <div className="h-full flex flex-col bg-[#111111] text-white font-arabic relative overflow-hidden text-right">
       
-      <audio ref={audioRef} onEnded={handleAudioEnd} />
+      <audio ref={audioRef} onEnded={handleAudioEnd} onError={handleAudioError} />
       <audio ref={wordAudioRef} onEnded={() => setActiveWordId(null)} />
 
       <header className="h-[70px] shrink-0 border-b border-white/5 bg-[#111111]/90 backdrop-blur-xl px-4 md:px-10 flex items-center justify-between z-50">
