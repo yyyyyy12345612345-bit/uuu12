@@ -13,9 +13,12 @@ export function Mushaf() {
   const [surahContent, setSurahContent] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [playingAyah, setPlayingAyah] = useState<number | null>(null);
+  const [activeWordId, setActiveWordId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [showReciterPicker, setShowReciterPicker] = useState(false);
+  
   const audioRef = useRef<HTMLAudioElement>(null);
+  const wordAudioRef = useRef<HTMLAudioElement>(null);
 
   const selectedReciter = RECITERS.find(r => r.id === state.reciterId) || RECITERS[0];
 
@@ -25,7 +28,7 @@ export function Mushaf() {
       setLoading(true);
       setSurahContent(null);
       try {
-        const response = await fetch(`https://api.quran.com/api/v4/verses/by_chapter/${selectedSurah}?language=ar&words=false&fields=text_uthmani&translations=131&per_page=500`);
+        const response = await fetch(`https://api.quran.com/api/v4/verses/by_chapter/${selectedSurah}?language=ar&words=true&word_fields=text_uthmani,audio_url&fields=text_uthmani&translations=131&per_page=500`);
         const data = await response.json();
         
         if (!data.verses || data.verses.length === 0) throw new Error("No verses found");
@@ -33,6 +36,7 @@ export function Mushaf() {
         const formattedVerses = data.verses.map((v: any) => ({
             id: v.verse_number,
             text: v.text_uthmani || v.text_indopak || "نص الآية غير متوفر",
+            words: v.words || [],
             translation: v.translations?.[0]?.text.replace(/<[^>]*>?/gm, '') || ""
         }));
 
@@ -62,6 +66,16 @@ export function Mushaf() {
         audioRef.current.play().catch(e => console.error("Audio blocked", e));
       }
     }
+  };
+
+  const playWord = (word: any) => {
+    if (!word.audio_url) return;
+    setActiveWordId(word.id);
+    if (wordAudioRef.current) {
+        wordAudioRef.current.src = `https:${word.audio_url}`;
+        wordAudioRef.current.play().catch(console.error);
+    }
+    if (navigator.vibrate) navigator.vibrate(20);
   };
 
   const filteredSurahs = surahsData.filter(s => 
@@ -143,6 +157,9 @@ export function Mushaf() {
 
   return (
     <div className="flex flex-col h-full animate-reveal relative overflow-hidden bg-transparent">
+      
+      <audio ref={wordAudioRef} onEnded={() => setActiveWordId(null)} />
+
       <header className="shrink-0 p-5 glass-effect border-b border-white/5 flex items-center justify-between z-40 mx-4 mt-2 rounded-2xl relative">
           <button 
             onClick={() => setSelectedSurah(null)}
@@ -188,9 +205,6 @@ export function Mushaf() {
       <div key={`surah-verses-${selectedSurah}`} className="flex-1 overflow-y-auto p-6 md:p-12 pb-32 no-scrollbar custom-scrollbar overscroll-contain">
 
 
-
-
-
           <div className="max-w-4xl mx-auto">
             {loading ? (
                  <div className="flex flex-col items-center justify-center p-32 gap-6">
@@ -199,7 +213,6 @@ export function Mushaf() {
                 </div>
             ) : (
                 <div className="flex flex-col gap-12 md:gap-24">
-                    {/* Bismillah placeholder if needed could go here */}
                     {surahContent?.verses.map((verse: any) => (
                         <div 
                             key={verse.id} 
@@ -215,15 +228,26 @@ export function Mushaf() {
                                     <Bookmark className="w-3.5 h-3.5" />
                                     <span className="font-arabic">{state.bookmark?.surahId === selectedSurah && state.bookmark?.ayahId === verse.id ? 'تم حفظ الورد' : 'حفظ كورد'}</span>
                                 </button>
-                                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-[11px] font-bold text-white/20 font-mono tracking-tighter shadow-inner">{verse.id}</div>
+                                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-[11px] font-bold text-white/20 font-mono tracking-tighter shadow-inner cursor-pointer" onClick={() => toggleAudio(verse.id)}>{verse.id}</div>
                             </div>
 
-                            <p 
-                                onClick={() => toggleAudio(verse.id)}
-                                className={`text-right text-4xl md:text-6xl leading-[2.1] cursor-pointer transition-all duration-1000 ${playingAyah === verse.id ? 'text-white' : 'text-white/80'}`}
-                            >
-                                {verse.text}
-                            </p>
+                            <div className="flex flex-wrap justify-center gap-x-2 gap-y-4 md:gap-x-4">
+                                {verse.words?.map((word: any) => (
+                                    <span 
+                                        key={word.id}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            playWord(word);
+                                        }}
+                                        className={`cursor-pointer transition-all duration-300 text-4xl md:text-6xl px-1 md:px-2 rounded-xl relative ${activeWordId === word.id ? 'text-primary scale-110' : 'text-white/80 hover:text-primary hover:scale-105'}`}
+                                    >
+                                        {word.text_uthmani}
+                                        {activeWordId === word.id && (
+                                            <span className="absolute bottom-[-5px] left-0 w-full h-[2px] bg-primary animate-pulse" />
+                                        )}
+                                    </span>
+                                ))}
+                            </div>
                             
                             <div className={`mt-10 overflow-hidden transition-all duration-1000 ${playingAyah === verse.id ? 'max-h-96 opacity-100 translate-y-0' : 'max-h-0 opacity-0 translate-y-4'}`}>
                                 <div className="p-8 rounded-[2rem] bg-primary/[0.02] border border-primary/10 relative text-right">

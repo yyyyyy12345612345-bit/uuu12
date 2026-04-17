@@ -3,11 +3,13 @@
 import React, { useEffect, useState } from "react";
 import surahsData from "@/data/surahs.json";
 import { useEditor } from "@/store/useEditor";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
+import { AyahSearchModal } from "./AyahSearchModal";
 
 export function SurahSelector() {
   const { state, updateState } = useEditor();
   const [maxVerses, setMaxVerses] = useState(7);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
     const surah = surahsData.find(s => s.id.toString() === state.surahId);
@@ -34,6 +36,24 @@ export function SurahSelector() {
 
   return (
     <div className="flex flex-col gap-6">
+      <AyahSearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      
+      {/* Smart Search Initiation */}
+      <button 
+        onClick={() => setIsSearchOpen(true)}
+        className="w-full flex items-center justify-between p-4 bg-primary/10 border border-primary/20 rounded-2xl hover:bg-primary/20 transition-all group animate-in slide-in-from-top-4 duration-500 shadow-lg shadow-primary/5"
+      >
+        <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                <Search className="w-4 h-4" />
+            </div>
+            <span className="text-sm font-bold font-arabic text-primary">ابحث عن آية للفيديو...</span>
+        </div>
+        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+        </div>
+      </button>
+
       <div className="flex flex-col gap-2.5">
         <label className="text-[10px] uppercase tracking-[0.2em] text-white/30 mr-2 font-bold">السورة الكريمة</label>
         <div className="relative group">
