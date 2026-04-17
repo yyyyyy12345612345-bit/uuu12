@@ -24,72 +24,80 @@ const SURAH_START_PAGES: Record<number, number> = {
 
 export function DigitalMushaf() {
   const { state } = useEditor();
+  const [pages, setPages] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageData, setPageData] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [meta, setMeta] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  
   const [isPlayingPage, setIsPlayingPage] = useState(false);
-  const [currentPlayingVerse, setCurrentPlayingVerse] = useState<number | null>(null);
-  const [activeWordId, setActiveWordId] = useState<number | null>(null);
-  const [isIndexOpen, setIsIndexOpen] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [showReciterPicker, setShowReciterPicker] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const wordAudioRef = useRef<HTMLAudioElement>(null);
+  const observerTarget = useRef(null);
 
+  // Get current reciter object
+  const selectedReciter = RECITERS.find(r => r.id === state.reciterId) || RECITERS[0];
+
+  // Load Initial Page
   useEffect(() => {
     const savedPage = localStorage.getItem("last_read_page");
-    if (savedPage) {
-        setCurrentPage(parseInt(savedPage));
-    }
+    const initialPage = savedPage ? parseInt(savedPage) : 1;
+    setCurrentPage(initialPage);
+    fetchPage(initialPage, true);
   }, []);
 
-  useEffect(() => {
-    if (currentPage > 0) {
-        localStorage.setItem("last_read_page", currentPage.toString());
-    }
-  }, [currentPage]);
-
-  useEffect(() => {
-    async function fetchPage() {
-      setIsLoading(true);
-      setIsPlayingPage(false);
-      setCurrentPlayingVerse(null);
-      try {
-        const response = await fetch(
-          `${API_ROOT}/verses/by_page/${currentPage}?language=ar&words=true&word_fields=text_uthmani,audio_url,char_type_name&fields=text_uthmani,verse_key,juz_number,hizb_number`
-        );
-        const data = await response.json();
-        
-        if (data.verses) {
-            setPageData(data.verses);
-            if (data.verses.length > 0) {
-                setMeta({
-                    juz: data.verses[0]?.juz_number,
-                    hizb: data.verses[0]?.hizb_number,
-                });
-            }
-        }
-      } catch (err) {
-        console.error("Failed to fetch page data", err);
-      } finally {
-        setIsLoading(false);
-        if (scrollRef.current) scrollRef.current.scrollTop = 0;
+  async function fetchPage(pageNum: number, clear = false) {
+    if (isLoading || pageNum > 604) return;
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `${API_ROOT}/verses/by_page/${pageNum}?language=ar&words=true&word_fields=text_uthmani,audio_url,char_type_name&fields=text_uthmani,verse_key,juz_number,hizb_number`
+      );
+      const data = await response.json();
+      
+      if (data.verses) {
+          if (clear) {
+              setPages([{ page: pageNum, verses: data.verses }]);
+          } else {
+              setPages(prev => [...prev, { page: pageNum, verses: data.verses }]);
+          }
+          localStorage.setItem("last_read_page", pageNum.toString());
       }
+    } catch (err) {
+      console.error("Failed to fetch page data", err);
+    } finally {
+      setIsLoading(false);
     }
-    fetchPage();
-  }, [currentPage]);
+  }
+
+  // Infinite Scroll Observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && !isLoading && hasMore) {
+          const nextP = (pages[pages.length - 1]?.page || 1) + 1;
+          if (nextP <= 604) {
+              fetchPage(nextP);
+          } else {
+              setHasMore(false);
+          }
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerTarget.current) {
+        observer.observe(observerTarget.current);
+    }
+
+    return () => observer.disconnect();
+  }, [pages, isLoading, hasMore]);
 
   const playWord = (word: any) => {
-    if (!word || !word.audio_url) {
-        console.warn("No audio URL found for this word.");
-        return;
-    }
-    
+    if (!word || !word.audio_url) return;
     setActiveWordId(word.id);
     
-    // Clean and verify URL (Using audio.qurancdn.com as the official WBW base)
     const baseWordUrl = "https://audio.qurancdn.com/";
     let audioUrl = word.audio_url;
 
@@ -104,44 +112,24 @@ export function DigitalMushaf() {
     }
 
     const audio = new Audio(audioUrl);
-    audio.play().catch((err) => {
-        console.error("Word audio playback failed, trying fallback...", err);
-        // Fallback to verses.quran.com if needed
-        const fallbackUrl = audioUrl.replace('audio.qurancdn.com', 'verses.quran.com');
-        new Audio(fallbackUrl).play().catch(console.error);
+    audio.play().catch(() => {
+        const fall = audioUrl.replace('audio.qurancdn.com', 'verses.quran.com');
+        new Audio(fall).play().catch(console.error);
     });
 
     if (navigator.vibrate) navigator.vibrate(20);
-    
     audio.onended = () => setActiveWordId(null);
   };
 
-  const togglePlayPage = () => {
-    if (isPlayingPage) {
-        setIsPlayingPage(false);
-        audioRef.current?.pause();
-        setCurrentPlayingVerse(null);
-    } else {
-        setIsPlayingPage(true);
-        playVerse(0);
-    }
-  };
+  const playVerse = (pIdx: number, vIdx: number) => {
+    const verse = pages[pIdx]?.verses[vIdx];
+    if (!verse) return;
 
-  const playVerse = (index: number) => {
-    if (!pageData || index >= pageData.length) {
-        setIsPlayingPage(false);
-        setCurrentPlayingVerse(null);
-        return;
-    }
-    const verse = pageData[index];
-    setCurrentPlayingVerse(index);
-    const el = document.getElementById(`digital-verse-${verse.id}`);
-    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
+    setCurrentPlayingVerse({ pageIndex: pIdx, verseIndex: vIdx });
+    
     if (audioRef.current) {
         const [sura, ayah] = verse.verse_key.split(':');
-        const audioUrl = getAudioUrl(parseInt(sura), parseInt(ayah), state.reciterId);
-        audioRef.current.src = audioUrl;
+        audioRef.current.src = getAudioUrl(parseInt(sura), parseInt(ayah), state.reciterId);
         audioRef.current.play().catch(() => {
             if (audioRef.current) {
                 audioRef.current.src = getAudioUrl(parseInt(sura), parseInt(ayah), state.reciterId, 'fallback');
@@ -152,21 +140,16 @@ export function DigitalMushaf() {
   };
 
   const handleAudioEnd = () => {
-    if (isPlayingPage && currentPlayingVerse !== null) {
-        playVerse(currentPlayingVerse + 1);
+    if (isPlayingPage && currentPlayingVerse) {
+        const { pageIndex, verseIndex } = currentPlayingVerse;
+        if (verseIndex + 1 < pages[pageIndex].verses.length) {
+            playVerse(pageIndex, verseIndex + 1);
+        } else if (pageIndex + 1 < pages.length) {
+            // Scroll next page into view if we hit the end of current page's verses
+            playVerse(pageIndex + 1, 0);
+        }
     }
   };
-
-  const handleAudioError = () => {
-    if (isPlayingPage && currentPlayingVerse !== null && audioRef.current) {
-         const [sura, ayah] = pageData[currentPlayingVerse].verse_key.split(':');
-         audioRef.current.src = getAudioUrl(parseInt(sura), parseInt(ayah), state.reciterId, 'fallback');
-         audioRef.current.play().catch(() => playVerse(currentPlayingVerse + 1));
-    }
-  };
-
-  const nextPage = () => setCurrentPage(p => Math.min(604, p + 1));
-  const prevPage = () => setCurrentPage(p => Math.max(1, p - 1));
 
   const filteredSurahs = surahsData.filter(s => 
     s.name.includes(searchQuery) || s.transliteration.toLowerCase().includes(searchQuery.toLowerCase())
@@ -175,57 +158,82 @@ export function DigitalMushaf() {
   return (
     <div className="h-full flex flex-col bg-[#111111] text-white font-arabic relative overflow-hidden text-right">
       
-      <audio ref={audioRef} onEnded={handleAudioEnd} onError={handleAudioError} />
-      <audio ref={wordAudioRef} onEnded={() => setActiveWordId(null)} />
+      <audio ref={audioRef} onEnded={handleAudioEnd} onError={handleAudioEnd} />
 
-      <header className="h-[70px] shrink-0 border-b border-white/5 bg-[#111111]/90 backdrop-blur-xl px-4 md:px-10 flex items-center justify-between z-50">
-        <div className="flex items-center gap-4">
-             <button onClick={() => setIsIndexOpen(true)} className="p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-all text-white/60">
-                <List className="w-5 h-5" />
+      <header className="h-[75px] shrink-0 border-b border-white/5 bg-[#111111]/90 backdrop-blur-xl px-4 md:px-10 flex items-center justify-between z-50">
+        <div className="flex items-center gap-2">
+             <button onClick={() => setIsIndexOpen(true)} className="w-[50px] h-[50px] bg-primary/10 rounded-2xl flex items-center justify-center text-primary border border-primary/20 hover:scale-105 transition-all">
+                <List className="w-6 h-6" />
              </button>
-             <div className="flex items-center gap-2 text-[13px] font-bold text-white/50">
-                <BookmarkIcon className="w-4 h-4 text-primary/60" />
-                <span className="text-white/80">Page {currentPage}</span>
-                <span className="opacity-20 mx-1">|</span>
-                <span>Juz {meta?.juz || ".."}</span>
-             </div>
+             <button 
+                onClick={() => setShowReciterPicker(!showReciterPicker)}
+                className="w-[50px] h-[50px] bg-white/5 rounded-2xl flex items-center justify-center text-white/40 hover:text-white border border-white/5 hover:border-white/10 transition-all"
+             >
+                <User className="w-6 h-6" />
+             </button>
         </div>
 
-        <div className="flex items-center gap-3">
-            <button 
-                onClick={togglePlayPage}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${isPlayingPage ? 'bg-primary text-black' : 'bg-white/5 border border-white/5 text-white/40 hover:text-white'}`}
-            >
-                {isPlayingPage ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}
-                <span className="text-[11px] font-bold font-arabic">{isPlayingPage ? 'استماع' : 'تشغيل'}</span>
-            </button>
-            <div className="w-px h-6 bg-white/10 mx-1" />
-            <div className="flex items-center gap-1">
-                <button onClick={prevPage} disabled={currentPage === 1} className="p-2 hover:bg-white/5 rounded-lg disabled:opacity-10"><ChevronRight className="w-5 h-5" /></button>
-                <button onClick={nextPage} disabled={currentPage === 604} className="p-2 hover:bg-white/5 rounded-lg disabled:opacity-10"><ChevronLeft className="w-5 h-5" /></button>
-            </div>
+        <div className="flex flex-col items-center">
+            <span className="text-[10px] text-primary/40 font-bold uppercase tracking-widest leading-none mb-1">المصحف الكامل</span>
+            <div className="text-sm font-bold opacity-30 font-mono tracking-tighter">PAGE {pages[pages.length-1]?.page || ".."}</div>
         </div>
+
+        <button 
+            onClick={() => {
+                if(isPlayingPage) {
+                    setIsPlayingPage(false);
+                    audioRef.current?.pause();
+                } else {
+                    setIsPlayingPage(true);
+                    playVerse(0, 0);
+                }
+            }}
+            className={`flex items-center gap-3 px-6 py-3 rounded-2xl transition-all ${isPlayingPage ? 'bg-primary text-black' : 'bg-white/5 border border-white/5 text-white/40 hover:text-white'}`}
+        >
+            {isPlayingPage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+            <span className="text-sm font-bold font-arabic">{isPlayingPage ? 'جاري الاستماع' : 'استماع'}</span>
+        </button>
+
+        {/* Reciter Picker Overlay */}
+        {showReciterPicker && (
+            <div className="absolute top-[85px] left-4 md:left-10 w-80 bg-black/95 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] shadow-2xl z-[100] p-4 flex flex-col gap-2 max-h-[60vh] overflow-y-auto custom-scrollbar animate-in zoom-in-95 duration-300">
+                <div className="p-3 border-b border-white/5 mb-2 text-center">
+                    <p className="text-[10px] text-primary font-bold uppercase tracking-[0.3em]">اختر القارئ</p>
+                </div>
+                {RECITERS.map(reciter => (
+                    <button 
+                        key={reciter.id}
+                        onClick={() => {
+                            updateState({ reciterId: reciter.id });
+                            setShowReciterPicker(false);
+                        }}
+                        className={`flex items-center gap-4 p-4 rounded-xl transition-all ${state.reciterId === reciter.id ? 'bg-primary/10 border border-primary/20 text-primary' : 'hover:bg-white/5 text-white/40'}`}
+                    >
+                        <User className="w-5 h-5 opacity-20" />
+                        <span className="font-arabic font-bold text-sm text-right flex-1">{reciter.name}</span>
+                    </button>
+                ))}
+            </div>
+        )}
       </header>
 
       <main className="flex-1 overflow-y-auto no-scrollbar pt-8 pb-32 overscroll-contain" ref={scrollRef}>
         <div className="max-w-[950px] mx-auto px-6 md:px-16 text-center">
-            {isLoading ? (
-                <div className="flex flex-col items-center justify-center py-40 gap-6">
-                    <div className="w-10 h-10 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-                </div>
-            ) : (
-                <div className="flex flex-col bg-white/[0.01] border border-white/5 p-6 md:p-12 rounded-[2.5rem] shadow-2xl relative">
+            {pages.map((pData, pIdx) => (
+                <div key={`page-wrapper-${pData.page}`} className="flex flex-col bg-white/[0.01] border border-white/5 p-6 md:p-12 rounded-[2.5rem] shadow-2xl relative mb-12 animate-in fade-in duration-1000">
+                    <div className="absolute top-6 left-6 text-[10px] font-bold text-white/10 tracking-widest uppercase">P. {pData.page}</div>
+                    
                     <div className="w-full text-right leading-[2.6] md:leading-[3.6]">
-                        {pageData?.map((verse: any, idx: number) => {
-                            if (!verse) return null;
+                        {pData.verses.map((verse: any, vIdx: number) => {
                             const [sId, vId] = verse.verse_key.split(':');
                             const isFirstVerse = vId === "1";
                             const surahName = surahsData.find(s => s.id === parseInt(sId))?.name;
-                            
+                            const isPlaying = currentPlayingVerse?.pageIndex === pIdx && currentPlayingVerse?.verseIndex === vIdx;
+
                             return (
                                 <React.Fragment key={verse.id}>
                                     {isFirstVerse && (
-                                        <div className="block w-full text-center my-10 animate-in fade-in duration-700">
+                                        <div className="block w-full text-center my-10">
                                             <div className="inline-block px-12 md:px-20 py-4 md:py-6 border border-primary/20 bg-primary/5 rounded-[2rem] mb-8">
                                                 <h3 className="text-2xl md:text-4xl font-bold font-arabic text-primary">سورة {surahName}</h3>
                                             </div>
@@ -236,15 +244,15 @@ export function DigitalMushaf() {
                                     )}
                                     <span 
                                         id={`digital-verse-${verse.id}`}
-                                        onClick={() => playVerse(idx)}
-                                        className={`inline transition-all duration-700 rounded-xl cursor-pointer ${currentPlayingVerse === idx ? 'bg-primary/10 text-white' : 'text-white/80 hover:text-white hover:bg-white/5'}`}
+                                        onClick={() => playVerse(pIdx, vIdx)}
+                                        className={`inline transition-all duration-700 rounded-xl cursor-pointer ${isPlaying ? 'bg-primary/10 text-white' : 'text-white/80 hover:text-white hover:bg-white/5'}`}
                                     >
                                         <span className="inline text-[1.9rem] md:text-[3rem] font-arabic">
                                             {verse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => (
                                                 <span 
                                                     key={word.id}
                                                     onClick={(e) => {
-                                                        e.stopPropagation(); // Prevents verse audio from playing
+                                                        e.stopPropagation();
                                                         playWord(word);
                                                     }}
                                                     className={`inline-block px-0.5 md:px-1 rounded-lg transition-all duration-200 ${activeWordId === word.id ? 'text-primary scale-110' : 'hover:text-primary'}`}
@@ -266,7 +274,12 @@ export function DigitalMushaf() {
                         })}
                     </div>
                 </div>
-            )}
+            ))}
+            
+            {/* Infinite Scroll Trigger */}
+            <div ref={observerTarget} className="h-40 flex items-center justify-center">
+                {isLoading && <Loader2 className="w-8 h-8 text-primary animate-spin" />}
+            </div>
         </div>
       </main>
 
@@ -291,7 +304,9 @@ export function DigitalMushaf() {
                                 key={s.id}
                                 onClick={() => {
                                     const startPage = SURAH_START_PAGES[s.id] || 1;
+                                    setPages([]);
                                     setCurrentPage(startPage);
+                                    fetchPage(startPage, true);
                                     setIsIndexOpen(false);
                                 }}
                                 className="w-full flex items-center gap-6 p-5 md:p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 hover:border-primary/40 hover:bg-primary/[0.03] transition-all group relative overflow-hidden text-right shadow-sm"
@@ -308,18 +323,9 @@ export function DigitalMushaf() {
                                         <span className="text-[10px] font-bold uppercase tracking-wider">{s.total_verses} آية</span>
                                     </div>
                                 </div>
-
-                                <div className="hidden md:flex flex-col items-end gap-1 opacity-20 group-hover:opacity-100 transition-opacity">
-                                    <span className="text-[10px] font-bold font-mono">PAGE</span>
-                                    <span className="text-xl font-black font-mono text-primary">{SURAH_START_PAGES[s.id] || "?"}</span>
-                                </div>
-
                                 <div className="w-10 h-10 shrink-0 rounded-full border border-white/5 flex items-center justify-center group-hover:border-primary/40 group-hover:bg-primary/5 transition-all">
                                     <ChevronRight className="w-5 h-5 text-white/10 group-hover:text-primary transition-all group-hover:translate-x-[2px]" />
                                 </div>
-
-                                {/* Decorative Background Accent */}
-                                <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                             </button>
                         ))}
                     </div>
@@ -327,10 +333,6 @@ export function DigitalMushaf() {
             </div>
         </div>
       )}
-      <footer className="h-16 shrink-0 bg-black/60 border-t border-white/5 px-8 flex items-center justify-center z-50">
-          <input type="range" min="1" max="604" value={currentPage} onChange={(e) => setCurrentPage(parseInt(e.target.value))} className="flex-1 h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary max-w-2xl" />
-      </footer>
-      <style jsx global>{` .font-arabic { font-family: 'Amiri', serif; word-spacing: 0.12em; } input[type='range']::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: #D4AF37; border-radius: 50%; cursor: pointer; } `}</style>
     </div>
   );
 }
