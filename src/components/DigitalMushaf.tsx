@@ -89,24 +89,26 @@ export function DigitalMushaf() {
     
     setActiveWordId(word.id);
     
-    // Clean and verify URL (Handle relative paths as suggested)
+    // Clean and verify URL (Using audio.qurancdn.com as the official WBW base)
+    const baseWordUrl = "https://audio.qurancdn.com/";
     let audioUrl = word.audio_url;
-    if (audioUrl.startsWith('/')) {
+
+    if (!audioUrl.startsWith('http')) {
         if (audioUrl.startsWith('//')) {
             audioUrl = `https:${audioUrl}`;
+        } else if (audioUrl.startsWith('/')) {
+            audioUrl = `${baseWordUrl}${audioUrl.substring(1)}`;
         } else {
-            audioUrl = `https://verses.quran.com${audioUrl}`;
+            audioUrl = `${baseWordUrl}${audioUrl}`;
         }
-    } else if (!audioUrl.startsWith('http')) {
-        audioUrl = `https://${audioUrl}`;
     }
 
     const audio = new Audio(audioUrl);
     audio.play().catch((err) => {
-        console.error("Word audio playback failed, trying secondary fallback...", err);
-        // Try with audio.quran.com if verses.quran.com fails
-        const altUrl = audioUrl.replace('verses.quran.com', 'audio.quran.com');
-        new Audio(altUrl).play().catch(console.error);
+        console.error("Word audio playback failed, trying fallback...", err);
+        // Fallback to verses.quran.com if needed
+        const fallbackUrl = audioUrl.replace('audio.qurancdn.com', 'verses.quran.com');
+        new Audio(fallbackUrl).play().catch(console.error);
     });
 
     if (navigator.vibrate) navigator.vibrate(20);

@@ -79,21 +79,23 @@ export function Mushaf() {
     if (!word || !word.audio_url) return;
     setActiveWordId(word.id);
     
+    const baseWordUrl = "https://audio.qurancdn.com/";
     let audioUrl = word.audio_url;
-    if (audioUrl.startsWith('/')) {
+
+    if (!audioUrl.startsWith('http')) {
         if (audioUrl.startsWith('//')) {
             audioUrl = `https:${audioUrl}`;
+        } else if (audioUrl.startsWith('/')) {
+            audioUrl = `${baseWordUrl}${audioUrl.substring(1)}`;
         } else {
-            audioUrl = `https://verses.quran.com${audioUrl}`;
+            audioUrl = `${baseWordUrl}${audioUrl}`;
         }
-    } else if (!audioUrl.startsWith('http')) {
-        audioUrl = `https://${audioUrl}`;
     }
 
     const audio = new Audio(audioUrl);
     audio.play().catch(e => {
-        const altUrl = audioUrl.replace('verses.quran.com', 'audio.quran.com');
-        new Audio(altUrl).play().catch(console.error);
+        const fallbackUrl = audioUrl.replace('audio.qurancdn.com', 'verses.quran.com');
+        new Audio(fallbackUrl).play().catch(console.error);
     });
 
     if (navigator.vibrate) navigator.vibrate(20);
