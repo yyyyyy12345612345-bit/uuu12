@@ -24,7 +24,7 @@ const SURAH_START_PAGES: Record<number, number> = {
 };
 
 export function DigitalMushaf() {
-  const { state } = useEditor();
+  const { state, updateState } = useEditor();
   const [pages, setPages] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -103,23 +103,16 @@ export function DigitalMushaf() {
     if (!word || !word.audio_url) return;
     setActiveWordId(word.id);
     
-    const baseWordUrl = "https://audio.qurancdn.com/";
     let audioUrl = word.audio_url;
-
     if (!audioUrl.startsWith('http')) {
-        if (audioUrl.startsWith('//')) {
-            audioUrl = `https:${audioUrl}`;
-        } else if (audioUrl.startsWith('/')) {
-            audioUrl = `${baseWordUrl}${audioUrl.substring(1)}`;
-        } else {
-            audioUrl = `${baseWordUrl}${audioUrl}`;
-        }
+        audioUrl = `https://audio.qurancdn.com/${audioUrl}`;
     }
 
     const audio = new Audio(audioUrl);
     audio.play().catch(() => {
-        const fall = audioUrl.replace('audio.qurancdn.com', 'verses.quran.com');
-        new Audio(fall).play().catch(console.error);
+        // Try alternative CDN silently
+        const alt = `https://verses.quran.com/${word.audio_url}`;
+        new Audio(alt).play().catch(() => {});
     });
 
     if (navigator.vibrate) navigator.vibrate(20);
