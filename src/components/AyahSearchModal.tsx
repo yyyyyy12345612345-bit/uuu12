@@ -19,32 +19,35 @@ export function AyahSearchModal({ isOpen, onClose }: { isOpen: boolean; onClose:
   const handleSearch = async () => {
     if (!query.trim()) return;
     setIsLoading(true);
-    setResults([]); // Clear previous results
+    setResults([]);
     
     try {
-      // Advanced Quran API Search - Searching multiple sources for better accuracy
-      const url = `https://api.quran.com/api/v4/search?q=${encodeURIComponent(query)}&size=20`;
-      const resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
-      
-      if (!resp.ok) throw new Error("API Network Error");
-      
+      // Using QDC Search API (More reliable for Arabic text)
+      const url = `https://api.qurancdn.com/api/qdc/search?query=${encodeURIComponent(query)}&size=20`;
+      const resp = await fetch(url);
       const data = await resp.json();
-      console.log("Search API Data:", data); // Debugging
       
+      // QDC API returns results in data.search.results
       const searchResults = data.search?.results || [];
       
-      // Map and clean results
       const formattedResults = searchResults.map((res: any) => ({
-        ...res,
-        // Ensure text exists
-        renderedText: res.text || "آية قرآنية اختيارية"
+        verse_key: res.verse_key,
+        // QDC API text is usually in 'text' field or 'words'
+        renderedText: res.text || "آية قرآنية"
       }));
 
       setResults(formattedResults);
     } catch (err) {
-      console.error("Search system failure:", err);
-      // Fallback or error state
-      setResults([]);
+      console.error("QDC Search Error:", err);
+      // Final Fallback to Quran.com v4
+      try {
+         const fallbackUrl = `https://api.quran.com/api/v4/search?q=${encodeURIComponent(query)}&size=20&language=ar`;
+         const fResp = await fetch(fallbackUrl);
+         const fData = await fResp.json();
+         setResults(fData.search?.results || []);
+      } catch(e) {
+         setResults([]);
+      }
     } finally {
       setIsLoading(false);
     }
