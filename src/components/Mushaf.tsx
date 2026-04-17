@@ -76,15 +76,28 @@ export function Mushaf() {
   };
 
   const playWord = (word: any) => {
-    if (!word.audio_url) return;
+    if (!word || !word.audio_url) return;
     setActiveWordId(word.id);
-    if (wordAudioRef.current) {
-        // Safe check for URL protocol
-        const audioUrl = word.audio_url.startsWith('http') ? word.audio_url : `https:${word.audio_url}`;
-        wordAudioRef.current.src = audioUrl;
-        wordAudioRef.current.play().catch(console.error);
+    
+    let audioUrl = word.audio_url;
+    if (audioUrl.startsWith('/')) {
+        if (audioUrl.startsWith('//')) {
+            audioUrl = `https:${audioUrl}`;
+        } else {
+            audioUrl = `https://verses.quran.com${audioUrl}`;
+        }
+    } else if (!audioUrl.startsWith('http')) {
+        audioUrl = `https://${audioUrl}`;
     }
+
+    const audio = new Audio(audioUrl);
+    audio.play().catch(e => {
+        const altUrl = audioUrl.replace('verses.quran.com', 'audio.quran.com');
+        new Audio(altUrl).play().catch(console.error);
+    });
+
     if (navigator.vibrate) navigator.vibrate(20);
+    audio.onended = () => setActiveWordId(null);
   };
 
   const filteredSurahs = surahsData.filter(s => 
