@@ -58,7 +58,7 @@ export function DigitalMushaf() {
       setCurrentPlayingVerse(null);
       try {
         const response = await fetch(
-          `${API_ROOT}/verses/by_page/${currentPage}?language=ar&words=true&word_fields=text_uthmani,audio_url&fields=text_uthmani,verse_key,juz_number,hizb_number`
+          `${API_ROOT}/verses/by_page/${currentPage}?language=ar&words=true&word_fields=text_uthmani,audio_url,char_type_name&fields=text_uthmani,verse_key,juz_number,hizb_number`
         );
         const data = await response.json();
         
@@ -214,51 +214,57 @@ export function DigitalMushaf() {
                     <div className="w-10 h-10 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
                 </div>
             ) : (
-                <div className="flex flex-col">
-                    {pageData?.map((verse: any, idx: number) => {
-                        if (!verse) return null;
-                        const [sId, vId] = verse.verse_key.split(':');
-                        const isFirstVerse = vId === "1";
-                        const surahName = surahsData.find(s => s.id === parseInt(sId))?.name;
-                        
-                        return (
-                            <React.Fragment key={verse.id}>
-                                {isFirstVerse && (
-                                    <div className="my-12 animate-in fade-in duration-700 w-full text-center">
-                                        <div className="inline-block px-20 py-6 border border-white/5 bg-white/[0.01] rounded-[2rem] mb-10 relative">
-                                            <h3 className="text-3xl md:text-5xl font-bold font-arabic text-primary/80">سورة {surahName}</h3>
+                <div className="flex flex-col bg-white/[0.01] border border-white/5 p-6 md:p-12 rounded-[2.5rem] shadow-2xl relative">
+                    <div className="w-full text-right leading-[2.6] md:leading-[3.6]">
+                        {pageData?.map((verse: any, idx: number) => {
+                            if (!verse) return null;
+                            const [sId, vId] = verse.verse_key.split(':');
+                            const isFirstVerse = vId === "1";
+                            const surahName = surahsData.find(s => s.id === parseInt(sId))?.name;
+                            
+                            return (
+                                <React.Fragment key={verse.id}>
+                                    {isFirstVerse && (
+                                        <div className="block w-full text-center my-10 animate-in fade-in duration-700">
+                                            <div className="inline-block px-12 md:px-20 py-4 md:py-6 border border-primary/20 bg-primary/5 rounded-[2rem] mb-8">
+                                                <h3 className="text-2xl md:text-4xl font-bold font-arabic text-primary">سورة {surahName}</h3>
+                                            </div>
+                                            {sId !== "1" && sId !== "9" && (
+                                                <div className="text-2xl md:text-[2.8rem] font-arabic text-white/40 mb-8 opacity-60">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+                                            )}
                                         </div>
-                                        {sId !== "1" && sId !== "9" && (
-                                            <div className="text-3xl md:text-[3.5rem] font-arabic text-white/50 mb-10 opacity-60 uppercase">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
-                                        )}
-                                    </div>
-                                )}
-                                <div 
-                                    id={`digital-verse-${verse.id}`}
-                                    className={`inline leading-[2.8] md:leading-[3.2] transition-colors duration-700 ${currentPlayingVerse === idx ? 'bg-primary/5 rounded-2xl' : ''}`}
-                                >
-                                    <span className="inline text-[2.2rem] md:text-[3.3rem] text-white/90">
-                                        {verse.words?.map((word: any) => (
-                                            <span 
-                                                key={word.id}
-                                                onClick={() => playWord(word)}
-                                                className={`inline-block cursor-pointer px-0.5 md:px-1 rounded-xl transition-all duration-200 ${activeWordId === word.id ? 'text-primary scale-110' : 'hover:text-primary'}`}
-                                            >
-                                                {word.text_uthmani}
+                                    )}
+                                    <span 
+                                        id={`digital-verse-${verse.id}`}
+                                        onClick={() => playVerse(idx)}
+                                        className={`inline transition-all duration-700 rounded-xl cursor-pointer ${currentPlayingVerse === idx ? 'bg-primary/10 text-white' : 'text-white/80 hover:text-white hover:bg-white/5'}`}
+                                    >
+                                        <span className="inline text-[1.9rem] md:text-[3rem] font-arabic">
+                                            {verse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => (
+                                                <span 
+                                                    key={word.id}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Prevents verse audio from playing
+                                                        playWord(word);
+                                                    }}
+                                                    className={`inline-block px-0.5 md:px-1 rounded-lg transition-all duration-200 ${activeWordId === word.id ? 'text-primary scale-110' : 'hover:text-primary'}`}
+                                                >
+                                                    {word.text_uthmani}
+                                                </span>
+                                            ))}
+                                            <span className="inline-flex items-center justify-center w-10 h-10 md:w-[50px] md:h-[50px] relative top-[-4px] md:top-[-8px] mx-2 md:mx-4 group/ayah">
+                                                <svg className="absolute inset-0 w-full h-full text-white/10 group-hover/ayah:text-primary/20 transition-colors" viewBox="0 0 100 100">
+                                                    <path fill="currentColor" d="M50 0 L100 50 L50 100 L0 50 Z" />
+                                                    <path fill="none" stroke="currentColor" strokeWidth="2" d="M50 10 L90 50 L50 90 L10 50 Z" />
+                                                </svg>
+                                                <span className="relative z-10 text-[9px] md:text-[11px] font-bold font-mono text-white/30 tracking-tighter">{vId}</span>
                                             </span>
-                                        ))}
-                                        <span className="inline-flex items-center justify-center w-12 h-12 md:w-[60px] md:h-[60px] relative top-[-6px] md:top-[-10px] mx-2 md:mx-4 group/ayah">
-                                            <svg className="absolute inset-0 w-full h-full text-white/10 group-hover/ayah:text-primary/20 transition-colors" viewBox="0 0 100 100">
-                                                <path fill="currentColor" d="M50 0 L100 50 L50 100 L0 50 Z" />
-                                                <path fill="none" stroke="currentColor" strokeWidth="2" d="M50 10 L90 50 L50 90 L10 50 Z" />
-                                            </svg>
-                                            <span className="relative z-10 text-[10px] md:text-xs font-bold font-mono text-white/30 tracking-tighter">{vId}</span>
                                         </span>
                                     </span>
-                                </div>
-                            </React.Fragment>
-                        );
-                    })}
+                                </React.Fragment>
+                            );
+                        })}
+                    </div>
                 </div>
             )}
         </div>
@@ -278,8 +284,8 @@ export function DigitalMushaf() {
                         <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="ابحث عن سورة..." className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-5 pr-16 pl-8 text-xl outline-none focus:border-primary/40 focus:bg-white/5 transition-all text-white text-right font-arabic" />
                     </div>
                 </div>
-                <div className="flex-1 overflow-y-auto custom-scrollbar px-8 pb-10">
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                <div className="flex-1 overflow-y-auto custom-scrollbar px-6 md:px-12 pb-10">
+                    <div className="flex flex-col gap-3 max-w-4xl mx-auto">
                         {filteredSurahs.map((s) => (
                             <button 
                                 key={s.id}
@@ -288,14 +294,32 @@ export function DigitalMushaf() {
                                     setCurrentPage(startPage);
                                     setIsIndexOpen(false);
                                 }}
-                                className="flex flex-col gap-3 p-5 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-primary/40 hover:bg-primary/[0.03] transition-all group overflow-hidden relative text-right"
+                                className="w-full flex items-center gap-6 p-5 md:p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 hover:border-primary/40 hover:bg-primary/[0.03] transition-all group relative overflow-hidden text-right shadow-sm"
                             >
-                                <div className="absolute top-0 right-0 px-3 py-1 bg-white/5 text-[9px] font-bold text-white/10 rounded-bl-xl group-hover:text-primary transition-colors">#{s.id}</div>
-                                <span className="font-arabic text-xl md:text-2xl font-bold group-hover:text-white transition-colors mt-2">{s.name}</span>
-                                <div className="flex items-center justify-between mt-auto pt-3 border-t border-white/5 group-hover:border-primary/10">
-                                    <ChevronRight className="w-4 h-4 text-white/10 group-hover:text-primary transition-all group-hover:translate-x-[4px]" />
-                                    <span className="text-[10px] font-bold text-white/20 font-mono">P. {SURAH_START_PAGES[s.id] || "?"}</span>
+                                <div className="w-14 h-14 shrink-0 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-lg font-black font-mono text-white/20 group-hover:text-primary transition-colors">
+                                    {s.id}
                                 </div>
+                                
+                                <div className="flex-1 flex flex-col items-start text-right">
+                                    <span className="font-arabic text-2xl md:text-3xl font-bold group-hover:text-white transition-colors">{s.name}</span>
+                                    <div className="flex items-center gap-3 mt-1 opacity-40">
+                                        <span className="text-[10px] font-bold uppercase tracking-wider">{s.revelation_place === 'makkah' ? 'مكية' : 'مدنية'}</span>
+                                        <span className="w-1 h-1 rounded-full bg-white/20"></span>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider">{s.total_verses} آية</span>
+                                    </div>
+                                </div>
+
+                                <div className="hidden md:flex flex-col items-end gap-1 opacity-20 group-hover:opacity-100 transition-opacity">
+                                    <span className="text-[10px] font-bold font-mono">PAGE</span>
+                                    <span className="text-xl font-black font-mono text-primary">{SURAH_START_PAGES[s.id] || "?"}</span>
+                                </div>
+
+                                <div className="w-10 h-10 shrink-0 rounded-full border border-white/5 flex items-center justify-center group-hover:border-primary/40 group-hover:bg-primary/5 transition-all">
+                                    <ChevronRight className="w-5 h-5 text-white/10 group-hover:text-primary transition-all group-hover:translate-x-[2px]" />
+                                </div>
+
+                                {/* Decorative Background Accent */}
+                                <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                             </button>
                         ))}
                     </div>
