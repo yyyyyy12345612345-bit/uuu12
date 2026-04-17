@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useEditor } from "@/store/useEditor";
 import { usePathname } from "next/navigation";
-import { Settings, X } from "lucide-react";
+import { Settings, X, MessageCircle } from "lucide-react";
 
 // Pre-load components with ssr: false for all to ensure stability in Next.js 16
 const SurahSelector = dynamic(() => import("@/components/SurahSelector").then(mod => mod.SurahSelector), { ssr: false });
@@ -18,6 +18,7 @@ const DailyHub = dynamic(() => import("@/components/DailyHub").then(mod => mod.D
 const Navigation = dynamic(() => import("@/components/Navigation").then(mod => mod.Navigation), { ssr: false });
 const DigitalMushaf = dynamic(() => import("@/components/DigitalMushaf").then(mod => mod.DigitalMushaf), { ssr: false });
 const FeedbackModal = dynamic(() => import("@/components/FeedbackModal").then(mod => mod.FeedbackModal), { ssr: false });
+const PWAInstallButton = dynamic(() => import("@/components/PWAInstallButton").then(mod => mod.PWAInstallButton), { ssr: false });
 
 export default function CatchAllPage() {
   return (
@@ -58,6 +59,25 @@ function CatchAllContent() {
 
   return (
     <div className="fixed inset-0 bg-[#050505] text-white flex flex-col w-full font-arabic overflow-hidden transition-opacity duration-1000">
+      
+      {/* Global Top Bar - Logo + Install + Feedback */}
+      <header className="h-14 shrink-0 bg-black/80 backdrop-blur-xl border-b border-white/5 px-4 md:px-8 flex items-center justify-between z-[200]">
+        <div className="flex items-center gap-3">
+          <img src="/logo/logo.png" alt="قرآن" className="w-8 h-8 rounded-xl" />
+          <span className="text-sm font-bold font-arabic text-primary hidden sm:block">قرآن</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <PWAInstallButton />
+          <button 
+            onClick={() => setIsFeedbackOpen(true)}
+            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-2xl transition-all text-white/40 hover:text-white"
+          >
+            <MessageCircle className="w-4 h-4" />
+            <span className="font-bold text-[11px] font-arabic hidden sm:block">رسالة</span>
+          </button>
+        </div>
+      </header>
+
       <main className="flex-1 relative overflow-hidden">
         {visited.mushaf && <div className={`h-full w-full ${activeView === 'mushaf' ? 'block' : 'hidden'}`}><Mushaf /></div>}
         {visited['mushaf-full'] && <div className={`h-full w-full ${activeView === 'mushaf-full' ? 'block' : 'hidden'}`}><DigitalMushaf /></div>}
