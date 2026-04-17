@@ -215,8 +215,54 @@ export function DigitalMushaf() {
         )}
       </header>
 
-      <main className="flex-1 overflow-y-auto no-scrollbar pt-8 pb-32 overscroll-contain" ref={scrollRef}>
-        <div className="max-w-[950px] mx-auto px-6 md:px-16 text-center">
+      <main className="flex-1 overflow-y-auto no-scrollbar overscroll-contain" ref={scrollRef}>
+        {/* الصفحة الرئيسية (الفهرس) أو النص القرآني */}
+        {isIndexOpen || pages.length === 0 ? (
+          <div className="max-w-[1200px] mx-auto px-6 py-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+             <div className="flex flex-col gap-8">
+                <div className="flex items-center justify-between">
+                   <h3 className="text-3xl font-black font-arabic text-primary">فهرس السور</h3>
+                </div>
+
+                <div className="relative group max-w-2xl">
+                    <Search className="absolute right-6 top-1/2 -translate-y-1/2 text-primary w-5 h-5" />
+                    <input 
+                      value={searchQuery} 
+                      onChange={(e) => setSearchQuery(e.target.value)} 
+                      placeholder="ابحث عن سورة..." 
+                      className="w-full bg-white/[0.03] border border-white/5 rounded-[2rem] py-5 pr-16 pl-8 text-xl outline-none focus:border-primary/40 focus:bg-white/5 transition-all text-white text-right font-arabic" 
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredSurahs.map((s) => (
+                        <button 
+                            key={s.id}
+                            onClick={() => {
+                                const startPage = SURAH_START_PAGES[s.id] || 1;
+                                setPages([]);
+                                setCurrentPage(startPage);
+                                fetchPage(startPage, true);
+                                setIsIndexOpen(false);
+                            }}
+                            className="flex items-center justify-between p-5 rounded-[2rem] bg-white/[0.02] border border-white/5 hover:bg-primary/10 hover:border-primary/20 transition-all group"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl bg-black/40 flex items-center justify-center text-sm font-bold text-white/20 group-hover:text-primary transition-colors border border-white/5">
+                                    {s.id}
+                                </div>
+                                <span className="font-arabic text-xl font-bold text-white/80 group-hover:text-white transition-colors">سورة {s.name}</span>
+                            </div>
+                            <div className="flex flex-col items-end opacity-40 group-hover:opacity-100 transition-opacity">
+                                <span className="text-[10px] font-bold uppercase tracking-wider">{s.total_verses} آية</span>
+                            </div>
+                        </button>
+                    ))}
+                </div>
+             </div>
+          </div>
+        ) : (
+          <div className="max-w-[950px] mx-auto px-6 md:px-16 text-center pt-8 pb-32">
             {pages.map((pData, pIdx) => (
                 <div key={`page-wrapper-${pData.page}`} className="flex flex-col bg-white/[0.01] border border-white/5 p-6 md:p-12 rounded-[2.5rem] shadow-2xl relative mb-12 animate-in fade-in duration-1000">
                     <div className="absolute top-6 left-6 text-[10px] font-bold text-white/10 tracking-widest uppercase">P. {pData.page}</div>
@@ -267,58 +313,9 @@ export function DigitalMushaf() {
                 </div>
             ))}
             
-            {/* Infinite Scroll Trigger */}
-            <div ref={observerTarget} className="h-40 flex items-center justify-center">
-                {isLoading && <Loader2 className="w-8 h-8 text-primary animate-spin" />}
-            </div>
-        </div>
+          </div>
+        )}
       </main>
-
-      {isIndexOpen && (
-        <div className="fixed inset-0 z-[600] flex flex-col justify-end">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsIndexOpen(false)} />
-            <div className="relative w-full h-[85vh] bg-[#0a0a0a] border-t border-white/10 rounded-t-[3rem] flex flex-col animate-in slide-in-from-bottom duration-500 overflow-hidden shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
-                <div className="flex items-center justify-between p-6 shrink-0">
-                    <button onClick={() => setIsIndexOpen(false)} className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center hover:bg-white/10 transition-all border border-white/10 group"><X className="w-5 h-5 text-white/40 group-hover:text-white" /></button>
-                    <div className="text-right"><h3 className="text-xl font-bold font-arabic text-primary">فهرس السور</h3></div>
-                </div>
-                <div className="px-8 pb-8 shrink-0 flex justify-end">
-                    <div className="relative group w-full max-w-2xl">
-                        <Search className="absolute right-6 top-1/2 -translate-y-1/2 text-primary w-5 h-5" />
-                        <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="ابحث عن سورة..." className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-5 pr-16 pl-8 text-xl outline-none focus:border-primary/40 focus:bg-white/5 transition-all text-white text-right font-arabic" />
-                    </div>
-                </div>
-                <div className="flex-1 overflow-y-auto custom-scrollbar px-6 md:px-12 pb-10">
-                    <div className="flex flex-col gap-3 max-w-4xl mx-auto">
-                        {filteredSurahs.map((s) => (
-                            <button 
-                                key={s.id}
-                                onClick={() => {
-                                    const startPage = SURAH_START_PAGES[s.id] || 1;
-                                    setPages([]);
-                                    setCurrentPage(startPage);
-                                    fetchPage(startPage, true);
-                                    setIsIndexOpen(false);
-                                }}
-                                className="w-full flex items-center justify-between p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:bg-primary/10 hover:border-primary/20 transition-all group"
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-lg bg-black/40 flex items-center justify-center text-xs font-bold text-white/20 group-hover:text-primary transition-colors border border-white/5">
-                                        {s.id}
-                                    </div>
-                                    <span className="font-arabic text-xl font-bold text-white/80 group-hover:text-white transition-colors">{s.name}</span>
-                                </div>
-                                <div className="flex flex-col items-end opacity-40 group-hover:opacity-100 transition-opacity">
-                                    <span className="text-[9px] font-bold uppercase tracking-wider">{s.total_verses} آية</span>
-                                    <span className="text-[9px] font-bold uppercase tracking-wider opacity-60">P. {SURAH_START_PAGES[s.id] || "?"}</span>
-                                </div>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        </div>
-      )}
     </div>
   );
 }
