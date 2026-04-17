@@ -192,19 +192,39 @@ export function DigitalMushaf() {
                     <div className="absolute top-6 left-6 text-[10px] font-bold text-white/10 tracking-widest uppercase">P. {pData.page}</div>
                     <div className="w-full text-right leading-[2.6] md:leading-[3.6]">
                         {pData.verses.map((verse: any, vIdx: number) => {
+                            const [sId, vId] = verse.verse_key.split(':');
+                            const isFirstVerse = vId === "1";
+                            const surahName = surahsData.find(s => s.id === parseInt(sId))?.name;
                             const isPlaying = currentPlayingVerse?.pageIndex === pIdx && currentPlayingVerse?.verseIndex === vIdx;
+
                             return (
-                                <span key={verse.id} id={`digital-verse-${verse.id}`} onClick={() => playVerse(pIdx, vIdx)} className={`inline transition-all duration-700 rounded-xl cursor-pointer ${isPlaying ? 'bg-primary/10 text-white' : 'text-white/80 hover:text-white hover:bg-white/5'}`}>
-                                    <span className="inline text-[1.9rem] md:text-[3rem] font-arabic">
-                                        {verse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => (
-                                            <span key={word.id} className="inline-block px-0.5 md:px-1">{word.text_uthmani}</span>
-                                        ))}
-                                        <span className="inline-flex items-center justify-center w-10 h-10 md:w-[50px] md:h-[50px] relative top-[-4px] md:top-[-8px] mx-2 md:mx-4 group/ayah">
-                                            <svg className="absolute inset-0 w-full h-full text-white/10 group-hover/ayah:text-primary/20 transition-colors" viewBox="0 0 100 100"><path fill="currentColor" d="M50 0 L100 50 L50 100 L0 50 Z" /><path fill="none" stroke="currentColor" strokeWidth="2" d="M50 10 L90 50 L50 90 L10 50 Z" /></svg>
-                                            <span className="relative z-10 text-[9px] md:text-[11px] font-bold font-mono text-white/30 tracking-tighter">{verse.verse_key.split(':')[1]}</span>
+                                <React.Fragment key={verse.id}>
+                                    {isFirstVerse && (
+                                        <div className="w-full flex flex-col items-center gap-6 my-12 animate-in fade-in zoom-in duration-1000">
+                                            <div className="flex items-center gap-4 w-full opacity-30">
+                                                <div className="h-px flex-1 bg-gradient-to-r from-transparent to-primary"></div>
+                                                <span className="font-arabic text-2xl font-black text-primary px-8 py-2 border border-primary/20 rounded-full bg-primary/5">سورة {surahName}</span>
+                                                <div className="h-px flex-1 bg-gradient-to-l from-transparent to-primary"></div>
+                                            </div>
+                                            {sId !== "1" && sId !== "9" && (
+                                                <div className="font-arabic text-3xl text-white/90 py-4 opacity-80 select-none">
+                                                    بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                    <span id={`digital-verse-${verse.id}`} onClick={() => playVerse(pIdx, vIdx)} className={`inline transition-all duration-700 rounded-xl cursor-pointer ${isPlaying ? 'bg-primary/10 text-white' : 'text-white/80 hover:text-white hover:bg-white/5'}`}>
+                                        <span className="inline text-[1.9rem] md:text-[3rem] font-arabic">
+                                            {verse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => (
+                                                <span key={word.id} className="inline-block px-0.5 md:px-1">{word.text_uthmani}</span>
+                                            ))}
+                                            <span className="inline-flex items-center justify-center w-10 h-10 md:w-[50px] md:h-[50px] relative top-[-4px] md:top-[-8px] mx-2 md:mx-4 group/ayah">
+                                                <svg className="absolute inset-0 w-full h-full text-white/10 group-hover/ayah:text-primary/20 transition-colors" viewBox="0 0 100 100"><path fill="currentColor" d="M50 0 L100 50 L50 100 L0 50 Z" /><path fill="none" stroke="currentColor" strokeWidth="2" d="M50 10 L90 50 L50 90 L10 50 Z" /></svg>
+                                                <span className="relative z-10 text-[9px] md:text-[11px] font-bold font-mono text-white/30 tracking-tighter">{vId}</span>
+                                            </span>
                                         </span>
                                     </span>
-                                </span>
+                                </React.Fragment>
                             );
                         })}
                     </div>
