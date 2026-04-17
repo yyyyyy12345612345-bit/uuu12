@@ -20,12 +20,17 @@ export function AyahSearchModal({ isOpen, onClose }: { isOpen: boolean; onClose:
     if (!query.trim()) return;
     setIsLoading(true);
     try {
-      // Search Quran API for matching verses
-      const resp = await fetch(`https://api.quran.com/api/v4/search?q=${query}&size=15&language=ar`);
+      // Search Quran API for matching verses with encoded query
+      const url = `https://api.quran.com/api/v4/search?q=${encodeURIComponent(query)}&size=20&language=ar`;
+      const resp = await fetch(url);
       const data = await resp.json();
-      setResults(data.search?.results || []);
+      
+      // The API returns results in data.search.results
+      const searchResults = data.search?.results || [];
+      setResults(searchResults);
     } catch (err) {
       console.error("Search failed", err);
+      setResults([]);
     } finally {
       setIsLoading(false);
     }
