@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight, Loader2, BookOpen, Play, Search, X, List, Bookmark as BookmarkIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, BookOpen, Play, Search, X, List, User, Bookmark as BookmarkIcon } from "lucide-react";
 import surahsData from "@/data/surahs.json";
+import { RECITERS } from "@/data/reciters";
 import { useEditor } from "@/store/useEditor";
 import { getAudioUrl } from "@/lib/quranUtils";
 
