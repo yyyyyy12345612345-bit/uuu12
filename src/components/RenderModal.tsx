@@ -46,7 +46,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           audio: getAudioUrl(Number(state.surahId), v.id, state.reciterId)
         }));
 
-      const response = await fetch("/api/render", {
+      const response = await fetch("https://yousef891238-render-server.hf.space/render", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
