@@ -25,6 +25,7 @@ export async function POST(req: Request) {
     // The render.mjs should use absolute paths from config
     const command = `node "${scriptPath}" "${configPath}" "${tempBaseDir}"`;
 
+    let logs = "";
     await new Promise<void>((resolve, reject) => {
       const child = exec(command, {
         maxBuffer: 50 * 1024 * 1024,
@@ -32,12 +33,23 @@ export async function POST(req: Request) {
         cwd: process.cwd(),
       });
 
-      child.on("close", (code) => {
-        if (code === 0) resolve();
-        else reject(new Error(`Render process failed with code ${code}`));
+      child.stdout?.on("data", (data) => {
+        const text = data.toString();
+        // console.log(`[Render Engine]: ${text}`);
+        logs += text + "\n";
+      });
+      child.stderr?.on("data", (data) => {
+        const text = data.toString();
+        // console.error(`[Render Engine Error]: ${text}`);
+        logs += `[ERROR] ` + text + "\n";
       });
 
-      child.on("error", (err) => reject(new Error(`Failed to start render: ${err.message}`)));
+      child.on("close", (code) => {
+        if (code === 0) resolve();
+        else reject(new Error(`Render process failed with code ${code}. Logs:\n${logs}`));
+      });
+
+      child.on("error", (err) => reject(new Error(`Failed to start render: ${err.message}\nLogs:\n${logs}`)));
     });
 
     if (!fs.existsSync(outputPath)) throw new Error("Video file not found after render");
