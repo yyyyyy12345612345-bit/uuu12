@@ -43,6 +43,7 @@ interface MainVideoProps {
   audioUrl?: string;
   textColor: string;
   fontSize: number;
+  fontWeight?: string | number;
 }
 
 export const MainVideo: React.FC<MainVideoProps> = ({
@@ -50,7 +51,8 @@ export const MainVideo: React.FC<MainVideoProps> = ({
   verses = [],
   backgroundUrl,
   textColor = "#ffffff",
-  fontSize = 60
+  fontSize = 60,
+  fontWeight = 700
 }) => {
   const { durationInFrames } = useVideoConfig();
   const resolvedBg = resolveMedia(backgroundUrl);
@@ -102,6 +104,7 @@ export const MainVideo: React.FC<MainVideoProps> = ({
                 surahName={surahName} 
                 textColor={textColor} 
                 fontSize={fontSize} 
+                fontWeight={fontWeight}
                 totalVerseFrames={actualDuration}
               />
             </Sequence>
@@ -112,7 +115,7 @@ export const MainVideo: React.FC<MainVideoProps> = ({
   );
 };
 
-const VerseComponent = ({ verse, surahName, textColor, fontSize, totalVerseFrames }: { verse: Verse, surahName: string, textColor: string, fontSize: number, totalVerseFrames: number }) => {
+const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, totalVerseFrames }: { verse: Verse, surahName: string, textColor: string, fontSize: number, fontWeight: any, totalVerseFrames: number }) => {
     const frame = useCurrentFrame();
     
     // Pro Fade: 15 frames or 10% of verse duration
@@ -167,7 +170,7 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, totalVerseFrame
                 lineHeight: 1.6,
                 textShadow: '0 20px 50px rgba(0,0,0,1)',
                 margin: 0,
-                fontWeight: 700
+                fontWeight: fontWeight || 700
             }}>
                 {verse.text}
             </p>
