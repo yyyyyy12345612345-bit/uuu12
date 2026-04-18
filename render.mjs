@@ -126,7 +126,7 @@ async function start() {
     console.log(">> Locating Composition...");
     const comps = await getCompositions(bundleLocation, {
       inputProps,
-      staticDir: publicDir,
+      staticDir: baseDir,
     });
 
     const composition = comps.find((c) => c.id === "QuranVideo");
@@ -144,7 +144,7 @@ async function start() {
       outputLocation,
       codec: "h264",
       concurrency: Math.max(1, Math.floor(os.cpus().length / 2)),
-      staticDir: publicDir,
+      staticDir: baseDir,
       inputProps,
       crf: 23,
       onProgress: ({ progress }) => {
