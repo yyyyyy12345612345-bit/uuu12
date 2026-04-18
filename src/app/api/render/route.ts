@@ -2,27 +2,28 @@ import { NextResponse } from "next/server";
 import { exec } from "child_process";
 import path from "path";
 import fs from "fs";
+import os from "os";
 
 export const maxDuration = 300; 
 
 export async function POST(req: Request) {
-  // Use Turbopack ignore to prevent tracing the whole public folder
-  const rendersDir = path.join(/* turbopackIgnore: true */ process.cwd(), "public", "renders");
-  if (!fs.existsSync(rendersDir)) fs.mkdirSync(rendersDir, { recursive: true });
-
+  // Use /tmp for all operations because Vercel/Lambda is read-only
+  const tempBaseDir = os.tmpdir();
   const jobId = Date.now();
-  const configPath = path.join(rendersDir, `config-${jobId}.json`);
+  const configPath = path.join(tempBaseDir, `config-${jobId}.json`);
+  const outputName = `video-${jobId}.mp4`;
+  const outputPath = path.join(tempBaseDir, outputName);
 
   try {
     const body = await req.json();
-    const outputName = `video-${jobId}.mp4`;
-
     const renderConfig = { ...body, outputName };
     fs.writeFileSync(configPath, JSON.stringify(renderConfig));
 
-    // Also use ignore comment for the script path
-    const scriptPath = path.join(/* turbopackIgnore: true */ process.cwd(), "render.mjs");
-    const command = `node "${scriptPath}" "${configPath}"`;
+    const scriptPath = path.join(process.cwd(), "render.mjs");
+    
+    // We need to tell the script to use /tmp too
+    // The render.mjs should use absolute paths from config
+    const command = `node "${scriptPath}" "${configPath}" "${tempBaseDir}"`;
 
     await new Promise<void>((resolve, reject) => {
       const child = exec(command, {
@@ -39,14 +40,22 @@ export async function POST(req: Request) {
       child.on("error", (err) => reject(new Error(`Failed to start render: ${err.message}`)));
     });
 
-    const outputPath = path.join(rendersDir, outputName);
     if (!fs.existsSync(outputPath)) throw new Error("Video file not found after render");
 
-    return NextResponse.json({ success: true, url: `/renders/${outputName}` });
+    const fileBuffer = fs.readFileSync(outputPath);
+    
+    // Clean up
+    try { fs.unlinkSync(configPath); fs.unlinkSync(outputPath); } catch (e) {}
+
+    return new Response(fileBuffer, {
+      headers: {
+        "Content-Type": "video/mp4",
+        "Content-Disposition": `attachment; filename="${outputName}"`,
+      },
+    });
+
   } catch (error: any) {
     console.error("Render Error:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-  } finally {
-    try { if (fs.existsSync(configPath)) fs.unlinkSync(configPath); } catch (e) {}
   }
 }
