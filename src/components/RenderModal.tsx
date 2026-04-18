@@ -60,8 +60,15 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "فشل التصدير من السيرفر");
+        const textData = await response.text().catch(() => "");
+        let errorMsg = "فشل التصدير من السيرفر";
+        try {
+           const jsonData = JSON.parse(textData);
+           if (jsonData.error) errorMsg = jsonData.error;
+        } catch(e) {
+           errorMsg += "\n[Vercel Output]:\n" + textData.slice(0, 400);
+        }
+        throw new Error(errorMsg);
       }
 
       const blob = await response.blob();
