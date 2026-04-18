@@ -17,12 +17,64 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  const [renderMode, setRenderMode] = useState<"browser" | "server">("browser");
   const [status, setStatus] = useState<"idle" | "rendering" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [progressPct, setProgressPct] = useState(0);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
 
   const handleStart = async () => {
+    if (renderMode === "server") {
+      handleServerRender();
+    } else {
+      handleBrowserRender();
+    }
+  };
+
+  const handleServerRender = async () => {
+    if (!surahData || status === "rendering") return;
+    
+    setStatus("rendering");
+    setMessage("جاري البدء في الرندرة السحابية (قد تستغرق دقيقة)...");
+    setProgressPct(5);
+
+    try {
+      const verses = surahData.verses
+        .filter((v: any) => v.id >= state.startAyah && v.id <= state.endAyah)
+        .map((v: any) => ({
+          ...v,
+          audio: getAudioUrl(Number(state.surahId), v.id, state.reciterId)
+        }));
+
+      const response = await fetch("/api/render", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          surahName: surahData.name,
+          verses,
+          backgroundUrl: state.backgroundUrl,
+          textColor: state.textColor,
+          fontSize: state.fontSize,
+          fontWeight: state.fontWeight
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (!result.success) throw new Error(result.error || "فشل التصدير من السيرفر");
+
+      setDownloadUrl(result.url);
+      setStatus("success");
+      setMessage("تم تجهيز الفيديو بصيغة MP4 جاهز للنشر!");
+
+    } catch (e: any) {
+      console.error(e);
+      setStatus("error");
+      setMessage(e.message || "حدث خطأ في السيرفر. تأكد من تشغيل محرك الرندرة.");
+    }
+  };
+
+  const handleBrowserRender = async () => {
     // Basic checks
     if (!surahData || status === "rendering") return;
     
@@ -267,6 +319,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     setStatus("idle");
     setMessage("");
     setProgressPct(0);
+    setDownloadUrl(null);
   };
 
   const renderFrame = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, bg: HTMLImageElement | null, video: HTMLVideoElement | null, verse: any, state: any) => {
@@ -340,7 +393,26 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
               <Play className="w-10 h-10 text-primary" />
             </div>
             <h3 className="text-xl font-bold text-white mb-2">تصدير الفيديو</h3>
-            <p className="text-white/40 text-xs text-center mb-8">سيتم دمج الآيات المختارة مع الخلفية والصوت في ملف واحد.</p>
+            <p className="text-white/40 text-[10px] text-center mb-8 px-4">اختر طريقة التصدير المناسبة لك:</p>
+            
+            <div className="w-full flex flex-col gap-3 mb-8">
+                <button 
+                  onClick={() => setRenderMode("browser")}
+                  className={`w-full p-4 rounded-2xl border transition-all flex flex-col items-start gap-1 ${renderMode === "browser" ? "border-primary bg-primary/10" : "border-white/5 bg-white/5"}`}
+                >
+                    <span className="text-sm font-bold text-white">تصدير سريع (المتصفح)</span>
+                    <span className="text-[10px] text-white/40">سريع جداً، مناسب للاستخدام الشخصي.</span>
+                </button>
+
+                <button 
+                  onClick={() => setRenderMode("server")}
+                  className={`w-full p-4 rounded-2xl border transition-all flex flex-col items-start gap-1 ${renderMode === "server" ? "border-primary bg-primary/10" : "border-white/5 bg-white/5"}`}
+                >
+                    <span className="text-sm font-bold text-white">جودة احترافية (TikTok / MP4)</span>
+                    <span className="text-[10px] text-white/40 text-right">يستغرق وقتاً أطول، يدعم TikTok ومدة الفيديو.</span>
+                </button>
+            </div>
+
             <button onClick={handleStart} className="w-full bg-primary text-black py-4 rounded-2xl font-bold hover:scale-105 transition-all">
               بدء التصميم والتصدير
             </button>
@@ -351,7 +423,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
               {status === "rendering" ? (
                 <div className="relative">
                    <Loader2 className="w-12 h-12 text-primary animate-spin" />
-                   <div className="absolute inset-0 flex items-center justify-center text-[10px] text-primary font-bold">{progressPct}%</div>
+                   {renderMode === "browser" && <div className="absolute inset-0 flex items-center justify-center text-[10px] text-primary font-bold">{progressPct}%</div>}
                 </div>
               ) : status === "success" ? (
                 <CheckCircle2 className="w-12 h-12 text-green-500" />
@@ -374,11 +446,11 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
             {status === "success" && downloadUrl && (
               <a 
                 href={downloadUrl} 
-                download={`quran-video-${Date.now()}.webm`} 
-                className="w-full bg-primary text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:scale-105 transition-all"
+                download={renderMode === "server" ? `quran-video-${Date.now()}.mp4` : `quran-video-${Date.now()}.webm`} 
+                className="w-full bg-primary text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:scale-105 transition-all text-sm"
               >
                 <Download className="w-5 h-5" />
-                تحميل الفيديو النهائي
+                تحميل الفيديو النهائي (MP4)
               </a>
             )}
             {status === "error" && (

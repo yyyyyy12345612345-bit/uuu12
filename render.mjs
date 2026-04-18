@@ -35,7 +35,7 @@ async function start() {
   if (!configPath) throw new Error("No config path provided");
 
   const data = JSON.parse(fs.readFileSync(configPath, "utf-8"));
-  const { surahName, verses, backgroundUrl, textColor, fontSize, outputName } = data;
+  const { surahName, verses, backgroundUrl, textColor, fontSize, fontWeight, outputName } = data;
 
   const publicDir = path.resolve("public");
   const tempDir = path.resolve(publicDir, "temp-render");
@@ -117,6 +117,7 @@ async function start() {
       backgroundUrl: localBgFileName,
       textColor,
       fontSize,
+      fontWeight,
       totalFrames, // Pass global total
     };
 
