@@ -47,7 +47,8 @@ app.post("/render", async (req, res) => {
 
   // HuggingFace Spaces saves files locally
   const baseDir = os.tmpdir();
-  const tempDir = path.resolve(baseDir, `temp-${Date.now()}`);
+  const folderName = `temp-${Date.now()}`;
+  const tempDir = path.resolve(baseDir, folderName);
   const outputLocation = path.resolve(baseDir, outputName);
 
   if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
@@ -62,7 +63,7 @@ app.post("/render", async (req, res) => {
       const bgFile = `bg-${Date.now()}.${bgExt}`;
       const bgPath = path.resolve(tempDir, bgFile);
       await downloadFile(backgroundUrl, bgPath);
-      localBgFileName = `file://${bgPath.replace(/\\/g, '/')}`; 
+      localBgFileName = bgPath; 
       filesToCleanup.push(bgPath);
       console.log(">> Background downloaded ✓");
     }
@@ -81,7 +82,7 @@ app.post("/render", async (req, res) => {
         const audioPath = path.resolve(tempDir, audioFile);
         try {
           await downloadFile(verse.audio, audioPath);
-          audioFileName = `file://${audioPath.replace(/\\/g, '/')}`;
+          audioFileName = audioPath;
           filesToCleanup.push(audioPath);
           const dur = getAudioDuration(audioPath);
           verseDurationSeconds = dur + 0.5;
@@ -111,7 +112,7 @@ app.post("/render", async (req, res) => {
     const inputProps = { surahName, verses: processedVerses, backgroundUrl: localBgFileName, textColor, fontSize, fontWeight, totalFrames };
 
     console.log(">> Locating Composition...");
-    const comps = await getCompositions(bundleLocation, { inputProps });
+    const comps = await getCompositions(bundleLocation, { inputProps, staticDir: baseDir });
     const composition = comps.find((c) => c.id === "QuranVideo");
     if (!composition) throw new Error("QuranVideo composition not found!");
 
@@ -125,8 +126,12 @@ app.post("/render", async (req, res) => {
       serveUrl: bundleLocation,
       outputLocation,
       codec: "h264",
+      staticDir: baseDir,
       inputProps,
       crf: 23,
+      chromiumOptions: {
+        disableWebSecurity: true,
+      },
       onProgress: ({ progress }) => {
         if (Math.round(progress * 100) % 5 === 0) {
           process.stdout.write(`\r>> Progress: ${Math.round(progress * 100)}%`);
