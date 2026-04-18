@@ -32,14 +32,16 @@ function getAudioDuration(filePath) {
 // ─── Main Render Logic ──────────────────────────────────────
 async function start() {
   const configPath = process.argv[2];
+  const customBaseDir = process.argv[3]; // Optional base dir (e.g., /tmp)
   if (!configPath) throw new Error("No config path provided");
 
   const data = JSON.parse(fs.readFileSync(configPath, "utf-8"));
   const { surahName, verses, backgroundUrl, textColor, fontSize, fontWeight, outputName } = data;
 
   const publicDir = path.resolve("public");
-  const tempDir = path.resolve(publicDir, "temp-render");
-  const outputLocation = path.resolve("public/renders", outputName);
+  const baseDir = customBaseDir ? path.resolve(customBaseDir) : publicDir;
+  const tempDir = path.resolve(baseDir, "temp-render");
+  const outputLocation = path.resolve(baseDir, outputName);
 
   // Ensure directories exist
   if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
