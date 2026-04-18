@@ -100,7 +100,20 @@ export function Mushaf() {
 
     if (!selectedSurah) {
         return (
-            <div className="flex flex-col h-full animate-in fade-in duration-700 bg-transparent">
+            <div className="flex flex-col h-full animate-in fade-in duration-700 relative overflow-hidden">
+                {/* Unified Background Layer */}
+                <div className="absolute inset-0 z-0 pointer-events-none">
+                    <div 
+                        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000"
+                        style={{ 
+                            backgroundImage: "url('/mushaf-bg.jpg.png')",
+                            filter: "brightness(0.3) contrast(1.2)"
+                        }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black" />
+                </div>
+
+                <div className="relative z-10 flex flex-col h-full">
 
 
                 {/* Search Bar */}
@@ -167,12 +180,26 @@ export function Mushaf() {
 
                     </div>
                 </div>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="flex flex-col h-full animate-reveal relative overflow-hidden bg-transparent">
+        <div className="flex flex-col h-full animate-reveal relative overflow-hidden bg-[#1a1510]"> {/* Fallback color to see if code updated */}
+            {/* Mushaf Background Image Layer */}
+            <div className="absolute inset-0 z-0 pointer-events-none">
+                <div 
+                    className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000"
+                    style={{ 
+                        backgroundImage: "url('./mushaf-bg.jpg.png')", // Try relative path
+                        filter: "brightness(0.7) contrast(1.1)"
+                    }}
+                />
+                {/* Visual debug: if you see this overlay, then the code IS working */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-orange-900/10 to-transparent mix-blend-overlay" />
+                <div className="absolute inset-0 bg-black/30" />
+            </div>
 
             <audio ref={wordAudioRef} onEnded={() => setActiveWordId(null)} />
 
@@ -228,13 +255,17 @@ export function Mushaf() {
                             <span className="text-xs text-white/20 font-bold uppercase tracking-widest">تحميل السورة...</span>
                         </div>
                     ) : (
-                        <div className="flex flex-col gap-12 md:gap-24">
+                        <div className="flex flex-col gap-12 md:gap-24 relative z-10">
                             {surahContent?.verses.map((verse: any) => (
                                 <div
                                     key={verse.id}
                                     id={`verse-${verse.id}`}
                                     onClick={() => toggleAudio(verse.id)}
-                                    className={`group relative transition-all duration-700 p-5 md:p-8 rounded-[2rem] border cursor-pointer ${playingAyah === verse.id ? 'bg-primary/[0.04] border-primary/30 shadow-2xl shadow-primary/5' : 'bg-white/[0.01] border-transparent hover:border-white/10'}`}
+                                    className={`group relative transition-all duration-700 p-6 md:p-10 rounded-[2.5rem] border cursor-pointer backdrop-blur-sm ${
+                                        playingAyah === verse.id 
+                                        ? 'bg-primary/[0.03] border-primary/40 shadow-[0_0_50px_rgba(var(--primary-rgb),0.1)] scale-[1.01]' 
+                                        : 'bg-black/10 border-white/5 hover:border-white/10 hover:bg-black/20'
+                                    }`}
                                 >
 
                                     <div className="flex items-center justify-between mb-8">
