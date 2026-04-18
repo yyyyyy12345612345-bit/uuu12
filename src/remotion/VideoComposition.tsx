@@ -21,7 +21,7 @@ const isVideoUrl = (url?: string) => {
 
 function resolveMedia(src?: string): string {
   if (!src) return "";
-  if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("//")) {
+  if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("//") || src.startsWith("file://")) {
     return src;
   }
   return staticFile(src);
@@ -59,6 +59,9 @@ export const MainVideo: React.FC<MainVideoProps> = ({
 
   return (
     <AbsoluteFill style={{ backgroundColor: 'black' }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+      `}</style>
       <AbsoluteFill style={{ backgroundColor: 'black' }} />
       {resolvedBg && (
         isVideoUrl(backgroundUrl) ? (
@@ -150,12 +153,10 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, tot
         }}>
             <div style={{ 
                 color: '#D4AF37', 
-                fontSize: '28px', 
+                fontSize: '32px', 
                 fontWeight: 800,
-                letterSpacing: '10px',
-                textTransform: 'uppercase',
                 textShadow: '0 0 20px rgba(212,175,55,0.4)',
-                fontFamily: 'sans-serif'
+                fontFamily: '"Amiri", serif'
             }}>
                 {surahName}
             </div>
@@ -163,7 +164,7 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, tot
             <p style={{ 
                 color: textColor, 
                 fontSize: `${fontSize * 1.8}px`, 
-                fontFamily: 'serif',
+                fontFamily: '"Amiri", serif',
                 direction: 'rtl',
                 textAlign: 'center',
                 width: '100%',
@@ -191,7 +192,8 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, tot
                 width: '100%',
                 lineHeight: 1.4,
                 textShadow: '0 10px 30px rgba(0,0,0,0.8)',
-                fontStyle: 'italic'
+                fontStyle: 'italic',
+                fontFamily: '"Amiri", serif'
             }}>
                 {verse.translation}
             </p>

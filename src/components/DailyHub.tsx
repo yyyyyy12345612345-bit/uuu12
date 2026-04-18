@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Sun, Moon, Target, Compass, CheckCircle2, Circle, RotateCcw, Fingerprint, MapPin, Search, Bed } from "lucide-react";
+import { Sun, Moon, Target, Compass, CheckCircle2, Circle, RotateCcw, Fingerprint, MapPin, Search, Bed, BookOpen } from "lucide-react";
 import { ATHKAR, Thikr } from "@/data/athkar";
+import { AthkarLibrary } from "./AthkarLibrary";
 
 export function DailyHub() {
-  const [activeTab, setActiveTab] = useState<"morning" | "evening" | "qibla" | "goal" | "sibha" | "sleep">("sibha");
+  const [activeTab, setActiveTab] = useState<"morning" | "evening" | "qibla" | "goal" | "sibha" | "sleep" | "library">("sibha");
   const [athkarProgress, setAthkarProgress] = useState<Record<string, number>>({});
   
   // Daily Goal state
@@ -267,6 +268,7 @@ export function DailyHub() {
           { id: "morning", icon: Sun, label: "الصباح" },
           { id: "evening", icon: Moon, label: "المساء" },
           { id: "sleep", icon: Bed, label: "النوم" },
+          { id: "library", icon: BookOpen, label: "المكتبة" },
           { id: "goal", icon: Target, label: "الورد" },
           { id: "qibla", icon: Compass, label: "القبلة" }
         ].map((t) => {
@@ -350,8 +352,12 @@ export function DailyHub() {
 
          {activeTab === "sleep" && (
             <div className="grid grid-cols-1 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                {renderAthkarList("sleep" as any)}
+                 {renderAthkarList("sleep" as any)}
             </div>
+         )}
+
+         {activeTab === "library" && (
+            <AthkarLibrary />
          )}
 
          {activeTab === "goal" && (

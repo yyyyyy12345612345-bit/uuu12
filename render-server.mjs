@@ -13,6 +13,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// تقديم الملفات المؤقتة محلياً لمتصفح الرندر عن طريق سيرفر Express 
+app.use("/assets", express.static(os.tmpdir()));
+
 // ─── Helpers ────────────────────────────────────────────────
 async function downloadFile(url, dest) {
   console.log(`  ↓ Downloading: ${url.substring(0, 80)}...`);
@@ -28,9 +31,11 @@ function getAudioDuration(filePath) {
       `ffprobe -v error -show_entries format=duration -of csv=p=0 "${filePath}"`,
       { encoding: "utf-8", timeout: 10000 }
     ).trim();
-    return parseFloat(result) || 8;
+    const dur = parseFloat(result);
+    if (!dur || isNaN(dur)) throw new Error("Invalid audio");
+    return dur;
   } catch {
-    return 8;
+    throw new Error("ffprobe failed - likely invalid media format");
   }
 }
 
@@ -63,7 +68,8 @@ app.post("/render", async (req, res) => {
       const bgFile = `bg-${Date.now()}.${bgExt}`;
       const bgPath = path.resolve(tempDir, bgFile);
       await downloadFile(backgroundUrl, bgPath);
-      localBgFileName = bgPath; 
+      // التمرير عبر السيرفر الداخلي
+      localBgFileName = `http://localhost:7860/assets/${folderName}/${bgFile}`; 
       filesToCleanup.push(bgPath);
       console.log(">> Background downloaded ✓");
     }
@@ -82,12 +88,12 @@ app.post("/render", async (req, res) => {
         const audioPath = path.resolve(tempDir, audioFile);
         try {
           await downloadFile(verse.audio, audioPath);
-          audioFileName = audioPath;
-          filesToCleanup.push(audioPath);
           const dur = getAudioDuration(audioPath);
-          verseDurationSeconds = dur + 0.5;
+          audioFileName = `http://localhost:7860/assets/${folderName}/${audioFile}`;
+          verseDurationSeconds = Math.max(dur + 0.5, 3);
         } catch (e) {
-          console.warn(`  ⚠ Could not download/probe audio for verse ${verse.id}: ${e.message}`);
+          console.warn(`  ⚠ Audio error for verse ${verse.id}: ${e.message}`);
+          audioFileName = ""; // No audio if broken
         }
       }
 
@@ -112,7 +118,7 @@ app.post("/render", async (req, res) => {
     const inputProps = { surahName, verses: processedVerses, backgroundUrl: localBgFileName, textColor, fontSize, fontWeight, totalFrames };
 
     console.log(">> Locating Composition...");
-    const comps = await getCompositions(bundleLocation, { inputProps, staticDir: baseDir });
+    const comps = await getCompositions(bundleLocation, { inputProps }); 
     const composition = comps.find((c) => c.id === "QuranVideo");
     if (!composition) throw new Error("QuranVideo composition not found!");
 
@@ -126,7 +132,6 @@ app.post("/render", async (req, res) => {
       serveUrl: bundleLocation,
       outputLocation,
       codec: "h264",
-      staticDir: baseDir,
       inputProps,
       crf: 23,
       chromiumOptions: {
