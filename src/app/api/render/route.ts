@@ -4,11 +4,6 @@ import path from "path";
 import fs from "fs";
 import os from "os";
 
-// Force Vercel's NFT (Node File Trace) to bundle these dependencies
-// otherwise they get pruned since Vercel doesn't read inside render.mjs
-import "@remotion/renderer";
-import "@remotion/bundler";
-
 export const maxDuration = 300; 
 
 export async function POST(req: Request) {
