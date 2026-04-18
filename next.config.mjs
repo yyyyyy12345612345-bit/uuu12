@@ -13,6 +13,9 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: "20mb",
     },
+    outputFileTracingIncludes: {
+      "/api/render": ["./node_modules/@remotion/renderer/**/*", "./node_modules/@remotion/bundler/**/*", "./node_modules/remotion/**/*"]
+    }
   },
   serverExternalPackages: [
     "remotion",
