@@ -264,6 +264,7 @@ export function DigitalMushaf() {
                                 pIdx={pIdx}
                                 currentPlayingVerse={currentPlayingVerse}
                                 playVerse={playVerse}
+                                mushafFontSize={state.mushafFontSize}
                             />
                         </div>
                     ))
@@ -338,7 +339,7 @@ export function DigitalMushaf() {
 }
 
 // Re-built Premium Mushaf Page Component
-const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse }: any) => {
+const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mushafFontSize }: any) => {
     return (
         <div 
             data-page={pData.page}
@@ -378,17 +379,22 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse }: 
                                         <div className="relative w-full max-w-[400px] h-[70px] flex items-center justify-center">
                                              <div className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-[#a89078] to-transparent" />
                                              <div className="bg-[#FAF8F5] px-10 py-3 border-2 border-[#a89078]/20 rounded-full shadow-sm z-10 relative">
-                                                <span className="font-arabic text-2xl md:text-3xl font-black text-[#5c4f42]">سورة {surahName}</span>
+                                                 <span 
+                                                    className="font-arabic font-black text-[#5c4f42]"
+                                                    style={{ fontSize: `${mushafFontSize * 1.2}px` }}
+                                                 >
+                                                    سورة {surahName}
+                                                 </span>
                                                 <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full" />
                                                 <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-primary rounded-full" />
                                              </div>
                                         </div>
                                         
-                                        {/* Basmalah */}
+                                         {/* Basmalah */}
                                         {sId !== "1" && sId !== "9" && (
                                             <div 
                                                 className="font-arabic text-[#4a3f35]/90 py-4 drop-shadow-sm"
-                                                style={{ fontSize: `${state.mushafFontSize * 1.1}px` }}
+                                                style={{ fontSize: `${mushafFontSize * 1.1}px` }}
                                             >
                                                 بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
                                             </div>
@@ -400,7 +406,10 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse }: 
                                     onClick={() => playVerse(pIdx, vIdx)} 
                                     className={`inline transition-all duration-300 rounded-2xl cursor-pointer py-1 px-1 ${isPlaying ? 'bg-primary/10 text-[#8b0000] shadow-[0_0_15px_rgba(212,175,55,0.1)]' : 'hover:bg-black/5'}`}
                                 >
-                                    <span className={`${scheherazade.className} inline text-2xl md:text-3xl font-medium tracking-normal antialiased`}>
+                                    <span 
+                                        className={`${scheherazade.className} inline font-medium tracking-normal antialiased`}
+                                        style={{ fontSize: `${mushafFontSize}px` }}
+                                     >
                                         {verse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => {
                                             const isAllah = word.text_uthmani?.includes('للَّ') || word.text_uthmani?.includes('اللَّ');
                                             return (
@@ -417,9 +426,9 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse }: 
                                         <span 
                                             className="inline-flex items-center justify-center relative select-none mx-2"
                                             style={{ 
-                                                width: `${state.mushafFontSize * 1.3}px`, 
-                                                height: `${state.mushafFontSize * 1.3}px`,
-                                                top: `-${state.mushafFontSize * 0.2}px`
+                                                width: `${mushafFontSize * 1.3}px`, 
+                                                height: `${mushafFontSize * 1.3}px`,
+                                                top: `-${mushafFontSize * 0.2}px`
                                             }}
                                         >
                                             <svg className="absolute inset-0 w-full h-full text-[#a89078]/40" viewBox="0 0 100 100" fill="none">
@@ -428,7 +437,7 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse }: 
                                             </svg>
                                             <span 
                                                 className="relative z-10 font-bold font-serif text-[#a89078]"
-                                                style={{ fontSize: `${state.mushafFontSize * 0.4}px` }}
+                                                style={{ fontSize: `${mushafFontSize * 0.4}px` }}
                                             >
                                                 {vId}
                                             </span>

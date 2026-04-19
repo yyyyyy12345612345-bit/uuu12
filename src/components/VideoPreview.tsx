@@ -20,6 +20,12 @@ const getFilterCSS = (filter?: string): string => {
     warm: "saturate(1.3) hue-rotate(-10deg) brightness(1.05)",
     bw: "grayscale(1) contrast(1.2)",
     dramatic: "contrast(1.4) brightness(0.7) saturate(1.2)",
+    blur: "blur(20px) brightness(0.8)",
+    invert: "invert(1) hue-rotate(180deg)",
+    midnight: "brightness(0.4) contrast(1.5) saturate(0.5) hue-rotate(220deg)",
+    oceanic: "hue-rotate(180deg) brightness(1.1) saturate(1.8) contrast(1.1)",
+    sepia: "sepia(1) contrast(0.9) brightness(1.1)",
+    saturated: "saturate(2.5) contrast(1.1)",
   };
   return map[filter || "none"] || "none";
 };
@@ -209,17 +215,37 @@ export function VideoPreview() {
 
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40" />
 
-        {/* Content */}
-        <div className={`relative h-full w-full flex flex-col items-center p-10 text-center z-10 ${state.textPosition === 'top' ? 'justify-start pt-24' : state.textPosition === 'bottom' ? 'justify-end pb-36' : 'justify-center'}`}>
+        {/* Content Container with dynamic positioning and transition */}
+        <div 
+          className="absolute inset-0 flex flex-col items-center px-12 text-center z-10 transition-all duration-700 ease-out"
+          style={{ 
+            justifyContent: state.textPosition === 'top' ? 'flex-start' : state.textPosition === 'bottom' ? 'flex-end' : 'center',
+            paddingTop: state.textPosition === 'top' ? '80px' : '40px',
+            paddingBottom: state.textPosition === 'bottom' ? '140px' : '40px',
+            transform: `translateY(${state.textVerticalOffset / 2.5}px)` // Normalizing offset for smaller preview
+          }}
+        >
           {surahLoading ? (
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-4 mt-auto mb-auto">
               <div className="w-12 h-12 border-2 border-primary/10 border-t-primary rounded-full animate-spin" />
               <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold">جاري تحميل البيانات...</span>
             </div>
           ) : surahData ? (
-            <div key={currentAyahIndex} className={`flex flex-col gap-6 transition-all duration-700 ${state.animation === 'scale' ? 'animate-in zoom-in-50 fade-in' : state.animation === 'slide' ? 'animate-in slide-in-from-bottom-10 fade-in' : 'animate-in fade-in'}`}>
-              <div className="flex flex-col gap-1 items-center">
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] text-white/70 font-bold uppercase">
+            <div 
+              key={currentAyahIndex} 
+              className={`flex flex-col gap-6 w-full max-w-full overflow-hidden transition-all duration-700 ${
+                state.animation === 'scale' ? 'animate-in zoom-in-75 fade-in' : 
+                state.animation === 'slide' ? 'animate-in slide-in-from-bottom-20 fade-in' : 
+                state.animation === 'blur' ? 'animate-in fade-in blur-in' :
+                state.animation === 'zoom' ? 'animate-in zoom-in-150 fade-in' :
+                state.animation === 'flip' ? 'animate-in flip-in-x fade-in' :
+                state.animation === 'bounce' ? 'animate-in slide-in-from-top-20 fade-in duration-1000' :
+                state.animation === 'glitch' ? 'animate-pulse' :
+                'animate-in fade-in'
+              }`}
+            >
+              <div className="flex flex-col gap-1 items-center shrink-0">
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] text-white/70 font-bold uppercase backdrop-blur-sm">
                   {surahData?.name} · {state.startAyah} - {state.endAyah}
                 </span>
                 {isPlaying && (
@@ -228,26 +254,26 @@ export function VideoPreview() {
               </div>
 
               <p
-                className="text-4xl md:text-5xl text-white font-arabic leading-[1.6] text-center w-full"
+                className="text-white font-arabic leading-[1.6] text-center w-full break-words"
                 style={{
                   color: state.textColor,
-                  fontSize: `${state.fontSize}px`,
+                  fontSize: `${Math.min(state.fontSize, 80)}px`, // Cap preview size for frame safety
                   fontFamily: `"${state.fontFamily || 'Amiri'}", serif`,
                   fontWeight: state.fontWeight,
-                  textAlign: 'center'
+                  textShadow: '0 10px 30px rgba(0,0,0,0.8)'
                 }}
               >
                 {currentVerse?.text || "لم يتم العثور على الآية"}
               </p>
 
-              <div className="w-16 h-[2px] bg-primary/40 self-center" />
+              <div className="w-16 h-[2px] bg-primary/40 self-center shrink-0" />
 
-              <p className="text-[15px] text-white/80 font-medium italic leading-relaxed text-center w-full">
+              <p className="text-[14px] md:text-[16px] text-white/90 font-medium italic leading-relaxed text-center w-full line-clamp-4">
                 {currentVerse?.translation}
               </p>
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-4 p-8 glass rounded-3xl border-red-500/20">
+            <div className="flex flex-col items-center gap-4 p-8 glass rounded-3xl border-red-500/20 mt-auto mb-auto">
               <span className="text-red-400 text-sm font-bold font-arabic">تعذر تحميل بيانات السورة</span>
               <button
                 onClick={() => window.location.reload()}

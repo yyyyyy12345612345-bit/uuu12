@@ -296,9 +296,9 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
 
     const justifyMap: Record<string, string> = { top: "flex-start", center: "center", bottom: "flex-end" };
     const paddingMap: Record<string, string> = { 
-      top: "100px 80px 200px 80px", 
-      center: "120px", 
-      bottom: "200px 80px 100px 80px" 
+      top: "60px 40px 100px 40px", 
+      center: "40px", 
+      bottom: "100px 40px 60px 40px" 
     };
 
     return (
@@ -310,11 +310,12 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
             flexDirection: 'column', 
             alignItems: 'center',
             justifyContent: justifyMap[textPosition] || 'center',
-            gap: '60px', 
+            gap: '30px', 
             opacity, 
             ...animationStyles,
-            padding: paddingMap[textPosition] || '120px',
-            textAlign: 'center'
+            padding: paddingMap[textPosition] || '40px',
+            textAlign: 'center',
+            overflow: 'hidden'
         }}>
             <div style={{ 
                 color: '#D4AF37', fontSize: '32px', fontWeight: 800,

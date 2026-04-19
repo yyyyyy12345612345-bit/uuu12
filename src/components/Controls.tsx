@@ -109,10 +109,12 @@ export function Controls() {
         ))}
       </div>
 
-      <div className="flex-1 rounded-3xl bg-black/20 border border-white/5 p-4 relative overflow-hidden group min-h-[300px]">
+      <div className="flex-1 rounded-3xl bg-black/20 border border-white/5 p-4 relative overflow-hidden group min-h-[400px]">
         <div className="absolute inset-0 bg-primary/[0.01] pointer-events-none" />
         
-        {activeTab === "bg" && (
+        {/* Added extra padding bottom to ensure it clears fixed navigation bar */}
+        <div className="h-full overflow-y-auto pr-2 custom-scrollbar pb-32">
+
           <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
             
             {/* Mode Switcher */}
@@ -460,16 +462,27 @@ export function Controls() {
                 <span className="text-[11px] font-bold text-white/50 uppercase tracking-widest">سُمك الخط</span>
                 <span className="text-sm font-black text-primary font-mono">{state.fontWeight}</span>
               </div>
-              <div className="flex gap-2">
-                 {[300, 400, 500, 600, 700, 800].map(weight => (
-                   <button
-                      key={weight}
-                      onClick={() => updateState({ fontWeight: weight })}
-                      className={`flex-1 py-3 rounded-xl border-2 transition-all font-bold text-xs ${state.fontWeight === weight ? 'bg-primary/10 border-primary text-primary' : 'bg-black/40 border-white/5 text-white/30 hover:bg-white/5'}`}
-                   >
-                      {weight === 400 ? 'عادي' : weight === 700 ? 'عريض' : weight}
-                   </button>
-                 ))}
+              <div className="grid grid-cols-3 gap-2">
+                 {[300, 400, 500, 600, 700, 800].map(weight => {
+                   const labels: Record<number, string> = {
+                     300: "خفيف",
+                     400: "عادي",
+                     500: "متوسط",
+                     600: "شبه عريض", // Semi-bold
+                     700: "عريض",
+                     800: "أسمك"
+                   };
+                   return (
+                     <button
+                        key={weight}
+                        onClick={() => updateState({ fontWeight: weight })}
+                        className={`py-3 rounded-xl border-2 transition-all font-bold text-[10px] flex flex-col items-center gap-1 ${state.fontWeight === weight ? 'bg-primary/10 border-primary text-primary' : 'bg-black/40 border-white/5 text-white/30 hover:bg-white/5 hover:border-white/10'}`}
+                     >
+                        <span className="opacity-50">{weight}</span>
+                        <span>{labels[weight]}</span>
+                     </button>
+                   );
+                 })}
               </div>
             </div>
           </div>
@@ -510,6 +523,7 @@ export function Controls() {
              </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
