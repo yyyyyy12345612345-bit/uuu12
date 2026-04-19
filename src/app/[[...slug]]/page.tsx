@@ -79,16 +79,16 @@ function CatchAllContent() {
       </header>
 
       <main className="flex-1 relative overflow-hidden">
-        {visited.mushaf && <div className={`h-full w-full ${activeView === 'mushaf' ? 'block' : 'hidden'}`}><Mushaf /></div>}
-        {visited['mushaf-full'] && <div className={`h-full w-full ${activeView === 'mushaf-full' ? 'block' : 'hidden'}`}><DigitalMushaf /></div>}
-        {visited.daily && <div className={`h-full w-full ${activeView === 'daily' ? 'block' : 'hidden'}`}><DailyHub /></div>}
-        {visited.library && <div className={`h-full w-full ${activeView === 'library' ? 'block' : 'hidden'}`}><AudioLibrary /></div>}
-        {visited.prayers && <div className={`h-full w-full ${activeView === 'prayers' ? 'block' : 'hidden'}`}><PrayerTimes /></div>}
+        {visited.mushaf && <div className={`h-full w-full mb-20 ${activeView === 'mushaf' ? 'block' : 'hidden'}`}><Mushaf /></div>}
+        {visited['mushaf-full'] && <div className={`h-full w-full mb-20 ${activeView === 'mushaf-full' ? 'block' : 'hidden'}`}><DigitalMushaf /></div>}
+        {visited.daily && <div className={`h-full w-full pb-32 ${activeView === 'daily' ? 'block' : 'hidden'}`}><DailyHub /></div>}
+        {visited.library && <div className={`h-full w-full pb-32 ${activeView === 'library' ? 'block' : 'hidden'}`}><AudioLibrary /></div>}
+        {visited.prayers && <div className={`h-full w-full pb-32 ${activeView === 'prayers' ? 'block' : 'hidden'}`}><PrayerTimes /></div>}
         
         {visited.video && (
           <div className={`h-full w-full ${activeView === 'video' ? 'block' : 'hidden'}`}>
              <div className="flex h-full w-full overflow-hidden">
-                <aside className="hidden lg:flex w-[350px] h-full border-r border-white/5 flex-col p-6 overflow-y-auto no-scrollbar gap-6">
+                <aside className="hidden lg:flex w-[350px] h-full border-r border-white/5 flex-col p-6 overflow-y-auto no-scrollbar gap-6 pb-40">
                    <SurahSelector /><Controls />
                 </aside>
                 <div className="flex-1 flex flex-col h-full overflow-y-auto no-scrollbar">
