@@ -55,7 +55,10 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           backgroundUrl: state.backgroundUrl,
           textColor: state.textColor,
           fontSize: state.fontSize,
-          fontWeight: state.fontWeight
+          fontWeight: state.fontWeight,
+          fontFamily: state.fontFamily || "Amiri",
+          filter: state.filter || "none",
+          textPosition: state.textPosition || "center",
         }),
       });
 
@@ -372,7 +375,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
       // Main Verse Text
       ctx.fillStyle = state.textColor || "#ffffff";
-      ctx.font = `${state.fontWeight} ${state.fontSize * 1.8}px serif`;
+      ctx.font = `${state.fontWeight} ${state.fontSize * 1.8}px "${state.fontFamily || 'Amiri'}", serif`;
       
       const lines = wrapText(ctx, verse.text, canvas.width - 120);
       const lineHeight = state.fontSize * 2.0;

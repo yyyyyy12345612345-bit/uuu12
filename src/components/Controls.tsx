@@ -241,10 +241,86 @@ export function Controls() {
         )}
 
         {activeTab === "style" && (
-          <div className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
-            <div className="flex flex-col gap-4">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-white/30 px-1">لوحة الألوان</span>
-              <div className="flex flex-wrap gap-4">
+          <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700 overflow-y-auto max-h-[500px] pr-1 custom-scrollbar">
+            
+            {/* ── نوع الخط ── */}
+            <div className="flex flex-col gap-3">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-white/30 px-1">نوع الخط</span>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { id: "Amiri", label: "أميري", preview: "بِسْمِ ٱللَّهِ" },
+                  { id: "Noto Naskh Arabic", label: "نسخ", preview: "بِسْمِ ٱللَّهِ" },
+                  { id: "Scheherazade New", label: "شهرزاد", preview: "بِسْمِ ٱللَّهِ" },
+                  { id: "Lateef", label: "لطيف", preview: "بِسْمِ ٱللَّهِ" },
+                  { id: "Cairo", label: "القاهرة", preview: "بِسْمِ ٱللَّهِ" },
+                  { id: "Tajawal", label: "تجوال", preview: "بِسْمِ ٱللَّهِ" },
+                ].map((font) => (
+                  <button
+                    key={font.id}
+                    onClick={() => updateState({ fontFamily: font.id })}
+                    className={`p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.fontFamily === font.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-black/40 border-white/5 hover:border-white/20'}`}
+                  >
+                    <span className={`text-[10px] font-bold ${state.fontFamily === font.id ? 'text-primary' : 'text-white/40'}`}>{font.label}</span>
+                    <span 
+                      className={`text-lg ${state.fontFamily === font.id ? 'text-white' : 'text-white/60'}`}
+                      style={{ fontFamily: `"${font.id}", serif`, direction: 'rtl' }}
+                    >
+                      {font.preview}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ── فلاتر الخلفية ── */}
+            <div className="flex flex-col gap-3">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-white/30 px-1">فلتر الخلفية</span>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: "none", label: "بدون", icon: "✨" },
+                  { id: "vintage", label: "عتيق", icon: "🎞️" },
+                  { id: "cool", label: "بارد", icon: "❄️" },
+                  { id: "warm", label: "دافئ", icon: "🔥" },
+                  { id: "bw", label: "أبيض وأسود", icon: "🖤" },
+                  { id: "dramatic", label: "درامي", icon: "🌑" },
+                ].map((f) => (
+                  <button
+                    key={f.id}
+                    onClick={() => updateState({ filter: f.id })}
+                    className={`p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.filter === f.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-black/40 border-white/5 hover:border-white/20'}`}
+                  >
+                    <span className="text-lg">{f.icon}</span>
+                    <span className={`text-[10px] font-bold ${state.filter === f.id ? 'text-primary' : 'text-white/40'}`}>{f.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ── مكان النص ── */}
+            <div className="flex flex-col gap-3">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-white/30 px-1">مكان النص</span>
+              <div className="flex gap-2">
+                {[
+                  { id: "top" as const, label: "أعلى", icon: "⬆️" },
+                  { id: "center" as const, label: "وسط", icon: "⏺️" },
+                  { id: "bottom" as const, label: "أسفل", icon: "⬇️" },
+                ].map((pos) => (
+                  <button
+                    key={pos.id}
+                    onClick={() => updateState({ textPosition: pos.id })}
+                    className={`flex-1 p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.textPosition === pos.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-black/40 border-white/5 hover:border-white/20'}`}
+                  >
+                    <span className="text-lg">{pos.icon}</span>
+                    <span className={`text-[10px] font-bold ${state.textPosition === pos.id ? 'text-primary' : 'text-white/40'}`}>{pos.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ── لون النص ── */}
+            <div className="flex flex-col gap-3">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-white/30 px-1">لون النص</span>
+              <div className="flex flex-wrap gap-3">
                 {[
                   '#ffffff', '#FFD700', '#D4AF37', '#00FFC2', '#00E5FF', 
                   '#3B82F6', '#A855F7', '#EC4899', '#F43F5E', '#FF5C5C', 
@@ -252,12 +328,7 @@ export function Controls() {
                 ].map((color) => (
                   <button
                     key={color}
-                    onClick={() => {
-                       updateState({ textColor: color });
-                       // Analytics: تتبع الألوان
-                       // @ts-ignore
-                       window.gtag?.('event', 'color_select', { 'color_hex': color });
-                    }}
+                    onClick={() => updateState({ textColor: color })}
                     style={{ backgroundColor: color }}
                     className={`h-10 w-10 rounded-full border-2 transition-all duration-500 ${state.textColor === color ? 'border-white scale-110 ring-8 ring-primary/10 shadow-lg shadow-black/40' : 'border-white/10 hover:scale-110'}`}
                   />
@@ -266,12 +337,7 @@ export function Controls() {
                   <input
                     type="color"
                     value={state.textColor}
-                    onChange={(e) => {
-                       updateState({ textColor: e.target.value });
-                       // Analytics: تتبع اختيار لون مخصص
-                       // @ts-ignore
-                       window.gtag?.('event', 'color_custom', { 'color_hex': e.target.value });
-                    }}
+                    onChange={(e) => updateState({ textColor: e.target.value })}
                     className="h-10 w-10 rounded-full border-2 border-white/10 bg-transparent cursor-pointer overflow-hidden opacity-0 absolute inset-0 z-10"
                   />
                   <div 
@@ -284,48 +350,38 @@ export function Controls() {
               </div>
             </div>
 
-            <div className="space-y-8 px-1">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center bg-white/[0.02] p-3 rounded-xl border border-white/5">
-                  <span className="text-[11px] font-bold text-white/50 uppercase tracking-widest">حجم الخط</span>
-                  <span className="text-sm font-black text-primary font-mono">{state.fontSize}px</span>
-                </div>
-                <input
-                  type="range"
-                  min="24"
-                  max="72"
-                  value={state.fontSize}
-                  onChange={(e) => {
-                     updateState({ fontSize: Number(e.target.value) });
-                  }}
-                  onMouseUp={(e: any) => {
-                     // @ts-ignore
-                     window.gtag?.('event', 'font_size_change', { 'size': Number(e.target.value) });
-                  }}
-                  className="w-full h-1.5 bg-white/5 rounded-full appearance-none cursor-pointer accent-primary hover:accent-primary/80 transition-all"
-                />
+            {/* ── حجم الخط ── */}
+            <div className="space-y-3 px-1">
+              <div className="flex justify-between items-center bg-white/[0.02] p-3 rounded-xl border border-white/5">
+                <span className="text-[11px] font-bold text-white/50 uppercase tracking-widest">حجم الخط</span>
+                <span className="text-sm font-black text-primary font-mono">{state.fontSize}px</span>
               </div>
+              <input
+                type="range"
+                min="24"
+                max="72"
+                value={state.fontSize}
+                onChange={(e) => updateState({ fontSize: Number(e.target.value) })}
+                className="w-full h-1.5 bg-white/5 rounded-full appearance-none cursor-pointer accent-primary hover:accent-primary/80 transition-all"
+              />
+            </div>
 
-              <div className="space-y-4">
-                <div className="flex justify-between items-center bg-white/[0.02] p-3 rounded-xl border border-white/5">
-                  <span className="text-[11px] font-bold text-white/50 uppercase tracking-widest">سُمك الخط</span>
-                  <span className="text-sm font-black text-primary font-mono">{state.fontWeight}</span>
-                </div>
-                <div className="flex gap-2">
-                   {[300, 400, 500, 600, 700, 800].map(weight => (
-                     <button
-                        key={weight}
-                        onClick={() => {
-                           updateState({ fontWeight: weight });
-                           // @ts-ignore
-                           window.gtag?.('event', 'font_weight_change', { 'weight': weight });
-                        }}
-                        className={`flex-1 py-3 rounded-xl border-2 transition-all font-bold text-xs ${state.fontWeight === weight ? 'bg-primary/10 border-primary text-primary' : 'bg-black/40 border-white/5 text-white/30 hover:bg-white/5'}`}
-                     >
-                        {weight === 400 ? 'عادي' : weight === 700 ? 'عريض' : weight}
-                     </button>
-                   ))}
-                </div>
+            {/* ── سُمك الخط ── */}
+            <div className="space-y-3 px-1">
+              <div className="flex justify-between items-center bg-white/[0.02] p-3 rounded-xl border border-white/5">
+                <span className="text-[11px] font-bold text-white/50 uppercase tracking-widest">سُمك الخط</span>
+                <span className="text-sm font-black text-primary font-mono">{state.fontWeight}</span>
+              </div>
+              <div className="flex gap-2">
+                 {[300, 400, 500, 600, 700, 800].map(weight => (
+                   <button
+                      key={weight}
+                      onClick={() => updateState({ fontWeight: weight })}
+                      className={`flex-1 py-3 rounded-xl border-2 transition-all font-bold text-xs ${state.fontWeight === weight ? 'bg-primary/10 border-primary text-primary' : 'bg-black/40 border-white/5 text-white/30 hover:bg-white/5'}`}
+                   >
+                      {weight === 400 ? 'عادي' : weight === 700 ? 'عريض' : weight}
+                   </button>
+                 ))}
               </div>
             </div>
           </div>

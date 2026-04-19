@@ -8,9 +8,20 @@ import { RECITERS } from "@/data/reciters";
 
 const isVideoUrl = (url: string) => {
   if (!url) return false;
-  // Common video extensions, handles query params and fragments
   const videoExtensions = /\.(mp4|webm|mov|ogg|m4v|3gp|flv|avi)(\?.*|#.*)?$/i;
   return videoExtensions.test(url) || url.includes("pexels.com/video") || url.includes("vimeo.com/external");
+};
+
+const getFilterCSS = (filter?: string): string => {
+  const map: Record<string, string> = {
+    none: "none",
+    vintage: "sepia(0.5) contrast(1.1) brightness(0.9)",
+    cool: "saturate(0.8) hue-rotate(20deg) brightness(1.05)",
+    warm: "saturate(1.3) hue-rotate(-10deg) brightness(1.05)",
+    bw: "grayscale(1) contrast(1.2)",
+    dramatic: "contrast(1.4) brightness(0.7) saturate(1.2)",
+  };
+  return map[filter || "none"] || "none";
 };
 
 export function VideoPreview() {
@@ -121,7 +132,8 @@ export function VideoPreview() {
             <video
               ref={videoRef}
               src={state.backgroundUrl}
-              className="absolute inset-0 w-full h-full object-cover opacity-60"
+              className="absolute inset-0 w-full h-full object-cover opacity-60 transition-all duration-500"
+              style={{ filter: getFilterCSS(state.filter) }}
               loop
               muted
               autoPlay
@@ -131,14 +143,14 @@ export function VideoPreview() {
           ) : (
             <div
               className="absolute inset-0 bg-cover bg-center opacity-90 transition-all duration-1000"
-              style={{ backgroundImage: `url(${state.backgroundUrl})` }}
+              style={{ backgroundImage: `url(${state.backgroundUrl})`, filter: getFilterCSS(state.filter) }}
             />
           )
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40" />
 
         {/* Content */}
-        <div className="relative h-full w-full flex flex-col items-center justify-end pb-36 p-10 text-center z-10">
+        <div className={`relative h-full w-full flex flex-col items-center p-10 text-center z-10 ${state.textPosition === 'top' ? 'justify-start pt-24' : state.textPosition === 'bottom' ? 'justify-end pb-36' : 'justify-center'}`}>
           {surahLoading ? (
             <div className="flex flex-col items-center gap-4">
               <div className="w-12 h-12 border-2 border-primary/10 border-t-primary rounded-full animate-spin" />
@@ -160,7 +172,7 @@ export function VideoPreview() {
                 style={{
                   color: state.textColor,
                   fontSize: `${state.fontSize}px`,
-                  fontFamily: 'serif',
+                  fontFamily: `"${state.fontFamily || 'Amiri'}", serif`,
                   fontWeight: state.fontWeight,
                   textAlign: 'center'
                 }}
