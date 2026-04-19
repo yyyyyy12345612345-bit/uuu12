@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useEditor } from "@/store/useEditor";
 import { usePathname } from "next/navigation";
-import { Settings, X, MessageCircle, Download } from "lucide-react";
+import { Settings, X, MessageCircle, Download, Menu } from "lucide-react";
 
 // Pre-load components with ssr: false for all to ensure stability in Next.js 16
 const SurahSelector = dynamic(() => import("@/components/SurahSelector").then(mod => mod.SurahSelector), { ssr: false });
@@ -19,7 +19,7 @@ const Navigation = dynamic(() => import("@/components/Navigation").then(mod => m
 const DigitalMushaf = dynamic(() => import("@/components/DigitalMushaf").then(mod => mod.DigitalMushaf), { ssr: false });
 const FeedbackModal = dynamic(() => import("@/components/FeedbackModal").then(mod => mod.FeedbackModal), { ssr: false });
 const PWAInstallButton = dynamic(() => import("@/components/PWAInstallButton").then(mod => mod.PWAInstallButton), { ssr: false });
-
+const GlobalMenu = dynamic(() => import("@/components/GlobalMenu").then(mod => mod.GlobalMenu), { ssr: false });
 export default function CatchAllPage() {
   return (
     <React.Suspense fallback={<LoadingShell />}>
@@ -33,6 +33,7 @@ function CatchAllContent() {
   const pathname = usePathname();
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isRenderOpen, setIsRenderOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
 
   // Derived active view from pathname - the safest way in Next.js 15/16 Client Components
@@ -69,11 +70,11 @@ function CatchAllContent() {
         <div className="flex items-center gap-2">
           <PWAInstallButton />
           <button 
-            onClick={() => setIsFeedbackOpen(true)}
-            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-2xl transition-all text-white/40 hover:text-white"
+            onClick={() => setIsMenuOpen(true)}
+            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-2xl transition-all text-white/40 hover:text-white group"
           >
-            <MessageCircle className="w-4 h-4" />
-            <span className="font-bold text-[11px] font-arabic hidden sm:block">رسالة</span>
+            <Menu className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
+            <span className="font-bold text-[11px] font-arabic hidden sm:block">القائمة</span>
           </button>
         </div>
       </header>
@@ -144,6 +145,14 @@ function CatchAllContent() {
 
       <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
       <RenderModal isOpen={isRenderOpen} onClose={() => setIsRenderOpen(false)} />
+      <GlobalMenu 
+        isOpen={isMenuOpen} 
+        onClose={() => setIsMenuOpen(false)} 
+        onOpenFeedback={() => {
+          setIsMenuOpen(false);
+          setIsFeedbackOpen(true);
+        }}
+      />
     </div>
   );
 }

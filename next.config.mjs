@@ -9,13 +9,14 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  allowedDevOrigins: ['192.168.1.8'],
+  outputFileTracingIncludes: {
+    "/api/render": ["./node_modules/@remotion/renderer/**/*", "./node_modules/@remotion/bundler/**/*", "./node_modules/remotion/**/*"]
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: "20mb",
     },
-    outputFileTracingIncludes: {
-      "/api/render": ["./node_modules/@remotion/renderer/**/*", "./node_modules/@remotion/bundler/**/*", "./node_modules/remotion/**/*"]
-    }
   },
   serverExternalPackages: [
     "remotion",
