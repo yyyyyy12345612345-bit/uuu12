@@ -14,6 +14,8 @@ interface EditorState {
   fontWeight: number;
   fontFamily: string;
   filter: string;
+  overlay: "none" | "dust" | "rays" | "bokeh";
+  animation: "fade" | "scale" | "slide" | "blur";
   textPosition: "top" | "center" | "bottom";
   bookmark?: { surahId: string; ayahId: number };
   activeSettingsPrayer: string | null;
@@ -39,6 +41,8 @@ const initialState: Omit<EditorState, 'isHydrated'> = {
   fontWeight: 700,
   fontFamily: "Amiri",
   filter: "none",
+  overlay: "none",
+  animation: "fade",
   textPosition: "center",
   activeSettingsPrayer: null,
 };

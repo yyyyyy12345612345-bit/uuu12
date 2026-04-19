@@ -317,6 +317,50 @@ export function Controls() {
               </div>
             </div>
 
+            {/* ── التأثيرات البصرية (Overlays) ── */}
+            <div className="flex flex-col gap-3">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-white/30 px-1">التأثيرات البصرية</span>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { id: "none" as const, label: "بدون", icon: "🚫" },
+                  { id: "dust" as const, label: "ذرات الغبار", icon: "✨" },
+                  { id: "rays" as const, label: "أشعة الضوء", icon: "🌤️" },
+                  { id: "bokeh" as const, label: "بوكيه ناعم", icon: "⚪" },
+                ].map((ov) => (
+                  <button
+                    key={ov.id}
+                    onClick={() => updateState({ overlay: ov.id })}
+                    className={`p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.overlay === ov.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-black/40 border-white/5 hover:border-white/20'}`}
+                  >
+                    <span className="text-lg">{ov.icon}</span>
+                    <span className={`text-[10px] font-bold ${state.overlay === ov.id ? 'text-primary' : 'text-white/40'}`}>{ov.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ── حركة دخول النص ── */}
+            <div className="flex flex-col gap-3">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-white/30 px-1">حركة دخول النص</span>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { id: "fade" as const, label: "تلاشي", icon: "🌫️" },
+                  { id: "scale" as const, label: "تكبير", icon: "🔍" },
+                  { id: "slide" as const, label: "انزلاق", icon: "↔️" },
+                  { id: "blur" as const, label: "زغللة", icon: "👁️" },
+                ].map((ani) => (
+                  <button
+                    key={ani.id}
+                    onClick={() => updateState({ animation: ani.id })}
+                    className={`p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.animation === ani.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-black/40 border-white/5 hover:border-white/20'}`}
+                  >
+                    <span className="text-lg">{ani.icon}</span>
+                    <span className={`text-[10px] font-bold ${state.animation === ani.id ? 'text-primary' : 'text-white/40'}`}>{ani.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* ── لون النص ── */}
             <div className="flex flex-col gap-3">
               <span className="text-[11px] font-bold uppercase tracking-widest text-white/30 px-1">لون النص</span>

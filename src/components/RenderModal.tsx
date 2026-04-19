@@ -58,6 +58,8 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           fontWeight: state.fontWeight,
           fontFamily: state.fontFamily || "Amiri",
           filter: state.filter || "none",
+          overlay: state.overlay || "none",
+          animation: state.animation || "fade",
           textPosition: state.textPosition || "center",
         }),
       });

@@ -77,7 +77,7 @@ app.post("/render", async (req, res) => {
   const startTime = Date.now();
 
   const data = req.body;
-  const { surahName, verses, backgroundUrl, textColor, fontSize, fontWeight, fontFamily, filter, textPosition } = data;
+  const { surahName, verses, backgroundUrl, textColor, fontSize, fontWeight, fontFamily, filter, overlay, animation, textPosition } = data;
   const outputName = `quran-video-${Date.now()}.mp4`;
 
   const baseDir = os.tmpdir();
@@ -149,7 +149,7 @@ app.post("/render", async (req, res) => {
 
     const totalFrames = Math.max(150, cumulativeFrames);
     const localBgUrl = localBgPath ? `http://localhost:7860/assets/${folderName}/${path.basename(localBgPath)}` : backgroundUrl;
-    const inputProps = { surahName, verses: processedVerses, backgroundUrl: localBgUrl, textColor, fontSize, fontWeight, fontFamily: fontFamily || "Amiri", filter: filter || "none", textPosition: textPosition || "center", totalFrames };
+    const inputProps = { surahName, verses: processedVerses, backgroundUrl: localBgUrl, textColor, fontSize, fontWeight, fontFamily: fontFamily || "Amiri", filter: filter || "none", overlay: overlay || "none", animation: animation || "fade", textPosition: textPosition || "center", totalFrames };
 
     console.log(">> Locating Composition...");
     const comps = await getCompositions(bundleLocation, { inputProps });

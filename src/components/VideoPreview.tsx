@@ -124,6 +124,24 @@ export function VideoPreview() {
 
   return (
     <div className="relative aspect-[9/16] h-full max-h-[72vh] group select-none" id="video-render-container">
+      <style>{`
+        @keyframes dustMovePreview {
+          0% { transform: translateY(0) translateX(0); opacity: 0; }
+          50% { opacity: 0.4; }
+          100% { transform: translateY(-400px) translateX(40px); opacity: 0; }
+        }
+        @keyframes rayMovePreview {
+          0% { transform: rotate(-20deg) translateX(-5%); opacity: 0.1; }
+          50% { transform: rotate(-15deg) translateX(0%); opacity: 0.2; }
+          100% { transform: rotate(-20deg) translateX(-5%); opacity: 0.1; }
+        }
+        @keyframes bokehMovePreview {
+           0% { transform: translate(0, 0); opacity: 0.2; }
+           50% { transform: translate(20px, -20px); opacity: 0.4; }
+           100% { transform: translate(-20px, 20px); opacity: 0.2; }
+        }
+      `}</style>
+
       <div className="absolute inset-0 bg-black rounded-[2.5rem] border-[8px] border-white/5 shadow-[0_0_100px_rgba(0,0,0,1)] overflow-hidden">
 
         {/* Background Media */}
@@ -147,6 +165,48 @@ export function VideoPreview() {
             />
           )
         )}
+
+        {/* Overlays Preview */}
+        {state.overlay === "dust" && (
+           <div className="absolute inset-0 pointer-events-none">
+              {[...Array(12)].map((_, i) => (
+                <div key={i} className="absolute rounded-full bg-white/40 blur-[1px]" style={{
+                   bottom: '-10px',
+                   left: `${Math.random() * 100}%`,
+                   width: `${Math.random() * 4 + 2}px`,
+                   height: `${Math.random() * 4 + 2}px`,
+                   animation: `dustMovePreview ${Math.random() * 5 + 5}s linear infinite`,
+                   animationDelay: `-${Math.random() * 10}s`
+                }} />
+              ))}
+           </div>
+        )}
+
+        {state.overlay === "rays" && (
+           <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              <div className="absolute top-[-50%] left-[-10%] w-[200%] h-[200%] blur-[30px]" style={{
+                 background: 'repeating-linear-gradient(90deg, transparent, transparent 5%, rgba(255,255,255,0.03) 10%, transparent 15%)',
+                 animation: 'rayMovePreview 10s ease-in-out infinite'
+              }} />
+           </div>
+        )}
+
+        {state.overlay === "bokeh" && (
+           <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="absolute rounded-full" style={{
+                   top: `${Math.random() * 100}%`,
+                   left: `${Math.random() * 100}%`,
+                   width: `${Math.random() * 100 + 50}px`,
+                   height: `${Math.random() * 100 + 50}px`,
+                   background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)',
+                   animation: `bokehMovePreview ${Math.random() * 10 + 10}s ease-in-out infinite`,
+                   animationDelay: `-${Math.random() * 10}s`
+                }} />
+              ))}
+           </div>
+        )}
+
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40" />
 
         {/* Content */}
@@ -157,7 +217,7 @@ export function VideoPreview() {
               <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold">جاري تحميل البيانات...</span>
             </div>
           ) : surahData ? (
-            <div key={currentAyahIndex} className="flex flex-col gap-6 animate-in fade-in zoom-in duration-700">
+            <div key={currentAyahIndex} className={`flex flex-col gap-6 transition-all duration-700 ${state.animation === 'scale' ? 'animate-in zoom-in-50 fade-in' : state.animation === 'slide' ? 'animate-in slide-in-from-bottom-10 fade-in' : 'animate-in fade-in'}`}>
               <div className="flex flex-col gap-1 items-center">
                 <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] text-white/70 font-bold uppercase">
                   {surahData?.name} · {state.startAyah} - {state.endAyah}
