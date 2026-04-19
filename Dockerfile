@@ -10,7 +10,8 @@ RUN apt-get update && apt-get install -y \
     libasound2 \
     fonts-liberation \
     fonts-noto-core \
-    fonts-sil-amiri \
+    fonts-hosny-amiri \
+    fonts-kacst \
     libappindicator3-1 \
     xdg-utils \
     --no-install-recommends && \
