@@ -12,6 +12,9 @@ interface EditorState {
   textColor: string;
   fontSize: number;
   fontWeight: number;
+  fontFamily: string;
+  filter: string;
+  textPosition: "top" | "center" | "bottom";
   bookmark?: { surahId: string; ayahId: number };
   activeSettingsPrayer: string | null;
   isHydrated: boolean;
@@ -34,6 +37,9 @@ const initialState: Omit<EditorState, 'isHydrated'> = {
   textColor: "#ffffff",
   fontSize: 50,
   fontWeight: 700,
+  fontFamily: "Amiri",
+  filter: "none",
+  textPosition: "center",
   activeSettingsPrayer: null,
 };
 

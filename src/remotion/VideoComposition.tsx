@@ -27,13 +27,33 @@ function resolveMedia(src?: string): string {
   return staticFile(src);
 }
 
+// ── خريطة الفلاتر ──
+const FILTER_MAP: Record<string, string> = {
+  none: "none",
+  vintage: "sepia(0.5) contrast(1.1) brightness(0.9)",
+  cool: "saturate(0.8) hue-rotate(20deg) brightness(1.05)",
+  warm: "saturate(1.3) hue-rotate(-10deg) brightness(1.05)",
+  bw: "grayscale(1) contrast(1.2)",
+  dramatic: "contrast(1.4) brightness(0.7) saturate(1.2)",
+};
+
+// ── خريطة الخطوط (Google Fonts) ──
+const FONT_IMPORTS: Record<string, string> = {
+  "Amiri": "Amiri:wght@400;700",
+  "Noto Naskh Arabic": "Noto+Naskh+Arabic:wght@400;500;600;700",
+  "Scheherazade New": "Scheherazade+New:wght@400;500;600;700",
+  "Lateef": "Lateef:wght@200;300;400;500;600;700;800",
+  "Cairo": "Cairo:wght@200;300;400;500;600;700;800;900",
+  "Tajawal": "Tajawal:wght@200;300;400;500;700;800;900",
+};
+
 interface Verse {
   id: number;
   text: string;
   translation: string;
   audio: string;
-  durationInFrames?: number; // Calculated by engine
-  startFrame?: number; // Calculated by engine
+  durationInFrames?: number;
+  startFrame?: number;
 }
 
 interface MainVideoProps {
@@ -44,6 +64,9 @@ interface MainVideoProps {
   textColor: string;
   fontSize: number;
   fontWeight?: string | number;
+  fontFamily?: string;
+  filter?: string;
+  textPosition?: "top" | "center" | "bottom";
 }
 
 export const MainVideo: React.FC<MainVideoProps> = ({
@@ -52,39 +75,48 @@ export const MainVideo: React.FC<MainVideoProps> = ({
   backgroundUrl,
   textColor = "#ffffff",
   fontSize = 60,
-  fontWeight = 700
+  fontWeight = 700,
+  fontFamily = "Amiri",
+  filter = "none",
+  textPosition = "center",
 }) => {
   const { durationInFrames } = useVideoConfig();
   const resolvedBg = resolveMedia(backgroundUrl);
+  const cssFilter = FILTER_MAP[filter] || "none";
+  const fontImport = FONT_IMPORTS[fontFamily] || FONT_IMPORTS["Amiri"];
 
   return (
     <AbsoluteFill style={{ backgroundColor: 'black' }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=${fontImport}&display=swap');
       `}</style>
       <AbsoluteFill style={{ backgroundColor: 'black' }} />
+      
+      {/* خلفية + فلتر */}
       {resolvedBg && (
-        isVideoUrl(backgroundUrl) ? (
-          <Video 
-            src={resolvedBg}
-            style={{ 
-              width: '100%', 
-              height: '100%', 
-              objectFit: 'cover',
-              opacity: 0.5
-            }}
-            muted
-            loop
-            crossOrigin="anonymous"
-          />
-        ) : (
-          <AbsoluteFill style={{
-            backgroundImage: `url(${resolvedBg})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            opacity: 0.7,
-          }} />
-        )
+        <AbsoluteFill style={{ filter: cssFilter }}>
+          {isVideoUrl(backgroundUrl) ? (
+            <Video 
+              src={resolvedBg}
+              style={{ 
+                width: '100%', 
+                height: '100%', 
+                objectFit: 'cover',
+                opacity: 0.5
+              }}
+              muted
+              loop
+              crossOrigin="anonymous"
+            />
+          ) : (
+            <AbsoluteFill style={{
+              backgroundImage: `url(${resolvedBg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              opacity: 0.7,
+            }} />
+          )}
+        </AbsoluteFill>
       )}
       
       <AbsoluteFill style={{
@@ -93,7 +125,6 @@ export const MainVideo: React.FC<MainVideoProps> = ({
 
       <AbsoluteFill>
         {verses.map((verse, index) => {
-          // Use pre-calculated values from engine OR fallback to equal distribution
           const startFrame = verse.startFrame ?? Math.floor(index * (durationInFrames / verses.length));
           const actualDuration = verse.durationInFrames ?? Math.floor(durationInFrames / verses.length);
           
@@ -108,6 +139,8 @@ export const MainVideo: React.FC<MainVideoProps> = ({
                 textColor={textColor} 
                 fontSize={fontSize} 
                 fontWeight={fontWeight}
+                fontFamily={fontFamily}
+                textPosition={textPosition}
                 totalVerseFrames={actualDuration}
               />
             </Sequence>
@@ -118,10 +151,12 @@ export const MainVideo: React.FC<MainVideoProps> = ({
   );
 };
 
-const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, totalVerseFrames }: { verse: Verse, surahName: string, textColor: string, fontSize: number, fontWeight: any, totalVerseFrames: number }) => {
+const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fontFamily, textPosition, totalVerseFrames }: { 
+  verse: Verse, surahName: string, textColor: string, fontSize: number, fontWeight: any, 
+  fontFamily: string, textPosition: string, totalVerseFrames: number 
+}) => {
     const frame = useCurrentFrame();
     
-    // Pro Fade: 15 frames or 10% of verse duration
     const fadeFrames = Math.min(15, Math.floor(totalVerseFrames * 0.1));
     
     const opacity = interpolate(
@@ -138,6 +173,18 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, tot
         { easing: Easing.out(Easing.quad) }
     );
 
+    // حساب مكان النص
+    const justifyMap: Record<string, string> = {
+      top: "flex-start",
+      center: "center",
+      bottom: "flex-end",
+    };
+    const paddingMap: Record<string, string> = {
+      top: "80px 80px 200px 80px",
+      center: "120px",
+      bottom: "200px 80px 80px 80px",
+    };
+
     return (
         <div style={{ 
             width: '100%',
@@ -146,11 +193,11 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, tot
             display: 'flex', 
             flexDirection: 'column', 
             alignItems: 'center',
-            justifyContent: 'center',
-            gap: '80px', 
+            justifyContent: justifyMap[textPosition] || 'center',
+            gap: '60px', 
             opacity, 
             transform: `scale(${scale})`,
-            padding: '120px',
+            padding: paddingMap[textPosition] || '120px',
             textAlign: 'center'
         }}>
             <div style={{ 
@@ -158,7 +205,7 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, tot
                 fontSize: '32px', 
                 fontWeight: 800,
                 textShadow: '0 0 20px rgba(212,175,55,0.4)',
-                fontFamily: '"Amiri", serif'
+                fontFamily: `"${fontFamily}", serif`
             }}>
                 {surahName}
             </div>
@@ -166,7 +213,7 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, tot
             <p style={{ 
                 color: textColor, 
                 fontSize: `${fontSize * 1.8}px`, 
-                fontFamily: '"Amiri", serif',
+                fontFamily: `"${fontFamily}", serif`,
                 direction: 'rtl',
                 textAlign: 'center',
                 width: '100%',
@@ -195,7 +242,7 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, tot
                 lineHeight: 1.4,
                 textShadow: '0 10px 30px rgba(0,0,0,0.8)',
                 fontStyle: 'italic',
-                fontFamily: '"Amiri", serif'
+                fontFamily: `"${fontFamily}", serif`
             }}>
                 {verse.translation}
             </p>
