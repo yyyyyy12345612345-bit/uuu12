@@ -114,8 +114,9 @@ export function Controls() {
         
         {/* Added extra padding bottom to ensure it clears fixed navigation bar */}
         <div className="h-full overflow-y-auto pr-2 custom-scrollbar pb-32">
-
-          <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
+          
+          {activeTab === "bg" && (
+            <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
             
             {/* Mode Switcher */}
             <div className="flex p-1 bg-black/30 rounded-xl border border-white/5 gap-1">
@@ -178,7 +179,7 @@ export function Controls() {
                 <span className="text-[10px] text-white/30 uppercase tracking-[0.2em]">جارٍ البحث...</span>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 overflow-y-auto max-h-[350px] pr-2 custom-scrollbar">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 mt-4">
                 {displayMedia.map((item, index) => (
                   <button
                     key={`${item.src}-${index}`}
@@ -221,7 +222,7 @@ export function Controls() {
 
 
         {activeTab === "reciter" && (
-          <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-8 duration-700 overflow-y-auto max-h-[450px] pr-2 custom-scrollbar">
+          <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-8 duration-700">
             {RECITERS.map((r) => (
               <button
                 key={r.id}
@@ -243,7 +244,7 @@ export function Controls() {
         )}
 
         {activeTab === "style" && (
-          <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700 overflow-y-auto max-h-[500px] pr-1 custom-scrollbar">
+          <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
             
             {/* ── نوع الخط ── */}
             <div className="flex flex-col gap-3">
