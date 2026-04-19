@@ -59,10 +59,10 @@ function CatchAllContent() {
   if (!isClient || !state.isHydrated) return <LoadingShell />;
 
   return (
-    <div className="fixed inset-0 bg-[#050505] text-white flex flex-col w-full font-arabic overflow-hidden transition-opacity duration-1000">
+    <div className="fixed inset-0 bg-background text-foreground flex flex-col w-full font-arabic overflow-hidden transition-opacity duration-1000">
       
       {/* Global Top Bar - Logo + Install + Feedback */}
-      <header className="h-14 shrink-0 bg-black/80 backdrop-blur-xl border-b border-white/5 px-4 md:px-8 flex items-center justify-between z-[200]">
+      <header className="h-14 shrink-0 bg-background/80 backdrop-blur-xl border-b border-border px-4 md:px-8 flex items-center justify-between z-[200]">
         <div className="flex items-center gap-3">
           <img src="/logo/logo.png" alt="قرآن" className="w-8 h-8 rounded-xl" />
           <span className="text-sm font-bold font-arabic text-primary hidden sm:block">قرآن</span>
@@ -71,7 +71,7 @@ function CatchAllContent() {
           <PWAInstallButton />
           <button 
             onClick={() => setIsMenuOpen(true)}
-            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-2xl transition-all text-white/40 hover:text-white group"
+            className="flex items-center gap-2 bg-foreground/5 hover:bg-foreground/10 border border-border px-4 py-2 rounded-2xl transition-all text-foreground/40 hover:text-foreground group"
           >
             <Menu className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
             <span className="font-bold text-[11px] font-arabic hidden sm:block">القائمة</span>
@@ -129,9 +129,9 @@ function CatchAllContent() {
       {isMobileControlsOpen && (
         <div className="fixed inset-0 z-[300] lg:hidden">
             <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={() => setIsMobileControlsOpen(false)} />
-            <div className="absolute bottom-0 left-0 right-0 h-[85vh] bg-[#0a0a0a] rounded-t-[3rem] border-t border-white/10 flex flex-col p-6 overflow-hidden animate-in slide-in-from-bottom duration-300 text-right">
+            <div className="absolute bottom-0 left-0 right-0 h-[85vh] bg-background rounded-t-[3rem] border-t border-border flex flex-col p-6 overflow-hidden animate-in slide-in-from-bottom duration-300 text-right">
                 <div className="flex items-center justify-between mb-8">
-                    <button onClick={() => setIsMobileControlsOpen(false)} className="p-3 bg-white/5 rounded-full"><X className="w-6 h-6 text-white/40" /></button>
+                    <button onClick={() => setIsMobileControlsOpen(false)} className="p-3 bg-foreground/5 rounded-full"><X className="w-6 h-6 text-foreground/40" /></button>
                     <h2 className="text-xl font-bold font-arabic">إعدادات الفيديو</h2>
                 </div>
                 <div className="flex-1 overflow-y-auto no-scrollbar pb-10 px-2">
@@ -159,10 +159,10 @@ function CatchAllContent() {
 
 function LoadingShell() {
     return (
-        <div className="fixed inset-0 bg-[#050505] flex items-center justify-center">
+        <div className="fixed inset-0 bg-background flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">
                 <div className="w-12 h-12 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-                <span className="text-[10px] text-white/20 font-bold uppercase tracking-[0.4em]">جارٍ التهيئة...</span>
+                <span className="text-[10px] text-foreground/20 font-bold uppercase tracking-[0.4em]">جارٍ التهيئة...</span>
             </div>
         </div>
     );

@@ -132,18 +132,18 @@ export function AudioLibrary() {
 
       {/* ── Left Sidebar (Desktop List) ─────────────────────────── */}
       <aside className="hidden lg:flex w-[450px] flex-col border-r border-white/5 bg-black/10 backdrop-blur-md overflow-hidden">
-         <div className="p-8 space-y-6">
+        <div className="p-8 space-y-6">
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold font-arabic text-white">قائمة السور</h2>
-                <span className="text-[10px] bg-primary/10 text-primary px-3 py-1 rounded-full border border-primary/20 font-bold uppercase tracking-widest">Full Quran</span>
+                <h2 className="text-2xl font-bold font-arabic text-foreground">قائمة السور</h2>
+                <span className="text-[10px] bg-primary/10 text-primary px-3 py-1 rounded-full border border-primary/20 font-bold uppercase tracking-widest">المصحف كامل</span>
             </div>
             <div className="relative group">
-                <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" />
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/20 group-focus-within:text-primary transition-colors" />
                 <input 
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="ابحث عن سورة..."
-                    className="w-full bg-white/5 border border-white/5 rounded-2xl py-4 pr-12 pl-6 text-sm text-white outline-none focus:border-primary/20 transition-all font-arabic"
+                    className="w-full bg-foreground/5 border border-border rounded-2xl py-4 pr-12 pl-6 text-sm text-foreground outline-none focus:border-primary/20 transition-all font-arabic"
                 />
             </div>
          </div>
@@ -163,34 +163,34 @@ export function AudioLibrary() {
       {/* ── Main Player Area ────────────────────────────────────── */}
       <main className="flex-1 flex flex-col relative overflow-hidden max-w-full">
         {/* Reciter Selector Horizontal (Universal Top) */}
-        <div className="w-full max-w-full shrink-0 z-50 mb-4 sticky top-0 bg-[#050505]/60 backdrop-blur-xl border-b border-white/5 pb-2">
-             <div className="px-8 pt-4 pb-2">
-                 <div className="relative group max-w-md mx-auto">
-                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-primary transition-colors" />
-                    <input 
-                        value={reciterSearch}
-                        onChange={(e) => setReciterSearch(e.target.value)}
-                        placeholder="ابحث عن قارئ..."
-                        className="w-full bg-white/5 border border-white/5 rounded-2xl py-3 pr-11 pl-6 text-xs text-white outline-none focus:border-primary/20 transition-all font-arabic"
-                    />
-                 </div>
+        <div className="w-full max-w-full shrink-0 z-50 mb-4 sticky top-0 bg-background/60 backdrop-blur-xl border-b border-border pb-2">
+         <div className="px-8 pt-4 pb-2">
+             <div className="relative group max-w-sm mx-auto">
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/20 group-focus-within:text-primary transition-colors" />
+                <input 
+                    value={reciterSearch}
+                    onChange={(e) => setReciterSearch(e.target.value)}
+                    placeholder="ابحث عن قارئ..."
+                    className="w-full bg-foreground/5 border border-border rounded-xl py-2 pr-10 pl-5 text-xs text-foreground outline-none focus:border-primary/20 transition-all font-arabic"
+                />
              </div>
+         </div>
              <div className="w-full overflow-x-auto no-scrollbar py-4 horizontal-scroll" style={{ WebkitOverflowScrolling: 'touch' }}>
-                 <div className="flex items-center gap-10 px-8 w-max">
+                 <div className="flex items-center gap-8 px-8 w-max">
                     {filteredReciters.map((rec) => {
                         const isActive = selectedReciter.id === rec.id;
                         return (
                             <button 
                               key={rec.id}
                               onClick={() => setSelectedReciter(rec)}
-                              className={`flex flex-col items-center gap-3 transition-all snap-center ${isActive ? 'scale-110' : 'hover:scale-105'}`}
+                              className={`flex flex-col items-center gap-2 transition-all snap-center ${isActive ? 'scale-105' : 'hover:scale-105'}`}
                             >
-                                <div className={`w-16 h-16 rounded-full border-2 p-1 transition-all flex items-center justify-center ${isActive ? 'border-primary shadow-lg shadow-primary/20' : 'border-white/10 hover:border-white/30'}`}>
-                                     <div className={`w-full h-full rounded-full flex items-center justify-center overflow-hidden ${isActive ? 'bg-primary/20' : 'bg-white/5'}`}>
-                                        <User className={`w-7 h-7 ${isActive ? 'text-primary' : 'text-white/60'}`} />
+                                <div className={`w-12 h-12 rounded-full border p-1 transition-all flex items-center justify-center ${isActive ? 'border-primary shadow-lg shadow-primary/20' : 'border-border hover:border-foreground/30'}`}>
+                                     <div className={`w-full h-full rounded-full flex items-center justify-center overflow-hidden ${isActive ? 'bg-primary/20' : 'bg-foreground/5'}`}>
+                                        <User className={`w-5 h-5 ${isActive ? 'text-primary' : 'text-foreground/60'}`} />
                                      </div>
                                 </div>
-                                <span className={`text-[12px] font-black font-arabic transition-all text-center px-1 whitespace-nowrap drop-shadow-md ${isActive ? 'text-primary' : 'text-white'}`}>
+                                <span className={`text-[10px] font-bold font-arabic transition-all text-center px-1 whitespace-nowrap ${isActive ? 'text-primary' : 'text-foreground'}`}>
                                     {rec.name}
                                 </span>
                             </button>
@@ -209,14 +209,14 @@ export function AudioLibrary() {
           </button>
 
           {/* Spinning Disc */}
-          <div className="relative group shrink-0 mb-8">
-              <div className={`w-44 h-44 md:w-80 md:h-80 rounded-full bg-[#111] border-[8px] md:border-[12px] border-white/5 shadow-[0_0_100px_rgba(0,0,0,0.8)] relative flex items-center justify-center overflow-hidden`} style={{ animation: isPlaying ? 'spin 15s linear infinite' : 'none' }}>
-                   <div className="absolute inset-0 bg-gradient-to-tr from-black via-transparent to-white/5" />
-                   <div className="w-full h-full p-4 rounded-full border border-white/10 flex items-center justify-center">
-                      <div className="w-full h-full rounded-full border-4 border-primary/20 flex flex-col items-center justify-center p-12 bg-black/40 backdrop-blur-md text-center">
-                           <Music className="w-12 h-12 text-primary/40 mb-4" />
-                           <h3 className="text-2xl font-bold text-white font-arabic drop-shadow-lg leading-tight">{currentSurah.name}</h3>
-                           <p className="text-[10px] text-white/40 uppercase tracking-widest mt-2">{currentSurah.transliteration}</p>
+          <div className="relative group shrink-0 mb-6">
+              <div className={`w-36 h-36 md:w-64 md:h-64 rounded-full bg-card border-[6px] md:border-[10px] border-border shadow-[0_0_80px_rgba(0,0,0,0.1)] relative flex items-center justify-center overflow-hidden`} style={{ animation: isPlaying ? 'spin 15s linear infinite' : 'none' }}>
+                   <div className="absolute inset-0 bg-gradient-to-tr from-background via-transparent to-foreground/5" />
+                   <div className="w-full h-full p-3 rounded-full border border-border flex items-center justify-center">
+                      <div className="w-full h-full rounded-full border-2 border-primary/20 flex flex-col items-center justify-center p-8 bg-card/40 backdrop-blur-md text-center">
+                           <Music className="w-8 h-8 text-primary/40 mb-3" />
+                           <h3 className="text-xl font-bold text-foreground font-arabic leading-tight">{currentSurah.name}</h3>
+                           <p className="text-[8px] text-foreground/40 uppercase tracking-widest mt-1">{currentSurah.transliteration}</p>
                       </div>
                    </div>
               </div>
@@ -228,9 +228,9 @@ export function AudioLibrary() {
         </div>
 
         {/* ─ Fixed Controls Bar ─ */}
-        <div className="shrink-0 w-full bg-[#050505]/80 backdrop-blur-xl border-t border-white/5 px-6 pt-4 pb-6 flex flex-col items-center gap-3">
-            <div className="w-full max-w-xl space-y-2">
-                <div className="flex items-center justify-between text-[11px] font-mono text-white/40 font-bold">
+        <div className="shrink-0 w-full bg-background/80 backdrop-blur-xl border-t border-border px-6 pt-4 pb-4 flex flex-col items-center gap-2">
+            <div className="w-full max-w-lg space-y-1.5">
+                <div className="flex items-center justify-between text-[10px] font-mono text-foreground/40 font-bold">
                     <span>{audioRef.current ? Math.floor(audioRef.current.currentTime / 60) + ":" + Math.floor(audioRef.current.currentTime % 60).toString().padStart(2, '0') : "0:00"}</span>
                     <span>{audioRef.current && !isNaN(audioRef.current.duration) ? Math.floor(audioRef.current.duration / 60) + ":" + Math.floor(audioRef.current.duration % 60).toString().padStart(2, '0') : "0:00"}</span>
                 </div>
@@ -239,21 +239,21 @@ export function AudioLibrary() {
                     <input type="range" min="0" max="100" value={progress} onChange={handleSeek} className="absolute inset-0 w-full opacity-0 cursor-pointer h-full z-10" />
                 </div>
             </div>
-            <div className="flex items-center gap-4 md:gap-6">
-                <button onClick={() => setIsRepeat(!isRepeat)} className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${isRepeat ? 'text-primary bg-primary/10' : 'text-white/20 hover:text-white/40'}`}>
-                    <Repeat className="w-3.5 h-3.5" />
+            <div className="flex items-center gap-4">
+                <button onClick={() => setIsRepeat(!isRepeat)} className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${isRepeat ? 'text-primary bg-primary/10' : 'text-foreground/20 hover:text-foreground/40'}`}>
+                    <Repeat className="w-3 h-3" />
                 </button>
-                <button onClick={prevSurah} className="w-8 h-8 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all">
-                    <SkipBack className="w-3.5 h-3.5" />
+                <button onClick={prevSurah} className="w-7 h-7 rounded-full border border-border bg-foreground/5 flex items-center justify-center text-foreground/40 hover:text-foreground hover:bg-foreground/10 transition-all">
+                    <SkipBack className="w-3 h-3" />
                 </button>
-                <button onClick={togglePlay} className="w-12 h-12 rounded-full bg-primary text-black flex items-center justify-center shadow-[0_10px_30px_rgba(212,175,55,0.25)] hover:scale-105 active:scale-95 transition-all">
-                    {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
+                <button onClick={togglePlay} className="w-10 h-10 rounded-full bg-primary text-black flex items-center justify-center shadow-[0_8px_20px_rgba(212,175,55,0.25)] hover:scale-105 active:scale-95 transition-all">
+                    {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
                 </button>
-                <button onClick={nextSurah} className="w-8 h-8 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all">
-                    <SkipForward className="w-3.5 h-3.5" />
+                <button onClick={nextSurah} className="w-7 h-7 rounded-full border border-border bg-foreground/5 flex items-center justify-center text-foreground/40 hover:text-foreground hover:bg-foreground/10 transition-all">
+                    <SkipForward className="w-3 h-3" />
                 </button>
-                <button onClick={() => setIsShuffle(!isShuffle)} className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${isShuffle ? 'text-primary bg-primary/10' : 'text-white/20 hover:text-white/40'}`}>
-                    <Shuffle className="w-3.5 h-3.5" />
+                <button onClick={() => setIsShuffle(!isShuffle)} className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${isShuffle ? 'text-primary bg-primary/10' : 'text-foreground/20 hover:text-foreground/40'}`}>
+                    <Shuffle className="w-3 h-3" />
                 </button>
             </div>
         </div>

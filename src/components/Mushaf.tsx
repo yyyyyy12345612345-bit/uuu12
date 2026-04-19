@@ -100,17 +100,17 @@ export function Mushaf() {
 
     if (!selectedSurah) {
         return (
-            <div className="flex flex-col h-full animate-in fade-in duration-700 relative overflow-hidden">
+            <div className="flex flex-col h-full animate-in fade-in duration-700 relative overflow-hidden bg-background">
                 {/* Unified Background Layer */}
                 <div className="absolute inset-0 z-0 pointer-events-none">
                     <div 
-                        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000"
+                        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-[0.05]"
                         style={{ 
                             backgroundImage: "url('/mushaf-bg.jpg.png')",
                             filter: "brightness(0.3) contrast(1.2)"
                         }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-transparent to-background" />
                 </div>
 
                 <div className="relative z-10 flex flex-col h-full">
@@ -120,12 +120,12 @@ export function Mushaf() {
                 <div className="py-4 px-6 md:px-12 shrink-0">
 
                     <div className="max-w-4xl mx-auto relative group">
-                        <Search className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-all transition-colors duration-500" />
+                        <Search className="absolute right-6 top-1/2 -translate-y-1/2 text-foreground/20 group-focus-within:text-primary transition-all transition-colors duration-500" />
                         <input
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="ابحث عن سورة... (الفاتحة، البقرة...)"
-                            className="w-full bg-white/[0.03] border border-white/5 rounded-[2rem] py-5 pr-16 pl-8 text-white outline-none focus:border-primary/20 focus:bg-white/[0.05] transition-all text-right font-arabic text-lg"
+                            className="w-full bg-foreground/[0.03] border border-border rounded-[2rem] py-5 pr-16 pl-8 text-foreground outline-none focus:border-primary/20 focus:bg-foreground/[0.05] transition-all text-right font-arabic text-lg"
                         />
                     </div>
                 </div>
@@ -144,7 +144,7 @@ export function Mushaf() {
                                     </div>
                                     <div className="text-right">
                                         <h4 className="text-primary font-bold text-[10px] uppercase tracking-[0.3em] mb-1">وردك الحالي</h4>
-                                        <p className="text-2xl font-bold text-white font-arabic">سورة {surahsData.find(s => s.id.toString() === state.bookmark?.surahId)?.name} - آية {state.bookmark.ayahId}</p>
+                                        <p className="text-2xl font-bold text-foreground font-arabic">سورة {surahsData.find(s => s.id.toString() === state.bookmark?.surahId)?.name} - آية {state.bookmark.ayahId}</p>
                                     </div>
                                 </div>
                                 <button
@@ -161,18 +161,18 @@ export function Mushaf() {
                                 <button
                                     key={surah.id}
                                     onClick={() => setSelectedSurah(surah.id.toString())}
-                                    className={`group relative flex flex-col gap-3 p-4 premium-card border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:scale-[1.02] hover:border-primary/20 transition-all duration-500 ease-out ${state.bookmark?.surahId === surah.id.toString() ? 'border-primary/30 bg-primary/[0.03]' : ''}`}
+                                    className={`group relative flex flex-col gap-3 p-4 premium-card border-border bg-foreground/[0.02] hover:bg-foreground/[0.05] hover:scale-[1.02] hover:border-primary/20 transition-all duration-500 ease-out ${state.bookmark?.surahId === surah.id.toString() ? 'border-primary/30 bg-primary/[0.03]' : ''}`}
                                 >
-                                    <div className="w-9 h-9 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-[9px] font-bold text-white/20 group-hover:text-primary transition-all">
+                                    <div className="w-9 h-9 rounded-lg bg-foreground/5 border border-border flex items-center justify-center text-[9px] font-bold text-foreground/20 group-hover:text-primary transition-all">
                                         {surah.id.toString().padStart(3, '0')}
                                     </div>
                                     <div className="text-right flex-1">
-                                        <h3 className="text-lg font-bold text-white font-arabic group-hover:text-primary-foreground transition-colors leading-tight">{surah.name}</h3>
-                                        <p className="text-[9px] text-white/10 font-bold uppercase tracking-widest mt-0.5">{surah.transliteration}</p>
+                                        <h3 className="text-lg font-bold text-foreground font-arabic group-hover:text-primary-foreground transition-colors leading-tight">{surah.name}</h3>
+                                        <p className="text-[9px] text-foreground/10 font-bold uppercase tracking-widest mt-0.5">{surah.transliteration}</p>
                                     </div>
-                                    <div className="flex items-center justify-between mt-1 pt-3 border-t border-white/5">
-                                        <span className="text-[8px] text-white/10 font-bold">{surah.total_verses} آية</span>
-                                        <ChevronRight className="w-3 h-3 text-white/10 group-hover:text-primary transition-all group-hover:translate-x-0.5" />
+                                    <div className="flex items-center justify-between mt-1 pt-3 border-t border-border">
+                                        <span className="text-[8px] text-foreground/10 font-bold">{surah.total_verses} آية</span>
+                                        <ChevronRight className="w-3 h-3 text-foreground/10 group-hover:text-primary transition-all group-hover:translate-x-0.5" />
                                     </div>
                                 </button>
                             ))}
@@ -186,7 +186,7 @@ export function Mushaf() {
     }
 
     return (
-        <div className="flex flex-col h-full animate-reveal relative overflow-hidden bg-[#1a1510]"> {/* Fallback color to see if code updated */}
+        <div className="flex flex-col h-full animate-reveal relative overflow-hidden bg-background">
             {/* Mushaf Background Image Layer */}
             <div className="absolute inset-0 z-0 pointer-events-none">
                 <div 
@@ -203,17 +203,17 @@ export function Mushaf() {
 
             <audio ref={wordAudioRef} onEnded={() => setActiveWordId(null)} />
 
-            <header className="shrink-0 p-5 glass-effect border-b border-white/5 flex items-center justify-between z-40 mx-4 mt-2 rounded-2xl relative">
+            <header className="shrink-0 p-5 glass-effect border-b border-border flex items-center justify-between z-40 mx-4 mt-2 rounded-2xl relative">
                 <button
                     onClick={() => setSelectedSurah(null)}
-                    className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all border border-white/10 shrink-0"
+                    className="w-12 h-12 rounded-2xl bg-foreground/5 flex items-center justify-center text-foreground/40 hover:text-foreground hover:bg-foreground/10 transition-all border border-border shrink-0"
                 >
                     <ChevronRight className="w-7 h-7 cursor-pointer" />
                 </button>
 
                 <div className="text-center flex-1">
                     <h2 className="text-xl md:text-2xl font-bold font-arabic gold-shimmer-pro">سورة {surahContent?.name || "..."}</h2>
-                    <p className="text-[9px] text-white/20 font-bold uppercase tracking-widest">{surahContent?.transliteration}</p>
+                    <p className="text-[9px] text-foreground/20 font-bold uppercase tracking-widest">{surahContent?.transliteration}</p>
                 </div>
 
                 <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-lg cursor-pointer hover:scale-105 active:scale-95 transition-all shrink-0" onClick={() => setShowReciterPicker(!showReciterPicker)}>
@@ -222,8 +222,8 @@ export function Mushaf() {
 
                 {/* Reciter Selection Overlay */}
                 {showReciterPicker && (
-                    <div className="absolute top-24 left-0 right-0 lg:left-auto lg:right-0 lg:w-80 bg-[#0a0a0a]/98 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.9)] z-[100] p-4 flex flex-col gap-2 max-h-[60vh] overflow-y-auto no-scrollbar animate-in zoom-in-95 duration-300">
-                        <div className="p-4 border-b border-white/5 mb-2 text-center">
+                    <div className="absolute top-24 left-0 right-0 lg:left-auto lg:right-0 lg:w-80 bg-background/98 backdrop-blur-2xl border border-border rounded-[2.5rem] shadow-2xl z-[100] p-4 flex flex-col gap-2 max-h-[60vh] overflow-y-auto no-scrollbar animate-in zoom-in-95 duration-300">
+                        <div className="p-4 border-b border-border mb-2 text-center">
                             <p className="text-[10px] text-primary font-bold uppercase tracking-widest">اختر قارئ المصحف</p>
                         </div>
                         {RECITERS.map(reciter => (
@@ -233,9 +233,9 @@ export function Mushaf() {
                                     updateState({ reciterId: reciter.id });
                                     setShowReciterPicker(false);
                                 }}
-                                className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${state.reciterId === reciter.id ? 'bg-primary/10 border border-primary/20 text-primary' : 'hover:bg-white/5 text-white/40'}`}
+                                className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${state.reciterId === reciter.id ? 'bg-primary/10 border border-primary/20 text-primary' : 'hover:bg-foreground/5 text-foreground/40'}`}
                             >
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-white/5 ${state.reciterId === reciter.id ? 'text-primary' : 'text-white/20'}`}>
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-foreground/5 ${state.reciterId === reciter.id ? 'text-primary' : 'text-foreground/20'}`}>
                                     <User className="w-5 h-5" />
                                 </div>
                                 <span className="font-arabic font-bold text-sm text-right flex-1">{reciter.name}</span>
@@ -264,7 +264,7 @@ export function Mushaf() {
                                     className={`group relative transition-all duration-700 p-6 md:p-10 rounded-[2.5rem] border cursor-pointer backdrop-blur-sm ${
                                         playingAyah === verse.id 
                                         ? 'bg-primary/[0.03] border-primary/40 shadow-[0_0_50px_rgba(var(--primary-rgb),0.1)] scale-[1.01]' 
-                                        : 'bg-black/10 border-white/5 hover:border-white/10 hover:bg-black/20'
+                                        : 'bg-foreground/[0.02] border-border hover:border-foreground/10 hover:bg-foreground/[0.05]'
                                     }`}
                                 >
 
@@ -286,7 +286,7 @@ export function Mushaf() {
                                         {verse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => (
                                             <span
                                                 key={word.id}
-                                                className="text-4xl md:text-6xl px-1 md:px-2 text-white/80"
+                                                className="text-4xl md:text-6xl px-1 md:px-2 text-foreground/80 quran-text"
                                             >
                                                 {word.text_uthmani}
                                             </span>
@@ -295,7 +295,7 @@ export function Mushaf() {
 
                                     <div className={`mt-10 overflow-hidden transition-all duration-1000 ${playingAyah === verse.id ? 'max-h-96 opacity-100 translate-y-0' : 'max-h-0 opacity-0 translate-y-4'}`}>
                                         <div className="p-8 rounded-[2rem] bg-primary/[0.02] border border-primary/10 relative text-right">
-                                            <p className="text-lg md:text-xl text-white/50 leading-relaxed font-arabic font-medium italic">
+                                            <p className="text-lg md:text-xl text-foreground/50 leading-relaxed font-arabic font-medium italic">
                                                 {verse.translation}
                                             </p>
                                         </div>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quran-pwa-v5';
+const CACHE_NAME = 'quran-pwa-v6';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
@@ -38,6 +38,13 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(event.request))
+    );
+    return;
+  }
+  
   event.respondWith(
     caches.match(event.request).then((response) => response || fetch(event.request))
   );
