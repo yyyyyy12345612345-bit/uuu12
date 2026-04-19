@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { renderMedia, getCompositions } from "@remotion/renderer";
+import { renderMedia, getCompositions, ensureBrowser } from "@remotion/renderer";
 import { bundle } from "@remotion/bundler";
 import path from "path";
 import fs from "fs";
@@ -11,10 +11,25 @@ import { execSync } from "child_process";
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 
 // تقديم الملفات المؤقتة محلياً لمتصفح الرندر عن طريق سيرفر Express 
 app.use("/assets", express.static(os.tmpdir()));
+
+// ─── تخزين الـ Bundle مرة واحدة (أهم تحسين للسرعة) ────────
+let cachedBundleLocation = null;
+
+async function getBundle() {
+  if (cachedBundleLocation) {
+    console.log(">> Using cached bundle ✓ (سريع)");
+    return cachedBundleLocation;
+  }
+  const entry = path.resolve("src/remotion/Root.tsx");
+  console.log(">> Bundling project for the first time...");
+  cachedBundleLocation = await bundle({ entryPoint: entry, sourceMaps: false });
+  console.log(">> Bundle cached ✓");
+  return cachedBundleLocation;
+}
 
 // ─── Helpers ────────────────────────────────────────────────
 async function downloadFile(url, dest) {
@@ -39,18 +54,34 @@ function getAudioDuration(filePath) {
   }
 }
 
+// ─── حماية من الطلبات المزدوجة ────────────────────────────
+let isRendering = false;
+
 // ─── Routes ────────────────────────────────────────────────
 
 app.get("/", (req, res) => {
-  res.json({ status: "Quran Render Space is Active! 🚀" });
+  res.json({ 
+    status: "Quran Render Space is Active! 🚀",
+    busy: isRendering,
+    bundleReady: !!cachedBundleLocation
+  });
 });
 
 app.post("/render", async (req, res) => {
+  // حماية من الطلبات المزدوجة التي تجمّد السيرفر
+  if (isRendering) {
+    return res.status(429).json({ 
+      error: "السيرفر مشغول حالياً بعملية رندرة أخرى. انتظر قليلاً ثم حاول مجدداً." 
+    });
+  }
+
+  isRendering = true;
+  const startTime = Date.now();
+
   const data = req.body;
   const { surahName, verses, backgroundUrl, textColor, fontSize, fontWeight } = data;
   const outputName = `quran-video-${Date.now()}.mp4`;
 
-  // HuggingFace Spaces saves files locally
   const baseDir = os.tmpdir();
   const folderName = `temp-${Date.now()}`;
   const tempDir = path.resolve(baseDir, folderName);
@@ -68,23 +99,22 @@ app.post("/render", async (req, res) => {
       const bgFile = `bg-${Date.now()}.${bgExt}`;
       const bgPath = path.resolve(tempDir, bgFile);
       await downloadFile(backgroundUrl, bgPath);
-      // التمرير عبر السيرفر الداخلي
       localBgFileName = `http://localhost:7860/assets/${folderName}/${bgFile}`; 
       filesToCleanup.push(bgPath);
       console.log(">> Background downloaded ✓");
     }
 
-    // 2. Download Audios
+    // 2. Download Audios (تحميل متوازي لتسريع العملية)
     const processedVerses = [];
     let cumulativeFrames = 0;
     const fps = 30;
 
-    for (const verse of verses) {
+    const audioPromises = verses.map(async (verse) => {
       let audioFileName = verse.audio;
       let verseDurationSeconds = 8;
       
       if (verse.audio && verse.audio.startsWith("http")) {
-        const audioFile = `audio-${verse.id}-${Date.now()}.mp3`;
+        const audioFile = `audio-${verse.id}-${Date.now()}-${Math.random().toString(36).slice(2,6)}.mp3`;
         const audioPath = path.resolve(tempDir, audioFile);
         try {
           await downloadFile(verse.audio, audioPath);
@@ -93,10 +123,15 @@ app.post("/render", async (req, res) => {
           verseDurationSeconds = Math.max(dur + 0.5, 3);
         } catch (e) {
           console.warn(`  ⚠ Audio error for verse ${verse.id}: ${e.message}`);
-          audioFileName = ""; // No audio if broken
+          audioFileName = "";
         }
       }
+      return { verse, audioFileName, verseDurationSeconds };
+    });
 
+    const audioResults = await Promise.all(audioPromises);
+
+    for (const { verse, audioFileName, verseDurationSeconds } of audioResults) {
       const durationInFrames = Math.ceil(verseDurationSeconds * fps);
       processedVerses.push({
         ...verse,
@@ -110,10 +145,8 @@ app.post("/render", async (req, res) => {
     const totalFrames = Math.max(150, cumulativeFrames);
     console.log(`>> Total Duration: ${totalFrames/fps}s (${totalFrames} frames)`);
 
-    // 3. Bundle our react code
-    const entry = path.resolve("src/remotion/Root.tsx");
-    console.log(">> Bundling project...");
-    const bundleLocation = await bundle({ entryPoint: entry, sourceMaps: false });
+    // 3. استخدام الـ Bundle المحفوظ (بدل إعادة البناء كل مرة)
+    const bundleLocation = await getBundle();
 
     const inputProps = { surahName, verses: processedVerses, backgroundUrl: localBgFileName, textColor, fontSize, fontWeight, totalFrames };
 
@@ -125,7 +158,7 @@ app.post("/render", async (req, res) => {
     composition.durationInFrames = totalFrames;
     composition.fps = fps;
 
-    // 4. Render
+    // 4. Render (مع تحسينات الأداء)
     console.log(">> Rendering video...");
     await renderMedia({
       composition,
@@ -133,22 +166,25 @@ app.post("/render", async (req, res) => {
       outputLocation,
       codec: "h264",
       inputProps,
-      crf: 23,
+      crf: 28,          // جودة أخف = سرعة أعلى (مع الحفاظ على جودة ممتازة للموبايل)
+      concurrency: 2,   // استغلال الـ 2 Cores بالكامل
       chromiumOptions: {
         disableWebSecurity: true,
       },
       onProgress: ({ progress }) => {
-        if (Math.round(progress * 100) % 5 === 0) {
-          process.stdout.write(`\r>> Progress: ${Math.round(progress * 100)}%`);
+        const pct = Math.round(progress * 100);
+        if (pct % 10 === 0) {
+          const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
+          process.stdout.write(`\r>> Progress: ${pct}% (${elapsed}s elapsed)`);
         }
       },
     });
 
-    console.log("\n>> ✅ Render Complete!");
+    const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
+    console.log(`\n>> ✅ Render Complete! (${totalTime}s total)`);
 
     // Send the video back to the client!
     res.download(outputLocation, outputName, () => {
-       // Callback runs after the browser finishes downloading the stream
        try { if (fs.existsSync(outputLocation)) fs.unlinkSync(outputLocation); } catch(e){}
     });
 
@@ -156,12 +192,26 @@ app.post("/render", async (req, res) => {
     console.error("\nRender Error:", err);
     res.status(500).json({ error: err.message });
   } finally {
+    isRendering = false;
     console.log(">> Cleaning up temp files...");
     for (const f of filesToCleanup) { try { if (fs.existsSync(f)) fs.unlinkSync(f); } catch {} }
     try { fs.rmdirSync(tempDir); } catch {}
   }
 });
 
+// ─── تجهيز الـ Bundle والمتصفح مسبقاً عند بدء التشغيل ─────
+async function warmup() {
+  console.log(">> ⏳ Warming up (تحضير مسبق)...");
+  try {
+    await getBundle();
+    await ensureBrowser();
+    console.log(">> 🔥 Server is warmed up and ready!");
+  } catch (e) {
+    console.warn(">> Warmup partial fail (will retry on first request):", e.message);
+  }
+}
+
 app.listen(7860, () => {
   console.log("🚀 HuggingFace Render Server running on port 7860");
+  warmup();
 });

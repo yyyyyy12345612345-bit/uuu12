@@ -14,6 +14,12 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
+# إخبار Remotion أن يستخدم Chromium المثبت مسبقاً بدل تحميل واحد جديد (110MB) كل مرة
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV CHROMIUM_PATH=/usr/bin/chromium
+ENV REMOTION_CHROME_EXECUTABLE=/usr/bin/chromium
+
 WORKDIR /app
 
 # نسخ ملفات الحزم
