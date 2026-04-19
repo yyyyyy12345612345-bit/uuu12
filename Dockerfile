@@ -1,7 +1,7 @@
 # استخدام بيئة رسمية خفيفة مبنية على Node
 FROM node:18-bullseye-slim
 
-# تنصيب متصفحات الكروم لتشغيل عملية الرندر وبرنامج ffmpeg للڤيديوهات
+# تنصيب متصفحات الكروم لتشغيل عملية الرندر وبرنامج ffmpeg للڤيديوهات والخطوط العربية
 RUN apt-get update && apt-get install -y \
     chromium \
     ffmpeg \
@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y \
     libxss1 \
     libasound2 \
     fonts-liberation \
+    fonts-noto-core \
+    fonts-sil-amiri \
     libappindicator3-1 \
     xdg-utils \
     --no-install-recommends && \
