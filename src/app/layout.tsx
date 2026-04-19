@@ -85,19 +85,7 @@ export default function RootLayout({
       style={{ overflowX: 'hidden', width: '100vw' }}
     >
       <head>
-        {/* Google Analytics */}
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${GA_ID}');
-          `}
-        </Script>
+        {/* Scripts moved to body */}
       </head>
       <body 
         className="h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground"
@@ -137,6 +125,20 @@ export default function RootLayout({
                 window.addEventListener('load', register);
               }
             }
+          `}
+        </Script>
+        
+        {/* Google Analytics */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_ID}');
           `}
         </Script>
 

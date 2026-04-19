@@ -132,7 +132,7 @@ app.post("/render", async (req, res) => {
 
     // 3. تصوير صورة واحدة لكل آية باستخدام Remotion (سريع جداً)
     const bundleLocation = await getBundle();
-    const fps = 24;
+    const fps = 30;
     let cumulativeFrames = 0;
 
     const processedVerses = verseData.map(({ verse, audioPath, duration }) => {
@@ -190,17 +190,17 @@ app.post("/render", async (req, res) => {
           `ffmpeg -y -loop 1 -i "${stillPath}" -i "${audioPath}" ` +
           `-vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" ` +
           `-c:v libx264 -preset ultrafast -crf 28 -pix_fmt yuv420p ` +
-          `-c:a aac -b:a 128k ` +
+          `-c:a aac -b:a 128k -ar 44100 ` +
           `-t ${duration.toFixed(2)} -shortest "${segmentPath}"`,
           { timeout: 60000 }
         );
       } else {
-        // بدون صوت - 5 ثواني صامتة
+        // إنشاء تراك صوت صامت لضمان الاتساق بين كل المقاطع أثناء الدمج
         execSync(
-          `ffmpeg -y -loop 1 -i "${stillPath}" ` +
+          `ffmpeg -y -loop 1 -i "${stillPath}" -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100 ` +
           `-vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" ` +
           `-c:v libx264 -preset ultrafast -crf 28 -pix_fmt yuv420p ` +
-          `-t 5 "${segmentPath}"`,
+          `-c:a aac -b:a 128k -t 5 -shortest "${segmentPath}"`,
           { timeout: 60000 }
         );
       }

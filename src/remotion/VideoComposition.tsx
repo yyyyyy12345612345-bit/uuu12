@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import { 
-  AbsoluteFill, 
-  interpolate, 
-  useCurrentFrame, 
-  useVideoConfig, 
+import {
+  AbsoluteFill,
+  interpolate,
+  useCurrentFrame,
+  useVideoConfig,
   Video,
   Audio,
   Sequence,
@@ -120,14 +120,14 @@ export const MainVideo: React.FC<MainVideoProps> = ({
            100% { transform: translate(-50px, 50px); opacity: 0.3; }
         }
       `}</style>
-      
+
       <AbsoluteFill style={{ backgroundColor: 'black' }} />
-      
+
       {/* ── الخلفية الفلترة ── */}
       {resolvedBg && (
         <AbsoluteFill style={{ filter: cssFilter }}>
           {isVideoUrl(backgroundUrl) ? (
-            <Video 
+            <Video
               src={resolvedBg}
               style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5 }}
               muted loop crossOrigin="anonymous"
@@ -142,57 +142,57 @@ export const MainVideo: React.FC<MainVideoProps> = ({
           )}
         </AbsoluteFill>
       )}
-      
+
       {/* ── تأثير Overlays ── */}
       {overlay === "dust" && (
         <AbsoluteFill style={{ pointerEvents: 'none' }}>
-           {[...Array(30)].map((_, i) => (
-             <div key={i} style={{
-               position: 'absolute',
-               bottom: '-20px',
-               left: `${Math.random() * 100}%`,
-               width: `${Math.random() * 6 + 2}px`,
-               height: `${Math.random() * 6 + 2}px`,
-               background: 'white',
-               borderRadius: '50%',
-               filter: 'blur(1px)',
-               animation: `dustMove ${Math.random() * 10 + 10}s linear infinite`,
-               animationDelay: `-${Math.random() * 20}s`
-             }} />
-           ))}
+          {[...Array(30)].map((_, i) => (
+            <div key={i} style={{
+              position: 'absolute',
+              bottom: '-20px',
+              left: `${Math.random() * 100}%`,
+              width: `${Math.random() * 6 + 2}px`,
+              height: `${Math.random() * 6 + 2}px`,
+              background: 'white',
+              borderRadius: '50%',
+              filter: 'blur(1px)',
+              animation: `dustMove ${Math.random() * 10 + 10}s linear infinite`,
+              animationDelay: `-${Math.random() * 20}s`
+            }} />
+          ))}
         </AbsoluteFill>
       )}
 
       {overlay === "rays" && (
         <AbsoluteFill style={{ pointerEvents: 'none', overflow: 'hidden' }}>
-           <div style={{
-             position: 'absolute',
-             top: '-50%',
-             left: '-10%',
-             width: '200%',
-             height: '200%',
-             background: 'repeating-linear-gradient(90deg, transparent, transparent 5%, rgba(255,255,255,0.05) 10%, transparent 15%)',
-             filter: 'blur(40px)',
-             animation: 'rayMove 15s ease-in-out infinite',
-           }} />
+          <div style={{
+            position: 'absolute',
+            top: '-50%',
+            left: '-10%',
+            width: '200%',
+            height: '200%',
+            background: 'repeating-linear-gradient(90deg, transparent, transparent 5%, rgba(255,255,255,0.05) 10%, transparent 15%)',
+            filter: 'blur(40px)',
+            animation: 'rayMove 15s ease-in-out infinite',
+          }} />
         </AbsoluteFill>
       )}
 
       {overlay === "bokeh" && (
         <AbsoluteFill style={{ pointerEvents: 'none' }}>
-           {[...Array(12)].map((_, i) => (
-             <div key={i} style={{
-               position: 'absolute',
-               top: `${Math.random() * 100}%`,
-               left: `${Math.random() * 100}%`,
-               width: `${Math.random() * 200 + 100}px`,
-               height: `${Math.random() * 200 + 100}px`,
-               background: `radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)`,
-               borderRadius: '50%',
-               animation: `bokehMove ${Math.random() * 20 + 20}s ease-in-out infinite`,
-               animationDelay: `-${Math.random() * 20}s`
-             }} />
-           ))}
+          {[...Array(12)].map((_, i) => (
+            <div key={i} style={{
+              position: 'absolute',
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              width: `${Math.random() * 200 + 100}px`,
+              height: `${Math.random() * 200 + 100}px`,
+              background: `radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)`,
+              borderRadius: '50%',
+              animation: `bokehMove ${Math.random() * 20 + 20}s ease-in-out infinite`,
+              animationDelay: `-${Math.random() * 20}s`
+            }} />
+          ))}
         </AbsoluteFill>
       )}
 
@@ -203,15 +203,15 @@ export const MainVideo: React.FC<MainVideoProps> = ({
           const startFrame = verse.startFrame ?? Math.floor(index * (durationInFrames / verses.length));
           const actualDuration = verse.durationInFrames ?? Math.floor(durationInFrames / verses.length);
           const resolvedAudio = resolveMedia(verse.audio);
-          
+
           return (
             <Sequence key={`${verse.id}-${index}`} from={startFrame} durationInFrames={actualDuration}>
               {resolvedAudio && <Audio src={resolvedAudio} />}
-              <VerseComponent 
-                verse={verse} 
-                surahName={surahName} 
-                textColor={textColor} 
-                fontSize={fontSize} 
+              <VerseComponent
+                verse={verse}
+                surahName={surahName}
+                textColor={textColor}
+                fontSize={fontSize}
                 fontWeight={fontWeight}
                 fontFamily={fontFamily}
                 animation={animation}
@@ -227,127 +227,127 @@ export const MainVideo: React.FC<MainVideoProps> = ({
   );
 };
 
-const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fontFamily, animation, textPosition, textVerticalOffset, totalVerseFrames }: { 
-  verse: Verse, surahName: string, textColor: string, fontSize: number, fontWeight: any, 
-  fontFamily: string, animation: string, textPosition: string, textVerticalOffset: number, totalVerseFrames: number 
+const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fontFamily, animation, textPosition, textVerticalOffset, totalVerseFrames }: {
+  verse: Verse, surahName: string, textColor: string, fontSize: number, fontWeight: any,
+  fontFamily: string, animation: string, textPosition: string, textVerticalOffset: number, totalVerseFrames: number
 }) => {
-    const frame = useCurrentFrame();
-    const fadeFrames = Math.min(15, Math.floor(totalVerseFrames * 0.1));
-    
-    // ── انميشن الدخول ──
-    const opacity = interpolate(
-        frame, 
-        [0, fadeFrames, totalVerseFrames - fadeFrames, totalVerseFrames], 
-        [0, 1, 1, 0],
-        { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
-    );
-    
-    // Zoom/Scale effect (base)
-    const baseScale = interpolate(frame, [0, totalVerseFrames], [1, 1.05], { easing: Easing.out(Easing.quad) });
-    
-    // Specialized animations
-    let animationStyles: React.CSSProperties = {};
-    
-    if (animation === "scale") {
-       const entranceScale = interpolate(frame, [0, fadeFrames], [0.8, 1], { extrapolateRight: 'clamp' });
-       animationStyles.transform = `scale(${baseScale * entranceScale}) translateY(${textVerticalOffset}px)`;
-    } else if (animation === "slide") {
-       const translateY = interpolate(frame, [0, fadeFrames], [100, 0], { 
-         extrapolateRight: 'clamp',
-         easing: Easing.out(Easing.back(1.5))
-       });
-       animationStyles.transform = `scale(${baseScale}) translateY(${translateY + textVerticalOffset}px)`;
-    } else if (animation === "blur") {
-       const blur = interpolate(frame, [0, fadeFrames], [40, 0], { extrapolateRight: 'clamp' });
-       animationStyles.filter = `blur(${blur}px)`;
-       animationStyles.transform = `scale(${baseScale}) translateY(${textVerticalOffset}px)`;
-    } else if (animation === "zoom") {
-       const zoom = interpolate(frame, [0, fadeFrames], [2, 1], { 
-          easing: Easing.out(Easing.exp),
-          extrapolateRight: 'clamp' 
-       });
-       animationStyles.transform = `scale(${baseScale * zoom}) translateY(${textVerticalOffset}px)`;
-    } else if (animation === "flip") {
-       const rotateX = interpolate(frame, [0, fadeFrames], [90, 0], { 
-          easing: Easing.out(Easing.quad),
-          extrapolateRight: 'clamp' 
-       });
-       animationStyles.transform = `perspective(1000px) scale(${baseScale}) rotateX(${rotateX}deg) translateY(${textVerticalOffset}px)`;
-    } else if (animation === "bounce") {
-       const bounce = interpolate(frame, [0, fadeFrames], [300, 0], { 
-          easing: Easing.out(Easing.bounce),
-          extrapolateRight: 'clamp' 
-       });
-       animationStyles.transform = `scale(${baseScale}) translateY(${bounce + textVerticalOffset}px)`;
-    } else if (animation === "glitch") {
-       const jitterX = Math.random() * 10 - 5;
-       const jitterY = Math.random() * 10 - 5;
-       const glitchOpacity = Math.random() > 0.9 ? 0.3 : 1;
-       
-       if (frame < fadeFrames) {
-           animationStyles.transform = `scale(${baseScale}) translate(${jitterX}px, ${jitterY + textVerticalOffset}px)`;
-           animationStyles.opacity = glitchOpacity;
-       } else {
-           animationStyles.transform = `scale(${baseScale}) translateY(${textVerticalOffset}px)`;
-       }
+  const frame = useCurrentFrame();
+  const fadeFrames = Math.min(15, Math.floor(totalVerseFrames * 0.1));
+
+  // ── انميشن الدخول ──
+  const opacity = interpolate(
+    frame,
+    [0, fadeFrames, totalVerseFrames - fadeFrames, totalVerseFrames],
+    [0, 1, 1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+  );
+
+  // Zoom/Scale effect (base)
+  const baseScale = interpolate(frame, [0, totalVerseFrames], [1, 1.05], { easing: Easing.out(Easing.quad) });
+
+  // Specialized animations
+  let animationStyles: React.CSSProperties = {};
+
+  if (animation === "scale") {
+    const entranceScale = interpolate(frame, [0, fadeFrames], [0.8, 1], { extrapolateRight: 'clamp' });
+    animationStyles.transform = `scale(${baseScale * entranceScale}) translateY(${textVerticalOffset}px)`;
+  } else if (animation === "slide") {
+    const translateY = interpolate(frame, [0, fadeFrames], [100, 0], {
+      extrapolateRight: 'clamp',
+      easing: Easing.out(Easing.back(1.5))
+    });
+    animationStyles.transform = `scale(${baseScale}) translateY(${translateY + textVerticalOffset}px)`;
+  } else if (animation === "blur") {
+    const blur = interpolate(frame, [0, fadeFrames], [40, 0], { extrapolateRight: 'clamp' });
+    animationStyles.filter = `blur(${blur}px)`;
+    animationStyles.transform = `scale(${baseScale}) translateY(${textVerticalOffset}px)`;
+  } else if (animation === "zoom") {
+    const zoom = interpolate(frame, [0, fadeFrames], [2, 1], {
+      easing: Easing.out(Easing.exp),
+      extrapolateRight: 'clamp'
+    });
+    animationStyles.transform = `scale(${baseScale * zoom}) translateY(${textVerticalOffset}px)`;
+  } else if (animation === "flip") {
+    const rotateX = interpolate(frame, [0, fadeFrames], [90, 0], {
+      easing: Easing.out(Easing.quad),
+      extrapolateRight: 'clamp'
+    });
+    animationStyles.transform = `perspective(1000px) scale(${baseScale}) rotateX(${rotateX}deg) translateY(${textVerticalOffset}px)`;
+  } else if (animation === "bounce") {
+    const bounce = interpolate(frame, [0, fadeFrames], [300, 0], {
+      easing: Easing.out(Easing.bounce),
+      extrapolateRight: 'clamp'
+    });
+    animationStyles.transform = `scale(${baseScale}) translateY(${bounce + textVerticalOffset}px)`;
+  } else if (animation === "glitch") {
+    const jitterX = Math.random() * 10 - 5;
+    const jitterY = Math.random() * 10 - 5;
+    const glitchOpacity = Math.random() > 0.9 ? 0.3 : 1;
+
+    if (frame < fadeFrames) {
+      animationStyles.transform = `scale(${baseScale}) translate(${jitterX}px, ${jitterY + textVerticalOffset}px)`;
+      animationStyles.opacity = glitchOpacity;
     } else {
-       animationStyles.transform = `scale(${baseScale}) translateY(${textVerticalOffset}px)`;
+      animationStyles.transform = `scale(${baseScale}) translateY(${textVerticalOffset}px)`;
     }
+  } else {
+    animationStyles.transform = `scale(${baseScale}) translateY(${textVerticalOffset}px)`;
+  }
 
-    const justifyMap: Record<string, string> = { top: "flex-start", center: "center", bottom: "flex-end" };
-    const paddingMap: Record<string, string> = { 
-      top: "60px 40px 100px 40px", 
-      center: "40px", 
-      bottom: "100px 40px 60px 40px" 
-    };
+  const justifyMap: Record<string, string> = { top: "flex-start", center: "center", bottom: "flex-end" };
+  const paddingMap: Record<string, string> = {
+    top: "60px 40px 100px 40px",
+    center: "40px",
+    bottom: "100px 40px 60px 40px"
+  };
 
-    return (
-        <div style={{ 
-            width: '100%',
-            height: '100%',
-            boxSizing: 'border-box',
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center',
-            justifyContent: justifyMap[textPosition] || 'center',
-            gap: '30px', 
-            opacity, 
-            ...animationStyles,
-            padding: paddingMap[textPosition] || '40px',
-            textAlign: 'center',
-            overflow: 'hidden'
-        }}>
-            <div style={{ 
-                color: '#D4AF37', fontSize: '32px', fontWeight: 800,
-                textShadow: '0 0 20px rgba(212,175,55,0.4)',
-                fontFamily: `"${fontFamily}", serif`
-            }}>
-                {surahName}
-            </div>
+  return (
+    <div style={{
+      width: '100%',
+      height: '100%',
+      boxSizing: 'border-box',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: justifyMap[textPosition] || 'center',
+      gap: '30px',
+      opacity,
+      ...animationStyles,
+      padding: paddingMap[textPosition] || '40px',
+      textAlign: 'center',
+      overflow: 'hidden'
+    }}>
+      <div style={{
+        color: '#D4AF37', fontSize: '32px', fontWeight: 800,
+        textShadow: '0 0 20px rgba(212,175,55,0.4)',
+        fontFamily: `"${fontFamily}", serif`
+      }}>
+        {surahName}
+      </div>
 
-            <p style={{ 
-                color: textColor, fontSize: `${fontSize * 1.8}px`, fontFamily: `"${fontFamily}", serif`,
-                direction: 'rtl', textAlign: 'center', width: '100%', lineHeight: 1.6,
-                textShadow: '0 20px 50px rgba(0,0,0,1)', margin: 0,
-                fontWeight: fontWeight || 700
-            }}>
-                {verse.text}
-            </p>
+      <p style={{
+        color: textColor, fontSize: `${fontSize * 1.8}px`, fontFamily: `"${fontFamily}", serif`,
+        direction: 'rtl', textAlign: 'center', width: '100%', lineHeight: 1.6,
+        textShadow: '0 20px 50px rgba(0,0,0,1)', margin: 0,
+        fontWeight: fontWeight || 700
+      }}>
+        {verse.text}
+      </p>
 
-            <div style={{ 
-                width: '200px', height: '4px', 
-                background: 'linear-gradient(to right, transparent, #D4AF37, #D4AF37, transparent)', 
-                opacity: 0.6, boxShadow: '0 0 20px rgba(212,175,55,0.3)'
-            }} />
+      <div style={{
+        width: '200px', height: '4px',
+        background: 'linear-gradient(to right, transparent, #D4AF37, #D4AF37, transparent)',
+        opacity: 0.6, boxShadow: '0 0 20px rgba(212,175,55,0.3)'
+      }} />
 
-            <p style={{ 
-                color: 'rgba(255,255,255,0.9)', fontSize: '42px', fontWeight: 500,
-                textAlign: 'center', width: '100%', lineHeight: 1.4,
-                textShadow: '0 10px 30px rgba(0,0,0,0.8)', fontStyle: 'italic',
-                fontFamily: `"${fontFamily}", serif`
-            }}>
-                {verse.translation}
-            </p>
-        </div>
-    );
+      <p style={{
+        color: 'rgba(255,255,255,0.9)', fontSize: '42px', fontWeight: 500,
+        textAlign: 'center', width: '100%', lineHeight: 1.4,
+        textShadow: '0 10px 30px rgba(0,0,0,0.8)', fontStyle: 'italic',
+        fontFamily: `"${fontFamily}", serif`
+      }}>
+        {verse.translation}
+      </p>
+    </div>
+  );
 }
