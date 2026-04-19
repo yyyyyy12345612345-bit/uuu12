@@ -213,7 +213,17 @@ export function Controls() {
                         HD
                       </div>
                     )}
-                     <button
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "reciter" && (
+          <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-8 duration-700">
+            {RECITERS.map((r) => (
+              <button
                 key={r.id}
                 onClick={() => {
                    updateState({ reciterId: r.id });
@@ -227,9 +237,6 @@ export function Controls() {
                    <div className={`w-2 h-2 rounded-full transition-all ${state.reciterId === r.id ? 'bg-primary scale-125' : 'bg-foreground/10 group-hover/reciter:bg-foreground/30'}`} />
                    <span className={`text-sm font-bold font-arabic ${state.reciterId === r.id ? 'text-foreground' : 'text-foreground/60'}`}>{r.name}</span>
                 </div>
-              </button>l ${state.reciterId === r.id ? 'bg-primary scale-125' : 'bg-white/10 group-hover/reciter:bg-white/30'}`} />
-                   <span className={`text-sm font-bold font-arabic ${state.reciterId === r.id ? 'text-white' : 'text-white/60'}`}>{r.name}</span>
-                </div>
               </button>
             ))}
           </div>
@@ -240,7 +247,7 @@ export function Controls() {
             
             {/* ── نوع الخط ── */}
             <div className="flex flex-col gap-3">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-white/30 px-1">نوع الخط</span>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 px-1">نوع الخط</span>
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { id: "Amiri", label: "أميري", preview: "بِسْمِ ٱللَّهِ" },
@@ -253,11 +260,11 @@ export function Controls() {
                   <button
                     key={font.id}
                     onClick={() => updateState({ fontFamily: font.id })}
-                    className={`p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.fontFamily === font.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-black/40 border-white/5 hover:border-white/20'}`}
+                    className={`p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.fontFamily === font.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-foreground/5 border-border hover:border-foreground/20'}`}
                   >
-                    <span className={`text-[10px] font-bold ${state.fontFamily === font.id ? 'text-primary' : 'text-white/40'}`}>{font.label}</span>
+                    <span className={`text-[10px] font-bold ${state.fontFamily === font.id ? 'text-primary' : 'text-foreground/40'}`}>{font.label}</span>
                     <span 
-                      className={`text-lg ${state.fontFamily === font.id ? 'text-white' : 'text-white/60'}`}
+                      className={`text-lg ${state.fontFamily === font.id ? 'text-foreground' : 'text-foreground/60'}`}
                       style={{ fontFamily: `"${font.id}", serif`, direction: 'rtl' }}
                     >
                       {font.preview}
@@ -269,7 +276,7 @@ export function Controls() {
 
             {/* ── فلاتر الخلفية ── */}
             <div className="flex flex-col gap-3">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-white/30 px-1">فلتر الخلفية</span>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 px-1">فلتر الخلفية</span>
               <div className="grid grid-cols-3 gap-2">
                 {[
                   { id: "none", label: "بدون", icon: "✨" },
@@ -288,10 +295,10 @@ export function Controls() {
                   <button
                     key={f.id}
                     onClick={() => updateState({ filter: f.id })}
-                    className={`p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.filter === f.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-black/40 border-white/5 hover:border-white/20'}`}
+                    className={`p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.filter === f.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-foreground/5 border-border hover:border-foreground/20'}`}
                   >
                     <span className="text-lg">{f.icon}</span>
-                    <span className={`text-[10px] font-bold ${state.filter === f.id ? 'text-primary' : 'text-white/40'}`}>{f.label}</span>
+                    <span className={`text-[10px] font-bold ${state.filter === f.id ? 'text-primary' : 'text-foreground/40'}`}>{f.label}</span>
                   </button>
                 ))}
               </div>
@@ -299,7 +306,7 @@ export function Controls() {
 
             {/* ── مكان النص ── */}
             <div className="flex flex-col gap-3">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-white/30 px-1">مكان النص</span>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 px-1">مكان النص</span>
               <div className="flex gap-2">
                 {[
                   { id: "top" as const, label: "أعلى", icon: "⬆️" },
@@ -309,17 +316,17 @@ export function Controls() {
                   <button
                     key={pos.id}
                     onClick={() => updateState({ textPosition: pos.id })}
-                    className={`flex-1 p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.textPosition === pos.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-black/40 border-white/5 hover:border-white/20'}`}
+                    className={`flex-1 p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.textPosition === pos.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-foreground/5 border-border hover:border-foreground/20'}`}
                   >
                     <span className="text-lg">{pos.icon}</span>
-                    <span className={`text-[10px] font-bold ${state.textPosition === pos.id ? 'text-primary' : 'text-white/40'}`}>{pos.label}</span>
+                    <span className={`text-[10px] font-bold ${state.textPosition === pos.id ? 'text-primary' : 'text-foreground/40'}`}>{pos.label}</span>
                   </button>
                 ))}
               </div>
               
               <div className="space-y-3 px-1 mt-2">
-                <div className="flex justify-between items-center bg-white/[0.02] p-2 rounded-xl border border-white/5">
-                  <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest">تعديل الارتفاع الدقيق</span>
+                <div className="flex justify-between items-center bg-foreground/[0.02] p-2 rounded-xl border border-border">
+                  <span className="text-[10px] font-bold text-foreground/50 uppercase tracking-widest">تعديل الارتفاع الدقيق</span>
                   <span className="text-xs font-black text-primary font-mono">{state.textVerticalOffset}px</span>
                 </div>
                 <input
@@ -329,11 +336,11 @@ export function Controls() {
                   step="5"
                   value={state.textVerticalOffset}
                   onChange={(e) => updateState({ textVerticalOffset: Number(e.target.value) })}
-                  className="w-full h-1.5 bg-white/5 rounded-full appearance-none cursor-pointer accent-primary hover:accent-primary/80 transition-all"
+                  className="w-full h-1.5 bg-foreground/5 rounded-full appearance-none cursor-pointer accent-primary hover:accent-primary/80 transition-all"
                 />
                 <button 
                   onClick={() => updateState({ textVerticalOffset: 0 })}
-                  className="w-full py-1 text-[9px] text-white/20 hover:text-white/40 transition-colors uppercase tracking-[0.2em]"
+                  className="w-full py-1 text-[9px] text-foreground/20 hover:text-foreground/40 transition-colors uppercase tracking-[0.2em]"
                 >
                   إعادة ضبط الارتفاع
                 </button>
@@ -342,7 +349,7 @@ export function Controls() {
 
             {/* ── التأثيرات البصرية (Overlays) ── */}
             <div className="flex flex-col gap-3">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-white/30 px-1">التأثيرات البصرية</span>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 px-1">التأثيرات البصرية</span>
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { id: "none" as const, label: "بدون", icon: "🚫" },
@@ -353,10 +360,10 @@ export function Controls() {
                   <button
                     key={ov.id}
                     onClick={() => updateState({ overlay: ov.id })}
-                    className={`p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.overlay === ov.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-black/40 border-white/5 hover:border-white/20'}`}
+                    className={`p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.overlay === ov.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-foreground/5 border-border hover:border-foreground/20'}`}
                   >
                     <span className="text-lg">{ov.icon}</span>
-                    <span className={`text-[10px] font-bold ${state.overlay === ov.id ? 'text-primary' : 'text-white/40'}`}>{ov.label}</span>
+                    <span className={`text-[10px] font-bold ${state.overlay === ov.id ? 'text-primary' : 'text-foreground/40'}`}>{ov.label}</span>
                   </button>
                 ))}
               </div>
@@ -364,7 +371,7 @@ export function Controls() {
 
             {/* ── حركة دخول النص ── */}
             <div className="flex flex-col gap-3">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-white/30 px-1">حركة دخول النص</span>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 px-1">حركة دخول النص</span>
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { id: "fade" as const, label: "تلاشي", icon: "🌫️" },
@@ -379,10 +386,10 @@ export function Controls() {
                   <button
                     key={ani.id}
                     onClick={() => updateState({ animation: ani.id })}
-                    className={`p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.animation === ani.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-black/40 border-white/5 hover:border-white/20'}`}
+                    className={`p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.animation === ani.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-foreground/5 border-border hover:border-foreground/20'}`}
                   >
                     <span className="text-lg">{ani.icon}</span>
-                    <span className={`text-[10px] font-bold ${state.animation === ani.id ? 'text-primary' : 'text-white/40'}`}>{ani.label}</span>
+                    <span className={`text-[10px] font-bold ${state.animation === ani.id ? 'text-primary' : 'text-foreground/40'}`}>{ani.label}</span>
                   </button>
                 ))}
               </div>
@@ -390,7 +397,7 @@ export function Controls() {
 
             {/* ── لون النص ── */}
             <div className="flex flex-col gap-3">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-white/30 px-1">لون النص</span>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 px-1">لون النص</span>
               <div className="flex flex-wrap gap-3">
                 {[
                   '#ffffff', '#FFD700', '#D4AF37', '#00FFC2', '#00E5FF', 
@@ -401,7 +408,7 @@ export function Controls() {
                     key={color}
                     onClick={() => updateState({ textColor: color })}
                     style={{ backgroundColor: color }}
-                    className={`h-10 w-10 rounded-full border-2 transition-all duration-500 ${state.textColor === color ? 'border-white scale-110 ring-8 ring-primary/10 shadow-lg shadow-black/40' : 'border-white/10 hover:scale-110'}`}
+                    className={`h-10 w-10 rounded-full border-2 transition-all duration-500 ${state.textColor === color ? 'border-white scale-110 ring-8 ring-primary/10 shadow-lg shadow-black/40' : 'border-foreground/10 hover:scale-110'}`}
                   />
                 ))}
                 <div className="relative group/cp">
@@ -409,10 +416,10 @@ export function Controls() {
                     type="color"
                     value={state.textColor}
                     onChange={(e) => updateState({ textColor: e.target.value })}
-                    className="h-10 w-10 rounded-full border-2 border-white/10 bg-transparent cursor-pointer overflow-hidden opacity-0 absolute inset-0 z-10"
+                    className="h-10 w-10 rounded-full border-2 border-foreground/10 bg-transparent cursor-pointer overflow-hidden opacity-0 absolute inset-0 z-10"
                   />
                   <div 
-                    className="h-10 w-10 rounded-full border-2 border-white/20 flex items-center justify-center text-xs font-bold transition-all group-hover/cp:scale-110 shadow-lg"
+                    className="h-10 w-10 rounded-full border-2 border-foreground/20 flex items-center justify-center text-xs font-bold transition-all group-hover/cp:scale-110 shadow-lg"
                     style={{ backgroundColor: state.textColor }}
                   >
                     🎨
@@ -423,8 +430,8 @@ export function Controls() {
 
             {/* ── حجم الخط ── */}
             <div className="space-y-3 px-1">
-              <div className="flex justify-between items-center bg-white/[0.02] p-3 rounded-xl border border-white/5">
-                <span className="text-[11px] font-bold text-white/50 uppercase tracking-widest">حجم الخط</span>
+              <div className="flex justify-between items-center bg-foreground/[0.02] p-3 rounded-xl border border-border">
+                <span className="text-[11px] font-bold text-foreground/50 uppercase tracking-widest">حجم الخط</span>
                 <span className="text-sm font-black text-primary font-mono">{state.fontSize}px</span>
               </div>
               <input
@@ -434,14 +441,14 @@ export function Controls() {
                 step="2"
                 value={state.fontSize}
                 onChange={(e) => updateState({ fontSize: Number(e.target.value) })}
-                className="w-full h-1.5 bg-white/5 rounded-full appearance-none cursor-pointer accent-primary hover:accent-primary/80 transition-all"
+                className="w-full h-1.5 bg-foreground/5 rounded-full appearance-none cursor-pointer accent-primary hover:accent-primary/80 transition-all"
               />
               <div className="flex gap-2 justify-center">
                 {[40, 60, 100, 150, 200].map(size => (
                   <button
                     key={size}
                     onClick={() => updateState({ fontSize: size })}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${state.fontSize === size ? 'bg-primary text-black' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
+                    className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${state.fontSize === size ? 'bg-primary text-black' : 'bg-foreground/5 text-foreground/40 hover:bg-foreground/10'}`}
                   >
                     {size}px
                   </button>
@@ -451,8 +458,8 @@ export function Controls() {
 
             {/* ── سُمك الخط ── */}
             <div className="space-y-3 px-1">
-              <div className="flex justify-between items-center bg-white/[0.02] p-3 rounded-xl border border-white/5">
-                <span className="text-[11px] font-bold text-white/50 uppercase tracking-widest">سُمك الخط</span>
+              <div className="flex justify-between items-center bg-foreground/[0.02] p-3 rounded-xl border border-border">
+                <span className="text-[11px] font-bold text-foreground/50 uppercase tracking-widest">سُمك الخط</span>
                 <span className="text-sm font-black text-primary font-mono">{state.fontWeight}</span>
               </div>
               <div className="grid grid-cols-3 gap-2">
@@ -469,7 +476,7 @@ export function Controls() {
                      <button
                         key={weight}
                         onClick={() => updateState({ fontWeight: weight })}
-                        className={`py-3 rounded-xl border-2 transition-all font-bold text-[10px] flex flex-col items-center gap-1 ${state.fontWeight === weight ? 'bg-primary/10 border-primary text-primary' : 'bg-black/40 border-white/5 text-white/30 hover:bg-white/5 hover:border-white/10'}`}
+                        className={`py-3 rounded-xl border-2 transition-all font-bold text-[10px] flex flex-col items-center gap-1 ${state.fontWeight === weight ? 'bg-primary/10 border-primary text-primary' : 'bg-foreground/5 border-border text-foreground/30 hover:bg-foreground/10'}`}
                      >
                         <span className="opacity-50">{weight}</span>
                         <span>{labels[weight]}</span>
@@ -484,15 +491,15 @@ export function Controls() {
         {activeTab === "support" && (
           <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700 p-2">
              <div className="flex flex-col gap-2">
-                <h3 className="text-lg font-bold text-white font-arabic">الشكاوى والاقتراحات</h3>
-                <p className="text-[10px] text-white/40 leading-relaxed">يسعدنا سماع رأيك أو أي مشكلة تواجهك لتحسين التطبيق.</p>
+                <h3 className="text-lg font-bold text-foreground font-arabic">الشكاوى والاقتراحات</h3>
+                <p className="text-[10px] text-foreground/40 leading-relaxed">يسعدنا سماع رأيك أو أي مشكلة تواجهك لتحسين التطبيق.</p>
              </div>
 
              <textarea 
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 placeholder="اكتب رسالتك هنا..."
-                className="w-full h-32 bg-black/40 border border-white/10 rounded-2xl p-4 text-sm text-white outline-none focus:border-primary/40 transition-all resize-none font-arabic"
+                className="w-full h-32 bg-foreground/5 border border-border rounded-2xl p-4 text-sm text-foreground outline-none focus:border-primary/40 transition-all resize-none font-arabic"
              />
 
              <button 
@@ -510,9 +517,9 @@ export function Controls() {
                 )}
              </button>
 
-             <div className="mt-4 p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                <span className="text-[9px] text-white/20 uppercase tracking-widest block mb-2">ملاحظة</span>
-                <p className="text-[9px] text-white/30 leading-relaxed">رسالتك تصل مباشرة لمالك التطبيق عبر نظام الأحداث المتقدم لضمان الخصوصية وسرعة المتابعة.</p>
+             <div className="mt-4 p-4 rounded-xl bg-foreground/[0.02] border border-border">
+                <span className="text-[9px] text-foreground/20 uppercase tracking-widest block mb-2">ملاحظة</span>
+                <p className="text-[9px] text-foreground/30 leading-relaxed">رسالتك تصل مباشرة لمالك التطبيق عبر نظام الأحداث المتقدم لضمان الخصوصية وسرعة المتابعة.</p>
              </div>
           </div>
         )}
