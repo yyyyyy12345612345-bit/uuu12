@@ -372,24 +372,24 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
             <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none mix-blend-multiply" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/handmade-paper.png')" }} />
 
             {/* Page Information Badges - Traditional Style */}
-            <div className="relative h-28 flex items-center justify-between px-16 z-20 mt-8 pointer-events-none">
+            <div className="relative h-20 flex items-center justify-between px-16 z-20 mt-6 pointer-events-none">
                 <div className="flex flex-col items-center">
-                    <div className="text-[10px] text-[#d4af37] font-bold uppercase tracking-widest mb-1">الجزء</div>
-                    <div className="w-12 h-12 rounded-xl bg-[#fdfaf3] dark:bg-[#1a1612] border-2 border-[#d4af37]/40 flex items-center justify-center text-[#d4af37] font-black text-sm shadow-xl backdrop-blur-sm">
+                    <div className="text-[8px] text-[#d4af37] font-bold uppercase tracking-widest mb-1">الجزء</div>
+                    <div className="w-9 h-9 rounded-lg bg-[#fdfaf3] dark:bg-[#1a1612] border border-[#d4af37]/40 flex items-center justify-center text-[#d4af37] font-black text-xs shadow-lg backdrop-blur-sm">
                         {pData.verses[0]?.juz_number || "?"}
                     </div>
                 </div>
                 
                 <div className="flex flex-col items-center">
-                    <div className="text-[10px] text-[#d4af37] font-bold uppercase tracking-widest mb-1">الصفحة</div>
-                    <div className="w-16 h-16 rounded-full bg-[#fdfaf3] dark:bg-[#1a1612] border-4 border-[#d4af37] flex items-center justify-center text-[#d4af37] font-black text-xl shadow-2xl ring-8 ring-[#d4af37]/5">
+                    <div className="text-[9px] text-[#d4af37] font-bold uppercase tracking-widest mb-1">الصفحة</div>
+                    <div className="w-12 h-12 rounded-full bg-[#fdfaf3] dark:bg-[#1a1612] border-2 border-[#d4af37] flex items-center justify-center text-[#d4af37] font-black text-lg shadow-xl ring-4 ring-[#d4af37]/5">
                         {pData.page}
                     </div>
                 </div>
 
                 <div className="flex flex-col items-center">
-                    <div className="text-[10px] text-[#d4af37] font-bold uppercase tracking-widest mb-1">الحزب</div>
-                    <div className="w-12 h-12 rounded-xl bg-[#fdfaf3] dark:bg-[#1a1612] border-2 border-[#d4af37]/40 flex items-center justify-center text-[#d4af37] font-black text-sm shadow-xl backdrop-blur-sm">
+                    <div className="text-[8px] text-[#d4af37] font-bold uppercase tracking-widest mb-1">الحزب</div>
+                    <div className="w-9 h-9 rounded-lg bg-[#fdfaf3] dark:bg-[#1a1612] border border-[#d4af37]/40 flex items-center justify-center text-[#d4af37] font-black text-xs shadow-lg backdrop-blur-sm">
                         {pData.verses[0]?.hizb_number || "?"}
                     </div>
                 </div>
