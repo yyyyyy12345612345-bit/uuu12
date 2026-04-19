@@ -238,7 +238,20 @@ export function DailyHub() {
   };
 
   return (
-    <div className="w-full h-full flex flex-col p-6 md:p-14 overflow-y-auto no-scrollbar font-arabic pb-40 bg-background text-foreground">
+    <div className="w-full h-full flex flex-col p-6 md:p-14 overflow-y-auto no-scrollbar font-arabic pb-40 bg-background text-foreground relative daily-hub-container">
+      {/* Unified Background Layer */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+          <div 
+              className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-[0.4] dark:opacity-[0.25]"
+              style={{ 
+                  backgroundImage: "url('/mushaf-bg.jpg.png')",
+                  filter: "sepia(0.3) brightness(0.95) contrast(1.2)"
+              }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/40 to-background" />
+          <div className="absolute inset-0 islamic-pattern opacity-[0.02] dark:opacity-[0.05]" />
+      </div>
+
       
       <div className="flex flex-col items-center mb-12 text-center relative z-10 shrink-0">
         <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">يومياتي</h2>

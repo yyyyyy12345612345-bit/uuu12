@@ -279,6 +279,19 @@ export function PrayerTimes() {
 
   return (
     <div className="flex flex-col h-full p-8 md:p-16 pt-24 md:pt-16 animate-in fade-in duration-1000 overflow-y-auto no-scrollbar custom-scrollbar relative">
+      {/* Unified Background Layer */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+          <div 
+              className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-[0.4] dark:opacity-[0.25]"
+              style={{ 
+                  backgroundImage: "url('/mushaf-bg.jpg.png')",
+                  filter: "sepia(0.3) brightness(0.95) contrast(1.2)"
+              }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/40 to-background" />
+          <div className="absolute inset-0 islamic-pattern opacity-[0.02] dark:opacity-[0.05]" />
+      </div>
+
       <div className="max-w-6xl mx-auto w-full flex flex-col gap-10 relative z-10 pb-40">
         
         {/* Header Bar */}

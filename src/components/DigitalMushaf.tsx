@@ -157,28 +157,28 @@ export function DigitalMushaf() {
       <audio ref={audioRef} onEnded={handleAudioEnd} onError={handleAudioEnd} />
 
       {/* --- Premium Header --- */}
-      <header className="h-[75px] shrink-0 border-b border-border bg-background/95 backdrop-blur-xl px-4 md:px-10 flex items-center justify-between z-[100] shadow-sm">
-        <div className="flex items-center gap-4">
-             <button onClick={() => setIsIndexOpen(true)} className="flex items-center gap-3 px-6 py-2.5 bg-primary/20 text-foreground rounded-2xl font-bold shadow-lg hover:bg-primary/30 border border-primary/20 transition-all">
+      <header className="h-[75px] md:h-[85px] shrink-0 border-b border-border bg-background/95 backdrop-blur-xl px-2 md:px-10 flex items-center justify-between z-[100] shadow-sm">
+        <div className="flex items-center gap-2 md:gap-4 flex-1">
+             <button onClick={() => setIsIndexOpen(true)} className="flex items-center justify-center md:justify-start gap-2 h-11 px-3 md:px-6 bg-primary/20 text-foreground rounded-2xl font-bold border border-primary/20 transition-all hover:bg-primary/30 active:scale-95">
                 <List className="w-5 h-5 text-primary" />
-                <span className="text-sm hidden sm:block">فهرس السور</span>
+                <span className="text-sm hidden md:block">فهرس السور</span>
              </button>
-             <button onClick={() => setShowReciterPicker(!showReciterPicker)} className="w-12 h-12 bg-foreground/5 rounded-2xl flex items-center justify-center text-foreground/60 hover:text-foreground border border-border transition-all relative">
-                <User className="w-6 h-6" />
+             <button onClick={() => setShowReciterPicker(!showReciterPicker)} className="w-11 h-11 md:w-12 md:h-12 bg-foreground/5 rounded-2xl flex items-center justify-center text-foreground/60 hover:text-foreground border border-border transition-all relative active:scale-95">
+                <User className="w-5 h-5 md:w-6 h-6" />
                 {showReciterPicker && <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-background" />}
              </button>
         </div>
 
-        <div className="flex flex-col items-center">
-            <h2 className="text-xl font-black text-foreground tracking-tight">المصحف المرتل</h2>
+        <div className="hidden sm:flex flex-col items-center flex-1">
+            <h2 className="text-base md:text-xl font-black text-foreground tracking-tight whitespace-nowrap">المصحف المرتل</h2>
             <div className="flex items-center gap-2 mt-1">
-                <Star className="w-3 h-3 text-primary" />
-                <span className="text-[10px] text-foreground/40 font-bold uppercase tracking-widest">مكتبة متميزة</span>
-                <Star className="w-3 h-3 text-primary" />
+                <Star className="w-2.5 h-2.5 text-primary" />
+                <span className="text-[9px] md:text-[10px] text-foreground/40 font-bold uppercase tracking-widest whitespace-nowrap">مكتبة متميزة</span>
+                <Star className="w-2.5 h-2.5 text-primary" />
             </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center justify-end gap-2 md:gap-4 flex-1">
             <div className="hidden lg:flex flex-col items-end mr-4">
                 <span className="text-[10px] text-foreground/30 font-bold uppercase">القارئ الحالي</span>
                 <span className="text-sm font-bold text-foreground">{RECITERS.find(r => r.id === state.reciterId)?.name}</span>
@@ -193,10 +193,10 @@ export function DigitalMushaf() {
                         playVerse(0, 0);
                     }
                 }}
-                className={`flex items-center gap-3 px-8 py-3 rounded-2xl transition-all shadow-xl font-bold ${isPlayingPage ? 'bg-primary text-black' : 'bg-foreground/5 border-2 border-primary/20 text-foreground hover:border-primary'}`}
+                className={`flex items-center justify-center gap-2 h-11 px-4 md:px-8 md:h-12 rounded-2xl transition-all shadow-lg font-bold active:scale-95 ${isPlayingPage ? 'bg-primary text-black' : 'bg-foreground/5 border border-primary/20 text-foreground hover:border-primary'}`}
             >
-                {isPlayingPage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-                <span className="text-sm">{isPlayingPage ? 'استماع جاري' : 'بدء الترتيل'}</span>
+                {isPlayingPage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 fill-current" />}
+                <span className="text-xs md:text-sm hidden xs:block">{isPlayingPage ? 'استماع...' : 'بدء الترتيل'}</span>
             </button>
         </div>
 
@@ -250,7 +250,19 @@ export function DigitalMushaf() {
         )}
 
         {/* The Mushaf Page Centered */}
-        <div className="flex-1 w-full overflow-y-auto no-scrollbar scroll-smooth bg-accent/20 py-10 flex flex-col items-center">
+        <div className="flex-1 w-full overflow-y-auto no-scrollbar scroll-smooth py-10 flex flex-col items-center relative">
+            {/* Unified Background Layer */}
+            <div className="absolute inset-0 z-0 pointer-events-none sticky top-0">
+                <div 
+                    className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-[0.3] dark:opacity-[0.2]"
+                    style={{ 
+                        backgroundImage: "url('/mushaf-bg.jpg.png')",
+                        filter: "sepia(0.3) brightness(1.05) contrast(1.1)"
+                    }}
+                />
+                <div className="absolute inset-0 bg-background/40" />
+            </div>
+
             <div className="max-w-[1200px] w-full flex flex-col items-center px-4">
                 {pages.length > 0 ? (
                     pages.map((pData, pIdx) => (
@@ -282,54 +294,53 @@ export function DigitalMushaf() {
       </main>
 
       {/* --- Organized Bottom Navigation Bar --- */}
-      <footer className="h-[90px] shrink-0 bg-background border-t border-border px-6 md:px-14 flex items-center justify-between z-[100] shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
-          <div className="flex items-center gap-8">
-              <div className="flex flex-col">
-                  <span className="text-[10px] text-foreground/30 font-bold uppercase tracking-widest">موقعك الحالي</span>
+      <footer className="h-[80px] md:h-[90px] shrink-0 bg-background border-t border-border px-4 md:px-14 flex items-center justify-between z-[100] shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
+          <div className="flex items-center gap-4 md:gap-8 overflow-hidden">
+              <div className="flex flex-col min-w-0">
+                  <span className="text-[8px] md:text-[10px] text-foreground/30 font-bold uppercase tracking-widest truncate">موقعك الحالي</span>
                   <div className="flex items-center gap-2">
-                      <Book className="w-4 h-4 text-primary" />
-                      <span className="text-sm font-bold text-foreground">الصفحة {pages[pages.length-1]?.page || ".."}</span>
+                      <Book className="w-3.5 h-3.5 text-primary" />
+                      <span className="text-xs md:text-sm font-bold text-foreground whitespace-nowrap">الصفحة {pages[pages.length-1]?.page || ".."}</span>
                   </div>
               </div>
-              <div className="h-8 w-px bg-border" />
-              <div className="flex items-center gap-4 text-foreground/60">
-                  <div className="flex items-center bg-foreground/5 rounded-xl px-2">
+              <div className="hidden xs:block h-6 md:h-8 w-px bg-border flex-shrink-0" />
+              <div className="flex items-center gap-2 md:gap-4 text-foreground/60">
+                  <div className="flex items-center bg-foreground/5 rounded-xl px-1">
                        <button 
                          onClick={() => updateState({ mushafFontSize: Math.max(16, state.mushafFontSize - 2) })}
-                         className="p-2 hover:text-primary transition-all font-bold text-lg"
+                         className="p-1 px-2 md:p-2 hover:text-primary transition-all font-bold text-base md:text-lg"
                        >
-                         -
+                         A-
                        </button>
-                       <span className="w-8 text-center text-xs font-bold font-mono">{state.mushafFontSize}</span>
+                       <div className="w-px h-4 bg-border" />
                        <button 
                          onClick={() => updateState({ mushafFontSize: Math.min(60, state.mushafFontSize + 2) })}
-                         className="p-2 hover:text-primary transition-all font-bold text-lg"
+                         className="p-1 px-2 md:p-2 hover:text-primary transition-all font-bold text-base md:text-lg"
                        >
-                         +
+                         A+
                        </button>
                   </div>
-                  <button className="p-3 hover:bg-foreground/5 rounded-xl transition-all"><Settings className="w-5 h-5" /></button>
               </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
               <button 
-                onClick={() => {
-                     const el = document.querySelector(`[data-page="${(pages[0]?.page || 1) + 1}"]`);
-                     el?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="w-14 h-14 rounded-2xl border-2 border-border flex items-center justify-center hover:bg-primary hover:border-primary transition-all group"
+                  onClick={() => {
+                      const prevPage = (pages[0]?.page || 1) - 3;
+                      if (prevPage >= 1) { setPages([]); fetchPageBatch(prevPage, true); }
+                  }}
+                  className="w-10 h-10 md:w-11 md:h-11 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/40 hover:bg-primary hover:text-black transition-all active:scale-95"
               >
-                  <ChevronLeft className="w-6 h-6 group-hover:text-black" />
+                  <ChevronRight className="w-5 h-5" />
               </button>
               <button 
-                onClick={() => {
-                     const el = document.querySelector(`[data-page="${(pages[0]?.page || 1) - 1}"]`);
-                     el?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="w-14 h-14 rounded-2xl border-2 border-border flex items-center justify-center hover:bg-primary hover:border-primary transition-all group"
+                  onClick={() => {
+                      const nextPage = (pages[pages.length-1]?.page || 1) + 1;
+                      if (nextPage <= 604) fetchPageBatch(nextPage);
+                  }}
+                  className="w-10 h-10 md:w-11 md:h-11 rounded-full bg-primary flex items-center justify-center text-black shadow-lg shadow-primary/20 hover:scale-105 transition-all active:scale-90"
               >
-                  <ChevronRight className="w-6 h-6 group-hover:text-black" />
+                  <ChevronLeft className="w-5 h-5" />
               </button>
           </div>
       </footer>
@@ -348,70 +359,52 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
             <div className="absolute inset-0 pointer-events-none z-0">
                 {/* SVG Islamic Frame */}
                 {/* Advanced Islamic Border */}
-                <svg className="absolute inset-0 w-full h-full opacity-30 dark:opacity-50" viewBox="0 0 800 1200" preserveAspectRatio="none">
-                    <defs>
-                        <pattern id="islamicPattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-                            <path d="M20 0 L40 20 L20 40 L0 20 Z" fill="none" stroke="#d4af37" strokeWidth="0.5" opacity="0.3" />
-                            <circle cx="20" cy="20" r="2" fill="#d4af37" opacity="0.5" />
-                        </pattern>
-                    </defs>
-                    
-                    {/* Main Frame */}
-                    <rect x="30" y="30" width="740" height="1140" fill="none" stroke="#d4af37" strokeWidth="3" rx="4" />
-                    <rect x="40" y="40" width="720" height="1120" fill="url(#islamicPattern)" stroke="#d4af37" strokeWidth="1" rx="2" />
-                    
-                    {/* Corner Flourishes */}
-                    <g transform="translate(30,30)">
-                        <path d="M 0,100 L 0,0 L 100,0" fill="none" stroke="#d4af37" strokeWidth="8" />
-                        <path d="M 20,80 L 20,20 L 80,20" fill="none" stroke="#d4af37" strokeWidth="2" />
-                    </g>
-                    <g transform="translate(770,30) rotate(90)">
-                        <path d="M 0,100 L 0,0 L 100,0" fill="none" stroke="#d4af37" strokeWidth="8" />
-                        <path d="M 20,80 L 20,20 L 80,20" fill="none" stroke="#d4af37" strokeWidth="2" />
-                    </g>
-                    <g transform="translate(770,1170) rotate(180)">
-                        <path d="M 0,100 L 0,0 L 100,0" fill="none" stroke="#d4af37" strokeWidth="8" />
-                        <path d="M 20,80 L 20,20 L 80,20" fill="none" stroke="#d4af37" strokeWidth="2" />
-                    </g>
-                    <g transform="translate(30,1170) rotate(270)">
-                        <path d="M 0,100 L 0,0 L 100,0" fill="none" stroke="#d4af37" strokeWidth="8" />
-                        <path d="M 20,80 L 20,20 L 80,20" fill="none" stroke="#d4af37" strokeWidth="2" />
-                    </g>
-
-                    {/* Side Meditation Marks */}
-                    <circle cx="30" cy="600" r="10" fill="none" stroke="#d4af37" strokeWidth="2" />
-                    <circle cx="770" cy="600" r="10" fill="none" stroke="#d4af37" strokeWidth="2" />
-                    <path d="M 15,600 L 45,600 M 755,600 L 785,600" stroke="#d4af37" strokeWidth="1" />
-                </svg>
+            {/* --- EXTREMELY PREMIUM ORNATE ISLAMIC FRAME --- */}
+            <div className="absolute inset-4 z-10 pointer-events-none border-[12px] border-transparent opacity-40" style={{ borderImage: 'url("/frame-border.png") 30 stretch' }}>
+                 <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 800 1200">
+                    <rect x="10" y="10" width="780" height="1180" fill="none" stroke="#d4af37" strokeWidth="1" opacity="0.3" />
+                    {/* Corners */}
+                    <path d="M 0,100 L 0,0 L 100,0" fill="none" stroke="#d4af37" strokeWidth="12" className="opacity-60" transform="translate(10,10)" />
+                    <path d="M 0,100 L 0,0 L 100,0" fill="none" stroke="#d4af37" strokeWidth="12" className="opacity-60" transform="translate(790,10) rotate(90)" />
+                    <path d="M 0,100 L 0,0 L 100,0" fill="none" stroke="#d4af37" strokeWidth="12" className="opacity-60" transform="translate(790,1190) rotate(180)" />
+                    <path d="M 0,100 L 0,0 L 100,0" fill="none" stroke="#d4af37" strokeWidth="12" className="opacity-60" transform="translate(10,1190) rotate(270)" />
+                 </svg>
             </div>
+            
+            {/* Page Grain Overlay */}
+            <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none mix-blend-multiply" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/handmade-paper.png')" }} />
 
-            {/* Header / Surah Name / Juz Info */}
-            <div className="relative h-16 flex items-center justify-between px-12 z-20 mt-4">
-                <div className="flex flex-col items-start bg-background/40 backdrop-blur-sm px-3 py-1 rounded-lg border border-primary/10">
-                    <span className="text-[10px] font-bold text-foreground/40 leading-none">الجزء</span>
-                    <span className="text-sm font-bold text-primary">{Math.ceil(pData.page / 20)}</span>
+            {/* Page Information Badges - Traditional Style */}
+            <div className="relative h-28 flex items-center justify-between px-16 z-20 mt-8 pointer-events-none">
+                <div className="flex flex-col items-center">
+                    <div className="text-[10px] text-[#d4af37] font-bold uppercase tracking-widest mb-1">الجزء</div>
+                    <div className="w-12 h-12 rounded-xl bg-[#fdfaf3] dark:bg-[#1a1612] border-2 border-[#d4af37]/40 flex items-center justify-center text-[#d4af37] font-black text-sm shadow-xl backdrop-blur-sm">
+                        {pData.verses[0]?.juz_number || "?"}
+                    </div>
                 </div>
-                <div className="flex items-center gap-2 bg-primary/10 px-4 py-1.5 rounded-full border border-primary/20 shadow-inner">
-                    <span className="text-sm font-black text-foreground/60 scale-x-[-1]">﴿</span>
-                    <span className="text-xl font-black text-primary font-mono">{pData.page}</span>
-                    <span className="text-sm font-black text-foreground/60">﴾</span>
+                
+                <div className="flex flex-col items-center">
+                    <div className="text-[10px] text-[#d4af37] font-bold uppercase tracking-widest mb-1">الصفحة</div>
+                    <div className="w-16 h-16 rounded-full bg-[#fdfaf3] dark:bg-[#1a1612] border-4 border-[#d4af37] flex items-center justify-center text-[#d4af37] font-black text-xl shadow-2xl ring-8 ring-[#d4af37]/5">
+                        {pData.page}
+                    </div>
                 </div>
-                <div className="flex flex-col items-end bg-background/40 backdrop-blur-sm px-3 py-1 rounded-lg border border-primary/10">
-                    <span className="text-[10px] font-bold text-foreground/40 leading-none">الحزب</span>
-                    <span className="text-sm font-bold text-primary">{Math.ceil(pData.page / 10)}</span>
+
+                <div className="flex flex-col items-center">
+                    <div className="text-[10px] text-[#d4af37] font-bold uppercase tracking-widest mb-1">الحزب</div>
+                    <div className="w-12 h-12 rounded-xl bg-[#fdfaf3] dark:bg-[#1a1612] border-2 border-[#d4af37]/40 flex items-center justify-center text-[#d4af37] font-black text-sm shadow-xl backdrop-blur-sm">
+                        {pData.verses[0]?.hizb_number || "?"}
+                    </div>
                 </div>
             </div>
-
-            {/* Page Grain & Texture Overlay */}
-            <div className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/handmade-paper.png')" }} />
 
             {/* --- Main Verses Layout --- */}
-            <div className="relative z-10 h-full w-full flex flex-col justify-center items-center px-[10%] md:px-[15%] pt-10 pb-16">
+            <div className="relative z-10 w-full flex flex-col items-center px-[12%] md:px-[18%] pt-4 pb-20">
                 <div 
-                    className="w-full text-justify [text-align-last:justify] leading-[2.6] md:leading-[3.2] text-[#2a231b] dark:text-[#e2d6c5]" 
+                    className="w-full text-justify [text-align-last:justify] leading-[2.8] md:leading-[3.4] text-[#2a231b] dark:text-[#e2d6c5]" 
                     style={{ 
                         textJustify: 'inter-word',
-                        wordSpacing: '0.2em'
+                        wordSpacing: '0.25em'
                     }}
                 >
                     {pData.verses.map((verse: any, vIdx: number) => {
@@ -423,52 +416,41 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                         return (
                             <React.Fragment key={verse.id}>
                                 {isFirstVerse && (
-                                    <div className="w-full flex flex-col items-center gap-4 my-8 animate-in fade-in zoom-in duration-1000">
-                                        {/* Premium Islamic Surah Header */}
-                                        <div className="relative w-full max-w-[600px] h-[100px] flex items-center justify-center my-6 overflow-visible">
-                                             <svg className="absolute inset-0 w-full h-full drop-shadow-2xl" preserveAspectRatio="none" viewBox="0 0 600 100">
-                                                 <defs>
-                                                     <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                         <stop offset="0%" stopColor="#d4af37" stopOpacity="0" />
-                                                         <stop offset="15%" stopColor="#d4af37" stopOpacity="1" />
-                                                         <stop offset="85%" stopColor="#d4af37" stopOpacity="1" />
-                                                         <stop offset="100%" stopColor="#d4af37" stopOpacity="0" />
-                                                     </linearGradient>
-                                                 </defs>
-                                                 {/* Decorative Frame */}
-                                                 <path 
-                                                    d="M 50,50 L 80,10 L 520,10 L 550,50 L 520,90 L 80,90 Z" 
-                                                    fill="currentColor" 
-                                                    className="text-background dark:text-[#1a1612]" 
-                                                    stroke="#d4af37" 
-                                                    strokeWidth="3" 
-                                                 />
-                                                 <path 
-                                                    d="M 90,20 L 510,20 M 90,80 L 510,80" 
-                                                    stroke="#d4af37" 
-                                                    strokeWidth="1" 
-                                                    opacity="0.5"
-                                                 />
-                                                 {/* Corner Motifs */}
-                                                 <path d="M 70,50 L 90,30 L 110,50 L 90,70 Z" fill="#d4af37" />
-                                                 <path d="M 530,50 L 510,30 L 490,50 L 510,70 Z" fill="#d4af37" />
-                                                 
-                                                 {/* Side Extensions */}
-                                                 <path d="M 0,50 L 50,50 M 550,50 L 600,50" stroke="url(#goldGrad)" strokeWidth="2" />
-                                             </svg>
-
-                                             <span 
-                                                className="font-arabic font-black text-foreground relative z-20 drop-shadow-sm"
-                                                style={{ fontSize: `${mushafFontSize * 1.5}px` }}
-                                             >
-                                                سورة {surahName}
-                                             </span>
-                                        </div>
-                                        
-                                         {/* Basmalah */}
+                                    <div className="w-full flex flex-col items-center gap-4 my-10 animate-in fade-in zoom-in duration-1000">
+                                         <div className="relative w-full max-w-[500px] h-[90px] flex items-center justify-center my-6 overflow-visible">
+                                              <svg className="absolute inset-0 w-full h-full drop-shadow-[0_10px_20px_rgba(212,175,55,0.2)]" preserveAspectRatio="none" viewBox="0 0 500 90">
+                                                  <defs>
+                                                      <linearGradient id="goldBeam" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                          <stop offset="0%" stopColor="#d4af37" stopOpacity="0" />
+                                                          <stop offset="50%" stopColor="#d4af37" stopOpacity="0.8" />
+                                                          <stop offset="100%" stopColor="#d4af37" stopOpacity="0" />
+                                                      </linearGradient>
+                                                  </defs>
+                                                  <path 
+                                                     d="M 60,45 L 90,15 L 410,15 L 440,45 L 410,75 L 90,75 Z" 
+                                                     fill="currentColor" 
+                                                     className="text-white dark:text-[#1a1612]" 
+                                                     stroke="#d4af37" 
+                                                     strokeWidth="2.5" 
+                                                  />
+                                                  <circle cx="90" cy="15" r="4" fill="#d4af37" />
+                                                  <circle cx="410" cy="15" r="4" fill="#d4af37" />
+                                                  <circle cx="90" cy="75" r="4" fill="#d4af37" />
+                                                  <circle cx="410" cy="75" r="4" fill="#d4af37" />
+                                                  <rect x="0" y="44" width="70" height="2" fill="url(#goldBeam)" />
+                                                  <rect x="430" y="44" width="70" height="2" fill="url(#goldBeam)" />
+                                              </svg>
+                                              <span 
+                                                 className="font-arabic font-black text-[#d4af37] relative z-20 drop-shadow-sm"
+                                                 style={{ fontSize: `${mushafFontSize * 1.5}px` }}
+                                              >
+                                                 سورة {surahName}
+                                              </span>
+                                         </div>
+                                         
                                         {sId !== "1" && sId !== "9" && (
                                             <div 
-                                                className="font-arabic text-foreground/90 py-4 drop-shadow-sm font-bold"
+                                                className="font-arabic text-[#2a231b] dark:text-[#e2d6c5] py-4 font-bold opacity-80"
                                                 style={{ fontSize: `${mushafFontSize * 1.1}px` }}
                                             >
                                                 بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
@@ -479,10 +461,10 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                 
                                 <span 
                                     onClick={() => playVerse(pIdx, vIdx)} 
-                                    className={`inline transition-all duration-300 rounded-2xl cursor-pointer py-1 px-1 ${isPlaying ? 'bg-primary/20 text-primary dark:text-primary shadow-[0_0_20px_rgba(212,175,55,0.2)]' : 'hover:bg-foreground/5'}`}
+                                    className={`inline transition-all duration-300 rounded-2xl cursor-pointer p-1 ${isPlaying ? 'bg-[#d4af37]/20 text-primary shadow-[0_0_20px_rgba(212,175,55,0.2)] scale-105' : 'hover:bg-[#d4af37]/5'}`}
                                 >
                                     <span 
-                                        className={`${scheherazade.className} inline font-medium tracking-normal antialiased`}
+                                        className={`${scheherazade.className} inline font-medium antialiased`}
                                         style={{ fontSize: `${mushafFontSize}px` }}
                                      >
                                         {verse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => {
@@ -490,27 +472,23 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                             return (
                                                 <span 
                                                     key={word.id} 
-                                                    className={`inline-block px-[1.5px] md:px-[2.5px] transition-colors ${isAllah ? 'text-[#cd4d4d]' : 'currentColor'}`}
+                                                    className={`inline-block px-[2px] transition-colors ${isAllah ? 'text-[#cd4d4d]' : 'currentColor'}`}
                                                 >
                                                     {word.text_uthmani}
                                                 </span>
                                             );
                                         })}
                                         
-                                        {/* Premium Octagonal Ayah Symbol */}
                                         <span 
-                                            className="inline-flex items-center justify-center relative select-none mx-2 translate-y-2"
-                                            style={{ 
-                                                width: `${mushafFontSize * 1.2}px`, 
-                                                height: `${mushafFontSize * 1.2}px`
-                                            }}
+                                            className="inline-flex items-center justify-center relative select-none mx-2 translate-y-1.5"
+                                            style={{ width: `${mushafFontSize * 1.25}px`, height: `${mushafFontSize * 1.25}px` }}
                                         >
-                                            <svg className="absolute inset-0 w-full h-full text-primary/40" viewBox="0 0 100 100" fill="none">
-                                                <path d="M50 5 L85 20 L100 50 L85 80 L50 95 L15 80 L0 50 L15 20 Z" stroke="currentColor" strokeWidth="6" />
+                                            <svg className="absolute inset-0 w-full h-full text-[#d4af37]/40" viewBox="0 0 100 100">
+                                                <path d="M50 5 L85 20 L100 50 L85 80 L50 95 L15 80 L0 50 L15 20 Z" stroke="currentColor" strokeWidth="6" fill="none" />
                                             </svg>
                                             <span 
-                                                className="relative z-10 font-bold font-serif text-primary"
-                                                style={{ fontSize: `${mushafFontSize * 0.45}px` }}
+                                                className="relative z-10 font-bold font-serif text-[#d4af37]"
+                                                style={{ fontSize: `${mushafFontSize * 0.4}px` }}
                                             >
                                                 {vId}
                                             </span>
@@ -525,5 +503,4 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
         </div>
     );
 });
-MushafPage.displayName = "MushafPage";
 MushafPage.displayName = "MushafPage";

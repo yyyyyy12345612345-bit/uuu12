@@ -104,10 +104,10 @@ export function Mushaf() {
                 {/* Unified Background Layer */}
                 <div className="absolute inset-0 z-0 pointer-events-none">
                     <div 
-                        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-[0.25] dark:opacity-[0.35]"
+                        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-[0.45] dark:opacity-[0.3]"
                         style={{ 
                             backgroundImage: "url('/mushaf-bg.jpg.png')",
-                            filter: "sepia(0.3) brightness(1.05) contrast(1.1)"
+                            filter: "sepia(0.4) brightness(0.95) contrast(1.2)"
                         }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/40 to-background" />
@@ -164,11 +164,22 @@ export function Mushaf() {
                                     onClick={() => setSelectedSurah(surah.id.toString())}
                                     className={`group relative flex flex-col gap-3 p-5 premium-card border-border bg-background/30 dark:bg-foreground/[0.03] backdrop-blur-md hover:bg-background/60 hover:scale-[1.02] hover:border-primary/20 transition-all duration-500 ease-out ${state.bookmark?.surahId === surah.id.toString() ? 'border-primary/30 bg-primary/[0.03]' : ''}`}
                                 >
-                                    <div className="w-12 h-12 rounded-xl bg-foreground/5 border border-border flex items-center justify-center text-xs font-bold text-primary group-hover:scale-110 transition-all">
-                                        {surah.id.toString().padStart(3, '0')}
+                                    <div className="flex items-start justify-between">
+                                        <div className="relative w-12 h-12 flex items-center justify-center group-hover:scale-110 transition-all">
+                                            <svg className="absolute inset-0 w-full h-full text-primary/20 group-hover:text-primary/40 transition-colors" viewBox="0 0 100 100">
+                                                <path d="M50 5 L85 20 L100 50 L85 80 L50 95 L15 80 L0 50 L15 20 Z" fill="currentColor" stroke="currentColor" strokeWidth="2" />
+                                            </svg>
+                                            <span className="relative z-10 text-[10px] font-black text-primary">
+                                                {surah.id.toString().padStart(3, '0')}
+                                            </span>
+                                        </div>
+                                        <div className="w-8 h-8 rounded-full bg-foreground/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+                                            <Bookmark className="w-3.5 h-3.5 text-primary/40" />
+                                        </div>
                                     </div>
-                                    <div className="text-right flex-1">
+                                    <div className="text-right flex-1 mt-2">
                                         <h3 className="text-2xl font-bold text-foreground font-arabic group-hover:text-primary transition-colors leading-tight">{surah.name}</h3>
+                                        <p className="text-[10px] text-foreground/30 font-bold uppercase tracking-widest mt-1">سورة {surah.id}</p>
                                     </div>
                                     <div className="flex items-center justify-between mt-2 pt-4 border-t border-border">
                                         <span className="text-xs text-foreground/40 font-bold">{surah.total_verses} آية</span>
