@@ -356,11 +356,8 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
             className="flex flex-col relative w-full min-h-[85vh] bg-card dark:bg-[#1a1714] md:rounded-[1rem] shadow-[0_30px_70px_rgba(0,0,0,0.2)] border-2 border-[#d4af37]/30 transition-all overflow-hidden"
         >
             {/* Islamic Frame Ornaments */}
-            <div className="absolute inset-0 pointer-events-none z-0">
-                {/* SVG Islamic Frame */}
-                {/* Advanced Islamic Border */}
             {/* --- EXTREMELY PREMIUM ORNATE ISLAMIC FRAME --- */}
-            <div className="absolute inset-4 z-10 pointer-events-none border-[12px] border-transparent opacity-40" style={{ borderImage: 'url("/frame-border.png") 30 stretch' }}>
+            <div className="absolute inset-4 z-10 pointer-events-none opacity-40">
                  <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 800 1200">
                     <rect x="10" y="10" width="780" height="1180" fill="none" stroke="#d4af37" strokeWidth="1" opacity="0.3" />
                     {/* Corners */}
