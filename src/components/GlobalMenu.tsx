@@ -64,8 +64,8 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback }: GlobalMenuProps)
         {/* Header */}
         <div className="p-8 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-3">
-             <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                <Heart className="w-5 h-5 text-primary" />
+             <div className="w-12 h-12 rounded-2xl bg-foreground/5 p-1.5 flex items-center justify-center border border-border">
+                <img src="/logo/logo.png" alt="Logo" className="w-full h-full object-contain rounded-lg" />
              </div>
              <div>
                 <h3 className="text-xl font-bold text-foreground">القائمة</h3>

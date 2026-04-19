@@ -48,14 +48,13 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/logo/logo.png?v=5", sizes: "32x32", type: "image/png" },
-      { url: "/logo/logo.png?v=5", sizes: "192x192", type: "image/png" },
+      { url: "/logo/logo.png", sizes: "32x32", type: "image/png" },
+      { url: "/logo/logo.png", sizes: "192x192", type: "image/png" },
+      { url: "/logo/logo.png", sizes: "512x512", type: "image/png" },
     ],
-    shortcut: "/logo/logo.png?v=5",
-    apple: "/logo/logo.png?v=5",
+    shortcut: "/logo/logo.png",
+    apple: "/logo/logo.png",
   }
-
-
 };
 
 
