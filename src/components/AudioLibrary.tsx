@@ -228,7 +228,7 @@ export function AudioLibrary() {
         </div>
 
         {/* ─ Fixed Controls Bar ─ */}
-        <div className="shrink-0 w-full bg-[#050505]/80 backdrop-blur-xl border-t border-white/5 px-6 pt-2 pb-28 flex flex-col items-center gap-2">
+        <div className="shrink-0 w-full bg-[#050505]/80 backdrop-blur-xl border-t border-white/5 px-6 pt-4 pb-6 flex flex-col items-center gap-3">
             <div className="w-full max-w-xl space-y-2">
                 <div className="flex items-center justify-between text-[11px] font-mono text-white/40 font-bold">
                     <span>{audioRef.current ? Math.floor(audioRef.current.currentTime / 60) + ":" + Math.floor(audioRef.current.currentTime % 60).toString().padStart(2, '0') : "0:00"}</span>
