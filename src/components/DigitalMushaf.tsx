@@ -200,8 +200,10 @@ export function DigitalMushaf() {
             </button>
         </div>
 
+      </header>
+
         {showReciterPicker && (
-            <div className="absolute top-[85px] left-4 md:left-10 w-80 bg-background border border-border rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.1)] z-[200] p-4 flex flex-col gap-2 max-h-[60vh] overflow-y-auto no-scrollbar animate-in zoom-in-95 duration-300">
+            <div className="absolute top-[85px] left-4 md:left-10 w-80 bg-background border border-border rounded-[2.5rem] shadow-[0_30px_90px_rgba(0,0,0,0.3)] z-[1000] p-4 flex flex-col gap-2 max-h-[60vh] overflow-y-auto no-scrollbar animate-in zoom-in-95 duration-300">
                 <div className="p-3 border-b border-border mb-2 text-center text-foreground/40 font-bold text-[10px] uppercase tracking-[0.3em]">اختر صوت القارئ</div>
                 {RECITERS.map(reciter => (
                     <button key={reciter.id} onClick={() => { updateState({ reciterId: reciter.id }); setShowReciterPicker(false); }} className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${state.reciterId === reciter.id ? 'bg-primary/10 border border-primary/30 text-foreground' : 'hover:bg-foreground/5 text-foreground/60'}`}>
@@ -213,7 +215,6 @@ export function DigitalMushaf() {
                 ))}
             </div>
         )}
-      </header>
 
       {/* --- Main Reading Area --- */}
       <main className="flex-1 relative flex flex-col items-center overflow-hidden">
@@ -346,18 +347,41 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
             {/* Islamic Frame Ornaments */}
             <div className="absolute inset-0 pointer-events-none z-0">
                 {/* SVG Islamic Frame */}
-                <svg className="absolute inset-0 w-full h-full opacity-20 dark:opacity-40" viewBox="0 0 800 1200" preserveAspectRatio="none">
-                    <rect x="20" y="20" width="760" height="1160" fill="none" stroke="#d4af37" strokeWidth="2" rx="10" />
-                    <path d="M 0,100 L 40,100 M 0,1100 L 40,1100 M 760,100 L 800,100 M 760,1100 L 800,1100" stroke="#d4af37" strokeWidth="1" />
-                    {/* Corners */}
-                    <path d="M 20,60 Q 20,20 60,20" fill="none" stroke="#d4af37" strokeWidth="4" />
-                    <path d="M 740,20 Q 780,20 780,60" fill="none" stroke="#d4af37" strokeWidth="4" />
-                    <path d="M 20,1140 Q 20,1180 60,1180" fill="none" stroke="#d4af37" strokeWidth="4" />
-                    <path d="M 740,1180 Q 780,1180 780,1140" fill="none" stroke="#d4af37" strokeWidth="4" />
+                {/* Advanced Islamic Border */}
+                <svg className="absolute inset-0 w-full h-full opacity-30 dark:opacity-50" viewBox="0 0 800 1200" preserveAspectRatio="none">
+                    <defs>
+                        <pattern id="islamicPattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                            <path d="M20 0 L40 20 L20 40 L0 20 Z" fill="none" stroke="#d4af37" strokeWidth="0.5" opacity="0.3" />
+                            <circle cx="20" cy="20" r="2" fill="#d4af37" opacity="0.5" />
+                        </pattern>
+                    </defs>
                     
-                    {/* Side Ornaments */}
-                    <circle cx="20" cy="600" r="15" fill="none" stroke="#d4af37" strokeWidth="2" />
-                    <circle cx="780" cy="600" r="15" fill="none" stroke="#d4af37" strokeWidth="2" />
+                    {/* Main Frame */}
+                    <rect x="30" y="30" width="740" height="1140" fill="none" stroke="#d4af37" strokeWidth="3" rx="4" />
+                    <rect x="40" y="40" width="720" height="1120" fill="url(#islamicPattern)" stroke="#d4af37" strokeWidth="1" rx="2" />
+                    
+                    {/* Corner Flourishes */}
+                    <g transform="translate(30,30)">
+                        <path d="M 0,100 L 0,0 L 100,0" fill="none" stroke="#d4af37" strokeWidth="8" />
+                        <path d="M 20,80 L 20,20 L 80,20" fill="none" stroke="#d4af37" strokeWidth="2" />
+                    </g>
+                    <g transform="translate(770,30) rotate(90)">
+                        <path d="M 0,100 L 0,0 L 100,0" fill="none" stroke="#d4af37" strokeWidth="8" />
+                        <path d="M 20,80 L 20,20 L 80,20" fill="none" stroke="#d4af37" strokeWidth="2" />
+                    </g>
+                    <g transform="translate(770,1170) rotate(180)">
+                        <path d="M 0,100 L 0,0 L 100,0" fill="none" stroke="#d4af37" strokeWidth="8" />
+                        <path d="M 20,80 L 20,20 L 80,20" fill="none" stroke="#d4af37" strokeWidth="2" />
+                    </g>
+                    <g transform="translate(30,1170) rotate(270)">
+                        <path d="M 0,100 L 0,0 L 100,0" fill="none" stroke="#d4af37" strokeWidth="8" />
+                        <path d="M 20,80 L 20,20 L 80,20" fill="none" stroke="#d4af37" strokeWidth="2" />
+                    </g>
+
+                    {/* Side Meditation Marks */}
+                    <circle cx="30" cy="600" r="10" fill="none" stroke="#d4af37" strokeWidth="2" />
+                    <circle cx="770" cy="600" r="10" fill="none" stroke="#d4af37" strokeWidth="2" />
+                    <path d="M 15,600 L 45,600 M 755,600 L 785,600" stroke="#d4af37" strokeWidth="1" />
                 </svg>
             </div>
 
@@ -401,31 +425,41 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                 {isFirstVerse && (
                                     <div className="w-full flex flex-col items-center gap-4 my-8 animate-in fade-in zoom-in duration-1000">
                                         {/* Premium Islamic Surah Header */}
-                                        <div className="relative w-full max-w-[600px] h-[80px] flex items-center justify-center my-4 overflow-visible">
-                                             <svg className="absolute inset-0 w-full h-full drop-shadow-xl" preserveAspectRatio="none" viewBox="0 0 600 80">
+                                        <div className="relative w-full max-w-[600px] h-[100px] flex items-center justify-center my-6 overflow-visible">
+                                             <svg className="absolute inset-0 w-full h-full drop-shadow-2xl" preserveAspectRatio="none" viewBox="0 0 600 100">
+                                                 <defs>
+                                                     <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                         <stop offset="0%" stopColor="#d4af37" stopOpacity="0" />
+                                                         <stop offset="15%" stopColor="#d4af37" stopOpacity="1" />
+                                                         <stop offset="85%" stopColor="#d4af37" stopOpacity="1" />
+                                                         <stop offset="100%" stopColor="#d4af37" stopOpacity="0" />
+                                                     </linearGradient>
+                                                 </defs>
+                                                 {/* Decorative Frame */}
                                                  <path 
-                                                    d="M 50,40 Q 50,0 100,0 L 500,0 Q 550,0 550,40 Q 550,80 500,80 L 100,80 Q 50,80 50,40" 
+                                                    d="M 50,50 L 80,10 L 520,10 L 550,50 L 520,90 L 80,90 Z" 
                                                     fill="currentColor" 
-                                                    className="text-background dark:text-[#2a231b]" 
+                                                    className="text-background dark:text-[#1a1612]" 
                                                     stroke="#d4af37" 
-                                                    strokeWidth="2.5" 
+                                                    strokeWidth="3" 
                                                  />
                                                  <path 
-                                                    d="M 60,40 Q 60,10 100,10 L 500,10 Q 540,10 540,40 Q 540,70 500,70 L 100,70 Q 60,70 60,40" 
-                                                    fill="none" 
+                                                    d="M 90,20 L 510,20 M 90,80 L 510,80" 
                                                     stroke="#d4af37" 
                                                     strokeWidth="1" 
-                                                    strokeDasharray="5,3"
+                                                    opacity="0.5"
                                                  />
-                                                 {/* Decorative Ends */}
-                                                 <circle cx="50" cy="40" r="8" fill="#d4af37" />
-                                                 <circle cx="550" cy="40" r="8" fill="#d4af37" />
-                                                 <path d="M 0,40 L 50,40 M 550,40 L 600,40" stroke="#d4af37" strokeWidth="2" />
+                                                 {/* Corner Motifs */}
+                                                 <path d="M 70,50 L 90,30 L 110,50 L 90,70 Z" fill="#d4af37" />
+                                                 <path d="M 530,50 L 510,30 L 490,50 L 510,70 Z" fill="#d4af37" />
+                                                 
+                                                 {/* Side Extensions */}
+                                                 <path d="M 0,50 L 50,50 M 550,50 L 600,50" stroke="url(#goldGrad)" strokeWidth="2" />
                                              </svg>
 
                                              <span 
-                                                className="font-arabic font-black text-foreground relative z-20"
-                                                style={{ fontSize: `${mushafFontSize * 1.4}px` }}
+                                                className="font-arabic font-black text-foreground relative z-20 drop-shadow-sm"
+                                                style={{ fontSize: `${mushafFontSize * 1.5}px` }}
                                              >
                                                 سورة {surahName}
                                              </span>

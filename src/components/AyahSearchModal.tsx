@@ -61,24 +61,24 @@ export function AyahSearchModal({ isOpen, onClose }: { isOpen: boolean; onClose:
       <div className="absolute inset-0 bg-black/95 backdrop-blur-xl animate-in fade-in duration-300" onClick={onClose} />
       
       {/* Modal Card */}
-      <div className="relative w-full max-w-2xl bg-[#0a0a0a] border border-white/10 rounded-[3rem] shadow-[0_50px_100px_rgba(0,0,0,1)] flex flex-col max-h-[85vh] overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-10 duration-500">
+      <div className="relative w-full max-w-2xl bg-background border border-border rounded-[3rem] shadow-[0_50px_100px_rgba(0,0,0,0.5)] flex flex-col max-h-[85vh] overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-10 duration-500">
         
         {/* Header */}
-        <div className="p-8 border-b border-white/5 bg-white/[0.02] flex items-center justify-between shrink-0">
+        <div className="p-8 border-b border-border bg-foreground/[0.02] flex items-center justify-between shrink-0">
           <div>
             <h3 className="text-2xl font-black font-arabic mb-1 text-primary">محرك بحث الآيات</h3>
-            <p className="text-[10px] text-white/20 uppercase tracking-[0.3em] font-bold">Smart Video Selection System</p>
+            <p className="text-[10px] text-foreground/20 uppercase tracking-[0.3em] font-bold">Smart Video Selection System</p>
           </div>
           <button 
                 onClick={onClose} 
-                className="w-12 h-12 flex items-center justify-center bg-white/5 border border-white/5 rounded-full hover:bg-white/10 transition-all group"
+                className="w-12 h-12 flex items-center justify-center bg-foreground/5 border border-border rounded-full hover:bg-foreground/10 transition-all group"
           >
-                <X className="w-5 h-5 text-white/40 group-hover:text-white" />
+                <X className="w-5 h-5 text-foreground/40 group-hover:text-foreground" />
           </button>
         </div>
 
         {/* Search Input */}
-        <div className="p-8 shrink-0 border-b border-white/5">
+        <div className="p-8 shrink-0 border-b border-border">
           <div className="relative">
             <input 
                autoFocus
@@ -86,7 +86,7 @@ export function AyahSearchModal({ isOpen, onClose }: { isOpen: boolean; onClose:
                onChange={(e) => setQuery(e.target.value)}
                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                placeholder="اكتب كلمة من الآية... (مثلاً: الرحمن)"
-               className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-6 pr-14 pl-6 text-white outline-none focus:border-primary/40 focus:bg-white/5 transition-all font-arabic text-xl"
+               className="w-full bg-foreground/[0.03] border border-border rounded-2xl py-6 pr-14 pl-6 text-foreground outline-none focus:border-primary/40 focus:bg-foreground/5 transition-all font-arabic text-xl"
             />
             <button 
                 onClick={handleSearch}
@@ -111,14 +111,14 @@ export function AyahSearchModal({ isOpen, onClose }: { isOpen: boolean; onClose:
                     const surahName = surahsData.find(s => s.id === parseInt(surahId))?.name;
                     
                     return (
-                        <div key={idx} className="p-6 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-primary/20 hover:bg-white/[0.04] transition-all group">
-                            <div className="flex items-center justify-between mb-4 border-b border-white/5 pb-3">
+                        <div key={idx} className="p-6 rounded-3xl bg-foreground/[0.02] border border-border hover:border-primary/20 hover:bg-foreground/[0.04] transition-all group">
+                            <div className="flex items-center justify-between mb-4 border-b border-border pb-3">
                                 <span className="text-[10px] text-primary font-bold">سورة {surahName}</span>
-                                <span className="text-[10px] text-white/20 font-mono italic">{res.verse_key}</span>
+                                <span className="text-[10px] text-foreground/20 font-mono italic">{res.verse_key}</span>
                             </div>
 
                             <p 
-                                className="text-right text-xl font-arabic mb-6 leading-[2.2] text-white/90" 
+                                className="text-right text-xl font-arabic mb-6 leading-[2.2] text-foreground/90" 
                                 dangerouslySetInnerHTML={{ __html: res.renderedText }} 
                             />
                             

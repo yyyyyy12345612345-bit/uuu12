@@ -288,7 +288,7 @@ export function PrayerTimes() {
                     <MapPin className="w-4 h-4" />
                     <span className="text-sm font-bold font-arabic">{locationName}</span>
                 </button>
-                <h1 className="text-4xl font-black text-white font-mono mt-2 tracking-tighter">
+                <h1 className="text-4xl font-black text-foreground font-mono mt-2 tracking-tighter">
                    {currentTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                 </h1>
             </div>
@@ -296,12 +296,12 @@ export function PrayerTimes() {
             <div className="flex items-center gap-4">
                 <button 
                   onClick={() => setShowAthanSettings(true)}
-                  className="p-4 rounded-2xl bg-white/5 border border-white/5 text-white/60 hover:bg-white/10 hover:text-primary transition-all flex items-center gap-2 group"
+                  className="p-4 rounded-2xl bg-foreground/5 border border-border text-foreground/60 hover:bg-foreground/10 hover:text-primary transition-all flex items-center gap-2 group"
                 >
                     <span className="text-sm font-bold font-arabic">إعدادات الأذان</span>
                     <Settings2 className="w-5 h-5 group-hover:rotate-45 transition-transform" />
                 </button>
-                <button onClick={detectLocation} className="p-4 rounded-2xl bg-white/5 border border-white/5 text-white/60 hover:text-white transition-all"><RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} /></button>
+                <button onClick={detectLocation} className="p-4 rounded-2xl bg-foreground/5 border border-border text-foreground/60 hover:text-foreground transition-all"><RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} /></button>
             </div>
         </div>
 
@@ -311,12 +311,12 @@ export function PrayerTimes() {
              {nextPrayer ? (
                 <>
                     <p className="text-primary text-[10px] font-bold uppercase tracking-[0.4em] mb-4 drop-shadow-sm">الصلاة القادمة: {nextPrayer.name}</p>
-                    <p className="text-white text-3xl md:text-8xl font-mono font-bold tracking-widest gold-shimmer-pro leading-none">
+                    <p className="text-foreground text-3xl md:text-8xl font-mono font-bold tracking-widest gold-shimmer-pro leading-none">
                       -{nextPrayer.remaining}
                     </p>
-                    <div className="mt-8 flex items-center gap-3 glass-effect px-6 py-2 rounded-full border-white/10 shadow-lg">
+                    <div className="mt-8 flex items-center gap-3 glass-effect px-6 py-2 rounded-full border border-border shadow-lg">
                          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                         <span className="text-[10px] text-white/50 font-bold uppercase tracking-[0.2em]">{new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+                         <span className="text-[10px] text-foreground/50 font-bold uppercase tracking-[0.2em]">{new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
                     </div>
                 </>
             ) : (
@@ -341,19 +341,19 @@ export function PrayerTimes() {
                         >
                             <button 
                                 onClick={() => setActiveSettingsPrayer(id)}
-                                className="absolute top-3 right-3 p-3 rounded-2xl bg-white/5 text-primary/80 border border-white/10 shadow-lg active:scale-90 transition-all z-20"
+                                className="absolute top-3 right-3 p-3 rounded-2xl bg-foreground/5 text-primary/80 border border-border shadow-lg active:scale-90 transition-all z-20"
                             >
                                 <Settings2 className="w-5 h-5" />
                             </button>
                             
-                            <h3 className={`text-xl font-bold font-arabic transition-all ${isNext ? 'text-primary' : 'text-white/60'}`}>{name}</h3>
-                            <p className={`text-3xl font-mono font-black ${isNext ? 'text-white scale-110 shadow-primary/20' : 'text-white/40'}`}>{time}</p>
+                            <h3 className={`text-xl font-bold font-arabic transition-all ${isNext ? 'text-primary' : 'text-foreground/60'}`}>{name}</h3>
+                            <p className={`text-3xl font-mono font-black ${isNext ? 'text-foreground scale-110' : 'text-foreground/20'}`}>{time}</p>
                             
                             <div className="flex items-center gap-3">
-                                <div className={`p-2 rounded-xl border transition-all ${setting?.athanEnabled ? 'bg-primary/20 border-primary/20 text-primary' : 'bg-white/5 border-white/5 text-white/10'}`}>
+                                <div className={`p-2 rounded-xl border transition-all ${setting?.athanEnabled ? 'bg-primary/20 border-primary/20 text-primary' : 'bg-foreground/5 border-border text-foreground/10'}`}>
                                      {setting?.athanEnabled ? <Volume2 className="w-4 h-4" /> : <X className="w-4 h-4" />}
                                 </div>
-                                <div className={`p-2 rounded-xl border transition-all ${setting?.notificationsEnabled ? 'bg-emerald-500/20 border-emerald-500/20 text-emerald-500' : 'bg-white/5 border-white/5 text-white/10'}`}>
+                                <div className={`p-2 rounded-xl border transition-all ${setting?.notificationsEnabled ? 'bg-emerald-500/20 border-emerald-500/20 text-emerald-500' : 'bg-foreground/5 border-border text-foreground/10'}`}>
                                      {setting?.notificationsEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
                                 </div>
                             </div>

@@ -412,31 +412,31 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
       {/* Target of the ReferenceError: ensures it's attached to the component scope */}
       <canvas ref={canvasRef} style={{ position: 'fixed', left: '-10000px', top: 0 }} />
       
-      <div className="w-full max-w-sm bg-[#050505] border border-white/10 rounded-[3rem] p-10 flex flex-col items-center shadow-2xl">
+      <div className="w-full max-w-sm bg-background border border-border rounded-[3rem] p-10 flex flex-col items-center shadow-2xl">
         
         {status === "idle" ? (
           <>
             <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
               <Play className="w-10 h-10 text-primary" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">تصدير الفيديو</h3>
-            <p className="text-white/40 text-[10px] text-center mb-8 px-4">اختر طريقة التصدير المناسبة لك:</p>
+            <h3 className="text-xl font-bold text-foreground mb-2">تصدير الفيديو</h3>
+            <p className="text-foreground/40 text-[10px] text-center mb-8 px-4">اختر طريقة التصدير المناسبة لك:</p>
             
             <div className="w-full flex flex-col gap-3 mb-8">
                 <button 
                   onClick={() => setRenderMode("browser")}
-                  className={`w-full p-4 rounded-2xl border transition-all flex flex-col items-start gap-1 ${renderMode === "browser" ? "border-primary bg-primary/10" : "border-white/5 bg-white/5"}`}
+                  className={`w-full p-4 rounded-2xl border transition-all flex flex-col items-start gap-1 ${renderMode === "browser" ? "border-primary bg-primary/10" : "border-border bg-foreground/5"}`}
                 >
-                    <span className="text-sm font-bold text-white">تصدير سريع (المتصفح)</span>
-                    <span className="text-[10px] text-white/40">سريع جداً، مناسب للاستخدام الشخصي.</span>
+                    <span className="text-sm font-bold text-foreground">تصدير سريع (المتصفح)</span>
+                    <span className="text-[10px] text-foreground/40">سريع جداً، مناسب للاستخدام الشخصي.</span>
                 </button>
 
                 <button 
                   onClick={() => setRenderMode("server")}
-                  className={`w-full p-4 rounded-2xl border transition-all flex flex-col items-start gap-1 ${renderMode === "server" ? "border-primary bg-primary/10" : "border-white/5 bg-white/5"}`}
+                  className={`w-full p-4 rounded-2xl border transition-all flex flex-col items-start gap-1 ${renderMode === "server" ? "border-primary bg-primary/10" : "border-border bg-foreground/5"}`}
                 >
-                    <span className="text-sm font-bold text-white">جودة احترافية (TikTok / MP4)</span>
-                    <span className="text-[10px] text-white/40 text-right">يستغرق وقتاً أطول، يدعم TikTok ومدة الفيديو.</span>
+                    <span className="text-sm font-bold text-foreground">جودة احترافية (TikTok / MP4)</span>
+                    <span className="text-[10px] text-foreground/40 text-right">يستغرق وقتاً أطول، يدعم TikTok ومدة الفيديو.</span>
                 </button>
             </div>
 
@@ -458,7 +458,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                 <AlertCircle className="w-12 h-12 text-red-500" />
               )}
             </div>
-            <h3 className="text-white font-bold mb-4">
+            <h3 className="text-foreground font-bold mb-4">
               {status === "rendering" ? "جاري المعالجة..." : status === "success" ? "تم التصدير بنجاح" : "عذراً، حدث خطأ"}
             </h3>
             {status === "rendering" && (
@@ -469,7 +469,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                 />
               </div>
             )}
-            <p className="text-white/40 text-[11px] mb-8 text-center leading-relaxed px-4">{message}</p>
+            <p className="text-foreground/40 text-[11px] mb-8 text-center leading-relaxed px-4">{message}</p>
             {status === "success" && downloadUrl && (
               <a 
                 href={downloadUrl} 
@@ -483,7 +483,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
             {status === "error" && (
               <button 
                 onClick={() => setStatus("idle")}
-                className="w-full bg-white/5 text-white py-4 rounded-2xl font-bold hover:bg-white/10 transition-all"
+                className="w-full bg-foreground/5 text-foreground py-4 rounded-2xl font-bold hover:bg-foreground/10 transition-all"
               >
                 إعادة المحاولة
               </button>
@@ -491,7 +491,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           </>
         )}
 
-        <button onClick={handleClose} className="mt-8 text-white/20 text-xs hover:text-white/40 transition-colors">إغلاق النافذة</button>
+        <button onClick={handleClose} className="mt-8 text-foreground/20 text-xs hover:text-foreground/40 transition-colors">إغلاق النافذة</button>
       </div>
     </div>
   );

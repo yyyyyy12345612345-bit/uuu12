@@ -92,7 +92,7 @@ export function Controls() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex p-1 bg-black/40 rounded-2xl border border-white/5 shadow-inner">
+      <div className="flex p-1 bg-foreground/5 rounded-2xl border border-border shadow-inner">
         {[
           { id: "bg", label: "الخلفية" },
           { id: "reciter", label: "القاريء" },
@@ -102,7 +102,7 @@ export function Controls() {
           <button
             key={tab.id}
             onClick={() => handleTabChange(tab.id)}
-            className={`flex-1 px-2 py-3 text-[10px] font-bold rounded-xl transition-all duration-300 ${activeTab === tab.id ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-white/40 hover:text-white/60'}`}
+            className={`flex-1 px-2 py-3 text-[10px] font-bold rounded-xl transition-all duration-300 ${activeTab === tab.id ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-foreground/40 hover:text-foreground/60'}`}
           >
             {tab.label}
           </button>
@@ -119,14 +119,14 @@ export function Controls() {
             <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
             
             {/* Mode Switcher */}
-            <div className="flex p-1 bg-black/30 rounded-xl border border-white/5 gap-1">
+            <div className="flex p-1 bg-foreground/5 rounded-xl border border-border gap-1">
               <button
                 onClick={() => {
                    setBgMode("library");
                    // @ts-ignore
                    window.gtag?.('event', 'bg_mode_switch', { 'mode': 'library' });
                 }}
-                className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all duration-300 ${bgMode === "library" ? "bg-primary text-black shadow shadow-primary/20" : "text-white/30 hover:text-white/60"}`}
+                className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all duration-300 ${bgMode === "library" ? "bg-primary text-black shadow shadow-primary/20" : "text-foreground/30 hover:text-foreground/60"}`}
               >
                 📚 المكتبة الثابتة
               </button>
@@ -136,7 +136,7 @@ export function Controls() {
                    // @ts-ignore
                    window.gtag?.('event', 'bg_mode_switch', { 'mode': 'search' });
                 }}
-                className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all duration-300 ${bgMode === "search" ? "bg-primary text-black shadow shadow-primary/20" : "text-white/30 hover:text-white/60"}`}
+                className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all duration-300 ${bgMode === "search" ? "bg-primary text-black shadow shadow-primary/20" : "text-foreground/30 hover:text-foreground/60"}`}
               >
                 🔍 بحث إضافي
               </button>
@@ -150,7 +150,7 @@ export function Controls() {
                   onChange={(e) => setSearch(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && setQuery(search || "islamic")}
                   placeholder="مثلاً: مكة، نجوم، طبيعة..."
-                  className="flex-1 rounded-2xl border border-white/5 bg-black/40 px-5 py-3 text-sm text-white outline-none focus:border-primary/40 focus:ring-4 focus:ring-primary/5 transition-all shadow-inner"
+                  className="flex-1 rounded-2xl border border-border bg-foreground/5 px-5 py-3 text-sm text-foreground outline-none focus:border-primary/40 focus:ring-4 focus:ring-primary/5 transition-all shadow-inner"
                 />
                 <button
                   onClick={() => {
@@ -158,7 +158,7 @@ export function Controls() {
                     // @ts-ignore
                     window.gtag?.('event', 'bg_search', { 'query': search });
                   }}
-                  className="rounded-2xl bg-white/5 px-5 py-3 text-sm font-bold text-white hover:bg-primary/20 hover:text-primary transition-all border border-white/5"
+                  className="rounded-2xl bg-foreground/5 px-5 py-3 text-sm font-bold text-foreground hover:bg-primary/20 hover:text-primary transition-all border border-border"
                 >
                   بحث
                 </button>
@@ -167,7 +167,7 @@ export function Controls() {
 
             {/* Label */}
             {bgMode === "library" && (
-              <p className="text-[10px] text-white/25 text-center tracking-widest uppercase px-2">
+              <p className="text-[10px] text-foreground/25 text-center tracking-widest uppercase px-2">
                 24 خلفية إسلامية منتقاة — ثابتة دائماً
               </p>
             )}
@@ -213,18 +213,7 @@ export function Controls() {
                         HD
                       </div>
                     )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-
-        {activeTab === "reciter" && (
-          <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-8 duration-700">
-            {RECITERS.map((r) => (
-              <button
+                     <button
                 key={r.id}
                 onClick={() => {
                    updateState({ reciterId: r.id });
@@ -232,10 +221,13 @@ export function Controls() {
                    // @ts-ignore
                    window.gtag?.('event', 'reciter_select', { 'reciter_name': r.name, 'reciter_id': r.id });
                 }}
-                className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all duration-300 group/reciter ${state.reciterId === r.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-black/40 border-white/5 hover:border-white/20'}`}
+                className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all duration-300 group/reciter ${state.reciterId === r.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-foreground/5 border-border hover:border-foreground/20'}`}
               >
                 <div className="flex items-center gap-3">
-                   <div className={`w-2 h-2 rounded-full transition-all ${state.reciterId === r.id ? 'bg-primary scale-125' : 'bg-white/10 group-hover/reciter:bg-white/30'}`} />
+                   <div className={`w-2 h-2 rounded-full transition-all ${state.reciterId === r.id ? 'bg-primary scale-125' : 'bg-foreground/10 group-hover/reciter:bg-foreground/30'}`} />
+                   <span className={`text-sm font-bold font-arabic ${state.reciterId === r.id ? 'text-foreground' : 'text-foreground/60'}`}>{r.name}</span>
+                </div>
+              </button>l ${state.reciterId === r.id ? 'bg-primary scale-125' : 'bg-white/10 group-hover/reciter:bg-white/30'}`} />
                    <span className={`text-sm font-bold font-arabic ${state.reciterId === r.id ? 'text-white' : 'text-white/60'}`}>{r.name}</span>
                 </div>
               </button>
@@ -506,7 +498,7 @@ export function Controls() {
              <button 
                 onClick={handleSendFeedback}
                 disabled={isSending || !feedback.trim()}
-                className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all ${isSending || !feedback.trim() ? 'bg-white/5 text-white/20 cursor-not-allowed' : 'bg-primary text-black hover:scale-[1.02] shadow-lg shadow-primary/20'}`}
+                className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all ${isSending || !feedback.trim() ? 'bg-foreground/5 text-foreground/20 cursor-not-allowed' : 'bg-primary text-black hover:scale-[1.02] shadow-lg shadow-primary/20'}`}
              >
                 {isSending ? (
                   <>
