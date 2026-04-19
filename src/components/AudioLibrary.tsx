@@ -13,15 +13,14 @@ import surahsData from "@/data/surahs.json";
 const SurahItem = memo(({ surah, isCurrent, isPlaying, onClick }: any) => (
   <button 
     onClick={onClick}
-    className={`w-full group flex items-center justify-between p-4 rounded-3xl transition-all ${isCurrent ? 'bg-primary/10 border border-primary/20' : 'hover:bg-white/[0.03] border border-transparent'}`}
+    className={`w-full group flex items-center justify-between p-4 rounded-3xl transition-all ${isCurrent ? 'bg-primary/10 border border-primary/20' : 'hover:bg-foreground/[0.03] border border-transparent'}`}
   >
       <div className="flex items-center gap-4 text-right">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-[10px] font-mono font-bold transition-all ${isCurrent ? 'bg-primary text-black' : 'bg-white/5 text-white/30 group-hover:bg-white/10'}`}>
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xs font-mono font-bold transition-all ${isCurrent ? 'bg-primary text-black' : 'bg-foreground/5 text-primary group-hover:bg-foreground/10'}`}>
               {surah.id.toString().padStart(3, '0')}
           </div>
           <div>
-             <p className={`text-base font-bold font-arabic transition-colors ${isCurrent ? 'text-primary' : 'text-white'}`}>{surah.name}</p>
-             <p className="text-[10px] text-white/20 uppercase tracking-widest font-bold">{surah.transliteration}</p>
+             <p className={`text-xl font-bold font-arabic transition-colors ${isCurrent ? 'text-primary' : 'text-foreground'}`}>{surah.name}</p>
           </div>
       </div>
       {isCurrent && isPlaying ? (
@@ -31,7 +30,7 @@ const SurahItem = memo(({ surah, isCurrent, isPlaying, onClick }: any) => (
              <div className="w-1 bg-primary h-3 animate-bounce" style={{animationDelay: '0.1s'}} />
           </div>
       ) : (
-          <Play className={`w-4 h-4 transition-all ${isCurrent ? 'text-primary' : 'text-white/10 group-hover:text-white/40'}`} />
+          <Play className={`w-4 h-4 transition-all ${isCurrent ? 'text-primary' : 'text-foreground/10 group-hover:text-foreground/40'}`} />
       )}
   </button>
 ));
@@ -131,7 +130,7 @@ export function AudioLibrary() {
     <div className="flex h-full animate-in fade-in duration-1000 bg-transparent overflow-hidden">
 
       {/* ── Left Sidebar (Desktop List) ─────────────────────────── */}
-      <aside className="hidden lg:flex w-[450px] flex-col border-r border-white/5 bg-black/10 backdrop-blur-md overflow-hidden">
+      <aside className="hidden lg:flex w-[450px] flex-col border-r border-border bg-foreground/5 backdrop-blur-md overflow-hidden">
         <div className="p-8 space-y-6">
             <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold font-arabic text-foreground">قائمة السور</h2>
@@ -203,7 +202,7 @@ export function AudioLibrary() {
         <div className="absolute inset-x-0 top-0 h-96 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
         <div className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar flex flex-col items-center p-6 md:p-12 pt-4 md:pt-12">
           {/* Mobile Surah Button */}
-          <button onClick={() => setIsSurahListOpen(true)} className="lg:hidden flex items-center gap-3 px-6 py-3 bg-white/10 border border-white/20 rounded-2xl text-white font-bold mb-6 z-[60] relative shadow-lg">
+          <button onClick={() => setIsSurahListOpen(true)} className="lg:hidden flex items-center gap-3 px-6 py-3 bg-foreground/10 border border-border rounded-2xl text-foreground font-bold mb-6 z-[60] relative shadow-lg">
               <List className="w-4 h-4 text-primary" />
               <span className="text-sm font-arabic">اختر سورة أخرى</span>
           </button>
@@ -215,15 +214,14 @@ export function AudioLibrary() {
                    <div className="w-full h-full p-3 rounded-full border border-border flex items-center justify-center">
                       <div className="w-full h-full rounded-full border-2 border-primary/20 flex flex-col items-center justify-center p-8 bg-card/40 backdrop-blur-md text-center">
                            <Music className="w-8 h-8 text-primary/40 mb-3" />
-                           <h3 className="text-xl font-bold text-foreground font-arabic leading-tight">{currentSurah.name}</h3>
-                           <p className="text-[8px] text-foreground/40 uppercase tracking-widest mt-1">{currentSurah.transliteration}</p>
+                           <h3 className="text-2xl font-bold text-foreground font-arabic leading-tight">{currentSurah.name}</h3>
                       </div>
                    </div>
               </div>
           </div>
 
           <div className="flex flex-col items-center text-center mb-4">
-              <h2 className="text-3xl font-black text-white font-arabic tracking-tight">{selectedReciter.name}</h2>
+              <h2 className="text-3xl font-black text-foreground font-arabic tracking-tight">{selectedReciter.name}</h2>
           </div>
         </div>
 
@@ -234,7 +232,7 @@ export function AudioLibrary() {
                     <span>{audioRef.current ? Math.floor(audioRef.current.currentTime / 60) + ":" + Math.floor(audioRef.current.currentTime % 60).toString().padStart(2, '0') : "0:00"}</span>
                     <span>{audioRef.current && !isNaN(audioRef.current.duration) ? Math.floor(audioRef.current.duration / 60) + ":" + Math.floor(audioRef.current.duration % 60).toString().padStart(2, '0') : "0:00"}</span>
                 </div>
-                <div className="group relative h-2 w-full bg-white/5 rounded-full cursor-pointer">
+                <div className="group relative h-2 w-full bg-foreground/5 rounded-full cursor-pointer">
                     <div className="absolute h-full bg-primary rounded-full" style={{ width: `${progress}%` }} />
                     <input type="range" min="0" max="100" value={progress} onChange={handleSeek} className="absolute inset-0 w-full opacity-0 cursor-pointer h-full z-10" />
                 </div>
@@ -262,19 +260,19 @@ export function AudioLibrary() {
       {/* ── Mobile Surah Drawer ── */}
       {isSurahListOpen && (
         <div className="fixed inset-0 z-[150] lg:hidden">
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsSurahListOpen(false)} />
-            <div className="absolute bottom-0 left-0 right-0 h-[80vh] bg-[#0a0a0a] border-t border-white/10 rounded-t-[3rem] p-6 flex flex-col gap-6 animate-in slide-in-from-bottom-5 duration-500">
+            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setIsSurahListOpen(false)} />
+            <div className="absolute bottom-0 left-0 right-0 h-[80vh] bg-background border-t border-border rounded-t-[3rem] p-6 flex flex-col gap-6 animate-in slide-in-from-bottom-5 duration-500">
                 <div className="flex items-center justify-between">
                     <h3 className="text-xl font-bold font-arabic text-primary">اختر سورة</h3>
-                    <button onClick={() => setIsSurahListOpen(false)} className="p-3 bg-white/5 rounded-xl"><X className="w-5 h-5" /></button>
+                    <button onClick={() => setIsSurahListOpen(false)} className="p-3 bg-foreground/5 rounded-xl"><X className="w-5 h-5 text-foreground/40" /></button>
                 </div>
                 <div className="relative group">
-                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" />
+                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/20 group-focus-within:text-primary transition-colors" />
                     <input 
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="ابحث عن سورة..."
-                        className="w-full bg-white/5 border border-white/5 rounded-2xl py-4 pr-12 pl-6 text-sm text-white outline-none focus:border-primary/20 transition-all font-arabic"
+                        className="w-full bg-foreground/5 border border-border rounded-2xl py-4 pr-12 pl-6 text-sm text-foreground outline-none focus:border-primary/20 transition-all font-arabic"
                     />
                 </div>
                 <div className="flex-1 overflow-y-auto no-scrollbar space-y-2 pb-10">
