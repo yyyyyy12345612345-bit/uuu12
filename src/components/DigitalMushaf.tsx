@@ -376,17 +376,63 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                 {isFirstVerse && (
                                     <div className="w-full flex flex-col items-center gap-4 my-6 animate-in fade-in zoom-in duration-1000">
                                         {/* Surah Decorative Box */}
-                                        <div className="relative w-full max-w-[400px] h-[70px] flex items-center justify-center">
-                                             <div className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-[#a89078] to-transparent" />
-                                             <div className="bg-[#FAF8F5] px-10 py-3 border-2 border-[#a89078]/20 rounded-full shadow-sm z-10 relative">
+                                        {/* Premium Ottoman Surah Header */}
+                                        <div className="relative w-full max-w-[500px] h-[100px] flex items-center justify-center my-4">
+                                             {/* Horizontal line passing through */}
+                                             <div className="absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#d4af37]/40 to-transparent" />
+                                             
+                                             <div className="relative z-10 px-12 py-4 flex items-center justify-center min-w-[320px]">
+                                                 {/* Background Frame SVG */}
+                                                 <svg className="absolute inset-0 w-full h-full drop-shadow-md" preserveAspectRatio="none" viewBox="0 0 400 100">
+                                                     <defs>
+                                                         <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                             <stop offset="0%" stopColor="#b8860b" />
+                                                             <stop offset="50%" stopColor="#ffd700" />
+                                                             <stop offset="100%" stopColor="#b8860b" />
+                                                         </linearGradient>
+                                                     </defs>
+                                                     {/* Main Ottoman Shape */}
+                                                     <path 
+                                                        d="M 40,20 L 70,10 L 330,10 L 360,20 L 380,50 L 360,80 L 330,90 L 70,90 L 40,80 L 20,50 Z" 
+                                                        fill="#FAF8F5" 
+                                                        stroke="url(#goldGradient)" 
+                                                        strokeWidth="2.5" 
+                                                     />
+                                                     {/* Inner Decorative Line */}
+                                                     <path 
+                                                        d="M 45,25 L 75,15 L 325,15 L 355,25 L 372,50 L 355,75 L 325,85 L 75,85 L 45,75 L 28,50 Z" 
+                                                        fill="none" 
+                                                        stroke="#d4af37" 
+                                                        strokeWidth="0.8" 
+                                                        strokeDasharray="4 2"
+                                                     />
+                                                     {/* Corner Ornaments */}
+                                                     <circle cx="20" cy="50" r="4" fill="#d4af37" />
+                                                     <circle cx="380" cy="50" r="4" fill="#d4af37" />
+                                                     <path d="M 70,10 Q 55,10 40,20" fill="none" stroke="#d4af37" strokeWidth="1" />
+                                                     <path d="M 330,10 Q 345,10 360,20" fill="none" stroke="#d4af37" strokeWidth="1" />
+                                                     <path d="M 70,90 Q 55,90 40,80" fill="none" stroke="#d4af37" strokeWidth="1" />
+                                                     <path d="M 330,90 Q 345,90 360,80" fill="none" stroke="#d4af37" strokeWidth="1" />
+                                                 </svg>
+
                                                  <span 
-                                                    className="font-arabic font-black text-[#5c4f42]"
-                                                    style={{ fontSize: `${mushafFontSize * 1.2}px` }}
+                                                    className="font-arabic font-black text-[#4a3f35] relative z-20 drop-shadow-sm"
+                                                    style={{ fontSize: `${mushafFontSize * 1.3}px` }}
                                                  >
                                                     سورة {surahName}
                                                  </span>
-                                                <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full" />
-                                                <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-primary rounded-full" />
+
+                                                 {/* Traditional Ottoman Dots */}
+                                                 <div className="absolute -left-2 top-1/2 -translate-y-1/2 flex flex-col gap-1">
+                                                     <div className="w-1.5 h-1.5 bg-[#d4af37] rotate-45" />
+                                                     <div className="w-2 h-2 bg-[#d4af37] rotate-45 ml-2" />
+                                                     <div className="w-1.5 h-1.5 bg-[#d4af37] rotate-45" />
+                                                 </div>
+                                                 <div className="absolute -right-2 top-1/2 -translate-y-1/2 flex flex-col gap-1">
+                                                     <div className="w-1.5 h-1.5 bg-[#d4af37] rotate-45" />
+                                                     <div className="w-2 h-2 bg-[#d4af37] rotate-45 mr-2" />
+                                                     <div className="w-1.5 h-1.5 bg-[#d4af37] rotate-45" />
+                                                 </div>
                                              </div>
                                         </div>
                                         
