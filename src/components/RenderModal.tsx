@@ -79,7 +79,11 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     } catch (e: any) {
       console.error(e);
       setStatus("error");
-      setMessage(e.message || "حدث خطأ في السيرفر. تأكد من تشغيل محرك الرندرة.");
+      if (e.message && e.message.includes("Failed to fetch")) {
+        setMessage("السيرفر السحابي في وضع النوم (Sleeping). يرجى فتح الرابط https://yousef891238-render-server.hf.space في متصفحك لإيقاظه أولاً، ثم حاول مجدداً.");
+      } else {
+        setMessage(e.message || "حدث خطأ في السيرفر. تأكد من تشغيل محرك الرندرة.");
+      }
     }
   };
 
