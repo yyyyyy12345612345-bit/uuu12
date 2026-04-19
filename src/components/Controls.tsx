@@ -283,6 +283,12 @@ export function Controls() {
                   { id: "warm", label: "دافئ", icon: "🔥" },
                   { id: "bw", label: "أبيض وأسود", icon: "🖤" },
                   { id: "dramatic", label: "درامي", icon: "🌑" },
+                  { id: "blur", label: "ضبابي", icon: "🌫️" },
+                  { id: "invert", label: "عكس", icon: "🌓" },
+                  { id: "midnight", label: "منتصف الليل", icon: "🌌" },
+                  { id: "oceanic", label: "محيطي", icon: "🌊" },
+                  { id: "sepia", label: "بني قديم", icon: "📜" },
+                  { id: "saturated", label: "مشبع", icon: "🌈" },
                 ].map((f) => (
                   <button
                     key={f.id}
@@ -314,6 +320,28 @@ export function Controls() {
                     <span className={`text-[10px] font-bold ${state.textPosition === pos.id ? 'text-primary' : 'text-white/40'}`}>{pos.label}</span>
                   </button>
                 ))}
+              </div>
+              
+              <div className="space-y-3 px-1 mt-2">
+                <div className="flex justify-between items-center bg-white/[0.02] p-2 rounded-xl border border-white/5">
+                  <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest">تعديل الارتفاع الدقيق</span>
+                  <span className="text-xs font-black text-primary font-mono">{state.textVerticalOffset}px</span>
+                </div>
+                <input
+                  type="range"
+                  min="-500"
+                  max="500"
+                  step="5"
+                  value={state.textVerticalOffset}
+                  onChange={(e) => updateState({ textVerticalOffset: Number(e.target.value) })}
+                  className="w-full h-1.5 bg-white/5 rounded-full appearance-none cursor-pointer accent-primary hover:accent-primary/80 transition-all"
+                />
+                <button 
+                  onClick={() => updateState({ textVerticalOffset: 0 })}
+                  className="w-full py-1 text-[9px] text-white/20 hover:text-white/40 transition-colors uppercase tracking-[0.2em]"
+                >
+                  إعادة ضبط الارتفاع
+                </button>
               </div>
             </div>
 
@@ -348,6 +376,10 @@ export function Controls() {
                   { id: "scale" as const, label: "تكبير", icon: "🔍" },
                   { id: "slide" as const, label: "انزلاق", icon: "↔️" },
                   { id: "blur" as const, label: "زغللة", icon: "👁️" },
+                  { id: "zoom" as const, label: "زووم", icon: "🚀" },
+                  { id: "flip" as const, label: "قلب", icon: "🔄" },
+                  { id: "bounce" as const, label: "قفز", icon: "🏀" },
+                  { id: "glitch" as const, label: "جليتش", icon: "👾" },
                 ].map((ani) => (
                   <button
                     key={ani.id}
@@ -402,12 +434,24 @@ export function Controls() {
               </div>
               <input
                 type="range"
-                min="24"
-                max="72"
+                min="20"
+                max="300"
+                step="2"
                 value={state.fontSize}
                 onChange={(e) => updateState({ fontSize: Number(e.target.value) })}
                 className="w-full h-1.5 bg-white/5 rounded-full appearance-none cursor-pointer accent-primary hover:accent-primary/80 transition-all"
               />
+              <div className="flex gap-2 justify-center">
+                {[40, 60, 100, 150, 200].map(size => (
+                  <button
+                    key={size}
+                    onClick={() => updateState({ fontSize: size })}
+                    className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${state.fontSize === size ? 'bg-primary text-black' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
+                  >
+                    {size}px
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* ── سُمك الخط ── */}

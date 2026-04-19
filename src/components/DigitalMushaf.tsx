@@ -293,8 +293,22 @@ export function DigitalMushaf() {
               </div>
               <div className="h-8 w-px bg-[#e9e0d1]" />
               <div className="flex items-center gap-4 text-[#4a3f35]/60">
+                  <div className="flex items-center bg-[#f8f1e4] rounded-xl px-2">
+                       <button 
+                         onClick={() => updateState({ mushafFontSize: Math.max(16, state.mushafFontSize - 2) })}
+                         className="p-2 hover:text-primary transition-all font-bold text-lg"
+                       >
+                         -
+                       </button>
+                       <span className="w-8 text-center text-xs font-bold font-mono">{state.mushafFontSize}</span>
+                       <button 
+                         onClick={() => updateState({ mushafFontSize: Math.min(60, state.mushafFontSize + 2) })}
+                         className="p-2 hover:text-primary transition-all font-bold text-lg"
+                       >
+                         +
+                       </button>
+                  </div>
                   <button className="p-3 hover:bg-[#f8f1e4] rounded-xl transition-all"><Settings className="w-5 h-5" /></button>
-                  <button className="p-3 hover:bg-[#f8f1e4] rounded-xl transition-all"><Star className="w-5 h-5" /></button>
               </div>
           </div>
 
@@ -372,7 +386,10 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse }: 
                                         
                                         {/* Basmalah */}
                                         {sId !== "1" && sId !== "9" && (
-                                            <div className="font-arabic text-2xl md:text-3xl text-[#4a3f35]/90 py-4 drop-shadow-sm">
+                                            <div 
+                                                className="font-arabic text-[#4a3f35]/90 py-4 drop-shadow-sm"
+                                                style={{ fontSize: `${state.mushafFontSize * 1.1}px` }}
+                                            >
                                                 بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
                                             </div>
                                         )}
@@ -397,12 +414,24 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse }: 
                                         })}
                                         
                                         {/* Premium Octagonal Ayah Symbol */}
-                                        <span className="inline-flex items-center justify-center w-8 h-8 md:w-10 md:h-10 relative top-[-4px] md:top-[-6px] mx-1 md:mx-2 select-none">
+                                        <span 
+                                            className="inline-flex items-center justify-center relative select-none mx-2"
+                                            style={{ 
+                                                width: `${state.mushafFontSize * 1.3}px`, 
+                                                height: `${state.mushafFontSize * 1.3}px`,
+                                                top: `-${state.mushafFontSize * 0.2}px`
+                                            }}
+                                        >
                                             <svg className="absolute inset-0 w-full h-full text-[#a89078]/40" viewBox="0 0 100 100" fill="none">
                                                 <path d="M50 5 L85 20 L100 50 L85 80 L50 95 L15 80 L0 50 L15 20 Z" stroke="currentColor" strokeWidth="4" />
                                                 <circle cx="50" cy="50" r="35" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" />
                                             </svg>
-                                            <span className="relative z-10 text-[9px] md:text-[11px] font-bold font-serif text-[#a89078]">{vId}</span>
+                                            <span 
+                                                className="relative z-10 font-bold font-serif text-[#a89078]"
+                                                style={{ fontSize: `${state.mushafFontSize * 0.4}px` }}
+                                            >
+                                                {vId}
+                                            </span>
                                         </span>
                                     </span>
                                 </span>

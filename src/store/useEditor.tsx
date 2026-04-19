@@ -15,8 +15,10 @@ interface EditorState {
   fontFamily: string;
   filter: string;
   overlay: "none" | "dust" | "rays" | "bokeh";
-  animation: "fade" | "scale" | "slide" | "blur";
+  animation: "fade" | "scale" | "slide" | "blur" | "zoom" | "flip" | "bounce" | "glitch";
   textPosition: "top" | "center" | "bottom";
+  textVerticalOffset: number;
+  mushafFontSize: number;
   bookmark?: { surahId: string; ayahId: number };
   activeSettingsPrayer: string | null;
   isHydrated: boolean;
@@ -44,6 +46,8 @@ const initialState: Omit<EditorState, 'isHydrated'> = {
   overlay: "none",
   animation: "fade",
   textPosition: "center",
+  textVerticalOffset: 0,
+  mushafFontSize: 28,
   activeSettingsPrayer: null,
 };
 
