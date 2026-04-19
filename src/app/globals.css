@@ -1,24 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  /* Light Theme */
-  --background: 210 40% 98%;
+  /* Premium Light Theme (Warm/Paper tone) */
+  --background: 35 30% 96%;
   --foreground: 230 40% 4%;
   
-  --card: 0 0% 100%;
+  --card: 35 30% 98%;
   --card-foreground: 230 40% 4%;
   
   --primary: 43 96% 40%;
-  --primary-foreground: 210 40% 98%;
+  --primary-foreground: 35 30% 96%;
   
   --secondary: 161 94% 20%;
-  --secondary-foreground: 210 40% 98%;
+  --secondary-foreground: 35 30% 96%;
   
-  --accent: 210 40% 92%;
+  --accent: 35 20% 90%;
   --accent-foreground: 230 40% 4%;
   
-  --border: 210 40% 85%;
-  --input: 210 40% 85%;
+  --border: 35 15% 85%;
+  --input: 35 15% 85%;
   --ring: 43 96% 40%;
   
   --radius: 2rem;
@@ -89,15 +89,15 @@ body {
 
 /* Premium UI Utilities */
 .glass-effect {
-  background: rgba(255, 255, 255, 0.03);
+  background: hsl(var(--foreground) / 0.02);
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+  border: 1px solid hsl(var(--foreground) / 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
 }
 
 .islamic-pattern {
-  background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.02'%3E%3Cpath d='M40 40l10-10 10 10-10 10-10-10zm-30-30l5-5 5 5-5 5-5-5zm60 0l5-5 5 5-5 5-5-5zm0 60l5-5 5 5-5 5-5-5zm-60 0l5-5 5 5-5 5-5-5zm30-15l7.5-7.5 7.5 7.5-7.5 7.5-7.5-7.5zm-15-15l7.5-7.5 7.5 7.5-7.5 7.5-7.5-7.5zM15 45l7.5-7.5 7.5 7.5-7.5 7.5-7.5-7.5zm30 0l7.5-7.5 7.5 7.5-7.5 7.5-7.5-7.5z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.1'%3E%3Cpath d='M40 40l10-10 10 10-10 10-10-10zm-30-30l5-5 5 5-5 5-5-5zm60 0l5-5 5 5-5 5-5-5zm0 60l5-5 5 5-5 5-5-5zm-60 0l5-5 5 5-5 5-5-5zm30-15l7.5-7.5 7.5 7.5-7.5 7.5-7.5-7.5zm-15-15l7.5-7.5 7.5 7.5-7.5 7.5-7.5-7.5zM15 45l7.5-7.5 7.5 7.5-7.5 7.5-7.5-7.5zm30 0l7.5-7.5 7.5 7.5-7.5 7.5-7.5-7.5z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
 .gold-shimmer {
@@ -113,11 +113,11 @@ body {
 
 /* Redefined premium-card without using @apply on custom classes */
 .premium-card {
-  background: rgba(255, 255, 255, 0.03);
+  background: hsl(var(--foreground) / 0.01);
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+  border: 1px solid hsl(var(--foreground) / 0.05);
+  box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.1);
   border-radius: 2rem;
   transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }

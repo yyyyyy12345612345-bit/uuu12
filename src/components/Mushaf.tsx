@@ -161,18 +161,17 @@ export function Mushaf() {
                                 <button
                                     key={surah.id}
                                     onClick={() => setSelectedSurah(surah.id.toString())}
-                                    className={`group relative flex flex-col gap-3 p-4 premium-card border-border bg-foreground/[0.02] hover:bg-foreground/[0.05] hover:scale-[1.02] hover:border-primary/20 transition-all duration-500 ease-out ${state.bookmark?.surahId === surah.id.toString() ? 'border-primary/30 bg-primary/[0.03]' : ''}`}
+                                    className={`group relative flex flex-col gap-3 p-5 premium-card border-border bg-foreground/[0.02] hover:bg-foreground/[0.05] hover:scale-[1.02] hover:border-primary/20 transition-all duration-500 ease-out ${state.bookmark?.surahId === surah.id.toString() ? 'border-primary/30 bg-primary/[0.03]' : ''}`}
                                 >
-                                    <div className="w-9 h-9 rounded-lg bg-foreground/5 border border-border flex items-center justify-center text-[9px] font-bold text-foreground/20 group-hover:text-primary transition-all">
+                                    <div className="w-12 h-12 rounded-xl bg-foreground/5 border border-border flex items-center justify-center text-xs font-bold text-primary group-hover:scale-110 transition-all">
                                         {surah.id.toString().padStart(3, '0')}
                                     </div>
                                     <div className="text-right flex-1">
-                                        <h3 className="text-lg font-bold text-foreground font-arabic group-hover:text-primary-foreground transition-colors leading-tight">{surah.name}</h3>
-                                        <p className="text-[9px] text-foreground/10 font-bold uppercase tracking-widest mt-0.5">{surah.transliteration}</p>
+                                        <h3 className="text-2xl font-bold text-foreground font-arabic group-hover:text-primary transition-colors leading-tight">{surah.name}</h3>
                                     </div>
-                                    <div className="flex items-center justify-between mt-1 pt-3 border-t border-border">
-                                        <span className="text-[8px] text-foreground/10 font-bold">{surah.total_verses} آية</span>
-                                        <ChevronRight className="w-3 h-3 text-foreground/10 group-hover:text-primary transition-all group-hover:translate-x-0.5" />
+                                    <div className="flex items-center justify-between mt-2 pt-4 border-t border-border">
+                                        <span className="text-xs text-foreground/40 font-bold">{surah.total_verses} آية</span>
+                                        <ChevronRight className="w-4 h-4 text-primary group-hover:translate-x-0.5" />
                                     </div>
                                 </button>
                             ))}
@@ -252,7 +251,7 @@ export function Mushaf() {
                     {loading ? (
                         <div className="flex flex-col items-center justify-center p-32 gap-6">
                             <div className="w-14 h-14 border-2 border-primary/10 border-t-primary rounded-full animate-spin" />
-                            <span className="text-xs text-white/20 font-bold uppercase tracking-widest">تحميل السورة...</span>
+                            <span className="text-xs text-foreground/20 font-bold uppercase tracking-widest">تحميل السورة...</span>
                         </div>
                     ) : (
                         <div className="flex flex-col gap-12 md:gap-24 relative z-10">
@@ -274,12 +273,12 @@ export function Mushaf() {
                                                 e.stopPropagation();
                                                 updateState({ bookmark: { surahId: selectedSurah, ayahId: verse.id } });
                                             }}
-                                            className={`flex items-center gap-3 px-5 py-2 rounded-full border text-[11px] font-bold transition-all ${state.bookmark?.surahId === selectedSurah && state.bookmark?.ayahId === verse.id ? 'bg-primary border-primary text-black' : 'border-white/10 text-white/30 hover:bg-white/5'}`}
+                                            className={`flex items-center gap-3 px-5 py-2 rounded-full border text-[11px] font-bold transition-all ${state.bookmark?.surahId === selectedSurah && state.bookmark?.ayahId === verse.id ? 'bg-primary border-primary text-black' : 'border-border text-foreground/30 hover:bg-foreground/5'}`}
                                         >
                                             <Bookmark className="w-3.5 h-3.5" />
                                             <span className="font-arabic">{state.bookmark?.surahId === selectedSurah && state.bookmark?.ayahId === verse.id ? 'تم حفظ الورد' : 'حفظ كورد'}</span>
                                         </button>
-                                        <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-[11px] font-bold text-white/20 font-mono tracking-tighter shadow-inner cursor-pointer" onClick={(e) => { e.stopPropagation(); toggleAudio(verse.id); }}>{verse.id}</div>
+                                        <div className="w-10 h-10 rounded-xl bg-foreground/5 border border-border flex items-center justify-center text-[11px] font-bold text-foreground/20 font-mono tracking-tighter shadow-inner cursor-pointer" onClick={(e) => { e.stopPropagation(); toggleAudio(verse.id); }}>{verse.id}</div>
                                     </div>
 
                                     <div className="flex flex-wrap justify-center gap-x-2 gap-y-4 md:gap-x-4">

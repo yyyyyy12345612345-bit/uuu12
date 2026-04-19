@@ -235,12 +235,12 @@ export function DigitalMushaf() {
 
                 <div className="flex-1 overflow-y-auto no-scrollbar space-y-3 pb-20">
                     {filteredSurahs.map((s) => (
-                        <button key={s.id} onClick={() => { setPages([]); fetchPageBatch(SURAH_START_PAGES[s.id] || 1, true); setIsIndexOpen(false); }} className="w-full flex items-center justify-between p-6 rounded-[2rem] bg-foreground/5 hover:bg-primary hover:text-black hover:scale-[1.02] transition-all group">
-                            <div className="flex items-center gap-5">
-                                <div className="w-12 h-12 rounded-2xl bg-background flex items-center justify-center text-sm font-bold shadow-sm group-hover:bg-black/10">{s.id}</div>
-                                <span className="text-xl font-bold">سورة {s.name}</span>
+                        <button key={s.id} onClick={() => { setPages([]); fetchPageBatch(SURAH_START_PAGES[s.id] || 1, true); setIsIndexOpen(false); }} className="w-full flex items-center justify-between p-6 rounded-[2.5rem] bg-foreground/5 hover:bg-primary hover:text-black hover:scale-[1.02] transition-all group border border-transparent hover:border-primary/20">
+                            <div className="flex items-center gap-6">
+                                <div className="w-14 h-14 rounded-[1.2rem] bg-background flex items-center justify-center text-lg font-bold shadow-sm group-hover:bg-black/10 text-primary">{s.id}</div>
+                                <span className="text-2xl font-bold">سورة {s.name}</span>
                             </div>
-                            <span className="text-[11px] font-black opacity-30 group-hover:opacity-60">{s.total_verses} آية</span>
+                            <span className="text-sm font-black text-primary">{s.total_verses} آية</span>
                         </button>
                     ))}
                 </div>
@@ -341,7 +341,7 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
     return (
         <div 
             data-page={pData.page}
-            className="flex flex-col relative w-full min-h-[85vh] bg-[#FAF8F5] dark:bg-[#1a1714] md:rounded-[1rem] shadow-[0_30px_70px_rgba(0,0,0,0.2)] border-2 border-[#d4af37]/30 transition-all overflow-hidden"
+            className="flex flex-col relative w-full min-h-[85vh] bg-card dark:bg-[#1a1714] md:rounded-[1rem] shadow-[0_30px_70px_rgba(0,0,0,0.2)] border-2 border-[#d4af37]/30 transition-all overflow-hidden"
         >
             {/* Islamic Frame Ornaments */}
             <div className="absolute inset-0 pointer-events-none z-0">
