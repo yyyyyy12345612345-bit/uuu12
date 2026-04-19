@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { renderMedia, getCompositions, ensureBrowser } from "@remotion/renderer";
+import { renderStill, getCompositions, ensureBrowser } from "@remotion/renderer";
 import { bundle } from "@remotion/bundler";
 import path from "path";
 import fs from "fs";
@@ -13,10 +13,9 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 
-// تقديم الملفات المؤقتة محلياً لمتصفح الرندر عن طريق سيرفر Express 
 app.use("/assets", express.static(os.tmpdir()));
 
-// ─── تخزين الـ Bundle مرة واحدة (أهم تحسين للسرعة) ────────
+// ─── تخزين الـ Bundle مرة واحدة ────────
 let cachedBundleLocation = null;
 
 async function getBundle() {
@@ -68,7 +67,6 @@ app.get("/", (req, res) => {
 });
 
 app.post("/render", async (req, res) => {
-  // حماية من الطلبات المزدوجة التي تجمّد السيرفر
   if (isRendering) {
     return res.status(429).json({ 
       error: "السيرفر مشغول حالياً بعملية رندرة أخرى. انتظر قليلاً ثم حاول مجدداً." 
@@ -89,101 +87,143 @@ app.post("/render", async (req, res) => {
 
   if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
 
-  const filesToCleanup = [];
+  const filesToCleanup = [tempDir];
 
   try {
-    // 1. Download Background
-    let localBgFileName = backgroundUrl;
+    // 1. تحميل الخلفية
+    let localBgPath = null;
+    const isVideo = /\.(mp4|webm|mov)/i.test(backgroundUrl);
+
     if (backgroundUrl && (backgroundUrl.startsWith("http") || backgroundUrl.startsWith("//"))) {
       const bgExt = backgroundUrl.match(/\.(mp4|webm|mov|jpg|jpeg|png|gif)/i)?.[1] || "mp4";
-      const bgFile = `bg-${Date.now()}.${bgExt}`;
-      const bgPath = path.resolve(tempDir, bgFile);
-      await downloadFile(backgroundUrl, bgPath);
-      localBgFileName = `http://localhost:7860/assets/${folderName}/${bgFile}`; 
-      filesToCleanup.push(bgPath);
+      const bgFile = `bg.${bgExt}`;
+      localBgPath = path.resolve(tempDir, bgFile);
+      await downloadFile(backgroundUrl, localBgPath);
       console.log(">> Background downloaded ✓");
     }
 
-    // 2. Download Audios (تحميل متوازي لتسريع العملية)
-    const processedVerses = [];
-    let cumulativeFrames = 0;
-    const fps = 30;
+    // 2. تحميل الصوتيات بالتوازي
+    const verseData = [];
 
     const audioPromises = verses.map(async (verse) => {
-      let audioFileName = verse.audio;
-      let verseDurationSeconds = 8;
+      let audioPath = null;
+      let duration = 8;
       
       if (verse.audio && verse.audio.startsWith("http")) {
-        const audioFile = `audio-${verse.id}-${Date.now()}-${Math.random().toString(36).slice(2,6)}.mp3`;
-        const audioPath = path.resolve(tempDir, audioFile);
+        const audioFile = `audio-${verse.id}.mp3`;
+        audioPath = path.resolve(tempDir, audioFile);
         try {
           await downloadFile(verse.audio, audioPath);
-          const dur = getAudioDuration(audioPath);
-          audioFileName = `http://localhost:7860/assets/${folderName}/${audioFile}`;
-          verseDurationSeconds = Math.max(dur + 0.5, 3);
+          duration = getAudioDuration(audioPath);
+          duration = Math.max(duration + 0.3, 3);
         } catch (e) {
           console.warn(`  ⚠ Audio error for verse ${verse.id}: ${e.message}`);
-          audioFileName = "";
+          audioPath = null;
         }
       }
-      return { verse, audioFileName, verseDurationSeconds };
+      return { verse, audioPath, duration };
     });
 
     const audioResults = await Promise.all(audioPromises);
+    for (const r of audioResults) verseData.push(r);
 
-    for (const { verse, audioFileName, verseDurationSeconds } of audioResults) {
-      const durationInFrames = Math.ceil(verseDurationSeconds * fps);
-      processedVerses.push({
+    const totalDuration = verseData.reduce((a, b) => a + b.duration, 0);
+    console.log(`>> Total Duration: ${totalDuration.toFixed(1)}s (${verseData.length} verses)`);
+
+    // 3. تصوير صورة واحدة لكل آية باستخدام Remotion (سريع جداً)
+    const bundleLocation = await getBundle();
+    const fps = 24;
+    let cumulativeFrames = 0;
+
+    const processedVerses = verseData.map(({ verse, audioPath, duration }) => {
+      const durationInFrames = Math.ceil(duration * fps);
+      const result = {
         ...verse,
-        audio: audioFileName,
+        audio: audioPath ? `http://localhost:7860/assets/${folderName}/audio-${verse.id}.mp3` : "",
         durationInFrames,
         startFrame: cumulativeFrames,
-      });
+      };
       cumulativeFrames += durationInFrames;
-    }
+      return result;
+    });
 
     const totalFrames = Math.max(150, cumulativeFrames);
-    console.log(`>> Total Duration: ${totalFrames/fps}s (${totalFrames} frames)`);
-
-    // 3. استخدام الـ Bundle المحفوظ (بدل إعادة البناء كل مرة)
-    const bundleLocation = await getBundle();
-
-    const inputProps = { surahName, verses: processedVerses, backgroundUrl: localBgFileName, textColor, fontSize, fontWeight, totalFrames };
+    const localBgUrl = localBgPath ? `http://localhost:7860/assets/${folderName}/${path.basename(localBgPath)}` : backgroundUrl;
+    const inputProps = { surahName, verses: processedVerses, backgroundUrl: localBgUrl, textColor, fontSize, fontWeight, totalFrames };
 
     console.log(">> Locating Composition...");
-    const comps = await getCompositions(bundleLocation, { inputProps }); 
+    const comps = await getCompositions(bundleLocation, { inputProps });
     const composition = comps.find((c) => c.id === "QuranVideo");
     if (!composition) throw new Error("QuranVideo composition not found!");
-
     composition.durationInFrames = totalFrames;
     composition.fps = fps;
 
-    // 4. Render (مع تحسينات الأداء)
-    console.log(">> Rendering video...");
-    await renderMedia({
-      composition,
-      serveUrl: bundleLocation,
-      outputLocation,
-      codec: "h264",
-      inputProps,
-      crf: 28,          // جودة أخف = سرعة أعلى (مع الحفاظ على جودة ممتازة للموبايل)
-      concurrency: 2,   // استغلال الـ 2 Cores بالكامل
-      chromiumOptions: {
-        disableWebSecurity: true,
-      },
-      onProgress: ({ progress }) => {
-        const pct = Math.round(progress * 100);
-        if (pct % 10 === 0) {
-          const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
-          process.stdout.write(`\r>> Progress: ${pct}% (${elapsed}s elapsed)`);
-        }
-      },
-    });
+    // 4. تصوير صورة واحدة لكل آية (بدل آلاف الفريمات!)
+    console.log(">> 📸 Capturing verse stills (سريع جداً)...");
+    const segments = [];
+
+    for (let i = 0; i < verseData.length; i++) {
+      const { verse, audioPath, duration } = verseData[i];
+      const pv = processedVerses[i];
+      const stillPath = path.resolve(tempDir, `still-${i}.png`);
+      const segmentPath = path.resolve(tempDir, `segment-${i}.mp4`);
+
+      // تصوير فريم واحد فقط من منتصف الآية
+      const targetFrame = pv.startFrame + Math.floor(pv.durationInFrames / 2);
+      
+      await renderStill({
+        composition,
+        serveUrl: bundleLocation,
+        output: stillPath,
+        inputProps,
+        frame: Math.min(targetFrame, totalFrames - 1),
+        scale: 0.6666666667, // ضمان دقة 720x1280 بالضبط
+        chromiumOptions: { disableWebSecurity: true },
+      });
+
+      console.log(`  ✓ Verse ${verse.id} still captured`);
+
+      // 5. تجميع الصورة + الصوت في مقطع فيديو باستخدام FFmpeg (سريع جداً)
+      // أضفنا فلتر scale لضمان أن الأبعاد أرقام زوجية (يقبلها كودك x264)
+      if (audioPath) {
+        execSync(
+          `ffmpeg -y -loop 1 -i "${stillPath}" -i "${audioPath}" ` +
+          `-vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" ` +
+          `-c:v libx264 -preset ultrafast -crf 28 -pix_fmt yuv420p ` +
+          `-c:a aac -b:a 128k ` +
+          `-t ${duration.toFixed(2)} -shortest "${segmentPath}"`,
+          { timeout: 60000 }
+        );
+      } else {
+        // بدون صوت - 5 ثواني صامتة
+        execSync(
+          `ffmpeg -y -loop 1 -i "${stillPath}" ` +
+          `-vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" ` +
+          `-c:v libx264 -preset ultrafast -crf 28 -pix_fmt yuv420p ` +
+          `-t 5 "${segmentPath}"`,
+          { timeout: 60000 }
+        );
+      }
+
+      segments.push(segmentPath);
+      const pct = Math.round(((i + 1) / verseData.length) * 80);
+      console.log(`  >> Progress: ${pct}%`);
+    }
+
+    // 6. دمج كل المقاطع في فيديو واحد
+    console.log(">> 🔗 Merging segments...");
+    const concatFile = path.resolve(tempDir, "concat.txt");
+    const concatContent = segments.map(s => `file '${s}'`).join("\n");
+    fs.writeFileSync(concatFile, concatContent);
+
+    execSync(
+      `ffmpeg -y -f concat -safe 0 -i "${concatFile}" -c copy "${outputLocation}"`,
+      { timeout: 120000 }
+    );
 
     const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
     console.log(`\n>> ✅ Render Complete! (${totalTime}s total)`);
 
-    // Send the video back to the client!
     res.download(outputLocation, outputName, () => {
        try { if (fs.existsSync(outputLocation)) fs.unlinkSync(outputLocation); } catch(e){}
     });
@@ -194,20 +234,19 @@ app.post("/render", async (req, res) => {
   } finally {
     isRendering = false;
     console.log(">> Cleaning up temp files...");
-    for (const f of filesToCleanup) { try { if (fs.existsSync(f)) fs.unlinkSync(f); } catch {} }
-    try { fs.rmdirSync(tempDir); } catch {}
+    try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch {}
   }
 });
 
-// ─── تجهيز الـ Bundle والمتصفح مسبقاً عند بدء التشغيل ─────
+// ─── Warmup ─────
 async function warmup() {
-  console.log(">> ⏳ Warming up (تحضير مسبق)...");
+  console.log(">> ⏳ Warming up...");
   try {
     await getBundle();
     await ensureBrowser();
     console.log(">> 🔥 Server is warmed up and ready!");
   } catch (e) {
-    console.warn(">> Warmup partial fail (will retry on first request):", e.message);
+    console.warn(">> Warmup partial fail:", e.message);
   }
 }
 
