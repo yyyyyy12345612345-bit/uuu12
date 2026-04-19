@@ -55,15 +55,15 @@ export function SurahSelector() {
       </button>
 
       <div className="flex flex-col gap-2.5">
-        <label className="text-[10px] uppercase tracking-[0.2em] text-white/30 mr-2 font-bold">السورة الكريمة</label>
+        <label className="text-[10px] uppercase tracking-[0.2em] text-foreground/30 mr-2 font-bold">السورة الكريمة</label>
         <div className="relative group">
           <select 
             value={state.surahId}
             onChange={(e) => updateState({ surahId: e.target.value })}
-            className="w-full bg-white/[0.03] border border-white/5 p-4 rounded-2xl focus:border-primary/40 focus:bg-white/[0.05] outline-none appearance-none cursor-pointer text-base font-bold text-white transition-all shadow-xl"
+            className="w-full bg-foreground/[0.03] border border-border p-4 rounded-2xl focus:border-primary/40 focus:bg-foreground/[0.05] outline-none appearance-none cursor-pointer text-base font-bold text-foreground transition-all shadow-xl"
           >
             {surahsData.map((s) => (
-              <option key={s.id} value={s.id.toString()} className="bg-[#0a0a0a] text-white">
+              <option key={s.id} value={s.id.toString()} className="bg-background text-foreground">
                 {s.id}. {s.name}
               </option>
             ))}
@@ -76,7 +76,7 @@ export function SurahSelector() {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-2.5">
-          <label className="text-[10px] uppercase tracking-[0.2em] text-white/30 mr-2 font-bold">بداية المقطع</label>
+          <label className="text-[10px] uppercase tracking-[0.2em] text-foreground/30 mr-2 font-bold">بداية المقطع</label>
           <input 
             type="number" 
             value={startInput}
@@ -94,11 +94,11 @@ export function SurahSelector() {
                     updateState({ startAyah: 1 });
                 }
             }}
-            className="w-full bg-white/[0.03] border border-white/5 p-4 rounded-2xl focus:border-primary/40 focus:bg-white/[0.05] outline-none transition-all text-base font-bold text-white text-center"
+            className="w-full bg-foreground/[0.03] border border-border p-4 rounded-2xl focus:border-primary/40 focus:bg-foreground/[0.05] outline-none transition-all text-base font-bold text-foreground text-center"
           />
         </div>
         <div className="flex flex-col gap-2.5">
-          <label className="text-[10px] uppercase tracking-[0.2em] text-white/30 mr-2 font-bold">نهاية المقطع</label>
+          <label className="text-[10px] uppercase tracking-[0.2em] text-foreground/30 mr-2 font-bold">نهاية المقطع</label>
           <input 
             type="number" 
             value={endInput}
@@ -116,17 +116,17 @@ export function SurahSelector() {
                     updateState({ endAyah: maxVerses });
                 }
             }}
-            className="w-full bg-white/[0.03] border border-white/5 p-4 rounded-2xl focus:border-primary/40 focus:bg-white/[0.05] outline-none transition-all text-base font-bold text-white text-center"
+            className="w-full bg-foreground/[0.03] border border-border p-4 rounded-2xl focus:border-primary/40 focus:bg-foreground/[0.05] outline-none transition-all text-base font-bold text-foreground text-center"
           />
         </div>
       </div>
       
       <div className="flex items-center justify-between gap-4 px-2">
-        <div className="h-px flex-1 bg-white/5" />
+        <div className="h-px flex-1 bg-foreground/5" />
         <span className="text-[10px] text-primary/60 font-bold uppercase tracking-widest">
           {state.endAyah - state.startAyah + 1} آيات مختارة
         </span>
-        <div className="h-px flex-1 bg-white/5" />
+        <div className="h-px flex-1 bg-foreground/5" />
       </div>
     </div>
 

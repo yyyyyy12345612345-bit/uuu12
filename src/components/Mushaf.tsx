@@ -104,13 +104,14 @@ export function Mushaf() {
                 {/* Unified Background Layer */}
                 <div className="absolute inset-0 z-0 pointer-events-none">
                     <div 
-                        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-[0.05]"
+                        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-[0.25] dark:opacity-[0.35]"
                         style={{ 
                             backgroundImage: "url('/mushaf-bg.jpg.png')",
-                            filter: "brightness(0.3) contrast(1.2)"
+                            filter: "sepia(0.3) brightness(1.05) contrast(1.1)"
                         }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-transparent to-background" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/40 to-background" />
+                    <div className="absolute inset-0 islamic-pattern opacity-[0.03] dark:opacity-[0.07]" />
                 </div>
 
                 <div className="relative z-10 flex flex-col h-full">
@@ -161,7 +162,7 @@ export function Mushaf() {
                                 <button
                                     key={surah.id}
                                     onClick={() => setSelectedSurah(surah.id.toString())}
-                                    className={`group relative flex flex-col gap-3 p-5 premium-card border-border bg-foreground/[0.02] hover:bg-foreground/[0.05] hover:scale-[1.02] hover:border-primary/20 transition-all duration-500 ease-out ${state.bookmark?.surahId === surah.id.toString() ? 'border-primary/30 bg-primary/[0.03]' : ''}`}
+                                    className={`group relative flex flex-col gap-3 p-5 premium-card border-border bg-background/30 dark:bg-foreground/[0.03] backdrop-blur-md hover:bg-background/60 hover:scale-[1.02] hover:border-primary/20 transition-all duration-500 ease-out ${state.bookmark?.surahId === surah.id.toString() ? 'border-primary/30 bg-primary/[0.03]' : ''}`}
                                 >
                                     <div className="w-12 h-12 rounded-xl bg-foreground/5 border border-border flex items-center justify-center text-xs font-bold text-primary group-hover:scale-110 transition-all">
                                         {surah.id.toString().padStart(3, '0')}
@@ -219,9 +220,10 @@ export function Mushaf() {
                     <User className="w-6 h-6" />
                 </div>
 
-                {/* Reciter Selection Overlay */}
+            </header>
+
                 {showReciterPicker && (
-                    <div className="absolute top-24 left-0 right-0 lg:left-auto lg:right-0 lg:w-80 bg-background/98 backdrop-blur-2xl border border-border rounded-[2.5rem] shadow-2xl z-[100] p-4 flex flex-col gap-2 max-h-[60vh] overflow-y-auto no-scrollbar animate-in zoom-in-95 duration-300">
+                    <div className="absolute top-24 left-4 md:left-auto md:right-4 w-80 bg-background/98 backdrop-blur-2xl border border-border rounded-[2.5rem] shadow-[0_30px_90px_rgba(0,0,0,0.3)] z-[1000] p-4 flex flex-col gap-2 max-h-[60vh] overflow-y-auto no-scrollbar animate-in zoom-in-95 duration-300">
                         <div className="p-4 border-b border-border mb-2 text-center">
                             <p className="text-[10px] text-primary font-bold uppercase tracking-widest">اختر قارئ المصحف</p>
                         </div>
@@ -242,7 +244,6 @@ export function Mushaf() {
                         ))}
                     </div>
                 )}
-            </header>
 
             <div key={`surah-verses-${selectedSurah}`} className="flex-1 overflow-y-auto p-6 md:p-12 pb-32 no-scrollbar custom-scrollbar overscroll-contain">
 

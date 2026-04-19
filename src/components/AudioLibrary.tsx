@@ -127,8 +127,21 @@ export function AudioLibrary() {
   };
 
   return (
-    <div className="flex h-full animate-in fade-in duration-1000 bg-transparent overflow-hidden">
+    <div className="flex h-full animate-in fade-in duration-1000 bg-background relative overflow-hidden">
+      {/* Unified Background Layer */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+          <div 
+              className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-[0.2] dark:opacity-[0.25]"
+              style={{ 
+                  backgroundImage: "url('/mushaf-bg.jpg.png')",
+                  filter: "sepia(0.2) contrast(1.1)"
+              }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/40 to-background" />
+          <div className="absolute inset-0 islamic-pattern opacity-[0.03] dark:opacity-[0.07]" />
+      </div>
 
+      <div className="flex w-full h-full relative z-10">
       {/* ── Left Sidebar (Desktop List) ─────────────────────────── */}
       <aside className="hidden lg:flex w-[450px] flex-col border-r border-border bg-foreground/5 backdrop-blur-md overflow-hidden">
         <div className="p-8 space-y-6">
@@ -303,6 +316,7 @@ export function AudioLibrary() {
           to { transform: rotate(360deg); }
         }
       `}</style>
+      </div>
     </div>
   );
 }
