@@ -35,6 +35,12 @@ const FILTER_MAP: Record<string, string> = {
   warm: "saturate(1.3) hue-rotate(-10deg) brightness(1.05)",
   bw: "grayscale(1) contrast(1.2)",
   dramatic: "contrast(1.4) brightness(0.7) saturate(1.2)",
+  blur: "blur(20px) brightness(0.8)",
+  invert: "invert(1) hue-rotate(180deg)",
+  midnight: "brightness(0.4) contrast(1.5) saturate(0.5) hue-rotate(220deg)",
+  oceanic: "hue-rotate(180deg) brightness(1.1) saturate(1.8) contrast(1.1)",
+  sepia: "sepia(1) contrast(0.9) brightness(1.1)",
+  saturated: "saturate(2.5) contrast(1.1)",
 };
 
 // ── الخطوط ──
@@ -66,8 +72,9 @@ interface MainVideoProps {
   fontFamily?: string;
   filter?: string;
   overlay?: "none" | "dust" | "rays" | "bokeh";
-  animation?: "fade" | "scale" | "slide" | "blur";
+  animation?: "fade" | "scale" | "slide" | "blur" | "zoom" | "flip" | "bounce" | "glitch";
   textPosition?: "top" | "center" | "bottom";
+  textVerticalOffset?: number;
 }
 
 export const MainVideo: React.FC<MainVideoProps> = ({
@@ -82,6 +89,7 @@ export const MainVideo: React.FC<MainVideoProps> = ({
   overlay = "none",
   animation = "fade",
   textPosition = "center",
+  textVerticalOffset = 0,
 }) => {
   const { durationInFrames } = useVideoConfig();
   const frame = useCurrentFrame();
@@ -208,6 +216,7 @@ export const MainVideo: React.FC<MainVideoProps> = ({
                 fontFamily={fontFamily}
                 animation={animation}
                 textPosition={textPosition}
+                textVerticalOffset={textVerticalOffset}
                 totalVerseFrames={actualDuration}
               />
             </Sequence>
@@ -218,9 +227,9 @@ export const MainVideo: React.FC<MainVideoProps> = ({
   );
 };
 
-const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fontFamily, animation, textPosition, totalVerseFrames }: { 
+const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fontFamily, animation, textPosition, textVerticalOffset, totalVerseFrames }: { 
   verse: Verse, surahName: string, textColor: string, fontSize: number, fontWeight: any, 
-  fontFamily: string, animation: string, textPosition: string, totalVerseFrames: number 
+  fontFamily: string, animation: string, textPosition: string, textVerticalOffset: number, totalVerseFrames: number 
 }) => {
     const frame = useCurrentFrame();
     const fadeFrames = Math.min(15, Math.floor(totalVerseFrames * 0.1));
@@ -241,16 +250,48 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
     
     if (animation === "scale") {
        const entranceScale = interpolate(frame, [0, fadeFrames], [0.8, 1], { extrapolateRight: 'clamp' });
-       animationStyles.transform = `scale(${baseScale * entranceScale})`;
+       animationStyles.transform = `scale(${baseScale * entranceScale}) translateY(${textVerticalOffset}px)`;
     } else if (animation === "slide") {
-       const translateY = interpolate(frame, [0, fadeFrames], [50, 0], { extrapolateRight: 'clamp' });
-       animationStyles.transform = `scale(${baseScale}) translateY(${translateY}px)`;
+       const translateY = interpolate(frame, [0, fadeFrames], [100, 0], { 
+         extrapolateRight: 'clamp',
+         easing: Easing.out(Easing.back(1.5))
+       });
+       animationStyles.transform = `scale(${baseScale}) translateY(${translateY + textVerticalOffset}px)`;
     } else if (animation === "blur") {
-       const blur = interpolate(frame, [0, fadeFrames], [20, 0], { extrapolateRight: 'clamp' });
+       const blur = interpolate(frame, [0, fadeFrames], [40, 0], { extrapolateRight: 'clamp' });
        animationStyles.filter = `blur(${blur}px)`;
-       animationStyles.transform = `scale(${baseScale})`;
+       animationStyles.transform = `scale(${baseScale}) translateY(${textVerticalOffset}px)`;
+    } else if (animation === "zoom") {
+       const zoom = interpolate(frame, [0, fadeFrames], [2, 1], { 
+          easing: Easing.out(Easing.exp),
+          extrapolateRight: 'clamp' 
+       });
+       animationStyles.transform = `scale(${baseScale * zoom}) translateY(${textVerticalOffset}px)`;
+    } else if (animation === "flip") {
+       const rotateX = interpolate(frame, [0, fadeFrames], [90, 0], { 
+          easing: Easing.out(Easing.quad),
+          extrapolateRight: 'clamp' 
+       });
+       animationStyles.transform = `perspective(1000px) scale(${baseScale}) rotateX(${rotateX}deg) translateY(${textVerticalOffset}px)`;
+    } else if (animation === "bounce") {
+       const bounce = interpolate(frame, [0, fadeFrames], [300, 0], { 
+          easing: Easing.out(Easing.bounce),
+          extrapolateRight: 'clamp' 
+       });
+       animationStyles.transform = `scale(${baseScale}) translateY(${bounce + textVerticalOffset}px)`;
+    } else if (animation === "glitch") {
+       const jitterX = Math.random() * 10 - 5;
+       const jitterY = Math.random() * 10 - 5;
+       const glitchOpacity = Math.random() > 0.9 ? 0.3 : 1;
+       
+       if (frame < fadeFrames) {
+           animationStyles.transform = `scale(${baseScale}) translate(${jitterX}px, ${jitterY + textVerticalOffset}px)`;
+           animationStyles.opacity = glitchOpacity;
+       } else {
+           animationStyles.transform = `scale(${baseScale}) translateY(${textVerticalOffset}px)`;
+       }
     } else {
-       animationStyles.transform = `scale(${baseScale})`;
+       animationStyles.transform = `scale(${baseScale}) translateY(${textVerticalOffset}px)`;
     }
 
     const justifyMap: Record<string, string> = { top: "flex-start", center: "center", bottom: "flex-end" };
