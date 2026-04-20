@@ -109,34 +109,42 @@ export function AthkarLibrary() {
             {athkar.map((t, idx) => (
               <div 
                 key={idx} 
-                className="relative bg-white dark:bg-[#1a1714] p-10 rounded-[3rem] border-r-8 border-r-[#06402B] border-l border-y border-border shadow-xl overflow-hidden group hover:shadow-2xl transition-all"
+                className="relative bg-card p-6 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] border-r-8 border-r-secondary border border-border shadow-xl overflow-hidden group hover:shadow-2xl transition-all"
               >
-                  <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/handmade-paper.png')" }} />
+                  <div className="absolute inset-0 opacity-[0.03] pointer-events-none islamic-pattern" />
                   
                   <div className="absolute top-0 right-0 w-24 h-24 pointer-events-none opacity-[0.05] group-hover:opacity-[0.1] transition-opacity">
-                      <svg viewBox="0 0 100 100" className="w-full h-full fill-[#06402B]">
+                      <svg viewBox="0 0 100 100" className="w-full h-full fill-secondary">
                           <path d="M100 0 L100 100 Q50 50 0 0 Z" />
                       </svg>
                   </div>
 
-                  <div className="absolute top-6 left-8 flex items-center justify-center bg-[#06402B]/5 px-4 py-1 rounded-full">
-                      <span className="text-[10px] font-black text-[#06402B]/40 tracking-widest">الذكر {idx + 1}</span>
+                  <div className="flex items-center justify-between mb-8">
+                      <div className="bg-foreground/5 px-4 py-1.5 rounded-full border border-border/40">
+                          <span className="text-[10px] font-black text-foreground/40 tracking-widest">الذكر {idx + 1}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                         <div className="w-2 h-2 rounded-full bg-primary" />
+                         <div className="w-2 h-2 rounded-full bg-primary/40" />
+                         <div className="w-2 h-2 rounded-full bg-primary/20" />
+                      </div>
                   </div>
                   
-                  <p className="text-2xl md:text-3xl font-arabic leading-[2.2] text-foreground text-center mb-10 pt-6 font-medium">
+                  <p className="text-2xl md:text-4xl font-arabic leading-[2] md:leading-[2.4] text-foreground text-center mb-10 font-bold drop-shadow-sm">
                     {t.ARABIC_TEXT}
                   </p>
 
                   <div className="flex flex-col md:flex-row items-center justify-between gap-8 pt-8 border-t border-border/50">
                       <div className="flex items-center gap-6">
                          <div className="flex flex-col items-center">
-                            <div className="w-16 h-16 rounded-[1.5rem] bg-[#06402B] shadow-lg flex flex-col items-center justify-center border-2 border-[#d4af37]/30 transform group-hover:scale-105 transition-transform">
-                                <span className="text-[8px] text-[#d4af37] font-black uppercase mb-1">تكرار</span>
-                                <span className="text-2xl font-black text-white leading-none">{t.REPEAT || "1"}</span>
+                            <div className="w-16 h-16 rounded-[1.5rem] bg-secondary shadow-lg flex flex-col items-center justify-center border-2 border-primary/30 transform group-hover:scale-105 transition-transform overflow-hidden relative">
+                                <div className="absolute inset-0 bg-primary/10 opacity-30" />
+                                <span className="relative z-10 text-[8px] text-primary font-black uppercase mb-1">تكرار</span>
+                                <span className="relative z-10 text-2xl font-black text-white leading-none">{t.REPEAT || "1"}</span>
                             </div>
                          </div>
                          {t.TRANSLATED_TEXT && (
-                             <p className="text-sm text-foreground/40 font-arabic max-w-[200px] leading-relaxed">
+                             <p className="text-sm text-foreground/60 font-arabic max-w-[240px] leading-relaxed italic">
                                 {t.TRANSLATED_TEXT}
                              </p>
                          )}
