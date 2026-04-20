@@ -372,25 +372,58 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
             <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none mix-blend-multiply" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/handmade-paper.png')" }} />
 
             {/* Page Information Badges - Traditional Style */}
-            <div className="relative h-20 flex items-center justify-between px-16 z-20 mt-6 pointer-events-none">
-                <div className="flex flex-col items-center">
-                    <div className="text-[8px] text-[#d4af37] font-bold uppercase tracking-widest mb-1">الجزء</div>
-                    <div className="w-9 h-9 rounded-lg bg-[#fdfaf3] dark:bg-[#1a1612] border border-[#d4af37]/40 flex items-center justify-center text-[#d4af37] font-black text-xs shadow-lg backdrop-blur-sm">
-                        {pData.verses[0]?.juz_number || "?"}
+            <div className="relative h-24 flex items-center justify-between px-10 md:px-20 z-20 mt-6 pointer-events-none">
+                <div className="flex flex-col items-center group">
+                    <div className="text-[10px] text-[#d4af37] font-bold uppercase tracking-widest mb-3 opacity-60">الجزء</div>
+                    <div className="w-11 h-11 relative flex items-center justify-center">
+                        <svg className="absolute inset-[-6px] w-[calc(100%+12px)] h-[calc(100%+12px)] text-[#d4af37]" viewBox="0 0 100 100">
+                             <rect x="5" y="5" width="90" height="90" fill="none" stroke="currentColor" strokeWidth="1" className="opacity-20" />
+                             <path d="M 0,20 L 0,0 L 20,0 M 80,0 L 100,0 L 100,20 M 100,80 L 100,100 L 80,100 M 20,100 L 0,100 L 0,80" fill="none" stroke="currentColor" strokeWidth="4" />
+                             <rect x="45" y="-2" width="10" height="4" fill="currentColor" />
+                             <rect x="45" y="98" width="10" height="4" fill="currentColor" />
+                             <rect x="-2" y="45" width="4" height="10" fill="currentColor" />
+                             <rect x="98" y="45" width="4" height="10" fill="currentColor" />
+                        </svg>
+                        <div className="absolute inset-0 bg-[#fdfaf3] dark:bg-[#1d1a16] border border-[#d4af37]/30 shadow-[inset_0_2px_10px_rgba(0,0,0,0.05)]" />
+                        <span className="relative z-10 text-[#d4af37] font-black text-sm">
+                            {pData.verses[0]?.juz_number || "?"}
+                        </span>
                     </div>
                 </div>
                 
-                <div className="flex flex-col items-center">
-                    <div className="text-[9px] text-[#d4af37] font-bold uppercase tracking-widest mb-1">الصفحة</div>
-                    <div className="w-12 h-12 rounded-full bg-[#fdfaf3] dark:bg-[#1a1612] border-2 border-[#d4af37] flex items-center justify-center text-[#d4af37] font-black text-lg shadow-xl ring-4 ring-[#d4af37]/5">
-                        {pData.page}
+                <div className="flex flex-col items-center group">
+                    <div className="text-[11px] text-[#d4af37] font-bold uppercase tracking-widest mb-3">الصفحة</div>
+                    <div className="w-14 h-14 relative flex items-center justify-center">
+                        <svg className="absolute inset-[-8px] w-[calc(100%+16px)] h-[calc(100%+16px)] text-[#d4af37]" viewBox="0 0 100 100">
+                             <rect x="5" y="5" width="90" height="90" fill="none" stroke="currentColor" strokeWidth="1.5" className="opacity-30" />
+                             <path d="M 0,30 L 0,0 L 30,0 M 70,0 L 100,0 L 100,30 M 100,70 L 100,100 L 70,100 M 30,100 L 0,100 L 0,70" fill="none" stroke="currentColor" strokeWidth="5" />
+                             <circle cx="50" cy="0" r="3" fill="currentColor" />
+                             <circle cx="50" cy="100" r="3" fill="currentColor" />
+                             <circle cx="0" cy="50" r="3" fill="currentColor" />
+                             <circle cx="100" cy="50" r="3" fill="currentColor" />
+                        </svg>
+                        <div className="absolute inset-0 bg-[#fdfaf3] dark:bg-[#1d1a16] border-2 border-[#d4af37]/40 shadow-xl" />
+                        <span className="relative z-10 text-[#d4af37] font-black text-xl">
+                            {pData.page}
+                        </span>
                     </div>
                 </div>
 
-                <div className="flex flex-col items-center">
-                    <div className="text-[8px] text-[#d4af37] font-bold uppercase tracking-widest mb-1">الحزب</div>
-                    <div className="w-9 h-9 rounded-lg bg-[#fdfaf3] dark:bg-[#1a1612] border border-[#d4af37]/40 flex items-center justify-center text-[#d4af37] font-black text-xs shadow-lg backdrop-blur-sm">
-                        {pData.verses[0]?.hizb_number || "?"}
+                <div className="flex flex-col items-center group">
+                    <div className="text-[10px] text-[#d4af37] font-bold uppercase tracking-widest mb-3 opacity-60">الحزب</div>
+                    <div className="w-11 h-11 relative flex items-center justify-center">
+                        <svg className="absolute inset-[-6px] w-[calc(100%+12px)] h-[calc(100%+12px)] text-[#d4af37]" viewBox="0 0 100 100">
+                             <rect x="5" y="5" width="90" height="90" fill="none" stroke="currentColor" strokeWidth="1" className="opacity-20" />
+                             <path d="M 0,20 L 0,0 L 20,0 M 80,0 L 100,0 L 100,20 M 100,80 L 100,100 L 80,100 M 20,100 L 0,100 L 0,80" fill="none" stroke="currentColor" strokeWidth="4" />
+                             <rect x="45" y="-2" width="10" height="4" fill="currentColor" />
+                             <rect x="45" y="98" width="10" height="4" fill="currentColor" />
+                             <rect x="-2" y="45" width="4" height="10" fill="currentColor" />
+                             <rect x="98" y="45" width="4" height="10" fill="currentColor" />
+                        </svg>
+                        <div className="absolute inset-0 bg-[#fdfaf3] dark:bg-[#1d1a16] border border-[#d4af37]/30 shadow-[inset_0_2px_10px_rgba(0,0,0,0.05)]" />
+                        <span className="relative z-10 text-[#d4af37] font-black text-sm">
+                            {pData.verses[0]?.hizb_number || "?"}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -414,29 +447,19 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                             <React.Fragment key={verse.id}>
                                 {isFirstVerse && (
                                     <div className="w-full flex flex-col items-center gap-4 my-10 animate-in fade-in zoom-in duration-1000">
-                                         <div className="relative w-full max-w-[500px] h-[90px] flex items-center justify-center my-6 overflow-visible">
-                                              <svg className="absolute inset-0 w-full h-full drop-shadow-[0_10px_20px_rgba(212,175,55,0.2)]" preserveAspectRatio="none" viewBox="0 0 500 90">
-                                                  <defs>
-                                                      <linearGradient id="goldBeam" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                          <stop offset="0%" stopColor="#d4af37" stopOpacity="0" />
-                                                          <stop offset="50%" stopColor="#d4af37" stopOpacity="0.8" />
-                                                          <stop offset="100%" stopColor="#d4af37" stopOpacity="0" />
-                                                      </linearGradient>
-                                                  </defs>
-                                                  <path 
-                                                     d="M 60,45 L 90,15 L 410,15 L 440,45 L 410,75 L 90,75 Z" 
-                                                     fill="currentColor" 
-                                                     className="text-white dark:text-[#1a1612]" 
-                                                     stroke="#d4af37" 
-                                                     strokeWidth="2.5" 
-                                                  />
-                                                  <circle cx="90" cy="15" r="4" fill="#d4af37" />
-                                                  <circle cx="410" cy="15" r="4" fill="#d4af37" />
-                                                  <circle cx="90" cy="75" r="4" fill="#d4af37" />
-                                                  <circle cx="410" cy="75" r="4" fill="#d4af37" />
-                                                  <rect x="0" y="44" width="70" height="2" fill="url(#goldBeam)" />
-                                                  <rect x="430" y="44" width="70" height="2" fill="url(#goldBeam)" />
-                                              </svg>
+                                         <div className="relative w-full max-w-[550px] h-[100px] flex items-center justify-center my-8 overflow-visible">
+                                               <svg className="absolute inset-0 w-full h-full drop-shadow-[0_15px_30px_rgba(212,175,55,0.15)]" preserveAspectRatio="none" viewBox="0 0 500 100">
+                                                   {/* Square Ornate Frame */}
+                                                   <rect x="10" y="10" width="480" height="80" fill="currentColor" className="text-white dark:text-[#1d1a16]" stroke="#d4af37" strokeWidth="2" />
+                                                   {/* Corners */}
+                                                   <path d="M 0,30 L 0,0 L 30,0" fill="none" stroke="#d4af37" strokeWidth="6" transform="translate(10,10)" />
+                                                   <path d="M 470,0 L 500,0 L 500,30" fill="none" stroke="#d4af37" strokeWidth="6" transform="translate(-10,10)" />
+                                                   <path d="M 500,70 L 500,100 L 470,100" fill="none" stroke="#d4af37" strokeWidth="6" transform="translate(-10,-10)" />
+                                                   <path d="M 30,100 L 0,100 L 0,70" fill="none" stroke="#d4af37" strokeWidth="6" transform="translate(10,-10)" />
+                                                   {/* Center Decorations */}
+                                                   <circle cx="250" cy="10" r="4" fill="#d4af37" />
+                                                   <circle cx="250" cy="90" r="4" fill="#d4af37" />
+                                               </svg>
                                               <span 
                                                  className="font-arabic font-black text-[#d4af37] relative z-20 drop-shadow-sm"
                                                  style={{ fontSize: `${mushafFontSize * 1.5}px` }}
@@ -480,8 +503,9 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                             className="inline-flex items-center justify-center relative select-none mx-2 translate-y-1.5"
                                             style={{ width: `${mushafFontSize * 1.25}px`, height: `${mushafFontSize * 1.25}px` }}
                                         >
-                                            <svg className="absolute inset-0 w-full h-full text-[#d4af37]/40" viewBox="0 0 100 100">
-                                                <path d="M50 5 L85 20 L100 50 L85 80 L50 95 L15 80 L0 50 L15 20 Z" stroke="currentColor" strokeWidth="6" fill="none" />
+                                            <svg className="absolute inset-[-2px] w-[calc(100%+4px)] h-[calc(100%+4px)] text-[#d4af37]/60" viewBox="0 0 100 100">
+                                                <rect x="10" y="10" width="80" height="80" fill="none" stroke="currentColor" strokeWidth="2" className="opacity-30" />
+                                                <path d="M 0,20 L 0,0 L 20,0 M 80,0 L 100,0 L 100,20 M 100,80 L 100,100 L 80,100 M 20,100 L 0,100 L 0,80" fill="none" stroke="currentColor" strokeWidth="6" />
                                             </svg>
                                             <span 
                                                 className="relative z-10 font-bold font-serif text-[#d4af37]"

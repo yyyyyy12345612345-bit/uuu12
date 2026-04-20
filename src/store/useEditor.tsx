@@ -47,7 +47,7 @@ const initialState: Omit<EditorState, 'isHydrated'> = {
   animation: "fade",
   textPosition: "center",
   textVerticalOffset: 0,
-  mushafFontSize: 28,
+  mushafFontSize: 22,
   activeSettingsPrayer: null,
 };
 
