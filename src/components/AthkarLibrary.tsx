@@ -163,16 +163,15 @@ export function AthkarLibrary() {
 
   return (
     <div className="space-y-10 animate-in fade-in duration-1000">
-      {/* Deluxe Search Bar */}
-      <div className="relative group max-w-2xl mx-auto">
-          <div className="absolute -inset-1 bg-gradient-to-r from-[#06402B] via-[#d4af37] to-[#06402B] rounded-[2rem] blur opacity-25 group-focus-within:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+      {/* Balanced Search Bar */}
+      <div className="relative group max-w-xl mx-auto">
           <div className="relative">
-              <Search className="absolute right-6 top-1/2 -translate-y-1/2 text-[#06402B]/30 group-focus-within:text-[#06402B] transition-colors" />
+              <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-foreground/40 group-focus-within:text-[#06402B] transition-colors" />
               <input 
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="ابحث عن أي ذكر أو دعاء..."
-                className="w-full bg-white dark:bg-[#1a1714] border-2 border-transparent focus:border-[#d4af37]/30 rounded-[2rem] py-7 pr-16 pl-10 text-xl text-foreground outline-none transition-all font-arabic shadow-2xl placeholder:text-foreground/20"
+                placeholder="ابحث عن ذكر..."
+                className="w-full bg-foreground/[0.03] border border-border rounded-2xl py-5 pr-14 pl-8 text-lg text-foreground outline-none focus:border-[#06402B]/30 transition-all font-arabic"
               />
           </div>
       </div>
@@ -182,29 +181,24 @@ export function AthkarLibrary() {
            <div className="w-12 h-12 border-4 border-[#06402B] border-t-transparent rounded-full animate-spin shadow-md" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
           {filteredCategories.map((c) => (
             <button 
               key={c.ID}
               onClick={() => { setSelectedCategory(c); fetchAthkar(c.ID); }}
-              className="flex items-center justify-between p-7 rounded-[2.5rem] bg-white dark:bg-[#1a1714] border border-border hover:border-[#d4af37]/40 hover:bg-[#06402B]/5 transition-all group text-right active:scale-95 shadow-lg hover:shadow-2xl relative overflow-hidden"
+              className="flex items-center justify-between p-6 rounded-[2rem] bg-white dark:bg-[#1a1714] border border-border hover:border-[#06402B]/30 hover:bg-[#06402B]/5 transition-all group text-right shadow-sm active:scale-95"
             >
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-[0.03] transition-opacity pointer-events-none" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/islamic-art.png')" }} />
-              
-              <div className="flex items-center gap-6 relative z-10">
-                 <div className="w-16 h-16 rounded-3xl bg-[#06402B]/5 flex items-center justify-center group-hover:bg-[#06402B] group-hover:shadow-lg transition-all duration-500">
-                    <BookOpen className="w-7 h-7 text-[#06402B] group-hover:text-white transition-colors" />
+              <div className="flex items-center gap-5 relative z-10">
+                 <div className="w-12 h-12 rounded-2xl bg-[#06402B]/5 flex items-center justify-center group-hover:bg-[#06402B] transition-all">
+                    <BookOpen className="w-6 h-6 text-[#06402B] group-hover:text-white transition-colors" />
                  </div>
-                 <div className="flex flex-col items-start gap-1">
-                    <span className="text-xl font-black text-foreground group-hover:text-[#06402B] transition-colors font-arabic leading-tight">
+                 <div className="flex flex-col items-start">
+                    <span className="text-lg font-bold text-foreground group-hover:text-[#06402B] transition-colors font-arabic">
                         {c.TITLE}
-                    </span>
-                    <span className="text-[10px] text-foreground/30 font-bold uppercase tracking-widest">
-                        قراءة الأذكار
                     </span>
                  </div>
               </div>
-              <ChevronRight className="w-6 h-6 text-foreground/10 group-hover:text-[#06402B] group-hover:translate-x-2 transition-all duration-500" />
+              <ChevronRight className="w-5 h-5 text-foreground/20 group-hover:text-[#06402B] group-hover:translate-x-1 transition-all" />
             </button>
           ))}
         </div>
