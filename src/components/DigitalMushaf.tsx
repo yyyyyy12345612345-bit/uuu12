@@ -355,73 +355,116 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
             data-page={pData.page}
             className="flex flex-col relative w-full min-h-[85vh] bg-card dark:bg-[#1a1714] md:rounded-[1rem] shadow-[0_30px_70px_rgba(0,0,0,0.2)] border-2 border-[#d4af37]/30 transition-all overflow-hidden"
         >
-            {/* Islamic Frame Ornaments */}
             {/* --- EXTREMELY PREMIUM ORNATE ISLAMIC FRAME --- */}
-            <div className="absolute inset-4 z-10 pointer-events-none opacity-40">
-                 <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 800 1200">
-                    <rect x="10" y="10" width="780" height="1180" fill="none" stroke="#d4af37" strokeWidth="1" opacity="0.3" />
-                    {/* Corners */}
-                    <path d="M 0,100 L 0,0 L 100,0" fill="none" stroke="#d4af37" strokeWidth="12" className="opacity-60" transform="translate(10,10)" />
-                    <path d="M 0,100 L 0,0 L 100,0" fill="none" stroke="#d4af37" strokeWidth="12" className="opacity-60" transform="translate(790,10) rotate(90)" />
-                    <path d="M 0,100 L 0,0 L 100,0" fill="none" stroke="#d4af37" strokeWidth="12" className="opacity-60" transform="translate(790,1190) rotate(180)" />
-                    <path d="M 0,100 L 0,0 L 100,0" fill="none" stroke="#d4af37" strokeWidth="12" className="opacity-60" transform="translate(10,1190) rotate(270)" />
-                 </svg>
+            <div className="absolute inset-0 z-10 pointer-events-none">
+                <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 800 1200">
+                    <defs>
+                        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#d4af37" />
+                            <stop offset="50%" stopColor="#f9f295" />
+                            <stop offset="100%" stopColor="#b8860b" />
+                        </linearGradient>
+                    </defs>
+                    
+                    {/* Main Border */}
+                    <rect x="25" y="25" width="750" height="1150" fill="none" stroke="url(#goldGrad)" strokeWidth="1.5" />
+                    <rect x="35" y="35" width="730" height="1130" fill="none" stroke="url(#goldGrad)" strokeWidth="0.5" opacity="0.5" />
+                    
+                    {/* Corners - Top Left */}
+                    <g transform="translate(25,25)">
+                        <path d="M 0,100 L 0,0 L 100,0 M 15,15 L 15,70 M 15,15 L 70,15" fill="none" stroke="url(#goldGrad)" strokeWidth="3" />
+                        <circle cx="25" cy="25" r="5" fill="url(#goldGrad)" />
+                        <path d="M 0,0 L 40,40" stroke="url(#goldGrad)" strokeWidth="1" opacity="0.4" />
+                    </g>
+                    
+                    {/* Corners - Top Right */}
+                    <g transform="translate(775,25) rotate(90)">
+                        <path d="M 0,100 L 0,0 L 100,0 M 15,15 L 15,70 M 15,15 L 70,15" fill="none" stroke="url(#goldGrad)" strokeWidth="3" />
+                        <circle cx="25" cy="25" r="5" fill="url(#goldGrad)" />
+                    </g>
+                    
+                    {/* Corners - Bottom Right */}
+                    <g transform="translate(775,1175) rotate(180)">
+                        <path d="M 0,100 L 0,0 L 100,0 M 15,15 L 15,70 M 15,15 L 70,15" fill="none" stroke="url(#goldGrad)" strokeWidth="3" />
+                        <circle cx="25" cy="25" r="5" fill="url(#goldGrad)" />
+                    </g>
+                    
+                    {/* Corners - Bottom Left */}
+                    <g transform="translate(25,1175) rotate(270)">
+                        <path d="M 0,100 L 0,0 L 100,0 M 15,15 L 15,70 M 15,15 L 70,15" fill="none" stroke="url(#goldGrad)" strokeWidth="3" />
+                        <circle cx="25" cy="25" r="5" fill="url(#goldGrad)" />
+                    </g>
+
+                    {/* Edge Ornaments */}
+                    <path d="M 400,25 L 350,10 L 400,0 L 450,10 Z" fill="url(#goldGrad)" transform="translate(0,0)" />
+                    <path d="M 400,25 L 350,10 L 400,0 L 450,10 Z" fill="url(#goldGrad)" transform="translate(0,1175) rotate(180, 400, 0)" />
+                </svg>
             </div>
             
             {/* Page Grain Overlay */}
             <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none mix-blend-multiply" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/handmade-paper.png')" }} />
 
             {/* Page Information Badges - Traditional Style */}
-            <div className="relative h-24 flex items-center justify-between px-10 md:px-20 z-20 mt-6 pointer-events-none">
+            <div className="relative h-32 flex items-center justify-between px-10 md:px-24 z-20 mt-6 pointer-events-none">
+                {/* Juz Badge */}
                 <div className="flex flex-col items-center group">
-                    <div className="text-[10px] text-[#d4af37] font-bold uppercase tracking-widest mb-3 opacity-60">الجزء</div>
-                    <div className="w-11 h-11 relative flex items-center justify-center">
-                        <svg className="absolute inset-[-6px] w-[calc(100%+12px)] h-[calc(100%+12px)] text-[#d4af37]" viewBox="0 0 100 100">
-                             <rect x="5" y="5" width="90" height="90" fill="none" stroke="currentColor" strokeWidth="1" className="opacity-20" />
-                             <path d="M 0,20 L 0,0 L 20,0 M 80,0 L 100,0 L 100,20 M 100,80 L 100,100 L 80,100 M 20,100 L 0,100 L 0,80" fill="none" stroke="currentColor" strokeWidth="4" />
-                             <rect x="45" y="-2" width="10" height="4" fill="currentColor" />
-                             <rect x="45" y="98" width="10" height="4" fill="currentColor" />
-                             <rect x="-2" y="45" width="4" height="10" fill="currentColor" />
-                             <rect x="98" y="45" width="4" height="10" fill="currentColor" />
+                    <div className="text-[9px] text-[#d4af37] font-black uppercase tracking-[0.2em] mb-3 opacity-80 font-serif">الجزء</div>
+                    <div className="w-16 h-16 relative flex items-center justify-center">
+                        <svg className="absolute inset-0 w-full h-full drop-shadow-lg" viewBox="0 0 100 100">
+                             <defs>
+                                <radialGradient id="innerGold" cx="50%" cy="50%" r="50%">
+                                    <stop offset="0%" stopColor="#f9f295" />
+                                    <stop offset="100%" stopColor="#d4af37" />
+                                </radialGradient>
+                             </defs>
+                             <path d="M50 5 L95 50 L50 95 L5 50 Z" fill="url(#innerGold)" stroke="#b8860b" strokeWidth="2" />
+                             <path d="M50 12 L88 50 L50 88 L12 50 Z" fill="none" stroke="#634e15" strokeWidth="0.5" opacity="0.3" />
+                             <circle cx="50" cy="5" r="3" fill="#b8860b" />
+                             <circle cx="50" cy="95" r="3" fill="#b8860b" />
+                             <circle cx="5" cy="50" r="3" fill="#b8860b" />
+                             <circle cx="95" cy="50" r="3" fill="#b8860b" />
                         </svg>
-                        <div className="absolute inset-0 bg-[#fdfaf3] dark:bg-[#1d1a16] border border-[#d4af37]/30 shadow-[inset_0_2px_10px_rgba(0,0,0,0.05)]" />
-                        <span className="relative z-10 text-[#d4af37] font-black text-sm">
+                        <div className="absolute inset-0 bg-white/10 rounded-full blur-md opacity-20" />
+                        <span className="relative z-10 text-[#634e15] font-black text-lg">
                             {pData.verses[0]?.juz_number || "?"}
                         </span>
                     </div>
                 </div>
                 
-                <div className="flex flex-col items-center group">
-                    <div className="text-[11px] text-[#d4af37] font-bold uppercase tracking-widest mb-3">الصفحة</div>
-                    <div className="w-14 h-14 relative flex items-center justify-center">
-                        <svg className="absolute inset-[-8px] w-[calc(100%+16px)] h-[calc(100%+16px)] text-[#d4af37]" viewBox="0 0 100 100">
-                             <rect x="5" y="5" width="90" height="90" fill="none" stroke="currentColor" strokeWidth="1.5" className="opacity-30" />
-                             <path d="M 0,30 L 0,0 L 30,0 M 70,0 L 100,0 L 100,30 M 100,70 L 100,100 L 70,100 M 30,100 L 0,100 L 0,70" fill="none" stroke="currentColor" strokeWidth="5" />
-                             <circle cx="50" cy="0" r="3" fill="currentColor" />
-                             <circle cx="50" cy="100" r="3" fill="currentColor" />
-                             <circle cx="0" cy="50" r="3" fill="currentColor" />
-                             <circle cx="100" cy="50" r="3" fill="currentColor" />
+                {/* Page Number Centerpiece */}
+                <div className="flex flex-col items-center group mb-4">
+                    <div className="text-[10px] text-[#d4af37] font-black uppercase tracking-[0.3em] mb-4">الصفحة</div>
+                    <div className="w-20 h-20 relative flex items-center justify-center scale-110">
+                        <svg className="absolute inset-0 w-full h-full drop-shadow-2xl" viewBox="0 0 100 100">
+                             <circle cx="50" cy="50" r="48" fill="url(#goldGrad)" stroke="#b8860b" strokeWidth="2" />
+                             <circle cx="50" cy="50" r="42" fill="none" stroke="#634e15" strokeWidth="1" opacity="0.3" strokeDasharray="4 2" />
+                             <path d="M50 2 A 48 48 0 0 1 98 50" fill="none" stroke="#fff" strokeWidth="4" opacity="0.2" />
+                             {/* Decorative dots */}
+                             <circle cx="50" cy="10" r="1.5" fill="#634e15" />
+                             <circle cx="50" cy="90" r="1.5" fill="#634e15" />
+                             <circle cx="10" cy="50" r="1.5" fill="#634e15" />
+                             <circle cx="90" cy="50" r="1.5" fill="#634e15" />
                         </svg>
-                        <div className="absolute inset-0 bg-[#fdfaf3] dark:bg-[#1d1a16] border-2 border-[#d4af37]/40 shadow-xl" />
-                        <span className="relative z-10 text-[#d4af37] font-black text-xl">
+                        <span className="relative z-10 text-[#634e15] font-black text-2xl drop-shadow-sm">
                             {pData.page}
                         </span>
                     </div>
                 </div>
 
+                {/* Hizb Badge */}
                 <div className="flex flex-col items-center group">
-                    <div className="text-[10px] text-[#d4af37] font-bold uppercase tracking-widest mb-3 opacity-60">الحزب</div>
-                    <div className="w-11 h-11 relative flex items-center justify-center">
-                        <svg className="absolute inset-[-6px] w-[calc(100%+12px)] h-[calc(100%+12px)] text-[#d4af37]" viewBox="0 0 100 100">
-                             <rect x="5" y="5" width="90" height="90" fill="none" stroke="currentColor" strokeWidth="1" className="opacity-20" />
-                             <path d="M 0,20 L 0,0 L 20,0 M 80,0 L 100,0 L 100,20 M 100,80 L 100,100 L 80,100 M 20,100 L 0,100 L 0,80" fill="none" stroke="currentColor" strokeWidth="4" />
-                             <rect x="45" y="-2" width="10" height="4" fill="currentColor" />
-                             <rect x="45" y="98" width="10" height="4" fill="currentColor" />
-                             <rect x="-2" y="45" width="4" height="10" fill="currentColor" />
-                             <rect x="98" y="45" width="4" height="10" fill="currentColor" />
+                    <div className="text-[9px] text-[#d4af37] font-black uppercase tracking-[0.2em] mb-3 opacity-80 font-serif">الحزب</div>
+                    <div className="w-16 h-16 relative flex items-center justify-center">
+                        <svg className="absolute inset-0 w-full h-full drop-shadow-lg" viewBox="0 0 100 100">
+                             <path d="M50 5 L95 50 L50 95 L5 50 Z" fill="url(#innerGold)" stroke="#b8860b" strokeWidth="2" />
+                             <path d="M50 12 L88 50 L50 88 L12 50 Z" fill="none" stroke="#634e15" strokeWidth="0.5" opacity="0.3" />
+                             <circle cx="50" cy="5" r="3" fill="#b8860b" />
+                             <circle cx="50" cy="95" r="3" fill="#b8860b" />
+                             <circle cx="5" cy="50" r="3" fill="#b8860b" />
+                             <circle cx="95" cy="50" r="3" fill="#b8860b" />
                         </svg>
-                        <div className="absolute inset-0 bg-[#fdfaf3] dark:bg-[#1d1a16] border border-[#d4af37]/30 shadow-[inset_0_2px_10px_rgba(0,0,0,0.05)]" />
-                        <span className="relative z-10 text-[#d4af37] font-black text-sm">
+                        <div className="absolute inset-0 bg-white/10 rounded-full blur-md opacity-20" />
+                        <span className="relative z-10 text-[#634e15] font-black text-lg">
                             {pData.verses[0]?.hizb_number || "?"}
                         </span>
                     </div>
@@ -446,34 +489,57 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                         return (
                             <React.Fragment key={verse.id}>
                                 {isFirstVerse && (
-                                    <div className="w-full flex flex-col items-center gap-4 my-10 animate-in fade-in zoom-in duration-1000">
-                                         <div className="relative w-full max-w-[550px] h-[100px] flex items-center justify-center my-8 overflow-visible">
-                                               <svg className="absolute inset-0 w-full h-full drop-shadow-[0_15px_30px_rgba(212,175,55,0.15)]" preserveAspectRatio="none" viewBox="0 0 500 100">
-                                                   {/* Square Ornate Frame */}
-                                                   <rect x="10" y="10" width="480" height="80" fill="currentColor" className="text-white dark:text-[#1d1a16]" stroke="#d4af37" strokeWidth="2" />
-                                                   {/* Corners */}
-                                                   <path d="M 0,30 L 0,0 L 30,0" fill="none" stroke="#d4af37" strokeWidth="6" transform="translate(10,10)" />
-                                                   <path d="M 470,0 L 500,0 L 500,30" fill="none" stroke="#d4af37" strokeWidth="6" transform="translate(-10,10)" />
-                                                   <path d="M 500,70 L 500,100 L 470,100" fill="none" stroke="#d4af37" strokeWidth="6" transform="translate(-10,-10)" />
-                                                   <path d="M 30,100 L 0,100 L 0,70" fill="none" stroke="#d4af37" strokeWidth="6" transform="translate(10,-10)" />
-                                                   {/* Center Decorations */}
-                                                   <circle cx="250" cy="10" r="4" fill="#d4af37" />
-                                                   <circle cx="250" cy="90" r="4" fill="#d4af37" />
+                                    <div className="w-full flex flex-col items-center gap-4 my-14 animate-in fade-in zoom-in duration-1000 relative">
+                                         <div className="relative w-full max-w-[650px] min-h-[140px] flex items-center justify-center my-10 overflow-visible">
+                                               {/* --- SUPER PREMIUM SURAH HEADER --- */}
+                                               <svg className="absolute inset-0 w-full h-full drop-shadow-[0_25px_60px_rgba(212,175,55,0.4)]" preserveAspectRatio="none" viewBox="0 0 600 140">
+                                                   <defs>
+                                                        <filter id="glow">
+                                                            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                                            <feMerge>
+                                                                <feMergeNode in="coloredBlur"/>
+                                                                <feMergeNode in="SourceGraphic"/>
+                                                            </feMerge>
+                                                        </filter>
+                                                   </defs>
+                                                   {/* Outer Glow Path */}
+                                                   <path d="M 30,10 L 570,10 L 595,70 L 570,130 L 30,130 L 5,70 Z" fill="none" stroke="url(#goldGrad)" strokeWidth="0.5" opacity="0.3" />
+                                                   {/* Main Background Block */}
+                                                   <path d="M 60,30 L 540,30 L 565,70 L 540,110 L 60,110 L 35,70 Z" fill="currentColor" className="text-white dark:text-[#1d1a16]" stroke="url(#goldGrad)" strokeWidth="4" filter="url(#glow)" />
+                                                   {/* Inner Decorative Line */}
+                                                   <path d="M 75,45 L 525,45 L 545,70 L 525,95 L 75,95 L 55,70 Z" fill="none" stroke="url(#goldGrad)" strokeWidth="1" opacity="0.4" />
+                                                   {/* Ornated Ends */}
+                                                   <g transform="translate(20, 70)">
+                                                        <path d="M -15,0 L 0,-15 L 15,0 L 0,15 Z" fill="url(#goldGrad)" />
+                                                        <circle cx="0" cy="0" r="6" fill="white" className="dark:fill-[#1d1a16]" />
+                                                   </g>
+                                                   <g transform="translate(580, 70)">
+                                                        <path d="M -15,0 L 0,-15 L 15,0 L 0,15 Z" fill="url(#goldGrad)" />
+                                                        <circle cx="0" cy="0" r="6" fill="white" className="dark:fill-[#1d1a16]" />
+                                                   </g>
+                                                   {/* Center Top/Bottom Ornaments */}
+                                                   <path d="M 280,30 L 300,10 L 320,30" fill="url(#goldGrad)" />
+                                                   <path d="M 280,110 L 300,130 L 320,110" fill="url(#goldGrad)" />
                                                </svg>
-                                              <span 
-                                                 className="font-arabic font-black text-[#d4af37] relative z-20 drop-shadow-sm"
-                                                 style={{ fontSize: `${mushafFontSize * 1.5}px` }}
-                                              >
-                                                 سورة {surahName}
-                                              </span>
+                                              <div className="relative z-20 flex flex-col items-center">
+                                                  <span className="text-[11px] text-[#d4af37] font-black uppercase tracking-[0.5em] mb-2 opacity-80">سورة</span>
+                                                  <span 
+                                                     className="font-arabic font-black text-[#d4af37] drop-shadow-xl leading-none"
+                                                     style={{ fontSize: `${mushafFontSize * 1.9}px` }}
+                                                  >
+                                                     {surahName}
+                                                  </span>
+                                              </div>
                                          </div>
                                          
                                         {sId !== "1" && sId !== "9" && (
                                             <div 
-                                                className="font-arabic text-[#2a231b] dark:text-[#e2d6c5] py-4 font-bold opacity-80"
-                                                style={{ fontSize: `${mushafFontSize * 1.1}px` }}
+                                                className="font-arabic text-[#d4af37] py-8 font-bold opacity-90 drop-shadow-sm flex items-center gap-8"
+                                                style={{ fontSize: `${mushafFontSize * 1.3}px` }}
                                             >
+                                                <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#d4af37] to-transparent" />
                                                 بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+                                                <div className="w-16 h-[1px] bg-gradient-to-l from-transparent via-[#d4af37] to-transparent" />
                                             </div>
                                         )}
                                     </div>
@@ -500,16 +566,17 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                         })}
                                         
                                         <span 
-                                            className="inline-flex items-center justify-center relative select-none mx-2 translate-y-1.5"
-                                            style={{ width: `${mushafFontSize * 1.25}px`, height: `${mushafFontSize * 1.25}px` }}
+                                            className="inline-flex items-center justify-center relative select-none mx-3 translate-y-2"
+                                            style={{ width: `${mushafFontSize * 1.4}px`, height: `${mushafFontSize * 1.4}px` }}
                                         >
-                                            <svg className="absolute inset-[-2px] w-[calc(100%+4px)] h-[calc(100%+4px)] text-[#d4af37]/60" viewBox="0 0 100 100">
-                                                <rect x="10" y="10" width="80" height="80" fill="none" stroke="currentColor" strokeWidth="2" className="opacity-30" />
-                                                <path d="M 0,20 L 0,0 L 20,0 M 80,0 L 100,0 L 100,20 M 100,80 L 100,100 L 80,100 M 20,100 L 0,100 L 0,80" fill="none" stroke="currentColor" strokeWidth="6" />
+                                            <svg className="absolute inset-0 w-full h-full drop-shadow-md" viewBox="0 0 100 100">
+                                                <path d="M50 5 L95 50 L50 95 L5 50 Z" fill="none" stroke="url(#goldGrad)" strokeWidth="3" />
+                                                <path d="M50 15 L85 50 L50 85 L15 50 Z" fill="url(#goldGrad)" opacity="0.1" />
+                                                <circle cx="50" cy="50" r="30" fill="none" stroke="url(#goldGrad)" strokeWidth="0.5" opacity="0.3" />
                                             </svg>
                                             <span 
                                                 className="relative z-10 font-bold font-serif text-[#d4af37]"
-                                                style={{ fontSize: `${mushafFontSize * 0.4}px` }}
+                                                style={{ fontSize: `${mushafFontSize * 0.45}px` }}
                                             >
                                                 {vId}
                                             </span>
