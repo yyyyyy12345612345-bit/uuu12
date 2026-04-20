@@ -166,8 +166,9 @@ export function Mushaf() {
                                 >
                                     <div className="flex items-start justify-between">
                                         <div className="relative w-12 h-12 flex items-center justify-center group-hover:scale-110 transition-all">
-                                            <svg className="absolute inset-0 w-full h-full text-primary/20 group-hover:text-primary/40 transition-colors" viewBox="0 0 100 100">
-                                                <path d="M50 5 L85 20 L100 50 L85 80 L50 95 L15 80 L0 50 L15 20 Z" fill="currentColor" stroke="currentColor" strokeWidth="2" />
+                                            <svg className="absolute inset-[-4px] w-[calc(100%+8px)] h-[calc(100%+8px)] text-primary group-hover:scale-110 transition-all" viewBox="0 0 100 100">
+                                                <rect x="10" y="10" width="80" height="80" fill="none" stroke="currentColor" strokeWidth="1" className="opacity-20" />
+                                                <path d="M 0,25 L 0,0 L 25,0 M 75,0 L 100,0 L 100,25 M 100,75 L 100,100 L 75,100 M 25,100 L 0,100 L 0,75" fill="none" stroke="currentColor" strokeWidth="4" />
                                             </svg>
                                             <span className="relative z-10 text-[10px] font-black text-primary">
                                                 {surah.id.toString().padStart(3, '0')}
@@ -290,14 +291,21 @@ export function Mushaf() {
                                             <Bookmark className="w-3.5 h-3.5" />
                                             <span className="font-arabic">{state.bookmark?.surahId === selectedSurah && state.bookmark?.ayahId === verse.id ? 'تم حفظ الورد' : 'حفظ كورد'}</span>
                                         </button>
-                                        <div className="w-10 h-10 rounded-xl bg-foreground/5 border border-border flex items-center justify-center text-[11px] font-bold text-foreground/20 font-mono tracking-tighter shadow-inner cursor-pointer" onClick={(e) => { e.stopPropagation(); toggleAudio(verse.id); }}>{verse.id}</div>
+                                        <div className="w-10 h-10 relative flex items-center justify-center cursor-pointer group/num" onClick={(e) => { e.stopPropagation(); toggleAudio(verse.id); }}>
+                                            <svg className="absolute inset-[-4px] w-[calc(100%+8px)] h-[calc(100%+8px)] text-primary/40 group-hover/num:text-primary transition-colors" viewBox="0 0 100 100">
+                                                <rect x="5" y="5" width="90" height="90" fill="none" stroke="currentColor" strokeWidth="1" className="opacity-20" />
+                                                <path d="M 0,20 L 0,0 L 20,0 M 80,0 L 100,0 L 100,20 M 100,80 L 100,100 L 80,100 M 20,100 L 0,100 L 0,80" fill="none" stroke="currentColor" strokeWidth="4" />
+                                            </svg>
+                                            <div className="absolute inset-0 bg-foreground/5" />
+                                            <span className="relative z-10 text-[11px] font-bold text-foreground/40 font-mono tracking-tighter">{verse.id}</span>
+                                        </div>
                                     </div>
 
                                     <div className="flex flex-wrap justify-center gap-x-2 gap-y-4 md:gap-x-4">
                                         {verse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => (
                                             <span
                                                 key={word.id}
-                                                className="text-4xl md:text-6xl px-1 md:px-2 text-foreground/80 quran-text"
+                                                className="text-3xl md:text-5xl px-1 md:px-2 text-foreground/80 quran-text"
                                             >
                                                 {word.text_uthmani}
                                             </span>
