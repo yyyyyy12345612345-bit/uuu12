@@ -165,24 +165,34 @@ export function Mushaf() {
                                     className={`group relative flex flex-col gap-3 p-5 premium-card border-border bg-background/30 dark:bg-foreground/[0.03] backdrop-blur-md hover:bg-background/60 hover:scale-[1.02] hover:border-primary/20 transition-all duration-500 ease-out ${state.bookmark?.surahId === surah.id.toString() ? 'border-primary/30 bg-primary/[0.03]' : ''}`}
                                 >
                                     <div className="flex items-start justify-between">
-                                        <div className="relative w-14 h-12 flex items-center justify-center group-hover:scale-110 transition-all duration-300">
-                                            {/* Open Book SVG for Surah Number */}
-                                            <svg viewBox="0 0 100 80" className="absolute inset-0 w-full h-full drop-shadow-sm">
+                                        <div className="relative w-16 h-16 flex items-center justify-center group-hover:rotate-[360deg] transition-all duration-1000 ease-in-out">
+                                            {/* Premium Ottoman Medallion */}
+                                            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full drop-shadow-xl">
                                                 <defs>
-                                                    <linearGradient id="bookGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                                        <stop offset="0%" stopColor="#fdfcf0" />
-                                                        <stop offset="100%" stopColor="#e2dcc5" />
+                                                    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                        <stop offset="0%" stopColor="#d4af37" />
+                                                        <stop offset="50%" stopColor="#fdfcf0" />
+                                                        <stop offset="100%" stopColor="#8a6d3b" />
                                                     </linearGradient>
                                                 </defs>
-                                                {/* Left Page */}
-                                                <path d="M 50,70 L 10,75 L 5,10 L 50,5 Z" fill="url(#bookGradient)" stroke="#8a6d3b" strokeWidth="2" />
-                                                {/* Right Page */}
-                                                <path d="M 50,70 L 90,75 L 95,10 L 50,5 Z" fill="url(#bookGradient)" stroke="#8a6d3b" strokeWidth="2" />
-                                                {/* Spine */}
-                                                <path d="M 50,5 L 50,70" stroke="#8a6d3b" strokeWidth="1" strokeDasharray="2 1" />
+                                                {/* Outer Glow Circle */}
+                                                <circle cx="50" cy="50" r="45" fill="none" stroke="#d4af37" strokeWidth="0.5" strokeDasharray="2 2" className="opacity-40" />
+                                                {/* 8-Pointed Star Shape */}
+                                                <path 
+                                                    d="M50 5 L62 38 L95 50 L62 62 L50 95 L38 62 L5 50 L38 38 Z" 
+                                                    fill="#06402B" 
+                                                    stroke="url(#goldGradient)" 
+                                                    strokeWidth="2"
+                                                />
+                                                {/* Inner Decorative Circle */}
+                                                <circle cx="50" cy="50" r="28" fill="none" stroke="url(#goldGradient)" strokeWidth="1" opacity="0.4" />
+                                                {/* Floral Petals */}
+                                                {[0, 45, 90, 135, 180, 225, 270, 315].map(angle => (
+                                                    <circle key={angle} cx={50 + Math.cos(angle * Math.PI / 180) * 32} cy={50 + Math.sin(angle * Math.PI / 180) * 32} r="2.5" fill="url(#goldGradient)" />
+                                                ))}
                                             </svg>
-                                            <span className="relative z-10 text-[10px] font-black text-[#8a6d3b] translate-y-[-2px]">
-                                                {surah.id.toString().padStart(3, '0')}
+                                            <span className="relative z-10 text-[12px] font-black text-[#fdfcf0] drop-shadow-sm font-serif">
+                                                {surah.id}
                                             </span>
                                         </div>
                                         <div className="w-8 h-8 rounded-full bg-foreground/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">

@@ -186,19 +186,22 @@ export function AthkarLibrary() {
             <button 
               key={c.ID}
               onClick={() => { setSelectedCategory(c); fetchAthkar(c.ID); }}
-              className="flex items-center justify-between p-6 rounded-[2rem] bg-white dark:bg-[#1a1714] border border-border hover:border-[#06402B]/30 hover:bg-[#06402B]/5 transition-all group text-right shadow-sm active:scale-95"
+              className="flex items-center justify-between p-6 rounded-[2rem] bg-card/60 dark:bg-foreground/[0.03] backdrop-blur-md border border-border hover:border-primary/40 hover:bg-primary/[0.03] transition-all group text-right shadow-sm active:scale-95"
             >
               <div className="flex items-center gap-5 relative z-10">
-                 <div className="w-12 h-12 rounded-2xl bg-[#06402B]/5 flex items-center justify-center group-hover:bg-[#06402B] transition-all">
-                    <BookOpen className="w-6 h-6 text-[#06402B] group-hover:text-white transition-colors" />
+                 <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-all shadow-inner">
+                    <BookOpen className="w-6 h-6 text-primary group-hover:text-black transition-colors" />
                  </div>
-                 <div className="flex flex-col items-start">
-                    <span className="text-lg font-bold text-foreground group-hover:text-[#06402B] transition-colors font-arabic">
+                 <div className="flex flex-col items-start text-right">
+                    <span className="text-lg font-bold text-foreground group-hover:text-primary transition-colors font-arabic leading-tight">
                         {c.TITLE}
                     </span>
+                    <span className="text-[9px] text-foreground/30 font-bold uppercase tracking-widest mt-1">حصن المسلم</span>
                  </div>
               </div>
-              <ChevronRight className="w-5 h-5 text-foreground/20 group-hover:text-[#06402B] group-hover:translate-x-1 transition-all" />
+              <div className="w-8 h-8 rounded-full bg-foreground/5 flex items-center justify-center group-hover:bg-primary/20 transition-all">
+                <ChevronRight className="w-5 h-5 text-foreground/20 group-hover:text-primary transition-all" />
+              </div>
             </button>
           ))}
         </div>
