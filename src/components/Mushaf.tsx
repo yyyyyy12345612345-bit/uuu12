@@ -165,33 +165,27 @@ export function Mushaf() {
                                     className={`group relative flex flex-col gap-3 p-5 premium-card border-border bg-background/30 dark:bg-foreground/[0.03] backdrop-blur-md hover:bg-background/60 hover:scale-[1.02] hover:border-primary/20 transition-all duration-500 ease-out ${state.bookmark?.surahId === surah.id.toString() ? 'border-primary/30 bg-primary/[0.03]' : ''}`}
                                 >
                                     <div className="flex items-start justify-between">
-                                        <div className="relative w-16 h-16 flex items-center justify-center group-hover:rotate-[360deg] transition-all duration-1000 ease-in-out">
-                                            {/* Premium Ottoman Medallion */}
-                                            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full drop-shadow-xl">
+                                        <div className="relative w-14 h-14 flex items-center justify-center group-hover:scale-110 transition-all duration-500">
+                                            {/* Minimalist Professional Medallion */}
+                                            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full drop-shadow-md">
                                                 <defs>
-                                                    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <linearGradient id="minimalGold" x1="0%" y1="0%" x2="100%" y2="100%">
                                                         <stop offset="0%" stopColor="#d4af37" />
-                                                        <stop offset="50%" stopColor="#fdfcf0" />
                                                         <stop offset="100%" stopColor="#8a6d3b" />
                                                     </linearGradient>
                                                 </defs>
-                                                {/* Outer Glow Circle */}
-                                                <circle cx="50" cy="50" r="45" fill="none" stroke="#d4af37" strokeWidth="0.5" strokeDasharray="2 2" className="opacity-40" />
-                                                {/* 8-Pointed Star Shape */}
+                                                {/* Outer Thin Circle */}
+                                                <circle cx="50" cy="50" r="48" fill="none" stroke="url(#minimalGold)" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.4" />
+                                                {/* 8-Pointed Star (Thin Style) */}
                                                 <path 
-                                                    d="M50 5 L62 38 L95 50 L62 62 L50 95 L38 62 L5 50 L38 38 Z" 
+                                                    d="M50 8 L60 40 L92 50 L60 60 L50 92 L40 60 L8 50 L40 40 Z" 
                                                     fill="#06402B" 
-                                                    stroke="url(#goldGradient)" 
-                                                    strokeWidth="2"
+                                                    stroke="url(#minimalGold)" 
+                                                    strokeWidth="1.5"
                                                 />
-                                                {/* Inner Decorative Circle */}
-                                                <circle cx="50" cy="50" r="28" fill="none" stroke="url(#goldGradient)" strokeWidth="1" opacity="0.4" />
-                                                {/* Floral Petals */}
-                                                {[0, 45, 90, 135, 180, 225, 270, 315].map(angle => (
-                                                    <circle key={angle} cx={50 + Math.cos(angle * Math.PI / 180) * 32} cy={50 + Math.sin(angle * Math.PI / 180) * 32} r="2.5" fill="url(#goldGradient)" />
-                                                ))}
+                                                <circle cx="50" cy="50" r="30" fill="none" stroke="url(#minimalGold)" strokeWidth="0.5" opacity="0.2" />
                                             </svg>
-                                            <span className="relative z-10 text-[12px] font-black text-[#fdfcf0] drop-shadow-sm font-serif">
+                                            <span className="relative z-10 text-[11px] font-bold text-[#fdfcf0] font-sans">
                                                 {surah.id}
                                             </span>
                                         </div>
