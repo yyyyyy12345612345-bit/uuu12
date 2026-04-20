@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { renderStill, getCompositions, ensureBrowser } from "@remotion/renderer";
+import { renderMedia, getCompositions, ensureBrowser } from "@remotion/renderer";
 import { bundle } from "@remotion/bundler";
 import path from "path";
 import fs from "fs";
@@ -130,7 +130,7 @@ app.post("/render", async (req, res) => {
     const totalDuration = verseData.reduce((a, b) => a + b.duration, 0);
     console.log(`>> Total Duration: ${totalDuration.toFixed(1)}s (${verseData.length} verses)`);
 
-    // 3. تصوير صورة واحدة لكل آية باستخدام Remotion (سريع جداً)
+    // 3. تجهيز الخصائص للرندر
     const bundleLocation = await getBundle();
     const fps = 30;
     let cumulativeFrames = 0;
@@ -149,77 +149,51 @@ app.post("/render", async (req, res) => {
 
     const totalFrames = Math.max(150, cumulativeFrames);
     const localBgUrl = localBgPath ? `http://localhost:7860/assets/${folderName}/${path.basename(localBgPath)}` : backgroundUrl;
-    const inputProps = { surahName, verses: processedVerses, backgroundUrl: localBgUrl, textColor, fontSize, fontWeight, fontFamily: fontFamily || "Amiri", filter: filter || "none", overlay: overlay || "none", animation: animation || "fade", textPosition: textPosition || "center", totalFrames };
+    const inputProps = { 
+        surahName, 
+        verses: processedVerses, 
+        backgroundUrl: localBgUrl, 
+        textColor, 
+        fontSize, 
+        fontWeight, 
+        fontFamily: fontFamily || "Amiri", 
+        filter: filter || "none", 
+        overlay: overlay || "none", 
+        animation: animation || "fade", 
+        textPosition: textPosition || "center", 
+        totalFrames 
+    };
 
     console.log(">> Locating Composition...");
     const comps = await getCompositions(bundleLocation, { inputProps });
     const composition = comps.find((c) => c.id === "QuranVideo");
     if (!composition) throw new Error("QuranVideo composition not found!");
+    
     composition.durationInFrames = totalFrames;
     composition.fps = fps;
 
-    // 4. تصوير صورة واحدة لكل آية (بدل آلاف الفريمات!)
-    console.log(">> 📸 Capturing verse stills (سريع جداً)...");
-    const segments = [];
-
-    for (let i = 0; i < verseData.length; i++) {
-      const { verse, audioPath, duration } = verseData[i];
-      const pv = processedVerses[i];
-      const stillPath = path.resolve(tempDir, `still-${i}.png`);
-      const segmentPath = path.resolve(tempDir, `segment-${i}.mp4`);
-
-      // تصوير فريم واحد فقط من منتصف الآية
-      const targetFrame = pv.startFrame + Math.floor(pv.durationInFrames / 2);
-      
-      await renderStill({
-        composition,
-        serveUrl: bundleLocation,
-        output: stillPath,
-        inputProps,
-        frame: Math.min(targetFrame, totalFrames - 1),
-        scale: 0.6666666667, // ضمان دقة 720x1280 بالضبط
-        chromiumOptions: { disableWebSecurity: true },
-      });
-
-      console.log(`  ✓ Verse ${verse.id} still captured`);
-
-      // 5. تجميع الصورة + الصوت في مقطع فيديو باستخدام FFmpeg (سريع جداً)
-      // أضفنا فلتر scale لضمان أن الأبعاد أرقام زوجية (يقبلها كودك x264)
-      if (audioPath) {
-        execSync(
-          `ffmpeg -y -loop 1 -i "${stillPath}" -i "${audioPath}" ` +
-          `-vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" ` +
-          `-c:v libx264 -preset ultrafast -crf 28 -pix_fmt yuv420p ` +
-          `-c:a aac -b:a 128k -ar 44100 ` +
-          `-t ${duration.toFixed(2)} -shortest "${segmentPath}"`,
-          { timeout: 60000 }
-        );
-      } else {
-        // إنشاء تراك صوت صامت لضمان الاتساق بين كل المقاطع أثناء الدمج
-        execSync(
-          `ffmpeg -y -loop 1 -i "${stillPath}" -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100 ` +
-          `-vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" ` +
-          `-c:v libx264 -preset ultrafast -crf 28 -pix_fmt yuv420p ` +
-          `-c:a aac -b:a 128k -t 5 -shortest "${segmentPath}"`,
-          { timeout: 60000 }
-        );
-      }
-
-      segments.push(segmentPath);
-      const pct = Math.round(((i + 1) / verseData.length) * 80);
-      console.log(`  >> Progress: ${pct}%`);
-    }
-
-    // 6. دمج كل المقاطع في فيديو واحد
-    console.log(">> 🔗 Merging segments...");
-    const concatFile = path.resolve(tempDir, "concat.txt");
-    const concatContent = segments.map(s => `file '${s}'`).join("\n");
-    fs.writeFileSync(concatFile, concatContent);
-
-    execSync(
-      `ffmpeg -y -f concat -safe 0 -i "${concatFile}" -c copy "${outputLocation}"`,
-      { timeout: 120000 }
-    );
+    // 4. رندرة الفيديو بالكامل (Real Video Rendering)
+    console.log(">> 🎬 Starting real video render (بجودة كاملة وحركات حقيقية)...");
+    
+    await renderMedia({
+      composition,
+      serveUrl: bundleLocation,
+      outputLocation: outputLocation,
+      inputProps,
+      codec: "h264",
+      // تم ضبطها على 1 لضمان الاستقرار على سيرفرات Hugging Face المحدودة
+      concurrency: 1, 
+      chromiumOptions: {
+        disableWebSecurity: true,
+        args: ["--no-sandbox", "--disable-setuid-sandbox"]
+      },
+      onProgress: ({ progress }) => {
+        const pct = Math.round(progress * 100);
+        if (pct % 5 === 0) {
+          console.log(`  >> Progress: ${pct}%`);
+        }
+      },
+    });
 
     const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
     console.log(`\n>> ✅ Render Complete! (${totalTime}s total)`);
