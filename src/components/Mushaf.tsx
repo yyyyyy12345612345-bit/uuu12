@@ -165,28 +165,23 @@ export function Mushaf() {
                                     className={`group relative flex flex-col gap-3 p-5 premium-card border-border bg-background/30 dark:bg-foreground/[0.03] backdrop-blur-md hover:bg-background/60 hover:scale-[1.02] hover:border-primary/20 transition-all duration-500 ease-out ${state.bookmark?.surahId === surah.id.toString() ? 'border-primary/30 bg-primary/[0.03]' : ''}`}
                                 >
                                     <div className="flex items-start justify-between">
-                                        <div className="relative w-14 h-14 flex items-center justify-center group-hover:scale-110 transition-all duration-500">
-                                            {/* Advanced Islamic Star (Octagram) */}
-                                            <svg className="absolute inset-0 w-full h-full drop-shadow-md" viewBox="0 0 100 100">
+                                        <div className="relative w-14 h-12 flex items-center justify-center group-hover:scale-110 transition-all duration-300">
+                                            {/* Open Book SVG for Surah Number */}
+                                            <svg viewBox="0 0 100 80" className="absolute inset-0 w-full h-full drop-shadow-sm">
                                                 <defs>
-                                                    <linearGradient id="numGold" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                        <stop offset="0%" stopColor="#d4af37" />
-                                                        <stop offset="50%" stopColor="#f9f295" />
-                                                        <stop offset="100%" stopColor="#b8860b" />
+                                                    <linearGradient id="bookGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                        <stop offset="0%" stopColor="#fdfcf0" />
+                                                        <stop offset="100%" stopColor="#e2dcc5" />
                                                     </linearGradient>
                                                 </defs>
-                                                {/* Outer Glow */}
-                                                <path d="M50 0 L63 37 L100 50 L63 63 L50 100 L37 63 L0 50 L37 37 Z" fill="url(#numGold)" opacity="0.1" className="group-hover:opacity-30 transition-opacity" />
-                                                {/* Main Star Layers */}
-                                                <path d="M50 5 L61 39 L95 50 L61 61 L50 95 L39 61 L5 50 L39 39 Z" fill="none" stroke="url(#numGold)" strokeWidth="1" />
-                                                <path d="M50 12 L58 42 L88 50 L58 58 L50 88 L42 58 L12 50 L42 42 Z" fill="url(#numGold)" opacity="0.1" />
-                                                {/* Corner Accents */}
-                                                <circle cx="50" cy="5" r="2" fill="url(#numGold)" />
-                                                <circle cx="50" cy="95" r="2" fill="url(#numGold)" />
-                                                <circle cx="5" cy="50" r="2" fill="url(#numGold)" />
-                                                <circle cx="95" cy="50" r="2" fill="url(#numGold)" />
+                                                {/* Left Page */}
+                                                <path d="M 50,70 L 10,75 L 5,10 L 50,5 Z" fill="url(#bookGradient)" stroke="#8a6d3b" strokeWidth="2" />
+                                                {/* Right Page */}
+                                                <path d="M 50,70 L 90,75 L 95,10 L 50,5 Z" fill="url(#bookGradient)" stroke="#8a6d3b" strokeWidth="2" />
+                                                {/* Spine */}
+                                                <path d="M 50,5 L 50,70" stroke="#8a6d3b" strokeWidth="1" strokeDasharray="2 1" />
                                             </svg>
-                                            <span className="relative z-10 text-[11px] font-black text-[#8a6d3b] dark:text-[#d4af37] drop-shadow-sm">
+                                            <span className="relative z-10 text-[10px] font-black text-[#8a6d3b] translate-y-[-2px]">
                                                 {surah.id.toString().padStart(3, '0')}
                                             </span>
                                         </div>

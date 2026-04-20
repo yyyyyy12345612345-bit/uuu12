@@ -355,105 +355,49 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
             data-page={pData.page}
             className="flex flex-col relative w-full min-h-[85vh] bg-card dark:bg-[#1a1714] md:rounded-[1rem] shadow-[0_30px_70px_rgba(0,0,0,0.2)] border-2 border-[#d4af37]/30 transition-all overflow-hidden"
         >
-            {/* --- ENHANCED MADINAH MUSHAF FRAME --- */}
+            {/* --- MINIMALIST CLASSIC FRAME --- */}
             <div className="absolute inset-0 z-10 pointer-events-none">
                 <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 800 1200">
                     <defs>
-                        <linearGradient id="madinahGoldRich" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stopColor="#E6C466" />
-                            <stop offset="50%" stopColor="#F9F295" />
-                            <stop offset="100%" stopColor="#A67C00" />
+                        <linearGradient id="thinGold" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#d4af37" />
+                            <stop offset="100%" stopColor="#8a6d3b" />
                         </linearGradient>
-                        <pattern id="floralPattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-                            <path d="M20 0 Q25 10 20 20 Q15 10 20 0 Z" fill="#D4AF37" opacity="0.1" />
-                            <path d="M0 20 Q10 25 20 20 Q10 15 0 20 Z" fill="#D4AF37" opacity="0.1" />
-                        </pattern>
                     </defs>
+                    <rect x="20" y="20" width="760" height="1160" fill="none" stroke="url(#thinGold)" strokeWidth="2" />
+                    <rect x="28" y="28" width="744" height="1144" fill="none" stroke="#06402B" strokeWidth="1" opacity="0.2" />
                     
-                    {/* Dark Green Outer Border with subtle pattern */}
-                    <rect x="0" y="0" width="800" height="1200" fill="#06402B" stroke="#043322" strokeWidth="2" />
-                    <rect x="5" y="5" width="790" height="1190" fill="url(#floralPattern)" opacity="0.4" />
-                    
-                    {/* Double Gold Inner Frame */}
-                    <rect x="25" y="25" width="750" height="1150" fill="none" stroke="url(#madinahGoldRich)" strokeWidth="3" />
-                    <rect x="32" y="32" width="736" height="1136" fill="none" stroke="url(#madinahGoldRich)" strokeWidth="1" opacity="0.5" />
-                    
-                    {/* Ornate Corner Flourishes */}
-                    {[
-                        {t: "translate(25,25)", r: 0},
-                        {t: "translate(775,25)", r: 90},
-                        {t: "translate(775,1175)", r: 180},
-                        {t: "translate(25,1175)", r: 270}
-                    ].map((c, i) => (
-                        <g key={i} transform={`${c.t} rotate(${c.r})`}>
-                            {/* Detailed Leaf Shape */}
-                            <path d="M 0,0 C 60,0 100,40 100,100 L 90,100 C 90,50 50,10 0,10 Z" fill="url(#madinahGoldRich)" />
-                            <path d="M 0,0 C 40,0 60,20 60,60 L 55,60 C 55,25 25,5 0,5 Z" fill="url(#madinahGoldRich)" opacity="0.6" />
-                            <circle cx="20" cy="20" r="10" fill="#06402B" stroke="url(#madinahGoldRich)" strokeWidth="2" />
-                            <path d="M 15,15 L 25,25 M 15,25 L 25,15" stroke="url(#madinahGoldRich)" strokeWidth="1.5" />
+                    {/* Tiny Classic Corners */}
+                    {["translate(20,20)", "translate(780,20) rotate(90)", "translate(780,1180) rotate(180)", "translate(20,1180) rotate(270)"].map((t, i) => (
+                        <g key={i} transform={t}>
+                            <path d="M 0,0 L 40,0 M 0,0 L 0,40" fill="none" stroke="url(#thinGold)" strokeWidth="4" />
                         </g>
                     ))}
-                    
-                    {/* Center Edge Medallions */}
-                    <g transform="translate(400, 25)">
-                        <path d="M -120,-10 L 120,-10 L 80,25 L -80,25 Z" fill="#06402B" stroke="url(#madinahGoldRich)" strokeWidth="2" />
-                        <circle cx="0" cy="15" r="5" fill="url(#madinahGoldRich)" />
-                    </g>
-                    <g transform="translate(400, 1175) rotate(180)">
-                        <path d="M -120,-10 L 120,-10 L 80,25 L -80,25 Z" fill="#06402B" stroke="url(#madinahGoldRich)" strokeWidth="2" />
-                        <circle cx="0" cy="15" r="5" fill="url(#madinahGoldRich)" />
-                    </g>
                 </svg>
             </div>
 
-            {/* Page Information Badges - Deluxe Madinah Style */}
-            <div className="relative h-32 flex items-center justify-between px-16 md:px-32 z-20 mt-6 pointer-events-none">
-                {/* Juz Badge */}
-                <div className="flex flex-col items-center">
-                    <div className="w-16 h-16 relative flex items-center justify-center">
-                        <svg className="absolute inset-0 w-full h-full drop-shadow-md" viewBox="0 0 100 100">
-                             <circle cx="50" cy="50" r="46" fill="#06402B" stroke="url(#madinahGoldRich)" strokeWidth="3" />
-                             <circle cx="50" cy="50" r="38" fill="none" stroke="url(#madinahGoldRich)" strokeWidth="0.5" opacity="0.4" />
-                             <path d="M50 15 L50 25 M85 50 L75 50 M50 85 L50 75 M15 50 L25 50" stroke="url(#madinahGoldRich)" strokeWidth="2" />
-                        </svg>
-                        <div className="relative z-10 flex flex-col items-center">
-                            <span className="text-[8px] text-[#D4AF37] font-black leading-none mb-0.5">الجزء</span>
-                            <span className="text-white font-black text-xl tracking-tighter">
-                                {pData.verses[0]?.juz_number || "?"}
-                            </span>
+            {/* Small Information Badges - Discreet Top Corners */}
+            <div className="relative h-16 flex items-center justify-between px-12 z-20 mt-4 pointer-events-none">
+                {/* Juz & Page in small circles */}
+                <div className="flex gap-4">
+                    <div className="flex flex-col items-center">
+                        <div className="w-10 h-10 border border-[#d4af37] bg-[#06402B]/5 rounded-full flex flex-col items-center justify-center">
+                             <span className="text-[6px] text-[#8a6d3b] font-bold">جزء</span>
+                             <span className="text-sm font-bold text-[#06402B]">{pData.verses[0]?.juz_number}</span>
                         </div>
                     </div>
                 </div>
                 
-                {/* Page Number Centerpiece */}
-                <div className="flex flex-col items-center">
-                    <div className="w-20 h-20 relative flex items-center justify-center">
-                        <svg className="absolute inset-0 w-full h-full drop-shadow-lg" viewBox="0 0 100 100">
-                             <rect x="15" y="15" width="70" height="70" rx="8" fill="#06402B" stroke="url(#madinahGoldRich)" strokeWidth="4" transform="rotate(45 50 50)" />
-                             <rect x="22" y="22" width="56" height="56" rx="4" fill="none" stroke="#fff" strokeWidth="0.5" opacity="0.2" transform="rotate(45 50 50)" />
-                        </svg>
-                        <div className="relative z-10 flex flex-col items-center">
-                            <span className="text-[8px] text-[#D4AF37] font-black tracking-[0.2em] mb-1">صفحة</span>
-                            <span className="text-white font-black text-3xl drop-shadow-md">
-                                {pData.page}
-                            </span>
-                        </div>
-                    </div>
+                {/* Center Page Number */}
+                <div className="w-12 h-12 border-2 border-[#d4af37] bg-white dark:bg-[#1a1714] rounded-full flex flex-col items-center justify-center shadow-sm">
+                    <span className="text-[6px] text-[#8a6d3b] font-bold">صفحة</span>
+                    <span className="text-lg font-black text-[#06402B]">{pData.page}</span>
                 </div>
 
-                {/* Hizb Badge */}
                 <div className="flex flex-col items-center">
-                    <div className="w-16 h-16 relative flex items-center justify-center">
-                        <svg className="absolute inset-0 w-full h-full drop-shadow-md" viewBox="0 0 100 100">
-                             <circle cx="50" cy="50" r="46" fill="#06402B" stroke="url(#madinahGoldRich)" strokeWidth="3" />
-                             <path d="M50 15 L50 25 M85 50 L75 50 M50 85 L50 75 M15 50 L25 50" stroke="url(#madinahGoldRich)" strokeWidth="2" />
-                        </svg>
-                        <div className="relative z-10 flex flex-col items-center">
-                            <span className="text-[8px] text-[#D4AF37] font-black leading-none mb-0.5">الحزب</span>
-                            <span className="text-white font-black text-xl tracking-tighter">
-                                {pData.verses[0]?.hizb_number || "?"}
-                            </span>
-                        </div>
+                    <div className="w-10 h-10 border border-[#d4af37] bg-[#06402B]/5 rounded-full flex flex-col items-center justify-center">
+                        <span className="text-[6px] text-[#8a6d3b] font-bold">حزب</span>
+                        <span className="text-sm font-bold text-[#06402B]">{pData.verses[0]?.hizb_number}</span>
                     </div>
                 </div>
             </div>
@@ -476,34 +420,19 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                         return (
                             <React.Fragment key={verse.id}>
                                 {isFirstVerse && (
-                                    <div className="w-full flex flex-col items-center gap-4 my-12 animate-in fade-in zoom-in duration-1000 relative">
-                                         <div className="relative w-full max-w-[650px] min-h-[130px] flex items-center justify-center my-6 overflow-visible">
-                                               {/* --- DELUXE MADINAH SURAH HEADER --- */}
-                                               <svg className="absolute inset-0 w-full h-full drop-shadow-2xl" preserveAspectRatio="none" viewBox="0 0 600 130">
-                                                   {/* Outer Elaborate Frame */}
-                                                   <path d="M 40,20 L 560,20 C 580,20 600,40 600,65 C 600,90 580,110 560,110 L 40,110 C 20,110 0,90 0,65 C 0,40 20,20 40,20 Z" fill="#06402B" stroke="url(#madinahGoldRich)" strokeWidth="3" />
-                                                   <path d="M 50,30 L 550,30 C 565,30 580,45 580,65 C 580,85 565,100 550,100 L 50,100 C 35,100 20,85 20,65 C 20,45 35,30 50,30 Z" fill="url(#floralPattern)" opacity="0.3" />
-                                                   
-                                                   {/* Decorative Floral Ends */}
-                                                   <g transform="translate(40, 65)">
-                                                        <path d="M -30,-30 Q 0,-40 30,-30 Q 40,0 30,30 Q 0,40 -30,30 Q -40,0 -30,-30" fill="url(#madinahGoldRich)" opacity="0.2" />
-                                                        <circle r="15" fill="#06402B" stroke="url(#madinahGoldRich)" strokeWidth="2" />
-                                                        <path d="M -5,-5 L 5,5 M -5,5 L 5,-5" stroke="url(#madinahGoldRich)" strokeWidth="2" />
-                                                   </g>
-                                                   <g transform="translate(560, 65)">
-                                                        <path d="M -30,-30 Q 0,-40 30,-30 Q 40,0 30,30 Q 0,40 -30,30 Q -40,0 -30,-30" fill="url(#madinahGoldRich)" opacity="0.2" />
-                                                        <circle r="15" fill="#06402B" stroke="url(#madinahGoldRich)" strokeWidth="2" />
-                                                        <path d="M -5,-5 L 5,5 M -5,5 L 5,-5" stroke="url(#madinahGoldRich)" strokeWidth="2" />
-                                                   </g>
-
-                                                   {/* Top Peak */}
-                                                   <path d="M 270,20 Q 300,0 330,20" fill="url(#madinahGoldRich)" stroke="#06402B" strokeWidth="1" />
+                                    <div className="w-full flex flex-col items-center gap-2 my-6 animate-in fade-in zoom-in duration-1000 relative">
+                                         <div className="relative w-full max-w-[400px] min-h-[80px] flex items-center justify-center my-4">
+                                               {/* --- SIMPLE COMPACT SURAH HEADER --- */}
+                                               <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 400 80">
+                                                   <rect x="10" y="10" width="380" height="60" rx="30" fill="#06402B" stroke="#d4af37" strokeWidth="2" />
+                                                   <circle cx="40" cy="40" r="15" fill="#d4af37" opacity="0.2" />
+                                                   <circle cx="360" cy="40" r="15" fill="#d4af37" opacity="0.2" />
                                                </svg>
                                               <div className="relative z-20 flex flex-col items-center">
-                                                  <span className="text-[10px] text-[#D4AF37] font-black uppercase tracking-[0.6em] mb-1">سُورَةُ</span>
+                                                  <span className="text-[8px] text-[#D4AF37] font-bold uppercase tracking-[0.2em] mb-1">سُورَةُ</span>
                                                   <span 
-                                                     className="font-arabic font-black text-white drop-shadow-xl"
-                                                     style={{ fontSize: `${mushafFontSize * 1.9}px` }}
+                                                     className="font-arabic font-black text-white"
+                                                     style={{ fontSize: `${mushafFontSize * 1.3}px` }}
                                                   >
                                                      {surahName}
                                                   </span>
@@ -512,12 +441,10 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                          
                                         {sId !== "1" && sId !== "9" && (
                                             <div 
-                                                className="font-arabic text-[#06402B] dark:text-[#D4AF37] py-6 font-bold flex items-center justify-center gap-10 w-full"
-                                                style={{ fontSize: `${mushafFontSize * 1.4}px` }}
+                                                className="font-arabic text-[#06402B] dark:text-[#D4AF37] py-4 font-bold flex items-center justify-center gap-6 w-full"
+                                                style={{ fontSize: `${mushafFontSize * 1.1}px` }}
                                             >
-                                                <div className="flex-1 h-[1.5px] bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent" />
-                                                <span className="px-4">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</span>
-                                                <div className="flex-1 h-[1.5px] bg-gradient-to-l from-transparent via-[#D4AF37] to-transparent" />
+                                                <span className="opacity-50">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</span>
                                             </div>
                                         )}
                                     </div>
