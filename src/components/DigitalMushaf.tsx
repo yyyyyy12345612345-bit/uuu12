@@ -367,68 +367,52 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
             data-page={pData.page}
             className="flex flex-col relative w-full min-h-[85vh] bg-card dark:bg-[#1a1714] md:rounded-[1rem] shadow-[0_30px_70px_rgba(0,0,0,0.2)] border-2 border-[#d4af37]/30 transition-all overflow-hidden"
         >
-            {/* --- ROYAL EMERALD & GOLD ORNATE FRAME --- */}
+            {/* --- MINIMALIST ROYAL OTTOMAN FRAME --- */}
             <div className="absolute inset-0 z-10 pointer-events-none">
                 <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 800 1200">
                     <defs>
-                        <linearGradient id="brilliantGold" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#c5a059" />
-                            <stop offset="20%" stopColor="#fdfcf0" />
-                            <stop offset="50%" stopColor="#d4af37" />
-                            <stop offset="80%" stopColor="#fdfcf0" />
-                            <stop offset="100%" stopColor="#8a6d3b" />
-                        </linearGradient>
-                        <linearGradient id="madinahGoldRich" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <linearGradient id="premiumGold" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stopColor="#d4af37" />
                             <stop offset="50%" stopColor="#fdfcf0" />
-                            <stop offset="100%" stopColor="#8a6d3b" />
+                            <stop offset="100%" stopColor="#c5a059" />
                         </linearGradient>
-                        <pattern id="ottomanPattern" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
-                             <circle cx="60" cy="60" r="1.5" fill="#d4af37" opacity="0.1" />
-                             <path d="M60 10 Q70 60 60 110 M10 60 Q60 50 110 60" fill="none" stroke="#d4af37" strokeWidth="0.5" opacity="0.05" />
-                        </pattern>
                     </defs>
                     
-                    {/* Outer Frame (Deep Emerald Backing) */}
-                    <rect x="10" y="10" width="780" height="1180" fill="none" stroke="#043322" strokeWidth="24" />
+                    {/* Main Border - Triple Thin Lines */}
+                    <rect x="20" y="20" width="760" height="1160" fill="none" stroke="url(#premiumGold)" strokeWidth="1.5" />
+                    <rect x="25" y="25" width="750" height="1150" fill="none" stroke="url(#premiumGold)" strokeWidth="0.5" opacity="0.4" />
+                    <rect x="35" y="35" width="730" height="1130" fill="none" stroke="url(#premiumGold)" strokeWidth="3" opacity="0.8" />
                     
-                    {/* Ornate Inner Border (Gold Floral) */}
-                    <rect x="25" y="25" width="750" height="1150" fill="url(#ottomanPattern)" stroke="url(#brilliantGold)" strokeWidth="6" />
-                    
-                    {/* Double Thin Gold Line */}
-                    <rect x="40" y="40" width="720" height="1120" fill="none" stroke="url(#brilliantGold)" strokeWidth="0.5" opacity="0.3" />
-                    <rect x="44" y="44" width="712" height="1112" fill="none" stroke="url(#brilliantGold)" strokeWidth="0.5" opacity="0.3" />
-
-                    {/* Detailed Floral Ottoman Corners */}
+                    {/* Minimalist Geometric Corners */}
                     {[
-                        {t: "translate(25,25)", r: 0},
-                        {t: "translate(775,25)", r: 90},
-                        {t: "translate(775,1175)", r: 180},
-                        {t: "translate(25,1175)", r: 270}
+                        {t: "translate(35,35)", r: 0},
+                        {t: "translate(765,35)", r: 90},
+                        {t: "translate(765,1165)", r: 180},
+                        {t: "translate(35,1165)", r: 270}
                     ].map((c, i) => (
                         <g key={i} transform={`${c.t} rotate(${c.r})`}>
-                            {/* Rich Ottoman Arabesque Corner Piece */}
-                            <path d="M 0,0 L 150,0 C 150,80 80,150 0,150 Z" fill="#06402B" stroke="url(#brilliantGold)" strokeWidth="3" />
-                            <circle cx="35" cy="35" r="12" fill="url(#brilliantGold)" />
-                            <circle cx="35" cy="35" r="6" fill="#06402B" />
-                            {/* Floral Petals */}
-                            <path d="M 35,15 Q 45,25 35,35 Q 25,25 35,15 Z" fill="url(#brilliantGold)" transform="rotate(45, 35, 35)" />
-                            <path d="M 35,15 Q 45,25 35,35 Q 25,25 35,15 Z" fill="url(#brilliantGold)" transform="rotate(135, 35, 35)" />
-                            <path d="M 35,15 Q 45,25 35,35 Q 25,25 35,15 Z" fill="url(#brilliantGold)" transform="rotate(-45, 35, 35)" />
-                            <path d="M 35,15 Q 45,25 35,35 Q 25,25 35,15 Z" fill="url(#brilliantGold)" transform="rotate(-135, 35, 35)" />
+                            {/* Elegant Geometric L-Shape */}
+                            <path d="M 0,100 L 0,0 L 100,0" fill="none" stroke="url(#premiumGold)" strokeWidth="6" strokeLinecap="square" />
+                            {/* Small Ottoman Star at tip */}
+                            <g transform="translate(0,0)">
+                                <path d="M-10,0 L0,-10 L10,0 L0,10 Z" fill="#06402B" stroke="url(#premiumGold)" strokeWidth="1.5" />
+                                <circle r="2" fill="url(#premiumGold)" />
+                            </g>
                         </g>
                     ))}
 
-                    {/* Ottoman Medallions on the sides */}
-                    <g transform="translate(400, 25)">
-                        <path d="M -100,0 Q 0,50 100,0 Z" fill="#06402B" stroke="url(#brilliantGold)" strokeWidth="3" />
-                        <circle cx="0" cy="20" r="8" fill="url(#brilliantGold)" />
-                        <circle cx="0" cy="20" r="4" fill="#06402B" />
-                    </g>
-                    <g transform="translate(400, 1175) rotate(180)">
-                        <path d="M -100,0 Q 0,50 100,0 Z" fill="#06402B" stroke="url(#brilliantGold)" strokeWidth="3" />
-                        <circle cx="0" cy="20" r="8" fill="url(#brilliantGold)" />
-                    </g>
+                    {/* Royal Side Medallions - Minimalist */}
+                    {[
+                        {t: "translate(400, 35)", r: 0},
+                        {t: "translate(400, 1165)", r: 180},
+                        {t: "translate(35, 600) rotate(-90)", r: 0},
+                        {t: "translate(765, 600) rotate(90)", r: 0}
+                    ].map((m, i) => (
+                        <g key={i} transform={m.t}>
+                             <path d="M -60,0 Q 0,40 60,0" fill="none" stroke="url(#premiumGold)" strokeWidth="2" />
+                             <circle cx="0" cy="15" r="5" fill="#06402B" stroke="url(#premiumGold)" strokeWidth="1.5" />
+                        </g>
+                    ))}
                 </svg>
             </div>
 
@@ -490,32 +474,27 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                 {isFirstVerse && (
                                     <div className="w-full flex flex-col items-center gap-2 my-10 animate-in fade-in zoom-in duration-1000 relative">
                                          <div className="relative w-full max-w-[500px] min-h-[100px] flex items-center justify-center my-6">
-                                               {/* --- TRADITIONAL DECORATIVE SURAH BOX --- */}
-                                               <svg className="absolute inset-0 w-full h-full drop-shadow-xl" preserveAspectRatio="none" viewBox="0 0 500 100">
+                                               {/* --- ROYAL MINIMALIST SURAH HEADER --- */}
+                                               <svg className="absolute inset-0 w-full h-full drop-shadow-lg" preserveAspectRatio="none" viewBox="0 0 500 100">
                                                    <defs>
-                                                        <pattern id="headerArabesque" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
-                                                            <path d="M25 0 L50 25 L25 50 L0 25 Z" fill="#d4af37" opacity="0.1" />
-                                                        </pattern>
+                                                        <linearGradient id="headerGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                            <stop offset="0%" stopColor="#d4af37" />
+                                                            <stop offset="100%" stopColor="#8a6d3b" />
+                                                        </linearGradient>
                                                    </defs>
-                                                   {/* Master Box Decoration */}
-                                                   <path d="M 50,5 L 450,5 C 480,5 500,25 500,50 C 500,75 480,95 450,95 L 50,95 C 20,95 0,75 0,50 C 0,25 20,5 50,5" fill="#06402B" stroke="url(#brilliantGold)" strokeWidth="4" />
-                                                   <path d="M 60,20 L 440,20 Q 480,20 480,50 Q 480,80 440,80 L 60,80 Q 20,80 20,50 Q 20,20 60,20" fill="url(#headerArabesque)" stroke="url(#brilliantGold)" strokeWidth="1" opacity="0.4" />
+                                                   {/* Master Line Decoration */}
+                                                   <path d="M 20,50 L 150,50 M 350,50 L 480,50" stroke="url(#headerGold)" strokeWidth="1" opacity="0.4" />
                                                    
-                                                   {/* Floral Flourishes at ends */}
-                                                   <g transform="translate(30, 50)">
-                                                        <circle r="18" fill="url(#brilliantGold)" />
-                                                        <circle r="10" fill="#06402B" />
-                                                        <path d="M -8,-8 L 8,8 M -8,8 L 8,-8" stroke="url(#brilliantGold)" strokeWidth="2" />
-                                                   </g>
-                                                   <g transform="translate(470, 50)">
-                                                        <circle r="18" fill="url(#brilliantGold)" />
-                                                        <circle r="10" fill="#06402B" />
-                                                        <path d="M -8,-8 L 8,8 M -8,8 L 8,-8" stroke="url(#brilliantGold)" strokeWidth="2" />
-                                                   </g>
-
-                                                   {/* Top Decorative Medallion */}
-                                                   <path d="M 210,5 Q 250,-15 290,5 Z" fill="#06402B" stroke="url(#brilliantGold)" strokeWidth="2" />
-                                                   <circle cx="250" cy="-2" r="3" fill="url(#brilliantGold)" />
+                                                   {/* Elegant Box with Side Diamonds */}
+                                                   <path d="M 170,30 L 330,30 Q 340,30 340,40 L 340,60 Q 340,70 330,70 L 170,70 Q 160,70 160,60 L 160,40 Q 160,30 170,30" fill="#06402B" stroke="url(#headerGold)" strokeWidth="2" />
+                                                   
+                                                   {/* Side Diamond Medallions */}
+                                                   {[160, 340].map(x => (
+                                                       <g key={x} transform={`translate(${x}, 50)`}>
+                                                           <path d="M -15,0 L 0,-15 L 15,0 L 0,15 Z" fill="url(#headerGold)" />
+                                                           <circle r="4" fill="#06402B" />
+                                                       </g>
+                                                   ))}
                                                </svg>
                                               <div className="relative z-20 flex flex-col items-center">
                                                   <span className="text-[10px] text-[#d4af37] font-black uppercase tracking-[0.4em] mb-1 opacity-80">سُورَةُ</span>
