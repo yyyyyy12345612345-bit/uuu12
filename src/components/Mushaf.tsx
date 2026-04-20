@@ -165,12 +165,28 @@ export function Mushaf() {
                                     className={`group relative flex flex-col gap-3 p-5 premium-card border-border bg-background/30 dark:bg-foreground/[0.03] backdrop-blur-md hover:bg-background/60 hover:scale-[1.02] hover:border-primary/20 transition-all duration-500 ease-out ${state.bookmark?.surahId === surah.id.toString() ? 'border-primary/30 bg-primary/[0.03]' : ''}`}
                                 >
                                     <div className="flex items-start justify-between">
-                                        <div className="relative w-12 h-12 flex items-center justify-center group-hover:scale-110 transition-all">
-                                            <svg className="absolute inset-[-4px] w-[calc(100%+8px)] h-[calc(100%+8px)] text-primary group-hover:scale-110 transition-all" viewBox="0 0 100 100">
-                                                <rect x="10" y="10" width="80" height="80" fill="none" stroke="currentColor" strokeWidth="1" className="opacity-20" />
-                                                <path d="M 0,25 L 0,0 L 25,0 M 75,0 L 100,0 L 100,25 M 100,75 L 100,100 L 75,100 M 25,100 L 0,100 L 0,75" fill="none" stroke="currentColor" strokeWidth="4" />
+                                        <div className="relative w-14 h-14 flex items-center justify-center group-hover:scale-110 transition-all duration-500">
+                                            {/* Advanced Islamic Star (Octagram) */}
+                                            <svg className="absolute inset-0 w-full h-full drop-shadow-md" viewBox="0 0 100 100">
+                                                <defs>
+                                                    <linearGradient id="numGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                        <stop offset="0%" stopColor="#d4af37" />
+                                                        <stop offset="50%" stopColor="#f9f295" />
+                                                        <stop offset="100%" stopColor="#b8860b" />
+                                                    </linearGradient>
+                                                </defs>
+                                                {/* Outer Glow */}
+                                                <path d="M50 0 L63 37 L100 50 L63 63 L50 100 L37 63 L0 50 L37 37 Z" fill="url(#numGold)" opacity="0.1" className="group-hover:opacity-30 transition-opacity" />
+                                                {/* Main Star Layers */}
+                                                <path d="M50 5 L61 39 L95 50 L61 61 L50 95 L39 61 L5 50 L39 39 Z" fill="none" stroke="url(#numGold)" strokeWidth="1" />
+                                                <path d="M50 12 L58 42 L88 50 L58 58 L50 88 L42 58 L12 50 L42 42 Z" fill="url(#numGold)" opacity="0.1" />
+                                                {/* Corner Accents */}
+                                                <circle cx="50" cy="5" r="2" fill="url(#numGold)" />
+                                                <circle cx="50" cy="95" r="2" fill="url(#numGold)" />
+                                                <circle cx="5" cy="50" r="2" fill="url(#numGold)" />
+                                                <circle cx="95" cy="50" r="2" fill="url(#numGold)" />
                                             </svg>
-                                            <span className="relative z-10 text-[10px] font-black text-primary">
+                                            <span className="relative z-10 text-[11px] font-black text-[#8a6d3b] dark:text-[#d4af37] drop-shadow-sm">
                                                 {surah.id.toString().padStart(3, '0')}
                                             </span>
                                         </div>
