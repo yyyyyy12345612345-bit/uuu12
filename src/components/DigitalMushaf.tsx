@@ -482,22 +482,27 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                 {isFirstVerse && (
                                     <div className="w-full flex flex-col items-center gap-2 my-10 animate-in fade-in zoom-in duration-1000 relative">
                                          <div className="relative w-full max-w-[500px] min-h-[100px] flex items-center justify-center my-6">
-                                               {/* --- ROYAL MINIMALIST SURAH HEADER (Refined: No Box) --- */}
+                                               {/* --- ROYAL MINIMALIST SURAH HEADER (Refined: High Visibility) --- */}
                                                <svg className="absolute inset-0 w-full h-full drop-shadow-sm" preserveAspectRatio="none" viewBox="0 0 500 100">
                                                    <defs>
-                                                        <linearGradient id="headerGold" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                            <stop offset="0%" stopColor="#d4af37" />
-                                                            <stop offset="100%" stopColor="#8a6d3b" />
+                                                        <linearGradient id="premiumHeaderGold" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                            <stop offset="0%" stopColor="transparent" />
+                                                            <stop offset="20%" stopColor="#d4af37" />
+                                                            <stop offset="50%" stopColor="#fdfcf0" />
+                                                            <stop offset="80%" stopColor="#d4af37" />
+                                                            <stop offset="100%" stopColor="transparent" />
                                                         </linearGradient>
                                                    </defs>
-                                                   {/* Refined Master Line Decoration */}
-                                                   <path d="M 20,50 L 180,50 M 320,50 L 480,50" stroke="url(#headerGold)" strokeWidth="1.5" opacity="0.6" />
                                                    
-                                                   {/* Decorative Side Diamond Medallions (No Center Box) */}
+                                                   {/* Decorative Horizontal Lines with Gradient Visibility */}
+                                                   <path d="M 40,50 L 175,50 M 325,50 L 460,50" stroke="#d4af37" strokeWidth="1.2" opacity="0.8" />
+                                                   <path d="M 60,53 L 170,53 M 330,53 L 440,53" stroke="#d4af37" strokeWidth="0.5" opacity="0.3" />
+                                                   
+                                                   {/* Refined Side Elegant Medallions */}
                                                    {[190, 310].map(x => (
                                                        <g key={x} transform={`translate(${x}, 50)`}>
-                                                           <path d="M -12,0 L 0,-12 L 12,0 L 0,12 Z" fill="none" stroke="url(#headerGold)" strokeWidth="1.5" />
-                                                           <circle r="3" fill="url(#headerGold)" />
+                                                           <path d="M -14,0 L 0,-14 L 14,0 L 0,14 Z" fill="#06402B" stroke="#d4af37" strokeWidth="1.5" />
+                                                           <circle r="3" fill="#d4af37" />
                                                        </g>
                                                    ))}
                                                </svg>
