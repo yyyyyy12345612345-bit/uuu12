@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Quran App',
   webDir: 'out',
   server: {
-    url: 'https://quran-main-seven.vercel.app',
+    url: 'https://quran1-mu.vercel.app',
     cleartext: true
   },
   plugins: {
