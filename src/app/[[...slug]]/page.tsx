@@ -20,11 +20,8 @@ const DigitalMushaf = dynamic(() => import("@/components/DigitalMushaf").then(mo
 const FeedbackModal = dynamic(() => import("@/components/FeedbackModal").then(mod => mod.FeedbackModal), { ssr: false });
 const PWAInstallButton = dynamic(() => import("@/components/PWAInstallButton").then(mod => mod.PWAInstallButton), { ssr: false });
 const GlobalMenu = dynamic(() => import("@/components/GlobalMenu").then(mod => mod.GlobalMenu), { ssr: false });
-export function generateStaticParams() {
-  return [
-    { slug: [] }, // لضمان توليد صفحة index.html للـ root
-  ];
-}
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
 
 export default function CatchAllPage() {
   return (
