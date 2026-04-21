@@ -1,4 +1,4 @@
-package com.quran.app;
+package quran1mu.vercel.app;
 
 import com.getcapacitor.BridgeActivity;
 
