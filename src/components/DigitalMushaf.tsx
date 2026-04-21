@@ -7,6 +7,7 @@ import surahsData from "@/data/surahs.json";
 import { RECITERS } from "@/data/reciters";
 import { useEditor } from "@/store/useEditor";
 import { getAudioUrl } from "@/lib/quranUtils";
+import { logAppEvent } from "@/lib/firebase";
 
 const API_ROOT = "https://api.quran.com/api/v4";
 
@@ -76,6 +77,7 @@ export function DigitalMushaf() {
         if (newPagesData.length > 0) {
             setCurrentPage(startPage + newPagesData.length - 1);
             localStorage.setItem("last_read_page", startPage.toString());
+            logAppEvent("change_page", { page: startPage });
         }
     } catch (error) {
         console.error('Error fetching pages:', error);
@@ -128,6 +130,7 @@ export function DigitalMushaf() {
                 audioRef.current!.play();
             }
         });
+        logAppEvent("play_verse", { surah: sura, verse: ayah, reciter: state.reciterId });
     }
   };
 
@@ -236,7 +239,12 @@ export function DigitalMushaf() {
 
                 <div className="flex-1 overflow-y-auto no-scrollbar space-y-3 pb-20">
                     {filteredSurahs.map((s) => (
-                        <button key={s.id} onClick={() => { setPages([]); fetchPageBatch(SURAH_START_PAGES[s.id] || 1, true); setIsIndexOpen(false); }} className="w-full flex items-center justify-between p-5 rounded-[2rem] bg-foreground/[0.03] hover:bg-primary/[0.05] hover:scale-[1.01] transition-all group border border-border/40 hover:border-primary/40">
+                        <button key={s.id} onClick={() => { 
+                            setPages([]); 
+                            fetchPageBatch(SURAH_START_PAGES[s.id] || 1, true); 
+                            setIsIndexOpen(false); 
+                            logAppEvent("open_surah", { surah_id: s.id, surah_name: s.name });
+                        }} className="w-full flex items-center justify-between p-5 rounded-[2rem] bg-foreground/[0.03] hover:bg-primary/[0.05] hover:scale-[1.01] transition-all group border border-border/40 hover:border-primary/40">
                             <div className="flex items-center gap-5">
                                 <div className="relative w-14 h-14 flex items-center justify-center group-hover:rotate-[360deg] transition-all duration-1000">
                                     <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full drop-shadow-sm">
@@ -268,7 +276,7 @@ export function DigitalMushaf() {
                 <div 
                     className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-[0.3] dark:opacity-[0.2]"
                     style={{ 
-                        backgroundImage: "url('/mushaf-bg.jpg.png')",
+                        backgroundImage: "url('./mushaf-bg.jpg.png')",
                         filter: "sepia(0.3) brightness(1.05) contrast(1.1)"
                     }}
                 />

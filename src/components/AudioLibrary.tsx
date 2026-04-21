@@ -8,6 +8,7 @@ import {
   Disc, Music, Star, Zap, X
 } from "lucide-react";
 import surahsData from "@/data/surahs.json";
+import { logAppEvent } from "@/lib/firebase";
 
 // Memoized Surah Item to prevent entire list re-render
 const SurahItem = memo(({ surah, isCurrent, isPlaying, onClick }: any) => (
@@ -72,6 +73,7 @@ export function AudioLibrary() {
       if (isPlaying) {
         audio.play().catch(() => setIsPlaying(false));
       }
+      logAppEvent("change_reciter", { reciter_name: selectedReciter.name });
     }
   }, [currentSurah, selectedReciter]);
 
@@ -105,6 +107,7 @@ export function AudioLibrary() {
   const playSurah = (surah: any) => {
     setCurrentSurah(surah);
     setIsPlaying(true);
+    logAppEvent("play_audio", { surah_id: surah.id, surah_name: surah.name, reciter: selectedReciter.name });
   };
 
 

@@ -5,19 +5,25 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:app": "set CAPACITOR_BUILD=true&& next build",
+    "cap:sync": "set CAPACITOR_BUILD=true&& next build && npx cap sync",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@capacitor/android": "^8.3.1",
+    "@capacitor/cli": "^8.3.1",
+    "@capacitor/core": "^8.3.1",
+    "@remotion/bundler": "^4.0.448",
+    "@remotion/renderer": "^4.0.448",
     "clsx": "^2.1.1",
+    "firebase": "^12.12.1",
     "lucide-react": "^1.8.0",
     "next": "16.2.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "remotion": "^4.0.448",
-    "tailwind-merge": "^3.5.0",
-    "@remotion/bundler": "^4.0.448",
-    "@remotion/renderer": "^4.0.448"
+    "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
