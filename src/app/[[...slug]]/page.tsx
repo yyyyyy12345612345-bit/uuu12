@@ -1,25 +1,25 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import { useEditor } from "@/store/useEditor";
 import { usePathname } from "next/navigation";
 import { Settings, X, MessageCircle, Download, Menu } from "lucide-react";
 
 // Pre-load components with ssr: false for all to ensure stability in Next.js 16
-const SurahSelector = dynamic(() => import("@/components/SurahSelector").then(mod => mod.SurahSelector), { ssr: false });
-const VideoPreview = dynamic(() => import("@/components/VideoPreview").then(mod => mod.VideoPreview), { ssr: false });
-const Controls = dynamic(() => import("@/components/Controls").then(mod => mod.Controls), { ssr: false });
-const RenderModal = dynamic(() => import("@/components/RenderModal").then(mod => mod.RenderModal), { ssr: false });
-const Mushaf = dynamic(() => import("@/components/Mushaf").then(mod => mod.Mushaf), { ssr: false });
-const PrayerTimes = dynamic(() => import("@/components/PrayerTimes").then(mod => mod.PrayerTimes), { ssr: false });
-const AudioLibrary = dynamic(() => import("@/components/AudioLibrary").then(mod => mod.AudioLibrary), { ssr: false });
-const DailyHub = dynamic(() => import("@/components/DailyHub").then(mod => mod.DailyHub), { ssr: false });
-const Navigation = dynamic(() => import("@/components/Navigation").then(mod => mod.Navigation), { ssr: false });
-const DigitalMushaf = dynamic(() => import("@/components/DigitalMushaf").then(mod => mod.DigitalMushaf), { ssr: false });
-const FeedbackModal = dynamic(() => import("@/components/FeedbackModal").then(mod => mod.FeedbackModal), { ssr: false });
-const PWAInstallButton = dynamic(() => import("@/components/PWAInstallButton").then(mod => mod.PWAInstallButton), { ssr: false });
-const GlobalMenu = dynamic(() => import("@/components/GlobalMenu").then(mod => mod.GlobalMenu), { ssr: false });
+const SurahSelector = nextDynamic(() => import("@/components/SurahSelector").then(mod => mod.SurahSelector), { ssr: false });
+const VideoPreview = nextDynamic(() => import("@/components/VideoPreview").then(mod => mod.VideoPreview), { ssr: false });
+const Controls = nextDynamic(() => import("@/components/Controls").then(mod => mod.Controls), { ssr: false });
+const RenderModal = nextDynamic(() => import("@/components/RenderModal").then(mod => mod.RenderModal), { ssr: false });
+const Mushaf = nextDynamic(() => import("@/components/Mushaf").then(mod => mod.Mushaf), { ssr: false });
+const PrayerTimes = nextDynamic(() => import("@/components/PrayerTimes").then(mod => mod.PrayerTimes), { ssr: false });
+const AudioLibrary = nextDynamic(() => import("@/components/AudioLibrary").then(mod => mod.AudioLibrary), { ssr: false });
+const DailyHub = nextDynamic(() => import("@/components/DailyHub").then(mod => mod.DailyHub), { ssr: false });
+const Navigation = nextDynamic(() => import("@/components/Navigation").then(mod => mod.Navigation), { ssr: false });
+const DigitalMushaf = nextDynamic(() => import("@/components/DigitalMushaf").then(mod => mod.DigitalMushaf), { ssr: false });
+const FeedbackModal = nextDynamic(() => import("@/components/FeedbackModal").then(mod => mod.FeedbackModal), { ssr: false });
+const PWAInstallButton = nextDynamic(() => import("@/components/PWAInstallButton").then(mod => mod.PWAInstallButton), { ssr: false });
+const GlobalMenu = nextDynamic(() => import("@/components/GlobalMenu").then(mod => mod.GlobalMenu), { ssr: false });
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
