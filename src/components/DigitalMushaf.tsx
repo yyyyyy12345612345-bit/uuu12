@@ -482,32 +482,29 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                 {isFirstVerse && (
                                     <div className="w-full flex flex-col items-center gap-2 my-10 animate-in fade-in zoom-in duration-1000 relative">
                                          <div className="relative w-full max-w-[500px] min-h-[100px] flex items-center justify-center my-6">
-                                               {/* --- ROYAL MINIMALIST SURAH HEADER --- */}
-                                               <svg className="absolute inset-0 w-full h-full drop-shadow-lg" preserveAspectRatio="none" viewBox="0 0 500 100">
+                                               {/* --- ROYAL MINIMALIST SURAH HEADER (Refined: No Box) --- */}
+                                               <svg className="absolute inset-0 w-full h-full drop-shadow-sm" preserveAspectRatio="none" viewBox="0 0 500 100">
                                                    <defs>
                                                         <linearGradient id="headerGold" x1="0%" y1="0%" x2="100%" y2="100%">
                                                             <stop offset="0%" stopColor="#d4af37" />
                                                             <stop offset="100%" stopColor="#8a6d3b" />
                                                         </linearGradient>
                                                    </defs>
-                                                   {/* Master Line Decoration */}
-                                                   <path d="M 20,50 L 150,50 M 350,50 L 480,50" stroke="url(#headerGold)" strokeWidth="1" opacity="0.4" />
+                                                   {/* Refined Master Line Decoration */}
+                                                   <path d="M 20,50 L 180,50 M 320,50 L 480,50" stroke="url(#headerGold)" strokeWidth="1.5" opacity="0.6" />
                                                    
-                                                   {/* Elegant Box with Side Diamonds */}
-                                                   <path d="M 170,30 L 330,30 Q 340,30 340,40 L 340,60 Q 340,70 330,70 L 170,70 Q 160,70 160,60 L 160,40 Q 160,30 170,30" fill="#06402B" stroke="url(#headerGold)" strokeWidth="2" />
-                                                   
-                                                   {/* Side Diamond Medallions */}
-                                                   {[160, 340].map(x => (
+                                                   {/* Decorative Side Diamond Medallions (No Center Box) */}
+                                                   {[190, 310].map(x => (
                                                        <g key={x} transform={`translate(${x}, 50)`}>
-                                                           <path d="M -15,0 L 0,-15 L 15,0 L 0,15 Z" fill="url(#headerGold)" />
-                                                           <circle r="4" fill="#06402B" />
+                                                           <path d="M -12,0 L 0,-12 L 12,0 L 0,12 Z" fill="none" stroke="url(#headerGold)" strokeWidth="1.5" />
+                                                           <circle r="3" fill="url(#headerGold)" />
                                                        </g>
                                                    ))}
                                                </svg>
                                               <div className="relative z-20 flex flex-col items-center">
-                                                  <span className="text-[10px] text-[#d4af37] font-black uppercase tracking-[0.4em] mb-1 opacity-80">سُورَةُ</span>
+                                                  <span className="text-[10px] text-[#06402B] dark:text-[#d4af37] font-black uppercase tracking-[0.4em] mb-1 opacity-60">سُورَةُ</span>
                                                   <span 
-                                                     className="font-arabic font-black text-white drop-shadow-lg"
+                                                     className="font-arabic font-black text-[#06402B] dark:text-white drop-shadow-sm"
                                                      style={{ fontSize: `${mushafFontSize * 1.6}px` }}
                                                   >
                                                      {surahName}
