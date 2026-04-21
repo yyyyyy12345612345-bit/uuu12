@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "781003447825",
+    "project_id": "quranapp-ba253",
+    "storage_bucket": "quranapp-ba253.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:781003447825:android:ac6f956af543f7124ddbb0",
+        "android_client_info": {
+          "package_name": "quran1mu.vercel.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeOHJzm7rkAcwDlV_uSSw99wycnotaQQI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

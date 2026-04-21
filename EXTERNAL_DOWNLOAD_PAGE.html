@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تنزيل تطبيق القرآن الكريم | النسخة الكاملة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #050505; color: #ffffff; }
+        .islamic-pattern { opacity: 0.05; background-image: url('https://www.transparenttextures.com/patterns/islamic-art.png'); }
+        .gradient-text { background: linear-gradient(135deg, #c5a059 0%, #ffffff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .floating { animation: float 6s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <!-- background -->
+    <div class="fixed inset-0 islamic-pattern pointer-events-none"></div>
+    <div class="fixed top-0 right-0 w-96 h-96 bg-yellow-600/10 rounded-full blur-[100px]"></div>
+    <div class="fixed bottom-0 left-0 w-96 h-96 bg-blue-600/10 rounded-full blur-[100px]"></div>
+
+    <main class="relative z-10 max-w-4xl mx-auto px-6 py-12">
+        
+        <!-- TOP AD UNIT -->
+        <div class="w-full h-24 bg-white/5 border border-white/10 rounded-xl mb-12 flex items-center justify-center overflow-hidden">
+            <span class="text-white/20 text-xs">إعلان هيدر (AdSense Header)</span>
+            <!-- ضع كود الإعلان الخاص بك هنا -->
+        </div>
+
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-6xl font-black gradient-text mb-4">تطبيق القرآن الكريم</h1>
+            <p class="text-white/60 text-lg">النسخة الجديدة v1.0 - استمتع بالاستماع والقراءة بدون قيود</p>
+        </div>
+
+        <!-- Download Card -->
+        <div class="bg-white/5 border border-white/10 p-8 rounded-[40px] shadow-2xl text-center backdrop-blur-lg">
+            
+            <div class="mb-8">
+                <img src="https://cdn-icons-png.flaticon.com/512/3050/3050014.png" alt="App Icon" class="w-32 h-32 mx-auto floating drop-shadow-[0_0_30px_rgba(197,160,89,0.3)]">
+            </div>
+
+            <div id="preparing" class="space-y-6">
+                <h2 class="text-2xl font-bold">جاري تجهيز رابط التحميل المباشر...</h2>
+                <div class="w-full bg-white/10 h-2 rounded-full overflow-hidden">
+                    <div id="progress" class="bg-yellow-600 h-full w-0 transition-all duration-1000"></div>
+                </div>
+                <p class="text-white/40 text-sm">برجاء الانتظار <span id="timer">15</span> ثانية لضمان أمان الملف</p>
+            </div>
+
+            <!-- MIDDLE AD UNIT (Visible during wait) -->
+            <div class="my-8 w-full h-64 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center">
+                <span class="text-white/20 text-xs">إعلان منتصف (Square Ad)</span>
+                <!-- ضع كود الإعلان الخاص بك هنا -->
+            </div>
+
+            <div id="download-btn-container" class="hidden animate-bounce">
+                <a href="URL_TO_YOUR_APK_ON_GITHUB" class="inline-flex items-center gap-3 px-12 py-5 bg-gradient-to-r from-yellow-600 to-yellow-700 text-white rounded-full font-black text-2xl shadow-[0_10px_40px_rgba(202,138,4,0.3)] hover:scale-105 transition-all">
+                    <span>تحميل APK الآن</span>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                </a>
+            </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
+            <div class="p-6 bg-white/5 rounded-3xl border border-white/5">
+                <h3 class="text-yellow-600 font-bold mb-2">💎 مجاني بالكامل</h3>
+                <p class="text-white/50 text-sm">كل ميزات المصحف والصوت متاحة بدون أي رسوم اشتراك.</p>
+            </div>
+            <div class="p-6 bg-white/5 rounded-3xl border border-white/5">
+                <h3 class="text-yellow-600 font-bold mb-2">🔋 موفر للبطارية</h3>
+                <p class="text-white/50 text-sm">صمم التطبيق ليعمل في الخلفية بأقل استهلاك لموارد الموبايل.</p>
+            </div>
+        </div>
+
+        <!-- BOTTOM AD UNIT -->
+        <div class="mt-12 w-full h-32 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center overflow-hidden">
+            <span class="text-white/20 text-xs">إعلان فوتر (Anchor Ad)</span>
+            <!-- ضع كود الإعلان الخاص بك هنا -->
+        </div>
+
+        <footer class="mt-12 text-center text-white/20 text-xs">
+            جميع الحقوق محفوظة &copy; تطبيق القرآن الكريم 2024
+        </footer>
+
+    </main>
+
+    <script>
+        let timeLeft = 15;
+        const timerElement = document.getElementById('timer');
+        const progressElement = document.getElementById('progress');
+        const preparingElement = document.getElementById('preparing');
+        const btnContainer = document.getElementById('download-btn-container');
+
+        const interval = setInterval(() => {
+            timeLeft--;
+            timerElement.innerText = timeLeft;
+            progressElement.style.width = ((15 - timeLeft) / 15 * 100) + '%';
+
+            if (timeLeft <= 0) {
+                clearInterval(interval);
+                preparingElement.classList.add('hidden');
+                btnContainer.classList.remove('hidden');
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

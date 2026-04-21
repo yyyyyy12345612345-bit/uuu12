@@ -3,7 +3,7 @@
 import React from "react";
 import { 
   X, MessageCircle, Moon, Sun, BookOpen, ScrollText, 
-  Calendar, Headphones, Timer, Video, Share2, Heart
+  Calendar, Headphones, Timer, Video, Share2, Heart, Smartphone
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/ThemeProvider";
@@ -46,6 +46,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback }: GlobalMenuProps)
             navigator.share({ title: 'قرآن', text: 'تطبيق القرآن الكريم واستوديو الفيديو الجنائزي', url: window.location.href });
           }
         }},
+        { id: "download", label: "تنزيل التطبيق (APK)", icon: Smartphone, url: "https://quran-download.netlify.app", highlight: true },
       ]
     }
   ];
@@ -95,26 +96,41 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback }: GlobalMenuProps)
            {menuGroups.map((group, idx) => (
              <div key={idx} className="space-y-4">
                 <h4 className="text-[10px] font-black text-foreground/40 tracking-[0.2em] px-4">{group.title}</h4>
-                <div className="grid grid-cols-1 gap-2">
-                   {group.items.map((item) => (
+                   {group.items.map((item: any) => (
                      <button
                        key={item.id}
                        onClick={() => {
                          if (item.onClick) item.onClick();
+                         else if (item.url) window.open(item.url, '_blank');
                          else if (item.path) navigate(item.path);
                        }}
-                       className="group flex items-center justify-between p-5 rounded-3xl hover:bg-foreground/5 border border-transparent hover:border-border transition-all text-right"
+                       className={`group flex items-center justify-between p-5 rounded-3xl transition-all text-right border ${
+                         item.highlight 
+                           ? 'bg-primary/10 border-primary/30 hover:bg-primary/20' 
+                           : 'bg-foreground/5 border-transparent hover:border-border hover:bg-foreground/[0.08]'
+                       }`}
                      >
                         <div className="flex items-center gap-5">
-                           <div className="w-12 h-12 rounded-2xl bg-foreground/5 flex items-center justify-center group-hover:bg-primary/20 transition-all">
-                              <item.icon className="w-5 h-5 text-foreground/40 group-hover:text-primary transition-all" />
+                           <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
+                             item.highlight ? 'bg-primary/20' : 'bg-foreground/5 group-hover:bg-primary/20'
+                           }`}>
+                              <item.icon className={`w-5 h-5 transition-all ${
+                                item.highlight ? 'text-primary' : 'text-foreground/40 group-hover:text-primary'
+                              }`} />
                            </div>
-                           <span className="text-lg font-bold text-foreground/70 group-hover:text-foreground transition-all">{item.label}</span>
+                           <span className={`text-lg font-bold transition-all ${
+                             item.highlight ? 'text-primary' : 'text-foreground/70 group-hover:text-foreground'
+                           }`}>
+                             {item.label}
+                           </span>
                         </div>
-                        <div className="w-2 h-2 rounded-full bg-foreground/5 group-hover:bg-primary transition-all" />
+                        {item.highlight ? (
+                          <div className="px-3 py-1 bg-primary text-primary-foreground text-[10px] font-black rounded-full animate-pulse">جديد</div>
+                        ) : (
+                          <div className="w-2 h-2 rounded-full bg-foreground/10 group-hover:bg-primary transition-all" />
+                        )}
                      </button>
                    ))}
-                </div>
              </div>
            ))}
 
