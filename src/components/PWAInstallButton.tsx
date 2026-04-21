@@ -76,14 +76,16 @@ export function PWAInstallButton() {
 
   return (
     <>
-      <button
-        onClick={handleInstallClick}
+      <a
+        href="https://tubular-lebkuchen-c1ed75.netlify.app"
+        target="_blank"
+        rel="noopener noreferrer"
         className="group relative flex items-center gap-2 bg-primary/10 hover:bg-primary text-primary hover:text-black border border-primary/20 hover:border-primary px-5 py-2.5 rounded-2xl transition-all duration-500 shadow-xl overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shimmer" />
         <Download className="w-4 h-4 group-hover:scale-110 transition-transform" />
         <span className="font-bold text-xs font-arabic">تثبيت التطبيق</span>
-      </button>
+      </a>
 
       {/* Instructions Overlay */}
       {showInstructions && (

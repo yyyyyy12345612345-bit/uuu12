@@ -238,9 +238,19 @@ export function Mushaf() {
                     <ChevronRight className="w-7 h-7 cursor-pointer" />
                 </button>
 
-                <div className="text-center flex-1">
-                    <h2 className="text-xl md:text-2xl font-bold font-arabic gold-shimmer-pro">سورة {surahContent?.name || "..."}</h2>
-                    <p className="text-[9px] text-foreground/20 font-bold uppercase tracking-widest">{surahContent?.transliteration}</p>
+                <div className="text-center flex-1 flex flex-col items-center justify-center pt-2">
+                    <span className="text-[12px] font-bold text-primary/60 font-arabic mb-1">سُورَةُ</span>
+                    <div className="relative px-12 py-3">
+                        {/* Elegant Islamic Frame SVG */}
+                        <svg className="absolute inset-0 w-full h-full text-primary" viewBox="0 0 200 60" preserveAspectRatio="none">
+                            <path d="M0,30 L15,10 L30,5 L170,5 L185,10 L200,30 L185,50 L170,55 L30,55 L15,50 Z" fill="rgba(6, 64, 43, 0.8)" stroke="currentColor" strokeWidth="1.5" />
+                            <circle cx="10" cy="30" r="4" fill="currentColor" />
+                            <circle cx="190" cy="30" r="4" fill="currentColor" />
+                        </svg>
+                        <h2 className="relative z-10 text-2xl md:text-3xl font-bold font-arabic text-white drop-shadow-lg leading-none">
+                            {surahContent?.name || "..."}
+                        </h2>
+                    </div>
                 </div>
 
                 <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-lg cursor-pointer hover:scale-105 active:scale-95 transition-all shrink-0" onClick={() => setShowReciterPicker(!showReciterPicker)}>
