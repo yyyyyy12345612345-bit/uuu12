@@ -46,7 +46,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback }: GlobalMenuProps)
             navigator.share({ title: 'قرآن', text: 'تطبيق القرآن الكريم واستوديو الفيديو الجنائزي', url: window.location.href });
           }
         }},
-        { id: "download", label: "تنزيل التطبيق (APK)", icon: Smartphone, url: "https://quran-download.netlify.app", highlight: true },
+        { id: "download", label: "تنزيل التطبيق (APK)", icon: Smartphone, url: "https://tubular-lebkuchen-c1ed75.netlify.app", highlight: true },
       ]
     }
   ];
