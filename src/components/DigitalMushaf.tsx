@@ -501,11 +501,11 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                                        </g>
                                                    ))}
                                                </svg>
-                                              <div className="relative z-20 flex flex-col items-center">
-                                                  <span className="text-[10px] text-[#06402B] dark:text-[#d4af37] font-black uppercase tracking-[0.4em] mb-1 opacity-60">سُورَةُ</span>
+                                              <div className="relative z-20 flex flex-col items-center translate-y-1">
+                                                  <span className="text-[10px] text-[#06402B] dark:text-[#d4af37] font-black uppercase tracking-[0.4em] mb-0 opacity-60">سُورَةُ</span>
                                                   <span 
-                                                     className="font-arabic font-black text-[#06402B] dark:text-white drop-shadow-sm"
-                                                     style={{ fontSize: `${mushafFontSize * 1.6}px` }}
+                                                     className="font-arabic font-black text-[#06402B] dark:text-white drop-shadow-sm leading-tight"
+                                                     style={{ fontSize: `${mushafFontSize * 1.5}px` }}
                                                   >
                                                      {surahName}
                                                   </span>
@@ -546,8 +546,13 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                         })}
                                         
                                         <span 
-                                            className="inline-flex items-center justify-center relative select-none mx-4 translate-y-3"
-                                            style={{ width: `${mushafFontSize * 1.6}px`, height: `${mushafFontSize * 1.6}px` }}
+                                            className="inline-flex items-center justify-center relative select-none mx-2 vertical-align-middle"
+                                            style={{ 
+                                                width: `${mushafFontSize * 1.3}px`, 
+                                                height: `${mushafFontSize * 1.3}px`,
+                                                verticalAlign: 'middle',
+                                                transform: 'translateY(-10%)'
+                                            }}
                                         >
                                             <svg className="absolute inset-0 w-full h-full drop-shadow-md" viewBox="0 0 100 100">
                                                 {/* Detailed Ottoman Verse Medallion */}
