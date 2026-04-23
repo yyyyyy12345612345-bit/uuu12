@@ -4,6 +4,9 @@ import React, { useEffect, useState } from "react";
 import { Download, X, Share, PlusSquare, MoreVertical, Smartphone, Monitor } from "lucide-react";
 
 export function PWAInstallButton() {
+  // Temporarily hidden by request: "عاوز تخفي من موقع زرار تثبيت تطبيق اخفيه لحد لما اقولك رجعو"
+  return null;
+
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);

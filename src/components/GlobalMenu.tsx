@@ -46,7 +46,8 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback }: GlobalMenuProps)
             navigator.share({ title: 'قرآن', text: 'تطبيق القرآن الكريم واستوديو الفيديو الجنائزي', url: window.location.href });
           }
         }},
-        { id: "download", label: "تنزيل التطبيق (APK)", icon: Smartphone, url: "https://github.com/yyyyyy12345612345-bit/uuu12/releases/latest/download/app-debug.apk", highlight: true },
+        // Temporarily hidden by request: "تنزيل التطبيق (APK)"
+        // { id: "download", label: "تنزيل التطبيق (APK)", icon: Smartphone, url: "https://github.com/yyyyyy12345612345-bit/uuu12/releases/latest/download/app-debug.apk", highlight: true },
       ]
     }
   ];
