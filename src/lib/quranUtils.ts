@@ -7,11 +7,16 @@ export const getAudioUrl = (surahId: number, ayahId: number, reciterId: string, 
   // EveryAyah Format: SSSAAA.mp3 (e.g. 001001.mp3)
   const ayahSlug = `${pad(surahId)}${pad(ayahId)}`;
   
-  // EveryAyah HTTPS Mirror (The most comprehensive source)
+  // Primary: Try EveryAyah if available
   if (reciter?.everyAyahFolder) {
     return `https://everyayah.com/data/${reciter.everyAyahFolder}/${ayahSlug}.mp3`;
   }
 
-  // Final Fallback to Alafasy (Always works)
+  // Fallback: Use mp3quran.net if available (most reliable)
+  if (reciter?.mp3quranServer) {
+    return `https://${reciter.mp3quranServer}/${pad(surahId)}.mp3`;
+  }
+
+  // Final Fallback to Alafasy (Most reliable)
   return `https://everyayah.com/data/Alafasy_128kbps/${ayahSlug}.mp3`;
 };

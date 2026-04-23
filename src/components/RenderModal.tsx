@@ -49,6 +49,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
       const response = await fetch("https://yousef891238-render-server.hf.space/render", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        mode: "cors",
         body: JSON.stringify({
           surahName: surahData.name,
           verses,
