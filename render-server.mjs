@@ -46,7 +46,7 @@ async function getAudioDuration(filePath) {
 
 app.post("/render", async (req, res) => {
   const jobId = `job-${Date.now()}`;
-  jobs.set(jobId, { status: "processing", progress: 0, message: "بدء المحرك النووي..." });
+  jobs.set(jobId, { status: "processing", progress: 0, message: "بدء المحرك النووي المحدث..." });
   res.json({ jobId });
   renderNuclear(jobId, req.body).catch(err => {
     console.error(err);
@@ -70,7 +70,6 @@ async function renderNuclear(jobId, data) {
     const bgPath = path.resolve(tempDir, isVideoBg ? "bg.mp4" : "bg.jpg");
     await downloadFile(backgroundUrl, bgPath);
 
-    // 1. رندرة صورة واحدة لكل آية (سرعة فائقة)
     const verseImages = [];
     let currentTime = 0;
     
@@ -90,7 +89,7 @@ async function renderNuclear(jobId, data) {
         serveUrl: bundleLocation,
         outputLocation: imgPath,
         inputProps,
-        frame: 50, // نأخذ فريم من المنتصف حيث النص ظاهر تماماً
+        frame: 50,
       });
 
       verseImages.push({ imgPath, audioPath, duration, start: currentTime });
@@ -98,27 +97,32 @@ async function renderNuclear(jobId, data) {
       jobs.set(jobId, { status: "processing", progress: Math.round(((i+1)/verses.length)*80), message: `تجهيز الآية ${i+1}...` });
     }
 
-    // 2. تجميع الكل باستخدام FFmpeg السحري
-    jobs.set(jobId, { status: "processing", progress: 90, message: "الدمج النووي النهائي..." });
+    jobs.set(jobId, { status: "processing", progress: 90, message: "الدمج المتسلسل النهائي..." });
     const finalPath = path.resolve(RENDERS_DIR, `${jobId}.mp4`);
     
-    // بناء فلاتر FFmpeg للدمج والتحريك
+    // تصحيح فلاتر FFmpeg للدمج المتسلسل
     let filterComplex = `[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg];`;
     let audioFilter = "";
     
+    // تحضير طبقات النصوص
     verseImages.forEach((v, i) => {
       filterComplex += `[${i+1}:v]scale=1080:1920,format=rgba,fade=in:st=${v.start}:d=0.5:alpha=1,fade=out:st=${v.start+v.duration-0.5}:d=0.5:alpha=1[v${i}];`;
       audioFilter += `[${i+verses.length+1}:a]atrim=0:${v.duration},adelay=${Math.round(v.start*1000)}|${Math.round(v.start*1000)}[a${i}];`;
     });
     
-    const overlays = verseImages.map((_, i) => `[v${i}]`).join("");
-    filterComplex += `[bg]${overlays}overlay=format=auto[outv];`;
+    // تسلسل الـ Overlay (واحدة فوق الأخرى)
+    let lastOverlay = "[bg]";
+    verseImages.forEach((_, i) => {
+      const nextOutput = i === verseImages.length - 1 ? "[outv]" : `[tmp${i}]`;
+      filterComplex += `${lastOverlay}[v${i}]overlay=format=auto${nextOutput};`;
+      lastOverlay = `[tmp${i}]`;
+    });
+    
     const audioMix = verseImages.map((_, i) => `[a${i}]`).join("");
     audioFilter += `${audioMix}amix=inputs=${verseImages.length}:dropout_transition=0[outa]`;
 
     const inputs = verseImages.map(v => `-i "${v.imgPath}"`).join(" ");
     const audios = verseImages.map(v => `-i "${v.audioPath}"`).join(" ");
-    
     const bgInput = isVideoBg ? `-stream_loop -1 -i "${bgPath}"` : `-loop 1 -i "${bgPath}"`;
     
     await execAsync(`ffmpeg ${bgInput} ${inputs} ${audios} -filter_complex "${filterComplex}${audioFilter}" -map "[outv]" -map "[outa]" -c:v libx264 -preset ultrafast -t ${currentTime} -pix_fmt yuv420p "${finalPath}" -y`);
@@ -127,8 +131,9 @@ async function renderNuclear(jobId, data) {
     jobs.set(jobId, { status: "completed", progress: 100, url: `https://${host}/download/${jobId}.mp4` });
 
   } catch (err) {
+    console.error("FFmpeg Error:", err);
     jobs.set(jobId, { status: "failed", error: err.message });
   }
 }
 
-app.listen(7860, () => console.log("🚀 NUCLEAR SERVER ACTIVE"));
+app.listen(7860, () => console.log("🚀 NUCLEAR SERVER UPDATED"));
