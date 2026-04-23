@@ -11,8 +11,9 @@ export function PWAInstallButton() {
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
-    // Check if already in standalone mode
-    const standalone = window.matchMedia("(display-mode: standalone)").matches || (navigator as any).standalone;
+    // Check if already in standalone mode or running in Capacitor
+    const isCapacitor = (window as any).Capacitor !== undefined;
+    const standalone = window.matchMedia("(display-mode: standalone)").matches || (navigator as any).standalone || isCapacitor;
     setIsStandalone(standalone);
     if (standalone) setIsInstalled(true);
 

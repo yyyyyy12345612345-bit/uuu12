@@ -98,7 +98,7 @@ export const MainVideo: React.FC<MainVideoProps> = ({
   const fontImport = FONT_IMPORTS[fontFamily] || FONT_IMPORTS["Amiri"];
 
   return (
-    <AbsoluteFill style={{ backgroundColor: 'black' }}>
+    <AbsoluteFill style={{ backgroundColor: backgroundUrl ? 'black' : 'transparent' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=${fontImport}&display=swap');
         
@@ -121,7 +121,7 @@ export const MainVideo: React.FC<MainVideoProps> = ({
         }
       `}</style>
 
-      <AbsoluteFill style={{ backgroundColor: 'black' }} />
+      <AbsoluteFill style={{ backgroundColor: backgroundUrl ? 'black' : 'transparent' }} />
 
       {/* ── الخلفية الفلترة ── */}
       {resolvedBg && (
