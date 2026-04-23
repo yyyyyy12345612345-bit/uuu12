@@ -143,7 +143,9 @@ async function start() {
       serveUrl: bundleLocation,
       outputLocation,
       codec: "h264",
-      concurrency: Math.max(1, Math.floor(os.cpus().length / 2)),
+      // تم ضبطها على 1 لضمان الاستقرار على سيرفرات Hugging Face المحدودة
+      concurrency: 1, 
+      // Fixed to 1 to avoid core limit errors on limited servers
       staticDir: baseDir,
       inputProps,
       crf: 23,

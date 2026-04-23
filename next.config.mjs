@@ -5,9 +5,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // We remove standalone and excludes to ensure ALL files are present
+  output: 'export',
   typescript: {
     ignoreBuildErrors: true,
+  },
+  images: {
+    unoptimized: true,
   },
   allowedDevOrigins: ['192.168.1.8'],
   outputFileTracingIncludes: {

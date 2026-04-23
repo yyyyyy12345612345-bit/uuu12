@@ -32,7 +32,17 @@ try {
     console.log('تنبيه: فشل تحديث الأيقونات، سيتم الإكمال بدونها.');
 }
 
-// 3. مزامنة Capacitor
+// 3. بناء المشروع (Next.js Build)
+console.log('جاري بناء مشروع Next.js (Export)...');
+try {
+    execSync('npm run build', { stdio: 'inherit' });
+    console.log('تم البناء بنجاح.');
+} catch (e) {
+    console.log('خطأ أثناء البناء. تأكد من عدم وجود أخطاء في الكود.');
+    process.exit(1);
+}
+
+// 4. مزامنة Capacitor
 console.log('جاري عمل Sync لمشروع الأندرويد...');
 try {
     execSync('npx cap sync', { stdio: 'inherit' });

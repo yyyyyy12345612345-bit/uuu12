@@ -20,8 +20,19 @@ const DigitalMushaf = nextDynamic(() => import("@/components/DigitalMushaf").the
 const FeedbackModal = nextDynamic(() => import("@/components/FeedbackModal").then(mod => mod.FeedbackModal), { ssr: false });
 const PWAInstallButton = nextDynamic(() => import("@/components/PWAInstallButton").then(mod => mod.PWAInstallButton), { ssr: false });
 const GlobalMenu = nextDynamic(() => import("@/components/GlobalMenu").then(mod => mod.GlobalMenu), { ssr: false });
-export const dynamic = 'force-dynamic';
-export const dynamicParams = true;
+export const dynamic = 'force-static';
+
+export async function generateStaticParams() {
+  return [
+    { slug: [] },
+    { slug: ['mushaf'] },
+    { slug: ['mushaf-full'] },
+    { slug: ['daily'] },
+    { slug: ['library'] },
+    { slug: ['prayers'] },
+    { slug: ['video'] },
+  ];
+}
 
 export default function CatchAllPage() {
   return (
@@ -67,7 +78,7 @@ function CatchAllContent() {
       {/* Global Top Bar - Logo + Install + Feedback */}
       <header className="h-14 shrink-0 bg-background/80 backdrop-blur-xl border-b border-border px-4 md:px-8 flex items-center justify-between z-[200]">
         <div className="flex items-center gap-3">
-          <img src="./logo/logo.png?v=10" alt="قرآن" className="w-8 h-8 rounded-xl" />
+          <img src="/logo/logo.png?v=10" alt="قرآن" className="w-8 h-8 rounded-xl" />
           <span className="text-sm font-bold font-arabic text-primary hidden sm:block">قرآن</span>
         </div>
         <div className="flex items-center gap-2">
