@@ -45,26 +45,13 @@ async function getAudioDuration(filePath) {
   } catch { return 8; }
 }
 
-// تنظيف الملفات القديمة (أكبر من ساعة) لتوفير المساحة
-function cleanupOldRenders() {
-  const now = Date.now();
-  fs.readdirSync(RENDERS_DIR).forEach(file => {
-    const filePath = path.join(RENDERS_DIR, file);
-    const stats = fs.statSync(filePath);
-    if (now - stats.mtimeMs > 60 * 60 * 1000) {
-      try { fs.unlinkSync(filePath); } catch(e){}
-    }
-  });
-}
-
 app.get("/", (req, res) => {
-  cleanupOldRenders();
-  res.json({ status: "Smart Turbo Server Active 🚀", activeJobs: jobs.size });
+  res.json({ status: "ULTRA TURBO Server Active 🚀", activeJobs: jobs.size });
 });
 
 app.get("/status/:jobId", (req, res) => {
   const job = jobs.get(req.params.jobId);
-  if (!job) return res.status(404).json({ error: "الطلب غير موجود" });
+  if (!job) return res.status(404).json({ error: "Job not found" });
   res.json(job);
 });
 
@@ -73,7 +60,7 @@ app.post("/render", async (req, res) => {
   if (!verses?.length) return res.status(400).json({ error: "verses required" });
 
   const jobId = `job-${Date.now()}`;
-  jobs.set(jobId, { status: "processing", progress: 0, message: "بدأت الرندرة..." });
+  jobs.set(jobId, { status: "processing", progress: 0, message: "جاري التحضير للرندرة السريعة..." });
 
   res.json({ jobId });
   renderInBackground(jobId, req.body).catch(err => {
@@ -105,61 +92,66 @@ async function renderInBackground(jobId, data) {
       return { v, audioPath, duration: audioPath ? await getAudioDuration(audioPath) : 8 };
     }));
 
+    const FPS = 20; // تقليل الفريمات لزيادة السرعة 33%
     let cumulativeFrames = 0;
     const processedVerses = audioResults.map(({ v, audioPath, duration }) => {
-      // تقليل الفاصل الزمني ليكون الصوت متصلاً وانسيابياً
-      const durFrames = Math.ceil((duration + 0.05) * 30);
+      const durFrames = Math.ceil((duration + 0.05) * FPS);
       const res = { ...v, audio: audioPath ? `http://localhost:7860/assets/render-${requestId}/${path.basename(audioPath)}` : "", durationInFrames: durFrames, startFrame: cumulativeFrames };
       cumulativeFrames += durFrames;
       return res;
     });
 
-    const totalFrames = Math.max(150, cumulativeFrames);
+    const totalFrames = Math.max(FPS * 5, cumulativeFrames);
     const bundleLocation = await getBundle();
     const remotionOutputPath = path.resolve(tempDir, "overlay.mp4");
 
-    // 3. رندرة النصوص فقط (بأقصى سرعة ممكنة)
+    const comps = await getCompositions(bundleLocation, { inputProps: { ...data, verses: processedVerses, backgroundUrl: "", totalFrames } });
+    const composition = comps.find(c => c.id === "QuranVideo");
+    
+    // إعدادات السرعة القصوى (720p + 20fps)
+    composition.durationInFrames = totalFrames;
+    composition.width = 720;
+    composition.height = 1280;
+    composition.fps = 20;
+
+    // رندرة بدقة أقل (720p) لزيادة السرعة 50%
     await renderMedia({
-      composition: (await getCompositions(bundleLocation, { inputProps: { ...data, verses: processedVerses, backgroundUrl: "", totalFrames } })).find(c => c.id === "QuranVideo"),
+      composition,
       serveUrl: bundleLocation,
       outputLocation: remotionOutputPath,
       inputProps: { ...data, verses: processedVerses, backgroundUrl: "", totalFrames },
       codec: "h264",
       imageFormat: "jpeg",
       pixelFormat: "yuv420p",
-      concurrency: 2, // استخدام كامل قوة السيرفر (2 معالج)
-      chromiumOptions: { 
-        args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"] 
-      },
+      concurrency: 2,
+      chromiumOptions: { args: ["--no-sandbox", "--disable-dev-shm-usage"] },
       onProgress: ({ progress }) => {
         const current = jobs.get(jobId);
-        jobs.set(jobId, { ...current, progress: Math.round(progress * 100), message: "جاري رندرة النصوص بأقصى سرعة..." });
+        jobs.set(jobId, { ...current, progress: Math.round(progress * 100), message: "رندرة نصوص سريعة (ULTRA)..." });
       }
     });
 
-    // تحديث الحالة للدمج
-    jobs.set(jobId, { status: "merging", progress: 100, message: "جاري دمج الفيديو النهائي (لحظات من فضلك)..." });
+    jobs.set(jobId, { status: "merging", progress: 100, message: "دمج احترافي نهائي..." });
 
-    if (isVideoBg) {
-      await execAsync(`ffmpeg -stream_loop -1 -i "${localBgPath}" -i "${remotionOutputPath}" -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg];[bg][1:v]blend=all_mode=screen:all_opacity=1[out]" -map "[out]" -map 1:a -c:v libx264 -preset superfast -crf 23 -pix_fmt yuv420p -c:a aac -shortest "${finalOutputPath}" -y`);
-    } else {
-      await execAsync(`ffmpeg -loop 1 -i "${localBgPath}" -i "${remotionOutputPath}" -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg];[bg][1:v]blend=all_mode=screen:all_opacity=1[out]" -map "[out]" -map 1:a -c:v libx264 -preset superfast -crf 23 -pix_fmt yuv420p -c:a aac -shortest "${finalOutputPath}" -y`);
-    }
+    // الدمج مع التكبير لـ 1080p واستخدام أسرع وضع لـ FFmpeg
+    const filter = `[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg];[1:v]scale=1080:1920[txt];[bg][txt]blend=all_mode=screen:all_opacity=1,pix_fmt=yuv420p[out]`;
+    
+    const bgInput = isVideoBg ? `-stream_loop -1 -i "${localBgPath}"` : `-loop 1 -i "${localBgPath}"`;
+    
+    await execAsync(`ffmpeg ${bgInput} -i "${remotionOutputPath}" -filter_complex "${filter}" -map "[out]" -map 1:a -c:v libx264 -preset ultrafast -crf 23 -c:a aac -shortest "${finalOutputPath}" -y`);
 
     const host = "yousef891238-render-server.hf.space";
-    const finalUrl = `https://${host}/download/${finalOutputName}`;
-    
-    jobs.set(jobId, { status: "completed", progress: 100, url: finalUrl, message: "تم التصدير بنجاح!" });
+    jobs.set(jobId, { status: "completed", progress: 100, url: `https://${host}/download/${finalOutputName}`, message: "تمت الرندرة في وقت قياسي!" });
 
     setTimeout(() => { try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch(e){} }, 10000);
 
   } catch (err) {
-    console.error("Render Error:", err);
+    console.error("ULTRA Render Error:", err);
     jobs.set(jobId, { status: "failed", error: err.message });
   }
 }
 
 app.listen(7860, () => {
-  console.log("🚀 Smart Turbo Server running on 7860");
+  console.log("🚀 ULTRA TURBO Server running on 7860");
   getBundle();
 });
