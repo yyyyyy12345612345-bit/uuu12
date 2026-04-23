@@ -96,8 +96,7 @@ app.post("/render", async (req, res) => {
     });
 
     const bundleLocation = await getBundle();
-    // نستخدم webm فقط في حال وجود خلفية فيديو لدمج الشفافية
-    const remotionOutputPath = path.resolve(tempDir, isVideoBg ? "overlay.webm" : "final.mp4");
+    const remotionOutputPath = path.resolve(tempDir, "out.mp4"); // دائماً mp4 للسرعة
     
     const inputProps = { ...req.body, verses: processedVerses, backgroundUrl: isVideoBg ? "" : backgroundUrl, totalFrames: Math.max(150, cumulativeFrames) };
 
@@ -105,23 +104,25 @@ app.post("/render", async (req, res) => {
     const composition = comps.find(c => c.id === "QuranVideo");
     composition.durationInFrames = inputProps.totalFrames;
 
-    console.log(">> Remotion Rendering...");
+    console.log(">> ⚡ Fast Rendering Started...");
     await renderMedia({
       composition,
       serveUrl: bundleLocation,
       outputLocation: remotionOutputPath,
       inputProps,
-      codec: isVideoBg ? "vp8" : "h264", 
-      imageFormat: "png", // مطلوب للرندرة الشفافة
-      pixelFormat: isVideoBg ? "yuva420p" : "yuv420p",
-      concurrency: 1,
+      codec: "h264", // أسرع كوديك للرندرة
+      imageFormat: "jpeg", // أسرع بكثير من png
+      concurrency: 2, // استخدام كامل طاقة المعالج
       chromiumOptions: { args: ["--no-sandbox"] },
+      onProgress: ({ progress }) => {
+        if (Math.round(progress * 100) % 10 === 0) console.log(`  >> ${Math.round(progress * 100)}%`);
+      }
     });
 
     if (isVideoBg && localBgPath) {
-      console.log(">> FFmpeg Overlay (Alpha Channel Mode)...");
+      console.log(">> 🛠 Quick Blending...");
       await execAsync(`ffmpeg -stream_loop -1 -i "${localBgPath}" -i "${remotionOutputPath}" \
-        -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg];[bg][1:v]overlay=shortest=1[out]" \
+        -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg];[bg][1:v]blend=all_mode=screen:all_opacity=1[out]" \
         -map "[out]" -map 1:a -c:v libx264 -preset superfast -crf 23 -c:a aac -shortest "${finalOutputPath}" -y`);
     } else {
       fs.renameSync(remotionOutputPath, finalOutputPath);
@@ -144,6 +145,6 @@ app.post("/render", async (req, res) => {
 });
 
 app.listen(7860, () => {
-  console.log("🚀 Alpha-Optimized Server running on 7860");
+  console.log("🚀 Turbo Render Server running on 7860");
   getBundle();
 });
