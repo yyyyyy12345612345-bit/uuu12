@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { renderStill, getCompositions } from "@remotion/renderer";
+import { renderMedia, getCompositions } from "@remotion/renderer";
 import { bundle } from "@remotion/bundler";
 import path from "path";
 import fs from "fs";
@@ -18,6 +18,7 @@ app.use(express.json({ limit: "15mb" }));
 const RENDERS_DIR = path.resolve(os.tmpdir(), "renders_output");
 if (!fs.existsSync(RENDERS_DIR)) fs.mkdirSync(RENDERS_DIR, { recursive: true });
 
+app.use("/assets", express.static(os.tmpdir()));
 app.use("/download", express.static(RENDERS_DIR));
 
 let cachedBundleLocation = null;
@@ -46,9 +47,9 @@ async function getAudioDuration(filePath) {
 
 app.post("/render", async (req, res) => {
   const jobId = `job-${Date.now()}`;
-  jobs.set(jobId, { status: "processing", progress: 0, message: "بدء المحرك النووي المحدث..." });
+  jobs.set(jobId, { status: "processing", progress: 0, message: "بدء التصدير النهائي..." });
   res.json({ jobId });
-  renderNuclear(jobId, req.body).catch(err => {
+  renderStable(jobId, req.body).catch(err => {
     console.error(err);
     jobs.set(jobId, { status: "failed", error: err.message });
   });
@@ -59,81 +60,78 @@ app.get("/status/:jobId", (req, res) => {
   res.json(job || { error: "not found" });
 });
 
-async function renderNuclear(jobId, data) {
+async function renderStable(jobId, data) {
   const { verses, backgroundUrl } = data;
-  const tempDir = path.resolve(os.tmpdir(), jobId);
+  const requestId = jobId.split("-")[1];
+  const tempDir = path.resolve(os.tmpdir(), `work-${requestId}`);
   if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
 
+  const finalOutputName = `${jobId}.mp4`;
+  const finalOutputPath = path.resolve(RENDERS_DIR, finalOutputName);
+
   try {
-    const bundleLocation = await getBundle();
     const isVideoBg = /\.(mp4|webm|mov|m4v)/i.test(backgroundUrl);
     const bgPath = path.resolve(tempDir, isVideoBg ? "bg.mp4" : "bg.jpg");
-    await downloadFile(backgroundUrl, bgPath);
+    if (backgroundUrl) await downloadFile(backgroundUrl, bgPath);
 
-    const verseImages = [];
-    let currentTime = 0;
-    
-    for (let i = 0; i < verses.length; i++) {
-      const v = verses[i];
-      const audioPath = path.resolve(tempDir, `a-${i}.mp3`);
-      await downloadFile(v.audio, audioPath);
-      const duration = await getAudioDuration(audioPath);
-      
-      const imgPath = path.resolve(tempDir, `v-${i}.png`);
-      const inputProps = { ...data, verses: [v], backgroundUrl: "", totalFrames: 100 };
-      const comps = await getCompositions(bundleLocation, { inputProps });
-      const composition = comps.find(c => c.id === "QuranVideo");
+    const audioResults = await Promise.all(verses.map(async (v, i) => {
+      const aPath = path.resolve(tempDir, `a-${i}.mp3`);
+      await downloadFile(v.audio, aPath);
+      return { v, aPath, duration: await getAudioDuration(aPath) };
+    }));
 
-      await renderStill({
-        composition,
-        serveUrl: bundleLocation,
-        outputLocation: imgPath,
-        inputProps,
-        frame: 50,
-      });
-
-      verseImages.push({ imgPath, audioPath, duration, start: currentTime });
-      currentTime += duration;
-      jobs.set(jobId, { status: "processing", progress: Math.round(((i+1)/verses.length)*80), message: `تجهيز الآية ${i+1}...` });
-    }
-
-    jobs.set(jobId, { status: "processing", progress: 90, message: "الدمج المتسلسل النهائي..." });
-    const finalPath = path.resolve(RENDERS_DIR, `${jobId}.mp4`);
-    
-    // تصحيح فلاتر FFmpeg للدمج المتسلسل
-    let filterComplex = `[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg];`;
-    let audioFilter = "";
-    
-    // تحضير طبقات النصوص
-    verseImages.forEach((v, i) => {
-      filterComplex += `[${i+1}:v]scale=1080:1920,format=rgba,fade=in:st=${v.start}:d=0.5:alpha=1,fade=out:st=${v.start+v.duration-0.5}:d=0.5:alpha=1[v${i}];`;
-      audioFilter += `[${i+verses.length+1}:a]atrim=0:${v.duration},adelay=${Math.round(v.start*1000)}|${Math.round(v.start*1000)}[a${i}];`;
+    const FPS = 20;
+    let cumulativeFrames = 0;
+    const processedVerses = audioResults.map(({ v, aPath, duration }) => {
+      const durFrames = Math.ceil((duration + 0.05) * FPS);
+      const res = { ...v, audio: `http://localhost:7860/assets/work-${requestId}/${path.basename(aPath)}`, durationInFrames: durFrames, startFrame: cumulativeFrames };
+      cumulativeFrames += durFrames;
+      return res;
     });
-    
-    // تسلسل الـ Overlay (واحدة فوق الأخرى)
-    let lastOverlay = "[bg]";
-    verseImages.forEach((_, i) => {
-      const nextOutput = i === verseImages.length - 1 ? "[outv]" : `[tmp${i}]`;
-      filterComplex += `${lastOverlay}[v${i}]overlay=format=auto${nextOutput};`;
-      lastOverlay = `[tmp${i}]`;
-    });
-    
-    const audioMix = verseImages.map((_, i) => `[a${i}]`).join("");
-    audioFilter += `${audioMix}amix=inputs=${verseImages.length}:dropout_transition=0[outa]`;
 
-    const inputs = verseImages.map(v => `-i "${v.imgPath}"`).join(" ");
-    const audios = verseImages.map(v => `-i "${v.audioPath}"`).join(" ");
+    const totalFrames = Math.max(FPS * 5, cumulativeFrames);
+    const bundleLocation = await getBundle();
+    const comps = await getCompositions(bundleLocation, { inputProps: { ...data, verses: processedVerses, backgroundUrl: "", totalFrames } });
+    const composition = comps.find(c => c.id === "QuranVideo");
+    
+    // إعدادات الدقة والسرعة (720p @ 20fps)
+    composition.width = 720;
+    composition.height = 1280;
+    composition.fps = FPS;
+    composition.durationInFrames = totalFrames;
+
+    const overlayVideoPath = path.resolve(tempDir, "overlay.mp4");
+
+    await renderMedia({
+      composition,
+      serveUrl: bundleLocation,
+      outputLocation: overlayVideoPath,
+      inputProps: { ...data, verses: processedVerses, backgroundUrl: "", totalFrames },
+      codec: "h264",
+      concurrency: 1, // استقرار تام
+      chromiumOptions: { args: ["--no-sandbox", "--disable-dev-shm-usage"] },
+      onProgress: ({ progress }) => {
+        jobs.set(jobId, { status: "processing", progress: Math.round(progress * 100), message: "جاري المعالجة الذكية..." });
+      }
+    });
+
+    jobs.set(jobId, { status: "merging", progress: 100, message: "جاري دمج الخلفية بجودة عالية..." });
+
+    // أمر FFmpeg المستقر والصحيح للتكبير والدمج
+    const filter = `[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg];[1:v]scale=1080:1920[txt];[bg][txt]blend=all_mode=screen:all_opacity=1,format=yuv420p[out]`;
     const bgInput = isVideoBg ? `-stream_loop -1 -i "${bgPath}"` : `-loop 1 -i "${bgPath}"`;
     
-    await execAsync(`ffmpeg ${bgInput} ${inputs} ${audios} -filter_complex "${filterComplex}${audioFilter}" -map "[outv]" -map "[outa]" -c:v libx264 -preset ultrafast -t ${currentTime} -pix_fmt yuv420p "${finalPath}" -y`);
+    await execAsync(`ffmpeg ${bgInput} -i "${overlayVideoPath}" -filter_complex "${filter}" -map "[out]" -map 1:a -c:v libx264 -preset ultrafast -crf 23 -c:a aac -shortest "${finalOutputPath}" -y`);
 
     const host = "yousef891238-render-server.hf.space";
-    jobs.set(jobId, { status: "completed", progress: 100, url: `https://${host}/download/${jobId}.mp4` });
+    jobs.set(jobId, { status: "completed", progress: 100, url: `https://${host}/download/${finalOutputName}` });
+
+    setTimeout(() => { try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch(e){} }, 30000);
 
   } catch (err) {
-    console.error("FFmpeg Error:", err);
+    console.error("Stable Render Error:", err);
     jobs.set(jobId, { status: "failed", error: err.message });
   }
 }
 
-app.listen(7860, () => console.log("🚀 NUCLEAR SERVER UPDATED"));
+app.listen(7860, () => console.log("🚀 FINAL STABLE SERVER ACTIVE"));
