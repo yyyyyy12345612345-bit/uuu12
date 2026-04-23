@@ -21,6 +21,8 @@ const PRAYER_NAMES = {
   Isha: 'العشاء'
 };
 
+const AUDIO_CACHE_NAME = 'quran-audio-v1';
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
@@ -31,22 +33,52 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
-      return Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
+      return Promise.all(
+        keys
+          .filter(k => k !== CACHE_NAME && k !== AUDIO_CACHE_NAME)
+          .map(k => caches.delete(k))
+      );
     })
   );
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.mode === 'navigate') {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Special handling for Audio files (.mp3) - Cache them when heard
+  if (url.pathname.endsWith('.mp3') || request.destination === 'audio') {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
+      caches.open(AUDIO_CACHE_NAME).then((cache) => {
+        return cache.match(request).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+
+          return fetch(request).then((networkResponse) => {
+            // Check if we received a valid response
+            if (networkResponse.status === 200 || networkResponse.status === 206) {
+              cache.put(request, networkResponse.clone());
+            }
+            return networkResponse;
+          }).catch(() => {
+            // Offline and not in cache
+            return new Response('Audio not available offline', { status: 503 });
+          });
+        });
+      })
+    );
+    return;
+  }
+
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request).catch(() => caches.match(request))
     );
     return;
   }
   
   event.respondWith(
-    caches.match(event.request).then((response) => response || fetch(event.request))
+    caches.match(request).then((response) => response || fetch(request))
   );
 });
 
