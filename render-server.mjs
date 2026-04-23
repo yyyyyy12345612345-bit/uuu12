@@ -23,7 +23,7 @@ app.use("/assets", express.static(os.tmpdir()));
 app.use("/download", express.static(RENDERS_DIR));
 
 let cachedBundleLocation = null;
-const jobs = new Map(); // لتتبع حالة الطلبات
+const jobs = new Map();
 
 async function getBundle() {
   if (cachedBundleLocation) return cachedBundleLocation;
@@ -50,25 +50,20 @@ app.get("/", (req, res) => {
   res.json({ status: "Turbo Server Active 🚀", activeJobs: jobs.size });
 });
 
-// 1. نقطة التحقق من حالة الطلب
 app.get("/status/:jobId", (req, res) => {
   const job = jobs.get(req.params.jobId);
   if (!job) return res.status(404).json({ error: "الطلب غير موجود" });
   res.json(job);
 });
 
-// 2. نقطة بدء الرندرة (ترد فوراً بـ Job ID)
 app.post("/render", async (req, res) => {
-  const { verses, backgroundUrl } = req.body;
+  const { verses } = req.body;
   if (!verses?.length) return res.status(400).json({ error: "verses required" });
 
   const jobId = `job-${Date.now()}`;
   jobs.set(jobId, { status: "processing", progress: 0, url: null });
 
-  // نرد على المستخدم فوراً
-  res.json({ jobId, message: "بدأت عملية الرندرة في الخلفية..." });
-
-  // تشغيل عملية الرندرة في الخلفية
+  res.json({ jobId, message: "بدأت الرندرة..." });
   renderInBackground(jobId, req.body).catch(err => {
     console.error(`>> Job ${jobId} Failed:`, err);
     jobs.set(jobId, { status: "failed", error: err.message });
@@ -76,7 +71,7 @@ app.post("/render", async (req, res) => {
 });
 
 async function renderInBackground(jobId, data) {
-  const { verses, surahName, backgroundUrl } = data;
+  const { verses, backgroundUrl } = data;
   const requestId = jobId.split("-")[1];
   const tempDir = path.resolve(os.tmpdir(), `render-${requestId}`);
   const finalOutputName = `quran-${requestId}.mp4`;
@@ -113,41 +108,35 @@ async function renderInBackground(jobId, data) {
     const remotionOutputPath = path.resolve(tempDir, "out.mp4");
     const totalFrames = Math.max(150, cumulativeFrames);
 
-    const comps = await getCompositions(bundleLocation, { inputProps: { ...data, verses: processedVerses, backgroundUrl: isVideoBg ? "" : backgroundUrl, totalFrames } });
-    const composition = comps.find(c => c.id === "QuranVideo");
-    composition.durationInFrames = totalFrames;
-
     await renderMedia({
-      composition,
+      composition: (await getCompositions(bundleLocation, { inputProps: { ...data, verses: processedVerses, backgroundUrl: isVideoBg ? "" : backgroundUrl, totalFrames } })).find(c => c.id === "QuranVideo"),
       serveUrl: bundleLocation,
       outputLocation: remotionOutputPath,
       inputProps: { ...data, verses: processedVerses, backgroundUrl: isVideoBg ? "" : backgroundUrl, totalFrames },
       codec: "h264",
       imageFormat: "jpeg",
-      concurrency: 1, // العودة لـ 1 لتقليل الضغط على المعالج الضعيف وضمان عدم التعليق
+      pixelFormat: "yuv420p", // التوافقية مع الهواتف من Remotion
+      concurrency: 1,
       chromiumOptions: { args: ["--no-sandbox"] },
       onProgress: ({ progress }) => {
-        jobs.set(jobId, { status: "processing", progress: Math.round(progress * 100) });
+        const current = jobs.get(jobId);
+        jobs.set(jobId, { ...current, progress: Math.round(progress * 100) });
       }
     });
 
     if (isVideoBg && localBgPath) {
-      await execAsync(`ffmpeg -stream_loop -1 -i "${localBgPath}" -i "${remotionOutputPath}" -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg];[bg][1:v]blend=all_mode=screen:all_opacity=1[out]" -map "[out]" -map 1:a -c:v libx264 -preset superfast -crf 23 -c:a aac -shortest "${finalOutputPath}" -y`);
+      // إضافة -pix_fmt yuv420p لضمان عمل الفيديو على الاندرويد
+      await execAsync(`ffmpeg -stream_loop -1 -i "${localBgPath}" -i "${remotionOutputPath}" -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg];[bg][1:v]blend=all_mode=screen:all_opacity=1[out]" -map "[out]" -map 1:a -c:v libx264 -preset superfast -crf 23 -pix_fmt yuv420p -c:a aac -shortest "${finalOutputPath}" -y`);
     } else {
-      fs.copyFileSync(remotionOutputPath, finalOutputPath);
+      // حتى لو لم تكن هناك خلفية فيديو، نتأكد من التنسيق عبر FFmpeg (اختياري ولكن أضمن)
+      await execAsync(`ffmpeg -i "${remotionOutputPath}" -c:v libx264 -pix_fmt yuv420p -c:a aac "${finalOutputPath}" -y`);
     }
 
     // تحديث الحالة بنجاح
-    jobs.set(jobId, { 
-      status: "completed", 
-      progress: 100, 
-      url: `https://${process.env.SPACE_ID || "yousef891238-render-server"}.hf.space/download/${finalOutputName}` 
-    });
+    const finalUrl = `https://${process.env.SPACE_ID?.replace("/", "-") || "yousef891238-render-server"}.hf.space/download/${finalOutputName}`;
+    jobs.set(jobId, { status: "completed", progress: 100, url: finalUrl });
 
-    // تنظيف المجلد المؤقت
-    setTimeout(() => {
-        try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch(e){}
-    }, 5000);
+    setTimeout(() => { try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch(e){} }, 10000);
 
   } catch (err) {
     jobs.set(jobId, { status: "failed", error: err.message });
@@ -156,6 +145,6 @@ async function renderInBackground(jobId, data) {
 }
 
 app.listen(7860, () => {
-  console.log("🚀 Background Job Server running on 7860");
+  console.log("🚀 Turbo Background Server running on 7860");
   getBundle();
 });
