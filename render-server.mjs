@@ -15,14 +15,19 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "15mb" }));
 
+// مجلد لتخزين الفيديوهات الجاهزة للتحميل
+const RENDERS_DIR = path.resolve(os.tmpdir(), "renders_output");
+if (!fs.existsSync(RENDERS_DIR)) fs.mkdirSync(RENDERS_DIR, { recursive: true });
+
 app.use("/assets", express.static(os.tmpdir()));
+app.use("/download", express.static(RENDERS_DIR));
 
 let cachedBundleLocation = null;
+const jobs = new Map(); // لتتبع حالة الطلبات
 
 async function getBundle() {
   if (cachedBundleLocation) return cachedBundleLocation;
   const entry = path.resolve("src/remotion/Root.tsx");
-  console.log(">> Bundling project...");
   cachedBundleLocation = await bundle({ entryPoint: entry, sourceMaps: false });
   return cachedBundleLocation;
 }
@@ -41,32 +46,41 @@ async function getAudioDuration(filePath) {
   } catch { return 8; }
 }
 
-let isRendering = false;
-let renderStartTime = null;
-const RENDER_TIMEOUT = 25 * 60 * 1000;
-
 app.get("/", (req, res) => {
-  if (isRendering && renderStartTime && (Date.now() - renderStartTime > RENDER_TIMEOUT)) {
-      isRendering = false;
-  }
-  res.json({ status: "Active 🚀", busy: isRendering });
+  res.json({ status: "Turbo Server Active 🚀", activeJobs: jobs.size });
 });
 
-app.post("/render", async (req, res) => {
-  const { verses, surahName, backgroundUrl } = req.body;
-  
-  if (!verses?.length) return res.status(400).json({ error: "verses array is required" });
-  if (isRendering && (Date.now() - renderStartTime < RENDER_TIMEOUT)) {
-    return res.status(429).json({ error: "Server busy" });
-  }
+// 1. نقطة التحقق من حالة الطلب
+app.get("/status/:jobId", (req, res) => {
+  const job = jobs.get(req.params.jobId);
+  if (!job) return res.status(404).json({ error: "الطلب غير موجود" });
+  res.json(job);
+});
 
-  isRendering = true;
-  renderStartTime = Date.now();
-  
-  const requestId = Date.now();
+// 2. نقطة بدء الرندرة (ترد فوراً بـ Job ID)
+app.post("/render", async (req, res) => {
+  const { verses, backgroundUrl } = req.body;
+  if (!verses?.length) return res.status(400).json({ error: "verses required" });
+
+  const jobId = `job-${Date.now()}`;
+  jobs.set(jobId, { status: "processing", progress: 0, url: null });
+
+  // نرد على المستخدم فوراً
+  res.json({ jobId, message: "بدأت عملية الرندرة في الخلفية..." });
+
+  // تشغيل عملية الرندرة في الخلفية
+  renderInBackground(jobId, req.body).catch(err => {
+    console.error(`>> Job ${jobId} Failed:`, err);
+    jobs.set(jobId, { status: "failed", error: err.message });
+  });
+});
+
+async function renderInBackground(jobId, data) {
+  const { verses, surahName, backgroundUrl } = data;
+  const requestId = jobId.split("-")[1];
   const tempDir = path.resolve(os.tmpdir(), `render-${requestId}`);
   const finalOutputName = `quran-${requestId}.mp4`;
-  const finalOutputPath = path.resolve(os.tmpdir(), finalOutputName);
+  const finalOutputPath = path.resolve(RENDERS_DIR, finalOutputName);
 
   try {
     if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
@@ -96,55 +110,52 @@ app.post("/render", async (req, res) => {
     });
 
     const bundleLocation = await getBundle();
-    const remotionOutputPath = path.resolve(tempDir, "out.mp4"); // دائماً mp4 للسرعة
-    
-    const inputProps = { ...req.body, verses: processedVerses, backgroundUrl: isVideoBg ? "" : backgroundUrl, totalFrames: Math.max(150, cumulativeFrames) };
+    const remotionOutputPath = path.resolve(tempDir, "out.mp4");
+    const totalFrames = Math.max(150, cumulativeFrames);
 
-    const comps = await getCompositions(bundleLocation, { inputProps });
+    const comps = await getCompositions(bundleLocation, { inputProps: { ...data, verses: processedVerses, backgroundUrl: isVideoBg ? "" : backgroundUrl, totalFrames } });
     const composition = comps.find(c => c.id === "QuranVideo");
-    composition.durationInFrames = inputProps.totalFrames;
+    composition.durationInFrames = totalFrames;
 
-    console.log(">> ⚡ Fast Rendering Started...");
     await renderMedia({
       composition,
       serveUrl: bundleLocation,
       outputLocation: remotionOutputPath,
-      inputProps,
-      codec: "h264", // أسرع كوديك للرندرة
-      imageFormat: "jpeg", // أسرع بكثير من png
-      concurrency: 2, // استخدام كامل طاقة المعالج
+      inputProps: { ...data, verses: processedVerses, backgroundUrl: isVideoBg ? "" : backgroundUrl, totalFrames },
+      codec: "h264",
+      imageFormat: "jpeg",
+      concurrency: 1, // العودة لـ 1 لتقليل الضغط على المعالج الضعيف وضمان عدم التعليق
       chromiumOptions: { args: ["--no-sandbox"] },
       onProgress: ({ progress }) => {
-        if (Math.round(progress * 100) % 10 === 0) console.log(`  >> ${Math.round(progress * 100)}%`);
+        jobs.set(jobId, { status: "processing", progress: Math.round(progress * 100) });
       }
     });
 
     if (isVideoBg && localBgPath) {
-      console.log(">> 🛠 Quick Blending...");
-      await execAsync(`ffmpeg -stream_loop -1 -i "${localBgPath}" -i "${remotionOutputPath}" \
-        -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg];[bg][1:v]blend=all_mode=screen:all_opacity=1[out]" \
-        -map "[out]" -map 1:a -c:v libx264 -preset superfast -crf 23 -c:a aac -shortest "${finalOutputPath}" -y`);
+      await execAsync(`ffmpeg -stream_loop -1 -i "${localBgPath}" -i "${remotionOutputPath}" -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg];[bg][1:v]blend=all_mode=screen:all_opacity=1[out]" -map "[out]" -map 1:a -c:v libx264 -preset superfast -crf 23 -c:a aac -shortest "${finalOutputPath}" -y`);
     } else {
-      fs.renameSync(remotionOutputPath, finalOutputPath);
+      fs.copyFileSync(remotionOutputPath, finalOutputPath);
     }
 
-    res.download(finalOutputPath, finalOutputName, (err) => {
-      isRendering = false;
-      renderStartTime = null;
-      try { fs.unlinkSync(finalOutputPath); } catch(e){}
-      try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch(e){}
+    // تحديث الحالة بنجاح
+    jobs.set(jobId, { 
+      status: "completed", 
+      progress: 100, 
+      url: `https://${process.env.SPACE_ID || "yousef891238-render-server"}.hf.space/download/${finalOutputName}` 
     });
 
+    // تنظيف المجلد المؤقت
+    setTimeout(() => {
+        try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch(e){}
+    }, 5000);
+
   } catch (err) {
-    console.error(">> Error:", err);
-    isRendering = false;
-    renderStartTime = null;
-    res.status(500).json({ error: err.message });
-    try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch(e){}
+    jobs.set(jobId, { status: "failed", error: err.message });
+    throw err;
   }
-});
+}
 
 app.listen(7860, () => {
-  console.log("🚀 Turbo Render Server running on 7860");
+  console.log("🚀 Background Job Server running on 7860");
   getBundle();
 });

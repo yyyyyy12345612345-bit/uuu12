@@ -35,7 +35,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     if (!surahData || status === "rendering") return;
     
     setStatus("rendering");
-    setMessage("جاري البدء في الرندرة السحابية (قد تستغرق دقيقة)...");
+    setMessage("جاري إرسال الطلب للسيرفر السحابي...");
     setProgressPct(5);
 
     try {
@@ -46,6 +46,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           audio: getAudioUrl(Number(state.surahId), v.id, state.reciterId)
         }));
 
+      // 1. إرسال طلب الرندرة
       const response = await fetch("https://yousef891238-render-server.hf.space/render", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -65,22 +66,37 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         }),
       });
 
-      if (!response.ok) {
-        const textData = await response.text().catch(() => "");
-        let errorMsg = "فشل التصدير من السيرفر";
+      if (!response.ok) throw new Error("فشل التواصل مع السيرفر");
+      const { jobId } = await response.json();
+      
+      setMessage("بدأت الرندرة في الخلفية. يمكنك الانتظار أو العودة لاحقاً...");
+      
+      // 2. المتابعة (Polling) كل 10 ثوانٍ
+      const checkStatus = async () => {
         try {
-           const jsonData = JSON.parse(textData);
-           if (jsonData.error) errorMsg = jsonData.error;
-        } catch(e) {
-           errorMsg += "\n[Vercel Output]:\n" + textData.slice(0, 400);
-        }
-        throw new Error(errorMsg);
-      }
+          const statusRes = await fetch(`https://yousef891238-render-server.hf.space/status/${jobId}`);
+          if (!statusRes.ok) return;
+          const jobData = await statusRes.json();
 
-      const blob = await response.blob();
-      setDownloadUrl(URL.createObjectURL(blob));
-      setStatus("success");
-      setMessage("تم تجهيز الفيديو بصيغة MP4 جاهز للنشر!");
+          if (jobData.status === "processing") {
+            setProgressPct(jobData.progress || 5);
+            setMessage(`جاري الرندرة السحابية: ${jobData.progress}%...`);
+            setTimeout(checkStatus, 10000); // تابع بعد 10 ثوانٍ
+          } else if (jobData.status === "completed") {
+            setDownloadUrl(jobData.url);
+            setStatus("success");
+            setProgressPct(100);
+            setMessage("تم تجهيز الفيديو بنجاح! اضغط للتحميل.");
+          } else if (jobData.status === "failed") {
+            throw new Error(jobData.error || "فشلت عملية الرندرة");
+          }
+        } catch (e: any) {
+          setStatus("error");
+          setMessage(e.message || "خطأ أثناء متابعة حالة الفيديو");
+        }
+      };
+
+      setTimeout(checkStatus, 5000); // ابدأ أول فحص بعد 5 ثوانٍ
 
     } catch (e: any) {
       console.error(e);
