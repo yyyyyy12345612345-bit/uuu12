@@ -20,7 +20,7 @@ export function usePexelsBackgrounds(query: string) {
 
     const fetchMedia = async () => {
       try {
-        const response = await fetch(`/api/pexels?query=${encodeURIComponent(query)}&per_page=12&type=both`);
+        const response = await fetch(`https://quran1-mu.vercel.app/api/pexels?query=${encodeURIComponent(query)}&per_page=12&type=both`);
         if (!response.ok) {
           const body = await response.json();
           throw new Error(body.error || "فشل تحميل الخلفيات");

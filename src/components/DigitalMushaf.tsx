@@ -276,7 +276,7 @@ export function DigitalMushaf() {
                 <div 
                     className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-[0.3] dark:opacity-[0.2]"
                     style={{ 
-                        backgroundImage: "url('./mushaf-bg.jpg.png')",
+                        backgroundImage: "url('/mushaf-bg.jpg.png')",
                         filter: "sepia(0.3) brightness(1.05) contrast(1.1)"
                     }}
                 />
