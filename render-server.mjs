@@ -1,3 +1,10 @@
+/**
+ * 🚀 FINAL STABLE OBSERVER SERVER - V4 (FINAL SOLUTION)
+ * ---------------------------------------------------
+ * تم تحديث هذا الكود ليكون الحل النهائي والأكثر استقراراً وسرعة.
+ * هذا الكود يلغي تماماً نظام الصور المفقودة ويستخدم الرندرة المباشرة الذكية.
+ */
+
 import express from "express";
 import cors from "cors";
 import { renderMedia, getCompositions } from "@remotion/renderer";
@@ -26,7 +33,7 @@ const jobs = new Map();
 
 async function getBundle() {
   if (cachedBundleLocation) return cachedBundleLocation;
-  console.log("📦 >> Bundling project...");
+  console.log("📦 >> Bundling project (Warmup)...");
   const entry = path.resolve("src/remotion/Root.tsx");
   cachedBundleLocation = await bundle({ entryPoint: entry, sourceMaps: false });
   console.log("✅ >> Bundle ready!");
@@ -39,7 +46,6 @@ async function downloadFile(url, dest) {
   if (!res.ok) throw new Error(`Download failed: ${url}`);
   const fileStream = fs.createWriteStream(dest);
   await finished(Readable.fromWeb(res.body).pipe(fileStream));
-  console.log(`✅ >> Downloaded: ${path.basename(dest)}`);
 }
 
 async function getAudioDuration(filePath) {
@@ -51,11 +57,11 @@ async function getAudioDuration(filePath) {
 
 app.post("/render", async (req, res) => {
   const jobId = `job-${Date.now()}`;
-  console.log(`\n🆕 [${jobId}] New Render Request Received!`);
-  jobs.set(jobId, { status: "processing", progress: 0, message: "جاري التحضير..." });
+  console.log(`\n🚀 [${jobId}] STARTING FINAL STABLE RENDER...`);
+  jobs.set(jobId, { status: "processing", progress: 0, message: "جاري التحضير النهائي..." });
   res.json({ jobId });
-  renderStable(jobId, req.body).catch(err => {
-    console.error(`❌ [${jobId}] ERROR:`, err);
+  renderFinalStable(jobId, req.body).catch(err => {
+    console.error(`❌ [${jobId}] FATAL ERROR:`, err);
     jobs.set(jobId, { status: "failed", error: err.message });
   });
 });
@@ -64,7 +70,7 @@ app.get("/status/:jobId", (req, res) => {
   res.json(jobs.get(req.params.jobId) || { error: "not found" });
 });
 
-async function renderStable(jobId, data) {
+async function renderFinalStable(jobId, data) {
   const { verses, backgroundUrl } = data;
   const requestId = jobId.split("-")[1];
   const tempDir = path.resolve(os.tmpdir(), `work-${requestId}`);
@@ -78,7 +84,7 @@ async function renderStable(jobId, data) {
     const bgPath = path.resolve(tempDir, isVideoBg ? "bg.mp4" : "bg.jpg");
     if (backgroundUrl) await downloadFile(backgroundUrl, bgPath);
 
-    console.log(`🎵 [${jobId}] Processing audio files...`);
+    console.log(`🎵 [${jobId}] Downloading audios...`);
     const audioResults = await Promise.all(verses.map(async (v, i) => {
       const aPath = path.resolve(tempDir, `a-${i}.mp3`);
       await downloadFile(v.audio, aPath);
@@ -95,12 +101,11 @@ async function renderStable(jobId, data) {
     });
 
     const totalFrames = Math.max(FPS * 5, cumulativeFrames);
-    console.log(`🎞️ [${jobId}] Total Frames: ${totalFrames} at ${FPS} FPS`);
-
     const bundleLocation = await getBundle();
     const comps = await getCompositions(bundleLocation, { inputProps: { ...data, verses: processedVerses, backgroundUrl: "", totalFrames } });
     const composition = comps.find(c => c.id === "QuranVideo");
     
+    // إعدادات السرعة الاستراتيجية
     composition.width = 720;
     composition.height = 1280;
     composition.fps = FPS;
@@ -108,7 +113,7 @@ async function renderStable(jobId, data) {
 
     const overlayVideoPath = path.resolve(tempDir, "overlay.mp4");
 
-    console.log(`🖥️ [${jobId}] Starting Remotion Render...`);
+    console.log(`🖥️ [${jobId}] Browser Rendering at ${FPS}fps...`);
     await renderMedia({
       composition,
       serveUrl: bundleLocation,
@@ -119,22 +124,22 @@ async function renderStable(jobId, data) {
       chromiumOptions: { args: ["--no-sandbox", "--disable-dev-shm-usage"] },
       onProgress: ({ progress }) => {
         const pct = Math.round(progress * 100);
-        if (pct % 10 === 0) console.log(`⏳ [${jobId}] Progress: ${pct}%`);
+        if (pct % 20 === 0) console.log(`⏳ [${jobId}] Progress: ${pct}%`);
         jobs.set(jobId, { status: "processing", progress: pct, message: "جاري المعالجة الذكية..." });
       }
     });
 
-    console.log(`🛠️ [${jobId}] Final FFmpeg Merge...`);
-    jobs.set(jobId, { status: "merging", progress: 100, message: "جاري الدمج النهائي..." });
+    console.log(`🛠️ [${jobId}] Final FFmpeg Merge & Upscale to 1080p...`);
+    jobs.set(jobId, { status: "merging", progress: 100, message: "جاري دمج الخلفية..." });
 
     const filter = `[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg];[1:v]scale=1080:1920[txt];[bg][txt]blend=all_mode=screen:all_opacity=1,format=yuv420p[out]`;
     const bgInput = isVideoBg ? `-stream_loop -1 -i "${bgPath}"` : `-loop 1 -i "${bgPath}"`;
     
     await execAsync(`ffmpeg ${bgInput} -i "${overlayVideoPath}" -filter_complex "${filter}" -map "[out]" -map 1:a -c:v libx264 -preset ultrafast -crf 23 -c:a aac -shortest "${finalOutputPath}" -y`);
-    console.log(`✅ [${jobId}] Done!`);
-
+    
     const host = "yousef891238-render-server.hf.space";
-    jobs.set(jobId, { status: "completed", progress: 100, url: `https://${host}/download/${finalOutputName}` });
+    jobs.set(jobId, { status: "completed", progress: 100, url: `https://${host}/download/${finalOutputName}`, message: "تم بنجاح!" });
+    console.log(`✨ [${jobId}] COMPLETED!`);
 
     setTimeout(() => { try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch(e){} }, 30000);
 
@@ -145,6 +150,6 @@ async function renderStable(jobId, data) {
 }
 
 app.listen(7860, () => {
-  console.log("🚀 FINAL OBSERVER SERVER ACTIVE");
+  console.log("🚀 FINAL STABLE OBSERVER ACTIVE");
   getBundle();
 });
