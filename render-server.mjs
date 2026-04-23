@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { renderMedia, getCompositions, ensureBrowser } from "@remotion/renderer";
+import { renderStill, getCompositions } from "@remotion/renderer";
 import { bundle } from "@remotion/bundler";
 import path from "path";
 import fs from "fs";
@@ -18,7 +18,6 @@ app.use(express.json({ limit: "15mb" }));
 const RENDERS_DIR = path.resolve(os.tmpdir(), "renders_output");
 if (!fs.existsSync(RENDERS_DIR)) fs.mkdirSync(RENDERS_DIR, { recursive: true });
 
-app.use("/assets", express.static(os.tmpdir()));
 app.use("/download", express.static(RENDERS_DIR));
 
 let cachedBundleLocation = null;
@@ -45,113 +44,91 @@ async function getAudioDuration(filePath) {
   } catch { return 8; }
 }
 
-app.get("/", (req, res) => {
-  res.json({ status: "ULTRA TURBO Server Active 🚀", activeJobs: jobs.size });
-});
-
-app.get("/status/:jobId", (req, res) => {
-  const job = jobs.get(req.params.jobId);
-  if (!job) return res.status(404).json({ error: "Job not found" });
-  res.json(job);
-});
-
 app.post("/render", async (req, res) => {
-  const { verses } = req.body;
-  if (!verses?.length) return res.status(400).json({ error: "verses required" });
-
   const jobId = `job-${Date.now()}`;
-  jobs.set(jobId, { status: "processing", progress: 0, message: "جاري التحضير للرندرة السريعة..." });
-
+  jobs.set(jobId, { status: "processing", progress: 0, message: "بدء المحرك النووي..." });
   res.json({ jobId });
-  renderInBackground(jobId, req.body).catch(err => {
-    console.error(`>> Job ${jobId} Failed:`, err);
+  renderNuclear(jobId, req.body).catch(err => {
+    console.error(err);
     jobs.set(jobId, { status: "failed", error: err.message });
   });
 });
 
-async function renderInBackground(jobId, data) {
+app.get("/status/:jobId", (req, res) => {
+  const job = jobs.get(req.params.jobId);
+  res.json(job || { error: "not found" });
+});
+
+async function renderNuclear(jobId, data) {
   const { verses, backgroundUrl } = data;
-  const requestId = jobId.split("-")[1];
-  const tempDir = path.resolve(os.tmpdir(), `render-${requestId}`);
-  const finalOutputName = `quran-${requestId}.mp4`;
-  const finalOutputPath = path.resolve(RENDERS_DIR, finalOutputName);
+  const tempDir = path.resolve(os.tmpdir(), jobId);
+  if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
 
   try {
-    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
-
-    const isVideoBg = /\.(mp4|webm|mov|m4v)/i.test(backgroundUrl);
-    const localBgPath = path.resolve(tempDir, isVideoBg ? "bg.mp4" : "bg.jpg");
-    if (backgroundUrl) await downloadFile(backgroundUrl, localBgPath);
-
-    const audioResults = await Promise.all(verses.map(async (v) => {
-      let audioPath = null;
-      if (v.audio?.startsWith("http")) {
-        audioPath = path.resolve(tempDir, `a-${v.id}.mp3`);
-        await downloadFile(v.audio, audioPath);
-      }
-      return { v, audioPath, duration: audioPath ? await getAudioDuration(audioPath) : 8 };
-    }));
-
-    const FPS = 20; // تقليل الفريمات لزيادة السرعة 33%
-    let cumulativeFrames = 0;
-    const processedVerses = audioResults.map(({ v, audioPath, duration }) => {
-      const durFrames = Math.ceil((duration + 0.05) * FPS);
-      const res = { ...v, audio: audioPath ? `http://localhost:7860/assets/render-${requestId}/${path.basename(audioPath)}` : "", durationInFrames: durFrames, startFrame: cumulativeFrames };
-      cumulativeFrames += durFrames;
-      return res;
-    });
-
-    const totalFrames = Math.max(FPS * 5, cumulativeFrames);
     const bundleLocation = await getBundle();
-    const remotionOutputPath = path.resolve(tempDir, "overlay.mp4");
+    const isVideoBg = /\.(mp4|webm|mov|m4v)/i.test(backgroundUrl);
+    const bgPath = path.resolve(tempDir, isVideoBg ? "bg.mp4" : "bg.jpg");
+    await downloadFile(backgroundUrl, bgPath);
 
-    const comps = await getCompositions(bundleLocation, { inputProps: { ...data, verses: processedVerses, backgroundUrl: "", totalFrames } });
-    const composition = comps.find(c => c.id === "QuranVideo");
+    // 1. رندرة صورة واحدة لكل آية (سرعة فائقة)
+    const verseImages = [];
+    let currentTime = 0;
     
-    // إعدادات السرعة القصوى (720p + 20fps)
-    composition.durationInFrames = totalFrames;
-    composition.width = 720;
-    composition.height = 1280;
-    composition.fps = 20;
+    for (let i = 0; i < verses.length; i++) {
+      const v = verses[i];
+      const audioPath = path.resolve(tempDir, `a-${i}.mp3`);
+      await downloadFile(v.audio, audioPath);
+      const duration = await getAudioDuration(audioPath);
+      
+      const imgPath = path.resolve(tempDir, `v-${i}.png`);
+      const inputProps = { ...data, verses: [v], backgroundUrl: "", totalFrames: 100 };
+      const comps = await getCompositions(bundleLocation, { inputProps });
+      const composition = comps.find(c => c.id === "QuranVideo");
 
-    // رندرة بدقة أقل (720p) لزيادة السرعة 50%
-    await renderMedia({
-      composition,
-      serveUrl: bundleLocation,
-      outputLocation: remotionOutputPath,
-      inputProps: { ...data, verses: processedVerses, backgroundUrl: "", totalFrames },
-      codec: "h264",
-      imageFormat: "jpeg",
-      pixelFormat: "yuv420p",
-      concurrency: 2,
-      chromiumOptions: { args: ["--no-sandbox", "--disable-dev-shm-usage"] },
-      onProgress: ({ progress }) => {
-        const current = jobs.get(jobId);
-        jobs.set(jobId, { ...current, progress: Math.round(progress * 100), message: "رندرة نصوص سريعة (ULTRA)..." });
-      }
+      await renderStill({
+        composition,
+        serveUrl: bundleLocation,
+        outputLocation: imgPath,
+        inputProps,
+        frame: 50, // نأخذ فريم من المنتصف حيث النص ظاهر تماماً
+      });
+
+      verseImages.push({ imgPath, audioPath, duration, start: currentTime });
+      currentTime += duration;
+      jobs.set(jobId, { status: "processing", progress: Math.round(((i+1)/verses.length)*80), message: `تجهيز الآية ${i+1}...` });
+    }
+
+    // 2. تجميع الكل باستخدام FFmpeg السحري
+    jobs.set(jobId, { status: "processing", progress: 90, message: "الدمج النووي النهائي..." });
+    const finalPath = path.resolve(RENDERS_DIR, `${jobId}.mp4`);
+    
+    // بناء فلاتر FFmpeg للدمج والتحريك
+    let filterComplex = `[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg];`;
+    let audioFilter = "";
+    
+    verseImages.forEach((v, i) => {
+      filterComplex += `[${i+1}:v]scale=1080:1920,format=rgba,fade=in:st=${v.start}:d=0.5:alpha=1,fade=out:st=${v.start+v.duration-0.5}:d=0.5:alpha=1[v${i}];`;
+      audioFilter += `[${i+verses.length+1}:a]atrim=0:${v.duration},adelay=${Math.round(v.start*1000)}|${Math.round(v.start*1000)}[a${i}];`;
     });
-
-    jobs.set(jobId, { status: "merging", progress: 100, message: "دمج احترافي نهائي..." });
-
-    // الدمج مع التكبير لـ 1080p واستخدام أسرع وضع لـ FFmpeg
-    const filter = `[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg];[1:v]scale=1080:1920[txt];[bg][txt]blend=all_mode=screen:all_opacity=1,pix_fmt=yuv420p[out]`;
     
-    const bgInput = isVideoBg ? `-stream_loop -1 -i "${localBgPath}"` : `-loop 1 -i "${localBgPath}"`;
+    const overlays = verseImages.map((_, i) => `[v${i}]`).join("");
+    filterComplex += `[bg]${overlays}overlay=format=auto[outv];`;
+    const audioMix = verseImages.map((_, i) => `[a${i}]`).join("");
+    audioFilter += `${audioMix}amix=inputs=${verseImages.length}:dropout_transition=0[outa]`;
+
+    const inputs = verseImages.map(v => `-i "${v.imgPath}"`).join(" ");
+    const audios = verseImages.map(v => `-i "${v.audioPath}"`).join(" ");
     
-    await execAsync(`ffmpeg ${bgInput} -i "${remotionOutputPath}" -filter_complex "${filter}" -map "[out]" -map 1:a -c:v libx264 -preset ultrafast -crf 23 -c:a aac -shortest "${finalOutputPath}" -y`);
+    const bgInput = isVideoBg ? `-stream_loop -1 -i "${bgPath}"` : `-loop 1 -i "${bgPath}"`;
+    
+    await execAsync(`ffmpeg ${bgInput} ${inputs} ${audios} -filter_complex "${filterComplex}${audioFilter}" -map "[outv]" -map "[outa]" -c:v libx264 -preset ultrafast -t ${currentTime} -pix_fmt yuv420p "${finalPath}" -y`);
 
     const host = "yousef891238-render-server.hf.space";
-    jobs.set(jobId, { status: "completed", progress: 100, url: `https://${host}/download/${finalOutputName}`, message: "تمت الرندرة في وقت قياسي!" });
-
-    setTimeout(() => { try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch(e){} }, 10000);
+    jobs.set(jobId, { status: "completed", progress: 100, url: `https://${host}/download/${jobId}.mp4` });
 
   } catch (err) {
-    console.error("ULTRA Render Error:", err);
     jobs.set(jobId, { status: "failed", error: err.message });
   }
 }
 
-app.listen(7860, () => {
-  console.log("🚀 ULTRA TURBO Server running on 7860");
-  getBundle();
-});
+app.listen(7860, () => console.log("🚀 NUCLEAR SERVER ACTIVE"));
