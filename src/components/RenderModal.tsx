@@ -78,15 +78,15 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           if (!statusRes.ok) return;
           const jobData = await statusRes.json();
 
-          if (jobData.status === "processing") {
+          if (jobData.status === "processing" || jobData.status === "merging") {
             setProgressPct(jobData.progress || 5);
-            setMessage(`جاري الرندرة السحابية: ${jobData.progress}%...`);
-            setTimeout(checkStatus, 10000); // تابع بعد 10 ثوانٍ
+            setMessage(jobData.message || "جاري المعالجة...");
+            setTimeout(checkStatus, 7000); // تابع كل 7 ثوانٍ
           } else if (jobData.status === "completed") {
             setDownloadUrl(jobData.url);
             setStatus("success");
             setProgressPct(100);
-            setMessage("تم تجهيز الفيديو بنجاح! اضغط للتحميل.");
+            setMessage(jobData.message || "تم تجهيز الفيديو بنجاح! اضغط للتحميل.");
           } else if (jobData.status === "failed") {
             throw new Error(jobData.error || "فشلت عملية الرندرة");
           }
