@@ -318,8 +318,8 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
       overflow: 'hidden'
     }}>
       <div style={{
-        color: '#D4AF37', fontSize: '32px', fontWeight: 800,
-        textShadow: '0 0 20px rgba(212,175,55,0.4)',
+        color: '#FFD700', fontSize: '32px', fontWeight: 800,
+        textShadow: '0 0 20px rgba(255,215,0,0.4)',
         fontFamily: `"${fontFamily}", serif`
       }}>
         {surahName}
@@ -336,8 +336,8 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
 
       <div style={{
         width: '200px', height: '4px',
-        background: 'linear-gradient(to right, transparent, #D4AF37, #D4AF37, transparent)',
-        opacity: 0.6, boxShadow: '0 0 20px rgba(212,175,55,0.3)'
+        background: 'linear-gradient(to right, transparent, #FFD700, #FFD700, transparent)',
+        opacity: 0.6, boxShadow: '0 0 20px rgba(255,215,0,0.3)'
       }} />
 
       <p style={{
