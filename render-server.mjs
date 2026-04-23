@@ -118,7 +118,7 @@ async function renderInBackground(jobId, data) {
     const bundleLocation = await getBundle();
     const remotionOutputPath = path.resolve(tempDir, "overlay.mp4");
 
-    // رندرة النصوص (بدون خلفية)
+    // 3. رندرة النصوص فقط (بأقصى سرعة ممكنة)
     await renderMedia({
       composition: (await getCompositions(bundleLocation, { inputProps: { ...data, verses: processedVerses, backgroundUrl: "", totalFrames } })).find(c => c.id === "QuranVideo"),
       serveUrl: bundleLocation,
@@ -127,11 +127,13 @@ async function renderInBackground(jobId, data) {
       codec: "h264",
       imageFormat: "jpeg",
       pixelFormat: "yuv420p",
-      concurrency: 1,
-      chromiumOptions: { args: ["--no-sandbox"] },
+      concurrency: 2, // استخدام كامل قوة السيرفر (2 معالج)
+      chromiumOptions: { 
+        args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"] 
+      },
       onProgress: ({ progress }) => {
         const current = jobs.get(jobId);
-        jobs.set(jobId, { ...current, progress: Math.round(progress * 100), message: "جاري رندرة النصوص..." });
+        jobs.set(jobId, { ...current, progress: Math.round(progress * 100), message: "جاري رندرة النصوص بأقصى سرعة..." });
       }
     });
 
