@@ -201,31 +201,41 @@ export function PrayerTimes() {
   // Check for Athan triggering
   useEffect(() => {
     if (!times) return;
-    const nowStr = currentTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
     
-    // Check which prayer it is
-    Object.entries(times).forEach(([id, time]) => {
-        if (time === nowStr && currentTime.getSeconds() === 0) {
-            const setting = prayerSettings[id];
-            if (!setting) return;
+    const checkPrayer = () => {
+        const now = new Date();
+        const nowStr = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+        
+        Object.entries(times).forEach(([id, time]) => {
+            if (time === nowStr && now.getSeconds() === 0) {
+                const setting = prayerSettings[id];
+                if (!setting) return;
 
-            if (setting.athanEnabled && audioRef.current) {
-                const muezzin = MUEZZINS.find(m => m.id === setting.muezzinId) || MUEZZINS[0];
-                audioRef.current.src = muezzin.file;
-                audioRef.current.play().catch(console.error);
-            }
+                // 1. Play Adhan if enabled and app is foreground
+                if (setting.athanEnabled && audioRef.current) {
+                    const muezzin = MUEZZINS.find(m => m.id === setting.muezzinId) || MUEZZINS[0];
+                    if (audioRef.current.src !== window.location.origin + muezzin.file) {
+                        audioRef.current.src = muezzin.file;
+                    }
+                    audioRef.current.play().catch(err => console.log("Audio play blocked, needs interaction", err));
+                }
 
-            if (setting.notificationsEnabled && ("Notification" in window)) {
-                if (Notification.permission === "granted") {
-                    new Notification(`حان الآن موعد أذان ${prayerNamesAr[id] || id}`, { 
-                        body: "عن النبي صلوات ربي وسلامه عليه: الصلاة على وقتها" 
+                // 2. Show Web Notification as backup
+                if (setting.notificationsEnabled && ("Notification" in window) && Notification.permission === "granted") {
+                    new Notification(`🕌 حان الآن موعد أذان ${prayerNamesAr[id] || id}`, { 
+                        body: "حيّ على الصلاة.. حيّ على الفلاح",
+                        icon: '/logo/logo.png',
+                        badge: '/logo/logo.png',
+                        tag: `prayer-${id}-${nowStr}`
                     });
                 }
             }
-        }
-    });
+        });
+    };
 
-  }, [currentTime, times, prayerSettings]);
+    const interval = setInterval(checkPrayer, 1000);
+    return () => clearInterval(interval);
+  }, [times, prayerSettings]);
 
 
   const prayerNamesAr: Record<string, string> = {
