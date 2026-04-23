@@ -8,7 +8,8 @@
     "build:app": "set CAPACITOR_BUILD=true&& next build",
     "cap:sync": "set CAPACITOR_BUILD=true&& next build && npx cap sync",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "final-build": "node update-assets.js && set CAPACITOR_BUILD=true&& next build && npx cap sync android && cd android && set JAVA_HOME=C:\\Users\\youse\\OneDrive\\Desktop\\my1\\jbr&& gradlew.bat assembleDebug"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.1",

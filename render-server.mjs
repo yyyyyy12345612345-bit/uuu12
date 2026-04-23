@@ -181,7 +181,6 @@ app.post("/render", async (req, res) => {
       outputLocation: outputLocation,
       inputProps,
       codec: "h264",
-      // تم ضبطها على 1 لضمان الاستقرار على سيرفرات Hugging Face المحدودة
       concurrency: 1, 
       chromiumOptions: {
         disableWebSecurity: true,

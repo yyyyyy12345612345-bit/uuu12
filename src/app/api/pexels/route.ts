@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-static";
+
 const DEFAULT_KEY = process.env.PEXELS_API_KEY ?? "h9PtPcgv4BjjJXhvHWqrUqiNT4JKh7kQ9DcqBucOHOker00sXHkpy7QC";
 
 async function fetchPexelsImages(query: string, perPage: number) {

@@ -13,7 +13,7 @@ const nextConfig = {
     unoptimized: true,
   },
   allowedDevOrigins: ['192.168.1.8'],
-  outputFileTracingIncludes: {
+  outputFileTracingIncludes: process.env.CAPACITOR_BUILD === 'true' ? {} : {
     "/api/render": ["./node_modules/@remotion/renderer/**/*", "./node_modules/@remotion/bundler/**/*", "./node_modules/remotion/**/*"]
   },
   experimental: {
@@ -21,12 +21,13 @@ const nextConfig = {
       bodySizeLimit: "20mb",
     },
   },
-  serverExternalPackages: [
+  serverExternalPackages: process.env.CAPACITOR_BUILD === 'true' ? [] : [
     "remotion",
     "@remotion/bundler",
     "@remotion/renderer"
   ],
   async headers() {
+    if (process.env.CAPACITOR_BUILD === 'true') return [];
     return [
       {
         source: "/renders/:path*",
