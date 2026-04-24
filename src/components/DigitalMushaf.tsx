@@ -145,9 +145,10 @@ export function DigitalMushaf() {
   );
 
   return (
-    <div className="h-full w-full flex flex-col bg-[#FDFBF7] dark:bg-zinc-950 text-black dark:text-zinc-100 font-arabic relative overflow-hidden">
+    <div className="h-full w-full flex flex-col bg-[#FDFBF7] text-black font-arabic relative overflow-hidden">
       
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]">
+      {/* Background stays cream even in dark mode shell if desired, but we'll use a wrapper for pages */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]">
           <div className="absolute inset-0" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/pinstriped-suit.png')" }} />
       </div>
       
@@ -155,29 +156,29 @@ export function DigitalMushaf() {
 
       <header className="h-[75px] md:h-[85px] shrink-0 border-b border-border bg-[#FDFBF7]/95 dark:bg-zinc-950/95 backdrop-blur-xl px-2 md:px-10 flex items-center justify-between z-[100] shadow-sm">
         <div className="flex items-center gap-2 md:gap-4 flex-1">
-             <button onClick={() => setIsIndexOpen(true)} className="flex items-center justify-center md:justify-start gap-2 h-11 px-3 md:px-6 bg-primary/20 text-foreground rounded-2xl font-bold border border-primary/20 transition-all hover:bg-primary/30 active:scale-95">
+             <button onClick={() => setIsIndexOpen(true)} className="flex items-center justify-center md:justify-start gap-2 h-11 px-3 md:px-6 bg-primary/20 text-foreground dark:text-zinc-100 rounded-2xl font-bold border border-primary/20 transition-all hover:bg-primary/30 active:scale-95">
                 <List className="w-5 h-5 text-primary" />
                 <span className="text-sm hidden md:block">فهرس السور</span>
              </button>
-             <button onClick={() => setShowReciterPicker(!showReciterPicker)} className="w-11 h-11 md:w-12 md:h-12 bg-foreground/5 rounded-2xl flex items-center justify-center text-foreground/60 hover:text-foreground border border-border transition-all relative active:scale-95">
+             <button onClick={() => setShowReciterPicker(!showReciterPicker)} className="w-11 h-11 md:w-12 md:h-12 bg-foreground/5 rounded-2xl flex items-center justify-center text-foreground/60 dark:text-zinc-100/60 hover:text-foreground dark:hover:text-zinc-100 border border-border transition-all relative active:scale-95">
                 <User className="w-5 h-5 md:w-6 h-6" />
                 {showReciterPicker && <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-background" />}
              </button>
         </div>
 
         <div className="hidden sm:flex flex-col items-center flex-1">
-            <h2 className="text-base md:text-xl font-black text-foreground tracking-tight whitespace-nowrap">المصحف المرتل</h2>
+            <h2 className="text-base md:text-xl font-black text-foreground dark:text-zinc-100 tracking-tight whitespace-nowrap">المصحف المرتل</h2>
             <div className="flex items-center gap-2 mt-1">
                 <Star className="w-2.5 h-2.5 text-primary" />
-                <span className="text-[9px] md:text-[10px] text-foreground/40 font-bold uppercase tracking-widest whitespace-nowrap">مكتبة متميزة</span>
+                <span className="text-[9px] md:text-[10px] text-foreground/40 dark:text-zinc-100/40 font-bold uppercase tracking-widest whitespace-nowrap">مكتبة متميزة</span>
                 <Star className="w-2.5 h-2.5 text-primary" />
             </div>
         </div>
 
         <div className="flex items-center justify-end gap-2 md:gap-4 flex-1">
             <div className="hidden lg:flex flex-col items-end mr-4">
-                <span className="text-[10px] text-foreground/30 font-bold uppercase">القارئ الحالي</span>
-                <span className="text-sm font-bold text-foreground">{RECITERS.find(r => r.id === state.reciterId)?.name}</span>
+                <span className="text-[10px] text-foreground/30 dark:text-zinc-100/30 font-bold uppercase">القارئ الحالي</span>
+                <span className="text-sm font-bold text-foreground dark:text-zinc-100">{RECITERS.find(r => r.id === state.reciterId)?.name}</span>
             </div>
             <button 
                 onClick={() => {
@@ -189,7 +190,7 @@ export function DigitalMushaf() {
                         playVerse(0, 0);
                     }
                 }}
-                className={`flex items-center justify-center gap-2 h-11 px-4 md:px-8 md:h-12 rounded-2xl transition-all shadow-lg font-bold active:scale-95 ${isPlayingPage ? 'bg-primary text-black' : 'bg-foreground/5 border border-primary/20 text-foreground hover:border-primary'}`}
+                className={`flex items-center justify-center gap-2 h-11 px-4 md:px-8 md:h-12 rounded-2xl transition-all shadow-lg font-bold active:scale-95 ${isPlayingPage ? 'bg-primary text-black' : 'bg-foreground/5 dark:bg-zinc-800 border border-primary/20 text-foreground dark:text-zinc-100 hover:border-primary'}`}
             >
                 {isPlayingPage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 fill-current" />}
                 <span className="text-xs md:text-sm hidden xs:block">{isPlayingPage ? 'استماع...' : 'بدء الترتيل'}</span>
@@ -198,11 +199,11 @@ export function DigitalMushaf() {
       </header>
 
       {showReciterPicker && (
-          <div className="absolute top-[85px] left-4 md:left-10 w-80 bg-background border border-border rounded-[2.5rem] shadow-[0_30px_90px_rgba(0,0,0,0.3)] z-[1000] p-4 flex flex-col gap-2 max-h-[60vh] overflow-y-auto no-scrollbar animate-in zoom-in-95 duration-300">
-              <div className="p-3 border-b border-border mb-2 text-center text-foreground/40 font-bold text-[10px] uppercase tracking-[0.3em]">اختر صوت القارئ</div>
+          <div className="absolute top-[85px] left-4 md:left-10 w-80 bg-background dark:bg-zinc-900 border border-border rounded-[2.5rem] shadow-[0_30px_90px_rgba(0,0,0,0.3)] z-[1000] p-4 flex flex-col gap-2 max-h-[60vh] overflow-y-auto no-scrollbar animate-in zoom-in-95 duration-300">
+              <div className="p-3 border-b border-border mb-2 text-center text-foreground/40 dark:text-zinc-100/40 font-bold text-[10px] uppercase tracking-[0.3em]">اختر صوت القارئ</div>
               {RECITERS.map(reciter => (
-                  <button key={reciter.id} onClick={() => { updateState({ reciterId: reciter.id }); setShowReciterPicker(false); }} className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${state.reciterId === reciter.id ? 'bg-primary/10 border border-primary/30 text-foreground' : 'hover:bg-foreground/5 text-foreground/60'}`}>
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${state.reciterId === reciter.id ? 'bg-primary text-black' : 'bg-foreground/10'}`}>
+                  <button key={reciter.id} onClick={() => { updateState({ reciterId: reciter.id }); setShowReciterPicker(false); }} className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${state.reciterId === reciter.id ? 'bg-primary/10 border border-primary/30 text-foreground dark:text-zinc-100' : 'hover:bg-foreground/5 dark:hover:bg-zinc-800 text-foreground/60 dark:text-zinc-100/60'}`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${state.reciterId === reciter.id ? 'bg-primary text-black' : 'bg-foreground/10 dark:bg-zinc-700'}`}>
                           <User className="w-5 h-5" />
                       </div>
                       <span className="font-bold text-sm text-right flex-1">{reciter.name}</span>
@@ -216,15 +217,15 @@ export function DigitalMushaf() {
           <div className="absolute inset-0 z-[150] bg-background/60 dark:bg-zinc-950/60 backdrop-blur-md flex justify-end animate-in fade-in duration-300">
              <div className="w-full md:w-[400px] h-full bg-background dark:bg-zinc-900 shadow-[-10px_0_50px_rgba(0,0,0,0.12)] flex flex-col p-6 md:p-10 animate-in slide-in-from-left-full duration-500">
                 <div className="flex items-center justify-between mb-8">
-                    <button onClick={() => setIsIndexOpen(false)} className="w-10 h-10 bg-foreground/5 rounded-full flex items-center justify-center text-foreground hover:bg-primary transition-all">
+                    <button onClick={() => setIsIndexOpen(false)} className="w-10 h-10 bg-foreground/5 dark:bg-zinc-800 rounded-full flex items-center justify-center text-foreground dark:text-zinc-100 hover:bg-primary transition-all">
                         <X className="w-5 h-5" />
                     </button>
-                    <h3 className="text-xl font-bold text-foreground">فهرس السور</h3>
+                    <h3 className="text-xl font-bold text-foreground dark:text-zinc-100">فهرس السور</h3>
                 </div>
                 
                 <div className="relative group mb-5">
                     <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/20 group-focus-within:text-primary transition-colors w-3.5 h-3.5" />
-                    <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="ابحث عن اسم السورة..." className="w-full bg-foreground/5 border-2 border-border focus:border-primary/30 rounded-xl py-2.5 pr-10 pl-5 text-sm outline-none transition-all text-foreground text-right font-bold" />
+                    <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="ابحث عن اسم السورة..." className="w-full bg-foreground/5 dark:bg-zinc-800 border-2 border-border focus:border-primary/30 rounded-xl py-2.5 pr-10 pl-5 text-sm outline-none transition-all text-foreground dark:text-zinc-100 text-right font-bold" />
                 </div>
 
                 <div className="flex-1 overflow-y-auto no-scrollbar space-y-3 pb-20">
@@ -234,7 +235,7 @@ export function DigitalMushaf() {
                             fetchPageBatch(SURAH_START_PAGES[s.id] || 1, true); 
                             setIsIndexOpen(false); 
                             logAppEvent("open_surah", { surah_id: s.id, surah_name: s.name });
-                        }} className="w-full flex items-center justify-between p-5 rounded-[2rem] bg-foreground/[0.03] hover:bg-primary/[0.05] hover:scale-[1.01] transition-all group border border-border/40 hover:border-primary/40">
+                        }} className="w-full flex items-center justify-between p-5 rounded-[2rem] bg-foreground/[0.03] dark:bg-zinc-800/20 hover:bg-primary/[0.05] hover:scale-[1.01] transition-all group border border-border/40 hover:border-primary/40">
                             <div className="flex items-center gap-5">
                                 <div className="relative w-14 h-14 flex items-center justify-center group-hover:rotate-[360deg] transition-all duration-1000">
                                     <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full drop-shadow-sm">
@@ -244,13 +245,13 @@ export function DigitalMushaf() {
                                     <span className="relative z-10 text-[10px] font-black text-[#d4af37]">{s.id}</span>
                                 </div>
                                 <div className="flex flex-col items-start">
-                                    <span className="text-xl font-bold font-arabic group-hover:text-primary transition-colors">سورة {s.name}</span>
-                                    <span className="text-[10px] text-foreground/30 font-bold uppercase tracking-widest">{s.transliteration}</span>
+                                    <span className="text-xl font-bold font-arabic group-hover:text-primary transition-colors text-foreground dark:text-zinc-100">سورة {s.name}</span>
+                                    <span className="text-[10px] text-foreground/30 dark:text-zinc-100/30 font-bold uppercase tracking-widest">{s.transliteration}</span>
                                 </div>
                             </div>
                             <div className="flex flex-col items-end">
                                 <span className="text-xs font-black text-primary">{s.total_verses} آية</span>
-                                <span className="text-[8px] text-foreground/20 font-bold uppercase">نزولها: {s.revelation_type === 'Meccan' ? 'مكية' : 'مدنية'}</span>
+                                <span className="text-[8px] text-foreground/20 dark:text-zinc-100/20 font-bold uppercase">نزولها: {s.revelation_type === 'Meccan' ? 'مكية' : 'مدنية'}</span>
                             </div>
                         </button>
                     ))}
@@ -259,10 +260,9 @@ export function DigitalMushaf() {
           </div>
         )}
 
-        <div className="flex-1 w-full overflow-y-auto no-scrollbar scroll-smooth py-10 flex flex-col items-center relative">
-            <div className="absolute inset-0 z-0 pointer-events-none sticky top-0 bg-[#FDFBF7] dark:bg-zinc-950" />
-
-            <div className="max-w-[1200px] w-full flex flex-col items-center px-4">
+        {/* The scrolling area will have dark mode support for the background, but pages remain cream */}
+        <div className="flex-1 w-full overflow-y-auto no-scrollbar scroll-smooth py-10 flex flex-col items-center relative bg-[#FDFBF7] dark:bg-zinc-950 transition-colors duration-500">
+            <div className="max-w-[1200px] w-full flex flex-col items-center px-4 relative z-10">
                 {pages.length > 0 ? (
                     pages.map((pData, pIdx) => (
                         <div key={`p-${pData.page}`} className="mb-20 w-full max-w-[850px] relative transition-all duration-1000">
@@ -279,7 +279,7 @@ export function DigitalMushaf() {
                 ) : (
                     <div className="flex flex-col items-center gap-6 py-40">
                          <Loader2 className="w-12 h-12 text-primary animate-spin" />
-                         <span className="text-sm font-bold text-foreground/40 tracking-widest uppercase">جاري صبغ الصفحات...</span>
+                         <span className="text-sm font-bold text-foreground/40 dark:text-zinc-100/40 tracking-widest uppercase">جاري صبغ الصفحات...</span>
                     </div>
                 )}
                 <div ref={observerTarget} className="h-60 w-full flex items-center justify-center">
@@ -289,18 +289,18 @@ export function DigitalMushaf() {
         </div>
       </main>
 
-      <footer className="h-[80px] md:h-[90px] shrink-0 bg-[#FDFBF7] dark:bg-zinc-950 border-t border-border px-4 md:px-14 flex items-center justify-between z-[100] shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
+      <footer className="h-[80px] md:h-[90px] shrink-0 bg-[#FDFBF7] dark:bg-zinc-950 border-t border-border px-4 md:px-14 flex items-center justify-between z-[100] shadow-[0_-10px_40px_rgba(0,0,0,0.03)] transition-colors duration-500">
           <div className="flex items-center gap-4 md:gap-8 overflow-hidden">
               <div className="flex flex-col min-w-0">
-                  <span className="text-[8px] md:text-[10px] text-foreground/30 font-bold uppercase tracking-widest truncate">موقعك الحالي</span>
+                  <span className="text-[8px] md:text-[10px] text-foreground/30 dark:text-zinc-100/30 font-bold uppercase tracking-widest truncate">موقعك الحالي</span>
                   <div className="flex items-center gap-2">
                       <Book className="w-3.5 h-3.5 text-primary" />
-                      <span className="text-xs md:text-sm font-bold text-foreground whitespace-nowrap">الصفحة {pages[pages.length-1]?.page || ".."}</span>
+                      <span className="text-xs md:text-sm font-bold text-foreground dark:text-zinc-100 whitespace-nowrap">الصفحة {pages[pages.length-1]?.page || ".."}</span>
                   </div>
               </div>
               <div className="hidden xs:block h-6 md:h-8 w-px bg-border flex-shrink-0" />
-              <div className="flex items-center gap-2 md:gap-4 text-foreground/60">
-                  <div className="flex items-center bg-foreground/5 rounded-xl px-1">
+              <div className="flex items-center gap-2 md:gap-4 text-foreground/60 dark:text-zinc-100/60">
+                  <div className="flex items-center bg-foreground/5 dark:bg-zinc-800 rounded-xl px-1">
                        <button 
                          onClick={() => updateState({ mushafFontSize: Math.max(16, state.mushafFontSize - 2) })}
                          className="p-1 px-2 md:p-2 hover:text-primary transition-all font-bold text-base md:text-lg"
@@ -324,7 +324,7 @@ export function DigitalMushaf() {
                       const prevPage = (pages[0]?.page || 1) - 3;
                       if (prevPage >= 1) { setPages([]); fetchPageBatch(prevPage, true); }
                   }}
-                  className="w-10 h-10 md:w-11 md:h-11 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/40 hover:bg-primary hover:text-black transition-all active:scale-95"
+                  className="w-10 h-10 md:w-11 md:h-11 rounded-full bg-foreground/5 dark:bg-zinc-800 flex items-center justify-center text-foreground/40 dark:text-zinc-100/40 hover:bg-primary hover:text-black transition-all active:scale-95"
               >
                   <ChevronRight className="w-5 h-5" />
               </button>
@@ -343,11 +343,12 @@ export function DigitalMushaf() {
   );
 }
 
+// Mushaf Page stays Off-White and Black text ALWAYS
 const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mushafFontSize }: any) => {
     return (
         <div 
             data-page={pData.page}
-            className="flex flex-col relative w-full min-h-[85vh] bg-[#FDFBF7] dark:bg-zinc-900 md:rounded-[1rem] shadow-[0_30px_70px_rgba(0,0,0,0.1)] border-2 border-[#d4af37]/20 transition-all overflow-hidden"
+            className="flex flex-col relative w-full min-h-[85vh] bg-[#FDFBF7] md:rounded-[1rem] shadow-[0_30px_70px_rgba(0,0,0,0.1)] border-2 border-[#d4af37]/20 transition-all overflow-hidden"
         >
             <div className="absolute inset-0 z-10 pointer-events-none">
                 <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 800 1200">
@@ -367,22 +368,22 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
             <div className="relative h-16 flex items-center justify-between px-16 md:px-32 z-20 mt-4 pointer-events-none">
                 <div className="flex flex-col items-center">
                     <span className="text-[10px] text-[#8b6d1b] font-bold">جُزْء</span>
-                    <span className="text-black dark:text-zinc-100 font-black text-lg leading-none">{pData.verses[0]?.juz_number}</span>
+                    <span className="text-black font-black text-lg leading-none">{pData.verses[0]?.juz_number}</span>
                 </div>
                 
                 <div className="flex flex-col items-center justify-center">
-                    <span className="text-black/30 dark:text-white/20 text-[9px] font-bold uppercase tracking-widest mb-0.5">صفحة</span>
-                    <span className="text-black dark:text-zinc-100 font-bold text-xl leading-none">{pData.page}</span>
+                    <span className="text-black/30 text-[9px] font-bold uppercase tracking-widest mb-0.5">صفحة</span>
+                    <span className="text-black font-bold text-xl leading-none">{pData.page}</span>
                 </div>
 
                 <div className="flex flex-col items-center">
                     <span className="text-[10px] text-[#8b6d1b] font-bold">حِزْب</span>
-                    <span className="text-black dark:text-zinc-100 font-black text-lg leading-none">{pData.verses[0]?.hizb_number}</span>
+                    <span className="text-black font-black text-lg leading-none">{pData.verses[0]?.hizb_number}</span>
                 </div>
             </div>
 
             <div className="relative z-10 w-full flex flex-col items-center px-[12%] md:px-[18%] pt-4 pb-20">
-                <div className="w-full text-justify [text-align-last:justify] leading-[2.8] md:leading-[3.4] text-black dark:text-zinc-100" style={{ textJustify: 'inter-word', wordSpacing: '0.25em' }}>
+                <div className="w-full text-justify [text-align-last:justify] leading-[2.8] md:leading-[3.4] text-black" style={{ textJustify: 'inter-word', wordSpacing: '0.25em' }}>
                     {pData.verses.map((verse: any, vIdx: number) => {
                         const [sId, vId] = verse.verse_key.split(':');
                         const isFirstVerse = vId === "1";
@@ -405,12 +406,12 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                                 </svg>
                                             </div>
                                             <span className="text-[9px] text-[#8b6d1b] font-black uppercase tracking-[0.4em] mb-0.5 opacity-60">سُورَةُ</span>
-                                            <span className="font-arabic font-black text-black dark:text-zinc-100 leading-tight" style={{ fontSize: `${mushafFontSize * 1.15}px` }}>{surahName}</span>
+                                            <span className="font-arabic font-black text-black leading-tight" style={{ fontSize: `${mushafFontSize * 1.15}px` }}>{surahName}</span>
                                         </div>
                                         {sId !== "1" && sId !== "9" && (
                                             <div className="font-arabic py-6 font-bold flex items-center justify-center gap-12 w-full" style={{ fontSize: `${mushafFontSize * 1.3}px` }}>
                                                 <div className="flex-1 h-[1.5px] bg-gradient-to-r from-transparent via-[#d4af37] to-transparent opacity-20" />
-                                                <span className="text-[#06402B] dark:text-[#d4af37]/80">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</span>
+                                                <span className="text-[#06402B]">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</span>
                                                 <div className="flex-1 h-[1.5px] bg-gradient-to-l from-transparent via-[#d4af37] to-transparent opacity-20" />
                                             </div>
                                         )}
@@ -425,13 +426,13 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                         {verse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => {
                                             const isAllah = word.text_uthmani?.includes('للَّ') || word.text_uthmani?.includes('اللَّ');
                                             return (
-                                                <span key={word.id} className={`inline-block px-[2px] transition-colors ${isAllah ? 'text-[#cd4d4d]' : 'text-current'}`}>
+                                                <span key={word.id} className={`inline-block px-[2px] transition-colors ${isAllah ? 'text-[#cd4d4d]' : 'currentColor'}`}>
                                                     {word.text_uthmani}
                                                 </span>
                                             );
                                         })}
                                         <span className="inline-flex items-center justify-center relative select-none mx-2" style={{ width: `${mushafFontSize * 0.8}px`, height: `${mushafFontSize * 0.8}px`, verticalAlign: 'middle' }}>
-                                            <span className="relative z-10 font-bold text-black dark:text-zinc-100 border border-black/20 dark:border-white/20 rounded-full w-full h-full flex items-center justify-center" style={{ fontSize: `${mushafFontSize * 0.45}px` }}>
+                                            <span className="relative z-10 font-bold text-black border border-black/20 rounded-full w-full h-full flex items-center justify-center" style={{ fontSize: `${mushafFontSize * 0.45}px` }}>
                                                 {vId}
                                             </span>
                                         </span>
