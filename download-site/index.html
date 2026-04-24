@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تنزيل تطبيق القرآن الكريم | الإصدار الذهبي v1.1.4</title>
-    <meta name="description" content="حمّل النسخة الرسمية من تطبيق القرآن الكريم. مصحف كامل، أذكار، مواقيت الصلاة، واستوديو فيديو احترافي - يعمل بدون إنترنت.">
+    <meta name="description"
+        content="حمّل النسخة الرسمية من تطبيق القرآن الكريم. مصحف كامل، أذكار، مواقيت الصلاة، واستوديو فيديو احترافي - يعمل بدون إنترنت.">
     <link rel="icon" href="https://quran1-mu.vercel.app/logo/logo.png" type="image/png">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Amiri:wght@400;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --gold: #D4AF37;
@@ -18,8 +22,12 @@
             --text-secondary: rgba(255, 255, 255, 0.6);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Cairo', sans-serif;
             background-color: var(--bg);
@@ -53,7 +61,7 @@
             align-items: center;
             margin-bottom: 60px;
             padding: 20px;
-            background: rgba(255,255,255,0.02);
+            background: rgba(255, 255, 255, 0.02);
             border-radius: 24px;
             border: 1px solid var(--border);
             backdrop-filter: blur(10px);
@@ -105,14 +113,14 @@
 
         /* Main Download Card */
         .download-card {
-            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
             border: 1px solid var(--border);
             border-radius: 40px;
             padding: 60px 40px;
             text-align: center;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
             margin-bottom: 80px;
         }
 
@@ -151,14 +159,23 @@
         }
 
         .stat-item {
-            background: rgba(255,255,255,0.03);
+            background: rgba(255, 255, 255, 0.03);
             padding: 12px 24px;
             border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .stat-item .label { font-size: 11px; color: var(--gold); text-transform: uppercase; font-weight: 800; }
-        .stat-item .value { font-size: 20px; font-weight: 900; }
+        .stat-item .label {
+            font-size: 11px;
+            color: var(--gold);
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+
+        .stat-item .value {
+            font-size: 20px;
+            font-weight: 900;
+        }
 
         /* Timer and Button */
         .download-area {
@@ -177,7 +194,7 @@
 
         .progress-bar {
             height: 6px;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             overflow: hidden;
             margin: 15px 0;
@@ -209,7 +226,9 @@
             box-shadow: 0 30px 60px rgba(191, 149, 63, 0.5);
         }
 
-        .main-btn.active { display: inline-block; }
+        .main-btn.active {
+            display: inline-block;
+        }
 
         /* Features Grid */
         .features-grid {
@@ -228,7 +247,7 @@
         }
 
         .feature-card:hover {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             border-color: var(--gold);
             transform: translateY(-10px);
         }
@@ -260,20 +279,55 @@
         }
 
         /* Animations */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse { 0% { box-shadow: 0 20px 40px rgba(191, 149, 63, 0.3); } 50% { box-shadow: 0 20px 60px rgba(191, 149, 63, 0.6); } 100% { box-shadow: 0 20px 40px rgba(191, 149, 63, 0.3); } }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 20px 40px rgba(191, 149, 63, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 20px 60px rgba(191, 149, 63, 0.6);
+            }
+
+            100% {
+                box-shadow: 0 20px 40px rgba(191, 149, 63, 0.3);
+            }
+        }
 
         @media (max-width: 600px) {
-            .hero h1 { font-size: 3rem; }
-            .download-card { padding: 40px 20px; }
-            .stats { gap: 10px; }
-            .stat-item { flex: 1 1 120px; }
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .download-card {
+                padding: 40px 20px;
+            }
+
+            .stats {
+                gap: 10px;
+            }
+
+            .stat-item {
+                flex: 1 1 120px;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="ambient-glow"></div>
-    
+
     <div class="container">
         <nav>
             <a href="https://quran1-mu.vercel.app" class="nav-logo">
@@ -285,7 +339,8 @@
 
         <section class="hero">
             <h1>القرآن الكريم<br>الإصدار الشامل</h1>
-            <p>رفيقك الدائم لقراءة القرآن، سماع التلاوات، وإدارة يومك الإيماني بذكاء. الآن بنسخة كاملة تعمل بدون إنترنت.</p>
+            <p>رفيقك الدائم لقراءة القرآن، سماع التلاوات، وإدارة يومك الإيماني بذكاء. الآن بنسخة كاملة تعمل بدون إنترنت.
+            </p>
         </section>
 
         <section class="download-card">
@@ -296,7 +351,7 @@
             <div class="stats">
                 <div class="stat-item">
                     <div class="label">الإصدار</div>
-                    <div class="value">v1.1.4</div>
+                    <div class="value">v1.1.5</div>
                 </div>
                 <div class="stat-item">
                     <div class="label">الحجم</div>
@@ -318,15 +373,18 @@
                     <div class="progress-bar">
                         <div id="progress-fill" class="progress-fill"></div>
                     </div>
-                    <p style="font-size: 13px; color: var(--text-secondary);">انتظر <span id="timer" style="color: var(--gold); font-weight: 900;">10</span> ثوانٍ</p>
+                    <p style="font-size: 13px; color: var(--text-secondary);">انتظر <span id="timer"
+                            style="color: var(--gold); font-weight: 900;">10</span> ثوانٍ</p>
                 </div>
 
-                <a href="https://github.com/yyyyyy12345612345-bit/uuu12/releases/latest/download/app-debug.apk" id="download-btn" class="main-btn" download>
+                <a href="https://github.com/yyyyyy12345612345-bit/uuu12/releases/latest/download/app-debug.apk"
+                    id="download-btn" class="main-btn" download>
                     تحميل APK الآن
                 </a>
             </div>
 
-            <div style="margin-top: 40px; display: flex; justify-content: center; gap: 20px; font-size: 12px; color: var(--text-secondary);">
+            <div
+                style="margin-top: 40px; display: flex; justify-content: center; gap: 20px; font-size: 12px; color: var(--text-secondary);">
                 <span>🛡️ فحص الفيروسات: آمن</span>
                 <span>⚡ سرعة التحميل: فائقة</span>
                 <span>🔄 تحديثات: تلقائية</span>
@@ -383,4 +441,5 @@
         }, 1000);
     </script>
 </body>
+
 </html>

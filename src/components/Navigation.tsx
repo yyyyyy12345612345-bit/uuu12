@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { Video, BookOpen, Timer, Headphones, Calendar, ScrollText } from "lucide-react";
 
 export function Navigation() {
-  const router = useRouter();
   const pathname = usePathname();
 
   const tabs = [
@@ -27,9 +27,9 @@ export function Navigation() {
           const Icon = tab.icon;
           
           return (
-            <button
+            <Link
               key={tab.id}
-              onClick={() => router.push(tab.path)}
+              href={tab.path}
               className={`group flex flex-col items-center gap-1 transition-all duration-75 relative py-1 flex-1 min-w-0 ${isActive ? 'text-primary' : 'text-foreground/20 hover:text-foreground/40'}`}
             >
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isActive ? 'bg-primary/10' : ''}`}>
@@ -38,7 +38,7 @@ export function Navigation() {
               <span className={`text-[9px] font-bold font-arabic transition-all truncate px-1 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
                 {tab.label}
               </span>
-            </button>
+            </Link>
           );
         })}
       </div>
