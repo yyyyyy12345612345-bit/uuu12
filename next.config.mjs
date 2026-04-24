@@ -6,6 +6,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: process.env.CAPACITOR_BUILD === 'true' ? 'export' : undefined,
+  trailingSlash: true,
   typescript: {
     ignoreBuildErrors: true,
   },
