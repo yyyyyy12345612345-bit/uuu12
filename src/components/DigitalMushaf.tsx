@@ -298,7 +298,7 @@ export function DigitalMushaf() {
         )}
 
         {/* The main scroll area - ALWAYS WHITE background in light mode */}
-        <div className="flex-1 w-full overflow-y-auto no-scrollbar scroll-smooth py-10 flex flex-col items-center relative bg-white dark:bg-zinc-950 transition-colors duration-500">
+        <div className="flex-1 w-full overflow-y-auto no-scrollbar scroll-smooth py-10 flex flex-col items-center relative bg-transparent transition-colors duration-500">
             <div className="max-w-[1200px] w-full flex flex-col items-center px-4 relative z-10">
                 {pages.length > 0 ? (
                     pages.map((pData, pIdx) => (
@@ -430,9 +430,9 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                             <React.Fragment key={verse.id}>
                                 {isFirstVerse && (
                                     <div className="w-full flex flex-col items-center gap-1 my-6 animate-in fade-in zoom-in duration-1000 relative">
-                                        <div className="relative z-20 flex flex-col items-center py-5 w-full max-w-[320px]">
-                                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                                <svg className="w-full h-full" viewBox="0 0 320 80">
+                                        <div className="relative z-20 flex items-center justify-center w-full max-w-[320px] h-[80px]">
+                                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                                                <svg className="w-full h-full" viewBox="0 0 320 80" preserveAspectRatio="none">
                                                      <rect x="10" y="10" width="300" height="60" fill="none" stroke="#d4af37" strokeWidth="0.5" opacity="0.3" rx="4" />
                                                      <rect x="15" y="15" width="290" height="50" fill="none" stroke="#d4af37" strokeWidth="1.5" opacity="0.8" rx="2" />
                                                      <path d="M 10,25 L 10,10 L 25,10" fill="none" stroke="#d4af37" strokeWidth="3" />
@@ -441,8 +441,12 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                                      <path d="M 25,70 L 10,70 L 10,55" fill="none" stroke="#d4af37" strokeWidth="3" />
                                                 </svg>
                                             </div>
-                                            <span className="text-[9px] text-[#8b6d1b] font-black uppercase tracking-[0.4em] mb-0.5 opacity-60">سُورَةُ</span>
-                                            <span className="font-arabic font-black text-black leading-tight" style={{ fontSize: `${mushafFontSize * 1.15}px` }}>{surahName}</span>
+                                            <div className="absolute top-[12.5px] left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#FDFBF7] px-4 z-30">
+                                                <span className="text-[10px] md:text-[11px] text-[#8b6d1b] font-black uppercase tracking-[0.4em] opacity-80">سُورَةُ</span>
+                                            </div>
+                                            <div className="relative z-20 flex items-center justify-center w-full h-full pt-1">
+                                                <span className="font-arabic font-black text-black leading-none" style={{ fontSize: `${mushafFontSize * 1.3}px` }}>{surahName}</span>
+                                            </div>
                                         </div>
                                         {sId !== "1" && sId !== "9" && (
                                             <div className="font-arabic py-6 font-bold flex items-center justify-center gap-12 w-full" style={{ fontSize: `${mushafFontSize * 1.3}px` }}>
