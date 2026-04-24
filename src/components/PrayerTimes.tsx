@@ -7,6 +7,8 @@ import {
   ArrowRight, Play, Check, ChevronDown
 } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
+import { LocalNotifications } from '@capacitor/local-notifications';
+import { Capacitor } from '@capacitor/core';
 
 
 interface PrayerTimesData {
@@ -220,14 +222,27 @@ export function PrayerTimes() {
                     audioRef.current.play().catch(err => console.log("Audio play blocked, needs interaction", err));
                 }
 
-                // 2. Show Web Notification as backup
-                if (setting.notificationsEnabled && ("Notification" in window) && Notification.permission === "granted") {
-                    new Notification(`🕌 حان الآن موعد أذان ${prayerNamesAr[id] || id}`, { 
-                        body: "حيّ على الصلاة.. حيّ على الفلاح",
-                        icon: '/logo/logo.png',
-                        badge: '/logo/logo.png',
-                        tag: `prayer-${id}-${nowStr}`
-                    });
+                // 2. Show Notification
+                if (setting.notificationsEnabled) {
+                    if (Capacitor.isNativePlatform()) {
+                        LocalNotifications.schedule({
+                            notifications: [{
+                                id: Math.floor(Math.random() * 10000),
+                                title: `🕌 حان الآن موعد أذان ${prayerNamesAr[id] || id}`,
+                                body: "حيّ على الصلاة.. حيّ على الفلاح",
+                                schedule: { at: new Date(Date.now() + 100) },
+                                sound: 'adhan.mp3', // Found in res/raw/adhan.mp3
+                                extra: { prayer: id }
+                            }]
+                        });
+                    } else if (("Notification" in window) && Notification.permission === "granted") {
+                        new Notification(`🕌 حان الآن موعد أذان ${prayerNamesAr[id] || id}`, { 
+                            body: "حيّ على الصلاة.. حيّ على الفلاح",
+                            icon: '/logo/logo.png',
+                            badge: '/logo/logo.png',
+                            tag: `prayer-${id}-${nowStr}`
+                        });
+                    }
                 }
             }
         });

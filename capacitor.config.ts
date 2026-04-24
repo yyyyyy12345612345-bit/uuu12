@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'quran1mu.vercel.app', // تم التعديل ليطابق ملف google-services.json
-  appName: 'Quran App',
+  appName: 'القرآن الكريم',
   webDir: 'out',
   server: {
     url: "https://quran-henna-one.vercel.app",
