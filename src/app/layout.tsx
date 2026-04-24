@@ -68,6 +68,7 @@ export const viewport: Viewport = {
 
 import { EditorProvider } from "@/store/useEditor";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import AppInitializer from "@/components/AppInitializer";
 import Script from "next/script";
 
 const GA_ID = "G-M167S42G7X";
@@ -108,6 +109,7 @@ export default function RootLayout({
 
         <ThemeProvider>
           <EditorProvider>
+            <AppInitializer />
             {children}
           </EditorProvider>
         </ThemeProvider>
