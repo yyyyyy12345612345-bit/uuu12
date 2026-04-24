@@ -145,22 +145,22 @@ export function DigitalMushaf() {
   );
 
   return (
-    <div className="h-full w-full flex flex-col bg-[#FDFBF7] text-black font-arabic relative overflow-hidden">
+    <div className="h-full w-full flex flex-col bg-[#FDFBF7] dark:bg-zinc-950 text-black font-arabic relative overflow-hidden transition-colors duration-500">
       
-      {/* Background stays cream even in dark mode shell if desired, but we'll use a wrapper for pages */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]">
           <div className="absolute inset-0" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/pinstriped-suit.png')" }} />
       </div>
       
       <audio ref={audioRef} onEnded={handleAudioEnd} onError={handleAudioEnd} />
 
+      {/* Mushaf Internal Header - Should match bg in light mode */}
       <header className="h-[75px] md:h-[85px] shrink-0 border-b border-border bg-[#FDFBF7]/95 dark:bg-zinc-950/95 backdrop-blur-xl px-2 md:px-10 flex items-center justify-between z-[100] shadow-sm">
         <div className="flex items-center gap-2 md:gap-4 flex-1">
              <button onClick={() => setIsIndexOpen(true)} className="flex items-center justify-center md:justify-start gap-2 h-11 px-3 md:px-6 bg-primary/20 text-foreground dark:text-zinc-100 rounded-2xl font-bold border border-primary/20 transition-all hover:bg-primary/30 active:scale-95">
                 <List className="w-5 h-5 text-primary" />
                 <span className="text-sm hidden md:block">فهرس السور</span>
              </button>
-             <button onClick={() => setShowReciterPicker(!showReciterPicker)} className="w-11 h-11 md:w-12 md:h-12 bg-foreground/5 rounded-2xl flex items-center justify-center text-foreground/60 dark:text-zinc-100/60 hover:text-foreground dark:hover:text-zinc-100 border border-border transition-all relative active:scale-95">
+             <button onClick={() => setShowReciterPicker(!showReciterPicker)} className="w-11 h-11 md:w-12 md:h-12 bg-foreground/5 dark:bg-zinc-800 rounded-2xl flex items-center justify-center text-foreground/60 dark:text-zinc-100/60 hover:text-foreground dark:hover:text-zinc-100 border border-border transition-all relative active:scale-95">
                 <User className="w-5 h-5 md:w-6 h-6" />
                 {showReciterPicker && <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-background" />}
              </button>
@@ -260,8 +260,8 @@ export function DigitalMushaf() {
           </div>
         )}
 
-        {/* The scrolling area will have dark mode support for the background, but pages remain cream */}
-        <div className="flex-1 w-full overflow-y-auto no-scrollbar scroll-smooth py-10 flex flex-col items-center relative bg-[#FDFBF7] dark:bg-zinc-950 transition-colors duration-500">
+        {/* The main scroll area - ALWAYS WHITE background in light mode */}
+        <div className="flex-1 w-full overflow-y-auto no-scrollbar scroll-smooth py-10 flex flex-col items-center relative bg-white dark:bg-zinc-950 transition-colors duration-500">
             <div className="max-w-[1200px] w-full flex flex-col items-center px-4 relative z-10">
                 {pages.length > 0 ? (
                     pages.map((pData, pIdx) => (
@@ -289,7 +289,7 @@ export function DigitalMushaf() {
         </div>
       </main>
 
-      <footer className="h-[80px] md:h-[90px] shrink-0 bg-[#FDFBF7] dark:bg-zinc-950 border-t border-border px-4 md:px-14 flex items-center justify-between z-[100] shadow-[0_-10px_40px_rgba(0,0,0,0.03)] transition-colors duration-500">
+      <footer className="h-[80px] md:h-[90px] shrink-0 bg-white dark:bg-zinc-950 border-t border-border px-4 md:px-14 flex items-center justify-between z-[100] shadow-[0_-10px_40px_rgba(0,0,0,0.03)] transition-colors duration-500">
           <div className="flex items-center gap-4 md:gap-8 overflow-hidden">
               <div className="flex flex-col min-w-0">
                   <span className="text-[8px] md:text-[10px] text-foreground/30 dark:text-zinc-100/30 font-bold uppercase tracking-widest truncate">موقعك الحالي</span>
@@ -343,7 +343,6 @@ export function DigitalMushaf() {
   );
 }
 
-// Mushaf Page stays Off-White and Black text ALWAYS
 const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mushafFontSize }: any) => {
     return (
         <div 
