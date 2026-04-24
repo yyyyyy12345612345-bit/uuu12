@@ -24,6 +24,7 @@ interface PrayerSetting {
     athanEnabled: boolean;
     notificationsEnabled: boolean;
     muezzinId: string;
+    offset: number; 
 }
 
 
@@ -50,12 +51,61 @@ export function PrayerTimes() {
   const setActiveSettingsPrayer = (val: string | null) => updateEditor({ activeSettingsPrayer: val });
 
   const [prayerSettings, setPrayerSettings] = useState<Record<string, PrayerSetting>>({
-    Fajr: { athanEnabled: true, notificationsEnabled: true, muezzinId: "haram" },
-    Dhuhr: { athanEnabled: true, notificationsEnabled: true, muezzinId: "haram" },
-    Asr: { athanEnabled: true, notificationsEnabled: true, muezzinId: "haram" },
-    Maghrib: { athanEnabled: true, notificationsEnabled: true, muezzinId: "haram" },
-    Isha: { athanEnabled: true, notificationsEnabled: true, muezzinId: "haram" }
+    Fajr: { athanEnabled: true, notificationsEnabled: true, muezzinId: "haram", offset: 0 },
+    Dhuhr: { athanEnabled: true, notificationsEnabled: true, muezzinId: "haram", offset: 0 },
+    Asr: { athanEnabled: true, notificationsEnabled: true, muezzinId: "haram", offset: 0 },
+    Maghrib: { athanEnabled: true, notificationsEnabled: true, muezzinId: "haram", offset: 0 },
+    Isha: { athanEnabled: true, notificationsEnabled: true, muezzinId: "haram", offset: 0 }
   });
+
+  const scheduleWeeklyNotifications = async (timesData: PrayerTimesData, settings: Record<string, PrayerSetting>) => {
+    if (!Capacitor.isNativePlatform()) return;
+    
+    try {
+        await LocalNotifications.cancel({ notifications: [] }); 
+        
+        const notifications = [];
+        const prayerKeys = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
+        const prayerAr: Record<string, string> = { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء" };
+        
+        for (let day = 0; day < 7; day++) {
+            const date = new Date();
+            date.setDate(date.getDate() + day);
+            
+            for (const key of prayerKeys) {
+                const setting = settings[key];
+                if (!setting?.notificationsEnabled) continue;
+
+                const timeStr = timesData[key as keyof PrayerTimesData];
+                if (!timeStr) continue;
+
+                const [h, m] = timeStr.split(':').map(Number);
+                const scheduleDate = new Date(date);
+                scheduleDate.setHours(h, m + (setting.offset || 0), 0, 0);
+
+                if (scheduleDate > new Date()) {
+                    notifications.push({
+                        id: Math.floor(Math.random() * 1000000),
+                        title: `🕌 حان الآن موعد أذان ${prayerAr[key]}`,
+                        body: "حيّ على الصلاة.. حيّ على الفلاح",
+                        schedule: { at: scheduleDate },
+                        sound: 'adhan.mp3',
+                        smallIcon: 'ic_notification',
+                        iconColor: '#c5a059',
+                        extra: { prayer: key }
+                    });
+                }
+            }
+        }
+
+        if (notifications.length > 0) {
+            await LocalNotifications.schedule({ notifications: notifications.slice(0, 64) });
+            console.log(`[Athan] Scheduled ${notifications.length} notifications`);
+        }
+    } catch (e) {
+        console.error("Scheduling failed", e);
+    }
+  };
 
 
 
@@ -133,9 +183,10 @@ export function PrayerTimes() {
     }
   };
 
-  // Sync with SW whenever times or settings change
+  // Sync with SW and Native Scheduler whenever times or settings change
   useEffect(() => {
     syncPrayerTimesToSW(times, prayerSettings);
+    if (times) scheduleWeeklyNotifications(times, prayerSettings);
   }, [times, prayerSettings]);
 
   // Listen for PLAY_ADHAN messages from Service Worker
@@ -200,19 +251,25 @@ export function PrayerTimes() {
 
 
 
-  // Check for Athan triggering
+  // Check for Athan triggering (Foreground)
   useEffect(() => {
     if (!times) return;
     
     const checkPrayer = () => {
         const now = new Date();
-        const nowStr = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
         
         Object.entries(times).forEach(([id, time]) => {
-            if (time === nowStr && now.getSeconds() === 0) {
-                const setting = prayerSettings[id];
-                if (!setting) return;
+            const setting = prayerSettings[id];
+            if (!setting) return;
 
+            const [h, m] = time.split(':').map(Number);
+            const prayerDate = new Date(now);
+            prayerDate.setHours(h, m + (setting.offset || 0), 0, 0);
+
+            const prayerTimeStr = prayerDate.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+            const nowStr = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+
+            if (prayerTimeStr === nowStr && now.getSeconds() === 0) {
                 // 1. Play Adhan if enabled and app is foreground
                 if (setting.athanEnabled && audioRef.current) {
                     const muezzin = MUEZZINS.find(m => m.id === setting.muezzinId) || MUEZZINS[0];
@@ -222,20 +279,9 @@ export function PrayerTimes() {
                     audioRef.current.play().catch(err => console.log("Audio play blocked, needs interaction", err));
                 }
 
-                // 2. Show Notification
-                if (setting.notificationsEnabled) {
-                    if (Capacitor.isNativePlatform()) {
-                        LocalNotifications.schedule({
-                            notifications: [{
-                                id: Math.floor(Math.random() * 10000),
-                                title: `🕌 حان الآن موعد أذان ${prayerNamesAr[id] || id}`,
-                                body: "حيّ على الصلاة.. حيّ على الفلاح",
-                                schedule: { at: new Date(Date.now() + 100) },
-                                sound: 'adhan.mp3', // Found in res/raw/adhan.mp3
-                                extra: { prayer: id }
-                            }]
-                        });
-                    } else if (("Notification" in window) && Notification.permission === "granted") {
+                // 2. Show Notification (Only if not pre-scheduled or to ensure it shows if scheduler failed)
+                if (setting.notificationsEnabled && !Capacitor.isNativePlatform()) {
+                    if (("Notification" in window) && Notification.permission === "granted") {
                         new Notification(`🕌 حان الآن موعد أذان ${prayerNamesAr[id] || id}`, { 
                             body: "حيّ على الصلاة.. حيّ على الفلاح",
                             icon: '/logo/logo.png',
@@ -265,9 +311,10 @@ export function PrayerTimes() {
     if (!times) return null;
     const now = new Date();
     const list = Object.entries(prayerNamesAr).map(([id, name]) => {
+      const setting = prayerSettings[id];
       const [h, m] = (times[id as keyof PrayerTimesData] as string).split(':').map(Number);
       const d = new Date(now);
-      d.setHours(h, m, 0, 0);
+      d.setHours(h, m + (setting?.offset || 0), 0, 0);
       return { id, name, date: d };
     });
 
@@ -385,7 +432,14 @@ export function PrayerTimes() {
                             </button>
                             
                             <h3 className={`text-xl font-bold font-arabic transition-all ${isNext ? 'text-primary' : 'text-foreground/60'}`}>{name}</h3>
-                            <p className={`text-3xl font-mono font-black ${isNext ? 'text-foreground scale-110' : 'text-foreground/20'}`}>{time}</p>
+                            <p className={`text-3xl font-mono font-black ${isNext ? 'text-foreground scale-110' : 'text-foreground/20'}`}>
+                                {(() => {
+                                    const [h, m] = time.split(':').map(Number);
+                                    const d = new Date();
+                                    d.setHours(h, m + (setting?.offset || 0));
+                                    return d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+                                })()}
+                            </p>
                             
                             <div className="flex items-center gap-3">
                                 <div className={`p-2 rounded-xl border transition-all ${setting?.athanEnabled ? 'bg-primary/20 border-primary/20 text-primary' : 'bg-foreground/5 border-border text-foreground/10'}`}>
@@ -484,6 +538,44 @@ export function PrayerTimes() {
                                     </button>
                                 ))}
                             </div>
+                        </div>
+
+                        {/* Manual Offset Adjustment */}
+                        <div className="p-5 bg-white/5 rounded-2xl border border-white/5 space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div className="text-right">
+                                    <p className="text-white font-bold font-arabic">ضبط الوقت يدوياً</p>
+                                    <p className="text-[9px] text-white/20 uppercase font-bold tracking-widest mt-0.5">Time Correction (Minutes)</p>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <button 
+                                        onClick={() => {
+                                            const current = prayerSettings[activeSettingsPrayer].offset || 0;
+                                            const newSet = { ...prayerSettings, [activeSettingsPrayer]: { ...prayerSettings[activeSettingsPrayer], offset: current - 1 } };
+                                            setPrayerSettings(newSet);
+                                            localStorage.setItem("prayer_settings_v2", JSON.stringify(newSet));
+                                        }}
+                                        className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 active:scale-90 transition-all"
+                                    >
+                                        -
+                                    </button>
+                                    <span className={`text-xl font-mono font-black ${prayerSettings[activeSettingsPrayer].offset > 0 ? 'text-emerald-400' : prayerSettings[activeSettingsPrayer].offset < 0 ? 'text-red-400' : 'text-white'}`}>
+                                        {prayerSettings[activeSettingsPrayer].offset > 0 ? `+${prayerSettings[activeSettingsPrayer].offset}` : prayerSettings[activeSettingsPrayer].offset || 0}
+                                    </span>
+                                    <button 
+                                        onClick={() => {
+                                            const current = prayerSettings[activeSettingsPrayer].offset || 0;
+                                            const newSet = { ...prayerSettings, [activeSettingsPrayer]: { ...prayerSettings[activeSettingsPrayer], offset: current + 1 } };
+                                            setPrayerSettings(newSet);
+                                            localStorage.setItem("prayer_settings_v2", JSON.stringify(newSet));
+                                        }}
+                                        className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 active:scale-90 transition-all"
+                                    >
+                                        +
+                                    </button>
+                                </div>
+                            </div>
+                            <p className="text-[9px] text-white/20 text-center font-bold">يمكنك زيادة أو تقليل الدقائق لتوافق وقت المسجد عندك بضبط دقيق.</p>
                         </div>
 
 

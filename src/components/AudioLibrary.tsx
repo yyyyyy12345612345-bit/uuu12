@@ -7,6 +7,7 @@ import {
   Headphones, Repeat, Shuffle, ChevronDown, User, Heart, 
   Disc, Music, Star, Zap, X
 } from "lucide-react";
+import { updateMediaSession, updatePlaybackState } from "@/lib/mediaSession";
 import surahsData from "@/data/surahs.json";
 import { logAppEvent } from "@/lib/firebase";
 
@@ -75,19 +76,34 @@ export function AudioLibrary() {
       }
       logAppEvent("change_reciter", { reciter_name: selectedReciter.name });
     }
+
+    // Update Media Session
+    updateMediaSession({
+      title: `سورة ${currentSurah.name}`,
+      artist: selectedReciter.name,
+    }, {
+      onPlay: () => { audio.play(); setIsPlaying(true); },
+      onPause: () => { audio.pause(); setIsPlaying(false); },
+      onNext: nextSurah,
+      onPrev: prevSurah
+    });
   }, [currentSurah, selectedReciter]);
 
-    const togglePlay = () => {
-        if (audioRef.current) {
-            if (isPlaying) {
-                audioRef.current.pause();
-                setIsPlaying(false);
-            } else {
-                audioRef.current.play().catch(() => setIsPlaying(false));
-                setIsPlaying(true);
-            }
-        }
-    };
+  useEffect(() => {
+    updatePlaybackState(isPlaying ? 'playing' : 'paused');
+  }, [isPlaying]);
+
+  const togglePlay = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        audioRef.current.play().catch(() => setIsPlaying(false));
+        setIsPlaying(true);
+      }
+    }
+  };
 
 
   const onTimeUpdate = () => {

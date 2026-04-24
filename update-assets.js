@@ -32,6 +32,28 @@ mipmapFolders.forEach(folder => {
     }
 });
 
+// Create drawable folders for the notification icon
+const drawableFolders = [
+    'drawable',
+    'drawable-hdpi',
+    'drawable-mdpi',
+    'drawable-xhdpi',
+    'drawable-xxhdpi',
+    'drawable-xxxhdpi'
+];
+
+console.log('🚀 Creating notification icons...');
+drawableFolders.forEach(folder => {
+    const targetFolder = path.join(ANDROID_RES_PATH, folder);
+    if (!fs.existsSync(targetFolder)) {
+        fs.mkdirSync(targetFolder, { recursive: true });
+    }
+    // Copy the logo to act as the notification icon
+    // Note: For best results on Android, this should ideally be a white silhouette on transparent background.
+    fs.copyFileSync(LOGO_PATH, path.join(targetFolder, 'ic_notification.png'));
+    console.log(`✅ Created ic_notification.png in ${folder}`);
+});
+
 // Ensure raw folder exists for Adhan sounds
 const rawFolder = path.join(ANDROID_RES_PATH, 'raw');
 if (!fs.existsSync(rawFolder)) {
