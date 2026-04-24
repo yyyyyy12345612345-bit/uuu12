@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Loader2, Play, Search, List, User, X, ChevronRight, ChevronLeft, Book, Star, Settings } from "lucide-react";
+import { Loader2, Play, Search, List, User, X, ChevronRight, ChevronLeft, Book, Star, Settings, Download } from "lucide-react";
 import { Scheherazade_New } from "next/font/google";
 import surahsData from "@/data/surahs.json";
 import { RECITERS } from "@/data/reciters";
@@ -220,8 +220,22 @@ export function DigitalMushaf() {
                     <button onClick={() => setIsIndexOpen(false)} className="w-10 h-10 bg-foreground/5 dark:bg-zinc-800 rounded-full flex items-center justify-center text-foreground dark:text-zinc-100 hover:bg-primary transition-all">
                         <X className="w-5 h-5" />
                     </button>
-                    <h3 className="text-xl font-bold text-foreground dark:text-zinc-100">فهرس السور</h3>
+                    <h3 className="text-xl font-bold text-foreground dark:text-zinc-100">القائمة الرئيسية</h3>
                 </div>
+
+                {/* Manual Update Check Button */}
+                <button 
+                    onClick={() => { window.dispatchEvent(new CustomEvent('check-for-updates')); }}
+                    className="w-full mb-6 flex items-center gap-4 p-4 rounded-2xl bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all active:scale-95 group"
+                >
+                    <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-black shadow-lg shadow-primary/20 group-hover:rotate-[360deg] transition-transform duration-500">
+                        <Download className="w-5 h-5" />
+                    </div>
+                    <div className="flex flex-col items-start">
+                        <span className="font-bold text-sm">تحديث التطبيق</span>
+                        <span className="text-[9px] opacity-60 font-bold uppercase tracking-wider">البحث عن إصدار جديد</span>
+                    </div>
+                </button>
                 
                 <div className="relative group mb-5">
                     <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/20 group-focus-within:text-primary transition-colors w-3.5 h-3.5" />
@@ -229,6 +243,7 @@ export function DigitalMushaf() {
                 </div>
 
                 <div className="flex-1 overflow-y-auto no-scrollbar space-y-3 pb-20">
+                    <div className="p-2 text-[10px] text-foreground/30 dark:text-zinc-100/30 font-bold uppercase tracking-[0.3em]">فهرس السور</div>
                     {filteredSurahs.map((s) => (
                         <button key={s.id} onClick={() => { 
                             setPages([]); 

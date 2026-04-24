@@ -11,7 +11,6 @@ export default function AppInitializer() {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateInfo, setUpdateInfo] = useState<any>(null);
 
-  // Function to compare semantic versions (e.g., "1.1.3" vs "1.1.0")
   const isNewerVersion = (serverVer: string, localVer: string) => {
     const s = serverVer.split('.').map(Number);
     const l = localVer.split('.').map(Number);
@@ -24,7 +23,35 @@ export default function AppInitializer() {
     return false;
   };
 
+  const checkForUpdates = async (manual = false) => {
+    if (!Capacitor.isNativePlatform()) {
+      if (manual) alert("التحديثات متاحة فقط لنسخة التطبيق (APK)");
+      return;
+    }
+
+    try {
+      const info = await App.getInfo();
+      const currentNativeVersion = info.version.trim(); 
+
+      const response = await fetch('/version.json?t=' + Date.now());
+      const data = await response.json();
+      const serverVersion = data.version.trim();
+      
+      console.log(`[UpdateCheck] Local: ${currentNativeVersion}, Server: ${serverVersion}`);
+
+      if (isNewerVersion(serverVersion, currentNativeVersion)) {
+        setUpdateInfo(data);
+        setShowUpdateModal(true);
+      } else if (manual) {
+        alert("أنت تستخدم أحدث نسخة بالفعل ✅");
+      }
+    } catch (error) {
+      if (manual) alert("فشل الاتصال بخادم التحديثات");
+    }
+  };
+
   useEffect(() => {
+    // Permissions check on start
     const initializePermissions = async () => {
       if (!Capacitor.isNativePlatform()) return;
       try {
@@ -41,38 +68,15 @@ export default function AppInitializer() {
       }
     };
 
-    const checkForUpdates = async () => {
-      if (!Capacitor.isNativePlatform()) return; 
-
-      try {
-        const info = await App.getInfo();
-        const currentNativeVersion = info.version.trim(); 
-
-        const response = await fetch('/version.json?t=' + Date.now());
-        const data = await response.json();
-        const serverVersion = data.version.trim();
-        
-        console.log(`[UpdateCheck] Local: ${currentNativeVersion}, Server: ${serverVersion}`);
-
-        // Only show if the server has a HIGHER version number
-        if (isNewerVersion(serverVersion, currentNativeVersion)) {
-          setUpdateInfo(data);
-          setShowUpdateModal(true);
-        }
-      } catch (error) {
-        console.log('Update check failed');
-      }
-    };
-
     initializePermissions();
-    checkForUpdates();
 
-    if (Capacitor.isNativePlatform()) {
-      const handleAppState = App.addListener('appStateChange', ({ isActive }) => {
-        if (isActive) checkForUpdates();
-      });
-      return () => { handleAppState.remove(); };
-    }
+    // Listen for manual update trigger
+    const handleManualUpdate = () => checkForUpdates(true);
+    window.addEventListener('check-for-updates', handleManualUpdate);
+
+    return () => {
+      window.removeEventListener('check-for-updates', handleManualUpdate);
+    };
   }, []);
 
   if (!showUpdateModal) return null;
