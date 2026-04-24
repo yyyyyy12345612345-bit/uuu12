@@ -35,17 +35,21 @@ export default function AppInitializer() {
 
       try {
         const info = await App.getInfo();
-        const currentNativeVersion = info.version; 
+        const currentNativeVersion = info.version.trim(); // "1.1.3"
 
         const response = await fetch('/version.json?t=' + Date.now());
         const data = await response.json();
+        const serverVersion = data.version.trim(); // "1.1.3"
         
-        if (data.version !== currentNativeVersion) {
+        console.log(`[UpdateCheck] Current: ${currentNativeVersion}, Server: ${serverVersion}`);
+
+        // Only show if versions are actually different
+        if (serverVersion !== currentNativeVersion) {
           setUpdateInfo(data);
           setShowUpdateModal(true);
         }
       } catch (error) {
-        console.log('Update check failed');
+        console.log('Update check failed or skipped');
       }
     };
 
