@@ -8,6 +8,7 @@ import { RECITERS } from "@/data/reciters";
 import { useEditor } from "@/store/useEditor";
 import { getAudioUrl } from "@/lib/quranUtils";
 import { logAppEvent } from "@/lib/firebase";
+import { updateMediaSession, updatePlaybackState } from "@/lib/mediaSession";
 
 const API_ROOT = "https://api.quran.com/api/v4";
 
@@ -125,6 +126,26 @@ export function DigitalMushaf() {
                 audioRef.current!.play();
             }
         });
+
+        // Media Session Update
+        const surahName = surahsData.find(s => s.id === parseInt(sura))?.name || "";
+        updateMediaSession({
+            title: `سورة ${surahName} - آية ${ayah}`,
+            artist: RECITERS.find(r => r.id === state.reciterId)?.name || "قارئ",
+        }, {
+            onPlay: () => { audioRef.current?.play(); setIsPlayingPage(true); },
+            onPause: () => { audioRef.current?.pause(); setIsPlayingPage(false); },
+            onNext: () => {
+                if (vIdx + 1 < pages[pIdx].verses.length) playVerse(pIdx, vIdx + 1);
+                else if (pIdx + 1 < pages.length) playVerse(pIdx + 1, 0);
+            },
+            onPrev: () => {
+                if (vIdx > 0) playVerse(pIdx, vIdx - 1);
+                else if (pIdx > 0) playVerse(pIdx - 1, pages[pIdx-1].verses.length - 1);
+            }
+        });
+        updatePlaybackState('playing');
+
         logAppEvent("play_verse", { surah: sura, verse: ayah, reciter: state.reciterId });
     }
   };
@@ -185,6 +206,7 @@ export function DigitalMushaf() {
                     if(isPlayingPage) {
                         setIsPlayingPage(false);
                         audioRef.current?.pause();
+                        updatePlaybackState('paused');
                     } else {
                         setIsPlayingPage(true);
                         playVerse(0, 0);

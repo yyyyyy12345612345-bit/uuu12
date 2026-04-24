@@ -9,6 +9,11 @@ const config: CapacitorConfig = {
     cleartext: true
   },
   plugins: {
+    LocalNotifications: {
+      smallIcon: "ic_notification",
+      iconColor: "#c5a059",
+      sound: "adhan.mp3"
+    },
     SplashScreen: {
       launchShowDuration: 2000,
       backgroundColor: "#050505",
