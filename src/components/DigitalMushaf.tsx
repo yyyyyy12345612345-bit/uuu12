@@ -393,7 +393,20 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                             <React.Fragment key={verse.id}>
                                 {isFirstVerse && (
                                     <div className="w-full flex flex-col items-center gap-1 my-6 animate-in fade-in zoom-in duration-1000 relative">
-                                        <div className="relative z-20 flex flex-col items-center py-4 border-y border-[#d4af37]/10 w-full max-w-[300px]">
+                                        {/* --- SIMPLE BUT ELEGANT SURAH FRAME --- */}
+                                        <div className="relative z-20 flex flex-col items-center py-6 w-full max-w-[400px]">
+                                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                                <svg className="w-full h-full" viewBox="0 0 400 100" preserveAspectRatio="none">
+                                                    <path d="M 50,50 L 10,50 L 10,10 L 50,10" fill="none" stroke="#d4af37" strokeWidth="1" opacity="0.6" />
+                                                    <path d="M 350,50 L 390,50 L 390,10 L 350,10" fill="none" stroke="#d4af37" strokeWidth="1" opacity="0.6" />
+                                                    <path d="M 50,90 L 10,90 L 10,50" fill="none" stroke="#d4af37" strokeWidth="1" opacity="0.6" />
+                                                    <path d="M 350,90 L 390,90 L 390,50" fill="none" stroke="#d4af37" strokeWidth="1" opacity="0.6" />
+                                                    <rect x="180" y="5" width="40" height="1" fill="#d4af37" opacity="0.8" />
+                                                    <rect x="180" y="95" width="40" height="1" fill="#d4af37" opacity="0.8" />
+                                                    <circle cx="200" cy="5" r="2" fill="#d4af37" />
+                                                    <circle cx="200" cy="95" r="2" fill="#d4af37" />
+                                                </svg>
+                                            </div>
                                             <span className="text-[10px] text-[#8b6d1b] font-black uppercase tracking-[0.4em] mb-1">سُورَةُ</span>
                                             <span className="font-arabic font-black text-black leading-tight" style={{ fontSize: `${mushafFontSize * 1.3}px` }}>{surahName}</span>
                                         </div>
