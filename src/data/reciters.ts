@@ -12,7 +12,7 @@ export const RECITERS: Reciter[] = [
   { id: "sds", name: "عبد الرحمن السديس", folder: "sds", mp3quranServer: "server11.mp3quran.net/sds", everyAyahFolder: "Abdurrahmaan_As-Sudais_192kbps" },
   { id: "shur", name: "سعود الشريم", folder: "shur", mp3quranServer: "server7.mp3quran.net/shur", everyAyahFolder: "Sa3ood_ash-Shuraym_128kbps" },
   { id: "juhani", name: "عبد الله عواد الجهني", folder: "juhani", mp3quranServer: "server13.mp3quran.net/juhani", everyAyahFolder: "Abdullaah_3awwaad_Al-Juhaynee_128kbps" },
-  { id: "afasy", name: "مشاري العفاسي", folder: "afs", mp3quranServer: "server8.mp3quran.net/afs", everyAyahFolder: "Rashid_Al_Afasy_128kbps" },
+  { id: "afasy", name: "مشاري العفاسي", folder: "afs", mp3quranServer: "server8.mp3quran.net/afs", everyAyahFolder: "Alafasy_128kbps" },
   { id: "qtm", name: "ناصر القطامي", folder: "qtm", mp3quranServer: "server6.mp3quran.net/qtm", everyAyahFolder: "Nasser_Alqatami_128kbps" },
   { id: "s_gmd", name: "سعد الغامدي", folder: "s_gmd", mp3quranServer: "server7.mp3quran.net/s_gmd", everyAyahFolder: "Ghamadi_40kbps" },
   { id: "ajm", name: "أحمد بن علي العجمي", folder: "ajm", mp3quranServer: "server10.mp3quran.net/ajm", everyAyahFolder: "Ahmed_ibn_Ali_al-Ajamy_64kbps" },
@@ -34,4 +34,22 @@ export const RECITERS: Reciter[] = [
   { id: "hazza", name: "هزاع البلوشي", folder: "hazza", mp3quranServer: "server11.mp3quran.net/hazza", everyAyahFolder: "Hazza_Al_Blushi_128kbps" },
   { id: "mansor", name: "منصور السالمي", folder: "mansor", mp3quranServer: "server14.mp3quran.net/mansor", everyAyahFolder: "Mansour_Al_Salimi_128kbps" },
   { id: "balilah", name: "بندر بليلة", folder: "balilah", mp3quranServer: "server6.mp3quran.net/balilah", everyAyahFolder: "Bandar_Baleela_128kbps" },
+  // --- Requested additions (temporarily using mp3quran server10 — verify/update with actual sources) ---
+  { id: "waleed_shamsan", name: "الوليد الشمسان", folder: "waleed_shamsan", mp3quranServer: "server10.mp3quran.net/waleed_shamsan" },
+  { id: "badr_turki", name: "بدر التركي", folder: "badr_turki", mp3quranServer: "server10.mp3quran.net/badr_turki" },
+  { id: "ali_abdullah_jaber", name: "علي عبد الله جابر", folder: "ali_abdullah_jaber", mp3quranServer: "server10.mp3quran.net/ali_jaber" },
+  { id: "ahmed_ibn_taleb_hameed", name: "احمد ابن طالب حميد", folder: "ahmed_ibn_taleb_hameed", mp3quranServer: "server10.mp3quran.net/ahmed_hameed" },
+
+  { id: "islam_sobhi", name: "اسلام صبحي", folder: "islam_sobhi", mp3quranServer: "server10.mp3quran.net/islam_sobhi" },
+  { id: "abdurrahman_musaab", name: "عبد الرحمن مصعب", folder: "abdurrahman_musaab", mp3quranServer: "server10.mp3quran.net/abdurrahman_musaab" },
+  { id: "ahmed_kasab", name: "احمد كاسب", folder: "ahmed_kasab", mp3quranServer: "server10.mp3quran.net/ahmed_kasab" },
+  { id: "mohammad_ahmad_hassan", name: "محمد احمد حسن", folder: "mohammad_ahmad_hassan", mp3quranServer: "server10.mp3quran.net/mohammad_hassan" },
+
+  { id: "mustafa_ismail", name: "مصطفي اسماعيل", folder: "mustafa_ismail", mp3quranServer: "server10.mp3quran.net/mustafa_ismail" },
+  { id: "ahmed_naeen", name: "احمد نعينع", folder: "ahmed_naeen", mp3quranServer: "server10.mp3quran.net/ahmed_naeen" },
+  { id: "kamel_yousef_albahtimi", name: "كامل يوسف البهتيمي", folder: "kamel_yousef_albahtimi", mp3quranServer: "server10.mp3quran.net/kamel_bahtimi" },
+  { id: "mohammad_rifaat", name: "محمد رفعت", folder: "mohammad_rifaat", mp3quranServer: "server10.mp3quran.net/mohammad_rifaat" },
+  { id: "taha_alfashny", name: "طه الفشني", folder: "taha_alfashny", mp3quranServer: "server10.mp3quran.net/taha_alfashny" },
+  { id: "abu_alaneen_shaishaa", name: "ابو العنين شعيشع", folder: "abu_alaneen_shaishaa", mp3quranServer: "server10.mp3quran.net/abu_alaneen" },
+  { id: "albana", name: "البنا", folder: "albana", mp3quranServer: "server10.mp3quran.net/albana" },
 ];
