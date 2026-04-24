@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'القرآن الكريم',
   webDir: 'out',
   server: {
-    url: "https://quran-henna-one.vercel.app",
+    androidScheme: 'https',
     cleartext: true
   },
   plugins: {

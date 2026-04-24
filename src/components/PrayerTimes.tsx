@@ -68,7 +68,8 @@ export function PrayerTimes() {
         const prayerKeys = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
         const prayerAr: Record<string, string> = { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء" };
         
-        for (let day = 0; day < 7; day++) {
+        // Schedule for next 30 days to ensure it works even if user doesn't open the app for a month
+        for (let day = 0; day < 30; day++) {
             const date = new Date();
             date.setDate(date.getDate() + day);
             

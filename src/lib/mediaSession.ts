@@ -22,7 +22,7 @@ export function updateMediaSession(
     artist: metadata.artist,
     album: metadata.album || 'القرآن الكريم',
     artwork: metadata.artwork || [
-      { src: '/logo/logo.png', sizes: '512x512', type: 'image/png' }
+      { src: 'https://quran-henna-one.vercel.app/logo/logo.png', sizes: '512x512', type: 'image/png' }
     ]
   });
 

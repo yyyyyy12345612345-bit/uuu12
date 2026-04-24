@@ -63,6 +63,13 @@ export default function AppInitializer() {
         if (notifStatus.display === 'prompt') {
           await LocalNotifications.requestPermissions();
         }
+
+        // Also request standard web notification permission for MediaSession
+        if ("Notification" in window && Notification.permission !== "granted") {
+          try {
+            await Notification.requestPermission();
+          } catch (e) {}
+        }
       } catch (error) {
         console.error('❌ Permissions Error:', error);
       }
