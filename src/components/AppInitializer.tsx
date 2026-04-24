@@ -11,8 +11,20 @@ export default function AppInitializer() {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateInfo, setUpdateInfo] = useState<any>(null);
 
+  // Function to compare semantic versions (e.g., "1.1.3" vs "1.1.0")
+  const isNewerVersion = (serverVer: string, localVer: string) => {
+    const s = serverVer.split('.').map(Number);
+    const l = localVer.split('.').map(Number);
+    for (let i = 0; i < Math.max(s.length, l.length); i++) {
+      const sv = s[i] || 0;
+      const lv = l[i] || 0;
+      if (sv > lv) return true;
+      if (sv < lv) return false;
+    }
+    return false;
+  };
+
   useEffect(() => {
-    // 1. Check for Permissions (Native Only)
     const initializePermissions = async () => {
       if (!Capacitor.isNativePlatform()) return;
       try {
@@ -29,27 +41,26 @@ export default function AppInitializer() {
       }
     };
 
-    // 2. Check for Updates from Server (Native Only)
     const checkForUpdates = async () => {
       if (!Capacitor.isNativePlatform()) return; 
 
       try {
         const info = await App.getInfo();
-        const currentNativeVersion = info.version.trim(); // "1.1.3"
+        const currentNativeVersion = info.version.trim(); 
 
         const response = await fetch('/version.json?t=' + Date.now());
         const data = await response.json();
-        const serverVersion = data.version.trim(); // "1.1.3"
+        const serverVersion = data.version.trim();
         
-        console.log(`[UpdateCheck] Current: ${currentNativeVersion}, Server: ${serverVersion}`);
+        console.log(`[UpdateCheck] Local: ${currentNativeVersion}, Server: ${serverVersion}`);
 
-        // Only show if versions are actually different
-        if (serverVersion !== currentNativeVersion) {
+        // Only show if the server has a HIGHER version number
+        if (isNewerVersion(serverVersion, currentNativeVersion)) {
           setUpdateInfo(data);
           setShowUpdateModal(true);
         }
       } catch (error) {
-        console.log('Update check failed or skipped');
+        console.log('Update check failed');
       }
     };
 
