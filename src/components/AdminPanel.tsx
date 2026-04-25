@@ -230,60 +230,107 @@ export function AdminPanel() {
   if (loading) return <div className="p-20 text-center font-bold">جاري التحقق من صلاحيات الإدارة...</div>;
 
   if (!isAdmin) return (
-    <div className="flex flex-col items-center justify-center min-h-[80vh] p-6 text-center animate-in fade-in duration-700">
-       <div className="w-full max-w-md premium-card p-10 flex flex-col items-center gap-8 shadow-2xl relative overflow-hidden">
-          <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
-          
-          <div className="w-20 h-20 rounded-[2rem] bg-primary/10 flex items-center justify-center border border-primary/20 relative z-10">
-             <ShieldCheck className="w-10 h-10 text-primary" />
-          </div>
-          
-          <div className="relative z-10 text-center">
-             <h2 className="text-3xl font-black text-foreground font-arabic mb-2">لوحة تحكم المدير</h2>
-             <p className="text-foreground/40 text-sm font-bold font-arabic">يرجى إدخال بيانات الاعتماد للوصول للإدارة</p>
-          </div>
+    <div className="fixed inset-0 z-[500] flex items-center justify-center p-6 font-arabic overflow-hidden">
+       {/* Cinematic Background */}
+       <div className="absolute inset-0 bg-[#050505]">
+          <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-primary/5 animate-pulse" />
+          <div className="absolute inset-0 islamic-pattern opacity-[0.05] scale-150 rotate-12" />
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 blur-[120px] rounded-full animate-blob" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 blur-[120px] rounded-full animate-blob animation-delay-2000" />
+       </div>
 
-          <form onSubmit={handleAdminLogin} className="w-full space-y-5 relative z-10">
-             {loginError && (
-               <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-[11px] font-bold p-4 rounded-xl animate-shake">
-                 {loginError}
-               </div>
-             )}
+       <div className="relative w-full max-w-md">
+          {/* Decorative Elements */}
+          <div className="absolute -top-12 -left-12 w-24 h-24 border-t-2 border-l-2 border-primary/30 rounded-tl-[3rem] pointer-events-none" />
+          <div className="absolute -bottom-12 -right-12 w-24 h-24 border-b-2 border-r-2 border-primary/30 rounded-br-[3rem] pointer-events-none" />
+
+          {/* Glassmorphism Card */}
+          <div className="relative bg-zinc-900/40 backdrop-blur-3xl border border-white/10 p-10 md:p-12 rounded-[3rem] flex flex-col items-center gap-8 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] animate-in zoom-in-95 fade-in duration-700">
              
-             <div className="space-y-2 text-right">
-                <label className="text-[10px] font-black text-foreground/30 uppercase tracking-widest mr-2">البريد الإلكتروني</label>
-                <input 
-                  type="email"
-                  required
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 transition-all font-mono"
-                  placeholder="admin@example.com"
-                />
+             {/* Glowing Icon Header */}
+             <div className="relative group">
+                <div className="absolute inset-0 bg-primary/40 blur-2xl rounded-full group-hover:bg-primary/60 transition-all duration-500" />
+                <div className="relative w-24 h-24 rounded-[2.5rem] bg-gradient-to-b from-primary to-amber-600 flex items-center justify-center shadow-2xl transform transition-transform group-hover:scale-105 group-hover:rotate-6">
+                   <ShieldCheck className="w-12 h-12 text-black" />
+                </div>
+             </div>
+             
+             <div className="text-center space-y-2">
+                <h2 className="text-4xl font-black text-white tracking-tight drop-shadow-sm">لوحة الإدارة</h2>
+                <div className="flex items-center justify-center gap-3">
+                   <div className="h-px w-8 bg-gradient-to-r from-transparent to-primary/40" />
+                   <p className="text-primary/60 text-[10px] font-black uppercase tracking-[0.4em]">Secure Access Only</p>
+                   <div className="h-px w-8 bg-gradient-to-l from-transparent to-primary/40" />
+                </div>
              </div>
 
-             <div className="space-y-2 text-right">
-                <label className="text-[10px] font-black text-foreground/30 uppercase tracking-widest mr-2">كلمة المرور</label>
-                <input 
-                  type="password"
-                  required
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 transition-all"
-                  placeholder="••••••••"
-                />
-             </div>
+             <form onSubmit={handleAdminLogin} className="w-full space-y-6">
+                {loginError && (
+                  <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-[11px] font-bold p-4 rounded-2xl text-center animate-shake backdrop-blur-md">
+                    {loginError}
+                  </div>
+                )}
+                
+                <div className="space-y-2.5">
+                   <label className="text-[10px] font-black text-white/40 uppercase tracking-widest mr-3 flex items-center gap-2 justify-end">
+                      البريد الإداري الرسمي
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary/40" />
+                   </label>
+                   <div className="relative group">
+                      <input 
+                        type="email"
+                        required
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        className="w-full bg-white/[0.03] border border-white/5 group-hover:border-primary/30 rounded-2xl py-4.5 px-6 text-right outline-none focus:border-primary/50 focus:bg-white/[0.05] transition-all font-mono text-white placeholder:text-white/10"
+                        placeholder="admin@quran.com"
+                      />
+                   </div>
+                </div>
+
+                <div className="space-y-2.5">
+                   <label className="text-[10px] font-black text-white/40 uppercase tracking-widest mr-3 flex items-center gap-2 justify-end">
+                      كلمة مرور الوصول
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary/40" />
+                   </label>
+                   <div className="relative group">
+                      <input 
+                        type="password"
+                        required
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        className="w-full bg-white/[0.03] border border-white/5 group-hover:border-primary/30 rounded-2xl py-4.5 px-6 text-right outline-none focus:border-primary/50 focus:bg-white/[0.05] transition-all text-white placeholder:text-white/10"
+                        placeholder="••••••••••••"
+                      />
+                   </div>
+                </div>
+
+                <button 
+                  type="submit"
+                  disabled={isLoggingIn}
+                  className="w-full group relative overflow-hidden py-5 bg-gradient-to-r from-primary to-amber-500 text-black rounded-[1.8rem] font-black text-lg shadow-[0_20px_40px_-10px_rgba(212,175,55,0.3)] hover:shadow-[0_25px_50px_-12px_rgba(212,175,55,0.4)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 mt-4"
+                >
+                   <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
+                   {isLoggingIn ? (
+                     <RefreshCw className="w-6 h-6 animate-spin" />
+                   ) : (
+                     <>
+                        <ShieldCheck className="w-5 h-5" />
+                        <span>فتح لوحة التحكم</span>
+                     </>
+                   )}
+                </button>
+             </form>
 
              <button 
-               type="submit"
-               disabled={isLoggingIn}
-               className="w-full py-5 bg-primary text-black rounded-2xl font-black text-lg shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+               onClick={() => window.location.href = '/'}
+               className="text-[10px] text-white/20 hover:text-primary font-black uppercase tracking-widest transition-colors flex items-center gap-2"
              >
-                {isLoggingIn ? <RefreshCw className="w-5 h-5 animate-spin" /> : "دخول الإدارة"}
+                <div className="w-1 h-1 rounded-full bg-current" />
+                العودة للرئيسية
+                <div className="w-1 h-1 rounded-full bg-current" />
              </button>
-          </form>
-
-          <p className="text-[9px] text-foreground/20 font-bold uppercase tracking-widest relative z-10">Protected Area • Authorized Personnel Only</p>
+          </div>
        </div>
     </div>
   );
