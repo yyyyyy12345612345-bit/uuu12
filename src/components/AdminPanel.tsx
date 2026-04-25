@@ -21,7 +21,7 @@ import {
   deleteDoc,
   setDoc
 } from "firebase/firestore";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 
 const ADMIN_EMAIL = "youssefosama@gmail.com";
 
@@ -51,8 +51,8 @@ export function AdminPanel() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
-    const checkAdmin = () => {
-      const user = auth?.currentUser;
+    if (!auth) return;
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user && user.email === ADMIN_EMAIL) {
         setIsAdmin(true);
         fetchStats();
@@ -62,9 +62,8 @@ export function AdminPanel() {
         setIsAdmin(false);
       }
       setLoading(false);
-    };
-
-    checkAdmin();
+    });
+    return () => unsubscribe();
   }, []);
 
   const fetchAnnouncement = async () => {
