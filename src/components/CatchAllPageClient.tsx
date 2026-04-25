@@ -5,6 +5,8 @@ import nextDynamic from "next/dynamic";
 import { useEditor } from "@/store/useEditor";
 import { usePathname } from "next/navigation";
 import { Settings, X, Download, Menu } from "lucide-react";
+import { db } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 // Pre-load components with ssr: false for all to ensure stability in Next.js 16
 const SurahSelector = nextDynamic(() => import("@/components/SurahSelector").then(mod => mod.SurahSelector), { ssr: false });
