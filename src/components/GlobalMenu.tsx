@@ -92,57 +92,60 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile }: G
         <div className="p-5 border-b border-border bg-foreground/[0.02] relative overflow-hidden flex-shrink-0">
           <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
           
-          <div className="flex items-center justify-between mb-3 relative z-10">
+          <div className="flex items-center justify-between mb-0 relative z-10">
             <div className="flex items-center gap-2">
               <button 
                 onClick={toggleTheme}
-                className="w-10 h-10 rounded-full bg-background border border-border flex items-center justify-center text-foreground/40 hover:text-foreground transition-all"
+                className="w-8 h-8 rounded-full bg-background border border-border flex items-center justify-center text-foreground/40 hover:text-foreground transition-all"
               >
-                {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                {theme === "dark" ? <Sun className="w-3 h-3" /> : <Moon className="w-3 h-3" />}
               </button>
             </div>
             <button 
               onClick={onClose}
-              className="w-10 h-10 rounded-full bg-background border border-border flex items-center justify-center text-foreground/40 hover:text-foreground transition-all"
+              className="w-8 h-8 rounded-full bg-background border border-border flex items-center justify-center text-foreground/40 hover:text-foreground transition-all"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
 
           {auth?.currentUser && userData ? (
-            <div className="flex flex-col items-center text-center gap-3 relative z-10">
-               <div className="relative group cursor-pointer" onClick={onOpenProfile}>
-                  <div className="w-16 h-16 rounded-2xl border-[3px] border-primary/20 p-0.5 bg-background relative overflow-hidden shadow-xl group-hover:scale-105 transition-all">
+            <div className="flex items-center gap-4 relative z-10 mt-4">
+               {/* Profile Image */}
+               <div className="relative group cursor-pointer shrink-0" onClick={onOpenProfile}>
+                  <div className="w-14 h-14 rounded-[1rem] border-2 border-primary/20 p-0.5 bg-background relative overflow-hidden shadow-md group-hover:scale-105 transition-all">
                      <img 
                        src={userData.photoURL || "/logo/logo.png"} 
                        alt="Profile" 
-                       className="w-full h-full object-cover rounded-[1rem]" 
+                       className="w-full h-full object-cover rounded-[0.8rem]" 
                      />
                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                         <span className="text-[8px] text-white font-black uppercase">تعديل</span>
                      </div>
                   </div>
-                  <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-primary rounded-xl flex items-center justify-center text-black shadow-lg border-2 border-background">
-                     <Trophy className="w-4 h-4" />
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-primary rounded-md flex items-center justify-center text-black shadow-sm border border-background">
+                     <Trophy className="w-3 h-3" />
                   </div>
                </div>
                
-               <div className="space-y-1">
-                  <h3 className="text-2xl font-black text-foreground font-arabic leading-tight">
+               {/* User Details */}
+               <div className="flex-1 text-right">
+                  <h3 className="text-lg font-black text-foreground font-arabic leading-tight">
                     {userData.displayName || userData.username}
                   </h3>
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-[10px] text-foreground/30 font-bold uppercase tracking-widest">@{userData.username}</span>
-                    <div className="w-1 h-1 rounded-full bg-primary/40" />
-                    <span className="text-[10px] text-primary font-black uppercase tracking-widest">{userData.totalPoints || 0} نقطة</span>
+                  <div className="flex items-center justify-end gap-2 mt-0.5">
+                    <span className="text-[9px] text-primary font-black uppercase tracking-widest">{userData.totalPoints || 0} نقطة</span>
+                    <div className="w-1 h-1 rounded-full bg-border" />
+                    <span className="text-[9px] text-foreground/30 font-bold uppercase tracking-widest">@{userData.username}</span>
                   </div>
                </div>
 
+               {/* Action Button */}
                <button 
                 onClick={onOpenProfile}
-                className="mt-1 px-5 py-2 bg-foreground/5 hover:bg-primary/10 border border-border hover:border-primary/20 rounded-full text-[10px] font-black text-foreground/60 hover:text-primary transition-all font-arabic"
+                className="shrink-0 px-3 py-1.5 bg-foreground/5 hover:bg-primary/10 border border-border hover:border-primary/20 rounded-lg text-[9px] font-black text-foreground/60 hover:text-primary transition-all font-arabic"
                >
-                 إدارة الملف الشخصي
+                 تعديل
                </button>
             </div>
           ) : (
