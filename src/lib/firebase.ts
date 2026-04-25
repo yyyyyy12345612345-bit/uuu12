@@ -15,10 +15,10 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = typeof window !== "undefined" && getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const analytics = typeof window !== "undefined" ? getAnalytics(app) : null;
-const auth = typeof window !== "undefined" ? getAuth(app) : null;
-const db = typeof window !== "undefined" ? getFirestore(app) : null;
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 if (typeof window !== "undefined" && db) {
   enableMultiTabIndexedDbPersistence(db).catch((err: any) => {

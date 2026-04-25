@@ -109,8 +109,9 @@ export default function RootLayout({
 
         <ThemeProvider>
           <EditorProvider>
-            <AppInitializer />
-            {children}
+            <AppInitializer>
+              {children}
+            </AppInitializer>
           </EditorProvider>
         </ThemeProvider>
         <Script id="register-sw" strategy="afterInteractive">
