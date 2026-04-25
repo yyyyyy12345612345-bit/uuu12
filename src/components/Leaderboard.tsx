@@ -34,7 +34,7 @@ const GOVERNORATES = [
 ];
 
 export function Leaderboard() {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [user, setUser] = useState<FirebaseUser | null | undefined>(undefined);
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showProfileSetup, setShowProfileSetup] = useState(false);
@@ -173,7 +173,7 @@ export function Leaderboard() {
     governorate: GOVERNORATES[0]
   });
 
-  if (loading) return (
+  if (loading || user === undefined) return (
     <div className="flex h-full items-center justify-center p-20">
        <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
     </div>
