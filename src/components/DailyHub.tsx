@@ -4,6 +4,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Sun, Moon, Target, Compass, CheckCircle2, RotateCcw, Fingerprint, MapPin, Search, Bed, BookOpen } from "lucide-react";
 import { ATHKAR } from "@/data/athkar";
 import { AthkarLibrary } from "./AthkarLibrary";
+import { addPoints } from "@/lib/points";
+import { useRef } from "react";
 
 export function DailyHub() {
   const [activeTab, setActiveTab] = useState<"morning" | "evening" | "qibla" | "goal" | "sibha" | "sleep" | "library">("sibha");
@@ -49,7 +51,14 @@ export function DailyHub() {
     }
   }, []);
 
+  const lastClickTime = useRef<number>(0);
+
   const handleThikrClick = (thikrId: number, maxCount: number, type: any) => {
+    // Anti-cheat: prevent spamming faster than 4 clicks per second
+    const now = Date.now();
+    if (now - lastClickTime.current < 250) return;
+    lastClickTime.current = now;
+
     const key = `${type}_${thikrId}`;
     const current = athkarProgress[key] || 0;
     
@@ -58,34 +67,28 @@ export function DailyHub() {
       setAthkarProgress(newProgress);
       localStorage.setItem("athkar_progress", JSON.stringify(newProgress));
       
-      // @ts-ignore
-      window.gtag?.('event', 'thikr_click', { 'thikr_type': type, 'thikr_id': thikrId, 'current_count': current + 1 });
+      // Points for each click in Athkar (smaller amount)
+      addPoints("athkar");
 
       if (current + 1 === maxCount) {
-        // @ts-ignore
-        window.gtag?.('event', 'thikr_complete', { 'thikr_type': type, 'thikr_id': thikrId });
+        // Bonus points for completion
+        addPoints("athkar", 5);
       }
     }
   };
 
-  const handlePageRead = () => {
-    const newCount = pagesRead + 1;
-    setPagesRead(newCount);
-    localStorage.setItem("pages_read", newCount.toString());
-    
-    // @ts-ignore
-    window.gtag?.('event', 'daily_page_read', { 'total_pages': newCount });
-  };
-
   const handleSibhaClick = () => {
+    // Anti-cheat: prevent spamming
+    const now = Date.now();
+    if (now - lastClickTime.current < 200) return;
+    lastClickTime.current = now;
+
     const newCount = sibhaCount + 1;
     setSibhaCount(newCount);
     localStorage.setItem("sibha_count", newCount.toString());
     
-    if (newCount % 33 === 0) {
-        // @ts-ignore
-        window.gtag?.('event', 'sibha_milestone', { 'count': newCount });
-    }
+    // Add point for each tasbih
+    addPoints("athkar");
 
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       navigator.vibrate(50); 

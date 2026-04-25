@@ -9,6 +9,7 @@ import { useEditor } from "@/store/useEditor";
 import { getAudioUrl } from "@/lib/quranUtils";
 import { logAppEvent } from "@/lib/firebase";
 import { updateMediaSession, updatePlaybackState } from "@/lib/mediaSession";
+import { startPageTimer, endPageTimer } from "@/lib/points";
 
 const API_ROOT = "https://api.quran.com/api/v4";
 
@@ -110,6 +111,34 @@ export function DigitalMushaf() {
     return () => observer.disconnect();
   }, [pages, currentPage]);
 
+  // Points Tracking Observer
+  useEffect(() => {
+    const pointsObserver = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const pageId = entry.target.getAttribute("data-page");
+            if (pageId) {
+              // End timer for previous page (if any) and start for new one
+              endPageTimer(pageId).then(res => {
+                if (res.success) {
+                   console.log("Points added for page", pageId);
+                }
+              });
+              startPageTimer(pageId);
+            }
+          }
+        });
+      },
+      { threshold: 0.7 } // Must see 70% of the page to start counting
+    );
+
+    const pageElements = document.querySelectorAll("[data-page]");
+    pageElements.forEach(el => pointsObserver.observe(el));
+
+    return () => pointsObserver.disconnect();
+  }, [pages]);
+
   const playVerse = (pIdx: number, vIdx: number) => {
     const verse = pages[pIdx]?.verses[vIdx];
     if (!verse) return;
@@ -147,6 +176,9 @@ export function DigitalMushaf() {
         updatePlaybackState('playing');
 
         logAppEvent("play_verse", { surah: sura, verse: ayah, reciter: state.reciterId });
+        
+        // Add points for listening to a verse
+        addPoints("listen");
     }
   };
 

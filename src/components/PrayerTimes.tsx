@@ -62,18 +62,20 @@ export function PrayerTimes() {
     if (!Capacitor.isNativePlatform()) return;
     
     try {
+        // Cancel all previous notifications to avoid duplicates
         await LocalNotifications.cancel({ notifications: [] }); 
         
         const notifications = [];
         const prayerKeys = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
         const prayerAr: Record<string, string> = { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء" };
         
-        // Schedule for next 30 days to ensure it works even if user doesn't open the app for a month
-        for (let day = 0; day < 30; day++) {
+        // Schedule for next 7 days (Android has a limit of 50-100 scheduled notifications)
+        for (let day = 0; day < 7; day++) {
             const date = new Date();
             date.setDate(date.getDate() + day);
             
-            for (const key of prayerKeys) {
+            for (let i = 0; i < prayerKeys.length; i++) {
+                const key = prayerKeys[i];
                 const setting = settings[key];
                 if (!setting?.notificationsEnabled) continue;
 
@@ -84,24 +86,44 @@ export function PrayerTimes() {
                 const scheduleDate = new Date(date);
                 scheduleDate.setHours(h, m + (setting.offset || 0), 0, 0);
 
+                // Unique ID based on Day and Prayer Index (e.g. Day 0, Prayer 0 = 00, Day 1, Prayer 0 = 10)
+                const notificationId = (day * 10) + i + 1;
+
                 if (scheduleDate > new Date()) {
                     notifications.push({
-                        id: Math.floor(Math.random() * 1000000),
+                        id: notificationId,
                         title: `🕌 حان الآن موعد أذان ${prayerAr[key]}`,
                         body: "حيّ على الصلاة.. حيّ على الفلاح",
-                        schedule: { at: scheduleDate },
+                        schedule: { 
+                          at: scheduleDate,
+                          allowWhileIdle: true, // Important for background/doze mode
+                          repeats: false
+                        },
                         sound: 'adhan.mp3',
+                        attachments: [],
+                        actionTypeId: "",
+                        extra: { prayer: key },
+                        channelId: "adhan-channel", // Needs to match a channel for custom sound
                         smallIcon: 'ic_notification',
-                        iconColor: '#c5a059',
-                        extra: { prayer: key }
+                        iconColor: '#c5a059'
                     });
                 }
             }
         }
 
         if (notifications.length > 0) {
-            await LocalNotifications.schedule({ notifications: notifications.slice(0, 64) });
-            console.log(`[Athan] Scheduled ${notifications.length} notifications`);
+            // First, create a notification channel (Required for Android 8+)
+            await LocalNotifications.createChannel({
+              id: 'adhan-channel',
+              name: 'مواقيت الأذان',
+              description: 'تنبيهات مواقيت الصلاة والأذان',
+              importance: 5, // Max importance for sound
+              visibility: 1,
+              sound: 'adhan.mp3'
+            });
+
+            await LocalNotifications.schedule({ notifications });
+            console.log(`[Athan] Scheduled ${notifications.length} notifications with sound`);
         }
     } catch (e) {
         console.error("Scheduling failed", e);
