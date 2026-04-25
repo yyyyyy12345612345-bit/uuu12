@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { Geolocation } from '@capacitor/geolocation';
-import { LocalNotifications } from '@capacitor/local-notifications';
-import { App } from '@capacitor/app';
-import { Capacitor } from '@capacitor/core';
+import React, { useState, useEffect } from "react";
 import { SplashScreen } from '@capacitor/splash-screen';
-import { X, Download, Info } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
+import { X, Download, Info, Camera, Loader2 } from 'lucide-react';
+import { useEditor } from "@/lib/editor-context";
 
 export default function AppInitializer({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState(true);
@@ -22,101 +20,33 @@ export default function AppInitializer({ children }: { children: React.ReactNode
   const isNewerVersion = (serverVer: string, localVer: string) => {
     const s = serverVer.split('.').map(Number);
     const l = localVer.split('.').map(Number);
-    for (let i = 0; i < Math.max(s.length, l.length); i++) {
-      const sv = s[i] || 0;
-      const lv = l[i] || 0;
-      if (sv > lv) return true;
-      if (sv < lv) return false;
+    for (let i = 0; i < 3; i++) {
+      if (s[i] > l[i]) return true;
+      if (s[i] < l[i]) return false;
     }
     return false;
   };
 
-  const checkForUpdates = async (manual = false) => {
-    if (!Capacitor.isNativePlatform()) {
-      if (manual) alert("التحديثات متاحة فقط لنسخة التطبيق (APK)");
-      return;
-    }
-
+  const checkForUpdates = async (isManual = false) => {
     try {
-      const info = await App.getInfo();
-      const currentNativeVersion = info.version.trim(); 
-
       const response = await fetch('/version.json?t=' + Date.now());
       const data = await response.json();
-      const serverVersion = data.version.trim();
+      const LOCAL_VERSION = "1.1.6";
       
-      console.log(`[UpdateCheck] Local: ${currentNativeVersion}, Server: ${serverVersion}`);
-
-      if (isNewerVersion(serverVersion, currentNativeVersion)) {
+      if (isNewerVersion(data.version, LOCAL_VERSION)) {
         setUpdateInfo(data);
         setShowUpdateModal(true);
-      } else if (manual) {
-        alert("أنت تستخدم أحدث نسخة بالفعل ✅");
+      } else if (isManual) {
+        alert("أنت تستخدم أحدث نسخة بالفعل!");
       }
-    } catch (error) {
-      if (manual) alert("فشل الاتصال بخادم التحديثات");
+    } catch (e) {
+      console.error("Update check failed", e);
     }
   };
 
   useEffect(() => {
-    // Permissions check on start
-    const initializePermissions = async () => {
-      console.log('[App] Starting permission requests...');
-      
-      try {
-        // 1. Notification Permission (Critical for Adhan)
-        if (Capacitor.isNativePlatform()) {
-          const notifStatus = await LocalNotifications.checkPermissions();
-          if (notifStatus.display !== 'granted') {
-            await LocalNotifications.requestPermissions();
-          }
-        } else if ("Notification" in window && Notification.permission === "default") {
-          await Notification.requestPermission();
-        }
-
-        // 2. Location Permission (Critical for Prayer Times)
-        if (Capacitor.isNativePlatform()) {
-          const locStatus = await Geolocation.checkPermissions();
-          if (locStatus.location !== 'granted') {
-            await Geolocation.requestPermissions();
-          }
-        } else if (navigator.geolocation) {
-          // Just a dummy call to trigger browser prompt
-          navigator.geolocation.getCurrentPosition(() => {}, () => {}, { timeout: 100 });
-        }
-
-        // 2. Check for Updates
-        const checkUpdate = async () => {
-          try {
-            const response = await fetch("/version.json?t=" + Date.now());
-            const data = await response.json();
-            const CURRENT_VERSION = "1.1.6";
-            
-            if (data.version && data.version !== CURRENT_VERSION) {
-              if (window.confirm(`هناك تحديث جديد متاح (V${data.version}). هل تريد تنزيل النسخة الجديدة الآن؟`)) {
-                window.location.href = "https://github.com/yyyyyy12345612345-bit/uuu12/releases/latest/download/app-debug.apk";
-              }
-            }
-          } catch (e) {
-            console.error("Update check failed", e);
-          }
-        };
-        
-        // Check after 5 seconds to not block startup
-        setTimeout(checkUpdate, 5000);
-
-        // 3. Hide splash screen after prompts
-        if (Capacitor.isNativePlatform()) {
-          await SplashScreen.hide();
-        }
-      } catch (error) {
-        console.error('❌ Permissions Error:', error);
-        // Ensure splash screen is hidden even if error occurs
-        if (Capacitor.isNativePlatform()) await SplashScreen.hide();
-      }
-    };
-
-    initializePermissions();
+    // Check for updates on mount
+    setTimeout(() => checkForUpdates(false), 3000);
 
     // Listen for manual update trigger
     const handleManualUpdate = () => checkForUpdates(true);
@@ -127,39 +57,15 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     };
   }, []);
 
-  if (!showUpdateModal) return null;
-
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="relative w-full max-w-md bg-[#FDFBF7] dark:bg-zinc-900 rounded-[2.5rem] shadow-2xl border-2 border-primary/20 flex flex-col items-center text-center animate-in zoom-in-95 duration-500 overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.07] pointer-events-none" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/pinstriped-suit.png')" }} />
-        
-        <button 
-          onClick={() => setShowUpdateModal(false)}
-          className="absolute top-6 left-6 text-black/20 dark:text-white/20 hover:text-black dark:hover:text-white transition-colors z-30"
-        >
-          <X className="w-6 h-6" />
-        </button>
-
-        <div className="relative z-20 w-full flex flex-col items-center p-8">
-            <div className="w-20 h-20 bg-primary/10 rounded-[2rem] flex items-center justify-center mb-6 border border-primary/20">
-              <Download className="w-10 h-10 text-primary animate-bounce" />
-            </div>
-
-            <h3 className="text-2xl font-black text-black dark:text-white font-arabic mb-2">تحديث جديد متاح!</h3>
-            <p className="text-black/60 dark:text-white/60 text-sm mb-6 leading-relaxed px-4 font-bold">
-              نسخة جديدة من التطبيق متوفرة الآن ({updateInfo?.version}). يرجى التحميل للحصول على آخر المميزات والتحسينات.
-            </p>
-
-            {updateInfo?.releaseNotes && (
-              <div className="w-full bg-primary/5 dark:bg-primary/10 rounded-2xl p-4 mb-8 flex items-start gap-3 text-right border border-primary/10">
-                 <Info className="w-4 h-4 text-primary shrink-0 mt-1" />
-                 <p className="text-[11px] text-primary/80 font-bold leading-normal">{updateInfo.releaseNotes}</p>
-              </div>
-            )}
-
+    <>
+      {/* Update Modal */}
+      {showUpdateModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="relative w-full max-w-md bg-[#FDFBF7] dark:bg-zinc-900 rounded-[2.5rem] shadow-2xl border-2 border-primary/20 flex flex-col items-center text-center animate-in zoom-in-95 duration-500 overflow-hidden">
+            <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.07] pointer-events-none" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/pinstriped-suit.png')" }} />
+            
             <button 
-              onClick={() => window.open(updateInfo?.downloadUrl, '_blank')}
               onClick={() => setShowUpdateModal(false)}
               className="absolute top-6 left-6 text-black/20 dark:text-white/20 hover:text-black dark:hover:text-white transition-colors z-30"
             >
