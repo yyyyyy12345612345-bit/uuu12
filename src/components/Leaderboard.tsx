@@ -143,16 +143,23 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
     if (!user || !db) return;
     setSetupError("");
 
-    const username = setupData.username.trim();
+    const username = setupData.username.trim().toLowerCase();
+    const displayName = setupData.displayName.trim();
 
     if (username.length < 3 || username.length > 15) {
-      setSetupError("يجب أن يكون الاسم بين 3 و 15 حرفاً");
+      setSetupError("يجب أن يكون الاسم المميز بين 3 و 15 حرفاً");
       return;
     }
 
-    const usernameRegex = /^[a-zA-Z0-9\u0600-\u06FF\s]+$/;
-    if (!usernameRegex.test(username)) {
-      setSetupError("الاسم يجب أن يحتوي على حروف وأرقام فقط (بدون رموز أو إيموجي)");
+    if (displayName.length < 2) {
+      setSetupError("يرجى إدخال اسمك بشكل صحيح");
+      return;
+    }
+
+    // Strict validation for Unique Username: English letters, numbers, underscores only. No spaces.
+    const strictUsernameRegex = /^[a-z0-9_]+$/;
+    if (!strictUsernameRegex.test(username)) {
+      setSetupError("الاسم المميز يجب أن يحتوي على حروف إنجليزية وأرقام فقط (بدون مسافات أو رموز)");
       return;
     }
 
@@ -168,7 +175,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
       const newUserData = {
         uid: user.uid,
         username: username,
-        displayName: username, // Initially same
+        displayName: displayName,
         photoURL: user.photoURL || "",
         phoneNumber: setupData.phone,
         governorate: setupData.governorate,
@@ -195,6 +202,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
 
   const [setupData, setSetupData] = useState({
     username: "",
+    displayName: "",
     phone: "",
     governorate: GOVERNORATES[0]
   });
@@ -206,7 +214,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
   );
 
   return (
-    <div className="flex flex-col h-full p-6 md:p-12 pt-24 md:pt-16 animate-in fade-in duration-1000 overflow-y-auto no-scrollbar relative">
+    <div className="flex flex-col h-full p-6 md:p-10 pt-16 md:pt-8 animate-in fade-in duration-1000 overflow-y-auto no-scrollbar relative">
       
       <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/40 to-background" />
@@ -236,23 +244,23 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
            )}
 
            {user && userData && (
-             <div className="premium-card p-6 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4">
-                   <div className="w-16 h-16 rounded-[1.2rem] overflow-hidden border-2 border-primary/20 shadow-lg">
+             <div className="premium-card px-5 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                   <div className="w-12 h-12 rounded-[1rem] overflow-hidden border border-primary/20 shadow-lg">
                       <img src={userData.photoURL || "/logo/logo.png"} alt="User" className="w-full h-full object-cover" />
                    </div>
                    <div className="text-right">
-                      <p className="text-[10px] text-primary font-black uppercase tracking-widest mb-1">المتسابق الحالي</p>
-                      <p className="text-2xl font-black text-foreground font-arabic leading-none">
+                      <p className="text-[9px] text-primary font-black uppercase tracking-widest mb-0.5">المتسابق الحالي</p>
+                      <p className="text-lg font-black text-foreground font-arabic leading-none">
                         {userData.displayName || userData.username}
                       </p>
                    </div>
                 </div>
                 <button 
                   onClick={onEditProfile}
-                  className="w-full md:w-auto px-6 py-3 bg-foreground/5 hover:bg-primary/10 border border-border hover:border-primary/30 rounded-2xl text-xs font-black text-foreground/80 hover:text-primary transition-all font-arabic"
+                  className="w-full md:w-auto px-4 py-2 bg-foreground/5 hover:bg-primary/10 border border-border hover:border-primary/30 rounded-xl text-[10px] font-black text-foreground/80 hover:text-primary transition-all font-arabic"
                 >
-                  تعديل الملف الشخصي (الاسم، الصورة، الخ)
+                  تعديل بيانات الحساب
                 </button>
              </div>
            )}
@@ -426,13 +434,13 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
       {/* Profile Setup Modal */}
       {showProfileSetup && (
         <div className="fixed inset-0 z-[3000] flex items-center justify-center p-4">
-           <div className="absolute inset-0 bg-black/95 backdrop-blur-md" />
-           <div className="relative w-full max-w-lg premium-card p-10 flex flex-col items-center animate-in zoom-in-95 duration-500">
-              <div className="w-20 h-20 rounded-[2rem] bg-primary/10 flex items-center justify-center mb-6 border border-primary/20">
-                 <ShieldCheck className="w-10 h-10 text-primary" />
+           <div className="absolute inset-0 bg-black backdrop-blur-md" />
+           <div className="relative w-full max-w-lg bg-[#0a0a0a] border border-[#d4af37]/30 rounded-[3rem] shadow-[0_0_50px_rgba(212,175,55,0.1)] p-10 flex flex-col items-center animate-in zoom-in-95 duration-500">
+              <div className="w-20 h-20 rounded-[2rem] bg-[#d4af37]/10 flex items-center justify-center mb-6 border border-[#d4af37]/20">
+                 <ShieldCheck className="w-10 h-10 text-[#d4af37]" />
               </div>
-              <h3 className="text-2xl font-black text-foreground font-arabic mb-2">إكمال الملف الشخصي</h3>
-              <p className="text-foreground/40 text-sm font-bold font-arabic mb-8 text-center">أهلاً بك! يرجى إدخال بياناتك للمشاركة في المسابقات</p>
+              <h3 className="text-2xl font-black text-white font-arabic mb-2">إكمال الملف الشخصي</h3>
+              <p className="text-white/50 text-sm font-bold font-arabic mb-8 text-center">أهلاً بك! يرجى إدخال بياناتك للمشاركة في المسابقات</p>
 
               <form onSubmit={handleProfileSubmit} className="w-full space-y-6">
                  {setupError && (
@@ -442,22 +450,38 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                  )}
                  
                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
-                       الاسم الفريد (بدون رموز - للبحث)
+                    <label className="text-xs font-bold text-white/50 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
+                       الاسم المستعار / الذي يظهر للناس (عادي بأي لغة)
+                       <User className="w-3 h-3" />
+                    </label>
+                    <input 
+                      required
+                      maxLength={20}
+                      value={setupData.displayName}
+                      onChange={e => setSetupData({...setupData, displayName: e.target.value})}
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all font-arabic text-white placeholder-white/20"
+                      placeholder="مثلاً: خادم القرآن ✨"
+                    />
+                 </div>
+
+                 <div className="space-y-2">
+                    <label className="text-xs font-bold text-white/50 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
+                       الاسم المميز (حروف إنجليزية وأرقام فقط، بدون مسافات)
                        <User className="w-3 h-3" />
                     </label>
                     <input 
                       required
                       maxLength={15}
                       value={setupData.username}
-                      onChange={e => setSetupData({...setupData, username: e.target.value})}
-                      className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 transition-all font-arabic"
+                      onChange={e => setSetupData({...setupData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '')})}
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all font-mono text-white placeholder-white/20"
                       placeholder="مثلاً: youssef123"
+                      dir="ltr"
                     />
                  </div>
 
                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
+                    <label className="text-xs font-bold text-white/50 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
                        رقم الهاتف (للتواصل عند الفوز)
                        <Phone className="w-3 h-3" />
                     </label>
@@ -466,28 +490,28 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                       type="tel"
                       value={setupData.phone}
                       onChange={e => setSetupData({...setupData, phone: e.target.value})}
-                      className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 transition-all font-mono"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all font-mono text-white placeholder-white/20"
                       placeholder="01XXXXXXXXX"
                     />
                  </div>
 
                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
+                    <label className="text-xs font-bold text-white/50 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
                        المحافظة
                        <MapPin className="w-3 h-3" />
                     </label>
                     <select 
                       value={setupData.governorate}
                       onChange={e => setSetupData({...setupData, governorate: e.target.value})}
-                      className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 transition-all font-arabic appearance-none"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all font-arabic appearance-none text-white"
                     >
-                       {GOVERNORATES.map(gov => <option key={gov} value={gov} className="bg-background">{gov}</option>)}
+                       {GOVERNORATES.map(gov => <option key={gov} value={gov} className="bg-[#111] text-white">{gov}</option>)}
                     </select>
                  </div>
 
                  <button 
                    type="submit"
-                   className="w-full py-5 bg-primary text-black rounded-[2rem] font-black text-lg shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all mt-4"
+                   className="w-full py-5 bg-[#d4af37] text-black rounded-[2rem] font-black text-lg shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:scale-[1.02] active:scale-95 transition-all mt-4"
                  >
                     بدء المنافسة الآن
                  </button>
