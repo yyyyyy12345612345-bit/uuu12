@@ -92,7 +92,7 @@ export function Leaderboard() {
   const fetchLeaderboard = async () => {
     if (!db) return;
     try {
-      // Fetch top 50 users who are NOT banned
+      // Fetch top 50 users who are NOT banned (Requires Firestore Index)
       const q = query(
         collection(db, "users"), 
         where("isBanned", "==", false),
@@ -100,18 +100,19 @@ export function Leaderboard() {
         limit(50)
       );
       const snapshot = await getDocs(q);
-      
       let data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-      
-      if (data.length === 0) {
-        const fallbackQ = query(collection(db, "users"), orderBy("totalPoints", "desc"), limit(50));
-        const fallbackSnapshot = await getDocs(fallbackQ);
-        data = fallbackSnapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter(u => !u.isBanned);
-      }
-
       setLeaderboardData(data);
     } catch (e) {
-      console.error("Error fetching leaderboard:", e);
+      console.warn("Index missing, using fallback query:", e);
+      // Fallback query that doesn't need a composite index
+      try {
+        const fallbackQ = query(collection(db, "users"), orderBy("totalPoints", "desc"), limit(100));
+        const fallbackSnapshot = await getDocs(fallbackQ);
+        let data = fallbackSnapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter((u: any) => !u.isBanned).slice(0, 50);
+        setLeaderboardData(data);
+      } catch (fallbackError) {
+        console.error("Error fetching fallback leaderboard:", fallbackError);
+      }
     }
   };
 
