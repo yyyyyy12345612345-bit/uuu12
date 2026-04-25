@@ -89,10 +89,10 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile }: G
       <div className="relative w-full max-w-[400px] h-full bg-background border-l border-border shadow-[-50px_0_100px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden animate-in slide-in-from-right duration-500 font-arabic">
         
         {/* Header / Profile Card */}
-        <div className="p-8 border-b border-border bg-foreground/[0.02] relative overflow-hidden">
+        <div className="p-6 border-b border-border bg-foreground/[0.02] relative overflow-hidden">
           <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
           
-          <div className="flex items-center justify-between mb-8 relative z-10">
+          <div className="flex items-center justify-between mb-6 relative z-10">
             <div className="flex items-center gap-2">
               <button 
                 onClick={toggleTheme}
@@ -112,11 +112,11 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile }: G
           {auth?.currentUser && userData ? (
             <div className="flex flex-col items-center text-center gap-4 relative z-10">
                <div className="relative group cursor-pointer" onClick={onOpenProfile}>
-                  <div className="w-24 h-24 rounded-[2rem] border-4 border-primary/20 p-1 bg-background relative overflow-hidden shadow-xl group-hover:scale-105 transition-all">
+                  <div className="w-20 h-20 rounded-[1.5rem] border-4 border-primary/20 p-1 bg-background relative overflow-hidden shadow-xl group-hover:scale-105 transition-all">
                      <img 
                        src={userData.photoURL || "/logo/logo.png"} 
                        alt="Profile" 
-                       className="w-full h-full object-cover rounded-[1.5rem]" 
+                       className="w-full h-full object-cover rounded-[1rem]" 
                      />
                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                         <span className="text-[8px] text-white font-black uppercase">تعديل</span>
@@ -147,7 +147,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile }: G
             </div>
           ) : (
             <div className="flex items-center gap-4 relative z-10">
-               <div className="w-14 h-14 rounded-2xl bg-foreground/5 p-2 flex items-center justify-center border border-border shadow-inner">
+               <div className="w-12 h-12 rounded-2xl bg-foreground/5 p-2 flex items-center justify-center border border-border shadow-inner">
                   <img src="/logo/logo.png?v=10" alt="Logo" className="w-full h-full object-contain rounded-lg" />
                </div>
                <div>
@@ -204,13 +204,13 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile }: G
          </div>
          
          {/* Fixed Admin Access Footer */}
-         <div className="p-6 border-t border-border bg-background/50 backdrop-blur-md">
+         <div className="p-4 border-t border-border bg-background/50 backdrop-blur-md">
             <button
                onClick={() => {
                   onClose();
                   navigate('/admin');
                }}
-               className="w-full group flex items-center justify-between p-4 rounded-[2rem] transition-all text-right bg-primary/5 border border-primary/20 hover:border-primary/40 hover:bg-primary/10"
+               className="w-full group flex items-center justify-between p-3 rounded-2xl transition-all text-right bg-primary/5 border border-primary/20 hover:border-primary/40 hover:bg-primary/10"
             >
                <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center transition-all group-hover:bg-primary/20">
