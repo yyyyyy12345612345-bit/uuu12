@@ -6,6 +6,7 @@ import { RECITERS } from "@/data/reciters";
 import { useEditor } from "@/store/useEditor";
 import surahsData from "@/data/surahs.json";
 import { getAudioUrl } from "@/lib/quranUtils";
+import { startAyahTimer, endAyahTimer } from "@/lib/points";
 
 export function Mushaf() {
     const { state, updateState } = useEditor();
@@ -97,6 +98,36 @@ export function Mushaf() {
     const filteredSurahs = surahsData.filter(s =>
         s.name.includes(search) || s.transliteration.toLowerCase().includes(search.toLowerCase())
     );
+
+    // Points Tracking Observer for Ayahs
+    useEffect(() => {
+        if (!selectedSurah || !surahContent) return;
+
+        const observer = new IntersectionObserver(
+            entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const ayahId = entry.target.getAttribute("data-ayah-id");
+                        if (ayahId) {
+                            const pointsToAward = playingAyah === Number(ayahId) ? 0.2 : 0.1;
+                            endAyahTimer(ayahId, pointsToAward).then(res => {
+                                if (res?.success) {
+                                    console.log(`Earned ${pointsToAward} points for Ayah ${ayahId}`);
+                                }
+                            });
+                            startAyahTimer(ayahId);
+                        }
+                    }
+                });
+            },
+            { threshold: 0.6 } // Must see 60% of the Ayah to count
+        );
+
+        const ayahElements = document.querySelectorAll("[data-ayah-id]");
+        ayahElements.forEach(el => observer.observe(el));
+
+        return () => observer.disconnect();
+    }, [selectedSurah, surahContent, playingAyah]);
 
     if (!selectedSurah) {
         return (
@@ -297,6 +328,7 @@ export function Mushaf() {
                                 <div
                                     key={verse.id}
                                     id={`verse-${verse.id}`}
+                                    data-ayah-id={verse.id}
                                     onClick={() => toggleAudio(verse.id)}
                                     className={`group relative transition-all duration-700 p-6 md:p-10 rounded-[2.5rem] border cursor-pointer backdrop-blur-sm ${
                                         playingAyah === verse.id 

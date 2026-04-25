@@ -119,10 +119,13 @@ export function DigitalMushaf() {
           if (entry.isIntersecting) {
             const pageId = entry.target.getAttribute("data-page");
             if (pageId) {
+              // Check if audio is currently playing to double the points
+              const pointsToAward = isPlayingPage ? 6 : 3;
+              
               // End timer for previous page (if any) and start for new one
-              endPageTimer(pageId).then(res => {
+              endPageTimer(pageId, pointsToAward).then(res => {
                 if (res.success) {
-                   console.log("Points added for page", pageId);
+                   console.log(`Earned ${pointsToAward} points for completing page ${pageId}`);
                 }
               });
               startPageTimer(pageId);
@@ -177,9 +180,7 @@ export function DigitalMushaf() {
 
         logAppEvent("play_verse", { surah: sura, verse: ayah, reciter: state.reciterId });
         
-        // Add points for listening to a verse
-        addPoints("listen");
-    }
+        // We don't add 1 point per verse here anymore, we award points based on the full page completion above.
   };
 
   const handleAudioEnd = () => {

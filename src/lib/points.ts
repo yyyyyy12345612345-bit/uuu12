@@ -9,13 +9,10 @@ import {
 } from "firebase/firestore";
 
 // Constants for Anti-Cheat
-const MIN_READ_TIME = 15; // Seconds required to stay on a page
-const DAILY_POINTS_CAP = 1500; // Increased cap for professional rank
-const POINTS_PER_PAGE = 5;
-const POINTS_PER_THIKR = 1;
-const POINTS_PER_LISTEN = 2; // Points for listening to a verse
+const MIN_PAGE_READ_TIME = 90; // 1.5 minutes for a full page
+const DAILY_POINTS_CAP = 5000; // Increased cap due to higher points
 
-interface PointUpdateResult {
+export interface PointUpdateResult {
   success: boolean;
   message?: string;
 }
@@ -52,10 +49,7 @@ export async function addPoints(type: "quran" | "athkar" | "listen", amount: num
     }
 
     // 3. Update Firestore (Atomic)
-    let pointsToAdd = 0;
-    if (type === "quran") pointsToAdd = POINTS_PER_PAGE;
-    else if (type === "athkar") pointsToAdd = POINTS_PER_THIKR;
-    else if (type === "listen") pointsToAdd = POINTS_PER_LISTEN;
+    let pointsToAdd = amount;
     
     const fieldMap: any = {
       quran: "quranPoints",
@@ -83,7 +77,7 @@ export async function addPoints(type: "quran" | "athkar" | "listen", amount: num
 }
 
 /**
- * Handles Quran page reading with time validation
+ * Handles Full Mushaf page reading with time validation
  */
 let pageStartTime: number | null = null;
 let lastPageId: string | null = null;
@@ -93,7 +87,7 @@ export function startPageTimer(pageId: string) {
   lastPageId = pageId;
 }
 
-export async function endPageTimer(pageId: string) {
+export async function endPageTimer(pageId: string, amount: number = 3) {
   if (!pageStartTime || lastPageId !== pageId) return { success: false };
 
   const elapsedSeconds = (Date.now() - pageStartTime) / 1000;
@@ -102,10 +96,72 @@ export async function endPageTimer(pageId: string) {
   pageStartTime = null;
   lastPageId = null;
 
-  // Anti-cheat: Check if user stayed long enough
-  if (elapsedSeconds >= MIN_READ_TIME) {
-    return await addPoints("quran");
+  // Anti-cheat: Check if user stayed long enough (90 seconds)
+  if (elapsedSeconds >= MIN_PAGE_READ_TIME) {
+    return await addPoints("quran", amount);
   } else {
-    return { success: false, message: "يجب قراءة الصفحة بتمهل لاحتساب النقاط" };
+    return { success: false, message: "يجب قراءة الصفحة بتمهل (دقيقة ونصف على الأقل) لاحتساب النقاط" };
   }
+}
+
+/**
+ * Handles Ayah reading in Normal Mushaf (5 seconds = 10 points, or 20 if audio)
+ */
+const MIN_AYAH_READ_TIME = 5;
+let ayahStartTime: number | null = null;
+let lastAyahId: string | null = null;
+
+export function startAyahTimer(ayahId: string) {
+  ayahStartTime = Date.now();
+  lastAyahId = ayahId;
+}
+
+export async function endAyahTimer(ayahId: string, amount: number = 10) {
+  if (!ayahStartTime || lastAyahId !== ayahId) return { success: false };
+
+  const elapsedSeconds = (Date.now() - ayahStartTime) / 1000;
+  
+  ayahStartTime = null;
+  lastAyahId = null;
+
+  if (elapsedSeconds >= MIN_AYAH_READ_TIME) {
+    return await addPoints("quran", amount);
+  } else {
+    return { success: false };
+  }
+}
+
+/**
+ * Handles Thikr reading in Athkar Library (5 seconds = 0.5 points)
+ */
+const MIN_THIKR_READ_TIME = 5;
+let thikrStartTime: number | null = null;
+let lastThikrId: string | null = null;
+
+export function startThikrTimer(thikrId: string) {
+  thikrStartTime = Date.now();
+  lastThikrId = thikrId;
+}
+
+export async function endThikrTimer(thikrId: string, amount: number = 0.5) {
+  if (!thikrStartTime || lastThikrId !== thikrId) return { success: false };
+
+  const elapsedSeconds = (Date.now() - thikrStartTime) / 1000;
+  
+  thikrStartTime = null;
+  lastThikrId = null;
+
+  if (elapsedSeconds >= MIN_THIKR_READ_TIME) {
+    return await addPoints("athkar", amount);
+  } else {
+    return { success: false };
+  }
+}
+
+/**
+ * Handles Sebha (Electronic Rosary) points
+ * Call this every 99 clicks to award 3 points
+ */
+export async function addSebhaPoints(amount: number = 3) {
+   return await addPoints("athkar", amount);
 }
