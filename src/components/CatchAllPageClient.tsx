@@ -112,7 +112,7 @@ function CatchAllContent() {
         {visited.daily && <div className={`h-full w-full pb-32 ${activeView === 'daily' ? 'block' : 'hidden'}`}><DailyHub /></div>}
         {visited.library && <div className={`h-full w-full pb-32 ${activeView === 'library' ? 'block' : 'hidden'}`}><AudioLibrary /></div>}
         {visited.prayers && <div className={`h-full w-full pb-32 ${activeView === 'prayers' ? 'block' : 'hidden'}`}><PrayerTimes /></div>}
-        {visited.rank && <div className={`h-full w-full pb-32 ${activeView === 'rank' ? 'block' : 'hidden'}`}><Leaderboard /></div>}
+        {visited.rank && <div className={`h-full w-full pb-32 ${activeView === 'rank' ? 'block' : 'hidden'}`}><Leaderboard onEditProfile={() => setIsProfileOpen(true)} /></div>}
         {visited.admin && <div className={`h-full w-full pb-32 ${activeView === 'admin' ? 'block' : 'hidden'}`}><AdminPanel /></div>}
         
         {visited.video && (
