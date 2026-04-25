@@ -202,7 +202,28 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile }: G
              </div>
            ))}
 
-        </div>
+            {/* Admin Access Button */}
+            <div className="pt-6 mt-6 border-t border-border/40">
+               <button
+                  onClick={() => {
+                     onClose();
+                     navigate('/admin');
+                  }}
+                  className="w-full group flex items-center justify-between p-5 rounded-3xl transition-all text-right bg-black/40 border border-border/20 hover:border-primary/40 hover:bg-black/60"
+               >
+                  <div className="flex items-center gap-5">
+                     <div className="w-12 h-12 rounded-2xl bg-foreground/5 flex items-center justify-center transition-all group-hover:bg-primary/20">
+                        <ShieldCheck className="w-5 h-5 text-foreground/40 group-hover:text-primary transition-all" />
+                     </div>
+                     <div className="text-right">
+                        <span className="block text-lg font-bold text-foreground/70 group-hover:text-foreground transition-all">لوحة الإدارة</span>
+                        <p className="text-[10px] text-foreground/20 font-bold uppercase tracking-widest mt-0.5">ADMIN CONTROL</p>
+                     </div>
+                  </div>
+                  <div className="w-2 h-2 rounded-full bg-foreground/10 group-hover:bg-primary transition-all" />
+               </button>
+            </div>
+         </div>
 
       </div>
     </div>
