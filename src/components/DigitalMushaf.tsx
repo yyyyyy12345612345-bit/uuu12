@@ -473,10 +473,10 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                                      <path d="M 25,70 L 10,70 L 10,55" fill="none" stroke="#d4af37" strokeWidth="3" />
                                                 </svg>
                                             </div>
-                                            <div className="absolute top-[8px] left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#FDFBF7] px-4 z-30">
-                                                <span className="text-[10px] md:text-[11px] text-[#8b6d1b] font-black uppercase tracking-[0.4em] opacity-80">سُورَةُ</span>
+                                            <div className="absolute -top-[16px] left-1/2 -translate-x-1/2 z-30">
+                                                <span className="text-[11px] md:text-[12px] text-[#8b6d1b] font-black uppercase tracking-[0.4em] opacity-80">سُورَةُ</span>
                                             </div>
-                                            <div className="relative z-20 flex items-center justify-center w-full h-full pt-4">
+                                            <div className="relative z-20 flex items-center justify-center w-full h-full">
                                                 <span className="font-arabic font-black text-black leading-none" style={{ fontSize: `${mushafFontSize * 1.3}px` }}>{surahName}</span>
                                             </div>
                                         </div>

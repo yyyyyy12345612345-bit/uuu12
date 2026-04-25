@@ -35,7 +35,11 @@ const GOVERNORATES = [
   "مطروح", "شمال سيناء", "جنوب سيناء"
 ];
 
-export function Leaderboard() {
+interface LeaderboardProps {
+  onEditProfile?: () => void;
+}
+
+export function Leaderboard({ onEditProfile }: LeaderboardProps) {
   const [user, setUser] = useState<FirebaseUser | null | undefined>(undefined);
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -121,19 +125,14 @@ export function Leaderboard() {
     try {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
-      
-      const isNative = typeof window !== 'undefined' && 
-                      ((window as any).Capacitor?.isNativePlatform?.() || 
-                       /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
-
-      if (isNative) {
-        await signInWithRedirect(auth, provider);
-      } else {
-        await signInWithPopup(auth, provider);
-      }
+      await signInWithPopup(auth, provider);
     } catch (e: any) {
       console.error("Login Error:", e);
-      alert("حدث خطأ أثناء تسجيل الدخول: " + (e.message || "فشل الاتصال بجوجل"));
+      if (e.code === 'auth/popup-blocked') {
+        alert("يرجى السماح بفتح النوافذ المنبثقة (Pop-ups) في متصفحك لتتمكن من تسجيل الدخول.");
+      } else {
+        alert("حدث خطأ أثناء تسجيل الدخول: " + (e.message || "فشل الاتصال بجوجل"));
+      }
     }
   };
 
@@ -237,16 +236,24 @@ export function Leaderboard() {
            )}
 
            {user && userData && (
-             <div className="premium-card px-6 py-4 flex items-center gap-4">
-                <div className="text-right">
-                   <p className="text-xs text-primary font-bold uppercase tracking-widest">رتبتك الحالية</p>
-                   <p className="text-xl font-black text-foreground font-arabic leading-tight">
-                     {userData.displayName || userData.username}
-                   </p>
+             <div className="premium-card p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                   <div className="w-16 h-16 rounded-[1.2rem] overflow-hidden border-2 border-primary/20 shadow-lg">
+                      <img src={userData.photoURL || "/logo/logo.png"} alt="User" className="w-full h-full object-cover" />
+                   </div>
+                   <div className="text-right">
+                      <p className="text-[10px] text-primary font-black uppercase tracking-widest mb-1">المتسابق الحالي</p>
+                      <p className="text-2xl font-black text-foreground font-arabic leading-none">
+                        {userData.displayName || userData.username}
+                      </p>
+                   </div>
                 </div>
-                <div className="w-12 h-12 rounded-[1rem] overflow-hidden border-2 border-primary/20">
-                   <img src={userData.photoURL || "/logo/logo.png"} alt="User" className="w-full h-full object-cover" />
-                </div>
+                <button 
+                  onClick={onEditProfile}
+                  className="w-full md:w-auto px-6 py-3 bg-foreground/5 hover:bg-primary/10 border border-border hover:border-primary/30 rounded-2xl text-xs font-black text-foreground/80 hover:text-primary transition-all font-arabic"
+                >
+                  تعديل الملف الشخصي (الاسم، الصورة، الخ)
+                </button>
              </div>
            )}
         </div>
