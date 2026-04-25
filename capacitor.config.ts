@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'quran1mu.vercel.app', // تم التعديل ليطابق ملف google-services.json
+  appId: 'quran1mu.vercel.app',
   appName: 'القرآن الكريم',
   webDir: 'out',
   server: {
@@ -15,11 +15,11 @@ const config: CapacitorConfig = {
       sound: "adhan.mp3"
     },
     SplashScreen: {
-      launchShowDuration: 2000,
+      launchShowDuration: 500,
+      launchAutoHide: true,
       backgroundColor: "#050505",
-      showSpinner: true,
-      androidSpinnerStyle: "large",
-      spinnerColor: "#c5a059"
+      showSpinner: false,
+      androidScaleType: "CENTER_CROP"
     }
   }
 };

@@ -1,24 +1,36 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import { getAuth } from "firebase/auth";
+import { getFirestore, enableMultiTabIndexedDbPersistence } from "firebase/firestore";
 
-// هذه البيانات ستحصل عليها من Firebase Console بعد إنشاء المشروع
-// سأضع لك الهيكل وتستطيع استبدال القيم لاحقاً
+// هذه البيانات يجب ملؤها من Firebase Console الخاص بك
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "your-quran-app.firebaseapp.com",
-  projectId: "your-quran-app",
-  storageBucket: "your-quran-app.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID",
-  measurementId: "YOUR_G_ID"
+  apiKey: "AIzaSyB8NHUTR6Uzqh1YZAoPXzRy8aMgle9x7gU",
+  authDomain: "yy10-ba274.firebaseapp.com",
+  projectId: "yy10-ba274",
+  storageBucket: "yy10-ba274.firebasestorage.app",
+  messagingSenderId: "194649785258",
+  appId: "1:194649785258:web:eeb335318731b1b2f7a1d3",
+  measurementId: "G-13TSYVLG6G"
 };
 
 // Initialize Firebase
-let analytics: any;
-if (typeof window !== "undefined") {
-  const app = initializeApp(firebaseConfig);
-  analytics = getAnalytics(app);
+const app = typeof window !== "undefined" && getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+const analytics = typeof window !== "undefined" ? getAnalytics(app) : null;
+const auth = typeof window !== "undefined" ? getAuth(app) : null;
+const db = typeof window !== "undefined" ? getFirestore(app) : null;
+
+if (typeof window !== "undefined" && db) {
+  enableMultiTabIndexedDbPersistence(db).catch((err: any) => {
+    if (err.code === 'failed-precondition') {
+      console.warn("Persistence failed: Multiple tabs open");
+    } else if (err.code === 'unimplemented') {
+      console.warn("Persistence is not supported in this browser");
+    }
+  });
 }
+
+export { app, auth, db, analytics };
 
 export const logAppEvent = (eventName: string, params?: object) => {
   if (analytics) {

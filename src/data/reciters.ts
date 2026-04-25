@@ -34,22 +34,21 @@ export const RECITERS: Reciter[] = [
   { id: "hazza", name: "هزاع البلوشي", folder: "hazza", mp3quranServer: "server11.mp3quran.net/hazza", everyAyahFolder: "Hazza_Al_Blushi_128kbps" },
   { id: "mansor", name: "منصور السالمي", folder: "mansor", mp3quranServer: "server14.mp3quran.net/mansor", everyAyahFolder: "Mansour_Al_Salimi_128kbps" },
   { id: "balilah", name: "بندر بليلة", folder: "balilah", mp3quranServer: "server6.mp3quran.net/balilah", everyAyahFolder: "Bandar_Baleela_128kbps" },
-  // --- Requested additions (temporarily using mp3quran server10 — verify/update with actual sources) ---
-  { id: "waleed_shamsan", name: "الوليد الشمسان", folder: "waleed_shamsan", mp3quranServer: "server10.mp3quran.net/waleed_shamsan" },
-  { id: "badr_turki", name: "بدر التركي", folder: "badr_turki", mp3quranServer: "server10.mp3quran.net/badr_turki" },
-  { id: "ali_abdullah_jaber", name: "علي عبد الله جابر", folder: "ali_abdullah_jaber", mp3quranServer: "server10.mp3quran.net/ali_jaber" },
-  { id: "ahmed_ibn_taleb_hameed", name: "احمد ابن طالب حميد", folder: "ahmed_ibn_taleb_hameed", mp3quranServer: "server10.mp3quran.net/ahmed_hameed" },
-
-  { id: "islam_sobhi", name: "اسلام صبحي", folder: "islam_sobhi", mp3quranServer: "server10.mp3quran.net/islam_sobhi" },
-  { id: "abdurrahman_musaab", name: "عبد الرحمن مصعب", folder: "abdurrahman_musaab", mp3quranServer: "server10.mp3quran.net/abdurrahman_musaab" },
-  { id: "ahmed_kasab", name: "احمد كاسب", folder: "ahmed_kasab", mp3quranServer: "server10.mp3quran.net/ahmed_kasab" },
-  { id: "mohammad_ahmad_hassan", name: "محمد احمد حسن", folder: "mohammad_ahmad_hassan", mp3quranServer: "server10.mp3quran.net/mohammad_hassan" },
-
-  { id: "mustafa_ismail", name: "مصطفي اسماعيل", folder: "mustafa_ismail", mp3quranServer: "server10.mp3quran.net/mustafa_ismail" },
-  { id: "ahmed_naeen", name: "احمد نعينع", folder: "ahmed_naeen", mp3quranServer: "server10.mp3quran.net/ahmed_naeen" },
-  { id: "kamel_yousef_albahtimi", name: "كامل يوسف البهتيمي", folder: "kamel_yousef_albahtimi", mp3quranServer: "server10.mp3quran.net/kamel_bahtimi" },
-  { id: "mohammad_rifaat", name: "محمد رفعت", folder: "mohammad_rifaat", mp3quranServer: "server10.mp3quran.net/mohammad_rifaat" },
-  { id: "taha_alfashny", name: "طه الفشني", folder: "taha_alfashny", mp3quranServer: "server10.mp3quran.net/taha_alfashny" },
-  { id: "abu_alaneen_shaishaa", name: "ابو العنين شعيشع", folder: "abu_alaneen_shaishaa", mp3quranServer: "server10.mp3quran.net/abu_alaneen" },
-  { id: "albana", name: "البنا", folder: "albana", mp3quranServer: "server10.mp3quran.net/albana" },
+  
+  // TODO: Add reciters below when verified audio sources are available:
+  // - الوليد الشمسان (waleed_shamsan)
+  // - بدر التركي (badr_turki)
+  // - علي عبد الله جابر (ali_abdullah_jaber)
+  // - احمد ابن طالب حميد (ahmed_ibn_taleb_hameed)
+  // - اسلام صبحي (islam_sobhi)
+  // - عبد الرحمن مصعب (abdurrahman_musaab)
+  // - احمد كاسب (ahmed_kasab)
+  // - محمد احمد حسن (mohammad_ahmad_hassan)
+  // - مصطفي اسماعيل (mustafa_ismail)
+  // - احمد نعينع (ahmed_naeen)
+  // - كامل يوسف البهتيمي (kamel_yousef_albahtimi)
+  // - محمد رفعت (mohammad_rifaat)
+  // - طه الفشني (taha_alfashny)
+  // - ابو العنين شعيشع (abu_alaneen_shaishaa)
+  // - البنا (albana)
 ];

@@ -3,14 +3,14 @@
 import React from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Video, BookOpen, Timer, Headphones, Calendar, ScrollText } from "lucide-react";
+import { Video, BookOpen, Timer, Headphones, Calendar, ScrollText, Trophy } from "lucide-react";
 
 export function Navigation() {
   const pathname = usePathname();
 
   const tabs = [
     { id: "mushaf", label: "المصحف", icon: BookOpen, path: "/" },
-    { id: "mushaf-full", label: "مصحف كامل", icon: ScrollText, path: "/mushaf-full" },
+    { id: "rank", label: "الترتيب", icon: Trophy, path: "/rank" },
     { id: "daily", label: "يومياتي", icon: Calendar, path: "/daily" },
     { id: "library", label: "المكتبة", icon: Headphones, path: "/library" },
     { id: "prayers", label: "المواقيت", icon: Timer, path: "/prayers" },

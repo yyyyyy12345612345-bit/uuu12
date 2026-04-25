@@ -20,6 +20,9 @@ const DigitalMushaf = nextDynamic(() => import("@/components/DigitalMushaf").the
 const FeedbackModal = nextDynamic(() => import("@/components/FeedbackModal").then(mod => mod.FeedbackModal), { ssr: false });
 const PWAInstallButton = nextDynamic(() => import("@/components/PWAInstallButton").then(mod => mod.PWAInstallButton), { ssr: false });
 const GlobalMenu = nextDynamic(() => import("@/components/GlobalMenu").then(mod => mod.GlobalMenu), { ssr: false });
+const Leaderboard = nextDynamic(() => import("@/components/Leaderboard").then(mod => mod.Leaderboard), { ssr: false });
+const AdminPanel = nextDynamic(() => import("@/components/AdminPanel").then(mod => mod.AdminPanel), { ssr: false });
+const ProfileModal = nextDynamic(() => import("@/components/ProfileModal").then(mod => mod.ProfileModal), { ssr: false });
 
 export function CatchAllPageClient() {
   return (
@@ -35,7 +38,18 @@ function CatchAllContent() {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isRenderOpen, setIsRenderOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
+  const [globalAnnouncement, setGlobalAnnouncement] = useState("");
+
+  useEffect(() => {
+    if (!db) return;
+    const fetchAnnouncement = async () => {
+      const s = await getDoc(doc(db, "settings", "global"));
+      if (s.exists()) setGlobalAnnouncement(s.data().announcement || "");
+    };
+    fetchAnnouncement();
+  }, []);
 
   // Derived active view from pathname - the safest way in Next.js 15/16 Client Components
   const activeView = useMemo(() => {
@@ -80,12 +94,24 @@ function CatchAllContent() {
         </div>
       </header>
 
+      {/* Global Announcement Bar */}
+      {globalAnnouncement && (
+        <div className="bg-primary text-black py-2.5 px-4 text-center text-[10px] font-black font-arabic animate-in slide-in-from-top duration-500 relative z-[150] shadow-xl border-b border-black/5">
+           <div className="flex items-center justify-center gap-2">
+              <span className="animate-bounce">📢</span>
+              {globalAnnouncement}
+           </div>
+        </div>
+      )}
+
       <main className="flex-1 relative overflow-hidden">
         {visited.mushaf && <div className={`h-full w-full mb-20 ${activeView === 'mushaf' ? 'block' : 'hidden'}`}><Mushaf /></div>}
         {visited['mushaf-full'] && <div className={`h-full w-full mb-20 ${activeView === 'mushaf-full' ? 'block' : 'hidden'}`}><DigitalMushaf /></div>}
         {visited.daily && <div className={`h-full w-full pb-32 ${activeView === 'daily' ? 'block' : 'hidden'}`}><DailyHub /></div>}
         {visited.library && <div className={`h-full w-full pb-32 ${activeView === 'library' ? 'block' : 'hidden'}`}><AudioLibrary /></div>}
         {visited.prayers && <div className={`h-full w-full pb-32 ${activeView === 'prayers' ? 'block' : 'hidden'}`}><PrayerTimes /></div>}
+        {visited.rank && <div className={`h-full w-full pb-32 ${activeView === 'rank' ? 'block' : 'hidden'}`}><Leaderboard /></div>}
+        {visited.admin && <div className={`h-full w-full pb-32 ${activeView === 'admin' ? 'block' : 'hidden'}`}><AdminPanel /></div>}
         
         {visited.video && (
           <div className={`h-full w-full ${activeView === 'video' ? 'block' : 'hidden'}`}>
@@ -153,7 +179,12 @@ function CatchAllContent() {
           setIsMenuOpen(false);
           setIsFeedbackOpen(true);
         }}
+        onOpenProfile={() => {
+          setIsMenuOpen(false);
+          setIsProfileOpen(true);
+        }}
       />
+      <ProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
     </div>
   );
 }
