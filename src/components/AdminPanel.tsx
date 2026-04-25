@@ -515,7 +515,8 @@ export function AdminPanel() {
                          <td className="p-6">
                             <div className="flex flex-col">
                                <span className="font-bold text-foreground text-sm">{u.phoneNumber || "بدون هاتف"}</span>
-                               <span className="text-[10px] text-foreground/30 font-bold uppercase tracking-wider">UID: {u.uid.slice(0, 8)}...</span>
+                               <span className="text-[10px] text-primary/80 font-mono mt-1">{u.email || "غير متوفر"}</span>
+                               <span className="text-[8px] text-foreground/30 font-bold uppercase tracking-wider mt-1">UID: {u.uid.slice(0, 8)}...</span>
                             </div>
                          </td>
                          <td className="p-6">

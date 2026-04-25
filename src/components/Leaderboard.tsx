@@ -57,7 +57,15 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
         try {
           const userDoc = await getDoc(doc(db, "users", u.uid));
           if (userDoc.exists()) {
-            setUserData(userDoc.data());
+            const data = userDoc.data();
+            
+            // Silently backfill email if it's missing
+            if (u.email && !data.email) {
+              await updateDoc(doc(db, "users", u.uid), { email: u.email });
+              data.email = u.email;
+            }
+
+            setUserData(data);
             setShowProfileSetup(false);
           } else {
             setShowProfileSetup(true);
@@ -176,6 +184,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
         uid: user.uid,
         username: username,
         displayName: displayName,
+        email: user.email || "",
         photoURL: user.photoURL || "",
         phoneNumber: setupData.phone,
         governorate: setupData.governorate,

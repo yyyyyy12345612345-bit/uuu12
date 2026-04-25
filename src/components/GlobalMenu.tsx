@@ -89,10 +89,10 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile }: G
       <div className="relative w-full max-w-[400px] h-full bg-background border-l border-border shadow-[-50px_0_100px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden animate-in slide-in-from-right duration-500 font-arabic">
         
         {/* Header / Profile Card */}
-        <div className="p-6 border-b border-border bg-foreground/[0.02] relative overflow-hidden">
+        <div className="p-5 border-b border-border bg-foreground/[0.02] relative overflow-hidden flex-shrink-0">
           <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
           
-          <div className="flex items-center justify-between mb-6 relative z-10">
+          <div className="flex items-center justify-between mb-3 relative z-10">
             <div className="flex items-center gap-2">
               <button 
                 onClick={toggleTheme}
@@ -110,9 +110,9 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile }: G
           </div>
 
           {auth?.currentUser && userData ? (
-            <div className="flex flex-col items-center text-center gap-4 relative z-10">
+            <div className="flex flex-col items-center text-center gap-3 relative z-10">
                <div className="relative group cursor-pointer" onClick={onOpenProfile}>
-                  <div className="w-20 h-20 rounded-[1.5rem] border-4 border-primary/20 p-1 bg-background relative overflow-hidden shadow-xl group-hover:scale-105 transition-all">
+                  <div className="w-16 h-16 rounded-2xl border-[3px] border-primary/20 p-0.5 bg-background relative overflow-hidden shadow-xl group-hover:scale-105 transition-all">
                      <img 
                        src={userData.photoURL || "/logo/logo.png"} 
                        alt="Profile" 
@@ -140,7 +140,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile }: G
 
                <button 
                 onClick={onOpenProfile}
-                className="mt-2 px-6 py-2.5 bg-foreground/5 hover:bg-primary/10 border border-border hover:border-primary/20 rounded-full text-[11px] font-black text-foreground/60 hover:text-primary transition-all font-arabic"
+                className="mt-1 px-5 py-2 bg-foreground/5 hover:bg-primary/10 border border-border hover:border-primary/20 rounded-full text-[10px] font-black text-foreground/60 hover:text-primary transition-all font-arabic"
                >
                  إدارة الملف الشخصي
                </button>
