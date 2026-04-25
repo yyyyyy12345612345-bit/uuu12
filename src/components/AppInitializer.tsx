@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Capacitor } from '@capacitor/core';
 import { X, Download, Info, Camera, Loader2 } from 'lucide-react';
-import { useEditor } from "@/lib/editor-context";
+import { useEditor } from "@/store/useEditor";
 import { auth, db } from "@/lib/firebase";
 
 export default function AppInitializer({ children }: { children: React.ReactNode }) {

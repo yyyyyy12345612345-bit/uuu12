@@ -1,7 +1,12 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
-import { getFirestore, enableMultiTabIndexedDbPersistence } from "firebase/firestore";
+import { 
+  getFirestore, 
+  initializeFirestore, 
+  persistentLocalCache, 
+  persistentMultipleTabManager 
+} from "firebase/firestore";
 
 // هذه البيانات يجب ملؤها من Firebase Console الخاص بك
 const firebaseConfig = {
@@ -18,17 +23,11 @@ const firebaseConfig = {
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const analytics = typeof window !== "undefined" ? getAnalytics(app) : null;
 const auth = getAuth(app);
-const db = getFirestore(app);
 
-if (typeof window !== "undefined" && db) {
-  enableMultiTabIndexedDbPersistence(db).catch((err: any) => {
-    if (err.code === 'failed-precondition') {
-      console.warn("Persistence failed: Multiple tabs open");
-    } else if (err.code === 'unimplemented') {
-      console.warn("Persistence is not supported in this browser");
-    }
-  });
-}
+// Initialize Firestore with modern persistent cache
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+});
 
 export { app, auth, db, analytics };
 
