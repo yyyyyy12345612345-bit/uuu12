@@ -10,7 +10,6 @@ export function Navigation() {
 
   const tabs = [
     { id: "mushaf", label: "المصحف", icon: BookOpen, path: "/" },
-    { id: "rank", label: "الترتيب", icon: Trophy, path: "/rank" },
     { id: "daily", label: "يومياتي", icon: Calendar, path: "/daily" },
     { id: "library", label: "المكتبة", icon: Headphones, path: "/library" },
     { id: "prayers", label: "المواقيت", icon: Timer, path: "/prayers" },
