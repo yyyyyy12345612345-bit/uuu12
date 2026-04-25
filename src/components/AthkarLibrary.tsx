@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Search, ChevronLeft, ChevronRight, BookOpen, Share2, Copy, Sparkles } from "lucide-react";
+import { startThikrTimer, endThikrTimer } from "@/lib/points";
 
 interface Category {
   ID: string;
@@ -70,6 +71,35 @@ export function AthkarLibrary() {
     }
   }, [selectedCategory]);
 
+  // Points Tracking Observer for Athkar
+  useEffect(() => {
+    if (!selectedCategory || athkar.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const thikrId = entry.target.getAttribute("data-thikr-id");
+            if (thikrId) {
+              endThikrTimer(thikrId, 0.5).then(res => {
+                if (res?.success) {
+                   console.log(`Earned 0.5 points for Thikr ${thikrId}`);
+                }
+              });
+              startThikrTimer(thikrId);
+            }
+          }
+        });
+      },
+      { threshold: 0.8 } // Must see 80% of the Thikr to start counting
+    );
+
+    const thikrElements = document.querySelectorAll("[data-thikr-id]");
+    thikrElements.forEach(el => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, [selectedCategory, athkar]);
+
   if (selectedCategory) {
     return (
       <div className="flex flex-col gap-8 animate-in slide-in-from-left-6 duration-700 pb-24">
@@ -109,6 +139,7 @@ export function AthkarLibrary() {
             {athkar.map((t, idx) => (
               <div 
                 key={idx} 
+                data-thikr-id={`${selectedCategory.ID}-${idx}`}
                 className="relative bg-card p-6 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] border-r-8 border-r-secondary border border-border shadow-xl overflow-hidden group hover:shadow-2xl transition-all"
               >
                   <div className="absolute inset-0 opacity-[0.03] pointer-events-none islamic-pattern" />

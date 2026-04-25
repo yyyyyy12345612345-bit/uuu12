@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Sun, Moon, Target, Compass, CheckCircle2, RotateCcw, Fingerprint, MapPin, Search, Bed, BookOpen } from "lucide-react";
 import { ATHKAR } from "@/data/athkar";
 import { AthkarLibrary } from "./AthkarLibrary";
-import { addPoints } from "@/lib/points";
+import { addPoints, addSebhaPoints, startThikrTimer, endThikrTimer } from "@/lib/points";
 import { useRef } from "react";
 
 export function DailyHub() {
@@ -66,14 +66,6 @@ export function DailyHub() {
       const newProgress = { ...athkarProgress, [key]: current + 1 };
       setAthkarProgress(newProgress);
       localStorage.setItem("athkar_progress", JSON.stringify(newProgress));
-      
-      // Points for each click in Athkar (smaller amount)
-      addPoints("athkar");
-
-      if (current + 1 === maxCount) {
-        // Bonus points for completion
-        addPoints("athkar", 5);
-      }
     }
   };
 
@@ -87,8 +79,12 @@ export function DailyHub() {
     setSibhaCount(newCount);
     localStorage.setItem("sibha_count", newCount.toString());
     
-    // Add point for each tasbih
-    addPoints("athkar");
+    // Add 3 points for every 99 tasbeehs
+    if (newCount % 99 === 0 && newCount > 0) {
+       addSebhaPoints(3).then(res => {
+          if (res?.success) console.log("Earned 3 points for 99 tasbeehs");
+       });
+    }
 
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       navigator.vibrate(50); 
@@ -189,6 +185,35 @@ export function DailyHub() {
     };
   }, []);
 
+  // Points Tracking Observer for Daily Athkar
+  useEffect(() => {
+    if (activeTab !== "morning" && activeTab !== "evening" && activeTab !== "sleep") return;
+
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const thikrId = entry.target.getAttribute("data-thikr-id");
+            if (thikrId) {
+              endThikrTimer(thikrId, 0.5).then(res => {
+                if (res?.success) {
+                   console.log(`Earned 0.5 points for reading Thikr ${thikrId}`);
+                }
+              });
+              startThikrTimer(thikrId);
+            }
+          }
+        });
+      },
+      { threshold: 0.8 } // Must see 80% of the Thikr to count
+    );
+
+    const thikrElements = document.querySelectorAll("[data-thikr-id]");
+    thikrElements.forEach(el => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, [activeTab]);
+
   const renderAthkarList = (type: any) => {
     return ATHKAR[type].map((thikr) => {
       const key = `${type}_${thikr.id}`;
@@ -198,6 +223,7 @@ export function DailyHub() {
       return (
         <div 
           key={thikr.id} 
+          data-thikr-id={key}
           onClick={() => handleThikrClick(thikr.id, thikr.count, type)}
           className={`p-6 rounded-3xl border transition-all cursor-pointer relative overflow-hidden active:scale-[0.97] duration-300 ${
              isComplete 

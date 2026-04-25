@@ -10,6 +10,7 @@ import {
 import { updateMediaSession, updatePlaybackState } from "@/lib/mediaSession";
 import surahsData from "@/data/surahs.json";
 import { logAppEvent } from "@/lib/firebase";
+import { addPoints } from "@/lib/points";
 
 // Memoized Surah Item to prevent entire list re-render
 const SurahItem = memo(({ surah, isCurrent, isPlaying, onClick }: any) => (
@@ -91,6 +92,21 @@ export function AudioLibrary() {
 
   useEffect(() => {
     updatePlaybackState(isPlaying ? 'playing' : 'paused');
+  }, [isPlaying]);
+
+  // Points for listening: 1 point every 30 seconds of active playback
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isPlaying) {
+      interval = setInterval(() => {
+        addPoints("listen", 1).then(res => {
+           if (res.success) {
+              console.log("Earned 1 listen point for 30s of audio");
+           }
+        });
+      }, 30000); // 30 seconds
+    }
+    return () => clearInterval(interval);
   }, [isPlaying]);
 
   const togglePlay = () => {
