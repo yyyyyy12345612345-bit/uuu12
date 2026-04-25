@@ -21,6 +21,7 @@ import {
   deleteDoc,
   setDoc
 } from "firebase/firestore";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const ADMIN_EMAIL = "youssefosama@gmail.com";
 
@@ -42,6 +43,12 @@ export function AdminPanel() {
   const [activeQuests, setActiveQuests] = useState<any[]>([]);
   const [announcement, setAnnouncement] = useState("");
   const [isSettingAnnouncement, setIsSettingAnnouncement] = useState(false);
+  
+  // Login Form State
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
     const checkAdmin = () => {
@@ -206,15 +213,78 @@ export function AdminPanel() {
     }
   };
 
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError("");
+    setIsLoggingIn(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (e: any) {
+      console.error(e);
+      setLoginError("فشل تسجيل الدخول. تأكد من البريد وكلمة المرور.");
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
   if (loading) return <div className="p-20 text-center font-bold">جاري التحقق من صلاحيات الإدارة...</div>;
 
   if (!isAdmin) return (
-    <div className="flex flex-col items-center justify-center h-full p-10 text-center gap-6 animate-in fade-in duration-700">
-       <div className="w-24 h-24 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/20">
-          <AlertTriangle className="w-12 h-12 text-red-500" />
+    <div className="flex flex-col items-center justify-center min-h-[80vh] p-6 text-center animate-in fade-in duration-700">
+       <div className="w-full max-w-md premium-card p-10 flex flex-col items-center gap-8 shadow-2xl relative overflow-hidden">
+          <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
+          
+          <div className="w-20 h-20 rounded-[2rem] bg-primary/10 flex items-center justify-center border border-primary/20 relative z-10">
+             <ShieldCheck className="w-10 h-10 text-primary" />
+          </div>
+          
+          <div className="relative z-10 text-center">
+             <h2 className="text-3xl font-black text-foreground font-arabic mb-2">لوحة تحكم المدير</h2>
+             <p className="text-foreground/40 text-sm font-bold font-arabic">يرجى إدخال بيانات الاعتماد للوصول للإدارة</p>
+          </div>
+
+          <form onSubmit={handleAdminLogin} className="w-full space-y-5 relative z-10">
+             {loginError && (
+               <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-[11px] font-bold p-4 rounded-xl animate-shake">
+                 {loginError}
+               </div>
+             )}
+             
+             <div className="space-y-2 text-right">
+                <label className="text-[10px] font-black text-foreground/30 uppercase tracking-widest mr-2">البريد الإلكتروني</label>
+                <input 
+                  type="email"
+                  required
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 transition-all font-mono"
+                  placeholder="admin@example.com"
+                />
+             </div>
+
+             <div className="space-y-2 text-right">
+                <label className="text-[10px] font-black text-foreground/30 uppercase tracking-widest mr-2">كلمة المرور</label>
+                <input 
+                  type="password"
+                  required
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 transition-all"
+                  placeholder="••••••••"
+                />
+             </div>
+
+             <button 
+               type="submit"
+               disabled={isLoggingIn}
+               className="w-full py-5 bg-primary text-black rounded-2xl font-black text-lg shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+             >
+                {isLoggingIn ? <RefreshCw className="w-5 h-5 animate-spin" /> : "دخول الإدارة"}
+             </button>
+          </form>
+
+          <p className="text-[9px] text-foreground/20 font-bold uppercase tracking-widest relative z-10">Protected Area • Authorized Personnel Only</p>
        </div>
-       <h2 className="text-3xl font-black text-foreground font-arabic">دخول غير مصرح به</h2>
-       <p className="text-foreground/40 font-bold font-arabic max-w-sm">عذراً، هذه الصفحة مخصصة لمدير التطبيق فقط. يرجى تسجيل الدخول بالحساب الصحيح.</p>
     </div>
   );
 

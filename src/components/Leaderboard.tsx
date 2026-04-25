@@ -10,6 +10,8 @@ import {
 import { auth, db } from "@/lib/firebase";
 import { 
   signInWithPopup, 
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider, 
   onAuthStateChanged,
   User as FirebaseUser
@@ -64,6 +66,19 @@ export function Leaderboard() {
       fetchLeaderboard();
       fetchQuests();
     });
+
+    // Handle redirect result
+    getRedirectResult(auth).then((result) => {
+      if (result?.user) {
+        console.log("Redirect login success");
+      }
+    }).catch((error) => {
+      console.error("Redirect login error:", error);
+      if (error.code !== 'auth/configuration-not-found') {
+        alert("خطأ في تسجيل الدخول: " + error.message);
+      }
+    });
+
     return () => unsubscribe();
   }, []);
 
@@ -104,9 +119,20 @@ export function Leaderboard() {
     if (!auth) return;
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-    } catch (e) {
+      provider.setCustomParameters({ prompt: 'select_account' });
+      
+      const isNative = typeof window !== 'undefined' && 
+                      ((window as any).Capacitor?.isNativePlatform?.() || 
+                       /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+
+      if (isNative) {
+        await signInWithRedirect(auth, provider);
+      } else {
+        await signInWithPopup(auth, provider);
+      }
+    } catch (e: any) {
       console.error("Login Error:", e);
+      alert("حدث خطأ أثناء تسجيل الدخول: " + (e.message || "فشل الاتصال بجوجل"));
     }
   };
 
