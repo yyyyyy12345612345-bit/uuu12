@@ -9,7 +9,7 @@ import {
 } from "firebase/firestore";
 
 // Constants for Anti-Cheat
-const MIN_READ_TIME = 40; // Seconds required to stay on a page
+const MIN_READ_TIME = 15; // Seconds required to stay on a page
 const DAILY_POINTS_CAP = 1500; // Increased cap for professional rank
 const POINTS_PER_PAGE = 5;
 const POINTS_PER_THIKR = 1;
@@ -39,11 +39,11 @@ export async function addPoints(type: "quran" | "athkar" | "listen", amount: num
       return { success: false, message: "عذراً، تم حظر حسابك لمخالفة القوانين" };
     }
 
+    const today = new Date().toISOString().split("T")[0];
     const dailyDoc = await getDoc(dailyRef);
     const dailyData = dailyDoc.exists() ? dailyDoc.data() : { date: today, points: 0 };
 
     // Reset daily points if it's a new day
-    const today = new Date().toISOString().split("T")[0];
     let dailyPoints = dailyData.date === today ? dailyData.points : 0;
 
     // 2. Check Daily Cap
