@@ -264,7 +264,7 @@ export function AdminPanel() {
   );
 
   if (!isAdmin) return (
-    <div className="fixed inset-0 z-[500] flex items-center justify-center p-6 font-arabic overflow-hidden">
+    <div className="fixed inset-0 z-[500] flex items-center justify-center p-6 font-arabic overflow-y-auto">
        <div className="absolute inset-0 bg-[#050505]">
           <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-primary/5 animate-pulse" />
           <div className="absolute inset-0 islamic-pattern opacity-[0.05] scale-150 rotate-12" />
@@ -318,7 +318,7 @@ export function AdminPanel() {
   );
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-arabic p-4 md:p-8 pt-20 pb-32 overflow-y-auto no-scrollbar">
+    <div className="h-full w-full bg-background text-foreground font-arabic p-4 md:p-8 pt-6 pb-40 overflow-y-auto scroll-smooth">
       <div className="max-w-7xl mx-auto space-y-8">
         
         {/* Top Navigation & Welcome */}

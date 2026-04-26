@@ -110,9 +110,9 @@ export function Mushaf() {
                         const ayahId = entry.target.getAttribute("data-ayah-id");
                         if (ayahId) {
                             const pointsToAward = playingAyah === Number(ayahId) ? 0.2 : 0.1;
-                            endAyahTimer(ayahId, pointsToAward).then(res => {
+                            endAyahTimer(pointsToAward).then(res => {
                                 if (res?.success) {
-                                    console.log(`Earned ${pointsToAward} points for Ayah ${ayahId}`);
+                                    console.log(`Earned ${pointsToAward} points for an Ayah`);
                                 }
                             });
                             startAyahTimer(ayahId);

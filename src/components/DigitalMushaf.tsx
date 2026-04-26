@@ -122,10 +122,10 @@ export function DigitalMushaf() {
               // Check if audio is currently playing to double the points
               const pointsToAward = isPlayingPage ? 6 : 3;
               
-              // End timer for previous page (if any) and start for new one
-              endPageTimer(pageId, pointsToAward).then(res => {
+              // End timer for whatever was previous and start for new one
+              endPageTimer(pointsToAward).then(res => {
                 if (res.success) {
-                   console.log(`Earned ${pointsToAward} points for completing page ${pageId}`);
+                   console.log(`Earned ${pointsToAward} points for a page`);
                 }
               });
               startPageTimer(pageId);
