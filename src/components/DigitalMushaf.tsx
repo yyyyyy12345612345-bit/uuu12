@@ -181,6 +181,7 @@ export function DigitalMushaf() {
         logAppEvent("play_verse", { surah: sura, verse: ayah, reciter: state.reciterId });
         
         // We don't add 1 point per verse here anymore, we award points based on the full page completion above.
+    }
   };
 
   const handleAudioEnd = () => {

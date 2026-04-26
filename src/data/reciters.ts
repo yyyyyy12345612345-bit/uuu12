@@ -51,4 +51,32 @@ export const RECITERS: Reciter[] = [
   // - طه الفشني (taha_alfashny)
   // - ابو العنين شعيشع (abu_alaneen_shaishaa)
   // - البنا (albana)
+  // Added from public/adhan: files detected but sources not verified
+  { id: "mohammad_rifaat", name: "محمد رفعت", folder: "mohammad_rifaat", mp3quranServer: "" },
+  { id: "sayed_nakashibandi", name: "سيد النقشبندي", folder: "sayed_nakashibandi", mp3quranServer: "" },
+  { id: "waleed_shamsan", name: "الوليد الشمسان", folder: "waleed_shamsan", mp3quranServer: "" },
+  { id: "badr_turki", name: "بدر التركي", folder: "badr_turki", mp3quranServer: "" },
+  { id: "ali_abdullah_jaber", name: "علي عبد الله جابر", folder: "ali_abdullah_jaber", mp3quranServer: "" },
+  { id: "ahmed_ibn_taleb_hameed", name: "أحمد ابن طالب حميد", folder: "ahmed_ibn_taleb_hameed", mp3quranServer: "" },
+  { id: "islam_sobhi", name: "إسلام صبحي", folder: "islam_sobhi", mp3quranServer: "" },
+  { id: "abdurrahman_musaab", name: "عبد الرحمن مصعب", folder: "abdurrahman_musaab", mp3quranServer: "" },
+  { id: "ahmed_kasab", name: "أحمد كاسب", folder: "ahmed_kasab", mp3quranServer: "" },
+  { id: "mohammad_ahmad_hassan", name: "محمد أحمد حسن", folder: "mohammad_ahmad_hassan", mp3quranServer: "" },
+  { id: "mustafa_ismail", name: "مصطفى إسماعيل", folder: "mustafa_ismail", mp3quranServer: "" },
+  { id: "ahmed_naeen", name: "أحمد نعينع", folder: "ahmed_naeen", mp3quranServer: "" },
+  { id: "kamel_yousef_albahtimi", name: "كامل يوسف البهتيمي", folder: "kamel_yousef_albahtimi", mp3quranServer: "" },
+  { id: "taha_alfashny", name: "طه الفشني", folder: "taha_alfashny", mp3quranServer: "" },
+  { id: "abu_alaneen_shaishaa", name: "أبو العنين شعيشع", folder: "abu_alaneen_shaishaa", mp3quranServer: "" },
+  { id: "albana", name: "البنا", folder: "albana", mp3quranServer: "" },
+  // Added 10 popular reciters as placeholders (verify sources later)
+  { id: "basfar", name: "عبد الله بصفر", folder: "basfar", mp3quranServer: "" },
+  { id: "al_huthaify", name: "علي الحذيفي", folder: "al_huthaify", mp3quranServer: "" },
+  { id: "alqasim", name: "عبد المحسن القاسم", folder: "alqasim", mp3quranServer: "" },
+  { id: "ath_thubaity", name: "عبدالباري الثبيتي", folder: "ath_thubaity", mp3quranServer: "" },
+  { id: "adel_kalbani", name: "عادل كلباني", folder: "adel_kalbani", mp3quranServer: "" },
+  { id: "khalid_alqahtani", name: "خالد القحطاني", folder: "khalid_alqahtani", mp3quranServer: "" },
+  { id: "salah_bukhatir", name: "صلاح بختير", folder: "salah_bukhatir", mp3quranServer: "" },
+  { id: "salah_albudair", name: "صلاح البدير", folder: "salah_albudair", mp3quranServer: "" },
+  { id: "abdulkarim_alhazmi", name: "عبد الكريم الحازمي", folder: "abdulkarim_alhazmi", mp3quranServer: "" },
+  { id: "ibrahim_aljibrin", name: "إبراهيم الجبرين", folder: "ibrahim_aljibrin", mp3quranServer: "" },
 ];

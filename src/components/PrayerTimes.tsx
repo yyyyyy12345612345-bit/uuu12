@@ -189,27 +189,64 @@ export function PrayerTimes() {
   };
 
   const requestNotificationPermission = async () => {
-     if (!("Notification" in window)) return;
-     const permission = await Notification.requestPermission();
-     console.log("Notification permission:", permission);
+     if (Capacitor.isNativePlatform()) {
+        const perm = await LocalNotifications.requestPermissions();
+        console.log("Native notification permission:", perm.display);
+        
+        // If Android 13+, we might also need to check/request exact alarm permission
+        // though usually SCHEDULE_EXACT_ALARM in manifest is enough for some, 
+        // others need manual intent. For now, focus on display permission.
+     } else if ("Notification" in window) {
+        const permission = await Notification.requestPermission();
+        console.log("Web notification permission:", permission);
+     }
   };
 
   // Send prayer times and settings to Service Worker for background notifications
-  const syncPrayerTimesToSW = (timesData: PrayerTimesData | null, settingsData: Record<string, PrayerSetting>) => {
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller && timesData) {
-      navigator.serviceWorker.controller.postMessage({
-        type: 'PRAYER_DATA_UPDATE',
-        times: timesData,
-        settings: settingsData
-      });
-      console.log('[App] Prayer data synced to SW');
+  const syncPrayerTimesToSW = async (timesData: PrayerTimesData | null, settingsData: Record<string, PrayerSetting>) => {
+    if ('serviceWorker' in navigator && timesData) {
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        
+        // Sync Data
+        if (reg.active) {
+          reg.active.postMessage({
+            type: 'PRAYER_DATA_UPDATE',
+            times: timesData,
+            settings: settingsData
+          });
+          console.log('[App] Prayer data synced to SW');
+        }
+
+        // Register Periodic Background Sync so SW can check prayer times even when app is closed
+        if ('periodicSync' in reg) {
+          try {
+            const status = await navigator.permissions.query({ name: 'periodic-background-sync' as any });
+            if (status.state === 'granted') {
+              await (reg as any).periodicSync.register('check-prayer-times', {
+                minInterval: 60 * 1000, 
+              });
+              console.log('[App] Periodic Background Sync registered');
+            }
+          } catch (pe) { console.log("Periodic sync reg failed", pe); }
+        }
+      } catch (e) {
+        console.log('[App] SW sync error', e);
+      }
     }
   };
 
   // Sync with SW and Native Scheduler whenever times or settings change
+  const syncAll = async () => {
+    if (!times) return;
+    await syncPrayerTimesToSW(times, prayerSettings);
+    if (Capacitor.isNativePlatform()) {
+      await scheduleWeeklyNotifications(times, prayerSettings);
+    }
+  };
+
   useEffect(() => {
-    syncPrayerTimesToSW(times, prayerSettings);
-    if (times) scheduleWeeklyNotifications(times, prayerSettings);
+    syncAll();
   }, [times, prayerSettings]);
 
   // Listen for PLAY_ADHAN messages from Service Worker

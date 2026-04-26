@@ -1,22 +1,50 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { SplashScreen } from '@capacitor/splash-screen';
 import { Capacitor } from '@capacitor/core';
-import { X, Download, Info, Camera, Loader2 } from 'lucide-react';
-import { useEditor } from "@/store/useEditor";
-import { auth, db } from "@/lib/firebase";
+import { X, Download, Info, ShieldCheck, Bell, MapPin, CheckCircle2, ArrowRight } from 'lucide-react';
+import { LocalNotifications } from '@capacitor/local-notifications';
+import { Geolocation } from '@capacitor/geolocation';
 
 export default function AppInitializer({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState(true);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateInfo, setUpdateInfo] = useState<any>(null);
+  const [showPermissionModal, setShowPermissionModal] = useState(false);
 
   useEffect(() => {
-    // Hide splash after 2 seconds
-    const timer = setTimeout(() => setShowSplash(false), 2000);
+    // Hide splash and then check for permissions
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+      checkFirstRun();
+    }, 2000);
     return () => clearTimeout(timer);
   }, []);
+
+  const checkFirstRun = async () => {
+    if (!Capacitor.isNativePlatform()) return;
+    
+    const hasPrompted = localStorage.getItem("has_prompted_permissions");
+    if (!hasPrompted) {
+      setShowPermissionModal(true);
+    }
+  };
+
+  const requestAllPermissions = async () => {
+    try {
+      // 1. Notifications
+      await LocalNotifications.requestPermissions();
+      
+      // 2. Location
+      await Geolocation.requestPermissions();
+    } catch (e) {
+      console.error("Permission request failed (user may have denied)", e);
+    } finally {
+      // Always mark as prompted, even if denied, so user is not stuck
+      localStorage.setItem("has_prompted_permissions", "true");
+      setShowPermissionModal(false);
+    }
+  };
 
   const isNewerVersion = (serverVer: string, localVer: string) => {
     const s = serverVer.split('.').map(Number);
@@ -47,7 +75,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
   useEffect(() => {
     // Check for updates on mount
-    setTimeout(() => checkForUpdates(false), 3000);
+    setTimeout(() => checkForUpdates(false), 5000);
 
     // Listen for manual update trigger
     const handleManualUpdate = () => checkForUpdates(true);
@@ -60,6 +88,69 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
   return (
     <>
+      {/* Permission Request Modal (First Run Only) */}
+      {showPermissionModal && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6 bg-black font-arabic overflow-hidden">
+           {/* Decorative BG */}
+           <div className="absolute inset-0 bg-[#0a0a0a]">
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-primary/5" />
+              <div className="absolute inset-0 islamic-pattern opacity-[0.03] scale-150 rotate-12" />
+           </div>
+
+           <div className="relative w-full max-w-lg">
+              <div className="relative bg-zinc-900/40 backdrop-blur-3xl border border-white/10 p-10 md:p-14 rounded-[3rem] flex flex-col items-center gap-10 shadow-2xl animate-in zoom-in-95 duration-700">
+                 
+                 <div className="w-24 h-24 rounded-[2.5rem] bg-primary/10 flex items-center justify-center border-2 border-primary/20 shadow-2xl">
+                    <ShieldCheck className="w-12 h-12 text-primary" />
+                 </div>
+
+                 <div className="text-center space-y-4">
+                    <h2 className="text-3xl font-black text-white tracking-tight">صلاحيات التشغيل</h2>
+                    <p className="text-white/50 text-sm font-bold leading-relaxed">
+                       لكي يعمل التطبيق بشكل صحيح ويطلق الأذان في وقته، نحتاج منك السماح ببعض الصلاحيات الأساسية.
+                    </p>
+                 </div>
+
+                 <div className="w-full space-y-4">
+                    <div className="flex items-center gap-5 p-5 bg-white/[0.03] rounded-2xl border border-white/5">
+                       <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400">
+                          <Bell className="w-6 h-6" />
+                       </div>
+                       <div className="flex-1 text-right">
+                          <p className="text-white font-black text-sm">إشعارات الأذان</p>
+                          <p className="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1">For Background Athan</p>
+                       </div>
+                       <CheckCircle2 className="w-5 h-5 text-emerald-500/40" />
+                    </div>
+
+                    <div className="flex items-center gap-5 p-5 bg-white/[0.03] rounded-2xl border border-white/5">
+                       <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400">
+                          <MapPin className="w-6 h-6" />
+                       </div>
+                       <div className="flex-1 text-right">
+                          <p className="text-white font-black text-sm">تحديد الموقع</p>
+                          <p className="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1">For Accurate Prayer Times</p>
+                       </div>
+                       <CheckCircle2 className="w-5 h-5 text-emerald-500/40" />
+                    </div>
+                 </div>
+
+                 <button 
+                   onClick={requestAllPermissions}
+                   className="w-full py-5 bg-primary text-black rounded-[2rem] font-black text-lg shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                 >
+                    <span>سماح بالصلاحيات الآن</span>
+                    <ArrowRight className="w-5 h-5" />
+                 </button>
+
+                 <p className="text-[9px] text-white/15 font-black text-center leading-relaxed">
+                    نحن لا نشارك بيانات موقعك مع أي طرف ثالث، تستخدم فقط لحساب مواقيت الصلاة محلياً.
+                 </p>
+              </div>
+           </div>
+        </div>
+      )}
+
       {/* Update Modal */}
       {showUpdateModal && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
