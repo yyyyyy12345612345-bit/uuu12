@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quran-pwa-v6';
+const CACHE_NAME = 'quran-pwa-v7';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
@@ -6,12 +6,9 @@ const ASSETS_TO_CACHE = [
   '/data/surahs.json'
 ];
 
-// Store prayer times and settings received from the app
-let prayerData = {
-  times: null,
-  settings: null
-};
-let lastNotifiedPrayer = null;
+const AUDIO_CACHE_NAME = 'quran-audio-v1';
+const PRAYER_DB_NAME = 'quran-prayer-db';
+const PRAYER_STORE_NAME = 'prayer-data';
 
 const PRAYER_NAMES = {
   Fajr: 'الفجر',
@@ -21,8 +18,49 @@ const PRAYER_NAMES = {
   Isha: 'العشاء'
 };
 
-const AUDIO_CACHE_NAME = 'quran-audio-v1';
+// ── IndexedDB helpers for persistent prayer data ─────────────────────────
+function openPrayerDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(PRAYER_DB_NAME, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(PRAYER_STORE_NAME)) {
+        db.createObjectStore(PRAYER_STORE_NAME);
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
 
+async function savePrayerData(data) {
+  const db = await openPrayerDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(PRAYER_STORE_NAME, 'readwrite');
+    const store = tx.objectStore(PRAYER_STORE_NAME);
+    store.put(data, 'current');
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function loadPrayerData() {
+  try {
+    const db = await openPrayerDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(PRAYER_STORE_NAME, 'readonly');
+      const store = tx.objectStore(PRAYER_STORE_NAME);
+      const request = store.get('current');
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => reject(request.error);
+    });
+  } catch (e) {
+    return null;
+  }
+}
+
+
+// ── Service Worker Lifecycle ─────────────────────────────────────────────
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
@@ -43,6 +81,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+// ── Fetch Handler with Audio Caching ─────────────────────────────────────
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -55,13 +94,11 @@ self.addEventListener('fetch', (event) => {
           if (cachedResponse) return cachedResponse;
 
           return fetch(request).then((networkResponse) => {
-            // Check if we received a valid response
             if (networkResponse.status === 200 || networkResponse.status === 206) {
               cache.put(request, networkResponse.clone());
             }
             return networkResponse;
           }).catch(() => {
-            // Offline and not in cache
             return new Response('Audio not available offline', { status: 503 });
           });
         });
@@ -82,32 +119,56 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Listen for messages from the app
+// ── Listen for messages from the app ─────────────────────────────────────
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'PRAYER_DATA_UPDATE') {
-    prayerData.times = event.data.times;
-    prayerData.settings = event.data.settings;
-    lastNotifiedPrayer = null; 
-    console.log('[SW] Prayer data updated');
+    // Preserve lastNotifiedKey so we don't re-fire today's prayer
+    loadPrayerData().then(existing => {
+      const data = {
+        times: event.data.times,
+        settings: event.data.settings,
+        updatedAt: Date.now(),
+        lastNotifiedKey: existing?.lastNotifiedKey || null
+      };
+      savePrayerData(data).then(() => {
+        console.log('[SW] Prayer data saved to IndexedDB');
+      });
+    });
   }
 });
 
-function checkPrayerTimes() {
-  if (!prayerData.times || !prayerData.settings) return;
+// ── Prayer Time Checker (runs from both interval AND periodic sync) ──────
+async function checkPrayerTimes() {
+  const data = await loadPrayerData();
+  if (!data || !data.times || !data.settings) return;
   
   const now = new Date();
   const nowStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
   
-  for (const [key, time] of Object.entries(prayerData.times)) {
+  for (const [key, time] of Object.entries(data.times)) {
     if (!PRAYER_NAMES[key]) continue;
     
-    const prayerTime = time.substring(0, 5);
-    const setting = prayerData.settings[key];
+    const setting = data.settings[key];
+    if (!setting?.notificationsEnabled) continue;
     
-    // Only notify if notifications are enabled for this specific prayer
-    if (prayerTime === nowStr && setting?.notificationsEnabled && lastNotifiedPrayer !== `${key}_${nowStr}`) {
-      lastNotifiedPrayer = `${key}_${nowStr}`;
+    // Apply offset
+    const [h, m] = time.substring(0, 5).split(':').map(Number);
+    const offsetDate = new Date(now);
+    offsetDate.setHours(h, m + (setting.offset || 0), 0, 0);
+    const prayerTimeStr = `${offsetDate.getHours().toString().padStart(2, '0')}:${offsetDate.getMinutes().toString().padStart(2, '0')}`;
+    
+    const uniqueKey = `${key}_${prayerTimeStr}_${now.toDateString()}`;
+    
+    if (prayerTimeStr === nowStr) {
+      // Check if we already notified for this prayer today (persisted in IndexedDB)
+      const lastKey = data.lastNotifiedKey;
+      if (lastKey === uniqueKey) continue;
+
+      // Save the key so we don't re-notify even after SW restart
+      data.lastNotifiedKey = uniqueKey;
+      await savePrayerData(data);
       
+      // Show notification even when app is closed
       self.registration.showNotification(`🕌 حان الآن موعد أذان ${PRAYER_NAMES[key]}`, {
         body: 'حيّ على الصلاة.. حيّ على الفلاح',
         icon: '/logo/logo.png',
@@ -115,29 +176,45 @@ function checkPrayerTimes() {
         tag: `prayer-${key}`,
         requireInteraction: true,
         vibrate: [200, 100, 200, 100, 200],
-        data: { prayer: key, url: '/prayers' }
+        data: { prayer: key, url: '/prayers' },
+        silent: false
       });
       
       // Tell open clients to play audio if enabled
       if (setting?.athanEnabled) {
-          self.clients.matchAll().then(clients => {
-            clients.forEach(client => {
-              client.postMessage({ type: 'PLAY_ADHAN', prayer: key });
-            });
+        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+          clients.forEach(client => {
+            client.postMessage({ type: 'PLAY_ADHAN', prayer: key });
           });
+        });
       }
     }
   }
 }
 
-setInterval(checkPrayerTimes, 30000);
+// Check every 15 seconds for more accuracy (SW will keep alive while there are active timers)
+setInterval(checkPrayerTimes, 15000);
 
+// ── Periodic Background Sync (for when app is completely closed) ──────────
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'check-prayer-times') {
+    event.waitUntil(checkPrayerTimes());
+  }
+});
+
+// Fallback: Also check on any push event
+self.addEventListener('push', (event) => {
+  event.waitUntil(checkPrayerTimes());
+});
+
+// ── Notification Click Handler ───────────────────────────────────────────
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(
     self.clients.matchAll({ type: 'window' }).then(clients => {
       if (clients.length > 0) {
         clients[0].focus();
+        clients[0].navigate(event.notification.data?.url || '/prayers');
       } else {
         self.clients.openWindow(event.notification.data?.url || '/prayers');
       }

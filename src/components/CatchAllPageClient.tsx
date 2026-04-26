@@ -25,11 +25,14 @@ const GlobalMenu = nextDynamic(() => import("@/components/GlobalMenu").then(mod 
 const Leaderboard = nextDynamic(() => import("@/components/Leaderboard").then(mod => mod.Leaderboard), { ssr: false });
 const AdminPanel = nextDynamic(() => import("@/components/AdminPanel").then(mod => mod.AdminPanel), { ssr: false });
 const ProfileModal = nextDynamic(() => import("@/components/ProfileModal").then(mod => mod.ProfileModal), { ssr: false });
+const AuthGate = nextDynamic(() => import("@/components/AuthGate").then(mod => mod.AuthGate), { ssr: false });
 
 export function CatchAllPageClient() {
   return (
     <React.Suspense fallback={<LoadingShell />}>
-      <CatchAllContent />
+      <AuthGate>
+        <CatchAllContent />
+      </AuthGate>
     </React.Suspense>
   );
 }
