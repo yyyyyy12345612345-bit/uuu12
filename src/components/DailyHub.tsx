@@ -81,14 +81,30 @@ export function DailyHub() {
     
     // Add 3 points for every 99 tasbeehs
     if (newCount % 99 === 0 && newCount > 0) {
+       console.log("[DailyHub] Milestone reached! Adding Sebha points...");
        addSebhaPoints(3).then(res => {
-          if (res?.success) console.log("Earned 3 points for 99 tasbeehs");
+          if (res?.success) {
+            console.log("[DailyHub] Earned 3 points for 99 tasbeehs");
+          } else {
+            console.error("[DailyHub] Failed to add Sebha points:", res?.message);
+          }
        });
     }
 
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       navigator.vibrate(50); 
     }
+  };
+
+  const handlePageRead = () => {
+    const newCount = pagesRead + 1;
+    setPagesRead(newCount);
+    localStorage.setItem("pages_read", newCount.toString());
+    
+    // Manual point entry for daily goal
+    addPoints("quran", 5).then(res => {
+       if (res?.success) console.log("[DailyHub] Earned 5 points for reading a page");
+    });
   };
 
   const resetSibha = () => {
@@ -195,9 +211,9 @@ export function DailyHub() {
           if (entry.isIntersecting) {
             const thikrId = entry.target.getAttribute("data-thikr-id");
             if (thikrId) {
-              endThikrTimer(thikrId, 0.5).then(res => {
+              endThikrTimer(0.5).then(res => {
                 if (res?.success) {
-                   console.log(`Earned 0.5 points for reading Thikr ${thikrId}`);
+                   console.log(`Earned 0.5 points for reading Thikr`);
                 }
               });
               startThikrTimer(thikrId);
@@ -267,7 +283,7 @@ export function DailyHub() {
   };
 
   return (
-    <div className="w-full h-full flex flex-col p-6 md:p-14 overflow-y-auto no-scrollbar font-arabic pb-40 bg-background text-foreground relative daily-hub-container">
+    <div className="w-full h-full flex flex-col p-6 md:p-14 overflow-y-auto font-arabic pb-40 bg-background text-foreground relative daily-hub-container">
       {/* Unified Background Layer */}
       <div className="absolute inset-0 z-0 pointer-events-none">
           <div 
@@ -289,7 +305,7 @@ export function DailyHub() {
         </p>
       </div>
 
-      <div className="flex w-full max-w-3xl mx-auto rounded-3xl p-1.5 glass-effect border border-border mb-10 overflow-x-auto no-scrollbar horizontal-scroll z-10 shrink-0">
+      <div className="flex w-full max-w-3xl mx-auto rounded-3xl p-1.5 glass-effect border border-border mb-10 overflow-x-auto horizontal-scroll z-10 shrink-0">
         {[
           { id: "sibha", icon: Fingerprint, label: "السبحة" },
           { id: "morning", icon: Sun, label: "الصباح" },

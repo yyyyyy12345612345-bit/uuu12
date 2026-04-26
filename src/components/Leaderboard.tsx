@@ -224,7 +224,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
   );
 
   return (
-    <div className="flex flex-col h-full p-6 md:p-10 pt-16 md:pt-8 animate-in fade-in duration-1000 overflow-y-auto no-scrollbar relative">
+    <div className="flex flex-col h-full p-6 md:p-10 pt-16 md:pt-8 animate-in fade-in duration-1000 overflow-y-auto relative">
       
       <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/40 to-background" />

@@ -22,14 +22,22 @@ export interface PointUpdateResult {
  */
 export async function addPoints(type: "quran" | "athkar" | "listen", amount: number = 1): Promise<PointUpdateResult> {
   const user = auth?.currentUser;
-  if (!user || !db) return { success: false, message: "User not logged in" };
+  if (!user || !db) {
+    console.warn("Points: User not logged in or DB not ready");
+    return { success: false, message: "User not logged in" };
+  }
 
   const userRef = doc(db, "users", user.uid);
   const dailyRef = doc(db, "users", user.uid, "stats", "daily");
 
   try {
     const userDoc = await getDoc(userRef);
-    const userData = userDoc.exists() ? userDoc.data() : {};
+    if (!userDoc.exists()) {
+        console.warn("Points: User document does not exist");
+        return { success: false };
+    }
+    
+    const userData = userDoc.data();
     
     // 0. Check if user is banned
     if (userData.isBanned) {
@@ -49,7 +57,8 @@ export async function addPoints(type: "quran" | "athkar" | "listen", amount: num
     }
 
     // 3. Update Firestore (Atomic)
-    let pointsToAdd = amount;
+    const pointsToAdd = Number(amount);
+    if (isNaN(pointsToAdd) || pointsToAdd <= 0) return { success: false };
     
     const fieldMap: any = {
       quran: "quranPoints",
@@ -57,11 +66,16 @@ export async function addPoints(type: "quran" | "athkar" | "listen", amount: num
       listen: "listenPoints"
     };
 
-    await updateDoc(userRef, {
+    const updateData: any = {
       totalPoints: increment(pointsToAdd),
-      [fieldMap[type]]: increment(pointsToAdd),
       lastActive: new Date().toISOString()
-    });
+    };
+
+    if (fieldMap[type]) {
+        updateData[fieldMap[type]] = increment(pointsToAdd);
+    }
+
+    await updateDoc(userRef, updateData);
 
     // Update daily stats
     await setDoc(dailyRef, {
@@ -69,6 +83,7 @@ export async function addPoints(type: "quran" | "athkar" | "listen", amount: num
       points: increment(pointsToAdd)
     }, { merge: true });
 
+    console.log(`[Points] Added ${pointsToAdd} to ${type}. New daily total: ${dailyPoints + pointsToAdd}`);
     return { success: true };
   } catch (e) {
     console.error("Error adding points:", e);
@@ -83,31 +98,30 @@ let pageStartTime: number | null = null;
 let lastPageId: string | null = null;
 
 export function startPageTimer(pageId: string) {
+  // If moving to a new page, the observer should have called endPageTimer for the old one.
+  // But if not, we reset here.
   pageStartTime = Date.now();
   lastPageId = pageId;
 }
 
-export async function endPageTimer(pageId: string, amount: number = 3) {
-  if (!pageStartTime || lastPageId !== pageId) return { success: false };
+export async function endPageTimer(amount: number = 3) {
+  if (!pageStartTime || !lastPageId) return { success: false };
 
   const elapsedSeconds = (Date.now() - pageStartTime) / 1000;
   
-  // Reset timer
-  pageStartTime = null;
-  lastPageId = null;
-
-  // Anti-cheat: Check if user stayed long enough (90 seconds)
-  if (elapsedSeconds >= MIN_PAGE_READ_TIME) {
-    return await addPoints("quran", amount);
-  } else {
-    return { success: false, message: "يجب قراءة الصفحة بتمهل (دقيقة ونصف على الأقل) لاحتساب النقاط" };
+  if (elapsedSeconds >= (MIN_PAGE_READ_TIME - 5)) {
+    const result = await addPoints("quran", amount);
+    pageStartTime = null;
+    lastPageId = null;
+    return result;
   }
+  return { success: false, message: "يجب قراءة الصفحة بتمهل لاحتساب النقاط" };
 }
 
 /**
- * Handles Ayah reading in Normal Mushaf (5 seconds = 10 points, or 20 if audio)
+ * Handles Ayah reading in Normal Mushaf
  */
-const MIN_AYAH_READ_TIME = 5;
+const MIN_AYAH_READ_TIME = 4;
 let ayahStartTime: number | null = null;
 let lastAyahId: string | null = null;
 
@@ -116,25 +130,23 @@ export function startAyahTimer(ayahId: string) {
   lastAyahId = ayahId;
 }
 
-export async function endAyahTimer(ayahId: string, amount: number = 10) {
-  if (!ayahStartTime || lastAyahId !== ayahId) return { success: false };
-
+export async function endAyahTimer(amount: number = 10) {
+  if (!ayahStartTime) return { success: false };
   const elapsedSeconds = (Date.now() - ayahStartTime) / 1000;
   
-  ayahStartTime = null;
-  lastAyahId = null;
-
   if (elapsedSeconds >= MIN_AYAH_READ_TIME) {
-    return await addPoints("quran", amount);
-  } else {
-    return { success: false };
+    const result = await addPoints("quran", amount);
+    ayahStartTime = null;
+    lastAyahId = null;
+    return result;
   }
+  return { success: false };
 }
 
 /**
- * Handles Thikr reading in Athkar Library (5 seconds = 0.5 points)
+ * Handles Thikr reading in Athkar Library
  */
-const MIN_THIKR_READ_TIME = 5;
+const MIN_THIKR_READ_TIME = 4;
 let thikrStartTime: number | null = null;
 let lastThikrId: string | null = null;
 
@@ -143,25 +155,24 @@ export function startThikrTimer(thikrId: string) {
   lastThikrId = thikrId;
 }
 
-export async function endThikrTimer(thikrId: string, amount: number = 0.5) {
-  if (!thikrStartTime || lastThikrId !== thikrId) return { success: false };
-
+export async function endThikrTimer(amount: number = 0.5) {
+  if (!thikrStartTime) return { success: false };
   const elapsedSeconds = (Date.now() - thikrStartTime) / 1000;
   
-  thikrStartTime = null;
-  lastThikrId = null;
-
   if (elapsedSeconds >= MIN_THIKR_READ_TIME) {
-    return await addPoints("athkar", amount);
-  } else {
-    return { success: false };
+    const result = await addPoints("athkar", amount);
+    thikrStartTime = null;
+    lastThikrId = null;
+    return result;
   }
+  return { success: false };
 }
+
 
 /**
  * Handles Sebha (Electronic Rosary) points
- * Call this every 99 clicks to award 3 points
  */
 export async function addSebhaPoints(amount: number = 3) {
    return await addPoints("athkar", amount);
 }
+
