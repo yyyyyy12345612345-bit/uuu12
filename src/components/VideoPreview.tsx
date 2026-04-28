@@ -213,7 +213,7 @@ export function VideoPreview() {
            </div>
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/20 to-[#000000]/40" />
 
         {/* Content Container with dynamic positioning and transition */}
         <div 

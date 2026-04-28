@@ -20,6 +20,9 @@ const config: CapacitorConfig = {
       backgroundColor: "#050505",
       showSpinner: false,
       androidScaleType: "CENTER_CROP"
+    },
+    GoogleSignIn: {
+      clientId: "194649785258-818jpl0c7it5dsmn7a7mufu8jc1i1uud.apps.googleusercontent.com",
     }
   }
 };

@@ -145,7 +145,7 @@ function CatchAllContent() {
                    </div>
                    
                    {/* Video Preview Container - Height reduced by another 15% */}
-                   <div className="flex-1 flex items-center justify-center p-2 min-h-0 bg-black/20">
+                   <div className="flex-1 flex items-center justify-center p-2 min-h-0 bg-[#000000]">
                       <div className="scale-[0.85] h-full flex items-center justify-center">
                         <VideoPreview key={state.reciterId} />
                       </div>

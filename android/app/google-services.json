@@ -1,26 +1,36 @@
 {
   "project_info": {
-    "project_number": "781003447825",
-    "project_id": "quranapp-ba253",
-    "storage_bucket": "quranapp-ba253.firebasestorage.app"
+    "project_number": "194649785258",
+    "project_id": "yy10-ba274",
+    "storage_bucket": "yy10-ba274.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:781003447825:android:ac6f956af543f7124ddbb0",
+        "mobilesdk_app_id": "1:194649785258:android:a4b07585298349ecf7a1d3",
         "android_client_info": {
           "package_name": "quran1mu.vercel.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "194649785258-818jpl0c7it5dsmn7a7mufu8jc1i1uud.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyCeOHJzm7rkAcwDlV_uSSw99wycnotaQQI"
+          "current_key": "AIzaSyB8NHUTR6Uzqh1YZAoPXzRy8aMgle9x7gU"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "194649785258-818jpl0c7it5dsmn7a7mufu8jc1i1uud.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

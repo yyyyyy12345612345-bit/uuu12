@@ -10,8 +10,6 @@ import {
 import { auth, db } from "@/lib/firebase";
 import { 
   signInWithPopup, 
-  signInWithRedirect,
-  getRedirectResult,
   GoogleAuthProvider, 
   onAuthStateChanged,
   User as FirebaseUser
@@ -80,18 +78,6 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
       fetchQuests();
     });
 
-    // Handle redirect result
-    getRedirectResult(auth).then((result) => {
-      if (result?.user) {
-        console.log("Redirect login success");
-      }
-    }).catch((error) => {
-      console.error("Redirect login error:", error);
-      if (error.code !== 'auth/configuration-not-found') {
-        alert("خطأ في تسجيل الدخول: " + error.message);
-      }
-    });
-
     return () => unsubscribe();
   }, []);
 
@@ -137,9 +123,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
       await signInWithPopup(auth, provider);
     } catch (e: any) {
       console.error("Login Error:", e);
-      if (e.code === 'auth/popup-blocked') {
-        alert("يرجى السماح بفتح النوافذ المنبثقة (Pop-ups) في متصفحك لتتمكن من تسجيل الدخول.");
-      } else {
+      if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
         alert("حدث خطأ أثناء تسجيل الدخول: " + (e.message || "فشل الاتصال بجوجل"));
       }
     }
@@ -379,9 +363,11 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
               {leaderboardData.length === 0 ? (
                 <div className="p-20 text-center text-foreground/20 font-arabic font-bold">لا توجد بيانات حالياً.. كن أول المنافسين!</div>
               ) : (
-                leaderboardData.map((entry, index) => (
-                  <div key={entry.id} className="flex items-center justify-between p-6 hover:bg-foreground/[0.02] transition-colors group">
-                      <div className="flex items-center gap-4 md:gap-6">
+              leaderboardData
+                .filter((entry: any) => activeTab === "global" || (activeTab === "governorate" && userData && entry.governorate === userData.governorate))
+                .map((entry, index) => (
+                  <div key={entry.id} className="flex items-center justify-between p-5 md:p-6 hover:bg-foreground/[0.02] transition-colors group">
+                      <div className="flex items-center gap-3 md:gap-6">
                          <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold font-mono relative shrink-0 ${index === 0 ? 'bg-amber-400 text-black' : index === 1 ? 'bg-slate-300 text-black' : index === 2 ? 'bg-amber-700 text-white' : 'bg-foreground/5 text-foreground/40'}`}>
                             {index + 1}
                             {index < 3 && <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full border-2 border-background flex items-center justify-center text-[8px]"><Trophy className="w-2 h-2 text-black" /></div>}
@@ -397,7 +383,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
 
                          <div className="flex flex-col text-right">
                             <div className="flex items-center gap-2">
-                               <span className="font-bold font-arabic text-lg group-hover:text-primary transition-colors leading-tight">
+                               <span className="font-bold font-arabic text-base md:text-lg group-hover:text-primary transition-colors leading-tight">
                                  {entry.displayName || entry.username}
                                </span>
                                {index === 0 && <Crown className="w-4 h-4 text-amber-400 fill-amber-400" />}
@@ -413,21 +399,24 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                          </div>
                       </div>
 
-                      <div className="text-left flex flex-col items-end">
-                         <div className="flex items-center gap-1">
-                            <span className="text-2xl font-black text-primary">{entry.totalPoints}</span>
-                            <Trophy className="w-4 h-4 text-primary opacity-50" />
+                      <div className="text-left flex flex-col items-end gap-1">
+                         {/* النقاط الإجمالية - كبيرة وواضحة */}
+                         <div className="flex items-center gap-1.5 bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-xl">
+                            <Star className="w-4 h-4 text-primary fill-primary" />
+                            <span className="text-xl font-black text-primary">{entry.totalPoints}</span>
+                            <span className="text-[8px] text-primary/60 font-bold">نقطة</span>
                          </div>
-                         <div className="flex items-center gap-3 mt-1 opacity-60">
-                            <div className="flex items-center gap-1 text-[9px] font-bold">
+                         {/* تفاصيل النقاط */}
+                         <div className="flex items-center gap-3 opacity-60">
+                            <div className="flex items-center gap-1 text-[9px] font-bold" title="نقاط القرآن">
                                <BookOpen className="w-2.5 h-2.5 text-blue-400" />
                                <span>{entry.quranPoints || 0}</span>
                             </div>
-                            <div className="flex items-center gap-1 text-[9px] font-bold">
+                            <div className="flex items-center gap-1 text-[9px] font-bold" title="نقاط الأذكار">
                                <Fingerprint className="w-2.5 h-2.5 text-emerald-400" />
                                <span>{entry.athkarPoints || 0}</span>
                             </div>
-                            <div className="flex items-center gap-1 text-[9px] font-bold">
+                            <div className="flex items-center gap-1 text-[9px] font-bold" title="نقاط الاستماع">
                                <Headphones className="w-2.5 h-2.5 text-amber-400" />
                                <span>{entry.listenPoints || 0}</span>
                             </div>

@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { LogIn, Loader2, Star, BookOpen, Trophy, Users, Sparkles } from "lucide-react";
+import { Capacitor } from '@capacitor/core';
 import { auth, db } from "@/lib/firebase";
 import { 
-  signInWithPopup, 
+  signInWithPopup,
+  signInWithCredential,
   GoogleAuthProvider, 
   onAuthStateChanged,
   User as FirebaseUser
@@ -34,6 +36,8 @@ export function AuthGate({ children }: AuthGateProps) {
 
   useEffect(() => {
     if (!auth) return;
+
+    // 2. Listen for auth state changes
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       if (u && db) {
@@ -55,19 +59,54 @@ export function AuthGate({ children }: AuthGateProps) {
   const handleGoogleLogin = async () => {
     if (!auth) return;
     setIsLoggingIn(true);
+    
+    // Safety timeout — longer for native since it shows the account picker
+    const timeout = setTimeout(() => setIsLoggingIn(false), 20000);
+
     try {
+      // 1. Try Native Google Login (Shows Google accounts INSIDE the app)
+      if (Capacitor.isNativePlatform()) {
+        try {
+          const { GoogleSignIn } = await import('@capawesome/capacitor-google-sign-in');
+          console.log('[Auth] Attempting native Google Sign-In...');
+          const result = await GoogleSignIn.signIn();
+          console.log('[Auth] Native Sign-In result:', JSON.stringify(result));
+          
+          if (result && result.idToken) {
+             const credential = GoogleAuthProvider.credential(result.idToken);
+             await signInWithCredential(auth, credential);
+             console.log('[Auth] Firebase signInWithCredential SUCCESS');
+             clearTimeout(timeout);
+             setIsLoggingIn(false);
+             return;
+          } else {
+            console.warn('[Auth] Native Sign-In returned no idToken:', result);
+          }
+        } catch (nativeErr: any) {
+          console.error('[Auth] Native Google Sign-In failed:', nativeErr?.message || nativeErr);
+          console.error('[Auth] Full native error:', JSON.stringify(nativeErr));
+          // Don't return — fall through to web popup as backup
+        }
+      }
+
+      // 2. Fallback: Web Popup Login (works inside Capacitor WebView)
+      //    signInWithPopup opens an in-app popup — NOT an external browser
+      //    signInWithRedirect was causing the issue (opens Chrome externally)
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
+      
+      console.log('[Auth] Falling back to signInWithPopup...');
       await signInWithPopup(auth, provider);
+      console.log('[Auth] signInWithPopup SUCCESS');
     } catch (e: any) {
-      console.error("Login Error:", e);
-      if (e.code === 'auth/popup-blocked') {
-        alert("يرجى السماح بفتح النوافذ المنبثقة (Pop-ups) في متصفحك لتتمكن من تسجيل الدخول.");
-      } else {
+      console.error('[Auth] Login Error:', e);
+      // Don't show alert for user-cancelled popups
+      if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
         alert("حدث خطأ أثناء تسجيل الدخول: " + (e.message || "فشل الاتصال بجوجل"));
       }
-    } finally {
       setIsLoggingIn(false);
+    } finally {
+      clearTimeout(timeout);
     }
   };
 
