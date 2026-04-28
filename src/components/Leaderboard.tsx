@@ -300,7 +300,9 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                <div key={i} className="premium-card p-4 md:p-6 flex flex-col items-center justify-center gap-1 md:gap-2 text-center group hover:border-primary/40 transition-all">
                   <stat.icon className={`w-4 h-4 md:w-6 md:h-6 ${stat.color} mb-0.5 md:mb-1`} />
                   <p className="text-[8px] md:text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{stat.label}</p>
-                  <p className="text-lg md:text-2xl font-black text-foreground">{stat.value}</p>
+                  <p className="text-lg md:text-2xl font-black text-foreground">
+                    {typeof stat.value === 'number' ? Math.round(stat.value * 10) / 10 : stat.value}
+                  </p>
                </div>
              ))}
           </div>
@@ -432,22 +434,24 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                          {/* النقاط الإجمالية - كبيرة وواضحة */}
                          <div className="flex items-center gap-1.5 bg-primary/10 border border-primary/20 px-2 md:px-3 py-1 md:py-1.5 rounded-xl">
                             <Star className="w-3 md:w-4 h-3 md:h-4 text-primary fill-primary" />
-                            <span className="text-base md:text-xl font-black text-primary">{entry.totalPoints || 0}</span>
+                            <span className="text-base md:text-xl font-black text-primary">
+                               {typeof entry.totalPoints === 'number' ? (Math.round(entry.totalPoints * 10) / 10).toFixed(1) : ((entry.totalPoints || 0) * 1 / 1).toFixed(1)}
+                            </span>
                             <span className="text-[8px] text-primary/60 font-bold">نقطة</span>
                          </div>
                          {/* تفاصيل النقاط */}
                          <div className="flex items-center gap-3 opacity-60">
                             <div className="flex items-center gap-1 text-[9px] font-bold" title="نقاط القرآن">
                                <BookOpen className="w-2.5 h-2.5 text-blue-400" />
-                               <span>{entry.quranPoints || 0}</span>
+                               <span>{typeof entry.quranPoints === 'number' ? Math.round(entry.quranPoints * 10) / 10 : (entry.quranPoints || 0)}</span>
                             </div>
                             <div className="flex items-center gap-1 text-[9px] font-bold" title="نقاط الأذكار">
                                <Fingerprint className="w-2.5 h-2.5 text-emerald-400" />
-                               <span>{entry.athkarPoints || 0}</span>
+                               <span>{typeof entry.athkarPoints === 'number' ? Math.round(entry.athkarPoints * 10) / 10 : (entry.athkarPoints || 0)}</span>
                             </div>
                             <div className="flex items-center gap-1 text-[9px] font-bold" title="نقاط الاستماع">
                                <Headphones className="w-2.5 h-2.5 text-amber-400" />
-                               <span>{entry.listenPoints || 0}</span>
+                               <span>{typeof entry.listenPoints === 'number' ? Math.round(entry.listenPoints * 10) / 10 : (entry.listenPoints || 0)}</span>
                             </div>
                          </div>
                       </div>
