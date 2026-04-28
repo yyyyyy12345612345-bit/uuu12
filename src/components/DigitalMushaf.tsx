@@ -435,7 +435,7 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                 </svg>
             </div>
 
-            <div className="relative h-16 flex items-center justify-between px-16 md:px-32 z-20 mt-4 pointer-events-none">
+            <div className="relative h-16 flex items-center justify-between px-16 md:px-32 z-20 mt-10 pointer-events-none">
                 <div className="flex flex-col items-center">
                     <span className="text-[10px] text-[#8b6d1b] font-bold">جُزْء</span>
                     <span className="text-black font-black text-lg leading-none">{pData.verses[0]?.juz_number}</span>
@@ -475,8 +475,8 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                                      <path d="M 25,70 L 10,70 L 10,55" fill="none" stroke="#d4af37" strokeWidth="3" />
                                                 </svg>
                                             </div>
-                                            <div className="absolute -top-[16px] left-1/2 -translate-x-1/2 z-30">
-                                                <span className="text-[11px] md:text-[12px] text-[#8b6d1b] font-black uppercase tracking-[0.4em] opacity-80">سُورَةُ</span>
+                                            <div className="absolute -top-[22px] left-1/2 -translate-x-1/2 z-30">
+                                                <span className="text-[11px] md:text-[12px] text-[#8b6d1b] font-black uppercase tracking-[0.4em] opacity-90">سُورَةُ</span>
                                             </div>
                                             <div className="relative z-20 flex items-center justify-center w-full h-full">
                                                 <span className="font-arabic font-black text-black leading-none" style={{ fontSize: `${mushafFontSize * 1.3}px` }}>{surahName}</span>
