@@ -60,7 +60,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     try {
       const response = await fetch('/version.json?t=' + Date.now());
       const data = await response.json();
-      const LOCAL_VERSION = "v1.2.0";
+      const LOCAL_VERSION = "v1.2.1";
       
       if (isNewerVersion(data.version, LOCAL_VERSION)) {
         setUpdateInfo(data);
@@ -208,7 +208,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
            
            <div className="mt-12 text-center animate-in slide-in-from-bottom-10 duration-1000">
               <h1 className="text-3xl font-black text-foreground tracking-tighter mb-2">قرآن كريم</h1>
-              <p className="text-[10px] text-primary font-black uppercase tracking-[0.5em]">الإصدار v1.2.0</p>
+              <p className="text-[10px] text-primary font-black uppercase tracking-[0.5em]">الإصدار v1.2.1</p>
            </div>
            
            <div className="absolute bottom-12 flex flex-col items-center gap-4">

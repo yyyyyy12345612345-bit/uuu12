@@ -33,6 +33,7 @@ export function AuthGate({ children }: AuthGateProps) {
     phone: "",
     governorate: GOVERNORATES[0]
   });
+  const [isSkipped, setIsSkipped] = useState(false);
 
   useEffect(() => {
     if (!auth) return;
@@ -90,14 +91,18 @@ export function AuthGate({ children }: AuthGateProps) {
           console.error('[Auth] Native Google Sign-In failed:', nativeErr);
           let errorMsg = "فشل تسجيل الدخول التلقائي.";
           
-          if (nativeErr.message?.includes('10') || nativeErr.code === '10') {
-            errorMsg = "خطأ (10): تأكد من إضافة بصمة SHA-1 الخاصة بالـ APK في لوحة تحكم Firebase.";
+          const rawError = typeof nativeErr === 'string' ? nativeErr : (nativeErr.message || JSON.stringify(nativeErr));
+          
+          if (rawError.includes('10') || nativeErr.code === '10') {
+            errorMsg = "خطأ (10): بصمة SHA-1 غير متطابقة. تأكد من إضافة بصمة الـ APK في Firebase.";
+          } else {
+            errorMsg += `\n(Error: ${rawError.substring(0, 50)}...)`;
           }
           
           alert(errorMsg);
           setIsLoggingIn(false);
           clearTimeout(timeout);
-          return; // Stop here for native, don't fallback to browser which causes issues
+          return;
         }
       }
 
@@ -261,6 +266,13 @@ export function AuthGate({ children }: AuthGateProps) {
               )}
             </button>
 
+            <button
+              onClick={() => setIsSkipped(true)}
+              className="w-full py-4 text-white/30 hover:text-[#d4af37] text-sm font-bold transition-all"
+            >
+              تخطي وتسجيل الدخول لاحقاً
+            </button>
+
             <p className="text-[9px] text-white/15 font-bold text-center leading-relaxed">
               بتسجيل الدخول أنت توافق على شروط الاستخدام وسياسة الخصوصية
             </p>
@@ -371,6 +383,10 @@ export function AuthGate({ children }: AuthGateProps) {
     );
   }
 
-  // Authenticated and has profile - render children
-  return <>{children}</>;
+  // Authenticated and has profile OR skipped - render children
+  if (isSkipped || (user && hasProfile === true)) {
+    return <>{children}</>;
+  }
+
+  return null;
 }
