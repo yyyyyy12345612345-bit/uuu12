@@ -33,7 +33,17 @@ export function AuthGate({ children }: AuthGateProps) {
     phone: "",
     governorate: GOVERNORATES[0]
   });
-  const [isSkipped, setIsSkipped] = useState(false);
+  const [isSkipped, setIsSkipped] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('auth_skipped') === 'true';
+    }
+    return false;
+  });
+
+  const handleSkip = () => {
+    setIsSkipped(true);
+    sessionStorage.setItem('auth_skipped', 'true');
+  };
 
   useEffect(() => {
     if (!auth) return;
@@ -60,6 +70,14 @@ export function AuthGate({ children }: AuthGateProps) {
         setHasProfile(null);
       }
       setUser(u);
+      
+      // If we have a user, ensure we don't get stuck in a 'null' profile state
+      if (u) {
+        const profileTimeout = setTimeout(() => {
+           if (hasProfile === null) setHasProfile(true); 
+        }, 3000);
+        return () => clearTimeout(profileTimeout);
+      }
     });
 
     // 3. Ultra-fast safety timeout: If auth doesn't respond in 1s, default to Guest
@@ -293,7 +311,7 @@ export function AuthGate({ children }: AuthGateProps) {
             </button>
 
             <button
-              onClick={() => setIsSkipped(true)}
+              onClick={handleSkip}
               className="w-full py-4 text-white/30 hover:text-[#d4af37] text-sm font-bold transition-all"
             >
               تخطي وتسجيل الدخول لاحقاً
