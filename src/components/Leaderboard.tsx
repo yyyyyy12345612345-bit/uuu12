@@ -80,7 +80,17 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
       fetchQuests();
     });
 
-    return () => unsubscribe();
+    const authTimeout = setTimeout(() => {
+      if (loading) {
+        console.log('[Leaderboard] Auth timeout, showing guest view');
+        setLoading(false);
+      }
+    }, 5000);
+
+    return () => {
+      unsubscribe();
+      clearTimeout(authTimeout);
+    };
   }, []);
 
   const fetchQuests = async () => {
@@ -385,8 +395,8 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                 .filter((entry: any) => activeTab === "global" || (activeTab === "governorate" && userData && entry.governorate === userData.governorate))
                 .sort((a: any, b: any) => (b.totalPoints || 0) - (a.totalPoints || 0))
                 .map((entry, index) => (
-                  <div key={entry.id} className="flex items-center justify-between p-5 md:p-6 hover:bg-foreground/[0.02] transition-colors group">
-                      <div className="flex items-center gap-3 md:gap-6">
+                  <div key={entry.id} className="flex items-center justify-between p-4 md:p-6 hover:bg-foreground/[0.02] transition-colors group gap-4">
+                      <div className="flex items-center gap-3 md:gap-6 min-w-0 flex-1">
                          <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold font-mono relative shrink-0 ${index === 0 ? 'bg-amber-400 text-black' : index === 1 ? 'bg-slate-300 text-black' : index === 2 ? 'bg-amber-700 text-white' : 'bg-foreground/5 text-foreground/40'}`}>
                             {index + 1}
                             {index < 3 && <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full border-2 border-background flex items-center justify-center text-[8px]"><Trophy className="w-2 h-2 text-black" /></div>}
@@ -402,7 +412,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
 
                          <div className="flex flex-col text-right">
                             <div className="flex items-center gap-2">
-                               <span className="font-bold font-arabic text-base md:text-lg group-hover:text-primary transition-colors leading-tight">
+                               <span className="font-bold font-arabic text-sm md:text-lg group-hover:text-primary transition-colors leading-tight truncate">
                                  {entry.displayName || entry.username}
                                </span>
                                {index === 0 && <Crown className="w-4 h-4 text-amber-400 fill-amber-400" />}
@@ -418,11 +428,11 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                          </div>
                       </div>
 
-                      <div className="text-left flex flex-col items-end gap-1">
+                      <div className="text-left flex flex-col items-end gap-1 shrink-0">
                          {/* النقاط الإجمالية - كبيرة وواضحة */}
-                         <div className="flex items-center gap-1.5 bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-xl">
-                            <Star className="w-4 h-4 text-primary fill-primary" />
-                            <span className="text-xl font-black text-primary">{entry.totalPoints || 0}</span>
+                         <div className="flex items-center gap-1.5 bg-primary/10 border border-primary/20 px-2 md:px-3 py-1 md:py-1.5 rounded-xl">
+                            <Star className="w-3 md:w-4 h-3 md:h-4 text-primary fill-primary" />
+                            <span className="text-base md:text-xl font-black text-primary">{entry.totalPoints || 0}</span>
                             <span className="text-[8px] text-primary/60 font-bold">نقطة</span>
                          </div>
                          {/* تفاصيل النقاط */}

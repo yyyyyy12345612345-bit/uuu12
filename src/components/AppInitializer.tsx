@@ -13,11 +13,19 @@ export default function AppInitializer({ children }: { children: React.ReactNode
   const [showPermissionModal, setShowPermissionModal] = useState(false);
 
   useEffect(() => {
-    // Hide splash and then check for permissions
-    const timer = setTimeout(() => {
+    // Only show splash once per session to avoid annoying re-loads during navigation
+    const hasSeenSplash = sessionStorage.getItem("has_seen_splash");
+    if (hasSeenSplash) {
       setShowSplash(false);
       checkFirstRun();
-    }, 2000);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+      sessionStorage.setItem("has_seen_splash", "true");
+      checkFirstRun();
+    }, 1500); // Reduced to 1.5s for better feel
     return () => clearTimeout(timer);
   }, []);
 
@@ -37,10 +45,16 @@ export default function AppInitializer({ children }: { children: React.ReactNode
       
       // 2. Location
       await Geolocation.requestPermissions();
+
+      // 3. Android Specific: Battery & Exact Alarms
+      if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
+         // We can use a custom native call or just alert the user for now
+         // For production, a Capacitor plugin like 'capacitor-community/background-process' would be better
+         // But we can use the 'Device' plugin to check info or just guide them.
+      }
     } catch (e) {
-      console.error("Permission request failed (user may have denied)", e);
+      console.error("Permission request failed", e);
     } finally {
-      // Always mark as prompted, even if denied, so user is not stuck
       localStorage.setItem("has_prompted_permissions", "true");
       setShowPermissionModal(false);
     }
@@ -60,7 +74,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     try {
       const response = await fetch('/version.json?t=' + Date.now());
       const data = await response.json();
-      const LOCAL_VERSION = "v1.2.3";
+      const LOCAL_VERSION = "v1.2.4";
       
       if (isNewerVersion(data.version, LOCAL_VERSION)) {
         setUpdateInfo(data);
@@ -106,6 +120,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
                  <div className="text-center space-y-4">
                     <h2 className="text-3xl font-black text-white tracking-tight">صلاحيات التشغيل</h2>
+                    <span className="text-white/20 text-[10px] font-mono tracking-widest mt-4">VERSION 1.2.4 (BUILD 14)</span>
                     <p className="text-white/50 text-sm font-bold leading-relaxed">
                        لكي يعمل التطبيق بشكل صحيح ويطلق الأذان في وقته، نحتاج منك السماح ببعض الصلاحيات الأساسية.
                     </p>

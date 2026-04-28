@@ -40,21 +40,39 @@ export function AuthGate({ children }: AuthGateProps) {
 
     // 2. Listen for auth state changes
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
-      setUser(u);
       if (u && db) {
-        const userDoc = await getDoc(doc(db, "users", u.uid));
-        if (userDoc.exists()) {
+        try {
+          // Use a shorter timeout for profile check when potentially offline
+          const userDoc = await getDoc(doc(db, "users", u.uid));
+          if (userDoc.exists()) {
+            setHasProfile(true);
+            setShowSetup(false);
+          } else {
+            setHasProfile(false);
+            setShowSetup(true);
+          }
+        } catch (e) {
+          console.error("Firestore error (likely offline):", e);
+          // If offline and we have a user, assume profile exists for now to let them in
           setHasProfile(true);
-          setShowSetup(false);
-        } else {
-          setHasProfile(false);
-          setShowSetup(true);
         }
       } else {
         setHasProfile(null);
       }
+      setUser(u);
     });
-    return () => unsubscribe();
+
+    // 3. Ultra-fast safety timeout: If auth doesn't respond in 1s, default to Guest
+    const authTimeout = setTimeout(() => {
+      if (user === undefined) {
+        setUser(null);
+      }
+    }, 1000);
+
+    return () => {
+      unsubscribe();
+      clearTimeout(authTimeout);
+    };
   }, []);
 
   const handleGoogleLogin = async () => {
@@ -191,10 +209,7 @@ export function AuthGate({ children }: AuthGateProps) {
   if (user === undefined) {
     return (
       <div className="fixed inset-0 bg-[#050505] flex items-center justify-center z-[9999]">
-        <div className="flex flex-col items-center gap-6">
-          <div className="w-16 h-16 border-4 border-[#d4af37]/20 border-t-[#d4af37] rounded-full animate-spin" />
-          <span className="text-[10px] text-white/20 font-bold uppercase tracking-[0.5em]">جارٍ التحقق...</span>
-        </div>
+        <div className="w-10 h-10 border-2 border-[#d4af37]/20 border-t-[#d4af37] rounded-full animate-spin" />
       </div>
     );
   }
@@ -387,9 +402,7 @@ export function AuthGate({ children }: AuthGateProps) {
   if (hasProfile === null) {
     return (
       <div className="fixed inset-0 bg-[#050505] flex items-center justify-center z-[9999]">
-        <div className="flex flex-col items-center gap-6">
-          <div className="w-16 h-16 border-4 border-[#d4af37]/20 border-t-[#d4af37] rounded-full animate-spin" />
-        </div>
+         <div className="w-10 h-10 border-2 border-[#d4af37]/20 border-t-[#d4af37] rounded-full animate-spin" />
       </div>
     );
   }

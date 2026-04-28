@@ -69,8 +69,8 @@ export function PrayerTimes() {
         const prayerKeys = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
         const prayerAr: Record<string, string> = { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء" };
         
-        // Schedule for next 7 days (Android has a limit of 50-100 scheduled notifications)
-        for (let day = 0; day < 7; day++) {
+        // Schedule for next 30 days to ensure long-term offline coverage
+        for (let day = 0; day < 30; day++) {
             const date = new Date();
             date.setDate(date.getDate() + day);
             
@@ -96,16 +96,16 @@ export function PrayerTimes() {
                         body: "حيّ على الصلاة.. حيّ على الفلاح",
                         schedule: { 
                           at: scheduleDate,
-                          allowWhileIdle: true, // Important for background/doze mode
-                          repeats: false
+                          allowWhileIdle: true,
+                          repeats: false,
+                          every: undefined
                         },
                         sound: 'adhan.mp3',
-                        attachments: [],
-                        actionTypeId: "",
-                        extra: { prayer: key },
-                        channelId: "adhan-channel", // Needs to match a channel for custom sound
+                        channelId: "adhan-channel",
                         smallIcon: 'ic_notification',
-                        iconColor: '#c5a059'
+                        iconColor: '#c5a059',
+                        ongoing: false,
+                        autoCancel: true
                     });
                 }
             }
@@ -391,6 +391,40 @@ export function PrayerTimes() {
 
   const nextPrayer = getNextPrayer();
 
+  const scheduleTestNotification = async () => {
+    if (!Capacitor.isNativePlatform()) {
+        alert("هذه الميزة تعمل فقط على الموبايل (الأندرويد)");
+        return;
+    }
+    
+    try {
+        await LocalNotifications.createChannel({
+          id: 'adhan-channel',
+          name: 'مواقيت الأذان',
+          importance: 5,
+          sound: 'adhan.mp3'
+        });
+
+        const scheduleDate = new Date(Date.now() + 5000); // 5 seconds later
+        
+        await LocalNotifications.schedule({
+            notifications: [{
+                id: 999,
+                title: "🔔 تجربة إشعار الأذان",
+                body: "إذا ظهر هذا الإشعار، فالتطبيق يعمل بشكل صحيح.",
+                schedule: { at: scheduleDate },
+                sound: 'adhan.mp3',
+                channelId: "adhan-channel",
+                smallIcon: 'ic_notification',
+                iconColor: '#c5a059'
+            }]
+        });
+        alert("تم جدولة إشعار تجريبي بعد 5 ثوانٍ. أغلق التطبيق الآن لتجربته.");
+    } catch (e) {
+        alert("فشل الجدولة: " + JSON.stringify(e));
+    }
+  };
+
   const toggleTestAthan = () => {
     if (audioRef.current) {
         if (isPlayingTest) {
@@ -640,16 +674,26 @@ export function PrayerTimes() {
 
 
                         {/* Test Button */}
-                        <button 
-                            onClick={toggleTestAthan}
-                            className={`w-full py-5 rounded-3xl font-bold flex items-center justify-center gap-3 transition-all ${isPlayingTest ? 'bg-red-500/10 border border-red-500/20 text-red-500' : 'bg-primary text-black'}`}
-                        >
-                            {isPlayingTest ? (
-                                <><X className="w-5 h-5" /><span>إيقاف التجربة</span></>
-                            ) : (
-                                <><Play className="w-5 h-5 translate-x-1" /><span>تجربة الصوت المختار</span></>
-                            )}
-                        </button>
+                        <div className="grid grid-cols-1 gap-3">
+                            <button 
+                                onClick={toggleTestAthan}
+                                className={`w-full py-5 rounded-3xl font-bold flex items-center justify-center gap-3 transition-all ${isPlayingTest ? 'bg-red-500/10 border border-red-500/20 text-red-500' : 'bg-primary/20 border border-primary/20 text-primary'}`}
+                            >
+                                {isPlayingTest ? (
+                                    <><X className="w-5 h-5" /><span>إيقاف تجربة الصوت</span></>
+                                ) : (
+                                    <><Play className="w-5 h-5 translate-x-1" /><span>تجربة الصوت فقط</span></>
+                                )}
+                            </button>
+
+                            <button 
+                                onClick={scheduleTestNotification}
+                                className="w-full py-5 bg-primary text-black rounded-3xl font-black flex items-center justify-center gap-3 shadow-xl hover:scale-[1.02] active:scale-95 transition-all"
+                            >
+                                <Bell className="w-5 h-5" />
+                                <span>تجربة إشعار حقيقي (بعد 5 ثوانٍ)</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
