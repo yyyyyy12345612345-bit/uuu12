@@ -7,9 +7,11 @@ import {
   TrendingUp, Award, Crown, Phone, User, X,
   BookOpen, Headphones, Fingerprint, Calendar
 } from "lucide-react";
+import { Capacitor } from '@capacitor/core';
 import { auth, db } from "@/lib/firebase";
 import { 
   signInWithPopup, 
+  signInWithCredential,
   GoogleAuthProvider, 
   onAuthStateChanged,
   User as FirebaseUser
@@ -118,6 +120,17 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
   const handleGoogleLogin = async () => {
     if (!auth) return;
     try {
+      if (Capacitor.isNativePlatform()) {
+        const { GoogleSignIn } = await import('@capawesome/capacitor-google-sign-in');
+        try { await GoogleSignIn.signOut(); } catch (e) {}
+        const result = await GoogleSignIn.signIn();
+        if (result && result.idToken) {
+          const credential = GoogleAuthProvider.credential(result.idToken);
+          await signInWithCredential(auth, credential);
+          return;
+        }
+      }
+      
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
       await signInWithPopup(auth, provider);
