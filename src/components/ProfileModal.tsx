@@ -111,37 +111,37 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 md:p-10 font-arabic">
-       {/* Backdrop */}
-       <div className="absolute inset-0 bg-black/80 backdrop-blur-md animate-in fade-in duration-500" onClick={onClose} />
+    <div className="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-md overflow-y-auto font-arabic pt-6 pb-20 px-4">
+       {/* Backdrop Click-to-Close */}
+       <div className="fixed inset-0" onClick={onClose} />
        
-       <div className="relative w-full max-w-xl bg-background border border-border rounded-[3rem] shadow-[0_50px_100px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col animate-in zoom-in-95 duration-500">
+       <div className="relative w-full max-w-xl mx-auto bg-background border border-border rounded-[2.5rem] shadow-[0_50px_100px_rgba(0,0,0,0.5)] flex flex-col animate-in zoom-in-95 duration-500 my-auto">
           
           {/* Header */}
-          <div className="p-8 border-b border-border flex items-center justify-between bg-foreground/[0.02]">
-             <button onClick={onClose} className="w-12 h-12 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/40 hover:text-foreground transition-all">
-                <X className="w-6 h-6" />
+          <div className="p-6 md:p-8 border-b border-border flex items-center justify-between bg-foreground/[0.02] sticky top-0 bg-background z-10 rounded-t-[2.5rem]">
+             <button onClick={onClose} className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/40 hover:text-foreground transition-all">
+                <X className="w-5 h-5 md:w-6 md:h-6" />
              </button>
-             <h2 className="text-2xl font-black text-foreground">تعديل الملف الشخصي</h2>
+             <h2 className="text-xl md:text-2xl font-black text-foreground">تعديل الملف الشخصي</h2>
           </div>
 
-          <div className="flex-1 overflow-y-auto no-scrollbar p-8 md:p-12">
+          <div className="p-6 md:p-12">
              {loading ? (
                 <div className="py-20 flex flex-col items-center gap-4">
                    <Loader2 className="w-10 h-10 text-primary animate-spin" />
                    <p className="text-foreground/40 font-bold">جاري تحميل بياناتك..</p>
                 </div>
              ) : (
-                <form onSubmit={handleSave} className="space-y-8 pb-10">
+                <form onSubmit={handleSave} className="space-y-6 md:space-y-8">
                    
                    {/* Photo Selection */}
-                   <div className="flex flex-col items-center gap-6 mb-10">
+                   <div className="flex flex-col items-center gap-4 md:gap-6 mb-6 md:mb-10">
                       <div className="relative group">
-                         <div className={`w-32 h-32 rounded-[2.5rem] border-4 ${uploading ? 'border-primary animate-pulse' : 'border-primary/20'} p-1 bg-background relative overflow-hidden shadow-2xl`}>
+                         <div className={`w-24 h-24 md:w-32 md:h-32 rounded-[2rem] md:rounded-[2.5rem] border-4 ${uploading ? 'border-primary animate-pulse' : 'border-primary/20'} p-1 bg-background relative overflow-hidden shadow-2xl`}>
                             <img 
                               src={formData.photoURL || "/logo/logo.png"} 
                               alt="Preview" 
-                              className="w-full h-full object-cover rounded-[2rem]" 
+                              className="w-full h-full object-cover rounded-[1.5rem] md:rounded-[2rem]" 
                             />
                             <label className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                                {uploading ? (
@@ -162,12 +162,12 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                             </label>
                          </div>
                       </div>
-                      <p className="text-[10px] text-foreground/40 font-bold font-arabic">اضغط على الصورة لتغييرها (Cloudinary)</p>
+                      <p className="text-[9px] md:text-[10px] text-foreground/40 font-bold font-arabic text-center">اضغط على الصورة لتغييرها</p>
                    </div>
 
-                   {/* Display Name (Emojis allowed) */}
-                   <div className="space-y-2">
-                      <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
+                   {/* Display Name */}
+                   <div className="space-y-1.5">
+                      <label className="text-[10px] md:text-xs font-bold text-foreground/40 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
                          اسم الحساب (مسموح بالزخرفة والإيموجي)
                          <User className="w-3 h-3" />
                       </label>
@@ -175,15 +175,15 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                         required
                         value={formData.displayName}
                         onChange={e => setFormData({...formData, displayName: e.target.value})}
-                        className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 transition-all text-xl font-bold"
+                        className="w-full bg-foreground/5 border border-border rounded-xl md:rounded-2xl py-3.5 md:py-4 px-5 md:px-6 text-right outline-none focus:border-primary/40 transition-all text-lg md:text-xl font-bold"
                         placeholder="مثلاً: خادم القرآن ❤️✨"
                       />
                    </div>
 
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                       {/* Phone */}
-                      <div className="space-y-2">
-                         <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
+                      <div className="space-y-1.5">
+                         <label className="text-[10px] md:text-xs font-bold text-foreground/40 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
                             رقم الهاتف
                             <Phone className="w-3 h-3" />
                          </label>
@@ -191,14 +191,14 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                            type="tel"
                            value={formData.phoneNumber}
                            onChange={e => setFormData({...formData, phoneNumber: e.target.value})}
-                           className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 transition-all font-mono"
+                           className="w-full bg-foreground/5 border border-border rounded-xl md:rounded-2xl py-3.5 md:py-4 px-5 md:px-6 text-right outline-none focus:border-primary/40 transition-all font-mono"
                            placeholder="0123456789"
                          />
                       </div>
 
                       {/* Birthday */}
-                      <div className="space-y-2">
-                         <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
+                      <div className="space-y-1.5">
+                         <label className="text-[10px] md:text-xs font-bold text-foreground/40 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
                             تاريخ الميلاد
                             <Calendar className="w-3 h-3" />
                          </label>
@@ -206,21 +206,21 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                            type="date"
                            value={formData.birthday}
                            onChange={e => setFormData({...formData, birthday: e.target.value})}
-                           className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 transition-all"
+                           className="w-full bg-foreground/5 border border-border rounded-xl md:rounded-2xl py-3.5 md:py-4 px-5 md:px-6 text-right outline-none focus:border-primary/40 transition-all"
                          />
                       </div>
                    </div>
 
                    {/* Governorate */}
-                   <div className="space-y-2">
-                      <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
+                   <div className="space-y-1.5">
+                      <label className="text-[10px] md:text-xs font-bold text-foreground/40 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
                          المحافظة
                          <MapPin className="w-3 h-3" />
                       </label>
                       <select 
                         value={formData.governorate}
                         onChange={e => setFormData({...formData, governorate: e.target.value})}
-                        className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 transition-all appearance-none font-bold"
+                        className="w-full bg-foreground/5 border border-border rounded-xl md:rounded-2xl py-3.5 md:py-4 px-5 md:px-6 text-right outline-none focus:border-primary/40 transition-all appearance-none font-bold"
                       >
                          {GOVERNORATES.map(g => <option key={g} value={g}>{g}</option>)}
                       </select>
@@ -229,10 +229,10 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                    <button 
                      type="submit" 
                      disabled={saving || success}
-                     className={`w-full py-5 rounded-[2rem] font-black text-lg transition-all flex items-center justify-center gap-3 shadow-xl ${
+                     className={`w-full py-4 md:py-5 rounded-2xl md:rounded-[2rem] font-black text-lg transition-all flex items-center justify-center gap-3 shadow-xl ${
                        success 
                         ? 'bg-emerald-500 text-white' 
-                        : 'bg-primary text-black hover:scale-[1.02] active:scale-95 shadow-primary/20'
+                        : 'bg-primary text-black hover:scale-[1.01] active:scale-95 shadow-primary/20'
                      }`}
                    >
                       {saving ? (
@@ -251,3 +251,4 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     </div>
   );
 }
+
