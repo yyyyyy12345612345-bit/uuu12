@@ -35,14 +35,14 @@ export function AuthGate({ children }: AuthGateProps) {
   });
   const [isSkipped, setIsSkipped] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('auth_skipped') === 'true';
+      return localStorage.getItem('auth_skipped') === 'true';
     }
     return false;
   });
 
   const handleSkip = () => {
     setIsSkipped(true);
-    sessionStorage.setItem('auth_skipped', 'true');
+    localStorage.setItem('auth_skipped', 'true');
   };
 
   useEffect(() => {
@@ -227,7 +227,12 @@ export function AuthGate({ children }: AuthGateProps) {
     }
   };
 
-  // Loading state
+  // 1. Instant access for skipped or already-known sessions
+  if (isSkipped) {
+    return <>{children}</>;
+  }
+
+  // 2. Loading state - only show if we REALLY don't know who the user is yet
   if (user === undefined) {
     return (
       <div className="fixed inset-0 bg-[#050505] flex items-center justify-center z-[9999]">
