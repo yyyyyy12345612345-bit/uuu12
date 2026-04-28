@@ -35,7 +35,7 @@ export function AuthGate({ children }: AuthGateProps) {
   });
   const [isSkipped, setIsSkipped] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('auth_skipped') === 'true';
+      return localStorage.getItem('auth_skipped') === 'true' || localStorage.getItem('auth_logged_in') === 'true';
     }
     return false;
   });
@@ -51,6 +51,7 @@ export function AuthGate({ children }: AuthGateProps) {
     // 2. Listen for auth state changes
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
       if (u && db) {
+        localStorage.setItem('auth_logged_in', 'true');
         try {
           // Use a shorter timeout for profile check when potentially offline
           const userDoc = await getDoc(doc(db, "users", u.uid));
@@ -68,6 +69,10 @@ export function AuthGate({ children }: AuthGateProps) {
         }
       } else {
         setHasProfile(null);
+        // Only clear if not explicitly skipped
+        if (localStorage.getItem('auth_skipped') !== 'true') {
+           localStorage.removeItem('auth_logged_in');
+        }
       }
       setUser(u);
 
