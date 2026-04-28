@@ -71,7 +71,12 @@ export function AuthGate({ children }: AuthGateProps) {
           const { GoogleSignIn } = await import('@capawesome/capacitor-google-sign-in');
           console.log('[Auth] Attempting native Google Sign-In...');
           
-          // Ensure we are signed out first to force account picker
+          // 1. Initialize the plugin (REQUIRED)
+          await GoogleSignIn.initialize({
+            clientId: "194649785258-818jpl0c7it5dsmn7a7mufu8jc1i1uud.apps.googleusercontent.com",
+          });
+          
+          // 2. Ensure we are signed out first to force account picker
           try { await GoogleSignIn.signOut(); } catch (e) {}
           
           const result = await GoogleSignIn.signIn();
@@ -191,6 +196,11 @@ export function AuthGate({ children }: AuthGateProps) {
         </div>
       </div>
     );
+  }
+
+  // Authenticated and has profile OR skipped - render children
+  if (isSkipped || (user && hasProfile === true)) {
+    return <>{children}</>;
   }
 
   // Not logged in - show login screen
@@ -381,11 +391,6 @@ export function AuthGate({ children }: AuthGateProps) {
         </div>
       </div>
     );
-  }
-
-  // Authenticated and has profile OR skipped - render children
-  if (isSkipped || (user && hasProfile === true)) {
-    return <>{children}</>;
   }
 
   return null;

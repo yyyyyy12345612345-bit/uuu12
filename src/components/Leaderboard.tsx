@@ -122,6 +122,11 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
     try {
       if (Capacitor.isNativePlatform()) {
         const { GoogleSignIn } = await import('@capawesome/capacitor-google-sign-in');
+        
+        await GoogleSignIn.initialize({
+          clientId: "194649785258-818jpl0c7it5dsmn7a7mufu8jc1i1uud.apps.googleusercontent.com",
+        });
+
         try { await GoogleSignIn.signOut(); } catch (e) {}
         const result = await GoogleSignIn.signIn();
         if (result && result.idToken) {
