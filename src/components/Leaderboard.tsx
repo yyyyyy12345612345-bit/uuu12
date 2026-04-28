@@ -290,17 +290,17 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
 
         {/* Stats Grid */}
         {user && userData && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
              {[
                { label: "إجمالي النقاط", value: userData.totalPoints, icon: Star, color: "text-amber-400" },
                { label: "نقاط القرآن", value: userData.quranPoints, icon: BookOpen, color: "text-primary" },
                { label: "نقاط الأذكار", value: userData.athkarPoints, icon: Fingerprint, color: "text-emerald-400" },
                { label: "نقاط الاستماع", value: userData.listenPoints || 0, icon: Headphones, color: "text-blue-400" },
              ].map((stat, i) => (
-               <div key={i} className="premium-card p-6 flex flex-col items-center justify-center gap-2 text-center group hover:border-primary/40 transition-all">
-                  <stat.icon className={`w-6 h-6 ${stat.color} mb-1`} />
-                  <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{stat.label}</p>
-                  <p className="text-2xl font-black text-foreground">{stat.value}</p>
+               <div key={i} className="premium-card p-4 md:p-6 flex flex-col items-center justify-center gap-1 md:gap-2 text-center group hover:border-primary/40 transition-all">
+                  <stat.icon className={`w-4 h-4 md:w-6 md:h-6 ${stat.color} mb-0.5 md:mb-1`} />
+                  <p className="text-[8px] md:text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{stat.label}</p>
+                  <p className="text-lg md:text-2xl font-black text-foreground">{stat.value}</p>
                </div>
              ))}
           </div>
@@ -335,26 +335,26 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
       )}
 
       {/* Category Leaders */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl mx-auto mb-10">
-         <div className="glass-effect p-6 rounded-[2rem] border border-blue-500/20 flex flex-col items-center gap-2 text-center relative overflow-hidden group">
-            <BookOpen className="w-8 h-8 text-blue-400 mb-2 opacity-50 group-hover:opacity-100 transition-all" />
-            <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest">بطل القرآن</span>
-            <span className="font-bold text-foreground font-arabic text-sm truncate max-w-full">
-              {leaderboardData.sort((a,b) => (b.quranPoints||0) - (a.quranPoints||0))[0]?.displayName || "..." }
+      <div className="grid grid-cols-3 gap-2 md:gap-4 w-full max-w-4xl mx-auto mb-10">
+         <div className="glass-effect p-3 md:p-6 rounded-2xl md:rounded-[2rem] border border-blue-500/20 flex flex-col items-center gap-1 md:gap-2 text-center relative overflow-hidden group">
+            <BookOpen className="w-5 h-5 md:w-8 md:h-8 text-blue-400 mb-1 md:mb-2 opacity-50 group-hover:opacity-100 transition-all" />
+            <span className="text-[7px] md:text-[9px] font-black text-blue-400 uppercase tracking-widest">بطل القرآن</span>
+            <span className="font-bold text-foreground font-arabic text-[9px] md:text-sm truncate max-w-full">
+              {leaderboardData.sort((a,b) => (b.quranPoints||0) - (a.quranPoints||0))[0]?.displayName?.split(' ')[0] || "..." }
             </span>
          </div>
-         <div className="glass-effect p-6 rounded-[2rem] border border-emerald-500/20 flex flex-col items-center gap-2 text-center relative overflow-hidden group">
-            <Fingerprint className="w-8 h-8 text-emerald-400 mb-2 opacity-50 group-hover:opacity-100 transition-all" />
-            <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">بطل الأذكار</span>
-            <span className="font-bold text-foreground font-arabic text-sm truncate max-w-full">
-              {leaderboardData.sort((a,b) => (b.athkarPoints||0) - (a.athkarPoints||0))[0]?.displayName || "..." }
+         <div className="glass-effect p-3 md:p-6 rounded-2xl md:rounded-[2rem] border border-emerald-500/20 flex flex-col items-center gap-1 md:gap-2 text-center relative overflow-hidden group">
+            <Fingerprint className="w-5 h-5 md:w-8 md:h-8 text-emerald-400 mb-1 md:mb-2 opacity-50 group-hover:opacity-100 transition-all" />
+            <span className="text-[7px] md:text-[9px] font-black text-emerald-400 uppercase tracking-widest">بطل الأذكار</span>
+            <span className="font-bold text-foreground font-arabic text-[9px] md:text-sm truncate max-w-full">
+              {leaderboardData.sort((a,b) => (b.athkarPoints||0) - (a.athkarPoints||0))[0]?.displayName?.split(' ')[0] || "..." }
             </span>
          </div>
-         <div className="glass-effect p-6 rounded-[2rem] border border-amber-500/20 flex flex-col items-center gap-2 text-center relative overflow-hidden group">
-            <Headphones className="w-8 h-8 text-amber-400 mb-2 opacity-50 group-hover:opacity-100 transition-all" />
-            <span className="text-[9px] font-black text-amber-400 uppercase tracking-widest">بطل الاستماع</span>
-            <span className="font-bold text-foreground font-arabic text-sm truncate max-w-full">
-              {leaderboardData.sort((a,b) => (b.listenPoints||0) - (a.listenPoints||0))[0]?.displayName || "..." }
+         <div className="glass-effect p-3 md:p-6 rounded-2xl md:rounded-[2rem] border border-amber-500/20 flex flex-col items-center gap-1 md:gap-2 text-center relative overflow-hidden group">
+            <Headphones className="w-5 h-5 md:w-8 md:h-8 text-amber-400 mb-1 md:mb-2 opacity-50 group-hover:opacity-100 transition-all" />
+            <span className="text-[7px] md:text-[9px] font-black text-amber-400 uppercase tracking-widest">بطل الاستماع</span>
+            <span className="font-bold text-foreground font-arabic text-[9px] md:text-sm truncate max-w-full">
+              {leaderboardData.sort((a,b) => (b.listenPoints||0) - (a.listenPoints||0))[0]?.displayName?.split(' ')[0] || "..." }
             </span>
          </div>
       </div>
