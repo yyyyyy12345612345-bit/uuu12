@@ -37,8 +37,8 @@ const FILTER_MAP: Record<string, string> = {
   dramatic: "contrast(1.4) brightness(0.7) saturate(1.2)",
   blur: "blur(20px) brightness(0.8)",
   invert: "invert(1) hue-rotate(180deg)",
-  midnight: "brightness(0.4) contrast(1.5) saturate(0.5) hue-rotate(220deg)",
-  oceanic: "hue-rotate(180deg) brightness(1.1) saturate(1.8) contrast(1.1)",
+  midnight: "brightness(0.6) contrast(1.2) saturate(0.8) hue-rotate(10deg)",
+  oceanic: "hue-rotate(15deg) brightness(1.1) saturate(1.2) contrast(1.05)",
   sepia: "sepia(1) contrast(0.9) brightness(1.1)",
   saturated: "saturate(2.5) contrast(1.1)",
 };
@@ -129,7 +129,7 @@ export const MainVideo: React.FC<MainVideoProps> = ({
           {isVideoUrl(backgroundUrl) ? (
             <Video
               src={resolvedBg}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5 }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.9 }}
               muted loop crossOrigin="anonymous"
             />
           ) : (
@@ -137,7 +137,7 @@ export const MainVideo: React.FC<MainVideoProps> = ({
               backgroundImage: `url(${resolvedBg})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              opacity: 0.7,
+              opacity: 0.9,
             }} />
           )}
         </AbsoluteFill>

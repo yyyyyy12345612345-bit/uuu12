@@ -22,8 +22,8 @@ const getFilterCSS = (filter?: string): string => {
     dramatic: "contrast(1.4) brightness(0.7) saturate(1.2)",
     blur: "blur(20px) brightness(0.8)",
     invert: "invert(1) hue-rotate(180deg)",
-    midnight: "brightness(0.4) contrast(1.5) saturate(0.5) hue-rotate(220deg)",
-    oceanic: "hue-rotate(180deg) brightness(1.1) saturate(1.8) contrast(1.1)",
+    midnight: "brightness(0.6) contrast(1.2) saturate(0.8) hue-rotate(10deg)",
+    oceanic: "hue-rotate(15deg) brightness(1.1) saturate(1.2) contrast(1.05)",
     sepia: "sepia(1) contrast(0.9) brightness(1.1)",
     saturated: "saturate(2.5) contrast(1.1)",
   };
@@ -156,7 +156,7 @@ export function VideoPreview() {
             <video
               ref={videoRef}
               src={state.backgroundUrl}
-              className="absolute inset-0 w-full h-full object-cover opacity-60 transition-all duration-500"
+              className="absolute inset-0 w-full h-full object-cover opacity-90 transition-all duration-500"
               style={{ filter: getFilterCSS(state.filter) }}
               loop
               muted
