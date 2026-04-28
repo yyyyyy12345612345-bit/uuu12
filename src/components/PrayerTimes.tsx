@@ -473,13 +473,15 @@ export function PrayerTimes() {
             </div>
 
             <div className="flex items-center gap-4">
-                <button 
-                  onClick={() => setShowAthanSettings(true)}
-                  className="p-4 rounded-2xl bg-foreground/5 border border-border text-foreground/60 hover:bg-foreground/10 hover:text-primary transition-all flex items-center gap-2 group"
-                >
-                    <span className="text-sm font-bold font-arabic">إعدادات الأذان</span>
-                    <Settings2 className="w-5 h-5 group-hover:rotate-45 transition-transform" />
-                </button>
+                {Capacitor.isNativePlatform() && (
+                  <button 
+                    onClick={() => setShowAthanSettings(true)}
+                    className="p-4 rounded-2xl bg-foreground/5 border border-border text-foreground/60 hover:bg-foreground/10 hover:text-primary transition-all flex items-center gap-2 group"
+                  >
+                      <span className="text-sm font-bold font-arabic">إعدادات الأذان</span>
+                      <Settings2 className="w-5 h-5 group-hover:rotate-45 transition-transform" />
+                  </button>
+                )}
                 <button onClick={detectLocation} className="p-4 rounded-2xl bg-foreground/5 border border-border text-foreground/60 hover:text-foreground transition-all"><RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} /></button>
             </div>
         </div>
@@ -515,15 +517,17 @@ export function PrayerTimes() {
                     return (
                         <div 
                             key={id} 
-                            onDoubleClick={() => setActiveSettingsPrayer(id)}
+                            onDoubleClick={() => Capacitor.isNativePlatform() && setActiveSettingsPrayer(id)}
                             className={`premium-card p-8 flex flex-col items-center gap-6 relative group/card transition-all active:scale-[0.98] ${isNext ? 'border-primary/40 bg-primary/5' : ''}`}
                         >
-                            <button 
-                                onClick={() => setActiveSettingsPrayer(id)}
-                                className="absolute top-3 right-3 p-3 rounded-2xl bg-foreground/5 text-primary/80 border border-border shadow-lg active:scale-90 transition-all z-20"
-                            >
-                                <Settings2 className="w-5 h-5" />
-                            </button>
+                            {Capacitor.isNativePlatform() && (
+                                <button 
+                                    onClick={() => setActiveSettingsPrayer(id)}
+                                    className="absolute top-3 right-3 p-3 rounded-2xl bg-foreground/5 text-primary/80 border border-border shadow-lg active:scale-90 transition-all z-20"
+                                >
+                                    <Settings2 className="w-5 h-5" />
+                                </button>
+                            )}
                             
                             <h3 className={`text-xl font-bold font-arabic transition-all ${isNext ? 'text-primary' : 'text-foreground/60'}`}>{name}</h3>
                             <p className={`text-3xl font-mono font-black ${isNext ? 'text-foreground scale-110' : 'text-foreground/20'}`}>
@@ -535,14 +539,16 @@ export function PrayerTimes() {
                                 })()}
                             </p>
                             
-                            <div className="flex items-center gap-3">
-                                <div className={`p-2 rounded-xl border transition-all ${setting?.athanEnabled ? 'bg-primary/20 border-primary/20 text-primary' : 'bg-foreground/5 border-border text-foreground/10'}`}>
-                                     {setting?.athanEnabled ? <Volume2 className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                            {Capacitor.isNativePlatform() && (
+                                <div className="flex items-center gap-3">
+                                    <div className={`p-2 rounded-xl border transition-all ${setting?.athanEnabled ? 'bg-primary/20 border-primary/20 text-primary' : 'bg-foreground/5 border-border text-foreground/10'}`}>
+                                         {setting?.athanEnabled ? <Volume2 className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                                    </div>
+                                    <div className={`p-2 rounded-xl border transition-all ${setting?.notificationsEnabled ? 'bg-emerald-500/20 border-emerald-500/20 text-emerald-500' : 'bg-foreground/5 border-border text-foreground/10'}`}>
+                                         {setting?.notificationsEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+                                    </div>
                                 </div>
-                                <div className={`p-2 rounded-xl border transition-all ${setting?.notificationsEnabled ? 'bg-emerald-500/20 border-emerald-500/20 text-emerald-500' : 'bg-foreground/5 border-border text-foreground/10'}`}>
-                                     {setting?.notificationsEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-                                </div>
-                            </div>
+                            )}
                         </div>
                     );
                 })

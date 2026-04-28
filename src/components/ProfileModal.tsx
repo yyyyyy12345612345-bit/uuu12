@@ -220,9 +220,9 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                       <select 
                         value={formData.governorate}
                         onChange={e => setFormData({...formData, governorate: e.target.value})}
-                        className="w-full bg-foreground/5 border border-border rounded-xl md:rounded-2xl py-3.5 md:py-4 px-5 md:px-6 text-right outline-none focus:border-primary/40 transition-all appearance-none font-bold"
+                        className="w-full bg-foreground/5 border border-border rounded-xl md:rounded-2xl py-3.5 md:py-4 px-5 md:px-6 text-right outline-none focus:border-primary/40 transition-all appearance-none font-bold text-foreground"
                       >
-                         {GOVERNORATES.map(g => <option key={g} value={g}>{g}</option>)}
+                         {GOVERNORATES.map(g => <option key={g} value={g} className="bg-black text-white">{g}</option>)}
                       </select>
                    </div>
 
