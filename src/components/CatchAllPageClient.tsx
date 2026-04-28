@@ -109,7 +109,7 @@ function CatchAllContent() {
                 </aside>
                 <div className="flex-1 flex flex-col h-full overflow-y-auto no-scrollbar">
                    {/* Top Buttons - Always Visible */}
-                   <div className="flex items-center justify-between px-4 pt-4 pb-2 shrink-0">
+                   <div className="flex items-center justify-between px-4 pt-4 pb-2 shrink-0 lg:hidden">
                       <button 
                          onClick={() => setIsMobileControlsOpen(true)}
                          className="flex items-center gap-2 px-4 py-2.5 bg-primary/10 border border-primary/20 rounded-2xl active:scale-95 transition-all"

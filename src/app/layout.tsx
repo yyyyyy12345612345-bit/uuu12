@@ -2,17 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  preload: false,
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  preload: false,
-});
+// تم تعطيل خطوط Geist لأنها تسبب تنبيهات في الكونسول ولا يتم استخدامها
+const geistSans = { variable: "" };
+const geistMono = { variable: "" };
 
 export const metadata: Metadata = {
   title: {
