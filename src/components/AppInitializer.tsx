@@ -11,6 +11,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateInfo, setUpdateInfo] = useState<any>(null);
   const [showPermissionModal, setShowPermissionModal] = useState(false);
+  const [globalAnnouncement, setGlobalAnnouncement] = useState<string | null>(null);
 
   useEffect(() => {
     // Only show splash once per session to avoid annoying re-loads during navigation
@@ -95,8 +96,23 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     const handleManualUpdate = () => checkForUpdates(true);
     window.addEventListener('check-for-updates', handleManualUpdate);
 
+    // Listen for Global Announcements from Firestore
+    let unsubscribeSettings: any = null;
+    const fetchGlobalSettings = async () => {
+      const { db } = await import("@/lib/firebase");
+      const { doc, onSnapshot } = await import("firebase/firestore");
+      
+      unsubscribeSettings = onSnapshot(doc(db, "settings", "global"), (snapshot) => {
+        if (snapshot.exists()) {
+          setGlobalAnnouncement(snapshot.data().announcement || null);
+        }
+      });
+    };
+    fetchGlobalSettings();
+
     return () => {
       window.removeEventListener('check-for-updates', handleManualUpdate);
+      if (unsubscribeSettings) unsubscribeSettings();
     };
   }, []);
 
@@ -162,6 +178,27 @@ export default function AppInitializer({ children }: { children: React.ReactNode
                     نحن لا نشارك بيانات موقعك مع أي طرف ثالث، تستخدم فقط لحساب مواقيت الصلاة محلياً.
                  </p>
               </div>
+           </div>
+        </div>
+      )}
+
+      {/* Global Announcement Banner */}
+      {globalAnnouncement && (
+        <div className="fixed top-0 inset-x-0 z-[4000] p-4 md:p-6 animate-in slide-in-from-top duration-500">
+           <div className="max-w-4xl mx-auto bg-primary/10 backdrop-blur-2xl border border-primary/20 p-4 md:p-5 rounded-[2rem] shadow-2xl flex items-center justify-between gap-4 group">
+              <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center shrink-0 shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
+                 <Bell className="w-6 h-6 text-black" />
+              </div>
+              <div className="flex-1 text-right overflow-hidden">
+                 <p className="text-foreground font-black font-arabic text-sm md:text-base leading-snug truncate">{globalAnnouncement}</p>
+                 <p className="text-primary/60 text-[9px] font-black uppercase tracking-widest mt-0.5">رسالة إدارية هامة</p>
+              </div>
+              <button 
+                onClick={() => setGlobalAnnouncement(null)}
+                className="p-3 hover:bg-foreground/5 rounded-xl text-foreground/20 hover:text-foreground transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
            </div>
         </div>
       )}
