@@ -209,19 +209,27 @@ export function AdminPanel() {
     setIsResetting(true);
     try {
       const snapshot = await getDocs(collection(db, "users"));
-      const batch = writeBatch(db);
+      const docs = snapshot.docs;
       
-      snapshot.docs.forEach((userDoc) => {
-        batch.update(userDoc.ref, {
-          totalPoints: 0,
-          quranPoints: 0,
-          athkarPoints: 0,
-          listenPoints: 0,
-          streakDays: 0
+      // Firestore batch limits is 500 operations. We'll use a loop to handle any number of users.
+      for (let i = 0; i < docs.length; i += 500) {
+        const batch = writeBatch(db);
+        const chunk = docs.slice(i, i + 500);
+        
+        chunk.forEach((userDoc) => {
+          batch.update(userDoc.ref, {
+            totalPoints: 0,
+            quranPoints: 0,
+            athkarPoints: 0,
+            listenPoints: 0,
+            streakDays: 0
+          });
         });
-      });
+        
+        await batch.commit();
+        console.log(`[Admin] Reset chunk ${i/500 + 1} committed`);
+      }
 
-      await batch.commit();
       alert("تم تصفير لوحة المتصدرين بنجاح! مسابقة جديدة بدأت الآن.");
       fetchStats();
     } catch (e) {
