@@ -343,88 +343,92 @@ export function AuthGate({ children }: AuthGateProps) {
   // Logged in but no profile - show profile setup
   if (showSetup || hasProfile === false) {
     return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 font-arabic overflow-y-auto">
-        <div className="absolute inset-0 bg-black" />
-        <div className="relative w-full max-w-lg bg-[#0a0a0a] border border-[#d4af37]/30 rounded-[3rem] shadow-[0_0_50px_rgba(212,175,55,0.1)] p-10 flex flex-col items-center animate-in zoom-in-95 duration-500 my-8">
-
-          {/* User Photo from Google */}
-          <div className="relative mb-6">
-            <div className="w-24 h-24 rounded-[2rem] border-4 border-[#d4af37]/20 p-1 bg-black overflow-hidden shadow-2xl">
-              <img src={user.photoURL || "/logo/logo.png"} alt="Profile" className="w-full h-full object-cover rounded-[1.5rem]" />
-            </div>
-            <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg border-2 border-black">
-              <Sparkles className="w-4 h-4" />
-            </div>
-          </div>
-
-          <h3 className="text-2xl font-black text-white mb-2">أهلاً بك يا {user.displayName?.split(' ')[0]}! 👋</h3>
-          <p className="text-white/50 text-sm font-bold mb-8 text-center">أكمل بياناتك لتبدأ المنافسة وتجمع النقاط</p>
-
-          <form onSubmit={handleProfileSubmit} className="w-full space-y-6">
-            {setupError && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-[11px] font-bold p-4 rounded-xl text-center animate-shake">{setupError}</div>
-            )}
-
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-white/50 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
-                الاسم المستعار (يظهر للجميع)
-              </label>
-              <input
-                required maxLength={20}
-                value={setupData.displayName}
-                onChange={e => setSetupData({ ...setupData, displayName: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all text-white placeholder-white/20"
-                placeholder="مثلاً: خادم القرآن ✨"
-              />
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 font-arabic bg-black/90 backdrop-blur-sm overflow-y-auto">
+        <div className="relative w-full max-w-lg bg-[#0a0a0a] border border-[#d4af37]/30 rounded-[2.5rem] shadow-[0_0_50px_rgba(212,175,55,0.1)] flex flex-col items-center animate-in zoom-in-95 duration-500 my-auto">
+          
+          {/* Scrollable Content */}
+          <div className="w-full max-h-[85vh] overflow-y-auto p-8 md:p-10 scrollbar-hide">
+            {/* User Photo from Google */}
+            <div className="relative mb-6 flex justify-center">
+              <div className="w-20 h-20 rounded-2xl border-2 border-[#d4af37]/20 p-1 bg-black overflow-hidden shadow-2xl">
+                <img src={user.photoURL || "/logo/logo.png"} alt="Profile" className="w-full h-full object-cover rounded-xl" />
+              </div>
+              <div className="absolute -bottom-1 right-[calc(50%-45px)] w-6 h-6 bg-emerald-500 rounded-lg flex items-center justify-center text-white shadow-lg border-2 border-black">
+                <Sparkles className="w-3 h-3" />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-white/50 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
-                الاسم المميز (إنجليزي فقط)
-              </label>
-              <input
-                required maxLength={15}
-                value={setupData.username}
-                onChange={e => setSetupData({ ...setupData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all font-mono text-white placeholder-white/20"
-                placeholder="مثلاً: youssef123"
-                dir="ltr"
-              />
+            <div className="text-center mb-8">
+              <h3 className="text-xl font-black text-white mb-1">أهلاً بك يا {user.displayName?.split(' ')[0]}! 👋</h3>
+              <p className="text-white/40 text-[11px] font-bold">أكمل بياناتك لتبدأ المنافسة وتجمع النقاط</p>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-white/50 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
-                رقم الهاتف (للتواصل عند الفوز)
-              </label>
-              <input
-                required type="tel"
-                value={setupData.phone}
-                onChange={e => setSetupData({ ...setupData, phone: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all font-mono text-white placeholder-white/20"
-                placeholder="01XXXXXXXXX"
-              />
-            </div>
+            <form onSubmit={handleProfileSubmit} className="w-full space-y-5">
+              {setupError && (
+                <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-bold p-3 rounded-xl text-center animate-shake">{setupError}</div>
+              )}
 
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-white/50 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
-                المحافظة
-              </label>
-              <select
-                value={setupData.governorate}
-                onChange={e => setSetupData({ ...setupData, governorate: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all appearance-none text-white"
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
+                  الاسم المستعار (يظهر للجميع)
+                </label>
+                <input
+                  required maxLength={20}
+                  value={setupData.displayName}
+                  onChange={e => setSetupData({ ...setupData, displayName: e.target.value })}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all text-sm text-white placeholder-white/10"
+                  placeholder="مثلاً: خادم القرآن ✨"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
+                  الاسم المميز (إنجليزي فقط)
+                </label>
+                <input
+                  required maxLength={15}
+                  value={setupData.username}
+                  onChange={e => setSetupData({ ...setupData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all font-mono text-sm text-white placeholder-white/10"
+                  placeholder="مثلاً: youssef123"
+                  dir="ltr"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
+                  رقم الهاتف (للتواصل عند الفوز)
+                </label>
+                <input
+                  required type="tel"
+                  value={setupData.phone}
+                  onChange={e => setSetupData({ ...setupData, phone: e.target.value })}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all font-mono text-sm text-white placeholder-white/10"
+                  placeholder="01XXXXXXXXX"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
+                  المحافظة
+                </label>
+                <select
+                  value={setupData.governorate}
+                  onChange={e => setSetupData({ ...setupData, governorate: e.target.value })}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all appearance-none text-sm text-white"
+                >
+                  {GOVERNORATES.map(gov => <option key={gov} value={gov} className="bg-[#111] text-white">{gov}</option>)}
+                </select>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-4 bg-[#d4af37] text-black rounded-2xl font-black text-md shadow-[0_10px_20px_rgba(212,175,55,0.2)] hover:scale-[1.01] active:scale-95 transition-all mt-4"
               >
-                {GOVERNORATES.map(gov => <option key={gov} value={gov} className="bg-[#111] text-white">{gov}</option>)}
-              </select>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-5 bg-[#d4af37] text-black rounded-[2rem] font-black text-lg shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:scale-[1.02] active:scale-95 transition-all mt-4"
-            >
-              🚀 بدء الاستخدام
-            </button>
-          </form>
+                🚀 بدء الاستخدام
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     );
