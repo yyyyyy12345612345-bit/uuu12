@@ -79,6 +79,7 @@ export function AuthGate({ children }: AuthGateProps) {
           // 2. Ensure we are signed out first to force account picker
           try { await GoogleSignIn.signOut(); } catch (e) {}
           
+          // Use serverClientId in signIn to get idToken for Firebase
           const result = await GoogleSignIn.signIn();
           console.log('[Auth] Native Sign-In result received');
           
