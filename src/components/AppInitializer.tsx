@@ -189,9 +189,9 @@ export default function AppInitializer({ children }: { children: React.ReactNode
               <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center shrink-0 shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
                  <Bell className="w-6 h-6 text-black" />
               </div>
-              <div className="flex-1 text-right overflow-hidden">
-                 <p className="text-foreground font-black font-arabic text-sm md:text-base leading-snug truncate">{globalAnnouncement}</p>
-                 <p className="text-primary/60 text-[9px] font-black uppercase tracking-widest mt-0.5">رسالة إدارية هامة</p>
+              <div className="flex-1 text-center overflow-hidden">
+                 <p className="text-foreground font-black font-arabic text-sm md:text-base leading-snug">{globalAnnouncement}</p>
+                 <p className="text-primary/60 text-[9px] font-black uppercase tracking-widest mt-1">رسالة إدارية هامة</p>
               </div>
               <button 
                 onClick={() => setGlobalAnnouncement(null)}

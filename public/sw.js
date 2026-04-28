@@ -115,7 +115,12 @@ self.addEventListener('fetch', (event) => {
   }
   
   event.respondWith(
-    caches.match(request).then((response) => response || fetch(request))
+    caches.match(request).then((response) => {
+      return response || fetch(request).catch(() => {
+        // Return a dummy response for failed fetches to prevent console noise
+        return new Response('Network error occurred', { status: 404, statusText: 'Network error' });
+      });
+    })
   );
 });
 
