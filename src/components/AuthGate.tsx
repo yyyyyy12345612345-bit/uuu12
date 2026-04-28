@@ -4,10 +4,10 @@ import React, { useState, useEffect } from "react";
 import { LogIn, Loader2, Star, BookOpen, Trophy, Users, Sparkles } from "lucide-react";
 import { Capacitor } from '@capacitor/core';
 import { auth, db } from "@/lib/firebase";
-import { 
+import {
   signInWithPopup,
   signInWithCredential,
-  GoogleAuthProvider, 
+  GoogleAuthProvider,
   onAuthStateChanged,
   User as FirebaseUser
 } from "firebase/auth";
@@ -70,11 +70,11 @@ export function AuthGate({ children }: AuthGateProps) {
         setHasProfile(null);
       }
       setUser(u);
-      
+
       // If we have a user, ensure we don't get stuck in a 'null' profile state
       if (u) {
         const profileTimeout = setTimeout(() => {
-           if (hasProfile === null) setHasProfile(true); 
+          if (hasProfile === null) setHasProfile(true);
         }, 3000);
         return () => clearTimeout(profileTimeout);
       }
@@ -96,51 +96,54 @@ export function AuthGate({ children }: AuthGateProps) {
   const handleGoogleLogin = async () => {
     if (!auth) return;
     setIsLoggingIn(true);
-    
+
     // Safety timeout
     const timeout = setTimeout(() => setIsLoggingIn(false), 30000);
 
     try {
+      const { setPersistence, browserLocalPersistence } = await import("firebase/auth");
+      await setPersistence(auth, browserLocalPersistence);
+
       // 1. Try Native Google Login (Shows Google accounts INSIDE the app)
       if (Capacitor.isNativePlatform()) {
         try {
           const { GoogleSignIn } = await import('@capawesome/capacitor-google-sign-in');
           console.log('[Auth] Attempting native Google Sign-In...');
-          
+
           // 1. Initialize the plugin (REQUIRED)
           await GoogleSignIn.initialize({
             clientId: "194649785258-818jpl0c7it5dsmn7a7mufu8jc1i1uud.apps.googleusercontent.com",
           });
-          
+
           // 2. Ensure we are signed out first to force account picker
-          try { await GoogleSignIn.signOut(); } catch (e) {}
-          
+          try { await GoogleSignIn.signOut(); } catch (e) { }
+
           // Use serverClientId in signIn to get idToken for Firebase
           const result = await GoogleSignIn.signIn();
           console.log('[Auth] Native Sign-In result received');
-          
+
           if (result && result.idToken) {
-             const credential = GoogleAuthProvider.credential(result.idToken);
-             await signInWithCredential(auth, credential);
-             console.log('[Auth] Firebase Native Login SUCCESS');
-             clearTimeout(timeout);
-             setIsLoggingIn(false);
-             return;
+            const credential = GoogleAuthProvider.credential(result.idToken);
+            await signInWithCredential(auth, credential);
+            console.log('[Auth] Firebase Native Login SUCCESS');
+            clearTimeout(timeout);
+            setIsLoggingIn(false);
+            return;
           } else {
             throw new Error("لم يتم العثور على idToken. تأكد من إعدادات SHA-1 في Firebase.");
           }
         } catch (nativeErr: any) {
           console.error('[Auth] Native Google Sign-In failed:', nativeErr);
           let errorMsg = "فشل تسجيل الدخول التلقائي.";
-          
+
           const rawError = typeof nativeErr === 'string' ? nativeErr : (nativeErr.message || JSON.stringify(nativeErr));
-          
+
           if (rawError.includes('10') || nativeErr.code === '10') {
             errorMsg = "خطأ (10): بصمة SHA-1 غير متطابقة. تأكد من إضافة بصمة الـ APK في Firebase.";
           } else {
             errorMsg += `\n(Error: ${rawError.substring(0, 50)}...)`;
           }
-          
+
           alert(errorMsg);
           setIsLoggingIn(false);
           clearTimeout(timeout);
@@ -151,9 +154,10 @@ export function AuthGate({ children }: AuthGateProps) {
       // 2. Web Only (or local dev): Web Popup Login
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
-      
+
       console.log('[Auth] Web environment detected, using signInWithPopup...');
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      setUser(result.user); // Force immediate state update
       console.log('[Auth] Web Login SUCCESS');
     } catch (e: any) {
       console.error('[Auth] Login Error:', e);
@@ -255,7 +259,7 @@ export function AuthGate({ children }: AuthGateProps) {
           <div className="absolute -bottom-8 -right-8 w-20 h-20 border-b-2 border-r-2 border-[#d4af37]/30 rounded-br-[2rem] pointer-events-none" />
 
           <div className="relative bg-zinc-900/40 backdrop-blur-3xl border border-white/10 p-10 md:p-14 rounded-[3rem] flex flex-col items-center gap-10 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] animate-in zoom-in-95 fade-in duration-700">
-            
+
             {/* Logo */}
             <div className="relative">
               <div className="absolute inset-0 bg-[#d4af37]/30 blur-3xl rounded-full" />
@@ -300,10 +304,10 @@ export function AuthGate({ children }: AuthGateProps) {
               ) : (
                 <>
                   <svg className="w-6 h-6" viewBox="0 0 24 24">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                   </svg>
                   <span>تسجيل الدخول بحساب جوجل</span>
                 </>
@@ -332,7 +336,7 @@ export function AuthGate({ children }: AuthGateProps) {
       <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 font-arabic overflow-y-auto">
         <div className="absolute inset-0 bg-black" />
         <div className="relative w-full max-w-lg bg-[#0a0a0a] border border-[#d4af37]/30 rounded-[3rem] shadow-[0_0_50px_rgba(212,175,55,0.1)] p-10 flex flex-col items-center animate-in zoom-in-95 duration-500 my-8">
-          
+
           {/* User Photo from Google */}
           <div className="relative mb-6">
             <div className="w-24 h-24 rounded-[2rem] border-4 border-[#d4af37]/20 p-1 bg-black overflow-hidden shadow-2xl">
@@ -355,10 +359,10 @@ export function AuthGate({ children }: AuthGateProps) {
               <label className="text-xs font-bold text-white/50 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
                 الاسم المستعار (يظهر للجميع)
               </label>
-              <input 
+              <input
                 required maxLength={20}
                 value={setupData.displayName}
-                onChange={e => setSetupData({...setupData, displayName: e.target.value})}
+                onChange={e => setSetupData({ ...setupData, displayName: e.target.value })}
                 className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all text-white placeholder-white/20"
                 placeholder="مثلاً: خادم القرآن ✨"
               />
@@ -368,10 +372,10 @@ export function AuthGate({ children }: AuthGateProps) {
               <label className="text-xs font-bold text-white/50 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
                 الاسم المميز (إنجليزي فقط)
               </label>
-              <input 
+              <input
                 required maxLength={15}
                 value={setupData.username}
-                onChange={e => setSetupData({...setupData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '')})}
+                onChange={e => setSetupData({ ...setupData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })}
                 className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all font-mono text-white placeholder-white/20"
                 placeholder="مثلاً: youssef123"
                 dir="ltr"
@@ -382,10 +386,10 @@ export function AuthGate({ children }: AuthGateProps) {
               <label className="text-xs font-bold text-white/50 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
                 رقم الهاتف (للتواصل عند الفوز)
               </label>
-              <input 
+              <input
                 required type="tel"
                 value={setupData.phone}
-                onChange={e => setSetupData({...setupData, phone: e.target.value})}
+                onChange={e => setSetupData({ ...setupData, phone: e.target.value })}
                 className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all font-mono text-white placeholder-white/20"
                 placeholder="01XXXXXXXXX"
               />
@@ -395,16 +399,16 @@ export function AuthGate({ children }: AuthGateProps) {
               <label className="text-xs font-bold text-white/50 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
                 المحافظة
               </label>
-              <select 
+              <select
                 value={setupData.governorate}
-                onChange={e => setSetupData({...setupData, governorate: e.target.value})}
+                onChange={e => setSetupData({ ...setupData, governorate: e.target.value })}
                 className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all appearance-none text-white"
               >
                 {GOVERNORATES.map(gov => <option key={gov} value={gov} className="bg-[#111] text-white">{gov}</option>)}
               </select>
             </div>
 
-            <button 
+            <button
               type="submit"
               className="w-full py-5 bg-[#d4af37] text-black rounded-[2rem] font-black text-lg shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:scale-[1.02] active:scale-95 transition-all mt-4"
             >
@@ -420,7 +424,7 @@ export function AuthGate({ children }: AuthGateProps) {
   if (hasProfile === null) {
     return (
       <div className="fixed inset-0 bg-[#050505] flex items-center justify-center z-[9999]">
-         <div className="w-10 h-10 border-2 border-[#d4af37]/20 border-t-[#d4af37] rounded-full animate-spin" />
+        <div className="w-10 h-10 border-2 border-[#d4af37]/20 border-t-[#d4af37] rounded-full animate-spin" />
       </div>
     );
   }
