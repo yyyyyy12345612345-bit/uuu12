@@ -191,7 +191,6 @@ export default function AppInitializer({ children }: { children: React.ReactNode
               </div>
               <div className="flex-1 text-center overflow-hidden">
                  <p className="text-foreground font-black font-arabic text-sm md:text-base leading-snug">{globalAnnouncement}</p>
-                 <p className="text-primary/60 text-[9px] font-black uppercase tracking-widest mt-1">رسالة إدارية هامة</p>
               </div>
               <button 
                 onClick={() => setGlobalAnnouncement(null)}
