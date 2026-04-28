@@ -23,6 +23,7 @@ const config: CapacitorConfig = {
     },
     GoogleSignIn: {
       clientId: "194649785258-818jpl0c7it5dsmn7a7mufu8jc1i1uud.apps.googleusercontent.com",
+      serverClientId: "194649785258-818jpl0c7it5dsmn7a7mufu8jc1i1uud.apps.googleusercontent.com",
     }
   }
 };
