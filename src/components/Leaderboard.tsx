@@ -365,6 +365,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
               ) : (
               leaderboardData
                 .filter((entry: any) => activeTab === "global" || (activeTab === "governorate" && userData && entry.governorate === userData.governorate))
+                .sort((a: any, b: any) => (b.totalPoints || 0) - (a.totalPoints || 0))
                 .map((entry, index) => (
                   <div key={entry.id} className="flex items-center justify-between p-5 md:p-6 hover:bg-foreground/[0.02] transition-colors group">
                       <div className="flex items-center gap-3 md:gap-6">
@@ -403,7 +404,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                          {/* النقاط الإجمالية - كبيرة وواضحة */}
                          <div className="flex items-center gap-1.5 bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-xl">
                             <Star className="w-4 h-4 text-primary fill-primary" />
-                            <span className="text-xl font-black text-primary">{entry.totalPoints}</span>
+                            <span className="text-xl font-black text-primary">{entry.totalPoints || 0}</span>
                             <span className="text-[8px] text-primary/60 font-bold">نقطة</span>
                          </div>
                          {/* تفاصيل النقاط */}
