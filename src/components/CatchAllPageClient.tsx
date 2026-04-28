@@ -45,16 +45,7 @@ function CatchAllContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
-  const [globalAnnouncement, setGlobalAnnouncement] = useState("");
 
-  useEffect(() => {
-    if (!db) return;
-    const fetchAnnouncement = async () => {
-      const s = await getDoc(doc(db, "settings", "global"));
-      if (s.exists()) setGlobalAnnouncement(s.data().announcement || "");
-    };
-    fetchAnnouncement();
-  }, []);
 
   // Derived active view from pathname - the safest way in Next.js 15/16 Client Components
   const activeView = useMemo(() => {
@@ -99,15 +90,7 @@ function CatchAllContent() {
         </div>
       </header>
 
-      {/* Global Announcement Bar */}
-      {globalAnnouncement && (
-        <div className="bg-primary text-black py-2.5 px-4 text-center text-[10px] font-black font-arabic animate-in slide-in-from-top duration-500 relative z-[150] shadow-xl border-b border-black/5">
-           <div className="flex items-center justify-center gap-2">
-              <span className="animate-bounce">📢</span>
-              {globalAnnouncement}
-           </div>
-        </div>
-      )}
+
 
       <main className="flex-1 relative overflow-hidden">
         {visited.mushaf && <div className={`h-full w-full mb-20 ${activeView === 'mushaf' ? 'block' : 'hidden'}`}><Mushaf /></div>}
