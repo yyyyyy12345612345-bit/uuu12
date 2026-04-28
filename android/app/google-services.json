@@ -7,7 +7,7 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:194649785258:android:a4b07585298349ecf7a1d3",
+        "mobilesdk_app_id": "1:194649785258:android:476bdceac42dfda5f7a1d3",
         "android_client_info": {
           "package_name": "quran1mu.vercel.app"
         }
@@ -20,7 +20,7 @@
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyB8NHUTR6Uzqh1YZAoPXzRy8aMgle9x7gU"
+          "current_key": "AIzaSyBMq1UQMSWpfg30FKC3M_WpUwKwSEGZSD4"
         }
       ],
       "services": {
