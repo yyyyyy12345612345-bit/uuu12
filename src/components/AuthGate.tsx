@@ -343,7 +343,7 @@ export function AuthGate({ children }: AuthGateProps) {
   // Logged in but no profile - show profile setup
   if (showSetup || hasProfile === false) {
     return (
-      <div className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md overflow-y-auto font-arabic pt-10 pb-20">
+      <div className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md overflow-y-auto font-arabic py-10 flex items-start justify-center">
         <div className="relative w-full max-w-lg mx-auto px-4 animate-in zoom-in-95 duration-500">
           <div className="bg-[#0a0a0a] border border-[#d4af37]/30 rounded-[2.5rem] shadow-[0_0_100px_rgba(212,175,55,0.15)] p-8 md:p-12 flex flex-col items-center">
             

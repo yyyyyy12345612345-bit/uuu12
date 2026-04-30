@@ -111,11 +111,11 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-md overflow-y-auto font-arabic pt-6 pb-20 px-4">
+    <div className="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-md overflow-y-auto font-arabic py-10 px-4 flex justify-center items-start">
        {/* Backdrop Click-to-Close */}
        <div className="fixed inset-0" onClick={onClose} />
        
-       <div className="relative w-full max-w-xl mx-auto bg-background border border-border rounded-[2.5rem] shadow-[0_50px_100px_rgba(0,0,0,0.5)] flex flex-col animate-in zoom-in-95 duration-500 my-auto">
+       <div className="relative w-full max-w-xl bg-background border border-border rounded-[2.5rem] shadow-[0_50px_100px_rgba(0,0,0,0.5)] flex flex-col animate-in zoom-in-95 duration-500 mb-20">
           
           {/* Header */}
           <div className="p-6 md:p-8 border-b border-border flex items-center justify-between bg-foreground/[0.02] sticky top-0 bg-background z-10 rounded-t-[2.5rem]">
