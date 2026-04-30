@@ -50,11 +50,11 @@ function CatchAllContent() {
 
   // Derived active view from pathname - the safest way in Next.js 15/16 Client Components
   const activeView = useMemo(() => {
-    if (!pathname || pathname === "/") return "mushaf";
-    return pathname.split('/').filter(Boolean)[0] || "mushaf";
+    if (!pathname || pathname === "/") return "mushaf-choice";
+    return pathname.split('/').filter(Boolean)[0] || "mushaf-choice";
   }, [pathname]);
 
-  const [visited, setVisited] = useState<Record<string, boolean>>({ mushaf: true });
+  const [visited, setVisited] = useState<Record<string, boolean>>({ 'mushaf-choice': true });
 
   useEffect(() => {
     if (activeView && !visited[activeView]) {
@@ -96,7 +96,7 @@ function CatchAllContent() {
       <main className="flex-1 relative overflow-hidden">
         {visited.mushaf && <div className={`h-full w-full mb-20 ${activeView === 'mushaf' ? 'block' : 'hidden'}`}><Mushaf /></div>}
         {visited['mushaf-full'] && <div className={`h-full w-full mb-20 ${activeView === 'mushaf-full' ? 'block' : 'hidden'}`}><DigitalMushaf /></div>}
-        {visited['mushaf-choice'] && <div className={`h-full w-full pb-20 ${activeView === 'mushaf-choice' ? 'block' : 'hidden'}`}><MushafChoice /></div>}
+        {visited['mushaf-choice'] && <div className={`h-full w-full relative pb-20 ${activeView === 'mushaf-choice' ? 'block' : 'hidden'}`}><MushafChoice /></div>}
         {visited.daily && <div className={`h-full w-full pb-32 ${activeView === 'daily' ? 'block' : 'hidden'}`}><DailyHub /></div>}
         {visited.library && <div className={`h-full w-full pb-32 ${activeView === 'library' ? 'block' : 'hidden'}`}><AudioLibrary /></div>}
         {visited.prayers && <div className={`h-full w-full pb-32 ${activeView === 'prayers' ? 'block' : 'hidden'}`}><PrayerTimes /></div>}
