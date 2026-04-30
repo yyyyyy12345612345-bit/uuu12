@@ -350,22 +350,23 @@ export function Mushaf() {
                                     </div>
 
                                     <div className={`mt-10 overflow-hidden transition-all duration-1000 ${playingAyah === verse.id ? 'max-h-96 opacity-100 translate-y-0' : 'max-h-0 opacity-0 translate-y-4'}`}>
-                                        <div className="p-8 rounded-[2rem] bg-primary/[0.02] border border-primary/10 relative text-right">
+                                        <div 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedVerseForDetail({ 
+                                                    verseKey: `${selectedSurah}:${verse.id}`, 
+                                                    surahName: surahContent.name 
+                                                });
+                                            }}
+                                            className="p-8 rounded-[2rem] bg-primary/[0.03] border border-primary/10 relative text-right hover:bg-primary/5 transition-all cursor-pointer group/tafsir"
+                                        >
                                             <p className="text-lg md:text-xl text-foreground/50 leading-relaxed font-arabic font-medium italic">
                                                 {verse.translation}
                                             </p>
-                                            <button 
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setSelectedVerseForDetail({ 
-                                                        verseKey: `${selectedSurah}:${verse.id}`, 
-                                                        surahName: surahContent.name 
-                                                    });
-                                                }}
-                                                className="mt-4 text-[10px] font-black text-primary uppercase tracking-widest hover:underline"
-                                            >
-                                                التفسير والتفاصيل
-                                            </button>
+                                            <div className="mt-4 flex items-center justify-end gap-3 text-primary">
+                                                <span className="text-[10px] font-black uppercase tracking-widest group-hover/tafsir:underline">إظهار التفسير</span>
+                                                <div className="w-5 h-px bg-primary/30 group-hover/tafsir:w-10 transition-all" />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
