@@ -143,36 +143,40 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
   return (
     <>
-      {/* Mandatory Announcement Overlay (No Close Button) */}
-      {mandatoryAnnouncement && (
-        <div className="fixed inset-0 z-[11000] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl font-arabic">
-           <div className="absolute inset-0 islamic-pattern opacity-[0.05]" />
-           <div className="relative w-full max-w-xl bg-zinc-900 border border-primary/20 p-8 md:p-12 rounded-[3rem] shadow-2xl flex flex-col items-center gap-8 text-center animate-in zoom-in-95 duration-500">
-              
-              <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center border border-primary/20 relative">
-                 <Bell className="w-10 h-10 text-primary animate-ring" />
-                 <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-black rounded-full flex items-center justify-center font-black text-xs shadow-lg">
-                    {announcementTimer}
+      {/* Mandatory Announcement - Premium Top Bar Version */}
+      {mandatoryAnnouncement && announcementTimer > 0 && (
+        <div className="fixed top-0 left-0 right-0 z-[10000] p-4 animate-in slide-in-from-top duration-700">
+           <div className="max-w-xl mx-auto bg-[#0a0a0a]/90 backdrop-blur-xl border border-[#d4af37]/30 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden relative group">
+              {/* Progress Bar (Background) */}
+              <div 
+                className="absolute bottom-0 left-0 h-[2px] bg-[#d4af37] transition-all duration-1000 ease-linear shadow-[0_0_10px_#d4af37]"
+                style={{ width: `${(announcementTimer / 60) * 100}%` }}
+              />
+
+              <div className="flex items-center gap-4 px-6 py-4">
+                 {/* Icon with Mini Timer */}
+                 <div className="relative shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-[#d4af37]/10 flex items-center justify-center border border-[#d4af37]/20">
+                       <Bell className="w-5 h-5 text-[#d4af37] animate-swing" />
+                    </div>
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-[#d4af37] rounded-full flex items-center justify-center shadow-lg">
+                       <span className="text-[9px] font-black text-black">{announcementTimer}</span>
+                    </div>
+                 </div>
+
+                 {/* Message Content */}
+                 <div className="flex-1 text-right min-w-0">
+                    <p className="text-[10px] font-black text-[#d4af37] uppercase tracking-[0.2em] mb-0.5 opacity-60">تنبيه إداري</p>
+                    <p className="text-sm font-bold text-white font-arabic leading-relaxed truncate">
+                       {mandatoryAnnouncement}
+                    </p>
+                 </div>
+
+                 {/* Status Label */}
+                 <div className="shrink-0 bg-white/5 px-3 py-1 rounded-lg border border-white/10">
+                    <span className="text-[8px] font-black text-white/40 uppercase tracking-widest">Mandatory</span>
                  </div>
               </div>
-
-              <div className="space-y-4">
-                 <h2 className="text-2xl font-black text-primary tracking-tight">تنبيه إداري هام</h2>
-                 <div className="h-px w-20 bg-primary/20 mx-auto" />
-                 <p className="text-white text-lg md:text-xl font-bold leading-relaxed whitespace-pre-wrap">
-                    {mandatoryAnnouncement}
-                 </p>
-              </div>
-
-              <div className="w-full bg-white/[0.03] rounded-2xl p-4 flex flex-col items-center gap-2">
-                 <p className="text-[10px] text-white/30 font-bold uppercase tracking-widest">سوف تختفي هذه الرسالة تلقائياً خلال</p>
-                 <div className="flex items-center gap-1 text-primary font-black text-xl">
-                    <span>{announcementTimer}</span>
-                    <span className="text-[10px] mt-1">ثانية</span>
-                 </div>
-              </div>
-
-              <p className="text-[9px] text-white/10 font-bold uppercase tracking-[0.3em]">Mandatory System Broadcast</p>
            </div>
         </div>
       )}
