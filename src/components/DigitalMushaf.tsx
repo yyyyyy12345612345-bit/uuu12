@@ -8,8 +8,9 @@ import { RECITERS } from "@/data/reciters";
 import { useEditor } from "@/store/useEditor";
 import { getAudioUrl } from "@/lib/quranUtils";
 import { logAppEvent } from "@/lib/firebase";
-import { updateMediaSession, updatePlaybackState } from "@/lib/mediaSession";
+import { setupMediaSession, setPlaybackState, updatePositionState } from "@/lib/mediaSession";
 import { startPageTimer, endPageTimer } from "@/lib/points";
+import { VerseDetailsModal } from "./VerseDetailsModal";
 
 const API_ROOT = "https://api.quran.com/api/v4";
 
@@ -39,8 +40,10 @@ export function DigitalMushaf() {
   const [showReciterPicker, setShowReciterPicker] = useState(false);
   const [isIndexOpen, setIsIndexOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedVerseForDetail, setSelectedVerseForDetail] = useState<{verseKey: string, surahName: string} | null>(null);
   
   const audioRef = useRef<HTMLAudioElement>(null);
+  const wordAudioRef = useRef<HTMLAudioElement>(null);
   const observerTarget = useRef(null);
   const loadingRef = useRef(false);
 
@@ -87,6 +90,22 @@ export function DigitalMushaf() {
         loadingRef.current = false;
     }
   }
+
+  const playWord = (word: any) => {
+    if (!word || !word.audio_url) return;
+    let url = word.audio_url;
+    if (!url.startsWith('http')) {
+        url = `https://audio.qurancdn.com/${url}`;
+    }
+    if (wordAudioRef.current) {
+        wordAudioRef.current.src = url;
+        wordAudioRef.current.play().catch(() => {
+            wordAudioRef.current!.src = `https://verses.quran.com/${word.audio_url}`;
+            wordAudioRef.current!.play().catch(() => {});
+        });
+        if (navigator.vibrate) navigator.vibrate(20);
+    }
+  };
 
   useEffect(() => {
     const savedPage = localStorage.getItem("last_read_page");
@@ -159,24 +178,29 @@ export function DigitalMushaf() {
             }
         });
 
-        // Media Session Update
+        // 🎵 Spotify-like notification for Mushaf playback
         const surahName = surahsData.find(s => s.id === parseInt(sura))?.name || "";
-        updateMediaSession({
-            title: `سورة ${surahName} - آية ${ayah}`,
-            artist: RECITERS.find(r => r.id === state.reciterId)?.name || "قارئ",
-        }, {
-            onPlay: () => { audioRef.current?.play(); setIsPlayingPage(true); },
-            onPause: () => { audioRef.current?.pause(); setIsPlayingPage(false); },
-            onNext: () => {
-                if (vIdx + 1 < pages[pIdx].verses.length) playVerse(pIdx, vIdx + 1);
-                else if (pIdx + 1 < pages.length) playVerse(pIdx + 1, 0);
+        setupMediaSession(
+            {
+                title: `سورة ${surahName} - آية ${ayah}`,
+                artist: RECITERS.find(r => r.id === state.reciterId)?.name || "قارئ",
+                album: 'المصحف المرتل',
             },
-            onPrev: () => {
-                if (vIdx > 0) playVerse(pIdx, vIdx - 1);
-                else if (pIdx > 0) playVerse(pIdx - 1, pages[pIdx-1].verses.length - 1);
+            {
+                onPlay: () => { audioRef.current?.play(); setIsPlayingPage(true); },
+                onPause: () => { audioRef.current?.pause(); setIsPlayingPage(false); },
+                onNext: () => {
+                    if (vIdx + 1 < pages[pIdx].verses.length) playVerse(pIdx, vIdx + 1);
+                    else if (pIdx + 1 < pages.length) playVerse(pIdx + 1, 0);
+                },
+                onPrev: () => {
+                    if (vIdx > 0) playVerse(pIdx, vIdx - 1);
+                    else if (pIdx > 0) playVerse(pIdx - 1, pages[pIdx-1].verses.length - 1);
+                },
+                onSeekTo: (time) => { if (audioRef.current) audioRef.current.currentTime = time; },
             }
-        });
-        updatePlaybackState('playing');
+        );
+        setPlaybackState('playing');
 
         logAppEvent("play_verse", { surah: sura, verse: ayah, reciter: state.reciterId });
         
@@ -240,7 +264,7 @@ export function DigitalMushaf() {
                     if(isPlayingPage) {
                         setIsPlayingPage(false);
                         audioRef.current?.pause();
-                        updatePlaybackState('paused');
+                        setPlaybackState('paused');
                     } else {
                         setIsPlayingPage(true);
                         playVerse(0, 0);
@@ -344,6 +368,8 @@ export function DigitalMushaf() {
                                 currentPlayingVerse={currentPlayingVerse}
                                 playVerse={playVerse}
                                 mushafFontSize={state.mushafFontSize}
+                                onShowDetail={(verseKey: string, surahName: string) => setSelectedVerseForDetail({ verseKey, surahName })}
+                                onPlayWord={playWord}
                             />
                         </div>
                     ))
@@ -359,6 +385,7 @@ export function DigitalMushaf() {
             </div>
         </div>
       </main>
+      <audio ref={wordAudioRef} />
 
       <footer className="h-[80px] md:h-[90px] shrink-0 bg-white dark:bg-zinc-950 border-t border-border px-4 md:px-14 flex items-center justify-between z-[100] shadow-[0_-10px_40px_rgba(0,0,0,0.03)] transition-colors duration-500">
           <div className="flex items-center gap-4 md:gap-8 overflow-hidden">
@@ -410,11 +437,19 @@ export function DigitalMushaf() {
               </button>
           </div>
       </footer>
+
+      {selectedVerseForDetail && (
+          <VerseDetailsModal 
+              verseKey={selectedVerseForDetail.verseKey}
+              surahName={selectedVerseForDetail.surahName}
+              onClose={() => setSelectedVerseForDetail(null)}
+          />
+      )}
     </div>
   );
 }
 
-const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mushafFontSize }: any) => {
+const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mushafFontSize, onShowDetail, onPlayWord }: any) => {
     return (
         <div 
             data-page={pData.page}
@@ -500,13 +535,21 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                         {verse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => {
                                             const isAllah = word.text_uthmani?.includes('للَّ') || word.text_uthmani?.includes('اللَّ');
                                             return (
-                                                <span key={word.id} className={`inline-block px-[2px] transition-colors ${isAllah ? 'text-[#cd4d4d]' : 'currentColor'}`}>
+                                                <span 
+                                                    key={word.id} 
+                                                    onClick={(e) => { e.stopPropagation(); onPlayWord(word); }}
+                                                    className={`inline-block px-[2px] transition-colors hover:text-primary ${isAllah ? 'text-[#cd4d4d]' : 'currentColor'}`}
+                                                >
                                                     {word.text_uthmani}
                                                 </span>
                                             );
                                         })}
-                                        <span className="inline-flex items-center justify-center relative select-none mx-2" style={{ width: `${mushafFontSize * 0.8}px`, height: `${mushafFontSize * 0.8}px`, verticalAlign: 'middle' }}>
-                                            <span className="relative z-10 font-bold text-black border border-black/20 rounded-full w-full h-full flex items-center justify-center" style={{ fontSize: `${mushafFontSize * 0.45}px` }}>
+                                        <span className="inline-flex items-center justify-center relative select-none mx-2 group/v" style={{ width: `${mushafFontSize * 0.8}px`, height: `${mushafFontSize * 0.8}px`, verticalAlign: 'middle' }}>
+                                            <span 
+                                                onClick={(e) => { e.stopPropagation(); onShowDetail(verse.verse_key, surahName); }}
+                                                className="relative z-10 font-bold text-black border border-black/20 rounded-full w-full h-full flex items-center justify-center hover:bg-primary/20 hover:border-primary/40 transition-all cursor-help" 
+                                                style={{ fontSize: `${mushafFontSize * 0.45}px` }}
+                                            >
                                                 {vId}
                                             </span>
                                         </span>

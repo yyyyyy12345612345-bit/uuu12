@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Capacitor } from '@capacitor/core';
 import { X, Download, Info, ShieldCheck, Bell, MapPin, CheckCircle2, ArrowRight } from 'lucide-react';
-import { LocalNotifications } from '@capacitor/local-notifications';
+import { requestNotificationPermission } from '@/lib/notifications';
 import { Geolocation } from '@capacitor/geolocation';
 
 export default function AppInitializer({ children }: { children: React.ReactNode }) {
@@ -43,8 +43,8 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
   const requestAllPermissions = async () => {
     try {
-      // 1. Notifications
-      await LocalNotifications.requestPermissions();
+      // 1. Notifications (using new system)
+      await requestNotificationPermission();
       
       // 2. Location
       await Geolocation.requestPermissions();

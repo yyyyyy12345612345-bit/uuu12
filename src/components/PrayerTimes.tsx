@@ -7,18 +7,18 @@ import {
   ArrowRight, Play, Check, ChevronDown
 } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
-import { LocalNotifications } from '@capacitor/local-notifications';
 import { Capacitor } from '@capacitor/core';
+import {
+  schedulePrayerNotifications,
+  sendTestNotification,
+  requestNotificationPermission,
+  checkForegroundPrayer,
+  type PrayerTimesData,
+  PRAYER_NAMES_AR,
+} from "@/lib/notifications";
 
 
-interface PrayerTimesData {
-    Fajr: string;
-    Sunrise: string;
-    Dhuhr: string;
-    Asr: string;
-    Maghrib: string;
-    Isha: string;
-}
+// PrayerTimesData is imported from notifications.ts
 
 interface PrayerSetting {
     athanEnabled: boolean;
@@ -58,76 +58,14 @@ export function PrayerTimes() {
     Isha: { athanEnabled: true, notificationsEnabled: true, muezzinId: "haram", offset: 0 }
   });
 
-  const scheduleWeeklyNotifications = async (timesData: PrayerTimesData, settings: Record<string, PrayerSetting>) => {
-    if (!Capacitor.isNativePlatform()) return;
-    
-    try {
-        // Cancel all previous notifications to avoid duplicates
-        await LocalNotifications.cancel({ notifications: [] }); 
-        
-        const notifications = [];
-        const prayerKeys = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
-        const prayerAr: Record<string, string> = { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء" };
-        
-        // Schedule for next 30 days to ensure long-term offline coverage
-        for (let day = 0; day < 30; day++) {
-            const date = new Date();
-            date.setDate(date.getDate() + day);
-            
-            for (let i = 0; i < prayerKeys.length; i++) {
-                const key = prayerKeys[i];
-                const setting = settings[key];
-                if (!setting?.notificationsEnabled) continue;
-
-                const timeStr = timesData[key as keyof PrayerTimesData];
-                if (!timeStr) continue;
-
-                const [h, m] = timeStr.split(':').map(Number);
-                const scheduleDate = new Date(date);
-                scheduleDate.setHours(h, m + (setting.offset || 0), 0, 0);
-
-                // Unique ID based on Day and Prayer Index (e.g. Day 0, Prayer 0 = 00, Day 1, Prayer 0 = 10)
-                const notificationId = (day * 10) + i + 1;
-
-                if (scheduleDate > new Date()) {
-                    notifications.push({
-                        id: notificationId,
-                        title: `🕌 حان الآن موعد أذان ${prayerAr[key]}`,
-                        body: "حيّ على الصلاة.. حيّ على الفلاح",
-                        schedule: { 
-                          at: scheduleDate,
-                          allowWhileIdle: true,
-                          repeats: false,
-                          every: undefined
-                        },
-                        sound: 'adhan.mp3',
-                        channelId: "adhan-channel",
-                        smallIcon: 'ic_notification',
-                        iconColor: '#c5a059',
-                        ongoing: false,
-                        autoCancel: true
-                    });
-                }
-            }
-        }
-
-        if (notifications.length > 0) {
-            // First, create a notification channel (Required for Android 8+)
-            await LocalNotifications.createChannel({
-              id: 'adhan-channel',
-              name: 'مواقيت الأذان',
-              description: 'تنبيهات مواقيت الصلاة والأذان',
-              importance: 5, // Max importance for sound
-              visibility: 1,
-              sound: 'adhan.mp3'
-            });
-
-            await LocalNotifications.schedule({ notifications });
-            console.log(`[Athan] Scheduled ${notifications.length} notifications with sound`);
-        }
-    } catch (e) {
-        console.error("Scheduling failed", e);
+  // Convert old prayer settings to new notification format for scheduling
+  const getNotifSettings = () => {
+    const result: Record<string, { enabled: boolean; soundEnabled: boolean; offset: number }> = {};
+    for (const key of ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']) {
+      const s = prayerSettings[key];
+      result[key] = { enabled: s?.notificationsEnabled ?? true, soundEnabled: s?.athanEnabled ?? true, offset: s?.offset ?? 0 };
     }
+    return result;
   };
 
 
@@ -188,86 +126,11 @@ export function PrayerTimes() {
     );
   };
 
-  const requestNotificationPermission = async () => {
-     if (Capacitor.isNativePlatform()) {
-        const perm = await LocalNotifications.requestPermissions();
-        console.log("Native notification permission:", perm.display);
-        
-        // If Android 13+, we might also need to check/request exact alarm permission
-        // though usually SCHEDULE_EXACT_ALARM in manifest is enough for some, 
-        // others need manual intent. For now, focus on display permission.
-     } else if ("Notification" in window) {
-        const permission = await Notification.requestPermission();
-        console.log("Web notification permission:", permission);
-     }
-  };
-
-  // Send prayer times and settings to Service Worker for background notifications
-  const syncPrayerTimesToSW = async (timesData: PrayerTimesData | null, settingsData: Record<string, PrayerSetting>) => {
-    if ('serviceWorker' in navigator && timesData) {
-      try {
-        const reg = await navigator.serviceWorker.ready;
-        
-        // Sync Data
-        if (reg.active) {
-          reg.active.postMessage({
-            type: 'PRAYER_DATA_UPDATE',
-            times: timesData,
-            settings: settingsData
-          });
-          console.log('[App] Prayer data synced to SW');
-        }
-
-        // Register Periodic Background Sync so SW can check prayer times even when app is closed
-        if ('periodicSync' in reg) {
-          try {
-            const status = await navigator.permissions.query({ name: 'periodic-background-sync' as any });
-            if (status.state === 'granted') {
-              await (reg as any).periodicSync.register('check-prayer-times', {
-                minInterval: 60 * 1000, 
-              });
-              console.log('[App] Periodic Background Sync registered');
-            }
-          } catch (pe) { console.log("Periodic sync reg failed", pe); }
-        }
-      } catch (e) {
-        console.log('[App] SW sync error', e);
-      }
-    }
-  };
-
-  // Sync with SW and Native Scheduler whenever times or settings change
-  const syncAll = async () => {
+  // Schedule notifications whenever times or settings change
+  useEffect(() => {
     if (!times) return;
-    await syncPrayerTimesToSW(times, prayerSettings);
-    if (Capacitor.isNativePlatform()) {
-      await scheduleWeeklyNotifications(times, prayerSettings);
-    }
-  };
-
-  useEffect(() => {
-    syncAll();
+    schedulePrayerNotifications(times, getNotifSettings());
   }, [times, prayerSettings]);
-
-  // Listen for PLAY_ADHAN messages from Service Worker
-  useEffect(() => {
-    if (!('serviceWorker' in navigator)) return;
-    
-    const handleSWMessage = (event: MessageEvent) => {
-      if (event.data?.type === 'PLAY_ADHAN' && audioRef.current) {
-        const prayerKey = event.data.prayer;
-        const setting = prayerSettings[prayerKey];
-        if (setting?.athanEnabled) {
-          const muezzin = MUEZZINS.find(m => m.id === setting.muezzinId) || MUEZZINS[0];
-          audioRef.current.src = muezzin.file;
-          audioRef.current.play().catch(console.error);
-        }
-      }
-    };
-    
-    navigator.serviceWorker.addEventListener('message', handleSWMessage);
-    return () => navigator.serviceWorker.removeEventListener('message', handleSWMessage);
-  }, [prayerSettings]);
 
   useEffect(() => {
     // 1. Loading cached data immediately for offline speed
@@ -301,10 +164,7 @@ export function PrayerTimes() {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
 
     // 5. Auto-request notification permission
-    if ("Notification" in window && Notification.permission === "default") {
-      // Small delay so it doesn't block the UI
-      setTimeout(() => requestNotificationPermission(), 3000);
-    }
+    setTimeout(() => requestNotificationPermission(), 3000);
 
     return () => clearInterval(timer);
   }, []);
@@ -315,57 +175,23 @@ export function PrayerTimes() {
   useEffect(() => {
     if (!times) return;
     
-    const checkPrayer = () => {
-        const now = new Date();
-        
-        Object.entries(times).forEach(([id, time]) => {
-            const setting = prayerSettings[id];
-            if (!setting) return;
+    const interval = setInterval(() => {
+      checkForegroundPrayer(times, getNotifSettings(), (prayerKey) => {
+        const setting = prayerSettings[prayerKey];
+        if (setting?.athanEnabled && audioRef.current) {
+          const muezzin = MUEZZINS.find(m => m.id === setting.muezzinId) || MUEZZINS[0];
+          audioRef.current.src = muezzin.file;
+          audioRef.current.play().catch(err => console.log("Audio play blocked", err));
+        }
+      });
+    }, 1000);
 
-            const [h, m] = time.split(':').map(Number);
-            const prayerDate = new Date(now);
-            prayerDate.setHours(h, m + (setting.offset || 0), 0, 0);
-
-            const prayerTimeStr = prayerDate.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
-            const nowStr = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
-
-            if (prayerTimeStr === nowStr && now.getSeconds() === 0) {
-                // 1. Play Adhan if enabled and app is foreground
-                if (setting.athanEnabled && audioRef.current) {
-                    const muezzin = MUEZZINS.find(m => m.id === setting.muezzinId) || MUEZZINS[0];
-                    if (audioRef.current.src !== window.location.origin + muezzin.file) {
-                        audioRef.current.src = muezzin.file;
-                    }
-                    audioRef.current.play().catch(err => console.log("Audio play blocked, needs interaction", err));
-                }
-
-                // 2. Show Notification (Only if not pre-scheduled or to ensure it shows if scheduler failed)
-                if (setting.notificationsEnabled && !Capacitor.isNativePlatform()) {
-                    if (("Notification" in window) && Notification.permission === "granted") {
-                        new Notification(`🕌 حان الآن موعد أذان ${prayerNamesAr[id] || id}`, { 
-                            body: "حيّ على الصلاة.. حيّ على الفلاح",
-                            icon: '/logo/logo.png',
-                            badge: '/logo/logo.png',
-                            tag: `prayer-${id}-${nowStr}`
-                        });
-                    }
-                }
-            }
-        });
-    };
-
-    const interval = setInterval(checkPrayer, 1000);
     return () => clearInterval(interval);
   }, [times, prayerSettings]);
 
 
-  const prayerNamesAr: Record<string, string> = {
-    Fajr: "الفجر",
-    Dhuhr: "الظهر",
-    Asr: "العصر",
-    Maghrib: "المغرب",
-    Isha: "العشاء"
-  };
+  // Use imported PRAYER_NAMES_AR from notifications.ts
+  const prayerNamesAr = PRAYER_NAMES_AR;
 
   const getNextPrayer = () => {
     if (!times) return null;
@@ -392,36 +218,11 @@ export function PrayerTimes() {
   const nextPrayer = getNextPrayer();
 
   const scheduleTestNotification = async () => {
-    if (!Capacitor.isNativePlatform()) {
-        alert("هذه الميزة تعمل فقط على الموبايل (الأندرويد)");
-        return;
-    }
-    
-    try {
-        await LocalNotifications.createChannel({
-          id: 'adhan-channel',
-          name: 'مواقيت الأذان',
-          importance: 5,
-          sound: 'adhan.mp3'
-        });
-
-        const scheduleDate = new Date(Date.now() + 5000); // 5 seconds later
-        
-        await LocalNotifications.schedule({
-            notifications: [{
-                id: 999,
-                title: "🔔 تجربة إشعار الأذان",
-                body: "إذا ظهر هذا الإشعار، فالتطبيق يعمل بشكل صحيح.",
-                schedule: { at: scheduleDate },
-                sound: 'adhan.mp3',
-                channelId: "adhan-channel",
-                smallIcon: 'ic_notification',
-                iconColor: '#c5a059'
-            }]
-        });
-        alert("تم جدولة إشعار تجريبي بعد 5 ثوانٍ. أغلق التطبيق الآن لتجربته.");
-    } catch (e) {
-        alert("فشل الجدولة: " + JSON.stringify(e));
+    const ok = await sendTestNotification();
+    if (ok) {
+      alert("تم جدولة إشعار تجريبي بعد 5 ثوانٍ. أغلق التطبيق الآن لتجربته.");
+    } else {
+      alert("فشل إرسال الإشعار التجريبي. تأكد من تفعيل الإشعارات.");
     }
   };
 

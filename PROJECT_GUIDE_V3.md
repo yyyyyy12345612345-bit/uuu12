@@ -98,6 +98,22 @@ export function getRankInfo(points) {
 
 ### تغيير الأيقونات:
 يتم وضع الأيقونات الجديدة في `android/app/src/main/res` في مجلدات `mipmap`.
+
+---
+
+## 📖 7. التكامل الاحترافي مع Quran.com API (v4)
+
+### المميزات المفعلة:
+- **التفسير:** دعم جلب التفسير لحظياً (مثل ابن كثير).
+- **الترجمة:** دعم ترجمات متعددة (Sahih International, التفسير الميسر).
+- **Word-by-word:** جلب بيانات الكلمات بشكل منفصل مع صوت كل كلمة ومعناها.
+- **Media Session:** ربط بيانات الآية مع شريط تحكم النظام (Spotify Style).
+
+### أهم الدوال:
+- `fetchVerseTafsir(verseKey)`: يجلب التفسير من Quran.com.
+- `fetchVerseTranslations(verseKey)`: يجلب نص الآية مع الترجمة والكلمات.
+- `setupMediaSession()`: يربط المشغل مع النظام.
+
 استخدم سكريبت `copy-icons.js` لأتمتة هذه العملية.
 
 ### تحديث النسخة (Bumping Version):

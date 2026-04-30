@@ -7,7 +7,7 @@ import {
   Headphones, Repeat, Shuffle, ChevronDown, User, Heart, 
   Disc, Music, Star, Zap, X
 } from "lucide-react";
-import { updateMediaSession, updatePlaybackState } from "@/lib/mediaSession";
+import { setupMediaSession, setPlaybackState, updatePositionState, clearMediaSession } from "@/lib/mediaSession";
 import surahsData from "@/data/surahs.json";
 import { logAppEvent } from "@/lib/firebase";
 import { addPoints } from "@/lib/points";
@@ -78,20 +78,38 @@ export function AudioLibrary() {
       logAppEvent("change_reciter", { reciter_name: selectedReciter.name });
     }
 
-    // Update Media Session
-    updateMediaSession({
-      title: `سورة ${currentSurah.name}`,
-      artist: selectedReciter.name,
-    }, {
-      onPlay: () => { audio.play(); setIsPlaying(true); },
-      onPause: () => { audio.pause(); setIsPlaying(false); },
-      onNext: nextSurah,
-      onPrev: prevSurah
-    });
+    // 🎵 Setup Spotify-like notification with media controls
+    setupMediaSession(
+      {
+        title: `سورة ${currentSurah.name}`,
+        artist: selectedReciter.name,
+        album: 'المكتبة الصوتية',
+      },
+      {
+        onPlay: () => { audio.play(); setIsPlaying(true); },
+        onPause: () => { audio.pause(); setIsPlaying(false); },
+        onNext: nextSurah,
+        onPrev: prevSurah,
+        onSeekTo: (time) => { audio.currentTime = time; },
+      }
+    );
   }, [currentSurah, selectedReciter]);
 
+  // Sync playback state to notification
   useEffect(() => {
-    updatePlaybackState(isPlaying ? 'playing' : 'paused');
+    setPlaybackState(isPlaying ? 'playing' : 'paused');
+  }, [isPlaying]);
+
+  // Update position state for notification progress bar
+  useEffect(() => {
+    if (!isPlaying) return;
+    const interval = setInterval(() => {
+      const audio = audioRef.current;
+      if (audio && !isNaN(audio.duration)) {
+        updatePositionState(audio.duration, audio.currentTime);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
   }, [isPlaying]);
 
   // Points for listening: 1 point every 30 seconds of active playback
