@@ -26,6 +26,7 @@ const Leaderboard = nextDynamic(() => import("@/components/Leaderboard").then(mo
 const AdminPanel = nextDynamic(() => import("@/components/AdminPanel").then(mod => mod.AdminPanel), { ssr: false });
 const ProfileModal = nextDynamic(() => import("@/components/ProfileModal").then(mod => mod.ProfileModal), { ssr: false });
 const AuthGate = nextDynamic(() => import("@/components/AuthGate").then(mod => mod.AuthGate), { ssr: false });
+const MushafChoice = nextDynamic(() => import("@/components/MushafChoice").then(mod => mod.MushafChoice), { ssr: false });
 
 export function CatchAllPageClient() {
   return (
@@ -95,6 +96,7 @@ function CatchAllContent() {
       <main className="flex-1 relative overflow-hidden">
         {visited.mushaf && <div className={`h-full w-full mb-20 ${activeView === 'mushaf' ? 'block' : 'hidden'}`}><Mushaf /></div>}
         {visited['mushaf-full'] && <div className={`h-full w-full mb-20 ${activeView === 'mushaf-full' ? 'block' : 'hidden'}`}><DigitalMushaf /></div>}
+        {visited['mushaf-choice'] && <div className={`h-full w-full pb-20 ${activeView === 'mushaf-choice' ? 'block' : 'hidden'}`}><MushafChoice /></div>}
         {visited.daily && <div className={`h-full w-full pb-32 ${activeView === 'daily' ? 'block' : 'hidden'}`}><DailyHub /></div>}
         {visited.library && <div className={`h-full w-full pb-32 ${activeView === 'library' ? 'block' : 'hidden'}`}><AudioLibrary /></div>}
         {visited.prayers && <div className={`h-full w-full pb-32 ${activeView === 'prayers' ? 'block' : 'hidden'}`}><PrayerTimes /></div>}
