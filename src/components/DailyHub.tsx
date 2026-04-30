@@ -283,7 +283,7 @@ export function DailyHub() {
   };
 
   return (
-    <div className="w-full h-full flex flex-col p-6 md:p-14 overflow-y-auto font-arabic pb-40 bg-background text-foreground relative daily-hub-container">
+    <div className="w-full h-full flex flex-col p-6 md:p-14 overflow-y-auto font-arabic pb-40 bg-background text-foreground relative daily-hub-container [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       {/* Unified Background Layer */}
       <div className="absolute inset-0 z-0 pointer-events-none">
           <div 
@@ -305,7 +305,7 @@ export function DailyHub() {
         </p>
       </div>
 
-      <div className="flex w-full max-w-3xl mx-auto rounded-3xl p-1.5 glass-effect border border-border mb-10 overflow-x-auto horizontal-scroll z-10 shrink-0">
+      <div className="flex w-full max-w-3xl mx-auto rounded-3xl p-1.5 glass-effect border border-border mb-10 overflow-x-auto horizontal-scroll z-10 shrink-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {[
           { id: "sibha", icon: Fingerprint, label: "السبحة" },
           { id: "morning", icon: Sun, label: "الصباح" },
