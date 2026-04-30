@@ -174,9 +174,6 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
                  {/* Status Label & Close */}
                  <div className="shrink-0 flex items-center gap-2">
-                    <div className="bg-white/5 px-3 py-1 rounded-lg border border-white/10">
-                       <span className="text-[8px] font-black text-white/40 uppercase tracking-widest">Mandatory</span>
-                    </div>
                     <button 
                       onClick={() => setAnnouncementTimer(0)}
                       className="p-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-white/60 hover:text-white transition-all border border-white/10"
@@ -255,20 +252,34 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
       {/* Global Announcement Banner */}
       {globalAnnouncement && (
-        <div className="fixed top-0 inset-x-0 z-[4000] p-4 md:p-6 animate-in slide-in-from-top duration-500">
-           <div className="max-w-4xl mx-auto bg-primary/10 backdrop-blur-2xl border border-primary/20 p-4 md:p-5 rounded-[2rem] shadow-2xl flex items-center justify-between gap-4 group">
-              <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center shrink-0 shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
-                 <Bell className="w-6 h-6 text-black" />
+        <div className="fixed top-0 left-0 right-0 z-[4000] p-4 animate-in slide-in-from-top duration-700">
+           <div className="max-w-xl mx-auto bg-[#0a0a0a]/90 backdrop-blur-xl border border-primary/30 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden relative group">
+              <div className="flex items-center gap-4 px-6 py-4">
+                 {/* Icon */}
+                 <div className="relative shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
+                       <Bell className="w-5 h-5 text-primary group-hover:animate-swing" />
+                    </div>
+                 </div>
+
+                 {/* Message Content */}
+                 <div className="flex-1 text-center min-w-0">
+                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-0.5 opacity-60">إشعار جديد</p>
+                    <p className="text-sm font-bold text-white font-arabic leading-relaxed truncate">
+                       {globalAnnouncement}
+                    </p>
+                 </div>
+
+                 {/* Close Button */}
+                 <div className="shrink-0 flex items-center gap-2">
+                    <button 
+                      onClick={() => setGlobalAnnouncement(null)}
+                      className="p-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-white/60 hover:text-white transition-all border border-white/10"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                 </div>
               </div>
-              <div className="flex-1 text-center overflow-hidden">
-                 <p className="text-foreground font-black font-arabic text-sm md:text-base leading-snug">{globalAnnouncement}</p>
-              </div>
-              <button 
-                onClick={() => setGlobalAnnouncement(null)}
-                className="p-3 hover:bg-foreground/5 rounded-xl text-foreground/20 hover:text-foreground transition-all"
-              >
-                <X className="w-5 h-5" />
-              </button>
            </div>
         </div>
       )}

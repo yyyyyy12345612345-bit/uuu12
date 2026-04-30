@@ -47,7 +47,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
   const [loading, setLoading] = useState(true);
   const [showProfileSetup, setShowProfileSetup] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<"global" | "governorate">("global");
+  const [activeTab, setActiveTab] = useState<"global" | "governorate" | "quran" | "athkar" | "listen">("global");
   const [activeQuests, setActiveQuests] = useState<any[]>([]);
   const [completedQuests, setCompletedQuests] = useState<string[]>([]);
   const { updateState } = useEditor();
@@ -414,18 +414,36 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
       </div>
 
       {/* Tabs */}
-        <div className="flex items-center gap-2 p-1 bg-foreground/5 rounded-2xl w-fit mx-auto md:mx-0">
+        <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 p-1 bg-foreground/5 rounded-2xl w-full md:w-fit mx-auto md:mx-0">
            <button 
              onClick={() => setActiveTab("global")}
-             className={`px-8 py-3 rounded-xl font-bold font-arabic text-sm transition-all ${activeTab === "global" ? 'bg-primary text-black shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
+             className={`px-4 md:px-6 py-2.5 rounded-xl font-bold font-arabic text-xs md:text-sm transition-all ${activeTab === "global" ? 'bg-primary text-black shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
            >
               الترتيب العام
            </button>
            <button 
              onClick={() => setActiveTab("governorate")}
-             className={`px-8 py-3 rounded-xl font-bold font-arabic text-sm transition-all ${activeTab === "governorate" ? 'bg-primary text-black shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
+             className={`px-4 md:px-6 py-2.5 rounded-xl font-bold font-arabic text-xs md:text-sm transition-all ${activeTab === "governorate" ? 'bg-primary text-black shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
            >
-              ترتيب المحافظة
+              المحافظة
+           </button>
+           <button 
+             onClick={() => setActiveTab("quran")}
+             className={`px-4 md:px-6 py-2.5 rounded-xl font-bold font-arabic text-xs md:text-sm transition-all ${activeTab === "quran" ? 'bg-primary text-black shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
+           >
+              قراءة القرآن
+           </button>
+           <button 
+             onClick={() => setActiveTab("athkar")}
+             className={`px-4 md:px-6 py-2.5 rounded-xl font-bold font-arabic text-xs md:text-sm transition-all ${activeTab === "athkar" ? 'bg-primary text-black shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
+           >
+              الأذكار والتسبيح
+           </button>
+           <button 
+             onClick={() => setActiveTab("listen")}
+             className={`px-4 md:px-6 py-2.5 rounded-xl font-bold font-arabic text-xs md:text-sm transition-all ${activeTab === "listen" ? 'bg-primary text-black shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
+           >
+              الاستماع
            </button>
         </div>
 
@@ -437,7 +455,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                   <h3 className="font-bold font-arabic">أبطال المسابقة</h3>
                </div>
                <div className="flex items-center gap-2 text-[10px] font-bold text-foreground/20 uppercase tracking-widest">
-                  <span>نقاط تراكمية مستمرة</span>
+                  <span>النقاط</span>
                </div>
             </div>
 
@@ -446,9 +464,23 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                 <div className="p-20 text-center text-foreground/20 font-arabic font-bold">لا توجد بيانات حالياً.. كن أول المنافسين!</div>
               ) : (
               leaderboardData
-                .filter((entry: any) => activeTab === "global" || (activeTab === "governorate" && userData && entry.governorate === userData.governorate))
-                .sort((a: any, b: any) => (b.totalPoints || 0) - (a.totalPoints || 0))
-                .map((entry, index) => (
+                .filter((entry: any) => activeTab === "governorate" ? (userData && entry.governorate === userData.governorate) : true)
+                .sort((a: any, b: any) => {
+                  if (activeTab === "quran") return (b.quranPoints || 0) - (a.quranPoints || 0);
+                  if (activeTab === "athkar") return (b.athkarPoints || 0) - (a.athkarPoints || 0);
+                  if (activeTab === "listen") return (b.listenPoints || 0) - (a.listenPoints || 0);
+                  return (b.totalPoints || 0) - (a.totalPoints || 0);
+                })
+                .map((entry, index) => {
+                  const getTabPoints = () => {
+                    if (activeTab === "quran") return entry.quranPoints || 0;
+                    if (activeTab === "athkar") return entry.athkarPoints || 0;
+                    if (activeTab === "listen") return entry.listenPoints || 0;
+                    return entry.totalPoints || 0;
+                  };
+                  const displayedPoints = getTabPoints();
+
+                  return (
                   <div key={entry.id} className="flex items-center justify-between p-4 md:p-6 hover:bg-foreground/[0.02] transition-colors group gap-4">
                       <div className="flex items-center gap-3 md:gap-6 min-w-0 flex-1">
                          <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold font-mono relative shrink-0 ${index === 0 ? 'bg-amber-400 text-black' : index === 1 ? 'bg-slate-300 text-black' : index === 2 ? 'bg-amber-700 text-white' : 'bg-foreground/5 text-foreground/40'}`}>
@@ -482,14 +514,14 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                       </div>
 
                       <div className="text-left flex flex-col items-end gap-1 shrink-0 ml-auto md:ml-0 min-w-fit">
-                          {/* النقاط الإجمالية */}
+                          {/* النقاط المعروضة */}
                           <div className="flex items-center gap-1 bg-primary/10 border border-primary/20 px-2 md:px-3 py-1 rounded-lg">
                              <Star className="w-3 h-3 text-primary fill-primary" />
                              <span className="text-sm md:text-xl font-black text-primary">
-                                {typeof entry.totalPoints === 'number' ? (Math.round(entry.totalPoints * 10) / 10).toFixed(1) : ((entry.totalPoints || 0) * 1 / 1).toFixed(1)}
+                                {(Math.round(displayedPoints * 10) / 10).toFixed(1)}
                              </span>
                           </div>
-                          {/* تفاصيل النقاط - معالجة التداخل */}
+                          {/* تفاصيل النقاط - تظهر دائما للتمييز */}
                           <div className="flex items-center gap-2 opacity-40 text-[8px] md:text-[9px]">
                              <div className="flex items-center gap-0.5" title="القرآن">
                                 <BookOpen className="w-2 h-2" />
@@ -506,7 +538,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                           </div>
                        </div>
                   </div>
-                ))
+                )})
               )}
            </div>
         </div>
