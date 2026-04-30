@@ -21,7 +21,6 @@ export function Mushaf() {
     const [selectedVerseForDetail, setSelectedVerseForDetail] = useState<{verseKey: string, surahName: string} | null>(null);
 
     const audioRef = useRef<HTMLAudioElement>(null);
-    const wordAudioRef = useRef<HTMLAudioElement>(null);
 
     const selectedReciter = RECITERS.find(r => r.id === state.reciterId) || RECITERS[0];
 
@@ -76,25 +75,6 @@ export function Mushaf() {
                 });
             }
         }
-    };
-
-    const playWord = (word: any) => {
-        if (!word || !word.audio_url) return;
-        setActiveWordId(word.id);
-
-        let audioUrl = word.audio_url;
-        if (!audioUrl.startsWith('http')) {
-            audioUrl = `https://audio.qurancdn.com/${audioUrl}`;
-        }
-
-        const audio = new Audio(audioUrl);
-        audio.play().catch(() => {
-            const alt = `https://verses.quran.com/${word.audio_url}`;
-            new Audio(alt).play().catch(() => {});
-        });
-
-        if (navigator.vibrate) navigator.vibrate(20);
-        audio.onended = () => setActiveWordId(null);
     };
 
     const filteredSurahs = surahsData.filter(s =>
@@ -260,8 +240,6 @@ export function Mushaf() {
                 <div className="absolute inset-0 bg-gradient-to-tr from-orange-900/10 to-transparent mix-blend-overlay" />
                 <div className="absolute inset-0 bg-black/30" />
             </div>
-
-            <audio ref={wordAudioRef} onEnded={() => setActiveWordId(null)} />
 
             <header className="shrink-0 p-5 glass-effect border-b border-border flex items-center justify-between z-40 mx-4 mt-2 rounded-2xl relative">
                 <button

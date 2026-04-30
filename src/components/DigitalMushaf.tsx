@@ -43,7 +43,6 @@ export function DigitalMushaf() {
   const [selectedVerseForDetail, setSelectedVerseForDetail] = useState<{verseKey: string, surahName: string} | null>(null);
   
   const audioRef = useRef<HTMLAudioElement>(null);
-  const wordAudioRef = useRef<HTMLAudioElement>(null);
   const observerTarget = useRef(null);
   const loadingRef = useRef(false);
 
@@ -90,22 +89,6 @@ export function DigitalMushaf() {
         loadingRef.current = false;
     }
   }
-
-  const playWord = (word: any) => {
-    if (!word || !word.audio_url) return;
-    let url = word.audio_url;
-    if (!url.startsWith('http')) {
-        url = `https://audio.qurancdn.com/${url}`;
-    }
-    if (wordAudioRef.current) {
-        wordAudioRef.current.src = url;
-        wordAudioRef.current.play().catch(() => {
-            wordAudioRef.current!.src = `https://verses.quran.com/${word.audio_url}`;
-            wordAudioRef.current!.play().catch(() => {});
-        });
-        if (navigator.vibrate) navigator.vibrate(20);
-    }
-  };
 
   useEffect(() => {
     const savedPage = localStorage.getItem("last_read_page");
@@ -369,7 +352,6 @@ export function DigitalMushaf() {
                                 playVerse={playVerse}
                                 mushafFontSize={state.mushafFontSize}
                                 onShowDetail={(verseKey: string, surahName: string) => setSelectedVerseForDetail({ verseKey, surahName })}
-                                onPlayWord={playWord}
                             />
                         </div>
                     ))
@@ -385,7 +367,6 @@ export function DigitalMushaf() {
             </div>
         </div>
       </main>
-      <audio ref={wordAudioRef} />
 
       <footer className="h-[80px] md:h-[90px] shrink-0 bg-white dark:bg-zinc-950 border-t border-border px-4 md:px-14 flex items-center justify-between z-[100] shadow-[0_-10px_40px_rgba(0,0,0,0.03)] transition-colors duration-500">
           <div className="flex items-center gap-4 md:gap-8 overflow-hidden">
@@ -449,7 +430,7 @@ export function DigitalMushaf() {
   );
 }
 
-const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mushafFontSize, onShowDetail, onPlayWord }: any) => {
+const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mushafFontSize, onShowDetail }: any) => {
     return (
         <div 
             data-page={pData.page}
@@ -537,8 +518,7 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                             return (
                                                 <span 
                                                     key={word.id} 
-                                                    onClick={(e) => { e.stopPropagation(); onPlayWord(word); }}
-                                                    className={`inline-block px-[2px] transition-colors hover:text-primary ${isAllah ? 'text-[#cd4d4d]' : 'currentColor'}`}
+                                                    className={`inline-block px-[2px] ${isAllah ? 'text-[#cd4d4d]' : 'currentColor'}`}
                                                 >
                                                     {word.text_uthmani}
                                                 </span>
