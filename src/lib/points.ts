@@ -92,6 +92,38 @@ export async function addPoints(type: "quran" | "athkar" | "listen", amount: num
 }
 
 /**
+ * Claims a specific quest's points
+ */
+export async function claimQuestPoints(questId: string, amount: number): Promise<PointUpdateResult> {
+  const user = auth?.currentUser;
+  if (!user || !db) return { success: false, message: "يجب تسجيل الدخول أولاً" };
+
+  const questClaimRef = doc(db, "users", user.uid, "completed_quests", questId);
+
+  try {
+    const claimDoc = await getDoc(questClaimRef);
+    if (claimDoc.exists()) {
+      return { success: false, message: "لقد حصلت على نقاط هذه المهمة بالفعل" };
+    }
+
+    // إضافة النقاط كعملية "قمر" (quran) أو حسب نوع المهمة
+    const result = await addPoints("quran", amount);
+    if (result.success) {
+      // تسجيل المهمة كمكتملة
+      await setDoc(questClaimRef, {
+        completedAt: new Date().toISOString(),
+        pointsEarned: amount
+      });
+      return { success: true, message: `مبروك! حصلت على +${amount} نقطة` };
+    }
+    return result;
+  } catch (e) {
+    console.error("Error claiming quest:", e);
+    return { success: false, message: "فشل استلام النقاط" };
+  }
+}
+
+/**
  * Handles Full Mushaf page reading with time validation
  */
 let pageStartTime: number | null = null;

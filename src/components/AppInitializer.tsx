@@ -107,12 +107,16 @@ export default function AppInitializer({ children }: { children: React.ReactNode
       unsubscribeSettings = onSnapshot(doc(db, "settings", "global"), (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.data();
-          setGlobalAnnouncement(data.announcement || null);
           
-          // إعلان إجباري جديد
-          if (data.mandatoryAnnouncement) {
-            setMandatoryAnnouncement(data.mandatoryAnnouncement);
-            setAnnouncementTimer(data.mandatoryDuration || 60); // الافتراضي 60 ثانية
+          // إذا وجد أي نوع من الإعلانات، سنعامله كإعلان مؤقت
+          const message = data.mandatoryAnnouncement || data.announcement;
+          if (message) {
+            setMandatoryAnnouncement(message);
+            // إذا لم يحدد مدة، نفترض 60 ثانية
+            setAnnouncementTimer(data.mandatoryDuration || 60);
+          } else {
+            setMandatoryAnnouncement(null);
+            setGlobalAnnouncement(null);
           }
         }
       });
