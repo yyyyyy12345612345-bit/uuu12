@@ -12,6 +12,8 @@ export default function AppInitializer({ children }: { children: React.ReactNode
   const [updateInfo, setUpdateInfo] = useState<any>(null);
   const [showPermissionModal, setShowPermissionModal] = useState(false);
   const [globalAnnouncement, setGlobalAnnouncement] = useState<string | null>(null);
+  const [mandatoryAnnouncement, setMandatoryAnnouncement] = useState<string | null>(null);
+  const [announcementTimer, setAnnouncementTimer] = useState<number>(0);
 
   useEffect(() => {
     // Only show splash once per session to avoid annoying re-loads during navigation
@@ -104,7 +106,14 @@ export default function AppInitializer({ children }: { children: React.ReactNode
       
       unsubscribeSettings = onSnapshot(doc(db, "settings", "global"), (snapshot) => {
         if (snapshot.exists()) {
-          setGlobalAnnouncement(snapshot.data().announcement || null);
+          const data = snapshot.data();
+          setGlobalAnnouncement(data.announcement || null);
+          
+          // إعلان إجباري جديد
+          if (data.mandatoryAnnouncement) {
+            setMandatoryAnnouncement(data.mandatoryAnnouncement);
+            setAnnouncementTimer(data.mandatoryDuration || 60); // الافتراضي 60 ثانية
+          }
         }
       });
     };
@@ -116,8 +125,54 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     };
   }, []);
 
+  // منطق المؤقت للإعلان الإجباري
+  useEffect(() => {
+    if (announcementTimer > 0) {
+      const timer = setInterval(() => {
+        setAnnouncementTimer((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    } else if (mandatoryAnnouncement) {
+      setMandatoryAnnouncement(null);
+    }
+  }, [announcementTimer, mandatoryAnnouncement]);
+
   return (
     <>
+      {/* Mandatory Announcement Overlay (No Close Button) */}
+      {mandatoryAnnouncement && (
+        <div className="fixed inset-0 z-[11000] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl font-arabic">
+           <div className="absolute inset-0 islamic-pattern opacity-[0.05]" />
+           <div className="relative w-full max-w-xl bg-zinc-900 border border-primary/20 p-8 md:p-12 rounded-[3rem] shadow-2xl flex flex-col items-center gap-8 text-center animate-in zoom-in-95 duration-500">
+              
+              <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center border border-primary/20 relative">
+                 <Bell className="w-10 h-10 text-primary animate-ring" />
+                 <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-black rounded-full flex items-center justify-center font-black text-xs shadow-lg">
+                    {announcementTimer}
+                 </div>
+              </div>
+
+              <div className="space-y-4">
+                 <h2 className="text-2xl font-black text-primary tracking-tight">تنبيه إداري هام</h2>
+                 <div className="h-px w-20 bg-primary/20 mx-auto" />
+                 <p className="text-white text-lg md:text-xl font-bold leading-relaxed whitespace-pre-wrap">
+                    {mandatoryAnnouncement}
+                 </p>
+              </div>
+
+              <div className="w-full bg-white/[0.03] rounded-2xl p-4 flex flex-col items-center gap-2">
+                 <p className="text-[10px] text-white/30 font-bold uppercase tracking-widest">سوف تختفي هذه الرسالة تلقائياً خلال</p>
+                 <div className="flex items-center gap-1 text-primary font-black text-xl">
+                    <span>{announcementTimer}</span>
+                    <span className="text-[10px] mt-1">ثانية</span>
+                 </div>
+              </div>
+
+              <p className="text-[9px] text-white/10 font-bold uppercase tracking-[0.3em]">Mandatory System Broadcast</p>
+           </div>
+        </div>
+      )}
+
       {/* Permission Request Modal (First Run Only) */}
       {showPermissionModal && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6 bg-black font-arabic overflow-hidden">
