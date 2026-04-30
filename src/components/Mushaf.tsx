@@ -7,6 +7,7 @@ import { useEditor } from "@/store/useEditor";
 import surahsData from "@/data/surahs.json";
 import { getAudioUrl } from "@/lib/quranUtils";
 import { startAyahTimer, endAyahTimer } from "@/lib/points";
+import { VerseDetailsModal } from "./VerseDetailsModal";
 
 export function Mushaf() {
     const { state, updateState } = useEditor();
@@ -17,6 +18,7 @@ export function Mushaf() {
     const [activeWordId, setActiveWordId] = useState<number | null>(null);
     const [search, setSearch] = useState("");
     const [showReciterPicker, setShowReciterPicker] = useState(false);
+    const [selectedVerseForDetail, setSelectedVerseForDetail] = useState<{verseKey: string, surahName: string} | null>(null);
 
     const audioRef = useRef<HTMLAudioElement>(null);
     const wordAudioRef = useRef<HTMLAudioElement>(null);
@@ -374,6 +376,18 @@ export function Mushaf() {
                                             <p className="text-lg md:text-xl text-foreground/50 leading-relaxed font-arabic font-medium italic">
                                                 {verse.translation}
                                             </p>
+                                            <button 
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelectedVerseForDetail({ 
+                                                        verseKey: `${selectedSurah}:${verse.id}`, 
+                                                        surahName: surahContent.name 
+                                                    });
+                                                }}
+                                                className="mt-4 text-[10px] font-black text-primary uppercase tracking-widest hover:underline"
+                                            >
+                                                التفسير والتفاصيل
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -398,6 +412,14 @@ export function Mushaf() {
                     }
                 }}
             />
+
+            {selectedVerseForDetail && (
+                <VerseDetailsModal 
+                    verseKey={selectedVerseForDetail.verseKey}
+                    surahName={selectedVerseForDetail.surahName}
+                    onClose={() => setSelectedVerseForDetail(null)}
+                />
+            )}
         </div>
     );
 }
