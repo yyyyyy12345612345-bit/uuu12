@@ -21,7 +21,7 @@ export function VerseDetailsModal({ verseKey, onClose, surahName }: VerseDetails
       setLoading(true);
       try {
         const [tData, vData] = await Promise.all([
-          fetchVerseTafsir(verseKey),
+          fetchVerseTafsir(verseKey, 91), // 91: Tafsir Al-Saadi (Arabic)
           fetchVerseTranslations(verseKey, [16]) // 16: Moyassar (Arabic)
         ]);
         setTafsir(tData);
@@ -98,7 +98,7 @@ export function VerseDetailsModal({ verseKey, onClose, surahName }: VerseDetails
                 <div className="space-y-6" dir="rtl">
                   <h3 className="text-lg font-bold text-primary flex items-center gap-2">
                     <div className="w-1.5 h-6 bg-primary rounded-full" />
-                    تفسير ابن كثير
+                    تفسير السعدي
                   </h3>
                   <div 
                     className="text-lg leading-[2.2] text-foreground/80 font-medium font-arabic text-justify"
