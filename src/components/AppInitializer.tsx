@@ -77,7 +77,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     try {
       const response = await fetch('/version.json?t=' + Date.now());
       const data = await response.json();
-      const LOCAL_VERSION = "v3.0";
+      const LOCAL_VERSION = "v3.1";
       
       if (isNewerVersion(data.version, LOCAL_VERSION)) {
         setUpdateInfo(data);
@@ -149,7 +149,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
            <div className="max-w-xl mx-auto bg-[#0a0a0a]/90 backdrop-blur-xl border border-[#d4af37]/30 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden relative group">
               {/* Progress Bar (Background) */}
               <div 
-                className="absolute bottom-0 left-0 h-[2px] bg-[#d4af37] transition-all duration-1000 ease-linear shadow-[0_0_10px_#d4af37]"
+                className="absolute bottom-0 left-0 h-[2px] bg-[#d4af37] transition-all duration-1000 ease-linear shadow-[0_0_100px_#d4af37]"
                 style={{ width: `${(announcementTimer / 60) * 100}%` }}
               />
 
@@ -204,7 +204,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
                  <div className="text-center space-y-4">
                     <h2 className="text-3xl font-black text-white tracking-tight">صلاحيات التشغيل</h2>
-                    <span className="text-white/20 text-[10px] font-mono tracking-widest mt-4">VERSION 3.0 (HYPER BUILD 15)</span>
+                    <span className="text-white/20 text-[10px] font-mono tracking-widest mt-4">VERSION 3.1 (HYPER BUILD 16)</span>
                     <p className="text-white/50 text-sm font-bold leading-relaxed">
                        لكي يعمل التطبيق بشكل صحيح ويطلق الأذان في وقته، نحتاج منك السماح ببعض الصلاحيات الأساسية.
                     </p>
@@ -304,7 +304,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
                 <h3 className="text-2xl font-black text-black dark:text-white font-arabic mb-2">تحديث جديد متاح!</h3>
                 <p className="text-black/60 dark:text-white/60 text-sm mb-6 leading-relaxed px-4 font-bold">
-                  نسخة جديدة من التطبيق متوفرة الآن ({updateInfo?.version}). يرجى التحميل للحصول على آخر المميزات والتحسينات.
+                   نسخة جديدة من التطبيق متوفرة الآن ({updateInfo?.version}). يرجى التحميل للحصول على آخر المميزات والتحسينات.
                 </p>
 
                 {updateInfo?.releaseNotes && (
@@ -341,7 +341,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
            
            <div className="mt-12 text-center animate-in slide-in-from-bottom-10 duration-1000">
               <h1 className="text-3xl font-black text-foreground tracking-tighter mb-2">قرآن كريم</h1>
-              <p className="text-[10px] text-primary font-black uppercase tracking-[0.5em]">الإصدار v3.0 (HYPER)</p>
+              <p className="text-[10px] text-primary font-black uppercase tracking-[0.5em]">الإصدار v3.1 (HYPER)</p>
            </div>
            
            <div className="absolute bottom-12 flex flex-col items-center gap-4">
