@@ -44,6 +44,20 @@ export function MushafChoice() {
               <p className="text-[11px] md:text-xs font-arabic text-foreground/50 font-bold">تصفح المصحف بالصفحات التقليدية مثل المصحف الورقي</p>
             </div>
           </Link>
+
+          <button 
+            onClick={() => alert("قريباً بإذن الله.. جاري العمل على إضافة التفاسير المعتمدة")}
+            className="flex items-center gap-4 p-6 glass-effect border border-foreground/10 rounded-3xl transition-all group text-right opacity-60 hover:opacity-80"
+          >
+            <div className="w-14 h-14 rounded-2xl bg-foreground/5 flex items-center justify-center group-hover:scale-110 transition-all">
+              <BookOpen className="w-7 h-7 text-foreground/50" />
+            </div>
+            <div className="text-right flex-1 relative">
+              <div className="absolute left-0 top-0 bg-primary/20 text-primary text-[9px] font-black px-2 py-1 rounded-lg">قريباً</div>
+              <h3 className="text-xl font-black font-arabic mb-1 text-foreground">مصحف بالتفسير</h3>
+              <p className="text-[11px] md:text-xs font-arabic text-foreground/50 font-bold">قراءة المصحف مع معاني الكلمات والتفسير الميسر</p>
+            </div>
+          </button>
         </div>
       </div>
     </div>
