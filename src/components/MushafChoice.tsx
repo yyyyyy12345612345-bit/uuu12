@@ -4,7 +4,7 @@ import { BookOpen, ScrollText } from 'lucide-react';
 
 export function MushafChoice() {
   return (
-    <div className="flex flex-col items-center min-h-full w-full p-6 animate-in zoom-in-95 duration-500 relative overflow-y-auto no-scrollbar">
+    <div className="absolute inset-0 overflow-y-auto flex flex-col items-center p-6 animate-in zoom-in-95 duration-500">
       <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/40 to-background" />
           <div className="absolute inset-0 islamic-pattern opacity-[0.03] dark:opacity-[0.05]" />
