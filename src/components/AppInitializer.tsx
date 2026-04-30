@@ -165,16 +165,24 @@ export default function AppInitializer({ children }: { children: React.ReactNode
                  </div>
 
                  {/* Message Content */}
-                 <div className="flex-1 text-right min-w-0">
+                 <div className="flex-1 text-center min-w-0">
                     <p className="text-[10px] font-black text-[#d4af37] uppercase tracking-[0.2em] mb-0.5 opacity-60">تنبيه إداري</p>
                     <p className="text-sm font-bold text-white font-arabic leading-relaxed truncate">
                        {mandatoryAnnouncement}
                     </p>
                  </div>
 
-                 {/* Status Label */}
-                 <div className="shrink-0 bg-white/5 px-3 py-1 rounded-lg border border-white/10">
-                    <span className="text-[8px] font-black text-white/40 uppercase tracking-widest">Mandatory</span>
+                 {/* Status Label & Close */}
+                 <div className="shrink-0 flex items-center gap-2">
+                    <div className="bg-white/5 px-3 py-1 rounded-lg border border-white/10">
+                       <span className="text-[8px] font-black text-white/40 uppercase tracking-widest">Mandatory</span>
+                    </div>
+                    <button 
+                      onClick={() => setAnnouncementTimer(0)}
+                      className="p-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-white/60 hover:text-white transition-all border border-white/10"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                  </div>
               </div>
            </div>
