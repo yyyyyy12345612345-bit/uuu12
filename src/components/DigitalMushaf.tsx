@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Loader2, Play, Search, List, User, X, ChevronRight, ChevronLeft, Book, Star, Settings, Download } from "lucide-react";
+import { Loader2, Play, Search, List, User, X, ChevronRight, ChevronLeft, Book, Star, Settings, Download, BookOpen } from "lucide-react";
 import { Scheherazade_New } from "next/font/google";
 import surahsData from "@/data/surahs.json";
 import { RECITERS } from "@/data/reciters";
@@ -366,6 +366,34 @@ export function DigitalMushaf() {
                 </div>
             </div>
         </div>
+
+        {/* Floating Tafsir Bar for Digital Mushaf */}
+        {currentPlayingVerse && (
+            <div className="fixed bottom-[90px] md:bottom-[100px] left-1/2 -translate-x-1/2 w-[90%] max-w-[600px] z-[90] animate-in slide-in-from-bottom-10 duration-500">
+                <div 
+                    onClick={() => {
+                        const verse = pages[currentPlayingVerse.pageIndex].verses[currentPlayingVerse.verseIndex];
+                        const [sId] = verse.verse_key.split(':');
+                        const sName = surahsData.find(s => s.id === parseInt(sId))?.name || "";
+                        setSelectedVerseForDetail({ verseKey: verse.verse_key, surahName: sName });
+                    }}
+                    className="bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl border border-primary/20 rounded-[2rem] p-4 md:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.2)] flex items-center gap-4 cursor-pointer hover:bg-white dark:hover:bg-zinc-950 transition-all group/tbar"
+                >
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0 group-hover/tbar:scale-110 transition-transform">
+                        <BookOpen className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">تفسير الآية</p>
+                        <p className="text-xs md:text-sm text-foreground/70 font-arabic font-bold line-clamp-2 leading-relaxed" dir="rtl">
+                            {pages[currentPlayingVerse.pageIndex].verses[currentPlayingVerse.verseIndex].translations?.[0]?.text.replace(/<[^>]*>?/gm, '') || "اضغط لعرض التفسير..."}
+                        </p>
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/20 group-hover/tbar:text-primary transition-colors">
+                        <ChevronLeft className="w-4 h-4" />
+                    </div>
+                </div>
+            </div>
+        )}
       </main>
 
       <footer className="h-[80px] md:h-[90px] shrink-0 bg-white dark:bg-zinc-950 border-t border-border px-4 md:px-14 flex items-center justify-between z-[100] shadow-[0_-10px_40px_rgba(0,0,0,0.03)] transition-colors duration-500">
