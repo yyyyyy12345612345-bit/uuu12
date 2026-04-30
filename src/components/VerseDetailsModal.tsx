@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, BookOpen, MessageCircle, Languages, Info, Play, Loader2, Book } from "lucide-react";
+import { X, BookOpen, Languages, Loader2, Book } from "lucide-react";
 import { fetchVerseTafsir, fetchVerseTranslations } from "@/lib/quranUtils";
 
 interface VerseDetailsModalProps {
@@ -11,7 +11,7 @@ interface VerseDetailsModalProps {
 }
 
 export function VerseDetailsModal({ verseKey, onClose, surahName }: VerseDetailsModalProps) {
-  const [activeTab, setActiveTab] = useState<'tafsir' | 'translation' | 'words'>('tafsir');
+  const [activeTab, setActiveTab] = useState<'tafsir' | 'translation'>('tafsir');
   const [loading, setLoading] = useState(true);
   const [tafsir, setTafsir] = useState<any>(null);
   const [verseData, setVerseData] = useState<any>(null);
@@ -22,7 +22,7 @@ export function VerseDetailsModal({ verseKey, onClose, surahName }: VerseDetails
       try {
         const [tData, vData] = await Promise.all([
           fetchVerseTafsir(verseKey),
-          fetchVerseTranslations(verseKey, [131, 16]) // 131: Sahih Intl, 16: Moyassar
+          fetchVerseTranslations(verseKey, [16]) // 16: Moyassar (Arabic)
         ]);
         setTafsir(tData);
         setVerseData(vData);
@@ -58,8 +58,7 @@ export function VerseDetailsModal({ verseKey, onClose, surahName }: VerseDetails
         <div className="flex px-4 md:px-8 py-4 gap-2 border-b border-border bg-foreground/[0.01]">
           {[
             { id: 'tafsir', label: 'التفسير', icon: BookOpen },
-            { id: 'translation', label: 'الترجمة', icon: Languages },
-            { id: 'words', label: 'المفردات', icon: Info },
+            { id: 'translation', label: 'الميسر', icon: Languages },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -109,41 +108,18 @@ export function VerseDetailsModal({ verseKey, onClose, surahName }: VerseDetails
               )}
 
               {activeTab === 'translation' && (
-                <div className="space-y-8">
+                <div className="space-y-8" dir="rtl">
                   {verseData?.translations?.map((t: any) => (
                     <div key={t.id} className="space-y-3">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-black text-[10px]">{t.resource_id === 131 ? 'EN' : 'AR'}</div>
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-black text-[10px]">AR</div>
                         <span className="text-[10px] font-black text-foreground/30 uppercase tracking-widest">
-                          {t.resource_id === 131 ? 'Sahih International' : 'التفسير الميسر'}
+                          التفسير الميسر
                         </span>
                       </div>
-                      <p className={`text-lg leading-relaxed text-foreground/80 ${t.resource_id === 131 ? 'font-medium' : 'font-arabic font-bold text-right'}`} dir={t.resource_id === 131 ? 'ltr' : 'rtl'}>
+                      <p className="text-lg leading-relaxed text-foreground/80 font-arabic font-bold text-right">
                         {t.text.replace(/<[^>]*>?/gm, '')}
                       </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {activeTab === 'words' && (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4" dir="rtl">
-                  {verseData?.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => (
-                    <div key={word.id} className="p-4 rounded-2xl bg-foreground/[0.02] border border-border hover:border-primary/30 transition-all group flex flex-col items-center gap-2">
-                      <span className="text-2xl font-arabic font-bold text-foreground group-hover:text-primary transition-colors">{word.text_uthmani}</span>
-                      <div className="h-px w-8 bg-border group-hover:w-full transition-all" />
-                      <span className="text-xs text-foreground/40 font-medium text-center">{word.translation?.text || "..."}</span>
-                      {word.audio_url && (
-                        <button 
-                          onClick={() => {
-                            const url = word.audio_url.startsWith('http') ? word.audio_url : `https://audio.qurancdn.com/${word.audio_url}`;
-                            new Audio(url).play().catch(() => {});
-                          }}
-                          className="mt-2 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
-                        >
-                          <Play className="w-3 h-3 fill-current" />
-                        </button>
-                      )}
                     </div>
                   ))}
                 </div>
