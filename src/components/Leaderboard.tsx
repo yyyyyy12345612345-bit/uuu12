@@ -7,6 +7,7 @@ import {
   TrendingUp, Award, Crown, Phone, User, X,
   BookOpen, Headphones, Fingerprint, Calendar
 } from "lucide-react";
+import { useEditor } from "@/store/useEditor";
 import { Capacitor } from '@capacitor/core';
 import { auth, db } from "@/lib/firebase";
 import { 
@@ -48,6 +49,8 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
   const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<"global" | "governorate">("global");
   const [activeQuests, setActiveQuests] = useState<any[]>([]);
+  const [completedQuests, setCompletedQuests] = useState<string[]>([]);
+  const { updateState } = useEditor();
 
   useEffect(() => {
     if (!auth || !db) return;
@@ -78,6 +81,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
       setLoading(false);
       fetchLeaderboard();
       fetchQuests();
+      if (u) fetchCompletedQuests(u.uid);
     });
 
     const authTimeout = setTimeout(() => {
@@ -98,6 +102,44 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
     const q = query(collection(db, "global_quests"), orderBy("createdAt", "desc"), limit(5));
     const snapshot = await getDocs(q);
     setActiveQuests(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+  };
+
+  const fetchCompletedQuests = async (uid: string) => {
+    if (!db) return;
+    const snapshot = await getDocs(collection(db, "users", uid, "completed_quests"));
+    setCompletedQuests(snapshot.docs.map(d => d.id));
+  };
+
+  const handleQuestClick = (quest: any) => {
+    if (!quest.type || !quest.target) return;
+
+    if (quest.type === "quran" || quest.type === "surah") {
+       updateState({ 
+         view: "mushaf", 
+         surahId: String(quest.target),
+         startAyah: 1 
+       });
+       onEditProfile?.(); 
+    } else if (quest.type === "athkar" || quest.type === "daily") {
+       updateState({ view: "daily" });
+       onEditProfile?.();
+    }
+
+    // محاولة استلام النقاط تلقائياً عند الضغط (كعرض ترحيبي للمهمة)
+    handleClaimPoints(quest);
+  };
+
+  const handleClaimPoints = async (quest: any) => {
+    if (completedQuests.includes(quest.id)) return;
+    
+    const { claimQuestPoints } = await import("@/lib/points");
+    const result = await claimQuestPoints(quest.id, quest.points || 10);
+    
+    if (result.success) {
+      setCompletedQuests(prev => [...prev, quest.id]);
+      alert(`🎉 مبروك! حصلت على +${quest.points} نقطة إضافية للمهمة`);
+      fetchLeaderboard(); // لتحديث نقاط المستخدم في القائمة
+    }
   };
 
   const fetchLeaderboard = async () => {
@@ -316,22 +358,32 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
               <h3 className="text-sm font-bold text-foreground font-arabic">المهام الأسبوعية</h3>
            </div>
            <div className="flex flex-col gap-3">
-              {activeQuests.map(q => (
-                <div key={q.id} className="p-5 glass-effect border border-primary/20 rounded-[2rem] flex items-center justify-between group hover:border-primary/40 transition-all">
+              {activeQuests.map(q => {
+                const isDone = completedQuests.includes(q.id);
+                return (
+                <button 
+                  key={q.id} 
+                  disabled={isDone}
+                  onClick={() => handleQuestClick(q)}
+                  className={`w-full p-5 glass-effect border rounded-[2rem] flex items-center justify-between group transition-all text-right ${isDone ? 'opacity-50 grayscale border-emerald-500/20' : 'border-primary/20 hover:border-primary/40 hover:scale-[1.01] active:scale-[0.98]'}`}
+                >
                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary group-hover:scale-110 transition-all">
-                         <Star className="w-5 h-5 fill-current" />
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isDone ? 'bg-emerald-500/20 text-emerald-500' : 'bg-primary/20 text-primary group-hover:scale-110'}`}>
+                         {isDone ? <ShieldCheck className="w-5 h-5" /> : <Star className="w-5 h-5 fill-current" />}
                       </div>
                       <div className="text-right">
-                         <p className="text-sm font-bold text-foreground font-arabic">{q.title}</p>
-                         <p className="text-[10px] text-foreground/40 font-bold font-arabic">أكمل المهمة للحصول على النقاط</p>
+                         <p className={`text-sm font-bold font-arabic ${isDone ? 'text-emerald-500' : 'text-foreground'}`}>{q.title}</p>
+                         <p className="text-[10px] text-foreground/40 font-bold font-arabic">
+                            {isDone ? "تم إتمام المهمة بنجاح ✅" : "اضغط للبدء واستلام النقاط"}
+                         </p>
                       </div>
                    </div>
-                   <div className="bg-primary/10 px-4 py-2 rounded-2xl border border-primary/20">
-                      <span className="text-primary font-black text-sm">+{q.points}</span>
+                   <div className={`px-4 py-2 rounded-2xl border ${isDone ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'bg-primary/10 border-primary/20 text-primary'}`}>
+                      <span className="font-black text-sm">{isDone ? "تم" : `+${q.points}`}</span>
                    </div>
-                </div>
-              ))}
+                </button>
+                );
+              })}
            </div>
         </div>
       )}
@@ -412,49 +464,47 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                             />
                          </div>
 
-                         <div className="flex flex-col text-right">
-                            <div className="flex items-center gap-2">
-                               <span className="font-bold font-arabic text-sm md:text-lg group-hover:text-primary transition-colors leading-tight truncate">
-                                 {entry.displayName || entry.username}
-                               </span>
-                               {index === 0 && <Crown className="w-4 h-4 text-amber-400 fill-amber-400" />}
-                            </div>
-                            <div className="flex items-center gap-2">
-                               <span className="text-[10px] text-foreground/20 font-mono tracking-wider">@{entry.username}</span>
-                               <div className="w-1 h-1 rounded-full bg-foreground/10" />
-                               <div className="flex items-center gap-1 text-[10px] text-foreground/40 font-bold uppercase">
-                                  <MapPin className="w-3 h-3" />
-                                  <span>{entry.governorate}</span>
-                               </div>
-                            </div>
-                         </div>
+                         <div className="flex flex-col text-right min-w-0">
+                             <div className="flex items-center gap-2 mb-0.5">
+                                <span className="font-bold font-arabic text-sm md:text-lg group-hover:text-primary transition-colors leading-tight truncate">
+                                  {entry.displayName || entry.username}
+                                </span>
+                                {index === 0 && <Crown className="w-3 h-3 text-amber-400 fill-amber-400 shrink-0" />}
+                             </div>
+                             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                                <span className="text-[9px] text-foreground/30 font-mono tracking-wider">@{entry.username}</span>
+                                <div className="flex items-center gap-1 text-[9px] text-primary/40 font-bold">
+                                   <MapPin className="w-2.5 h-2.5" />
+                                   <span className="font-arabic">{entry.governorate}</span>
+                                </div>
+                             </div>
+                          </div>
                       </div>
 
-                      <div className="text-left flex flex-col items-end gap-1 shrink-0">
-                         {/* النقاط الإجمالية - كبيرة وواضحة */}
-                         <div className="flex items-center gap-1.5 bg-primary/10 border border-primary/20 px-2 md:px-3 py-1 md:py-1.5 rounded-xl">
-                            <Star className="w-3 md:w-4 h-3 md:h-4 text-primary fill-primary" />
-                            <span className="text-base md:text-xl font-black text-primary">
-                               {typeof entry.totalPoints === 'number' ? (Math.round(entry.totalPoints * 10) / 10).toFixed(1) : ((entry.totalPoints || 0) * 1 / 1).toFixed(1)}
-                            </span>
-                            <span className="text-[8px] text-primary/60 font-bold">نقطة</span>
-                         </div>
-                         {/* تفاصيل النقاط */}
-                         <div className="flex items-center gap-3 opacity-60">
-                            <div className="flex items-center gap-1 text-[9px] font-bold" title="نقاط القرآن">
-                               <BookOpen className="w-2.5 h-2.5 text-blue-400" />
-                               <span>{typeof entry.quranPoints === 'number' ? Math.round(entry.quranPoints * 10) / 10 : (entry.quranPoints || 0)}</span>
-                            </div>
-                            <div className="flex items-center gap-1 text-[9px] font-bold" title="نقاط الأذكار">
-                               <Fingerprint className="w-2.5 h-2.5 text-emerald-400" />
-                               <span>{typeof entry.athkarPoints === 'number' ? Math.round(entry.athkarPoints * 10) / 10 : (entry.athkarPoints || 0)}</span>
-                            </div>
-                            <div className="flex items-center gap-1 text-[9px] font-bold" title="نقاط الاستماع">
-                               <Headphones className="w-2.5 h-2.5 text-amber-400" />
-                               <span>{typeof entry.listenPoints === 'number' ? Math.round(entry.listenPoints * 10) / 10 : (entry.listenPoints || 0)}</span>
-                            </div>
-                         </div>
-                      </div>
+                      <div className="text-left flex flex-col items-end gap-1 shrink-0 ml-auto md:ml-0 min-w-fit">
+                          {/* النقاط الإجمالية */}
+                          <div className="flex items-center gap-1 bg-primary/10 border border-primary/20 px-2 md:px-3 py-1 rounded-lg">
+                             <Star className="w-3 h-3 text-primary fill-primary" />
+                             <span className="text-sm md:text-xl font-black text-primary">
+                                {typeof entry.totalPoints === 'number' ? (Math.round(entry.totalPoints * 10) / 10).toFixed(1) : ((entry.totalPoints || 0) * 1 / 1).toFixed(1)}
+                             </span>
+                          </div>
+                          {/* تفاصيل النقاط - معالجة التداخل */}
+                          <div className="flex items-center gap-2 opacity-40 text-[8px] md:text-[9px]">
+                             <div className="flex items-center gap-0.5" title="القرآن">
+                                <BookOpen className="w-2 h-2" />
+                                <span>{Math.round(entry.quranPoints || 0)}</span>
+                             </div>
+                             <div className="flex items-center gap-0.5" title="الأذكار">
+                                <Fingerprint className="w-2 h-2" />
+                                <span>{Math.round(entry.athkarPoints || 0)}</span>
+                             </div>
+                             <div className="flex items-center gap-0.5" title="الاستماع">
+                                <Headphones className="w-2 h-2" />
+                                <span>{Math.round(entry.listenPoints || 0)}</span>
+                             </div>
+                          </div>
+                       </div>
                   </div>
                 ))
               )}
