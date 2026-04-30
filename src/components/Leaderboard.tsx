@@ -86,7 +86,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
 
     const authTimeout = setTimeout(() => {
       if (loading) {
-        console.log('[Leaderboard] Auth timeout, showing guest view');
+        // console.log('[Leaderboard] Auth timeout, showing guest view');
         setLoading(false);
       }
     }, 5000);
@@ -145,27 +145,13 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
   const fetchLeaderboard = async () => {
     if (!db) return;
     try {
-      // Fetch top 50 users who are NOT banned (Requires Firestore Index)
-      const q = query(
-        collection(db, "users"), 
-        where("isBanned", "==", false),
-        orderBy("totalPoints", "desc"), 
-        limit(50)
-      );
+      // Fetch top users without a composite index, then filter and slice client-side
+      const q = query(collection(db, "users"), orderBy("totalPoints", "desc"), limit(100));
       const snapshot = await getDocs(q);
-      let data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      let data = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter((u: any) => !u.isBanned).slice(0, 50);
       setLeaderboardData(data);
     } catch (e) {
-      console.warn("Index missing, using fallback query:", e);
-      // Fallback query that doesn't need a composite index
-      try {
-        const fallbackQ = query(collection(db, "users"), orderBy("totalPoints", "desc"), limit(100));
-        const fallbackSnapshot = await getDocs(fallbackQ);
-        let data = fallbackSnapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter((u: any) => !u.isBanned).slice(0, 50);
-        setLeaderboardData(data);
-      } catch (fallbackError) {
-        console.error("Error fetching fallback leaderboard:", fallbackError);
-      }
+      console.error("Error fetching leaderboard:", e);
     }
   };
 
