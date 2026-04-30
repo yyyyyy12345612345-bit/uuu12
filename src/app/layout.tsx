@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-// تم تعطيل خطوط Geist لأنها تسبب تنبيهات في الكونسول ولا يتم استخدامها
+// تم تعطيل خطوط Geist وإزالة الاستيراد بالكامل لأنها تسبب تنبيهات preload في الكونسول ولا يتم استخدامها
 const geistSans = { variable: "" };
 const geistMono = { variable: "" };
 
