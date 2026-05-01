@@ -96,6 +96,7 @@ function CatchAllContent() {
       <main className="flex-1 relative overflow-hidden">
         {visited.mushaf && <div className={`h-full w-full mb-20 ${activeView === 'mushaf' ? 'block' : 'hidden'}`}><Mushaf /></div>}
         {visited['mushaf-full'] && <div className={`h-full w-full mb-20 ${activeView === 'mushaf-full' ? 'block' : 'hidden'}`}><DigitalMushaf /></div>}
+        {visited['mushaf-tafseer'] && <div className={`h-full w-full mb-20 ${activeView === 'mushaf-tafseer' ? 'block' : 'hidden'}`}><DigitalMushaf isTafseerMode={true} /></div>}
         {visited['mushaf-choice'] && <div className={`h-full w-full relative pb-20 ${activeView === 'mushaf-choice' ? 'block' : 'hidden'}`}><MushafChoice /></div>}
         {visited.daily && <div className={`h-full w-full pb-32 ${activeView === 'daily' ? 'block' : 'hidden'}`}><DailyHub /></div>}
         {visited.library && <div className={`h-full w-full pb-32 ${activeView === 'library' ? 'block' : 'hidden'}`}><AudioLibrary /></div>}

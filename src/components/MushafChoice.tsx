@@ -46,7 +46,7 @@ export function MushafChoice() {
           </Link>
 
           <Link 
-            href="/mushaf-full" 
+            href="/mushaf-tafseer" 
             className="flex items-center gap-4 p-6 glass-effect hover:bg-primary/10 border border-primary/30 hover:border-primary/60 rounded-3xl transition-all group active:scale-[0.98]"
           >
             <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center group-hover:scale-110 transition-all">

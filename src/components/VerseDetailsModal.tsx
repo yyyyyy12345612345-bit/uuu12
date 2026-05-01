@@ -128,13 +128,7 @@ export function VerseDetailsModal({ verseKey, onClose, surahName }: VerseDetails
           )}
         </div>
 
-        {/* Footer Info */}
-        <div className="p-6 bg-foreground/[0.02] border-t border-border flex items-center justify-center gap-8">
-           <div className="flex items-center gap-2 opacity-30">
-              <Book className="w-3.5 h-3.5" />
-              <span className="text-[9px] font-black uppercase tracking-widest">Quran.com Professional API v4</span>
-           </div>
-        </div>
+
       </div>
     </div>
   );

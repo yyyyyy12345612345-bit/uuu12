@@ -22,7 +22,7 @@ export function Navigation() {
     <nav className="fixed bottom-0 left-0 right-0 z-[250] w-full bg-background/95 backdrop-blur-3xl border-t border-border">
       <div className="px-1 py-3 flex items-center justify-around">
         {tabs.map((tab) => {
-          const isMushafGroup = tab.id === "mushaf" && (currentPath === "/" || currentPath === "/mushaf-full" || currentPath === "/mushaf-choice" || currentPath === "/mushaf");
+          const isMushafGroup = tab.id === "mushaf" && (currentPath === "/" || currentPath === "/mushaf-full" || currentPath === "/mushaf-choice" || currentPath === "/mushaf" || currentPath === "/mushaf-tafseer");
           const isActive = currentPath === tab.path || isMushafGroup;
           const Icon = tab.icon;
           
