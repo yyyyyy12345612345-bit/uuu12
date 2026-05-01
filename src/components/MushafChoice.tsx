@@ -20,7 +20,7 @@ export function MushafChoice() {
         
         <div className="flex flex-col gap-4 w-full pb-20">
           <Link 
-            href="/" 
+            href="/mushaf" 
             className="flex items-center gap-4 p-6 glass-effect hover:bg-primary/5 border border-primary/20 hover:border-primary/50 rounded-3xl transition-all group active:scale-[0.98]"
           >
             <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-primary/20 transition-all">
