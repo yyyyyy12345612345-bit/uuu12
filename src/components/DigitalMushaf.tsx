@@ -29,7 +29,7 @@ const scheherazade = Scheherazade_New({
   display: "swap",
 });
 
-export function DigitalMushaf() {
+export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boolean }) {
   const { state, updateState } = useEditor();
   const [pages, setPages] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -148,6 +148,13 @@ export function DigitalMushaf() {
     const verse = pages[pIdx]?.verses[vIdx];
     if (!verse) return;
     
+    if (isTafseerMode) {
+        const [sId] = verse.verse_key.split(':');
+        const sName = surahsData.find(s => s.id === parseInt(sId))?.name || "";
+        setSelectedVerseForDetail({ verseKey: verse.verse_key, surahName: sName });
+        return;
+    }
+
     setCurrentPlayingVerse({ pageIndex: pIdx, verseIndex: vIdx });
     if (audioRef.current) {
         const [sura, ayah] = verse.verse_key.split(':');
@@ -222,14 +229,16 @@ export function DigitalMushaf() {
                 <List className="w-5 h-5 text-primary" />
                 <span className="text-sm hidden md:block">فهرس السور</span>
              </button>
+             {!isTafseerMode && (
              <button onClick={() => setShowReciterPicker(!showReciterPicker)} className="w-11 h-11 md:w-12 md:h-12 bg-foreground/5 dark:bg-zinc-800 rounded-2xl flex items-center justify-center text-foreground/60 dark:text-zinc-100/60 hover:text-foreground dark:hover:text-zinc-100 border border-border transition-all relative active:scale-95">
                 <User className="w-5 h-5 md:w-6 h-6" />
                 {showReciterPicker && <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-background" />}
              </button>
+             )}
         </div>
 
         <div className="hidden sm:flex flex-col items-center flex-1">
-            <h2 className="text-base md:text-xl font-black text-foreground dark:text-zinc-100 tracking-tight whitespace-nowrap">المصحف المرتل</h2>
+            <h2 className="text-base md:text-xl font-black text-foreground dark:text-zinc-100 tracking-tight whitespace-nowrap">{isTafseerMode ? 'مصحف التفسير' : 'المصحف المرتل'}</h2>
             <div className="flex items-center gap-2 mt-1">
                 <Star className="w-2.5 h-2.5 text-primary" />
                 <span className="text-[9px] md:text-[10px] text-foreground/40 dark:text-zinc-100/40 font-bold uppercase tracking-widest whitespace-nowrap">مكتبة متميزة</span>
@@ -238,26 +247,30 @@ export function DigitalMushaf() {
         </div>
 
         <div className="flex items-center justify-end gap-2 md:gap-4 flex-1">
-            <div className="hidden lg:flex flex-col items-end mr-4">
-                <span className="text-[10px] text-foreground/30 dark:text-zinc-100/30 font-bold uppercase">القارئ الحالي</span>
-                <span className="text-sm font-bold text-foreground dark:text-zinc-100">{RECITERS.find(r => r.id === state.reciterId)?.name}</span>
-            </div>
-            <button 
-                onClick={() => {
-                    if(isPlayingPage) {
-                        setIsPlayingPage(false);
-                        audioRef.current?.pause();
-                        setPlaybackState('paused');
-                    } else {
-                        setIsPlayingPage(true);
-                        playVerse(0, 0);
-                    }
-                }}
-                className={`flex items-center justify-center gap-2 h-11 px-4 md:px-8 md:h-12 rounded-2xl transition-all shadow-lg font-bold active:scale-95 ${isPlayingPage ? 'bg-primary text-black' : 'bg-foreground/5 dark:bg-zinc-800 border border-primary/20 text-foreground dark:text-zinc-100 hover:border-primary'}`}
-            >
-                {isPlayingPage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 fill-current" />}
-                <span className="text-xs md:text-sm hidden xs:block">{isPlayingPage ? 'استماع...' : 'بدء الترتيل'}</span>
-            </button>
+            {!isTafseerMode && (
+                <>
+                <div className="hidden lg:flex flex-col items-end mr-4">
+                    <span className="text-[10px] text-foreground/30 dark:text-zinc-100/30 font-bold uppercase">القارئ الحالي</span>
+                    <span className="text-sm font-bold text-foreground dark:text-zinc-100">{RECITERS.find(r => r.id === state.reciterId)?.name}</span>
+                </div>
+                <button 
+                    onClick={() => {
+                        if(isPlayingPage) {
+                            setIsPlayingPage(false);
+                            audioRef.current?.pause();
+                            setPlaybackState('paused');
+                        } else {
+                            setIsPlayingPage(true);
+                            playVerse(0, 0);
+                        }
+                    }}
+                    className={`flex items-center justify-center gap-2 h-11 px-4 md:px-8 md:h-12 rounded-2xl transition-all shadow-lg font-bold active:scale-95 ${isPlayingPage ? 'bg-primary text-black' : 'bg-foreground/5 dark:bg-zinc-800 border border-primary/20 text-foreground dark:text-zinc-100 hover:border-primary'}`}
+                >
+                    {isPlayingPage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 fill-current" />}
+                    <span className="text-xs md:text-sm hidden xs:block">{isPlayingPage ? 'استماع...' : 'بدء الترتيل'}</span>
+                </button>
+                </>
+            )}
         </div>
       </header>
 

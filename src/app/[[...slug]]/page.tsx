@@ -8,6 +8,7 @@ export async function generateStaticParams() {
     { slug: [] },
     { slug: ['mushaf'] },
     { slug: ['mushaf-full'] },
+    { slug: ['mushaf-tafseer'] },
     { slug: ['daily'] },
     { slug: ['library'] },
     { slug: ['prayers'] },
