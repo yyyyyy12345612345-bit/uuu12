@@ -230,15 +230,14 @@ export function Mushaf() {
             {/* Mushaf Background Image Layer */}
             <div className="absolute inset-0 z-0 pointer-events-none">
                 <div 
-                    className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000"
+                    className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-[0.45] dark:opacity-[0.3]"
                     style={{ 
-                        backgroundImage: "url('./mushaf-bg.jpg.png')", // Try relative path
-                        filter: "brightness(0.7) contrast(1.1)"
+                        backgroundImage: "url('/mushaf-bg.jpg.png')",
+                        filter: "sepia(0.4) brightness(0.95) contrast(1.2)"
                     }}
                 />
-                {/* Visual debug: if you see this overlay, then the code IS working */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-orange-900/10 to-transparent mix-blend-overlay" />
-                <div className="absolute inset-0 bg-black/30" />
+                <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/40 to-background" />
+                <div className="absolute inset-0 islamic-pattern opacity-[0.03] dark:opacity-[0.07]" />
             </div>
 
             <header className="shrink-0 p-5 glass-effect border-b border-border flex items-center justify-between z-40 mx-4 mt-2 rounded-2xl relative">
@@ -349,7 +348,7 @@ export function Mushaf() {
                                         ))}
                                     </div>
 
-                                    <div className={`mt-10 overflow-hidden transition-all duration-1000 ${playingAyah === verse.id ? 'max-h-96 opacity-100 translate-y-0' : 'max-h-0 opacity-0 translate-y-4'}`}>
+                                    <div className="mt-10 overflow-hidden transition-all duration-1000 max-h-96 opacity-100 translate-y-0">
                                         <div 
                                             onClick={(e) => {
                                                 e.stopPropagation();
