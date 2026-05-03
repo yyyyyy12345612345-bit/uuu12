@@ -7,8 +7,8 @@ const geistMono = { variable: "" };
 
 export const metadata: Metadata = {
   title: {
-    default: "قرآن",
-    template: "%s | قرآن"
+    default: "قرآن v3.2",
+    template: "%s | قرآن v3.2"
   },
   description: "استوديو احترافي لتصميم فيديوهات القرآن الكريم، الاستماع للمشايخ، متابعة مواقيت الصلاة، وقراءة الورد اليومي. كل ما تحتاجه في تطبيق واحد وبجودة عالية.",
   authors: [{ name: "قرآن" }],
