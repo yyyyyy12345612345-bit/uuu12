@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Sun, Moon, Target, Compass, CheckCircle2, RotateCcw, Fingerprint, MapPin, Search, Bed, BookOpen } from "lucide-react";
+import { Sun, Moon, Target, Compass, CheckCircle2, RotateCcw, Fingerprint, MapPin, Search, Bed, BookOpen, ChevronRight, ChevronLeft } from "lucide-react";
 import { ATHKAR } from "@/data/athkar";
 import { AthkarLibrary } from "./AthkarLibrary";
 import { addPoints, addSebhaPoints, startThikrTimer, endThikrTimer } from "@/lib/points";
@@ -25,6 +25,41 @@ export function DailyHub() {
     error: string | null;
     loading: boolean;
   }>({ heading: null, angle: null, error: null, loading: false });
+  const [scrollState, setScrollState] = useState({ left: false, right: false });
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const checkScroll = useCallback(() => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      // In RTL, scrollLeft is 0 at the rightmost position and negative when scrolling left
+      // But standard browser behavior for RTL can vary. Let's handle it robustly.
+      const isRTL = getComputedStyle(scrollRef.current).direction === 'rtl';
+      
+      if (isRTL) {
+        setScrollState({
+          left: Math.abs(scrollLeft) < scrollWidth - clientWidth - 5,
+          right: Math.abs(scrollLeft) > 5
+        });
+      } else {
+        setScrollState({
+          left: scrollLeft > 5,
+          right: scrollLeft < scrollWidth - clientWidth - 5
+        });
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    checkScroll();
+    window.addEventListener('resize', checkScroll);
+    return () => window.removeEventListener('resize', checkScroll);
+  }, [checkScroll]);
+
+  const scrollBy = (amount: number) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: amount, behavior: 'smooth' });
+    }
+  };
 
   // Load state on mount
   useEffect(() => {
@@ -305,31 +340,59 @@ export function DailyHub() {
         </p>
       </div>
 
-      <div className="flex w-full max-w-3xl mx-auto rounded-3xl p-1.5 glass-effect border border-border mb-10 overflow-x-auto horizontal-scroll z-10 shrink-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        {[
-          { id: "sibha", icon: Fingerprint, label: "السبحة" },
-          { id: "morning", icon: Sun, label: "الصباح" },
-          { id: "evening", icon: Moon, label: "المساء" },
-          { id: "sleep", icon: Bed, label: "النوم" },
-          { id: "library", icon: BookOpen, label: "المكتبة" },
-          { id: "goal", icon: Target, label: "الورد" },
-          { id: "qibla", icon: Compass, label: "القبلة" }
-        ].map((t) => {
-           const Icon = t.icon;
-           const isActive = activeTab === t.id;
-           return (
-             <button
-               key={t.id}
-               onClick={() => setActiveTab(t.id as any)}
-               className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl transition-all whitespace-nowrap snap-center min-w-[100px] ${
-                 isActive ? 'bg-foreground/10 text-foreground shadow-lg border border-border' : 'text-foreground/40 hover:text-foreground/80'
-               }`}
-             >
-               <Icon className={`w-4 h-4 ${isActive ? 'text-primary' : ''}`} />
-               <span className="text-sm font-bold tracking-wide">{t.label}</span>
-             </button>
-           )
-        })}
+      <div className="relative w-full max-w-3xl mx-auto mb-10 z-10 shrink-0 group">
+        {/* Scroll Indicators (Fade) */}
+        <div className={`absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent z-20 pointer-events-none transition-opacity duration-300 ${scrollState.right ? 'opacity-100' : 'opacity-0'}`} />
+        <div className={`absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background to-transparent z-20 pointer-events-none transition-opacity duration-300 ${scrollState.left ? 'opacity-100' : 'opacity-0'}`} />
+
+        {/* Scroll Arrows */}
+        {scrollState.right && (
+          <button 
+            onClick={() => scrollBy(150)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-foreground/10 backdrop-blur-md border border-white/5 flex items-center justify-center z-30 active:scale-90 transition-all text-foreground/60 hover:text-primary"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        )}
+        {scrollState.left && (
+          <button 
+            onClick={() => scrollBy(-150)}
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-foreground/10 backdrop-blur-md border border-white/5 flex items-center justify-center z-30 active:scale-90 transition-all text-foreground/60 hover:text-primary"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+        )}
+
+        <div 
+          ref={scrollRef}
+          onScroll={checkScroll}
+          className="flex w-full rounded-3xl p-1.5 glass-effect border border-border overflow-x-auto horizontal-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] snap-x"
+        >
+          {[
+            { id: "sibha", icon: Fingerprint, label: "السبحة" },
+            { id: "morning", icon: Sun, label: "الصباح" },
+            { id: "evening", icon: Moon, label: "المساء" },
+            { id: "sleep", icon: Bed, label: "النوم" },
+            { id: "library", icon: BookOpen, label: "المكتبة" },
+            { id: "goal", icon: Target, label: "الورد" },
+            { id: "qibla", icon: Compass, label: "القبلة" }
+          ].map((t) => {
+            const Icon = t.icon;
+            const isActive = activeTab === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setActiveTab(t.id as any)}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl transition-all whitespace-nowrap snap-center min-w-[100px] ${
+                  isActive ? 'bg-foreground/10 text-foreground shadow-lg border border-border' : 'text-foreground/40 hover:text-foreground/80'
+                }`}
+              >
+                <Icon className={`w-4 h-4 ${isActive ? 'text-primary' : ''}`} />
+                <span className="text-sm font-bold tracking-wide">{t.label}</span>
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       <div className="w-full max-w-3xl mx-auto z-10 space-y-6 shrink-0 flex-1">
