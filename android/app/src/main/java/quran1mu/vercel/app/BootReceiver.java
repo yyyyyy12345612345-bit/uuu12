@@ -8,7 +8,7 @@ import android.util.Log;
 public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.action)) {
+        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             Log.d("BootReceiver", "Device rebooted, Adhan scheduling will be handled by Capacitor.");
             // Capacitor's LocalNotificationRestoreReceiver already handles restoring scheduled notifications.
             // We can add custom logic here if needed.
