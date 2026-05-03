@@ -142,6 +142,34 @@ body {
   animation: revealIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Page Transitions */
+@keyframes viewEnter {
+  from { opacity: 0; transform: scale(0.97) translateY(10px); filter: blur(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+}
+
+.view-transition {
+  animation: viewEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity, filter;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Glassmorphism Refinement */
+.glass-panel {
+  background: hsl(var(--background) / 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid hsl(var(--foreground) / 0.1);
+}
+
 @keyframes shimmer-gold {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -214,4 +242,31 @@ body {
   letter-spacing: 0.5px;
 }
 
-/* No longer hiding error overlays to help debugging */
+/* Global Interactive Feedback */
+button, a {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+button:active, a:active {
+  transform: scale(0.96);
+}
+
+.hover-scale {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* Page Indicator Pulse */
+@keyframes pulse-soft {
+  0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+}
+
+.pulse-primary {
+  animation: pulse-soft 2s infinite;
+}

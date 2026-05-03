@@ -94,24 +94,59 @@ function CatchAllContent() {
 
 
       <main className="flex-1 relative overflow-hidden">
-        {visited.mushaf && <div className={`h-full w-full mb-20 ${activeView === 'mushaf' ? 'block' : 'hidden'}`}><Mushaf /></div>}
-        {visited['mushaf-full'] && <div className={`h-full w-full mb-20 ${activeView === 'mushaf-full' ? 'block' : 'hidden'}`}><DigitalMushaf /></div>}
-        {visited['mushaf-tafseer'] && <div className={`h-full w-full mb-20 ${activeView === 'mushaf-tafseer' ? 'block' : 'hidden'}`}><DigitalMushaf isTafseerMode={true} /></div>}
-        {visited['mushaf-choice'] && <div className={`h-full w-full relative pb-20 ${activeView === 'mushaf-choice' ? 'block' : 'hidden'}`}><MushafChoice /></div>}
-        {visited.daily && <div className={`h-full w-full pb-32 ${activeView === 'daily' ? 'block' : 'hidden'}`}><DailyHub /></div>}
-        {visited.library && <div className={`h-full w-full pb-32 ${activeView === 'library' ? 'block' : 'hidden'}`}><AudioLibrary /></div>}
-        {visited.prayers && <div className={`h-full w-full pb-32 ${activeView === 'prayers' ? 'block' : 'hidden'}`}><PrayerTimes /></div>}
-        {visited.rank && <div className={`h-full w-full pb-32 ${activeView === 'rank' ? 'block' : 'hidden'}`}><Leaderboard onEditProfile={() => setIsProfileOpen(true)} /></div>}
-        {visited.admin && <div className={`h-full w-full pb-32 ${activeView === 'admin' ? 'block' : 'hidden'}`}><AdminPanel /></div>}
+        {visited.mushaf && (
+          <div key={`mushaf-${activeView === 'mushaf'}`} className={`h-full w-full mb-20 ${activeView === 'mushaf' ? 'block view-transition' : 'hidden'}`}>
+            <Mushaf />
+          </div>
+        )}
+        {visited['mushaf-full'] && (
+          <div key={`mushaf-full-${activeView === 'mushaf-full'}`} className={`h-full w-full mb-20 ${activeView === 'mushaf-full' ? 'block view-transition' : 'hidden'}`}>
+            <DigitalMushaf />
+          </div>
+        )}
+        {visited['mushaf-tafseer'] && (
+          <div key={`mushaf-tafseer-${activeView === 'mushaf-tafseer'}`} className={`h-full w-full mb-20 ${activeView === 'mushaf-tafseer' ? 'block view-transition' : 'hidden'}`}>
+            <DigitalMushaf isTafseerMode={true} />
+          </div>
+        )}
+        {visited['mushaf-choice'] && (
+          <div key={`mushaf-choice-${activeView === 'mushaf-choice'}`} className={`h-full w-full relative pb-20 ${activeView === 'mushaf-choice' ? 'block view-transition' : 'hidden'}`}>
+            <MushafChoice />
+          </div>
+        )}
+        {visited.daily && (
+          <div key={`daily-${activeView === 'daily'}`} className={`h-full w-full pb-32 ${activeView === 'daily' ? 'block view-transition' : 'hidden'}`}>
+            <DailyHub />
+          </div>
+        )}
+        {visited.library && (
+          <div key={`library-${activeView === 'library'}`} className={`h-full w-full pb-32 ${activeView === 'library' ? 'block view-transition' : 'hidden'}`}>
+            <AudioLibrary />
+          </div>
+        )}
+        {visited.prayers && (
+          <div key={`prayers-${activeView === 'prayers'}`} className={`h-full w-full pb-32 ${activeView === 'prayers' ? 'block view-transition' : 'hidden'}`}>
+            <PrayerTimes />
+          </div>
+        )}
+        {visited.rank && (
+          <div key={`rank-${activeView === 'rank'}`} className={`h-full w-full pb-32 ${activeView === 'rank' ? 'block view-transition' : 'hidden'}`}>
+            <Leaderboard onEditProfile={() => setIsProfileOpen(true)} />
+          </div>
+        )}
+        {visited.admin && (
+          <div key={`admin-${activeView === 'admin'}`} className={`h-full w-full pb-32 ${activeView === 'admin' ? 'block view-transition' : 'hidden'}`}>
+            <AdminPanel />
+          </div>
+        )}
         
         {visited.video && (
-          <div className={`h-full w-full ${activeView === 'video' ? 'block' : 'hidden'}`}>
+          <div key={`video-${activeView === 'video'}`} className={`h-full w-full ${activeView === 'video' ? 'block view-transition' : 'hidden'}`}>
              <div className="flex h-full w-full overflow-hidden">
                 <aside className="hidden lg:flex w-[350px] h-full border-r border-white/5 flex-col p-6 overflow-y-auto no-scrollbar gap-6 pb-40">
                    <SurahSelector /><Controls />
                 </aside>
                 <div className="flex-1 flex flex-col h-full overflow-y-auto no-scrollbar">
-                   {/* Top Buttons - Always Visible */}
                    <div className="flex items-center justify-between px-4 pt-4 pb-2 shrink-0 lg:hidden">
                       <button 
                          onClick={() => setIsMobileControlsOpen(true)}
@@ -130,7 +165,6 @@ function CatchAllContent() {
                       </button>
                    </div>
                    
-                   {/* Video Preview Container - Height reduced by another 15% */}
                    <div className="flex-1 flex items-center justify-center p-2 min-h-0 bg-[#000000]">
                       <div className="scale-[0.85] h-full flex items-center justify-center">
                         <VideoPreview key={state.reciterId} />
