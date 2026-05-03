@@ -114,11 +114,11 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile }: G
             <div className="flex items-center gap-4 relative z-10 mt-4">
                {/* Profile Image */}
                <div className="relative group cursor-pointer shrink-0" onClick={onOpenProfile}>
-                  <div className="w-14 h-14 rounded-[1rem] border-2 border-primary/20 p-0.5 bg-background relative overflow-hidden shadow-md group-hover:scale-105 transition-all">
+                  <div className="w-14 h-14 rounded-full border-2 border-primary/20 p-0.5 bg-background relative overflow-hidden shadow-md group-hover:scale-105 transition-all">
                      <img 
                        src={userData.photoURL || "/logo/logo.png"} 
                        alt="Profile" 
-                       className="w-full h-full object-cover rounded-[0.8rem]" 
+                       className="w-full h-full object-cover rounded-full" 
                      />
                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                         <span className="text-[8px] text-white font-black uppercase">تعديل</span>
@@ -151,9 +151,9 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile }: G
             </div>
           ) : (
             <div className="flex items-center gap-4 relative z-10">
-               <div className="w-12 h-12 rounded-2xl bg-foreground/5 p-2 flex items-center justify-center border border-border shadow-inner">
-                  <img src="/logo/logo.png?v=10" alt="Logo" className="w-full h-full object-contain rounded-lg" />
-               </div>
+                <div className="w-12 h-12 rounded-full bg-foreground/5 p-1 flex items-center justify-center border border-border shadow-inner">
+                   <img src="/logo/logo.png?v=20" alt="Logo" className="w-full h-full object-contain rounded-full" />
+                </div>
                <div>
                   <h3 className="text-xl font-bold text-foreground">قرآن كريم</h3>
                   <p className="text-[10px] text-foreground/40 tracking-widest font-bold uppercase">القائمة الرئيسية</p>
