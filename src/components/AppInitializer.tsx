@@ -89,7 +89,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     try {
       const response = await fetch('/version.json?t=' + Date.now());
       const data = await response.json();
-      const LOCAL_VERSION = "v3.1";
+      const LOCAL_VERSION = "v3.2";
       
       if (isNewerVersion(data.version, LOCAL_VERSION)) {
         setUpdateInfo(data);
@@ -245,7 +245,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
                  <div className="text-center space-y-4">
                     <h2 className="text-3xl font-black text-white tracking-tight">صلاحيات التشغيل</h2>
-                    <span className="text-white/20 text-[10px] font-mono tracking-widest mt-4">VERSION 3.1 (HYPER BUILD 16)</span>
+                    <span className="text-white/20 text-[10px] font-mono tracking-widest mt-4">VERSION 3.2 (HYPER BUILD 17)</span>
                     <p className="text-white/50 text-sm font-bold leading-relaxed">
                        لكي يعمل التطبيق بشكل صحيح ويطلق الأذان في وقته، نحتاج منك السماح ببعض الصلاحيات الأساسية.
                     </p>
@@ -382,7 +382,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
            
            <div className="mt-12 text-center animate-in slide-in-from-bottom-10 duration-1000">
               <h1 className="text-3xl font-black text-foreground tracking-tighter mb-2">قرآن كريم</h1>
-              <p className="text-[10px] text-primary font-black uppercase tracking-[0.5em]">الإصدار v3.1 (HYPER)</p>
+              <p className="text-[10px] text-primary font-black uppercase tracking-[0.5em]">الإصدار v3.2 (HYPER)</p>
            </div>
            
            <div className="absolute bottom-12 flex flex-col items-center gap-4">
