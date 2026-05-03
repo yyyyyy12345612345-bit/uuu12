@@ -3,8 +3,11 @@
 import React, { useState, useEffect } from "react";
 import { Capacitor } from '@capacitor/core';
 import { X, Download, Info, ShieldCheck, Bell, MapPin, CheckCircle2, ArrowRight } from 'lucide-react';
-import { requestNotificationPermission } from '@/lib/notifications';
+import { requestNotificationPermission, schedulePrayerNotifications, loadSettings } from '@/lib/notifications';
+import { initializePushNotifications } from '@/lib/pushNotifications';
 import { Geolocation } from '@capacitor/geolocation';
+import { auth, db } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export default function AppInitializer({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState(true);
@@ -91,28 +94,48 @@ export default function AppInitializer({ children }: { children: React.ReactNode
   };
 
   useEffect(() => {
-    // Check for updates on mount
+    // 1. Initialize Push Notifications
+    if (Capacitor.isNativePlatform()) {
+      initializePushNotifications();
+    }
+
+    // 2. Initial Prayer Scheduling (from cache)
+    const syncPrayers = async () => {
+      try {
+        const cachedTimes = localStorage.getItem("prayer_times_cache");
+        if (cachedTimes) {
+          const times = JSON.parse(cachedTimes);
+          const settings = loadSettings();
+          await schedulePrayerNotifications(times, settings);
+          console.log("[App] Background Adhan re-synced from cache.");
+        }
+      } catch (e) {
+        console.error("[App] Initial prayer sync failed", e);
+      }
+    };
+    syncPrayers();
+
+    // 3. Check for updates on mount
     setTimeout(() => checkForUpdates(false), 5000);
 
-    // Listen for manual update trigger
+    // 4. Listen for manual update trigger
     const handleManualUpdate = () => checkForUpdates(true);
     window.addEventListener('check-for-updates', handleManualUpdate);
 
-    // Listen for Global Announcements from Firestore
+    // 5. Listen for Global Announcements & Force Token Update on Login
     let unsubscribeSettings: any = null;
-    const fetchGlobalSettings = async () => {
-      const { db } = await import("@/lib/firebase");
+    let unsubscribeAuth: any = null;
+
+    const setupListeners = async () => {
       const { doc, onSnapshot } = await import("firebase/firestore");
       
+      // Settings listener
       unsubscribeSettings = onSnapshot(doc(db, "settings", "global"), (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.data();
-          
-          // إذا وجد أي نوع من الإعلانات، سنعامله كإعلان مؤقت
           const message = data.mandatoryAnnouncement || data.announcement;
           if (message) {
             setMandatoryAnnouncement(message);
-            // إذا لم يحدد مدة، نفترض 60 ثانية
             setAnnouncementTimer(data.mandatoryDuration || 60);
           } else {
             setMandatoryAnnouncement(null);
@@ -120,12 +143,21 @@ export default function AppInitializer({ children }: { children: React.ReactNode
           }
         }
       });
+
+      // Auth listener to re-register push token when user logs in
+      unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+        if (user && Capacitor.isNativePlatform()) {
+          console.log("[App] User detected, re-initializing push token...");
+          initializePushNotifications();
+        }
+      });
     };
-    fetchGlobalSettings();
+    setupListeners();
 
     return () => {
       window.removeEventListener('check-for-updates', handleManualUpdate);
       if (unsubscribeSettings) unsubscribeSettings();
+      if (unsubscribeAuth) unsubscribeAuth();
     };
   }, []);
 
