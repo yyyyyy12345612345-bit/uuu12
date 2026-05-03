@@ -92,7 +92,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile }: G
         <div className="p-5 border-b border-border bg-foreground/[0.02] relative overflow-hidden flex-shrink-0">
           <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
           
-          <div className="flex items-center justify-between mb-0 relative z-10">
+          <div className="flex items-center justify-end mb-0 relative z-10">
             <div className="flex flex-col items-center gap-2">
               <button 
                 onClick={onClose}
