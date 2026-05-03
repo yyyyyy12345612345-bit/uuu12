@@ -5,7 +5,7 @@ import {
   ShieldCheck, Users, Trophy, Trash2, 
   Search, RefreshCw, AlertTriangle, 
   MapPin, Star, TrendingUp, CheckCircle, Ban, PlusCircle, Calendar,
-  Mail, Phone, ArrowUpRight, UserCheck, Loader2
+  Mail, Phone, ArrowUpRight, UserCheck, Loader2, Bell
 } from "lucide-react";
 import { auth, db } from "@/lib/firebase";
 import { 
