@@ -44,6 +44,7 @@ export function PrayerTimes() {
   
   const [customCity, setCustomCity] = useState("");
   const [customCountry, setCustomCountry] = useState("");
+  const [customTestTime, setCustomTestTime] = useState("");
 
   // Athan & Notification Settings
   const { state: editorState, updateState: updateEditor } = useEditor();
@@ -223,6 +224,47 @@ export function PrayerTimes() {
       alert("تم جدولة إشعار تجريبي بعد 5 ثوانٍ. أغلق التطبيق الآن لتجربته.");
     } else {
       alert("فشل إرسال الإشعار التجريبي. تأكد من تفعيل الإشعارات.");
+    }
+  };
+
+  const scheduleCustomTest = async () => {
+    if (!customTestTime) {
+      alert("يرجى اختيار وقت أولاً");
+      return;
+    }
+
+    const [h, m] = customTestTime.split(':').map(Number);
+    const targetDate = new Date();
+    targetDate.setHours(h, m, 0, 0);
+
+    // If time is in the past today, assume tomorrow
+    if (targetDate <= new Date()) {
+      targetDate.setDate(targetDate.getDate() + 1);
+    }
+
+    if (!Capacitor.isNativePlatform()) {
+      alert("هذه الميزة تعمل فقط على الموبايل");
+      return;
+    }
+
+    try {
+      const { LocalNotifications } = await import('@capacitor/local-notifications');
+      await LocalNotifications.schedule({
+        notifications: [{
+          id: 8888,
+          title: '🔔 تجربة الأذان المجدولة',
+          body: `موعد التجربة الذي حددته: ${customTestTime} ✅`,
+          schedule: { at: targetDate, allowWhileIdle: true },
+          sound: 'adhan',
+          channelId: 'prayer-notifications',
+          smallIcon: 'ic_notification',
+          iconColor: '#c5a059',
+        }],
+      });
+      alert(`تم جدولة تجربة الأذان بنجاح في وقت: ${customTestTime}. يمكنك إغلاق التطبيق الآن.`);
+    } catch (e) {
+      console.error(e);
+      alert("حدث خطأ أثناء الجدولة");
     }
   };
 
@@ -495,11 +537,30 @@ export function PrayerTimes() {
 
                             <button 
                                 onClick={scheduleTestNotification}
-                                className="w-full py-5 bg-primary text-black rounded-3xl font-black flex items-center justify-center gap-3 shadow-xl hover:scale-[1.02] active:scale-95 transition-all"
+                                className="w-full py-5 bg-primary/10 border border-primary/20 text-primary rounded-3xl font-bold flex items-center justify-center gap-3 active:scale-95 transition-all"
                             >
                                 <Bell className="w-5 h-5" />
-                                <span>تجربة إشعار حقيقي (بعد 5 ثوانٍ)</span>
+                                <span>تجربة سريعة (5 ثوانٍ)</span>
                             </button>
+
+                            <div className="p-5 bg-white/5 rounded-3xl border border-white/5 space-y-4">
+                                <p className="text-[10px] text-white/40 font-bold text-center uppercase tracking-widest">اختبار وقت محدد (كأنه منبه)</p>
+                                <div className="flex items-center gap-3">
+                                    <input 
+                                        type="time"
+                                        value={customTestTime}
+                                        onChange={(e) => setCustomTestTime(e.target.value)}
+                                        className="flex-1 bg-white/10 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-primary/40 text-center font-mono font-bold"
+                                    />
+                                    <button 
+                                        onClick={scheduleCustomTest}
+                                        className="px-6 py-4 bg-primary text-black rounded-2xl font-black text-xs hover:scale-105 active:scale-95 transition-all"
+                                    >
+                                        جدولة الاختبار
+                                    </button>
+                                </div>
+                                <p className="text-[9px] text-white/20 text-center">اضبط الوقت بعد دقيقة من الآن ثم أغلق التطبيق تماماً لتتأكد من عمل الأذان.</p>
+                            </div>
                         </div>
                     </div>
                 </div>

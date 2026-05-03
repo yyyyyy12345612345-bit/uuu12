@@ -33,7 +33,8 @@ export function AdminPanel() {
     totalUsers: 0,
     topGovernorate: "...",
     totalPoints: 0,
-    activeToday: 0
+    activeToday: 0,
+    pushSubscribers: 0
   });
   const [users, setUsers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,6 +47,11 @@ export function AdminPanel() {
   const [activeQuests, setActiveQuests] = useState<any[]>([]);
   const [announcement, setAnnouncement] = useState("");
   const [isSettingAnnouncement, setIsSettingAnnouncement] = useState(false);
+  
+  // Push Notification State
+  const [pushTitle, setPushTitle] = useState("");
+  const [pushBody, setPushBody] = useState("");
+  const [isSendingPush, setIsSendingPush] = useState(false);
   
   // Login Form State
   const [email, setEmail] = useState("");
@@ -147,11 +153,14 @@ export function AdminPanel() {
         ? govKeys.reduce((a, b) => govCounts[a] > govCounts[b] ? a : b) 
         : "لا توجد بيانات";
 
+      const pushSubscribers = usersData.filter((u: any) => u.fcmToken).length;
+
       setStats({
         totalUsers: snapshot.size,
         topGovernorate: topGov,
         totalPoints: totalPoints,
-        activeToday: activeTodayCount
+        activeToday: activeTodayCount,
+        pushSubscribers: pushSubscribers
       });
       
       setUsers(usersData.sort((a: any, b: any) => (b.totalPoints || 0) - (a.totalPoints || 0)));
@@ -365,29 +374,82 @@ export function AdminPanel() {
            ))}
         </div>
 
-        {/* Global Controls Section */}
+        {/* Push & Reset Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
-          {/* Announcement Manager */}
+          {/* Push Notification Manager */}
           <div className="bg-card border border-border p-8 rounded-[3rem] shadow-lg flex flex-col gap-6">
              <div className="flex items-center justify-between">
-                <span className="bg-primary/10 text-primary text-[10px] font-black px-3 py-1 rounded-full">Broadcast</span>
-                <h3 className="text-xl font-bold flex items-center gap-2">تنبيه عام للمستخدمين <AlertTriangle className="w-5 h-5 text-amber-500" /></h3>
-             </div>
-             <div className="flex flex-col gap-4">
-                <textarea 
-                  value={announcement}
-                  onChange={e => setAnnouncement(e.target.value)}
-                  className="w-full bg-foreground/5 border border-border rounded-2xl p-6 text-right outline-none focus:border-primary/40 min-h-[120px] font-bold"
-                  placeholder="اكتب رسالة ستظهر لكل مستخدم في أعلى التطبيق فوراً..."
-                />
+                <div className="flex flex-col text-right">
+                    <h3 className="text-xl font-bold flex items-center gap-2">إرسال إشعار Push للموبايل <Bell className="w-5 h-5 text-primary" /></h3>
+                    <p className="text-[10px] text-primary/60 font-black">{stats.pushSubscribers} مستخدم مسجل حالياً</p>
+                </div>
                 <button 
-                  onClick={handleSetAnnouncement} disabled={isSettingAnnouncement}
-                  className="w-full py-4 bg-primary text-black rounded-2xl font-black shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-2"
+                  onClick={async () => {
+                    if (!db || !window.confirm("هل تريد إرسال إشعار 'صلّ على النبي' لجميع المستخدمين الآن؟")) return;
+                    setIsSendingPush(true);
+                    try {
+                      await addDoc(collection(db, "push_queue"), {
+                        title: "❤️ ذكرى",
+                        body: "اللهم صلِّ وسلم وبارك على نبينا محمد ﷺ",
+                        status: "pending",
+                        scheduledFor: serverTimestamp(),
+                        createdAt: serverTimestamp(),
+                      });
+                      alert("تم الإرسال بنجاح!");
+                    } catch (e) { console.error(e); }
+                    finally { setIsSendingPush(false); }
+                  }}
+                  className="px-4 py-2 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-xl text-[10px] font-black hover:bg-emerald-500 hover:text-white transition-all"
                 >
-                  {isSettingAnnouncement ? <RefreshCw className="w-5 h-5 animate-spin" /> : "تحديث الرسالة لجميع المستخدمين"}
+                  إرسال صلّ على النبي ﷺ
                 </button>
              </div>
+             
+             <form onSubmit={async (e) => {
+                e.preventDefault();
+                if (!db || !pushTitle || !pushBody) return;
+                setIsSendingPush(true);
+                try {
+                  await addDoc(collection(db, "push_queue"), {
+                    title: pushTitle,
+                    body: pushBody,
+                    status: "pending",
+                    scheduledFor: serverTimestamp(),
+                    createdAt: serverTimestamp(),
+                    recipientCount: stats.pushSubscribers || 0
+                  });
+                  setPushTitle("");
+                  setPushBody("");
+                  alert("تم إدراج الإشعار في قائمة الإرسال! ستقوم خوادم Firebase بإرساله للجميع فوراً.");
+                } catch (e) {
+                  console.error(e);
+                  alert("فشل إرسال الإشعار");
+                } finally {
+                  setIsSendingPush(false);
+                }
+             }} className="flex flex-col gap-4">
+                <input 
+                  value={pushTitle}
+                  onChange={e => setPushTitle(e.target.value)}
+                  className="w-full bg-foreground/5 border border-border rounded-2xl p-4 text-right outline-none focus:border-primary/40 font-bold"
+                  placeholder="عنوان الإشعار (مثلاً: تنبيه هام)"
+                />
+                <textarea 
+                  value={pushBody}
+                  onChange={e => setPushBody(e.target.value)}
+                  className="w-full bg-foreground/5 border border-border rounded-2xl p-4 text-right outline-none focus:border-primary/40 min-h-[80px] font-bold"
+                  placeholder="نص الرسالة التي ستظهر في شاشة القفل..."
+                />
+                <button 
+                  type="submit" disabled={isSendingPush}
+                  className="w-full py-4 bg-primary text-black rounded-2xl font-black shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-2"
+                >
+                  {isSendingPush ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowUpRight className="w-5 h-5" />}
+                  إرسال الإشعار لجميع الهواتف
+                </button>
+                <p className="text-[9px] text-foreground/20 text-center font-bold">ملاحظة: الإرسال يتم عبر Firebase Cloud Messaging وتحتاج لتفعيل الـ Functions.</p>
+             </form>
           </div>
 
           {/* Reset & Dangerous Actions */}
