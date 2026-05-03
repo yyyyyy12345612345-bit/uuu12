@@ -99,12 +99,14 @@ async function ensureChannel(): Promise<void> {
     const { LocalNotifications } = await import('@capacitor/local-notifications');
     await LocalNotifications.createChannel({
       id: CHANNEL_ID,
-      name: 'مواقيت الأذان',
+      name: 'أذان الصلاة',
       description: 'تنبيهات مواقيت الصلاة والأذان',
       importance: 5, // MAX — shows heads-up notification with sound
       visibility: 1, // PUBLIC
-      sound: 'adhan.mp3',
+      sound: 'adhan', // ✅ Removed .mp3 for native resource mapping
       vibration: true,
+      lights: true,
+      lightColor: '#c5a059',
     });
   } catch (e) {
     console.error('[Notifications] Channel creation failed:', e);
@@ -170,7 +172,7 @@ export async function schedulePrayerNotifications(
             allowWhileIdle: true,
             repeats: false,
           },
-          sound: setting.soundEnabled ? 'adhan.mp3' : undefined,
+          sound: setting.soundEnabled ? 'adhan' : undefined,
           channelId: CHANNEL_ID,
           smallIcon: 'ic_notification',
           iconColor: '#c5a059',
@@ -222,7 +224,7 @@ export async function sendTestNotification(): Promise<boolean> {
         title: '🔔 تجربة إشعار الأذان',
         body: 'إذا ظهر هذا الإشعار، فالتطبيق يعمل بشكل صحيح ✅',
         schedule: { at: new Date(Date.now() + 5000), allowWhileIdle: true },
-        sound: 'adhan.mp3',
+        sound: 'adhan',
         channelId: CHANNEL_ID,
         smallIcon: 'ic_notification',
         iconColor: '#c5a059',

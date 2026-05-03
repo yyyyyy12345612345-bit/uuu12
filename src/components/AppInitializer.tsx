@@ -8,6 +8,10 @@ import { initializePushNotifications } from '@/lib/pushNotifications';
 import { Geolocation } from '@capacitor/geolocation';
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { registerPlugin } from '@capacitor/core';
+
+// Custom Native Plugin for Battery Optimization
+const BatteryOptimization = registerPlugin<any>('BatteryOptimization');
 
 export default function AppInitializer({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState(true);
@@ -52,11 +56,16 @@ export default function AppInitializer({ children }: { children: React.ReactNode
       // 2. Location
       await Geolocation.requestPermissions();
 
-      // 3. Android Specific: Battery & Exact Alarms
+      // 3. Android Specific: Battery Optimization Exemption
       if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
-         // We can use a custom native call or just alert the user for now
-         // For production, a Capacitor plugin like 'capacitor-community/background-process' would be better
-         // But we can use the 'Device' plugin to check info or just guide them.
+         try {
+           const { isIgnoring } = await BatteryOptimization.isIgnoringBatteryOptimizations();
+           if (!isIgnoring) {
+             await BatteryOptimization.requestIgnoreBatteryOptimizations();
+           }
+         } catch (e) {
+           console.log("Battery optimization plugin not available or failed", e);
+         }
       }
     } catch (e) {
       console.error("Permission request failed", e);
