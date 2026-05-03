@@ -93,20 +93,21 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile }: G
           <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
           
           <div className="flex items-center justify-between mb-0 relative z-10">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col items-center gap-2">
+              <button 
+                onClick={onClose}
+                className="w-10 h-10 rounded-full bg-background border border-border flex items-center justify-center text-foreground/40 hover:text-foreground transition-all shadow-sm"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              
               <button 
                 onClick={toggleTheme}
-                className="w-8 h-8 rounded-full bg-background border border-border flex items-center justify-center text-foreground/40 hover:text-foreground transition-all"
+                className="w-8 h-8 rounded-full bg-background border border-border flex items-center justify-center text-foreground/40 hover:text-foreground transition-all shadow-sm"
               >
-                {theme === "dark" ? <Sun className="w-3 h-3" /> : <Moon className="w-3 h-3" />}
+                {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </button>
             </div>
-            <button 
-              onClick={onClose}
-              className="w-8 h-8 rounded-full bg-background border border-border flex items-center justify-center text-foreground/40 hover:text-foreground transition-all"
-            >
-              <X className="w-4 h-4" />
-            </button>
           </div>
 
           {auth?.currentUser && userData ? (
