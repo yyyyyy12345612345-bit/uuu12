@@ -72,7 +72,9 @@ export function AdminPanel() {
     pricePremium: 250
   });
   const [isSavingSettings, setIsSavingSettings] = useState(false);
-  const [activeTab, setActiveTab] = useState<"stats" | "users" | "quests" | "subs" | "settings">("stats");
+  const [activeTab, setActiveTab] = useState<"stats" | "users" | "quests" | "subs" | "settings" | "showcase">("stats");
+  const [showcaseItems, setShowcaseItems] = useState<any[]>([]);
+  const [isAddingToShowcase, setIsAddingToShowcase] = useState(false);
 
   useEffect(() => {
     if (!auth) return;
@@ -84,6 +86,7 @@ export function AdminPanel() {
         fetchAnnouncement();
         fetchPaymentSettings();
         fetchSubRequests();
+        fetchShowcaseItems();
       } else {
         setIsAdmin(false);
       }
@@ -147,6 +150,39 @@ export function AdminPanel() {
       setSubRequests(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
     } catch (e) { console.error(e); }
     finally { setIsSubsLoading(false); }
+  };
+
+  const fetchShowcaseItems = async () => {
+    if (!db) return;
+    try {
+      const q = query(collection(db, "showcase"), orderBy("createdAt", "desc"));
+      const snapshot = await getDocs(q);
+      setShowcaseItems(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+    } catch (e) { console.error(e); }
+  };
+
+  const handleAddToShowcase = async (videoUrl: string, userName: string, surahName: string) => {
+    if (!db || !videoUrl) return;
+    setIsAddingToShowcase(true);
+    try {
+      await addDoc(collection(db, "showcase"), {
+        videoUrl,
+        userName,
+        surahName,
+        createdAt: serverTimestamp()
+      });
+      alert("تمت الإضافة للمعرض بنجاح!");
+      fetchShowcaseItems();
+    } catch (e) { console.error(e); }
+    finally { setIsAddingToShowcase(false); }
+  };
+
+  const handleDeleteShowcaseItem = async (id: string) => {
+    if (!db || !window.confirm("حذف من المعرض؟")) return;
+    try {
+      await deleteDoc(doc(db, "showcase", id));
+      fetchShowcaseItems();
+    } catch (e) { console.error(e); }
   };
 
   const handleActionSubscription = async (requestId: string, userId: string, plan: string, action: 'approve' | 'reject') => {
@@ -258,10 +294,22 @@ export function AdminPanel() {
         pushSubscribers: pushSubscribers
       });
       
-      setUsers(usersData.sort((a: any, b: any) => (b.totalPoints || 0) - (a.totalPoints || 0)));
-    } catch (e) {
-      console.error("Error fetching admin stats:", e);
-    }
+      const sortedUsers = usersData.sort((a: any, b: any) => (b.totalPoints || 0) - (a.totalPoints || 0));
+      setUsers(sortedUsers);
+
+      // --- NEW: Top 3 Reward Logic ---
+      const top3 = sortedUsers.slice(0, 3);
+      for (const topUser of top3) {
+        if (topUser.plan === "free" || !topUser.plan) {
+           await updateDoc(doc(db, "users", topUser.uid), {
+             plan: "starter",
+             rewardedPlan: true, // Mark that it was a reward
+             updatedAt: serverTimestamp()
+           });
+           console.log(`[Admin] Rewarded ${topUser.displayName} with Starter Plan for being in Top 3!`);
+        }
+      }
+      // -------------------------------
   };
 
   const handleBanUser = async (uid: string, currentStatus: boolean) => {
@@ -315,7 +363,6 @@ export function AdminPanel() {
       const snapshot = await getDocs(collection(db, "users"));
       const docs = snapshot.docs;
       
-      // Firestore batch limits is 500 operations. We'll use a loop to handle any number of users.
       for (let i = 0; i < docs.length; i += 500) {
         const batch = writeBatch(db);
         const chunk = docs.slice(i, i + 500);
@@ -439,6 +486,7 @@ export function AdminPanel() {
                 { id: "stats", label: "الإحصائيات", icon: TrendingUp },
                 { id: "users", label: "المستخدمين", icon: Users },
                 { id: "subs", label: "طلبات الاشتراكات", icon: ShieldCheck },
+                { id: "showcase", label: "معرض المجتمع", icon: ArrowUpRight },
                 { id: "quests", label: "المهام", icon: Star },
                 { id: "settings", label: "الإعدادات والأسعار", icon: Bell }
             ].map((t) => (
@@ -458,39 +506,38 @@ export function AdminPanel() {
         {activeTab === "stats" && (
           <>
             <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-card border border-border p-8 rounded-[3rem] shadow-xl relative overflow-hidden">
-           <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
-           <div className="relative z-10 text-right">
-              <div className="flex items-center gap-3 justify-end mb-2">
-                 <span className="bg-primary/20 text-primary text-[10px] font-black px-3 py-1 rounded-full border border-primary/20 uppercase tracking-widest">System Overlord</span>
-                 <h1 className="text-3xl font-black">مرحباً يا أستاذ يوسف أسامة</h1>
-              </div>
-              <p className="text-foreground/40 font-bold text-sm">لديك السيطرة الكاملة على تطبيق القرآن والمنافسات.</p>
-           </div>
-           <div className="flex items-center gap-4 relative z-10">
-              <button onClick={fetchStats} className="p-4 bg-foreground/5 hover:bg-foreground/10 border border-border rounded-2xl transition-all">
-                <RefreshCw className={`w-6 h-6 ${loading ? 'animate-spin' : ''}`} />
-              </button>
-              <ShieldCheck className="w-16 h-16 text-primary" />
-           </div>
-        </div>
+               <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
+               <div className="relative z-10 text-right">
+                  <div className="flex items-center gap-3 justify-end mb-2">
+                     <span className="bg-primary/20 text-primary text-[10px] font-black px-3 py-1 rounded-full border border-primary/20 uppercase tracking-widest">System Overlord</span>
+                     <h1 className="text-3xl font-black">مرحباً يا أستاذ يوسف أسامة</h1>
+                  </div>
+                  <p className="text-foreground/40 font-bold text-sm">لديك السيطرة الكاملة على تطبيق القرآن والمنافسات.</p>
+               </div>
+               <div className="flex items-center gap-4 relative z-10">
+                  <button onClick={fetchStats} className="p-4 bg-foreground/5 hover:bg-foreground/10 border border-border rounded-2xl transition-all">
+                    <RefreshCw className={`w-6 h-6 ${loading ? 'animate-spin' : ''}`} />
+                  </button>
+                  <ShieldCheck className="w-16 h-16 text-primary" />
+               </div>
+            </div>
 
-        {/* Dynamic Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-           {[
-             { label: "المستخدمين", value: stats.totalUsers, icon: Users, color: "text-blue-400", bg: "bg-blue-400/10" },
-             { label: "نشط اليوم", value: stats.activeToday, icon: UserCheck, color: "text-emerald-400", bg: "bg-emerald-400/10" },
-             { label: "أكثر محافظة", value: stats.topGovernorate, icon: MapPin, color: "text-amber-400", bg: "bg-amber-400/10" },
-             { label: "إجمالي النقاط", value: stats.totalPoints.toLocaleString(), icon: Trophy, color: "text-primary", bg: "bg-primary/10" },
-           ].map((s, i) => (
-             <div key={i} className="bg-card border border-border p-8 rounded-[2.5rem] flex flex-col items-center text-center gap-3 shadow-lg hover:border-primary/20 transition-all group">
-                <div className={`w-14 h-14 ${s.bg} rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110`}>
-                  <s.icon className={`w-7 h-7 ${s.color}`} />
-                </div>
-                <p className="text-[10px] font-black text-foreground/30 uppercase tracking-[0.3em]">{s.label}</p>
-                <p className="text-3xl font-black">{s.value}</p>
-             </div>
-           ))}
-        </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+               {[
+                 { label: "المستخدمين", value: stats.totalUsers, icon: Users, color: "text-blue-400", bg: "bg-blue-400/10" },
+                 { label: "نشط اليوم", value: stats.activeToday, icon: UserCheck, color: "text-emerald-400", bg: "bg-emerald-400/10" },
+                 { label: "أكثر محافظة", value: stats.topGovernorate, icon: MapPin, color: "text-amber-400", bg: "bg-amber-400/10" },
+                 { label: "إجمالي النقاط", value: stats.totalPoints.toLocaleString(), icon: Trophy, color: "text-primary", bg: "bg-primary/10" },
+               ].map((s, i) => (
+                 <div key={i} className="bg-card border border-border p-8 rounded-[2.5rem] flex flex-col items-center text-center gap-3 shadow-lg hover:border-primary/20 transition-all group">
+                    <div className={`w-14 h-14 ${s.bg} rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110`}>
+                      <s.icon className={`w-7 h-7 ${s.color}`} />
+                    </div>
+                    <p className="text-[10px] font-black text-foreground/30 uppercase tracking-[0.3em]">{s.label}</p>
+                    <p className="text-3xl font-black">{s.value}</p>
+                 </div>
+               ))}
+            </div>
           </>
         )}
 
@@ -559,23 +606,6 @@ export function AdminPanel() {
                         {isSavingSettings ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : "حفظ جميع الإعدادات والأسعار"}
                     </button>
                 </div>
-
-                <div className="lg:col-span-2">
-                    <div className="bg-card border border-border p-8 rounded-[3rem] shadow-lg flex flex-col gap-6">
-                        <h3 className="text-xl font-bold">تنبيه عام للمستخدمين</h3>
-                        <textarea 
-                            value={announcement} onChange={e => setAnnouncement(e.target.value)}
-                            className="w-full bg-foreground/5 border border-border rounded-2xl p-6 text-right outline-none focus:border-primary/40 min-h-[120px] font-bold"
-                            placeholder="اكتب التنبيه الذي سيظهر في شاشة الرئيسية..."
-                        />
-                        <button 
-                            onClick={handleSetAnnouncement} disabled={isSettingAnnouncement}
-                            className="w-full py-5 bg-foreground text-background rounded-2xl font-black transition-all hover:bg-foreground/90"
-                        >
-                            {isSettingAnnouncement ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : "نشر التنبيه لجميع المستخدمين"}
-                        </button>
-                    </div>
-                </div>
             </div>
         )}
 
@@ -599,7 +629,7 @@ export function AdminPanel() {
                 <div className="overflow-x-auto no-scrollbar">
                     <table className="w-full text-right">
                         <thead>
-                            <tr className="bg-foreground/[0.02] text-[10px] font-black text-foreground/30 uppercase tracking-[0.2em] border-b border-border text-right">
+                            <tr className="bg-foreground/[0.02] text-[10px] font-black text-foreground/30 uppercase tracking-[0.2em] border-b border-border">
                                 <th className="p-8">المستخدم / المنصة</th>
                                 <th className="p-8">نوع الخطة</th>
                                 <th className="p-8">بيانات التحويل</th>
@@ -608,10 +638,10 @@ export function AdminPanel() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
-                            {subRequests.filter(r => r.status === 'pending').length === 0 ? (
-                                <tr><td colSpan={5} className="p-20 text-center text-foreground/10 font-black text-3xl italic uppercase">No Pending Requests</td></tr>
+                            {subRequests.length === 0 ? (
+                                <tr><td colSpan={5} className="p-20 text-center text-foreground/10 font-black text-3xl italic uppercase">No Requests Found</td></tr>
                             ) : (
-                                subRequests.filter(r => r.status === 'pending').map((r) => (
+                                subRequests.map((r) => (
                                     <tr key={r.id} className="hover:bg-foreground/[0.01] transition-colors">
                                         <td className="p-8">
                                             <div className="flex flex-col gap-1">
@@ -663,277 +693,315 @@ export function AdminPanel() {
         )}
 
         {activeTab === "quests" && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          
-          {/* Push Notification Manager */}
-          <div className="bg-card border border-border p-8 rounded-[3rem] shadow-lg flex flex-col gap-6">
-             <div className="flex items-center justify-between">
-                <div className="flex flex-col text-right">
-                    <h3 className="text-xl font-bold flex items-center gap-2">إرسال إشعار Push للموبايل <Bell className="w-5 h-5 text-primary" /></h3>
-                    <p className="text-[10px] text-primary/60 font-black">{stats.pushSubscribers} مستخدم مسجل حالياً</p>
-                </div>
-                <button 
-                  onClick={async () => {
-                    if (!db || !window.confirm("هل تريد إرسال إشعار 'صلّ على النبي' لجميع المستخدمين الآن؟")) return;
-                    setIsSendingPush(true);
-                    try {
-                      await addDoc(collection(db, "push_queue"), {
-                        title: "❤️ ذكرى",
-                        body: "اللهم صلِّ وسلم وبارك على نبينا محمد ﷺ",
-                        status: "pending",
-                        scheduledFor: serverTimestamp(),
-                        createdAt: serverTimestamp(),
-                      });
-                      alert("تم الإرسال بنجاح!");
-                    } catch (e) { console.error(e); }
-                    finally { setIsSendingPush(false); }
-                  }}
-                  className="px-4 py-2 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-xl text-[10px] font-black hover:bg-emerald-500 hover:text-white transition-all"
-                >
-                  إرسال صلّ على النبي ﷺ
-                </button>
-             </div>
-             
-             <form onSubmit={async (e) => {
-                e.preventDefault();
-                if (!db || !pushTitle || !pushBody) return;
-                setIsSendingPush(true);
-                try {
-                  await addDoc(collection(db, "push_queue"), {
-                    title: pushTitle,
-                    body: pushBody,
-                    status: "pending",
-                    scheduledFor: serverTimestamp(),
-                    createdAt: serverTimestamp(),
-                    recipientCount: stats.pushSubscribers || 0
-                  });
-                  setPushTitle("");
-                  setPushBody("");
-                  alert("تم إدراج الإشعار في قائمة الإرسال! ستقوم خوادم Firebase بإرساله للجميع فوراً.");
-                } catch (e) {
-                  console.error(e);
-                  alert("فشل إرسال الإشعار");
-                } finally {
-                  setIsSendingPush(false);
-                }
-             }} className="flex flex-col gap-4">
-                <input 
-                  value={pushTitle}
-                  onChange={e => setPushTitle(e.target.value)}
-                  className="w-full bg-foreground/5 border border-border rounded-2xl p-4 text-right outline-none focus:border-primary/40 font-bold"
-                  placeholder="عنوان الإشعار (مثلاً: تنبيه هام)"
-                />
-                <textarea 
-                  value={pushBody}
-                  onChange={e => setPushBody(e.target.value)}
-                  className="w-full bg-foreground/5 border border-border rounded-2xl p-4 text-right outline-none focus:border-primary/40 min-h-[80px] font-bold"
-                  placeholder="نص الرسالة التي ستظهر في شاشة القفل..."
-                />
-                <button 
-                  type="submit" disabled={isSendingPush}
-                  className="w-full py-4 bg-primary text-black rounded-2xl font-black shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-2"
-                >
-                  {isSendingPush ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowUpRight className="w-5 h-5" />}
-                  إرسال الإشعار لجميع الهواتف
-                </button>
-                <p className="text-[9px] text-foreground/20 text-center font-bold">ملاحظة: الإرسال يتم عبر Firebase Cloud Messaging وتحتاج لتفعيل الـ Functions.</p>
-             </form>
-          </div>
-
-          {/* Reset & Dangerous Actions */}
-          <div className="bg-red-500/[0.02] border border-red-500/20 p-8 rounded-[3rem] shadow-lg flex flex-col gap-6">
-             <div className="flex items-center justify-between">
-                <span className="bg-red-500 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase">Danger Zone</span>
-                <h3 className="text-xl font-bold text-red-500">إدارة المسابقات الكبرى</h3>
-             </div>
-             <div className="flex-1 flex flex-col justify-center gap-6">
-                <p className="text-foreground/50 text-sm font-bold text-center leading-relaxed">
-                  تصفير المسابقة سيقوم بمسح نقاط جميع المستخدمين (القرآن، الأذكار، الاستماع) ليبدأ الجميع من الصفر في دورة جديدة.
-                </p>
-                <button 
-                  onClick={handleResetLeaderboard} disabled={isResetting}
-                  className="w-full py-6 bg-red-600 text-white rounded-[2rem] font-black text-lg shadow-xl shadow-red-600/20 hover:bg-red-700 transition-all flex items-center justify-center gap-3 active:scale-95"
-                >
-                  {isResetting ? <RefreshCw className="w-6 h-6 animate-spin" /> : <Trash2 className="w-6 h-6" />}
-                  تصفير المسابقة وبدء دورة جديدة
-                </button>
-             </div>
-          </div>
-        </div>
-
-        {/* Quest Manager */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-           <div className="bg-card border border-border p-8 rounded-[3rem] shadow-lg">
-              <div className="flex items-center gap-3 mb-8">
-                 <PlusCircle className="w-6 h-6 text-primary" />
-                 <h3 className="text-xl font-bold">إضافة مهمة أسبوعية جديدة</h3>
-              </div>
-              <form onSubmit={handleAddQuest} className="space-y-6">
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-foreground/30 uppercase mr-4">عنوان المهمة</label>
-                    <input 
-                       value={questTitle} onChange={e => setQuestTitle(e.target.value)}
-                       className="w-full bg-foreground/5 border border-border rounded-2xl py-5 px-6 text-right outline-none focus:border-primary/40 font-bold"
-                       placeholder="مثلاً: ختم سورة البقرة، أو استماع 10 ساعات"
-                    />
-                 </div>
-                 <div className="flex items-center gap-4">
-                    <div className="w-1/3 space-y-2">
-                       <label className="text-[10px] font-black text-foreground/30 uppercase mr-4">النقاط</label>
-                       <input 
-                          type="number" value={questPoints} onChange={e => setQuestPoints(parseInt(e.target.value))}
-                          className="w-full bg-foreground/5 border border-border rounded-2xl py-5 px-6 text-center outline-none focus:border-primary/40 font-mono text-xl font-black"
-                       />
-                    </div>
-                    <button 
-                       type="submit" disabled={isAddingQuest}
-                       className="flex-1 mt-6 py-5 bg-primary text-black rounded-2xl font-black shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
-                    >
-                       نشر المهمة الآن
-                    </button>
-                 </div>
-              </form>
-           </div>
-
-           <div className="bg-card border border-border p-8 rounded-[3rem] shadow-lg flex flex-col">
-              <div className="flex items-center gap-3 mb-6">
-                 <Calendar className="w-6 h-6 text-primary" />
-                 <h3 className="text-xl font-bold">المهام الحالية</h3>
-              </div>
-              <div className="flex-1 overflow-y-auto max-h-[350px] no-scrollbar space-y-3">
-                 {activeQuests.length === 0 ? (
-                   <div className="h-full flex items-center justify-center text-foreground/10 font-black text-2xl uppercase italic">No Active Quests</div>
-                 ) : (
-                   activeQuests.map(q => (
-                     <div key={q.id} className="flex items-center justify-between p-6 bg-foreground/[0.02] rounded-3xl border border-border group hover:border-primary/20 transition-all">
-                        <button onClick={() => handleDeleteQuest(q.id)} className="text-red-500/20 hover:text-red-500 p-2 transition-all"><Trash2 className="w-5 h-5" /></button>
-                        <div className="text-right">
-                           <p className="font-black text-lg">{q.title}</p>
-                           <p className="text-primary font-black text-sm">+{q.points} نقطة</p>
-                        </div>
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+               {/* Push Notification Manager */}
+               <div className="bg-card border border-border p-8 rounded-[3rem] shadow-lg flex flex-col gap-6">
+                  <div className="flex items-center justify-between">
+                     <div className="flex flex-col text-right">
+                         <h3 className="text-xl font-bold flex items-center gap-2">إرسال إشعار Push للموبايل <Bell className="w-5 h-5 text-primary" /></h3>
+                         <p className="text-[10px] text-primary/60 font-black">{stats.pushSubscribers} مستخدم مسجل حالياً</p>
                      </div>
-                   ))
-                 )}
-              </div>
-           </div>
-          </div>
+                     <button 
+                       onClick={async () => {
+                         if (!db || !window.confirm("هل تريد إرسال إشعار 'صلّ على النبي' لجميع المستخدمين الآن؟")) return;
+                         setIsSendingPush(true);
+                         try {
+                           await addDoc(collection(db, "push_queue"), {
+                             title: "❤️ ذكرى",
+                             body: "اللهم صلِّ وسلم وبارك على نبينا محمد ﷺ",
+                             status: "pending",
+                             scheduledFor: serverTimestamp(),
+                             createdAt: serverTimestamp(),
+                           });
+                           alert("تم الإرسال بنجاح!");
+                         } catch (e) { console.error(e); }
+                         finally { setIsSendingPush(false); }
+                       }}
+                       className="px-4 py-2 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-xl text-[10px] font-black hover:bg-emerald-500 hover:text-white transition-all"
+                     >
+                       إرسال صلّ على النبي ﷺ
+                     </button>
+                  </div>
+                  
+                  <form onSubmit={async (e) => {
+                     e.preventDefault();
+                     if (!db || !pushTitle || !pushBody) return;
+                     setIsSendingPush(true);
+                     try {
+                       await addDoc(collection(db, "push_queue"), {
+                         title: pushTitle,
+                         body: pushBody,
+                         status: "pending",
+                         scheduledFor: serverTimestamp(),
+                         createdAt: serverTimestamp(),
+                         recipientCount: stats.pushSubscribers || 0
+                       });
+                       setPushTitle("");
+                       setPushBody("");
+                       alert("تم إدراج الإشعار في قائمة الإرسال! ستقوم خوادم Firebase بإرساله للجميع فوراً.");
+                     } catch (e) {
+                       console.error(e);
+                       alert("فشل إرسال الإشعار");
+                     } finally {
+                       setIsSendingPush(false);
+                     }
+                  }} className="flex flex-col gap-4">
+                     <input 
+                       value={pushTitle}
+                       onChange={e => setPushTitle(e.target.value)}
+                       className="w-full bg-foreground/5 border border-border rounded-2xl p-4 text-right outline-none focus:border-primary/40 font-bold"
+                       placeholder="عنوان الإشعار (مثلاً: تنبيه هام)"
+                     />
+                     <textarea 
+                       value={pushBody}
+                       onChange={e => setPushBody(e.target.value)}
+                       className="w-full bg-foreground/5 border border-border rounded-2xl p-4 text-right outline-none focus:border-primary/40 min-h-[80px] font-bold"
+                       placeholder="نص الرسالة التي ستظهر في شاشة القفل..."
+                     />
+                     <button 
+                       type="submit" disabled={isSendingPush}
+                       className="w-full py-4 bg-primary text-black rounded-2xl font-black shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-2"
+                     >
+                       {isSendingPush ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowUpRight className="w-5 h-5" />}
+                       إرسال الإشعار لجميع الهواتف
+                     </button>
+                     <p className="text-[9px] text-foreground/20 text-center font-bold">ملاحظة: الإرسال يتم عبر Firebase Cloud Messaging وتحتاج لتفعيل الـ Functions.</p>
+                  </form>
+               </div>
+
+               {/* Reset & Dangerous Actions */}
+               <div className="bg-red-500/[0.02] border border-red-500/20 p-8 rounded-[3rem] shadow-lg flex flex-col gap-6">
+                  <div className="flex items-center justify-between">
+                     <span className="bg-red-500 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase">Danger Zone</span>
+                     <h3 className="text-xl font-bold text-red-500">إدارة المسابقات الكبرى</h3>
+                  </div>
+                  <div className="flex-1 flex flex-col justify-center gap-6">
+                     <p className="text-foreground/50 text-sm font-bold text-center leading-relaxed">
+                       تصفير المسابقة سيقوم بمسح نقاط جميع المستخدمين (القرآن، الأذكار، الاستماع) ليبدأ الجميع من الصفر في دورة جديدة.
+                     </p>
+                     <button 
+                       onClick={handleResetLeaderboard} disabled={isResetting}
+                       className="w-full py-6 bg-red-600 text-white rounded-[2rem] font-black text-lg shadow-xl shadow-red-600/20 hover:bg-red-700 transition-all flex items-center justify-center gap-3 active:scale-95"
+                     >
+                       {isResetting ? <RefreshCw className="w-6 h-6 animate-spin" /> : <Trash2 className="w-6 h-6" />}
+                       تصفير المسابقة وبدء دورة جديدة
+                     </button>
+                  </div>
+               </div>
+            </div>
+
+            {/* Quest Manager Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+               <div className="bg-card border border-border p-8 rounded-[3rem] shadow-lg">
+                  <div className="flex items-center gap-3 mb-8">
+                     <PlusCircle className="w-6 h-6 text-primary" />
+                     <h3 className="text-xl font-bold">إضافة مهمة أسبوعية جديدة</h3>
+                  </div>
+                  <form onSubmit={handleAddQuest} className="space-y-6">
+                     <div className="space-y-2">
+                        <label className="text-[10px] font-black text-foreground/30 uppercase mr-4">عنوان المهمة</label>
+                        <input 
+                           value={questTitle} onChange={e => setQuestTitle(e.target.value)}
+                           className="w-full bg-foreground/5 border border-border rounded-2xl py-5 px-6 text-right outline-none focus:border-primary/40 font-bold"
+                           placeholder="مثلاً: ختم سورة البقرة، أو استماع 10 ساعات"
+                        />
+                     </div>
+                     <div className="flex items-center gap-4">
+                        <div className="w-1/3 space-y-2">
+                           <label className="text-[10px] font-black text-foreground/30 uppercase mr-4">النقاط</label>
+                           <input 
+                              type="number" value={questPoints} onChange={e => setQuestPoints(parseInt(e.target.value))}
+                              className="w-full bg-foreground/5 border border-border rounded-2xl py-5 px-6 text-center outline-none focus:border-primary/40 font-mono text-xl font-black"
+                           />
+                        </div>
+                        <button 
+                           type="submit" disabled={isAddingQuest}
+                           className="flex-1 mt-6 py-5 bg-primary text-black rounded-2xl font-black shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+                        >
+                           نشر المهمة الآن
+                        </button>
+                     </div>
+                  </form>
+               </div>
+
+               <div className="bg-card border border-border p-8 rounded-[3rem] shadow-lg flex flex-col">
+                  <div className="flex items-center gap-3 mb-6">
+                     <Calendar className="w-6 h-6 text-primary" />
+                     <h3 className="text-xl font-bold">المهام الحالية</h3>
+                  </div>
+                  <div className="flex-1 overflow-y-auto max-h-[350px] no-scrollbar space-y-3">
+                     {activeQuests.length === 0 ? (
+                       <div className="h-full flex items-center justify-center text-foreground/10 font-black text-2xl uppercase italic">No Active Quests</div>
+                     ) : (
+                       activeQuests.map(q => (
+                         <div key={q.id} className="flex items-center justify-between p-6 bg-foreground/[0.02] rounded-3xl border border-border group hover:border-primary/20 transition-all">
+                            <button onClick={() => handleDeleteQuest(q.id)} className="text-red-500/20 hover:text-red-500 p-2 transition-all"><Trash2 className="w-5 h-5" /></button>
+                            <div className="text-right">
+                               <p className="font-black text-lg">{q.title}</p>
+                               <p className="text-primary font-black text-sm">+{q.points} نقطة</p>
+                            </div>
+                         </div>
+                       ))
+                     )}
+                  </div>
+               </div>
+            </div>
+          </>
         )}
 
         {activeTab === "users" && (
           <div className="bg-card border border-border rounded-[3.5rem] shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-           <div className="p-8 md:p-12 border-b border-border flex flex-col md:flex-row items-center justify-between gap-8 bg-foreground/[0.01]">
-              <div className="flex items-center gap-4">
-                 <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
-                    <Users className="w-6 h-6 text-primary" />
-                 </div>
-                 <div className="text-right">
-                    <h3 className="text-2xl font-black">قاعدة بيانات المتسابقين</h3>
-                    <p className="text-[10px] text-foreground/30 font-bold uppercase tracking-widest mt-1">Full User Details & Controls</p>
-                 </div>
-              </div>
-              
-              <div className="relative w-full md:w-[400px] group">
-                 <Search className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/20 group-focus-within:text-primary transition-colors" />
-                 <input 
-                    value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                    placeholder="ابحث بالاسم، الإيميل، أو رقم الهاتف..."
-                    className="w-full bg-foreground/5 border border-border rounded-full py-5 pr-14 pl-8 text-sm outline-none focus:border-primary/30 transition-all font-bold"
-                 />
-              </div>
-           </div>
+            <div className="p-8 md:p-12 border-b border-border flex flex-col md:flex-row items-center justify-between gap-8 bg-foreground/[0.01]">
+               <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
+                     <Users className="w-6 h-6 text-primary" />
+                  </div>
+                  <div className="text-right">
+                     <h3 className="text-2xl font-black">قاعدة بيانات المتسابقين</h3>
+                     <p className="text-[10px] text-foreground/30 font-bold uppercase tracking-widest mt-1">Full User Details & Controls</p>
+                  </div>
+               </div>
+               
+               <div className="relative w-full md:w-[400px] group">
+                  <Search className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/20 group-focus-within:text-primary transition-colors" />
+                  <input 
+                     value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                     placeholder="ابحث بالاسم، الإيميل، أو رقم الهاتف..."
+                     className="w-full bg-foreground/5 border border-border rounded-full py-5 pr-14 pl-8 text-sm outline-none focus:border-primary/30 transition-all font-bold"
+                  />
+               </div>
+            </div>
 
-           <div className="overflow-x-auto no-scrollbar">
-              <table className="w-full text-right">
-                 <thead>
-                    <tr className="bg-foreground/[0.02] text-[10px] font-black text-foreground/30 uppercase tracking-[0.2em] border-b border-border">
-                       <th className="p-8">المتسابق</th>
-                       <th className="p-8">معلومات التواصل</th>
-                       <th className="p-8">الموقع</th>
-                       <th className="p-8">توزيع النقاط</th>
-                       <th className="p-8 text-center">الإجراءات</th>
-                    </tr>
-                 </thead>
-                 <tbody className="divide-y divide-border">
-                    {filteredUsers.length === 0 ? (
-                      <tr><td colSpan={5} className="p-20 text-center text-foreground/10 font-black text-3xl italic uppercase">No Users Found</td></tr>
-                    ) : (
-                      filteredUsers.map((u, i) => (
-                        <tr key={u.uid} className={`group hover:bg-foreground/[0.01] transition-colors ${u.isBanned ? 'bg-red-500/[0.03] opacity-60' : ''}`}>
-                           <td className="p-8">
-                              <div className="flex items-center gap-4">
-                                 <span className="text-[10px] font-mono font-bold text-foreground/10">{i + 1}</span>
-                                 <div className="relative">
-                                    <div className="w-14 h-14 rounded-2xl overflow-hidden border border-border bg-background shadow-md">
-                                       <img src={u.photoURL || "/logo/logo.png"} alt="" className="w-full h-full object-cover" />
-                                    </div>
-                                    {u.isBanned && <div className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full"><Ban className="w-3 h-3" /></div>}
-                                 </div>
-                                 <div className="flex flex-col">
-                                    <span className="font-black text-lg text-foreground leading-tight">{u.displayName || u.username}</span>
-                                    <span className="text-[11px] text-primary/60 font-mono">@{u.username}</span>
-                                 </div>
-                              </div>
-                           </td>
-                           <td className="p-8">
-                              <div className="flex flex-col gap-1.5">
-                                 <div className="flex items-center gap-2 text-foreground/60 font-bold text-sm">
-                                    <Phone className="w-3.5 h-3.5 text-primary/40" />
-                                    {u.phoneNumber || "N/A"}
-                                 </div>
-                                 <div className="flex items-center gap-2 text-[11px] text-foreground/30 font-medium">
-                                    <Mail className="w-3.5 h-3.5" />
-                                    {u.email || "N/A"}
-                                 </div>
-                              </div>
-                           </td>
-                           <td className="p-8">
-                              <div className="flex flex-col gap-1">
-                                 <div className="flex items-center gap-2 text-foreground/80 font-black text-sm">
-                                    <MapPin className="w-3.5 h-3.5 text-emerald-500" />
-                                    {u.governorate}
-                                 </div>
-                                 <span className="text-[10px] text-foreground/20 font-bold uppercase">UID: {u.uid.slice(0, 8)}</span>
-                              </div>
-                           </td>
-                           <td className="p-8">
-                              <div className="flex flex-col gap-2">
-                                 <div className="flex items-center gap-3">
-                                    <span className="text-2xl font-black text-primary leading-none">{u.totalPoints?.toLocaleString()}</span>
-                                    <button 
-                                       onClick={() => handleEditUserPoints(u.uid, u.totalPoints)}
-                                       className="p-1.5 bg-primary/10 rounded-lg text-primary hover:bg-primary text-black transition-all opacity-0 group-hover:opacity-100"
-                                    >
-                                       <PlusCircle className="w-3.5 h-3.5" />
-                                    </button>
-                                 </div>
-                                 <div className="flex gap-4 text-[9px] font-black uppercase text-foreground/20">
-                                    <span className="flex items-center gap-1">📖 {u.quranPoints || 0}</span>
-                                    <span className="flex items-center gap-1">📿 {u.athkarPoints || 0}</span>
-                                    <span className="flex items-center gap-1">🎧 {u.listenPoints || 0}</span>
-                                 </div>
-                              </div>
-                           </td>
-                           <td className="p-8">
-                              <div className="flex items-center justify-center gap-2">
-                                 <button 
-                                    onClick={() => handleBanUser(u.uid, u.isBanned)}
-                                    className={`p-4 rounded-2xl transition-all shadow-md active:scale-90 ${u.isBanned ? 'bg-emerald-500 text-white shadow-emerald-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/10 hover:bg-red-500 hover:text-white'}`}
-                                    title={u.isBanned ? "فك الحظر" : "حظر المتسابق"}
-                                 >
-                                    {u.isBanned ? <CheckCircle className="w-5 h-5" /> : <Ban className="w-5 h-5" />}
-                                 </button>
-                                 <button className="p-4 bg-foreground/5 text-foreground/30 rounded-2xl border border-border hover:text-primary hover:border-primary/20 transition-all shadow-md">
-                                    <ArrowUpRight className="w-5 h-5" />
-                                 </button>
-                              </div>
-                           </td>
-                        </tr>
-                      ))
-                    )}
-                 </tbody>
-              </table>
-           </div>
-        </div>
+            <div className="overflow-x-auto no-scrollbar">
+               <table className="w-full text-right">
+                  <thead>
+                     <tr className="bg-foreground/[0.02] text-[10px] font-black text-foreground/30 uppercase tracking-[0.2em] border-b border-border">
+                        <th className="p-8">المتسابق</th>
+                        <th className="p-8">معلومات التواصل</th>
+                        <th className="p-8">الموقع</th>
+                        <th className="p-8">توزيع النقاط</th>
+                        <th className="p-8 text-center">الإجراءات</th>
+                     </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                     {filteredUsers.length === 0 ? (
+                       <tr><td colSpan={5} className="p-20 text-center text-foreground/10 font-black text-3xl italic uppercase">No Users Found</td></tr>
+                     ) : (
+                       filteredUsers.map((u, i) => (
+                         <tr key={u.uid} className={`group hover:bg-foreground/[0.01] transition-colors ${u.isBanned ? 'bg-red-500/[0.03] opacity-60' : ''}`}>
+                            <td className="p-8">
+                               <div className="flex items-center gap-4">
+                                  <span className="text-[10px] font-mono font-bold text-foreground/10">{i + 1}</span>
+                                  <div className="relative">
+                                     <div className="w-14 h-14 rounded-2xl overflow-hidden border border-border bg-background shadow-md">
+                                        <img src={u.photoURL || "/logo/logo.png"} alt="" className="w-full h-full object-cover" />
+                                     </div>
+                                     {u.isBanned && <div className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full"><Ban className="w-3 h-3" /></div>}
+                                  </div>
+                                  <div className="flex flex-col">
+                                     <span className="font-black text-lg text-foreground leading-tight">{u.displayName || u.username}</span>
+                                     <span className="text-[11px] text-primary/60 font-mono">@{u.username}</span>
+                                  </div>
+                               </div>
+                            </td>
+                            <td className="p-8">
+                               <div className="flex flex-col gap-1.5">
+                                  <div className="flex items-center gap-2 text-foreground/60 font-bold text-sm">
+                                     <Phone className="w-3.5 h-3.5 text-primary/40" />
+                                     {u.phoneNumber || "N/A"}
+                                  </div>
+                                  <div className="flex items-center gap-2 text-[11px] text-foreground/30 font-medium">
+                                     <Mail className="w-3.5 h-3.5" />
+                                     {u.email || "N/A"}
+                                  </div>
+                               </div>
+                            </td>
+                            <td className="p-8">
+                               <div className="flex flex-col gap-1">
+                                  <div className="flex items-center gap-2 text-foreground/80 font-black text-sm">
+                                     <MapPin className="w-3.5 h-3.5 text-emerald-500" />
+                                     {u.governorate}
+                                  </div>
+                                  <span className="text-[10px] text-foreground/20 font-bold uppercase">UID: {u.uid.slice(0, 8)}</span>
+                               </div>
+                            </td>
+                            <td className="p-8">
+                               <div className="flex flex-col gap-2">
+                                  <div className="flex items-center gap-3">
+                                     <span className="text-2xl font-black text-primary leading-none">{u.totalPoints?.toLocaleString()}</span>
+                                     <button 
+                                        onClick={() => handleEditUserPoints(u.uid, u.totalPoints)}
+                                        className="p-1.5 bg-primary/10 rounded-lg text-primary hover:bg-primary text-black transition-all opacity-0 group-hover:opacity-100"
+                                     >
+                                        <PlusCircle className="w-3.5 h-3.5" />
+                                     </button>
+                                  </div>
+                                  <div className="flex gap-4 text-[9px] font-black uppercase text-foreground/20">
+                                     <span className="flex items-center gap-1">📖 {u.quranPoints || 0}</span>
+                                     <span className="flex items-center gap-1">📿 {u.athkarPoints || 0}</span>
+                                     <span className="flex items-center gap-1">🎧 {u.listenPoints || 0}</span>
+                                  </div>
+                               </div>
+                            </td>
+                            <td className="p-8">
+                               <div className="flex items-center justify-center gap-2">
+                                  <button 
+                                     onClick={() => handleBanUser(u.uid, u.isBanned)}
+                                     className={`p-4 rounded-2xl transition-all shadow-md active:scale-90 ${u.isBanned ? 'bg-emerald-500 text-white shadow-emerald-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/10 hover:bg-red-500 hover:text-white'}`}
+                                     title={u.isBanned ? "فك الحظر" : "حظر المتسابق"}
+                                  >
+                                     {u.isBanned ? <CheckCircle className="w-5 h-5" /> : <Ban className="w-5 h-5" />}
+                                  </button>
+                                  <button className="p-4 bg-foreground/5 text-foreground/30 rounded-2xl border border-border hover:text-primary hover:border-primary/20 transition-all shadow-md">
+                                     <ArrowUpRight className="w-5 h-5" />
+                                  </button>
+                               </div>
+                            </td>
+                         </tr>
+                       ))
+                     )}
+                  </tbody>
+               </table>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "showcase" && (
+          <div className="bg-card border border-border rounded-[3.5rem] shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+             <div className="p-8 border-b border-border flex items-center justify-between">
+                <h3 className="text-2xl font-black flex items-center gap-3">معرض الفيديوهات <Star className="w-6 h-6 text-primary" /></h3>
+                <button onClick={fetchShowcaseItems} className="p-4 bg-foreground/5 rounded-2xl hover:bg-foreground/10 transition-all">
+                    <RefreshCw className="w-5 h-5" />
+                </button>
+             </div>
+             <div className="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {showcaseItems.length === 0 ? (
+                  <div className="col-span-full p-20 text-center text-foreground/10 font-black text-3xl italic uppercase">Showcase is Empty</div>
+                ) : (
+                  showcaseItems.map(item => (
+                    <div key={item.id} className="bg-foreground/[0.02] border border-border rounded-[2.5rem] overflow-hidden group hover:border-primary/20 transition-all flex flex-col">
+                       <div className="aspect-video relative bg-black">
+                          {/* We assume these are links to platforms, for now just show a placeholder or the link */}
+                          <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
+                             <a href={item.videoUrl} target="_blank" rel="noreferrer" className="text-primary font-black hover:underline">{item.surahName}</a>
+                          </div>
+                       </div>
+                       <div className="p-6 flex items-center justify-between">
+                          <div className="flex flex-col">
+                             <span className="font-black text-sm">{item.userName}</span>
+                             <span className="text-[10px] text-foreground/30">{item.surahName}</span>
+                          </div>
+                          <button onClick={() => handleDeleteShowcaseItem(item.id)} className="p-3 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all">
+                             <Trash2 className="w-4 h-4" />
+                          </button>
+                       </div>
+                    </div>
+                  ))
+                )}
+             </div>
+          </div>
+        )}
 
       </div>
     </div>
