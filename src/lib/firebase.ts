@@ -7,6 +7,7 @@ import {
   persistentLocalCache, 
   persistentMultipleTabManager 
 } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 // هذه البيانات يجب ملؤها من Firebase Console الخاص بك
 const firebaseConfig = {
@@ -29,7 +30,9 @@ const db = initializeFirestore(app, {
   localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
 });
 
-export { app, auth, db, analytics };
+const storage = getStorage(app);
+
+export { app, auth, db, analytics, storage };
 
 export const logAppEvent = (eventName: string, params?: object) => {
   if (analytics) {
