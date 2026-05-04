@@ -3,7 +3,7 @@
 import React from "react";
 import { 
   X, MessageCircle, Moon, Sun, BookOpen, ScrollText, 
-  Calendar, Headphones, Timer, Video, Share2, Heart, Smartphone, Trophy, ShieldCheck
+  Calendar, Headphones, Timer, Video, Share2, Heart, Smartphone, Trophy, ShieldCheck, Star
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/ThemeProvider";
