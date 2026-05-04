@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     fonts-noto-core \
     fonts-hosny-amiri \
     fonts-kacst \
+    fonts-noto-color-emoji \
     libappindicator3-1 \
     xdg-utils \
     --no-install-recommends && \
@@ -31,8 +32,8 @@ COPY package*.json ./
 # تنصيب النسخ الأساسية
 RUN npm install
 
-# تأكيد وجود الحزم الاضافية
-RUN npm install express cors
+# تأكيد وجود الحزم الاضافية (sharp لرسم SVG الآيات)
+RUN npm install express cors sharp
 
 # نسخ جميع ملفات المشروع
 COPY . .

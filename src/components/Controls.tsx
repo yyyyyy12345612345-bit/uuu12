@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { useEditor } from "@/store/useEditor";
 import { usePexelsBackgrounds, PexelsMediaItem } from "@/hooks/usePexelsBackgrounds";
 import { RECITERS } from "@/data/reciters";
+import { useUserPlan } from "@/hooks/useUserPlan";
+import { Crown, Lock } from "lucide-react";
 
 // ============================================================
 // مكتبة خلفيات إسلامية ثابتة — لن تتغير أبداً
@@ -50,6 +52,10 @@ export function Controls() {
   const [query, setQuery] = useState("");
   const { state, updateState } = useEditor();
   const { media, loading } = usePexelsBackgrounds(query);
+  const { userPlan, isFeatureLocked } = useUserPlan();
+
+  const isSearchLocked = isFeatureLocked("search");
+  const isVideoLocked = isFeatureLocked("video_bg");
 
   const displayMedia = bgMode === "library" ? STATIC_LIBRARY : (media.length > 0 ? media : STATIC_LIBRARY);
 
@@ -132,13 +138,15 @@ export function Controls() {
               </button>
               <button
                 onClick={() => {
+                   if (isSearchLocked) return;
                    setBgMode("search");
                    // @ts-ignore
                    window.gtag?.('event', 'bg_mode_switch', { 'mode': 'search' });
                 }}
-                className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all duration-300 ${bgMode === "search" ? "bg-primary text-black shadow shadow-primary/20" : "text-foreground/30 hover:text-foreground/60"}`}
+                className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all duration-300 flex items-center justify-center gap-2 ${bgMode === "search" ? "bg-primary text-black shadow shadow-primary/20" : "text-foreground/30 hover:text-foreground/60"} ${isSearchLocked ? 'opacity-50' : ''}`}
               >
                 🔍 بحث إضافي
+                {isSearchLocked && <Crown className="w-3 h-3 text-amber-500" />}
               </button>
             </div>
 
@@ -183,8 +191,11 @@ export function Controls() {
                 {displayMedia.map((item, index) => (
                   <button
                     key={`${item.src}-${index}`}
-                    onClick={() => handleBgSelect(item)}
-                    className={`relative aspect-[9/16] overflow-hidden rounded-[1.5rem] border-2 transition-all duration-500 group/item ${state.backgroundUrl === item.src ? 'border-primary shadow-[0_0_30px_rgba(212,175,55,0.2)] scale-[0.98]' : 'border-white/5 hover:border-white/20'}`}
+                    onClick={() => {
+                      if (item.type === 'video' && isVideoLocked) return;
+                      handleBgSelect(item);
+                    }}
+                    className={`relative aspect-[9/16] overflow-hidden rounded-[1.5rem] border-2 transition-all duration-500 group/item ${state.backgroundUrl === item.src ? 'border-primary shadow-[0_0_30px_rgba(212,175,55,0.2)] scale-[0.98]' : 'border-white/5 hover:border-white/20'} ${item.type === 'video' && isVideoLocked ? 'grayscale opacity-80' : ''}`}
                   >
                     {item.type === "video" ? (
                       <video
@@ -208,9 +219,9 @@ export function Controls() {
                       <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center text-[9px] font-black text-black shadow-lg">✓</div>
                     )}
                     {item.type === "video" && (
-                      <div className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-black/60 px-2 py-1 text-[9px] font-bold text-white backdrop-blur-md border border-white/10">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                        HD
+                      <div className={`absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full px-2 py-1 text-[9px] font-bold text-white backdrop-blur-md border ${isVideoLocked ? 'bg-amber-500/80 border-amber-500' : 'bg-black/60 border-white/10'}`}>
+                        {isVideoLocked ? <Lock className="w-2 h-2" /> : <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />}
+                        {isVideoLocked ? 'Locked' : 'HD'}
                       </div>
                     )}
                   </button>
