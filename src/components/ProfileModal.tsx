@@ -5,8 +5,9 @@ import {
   X, Camera, User, Phone, Calendar, 
   MapPin, Save, Loader2, CheckCircle, Image as ImageIcon, LogOut
 } from "lucide-react";
-import { auth, db } from "@/lib/firebase";
+import { auth, db, storage } from "@/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const CLOUDINARY_CLOUD_NAME = "dtuyo4gqm";
 const CLOUDINARY_UPLOAD_PRESET = "ml_default"; 
@@ -35,25 +36,19 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !auth.currentUser) return;
 
     setUploading(true);
-    const data = new FormData();
-    data.append("file", file);
-    data.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
     try {
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-        method: "POST",
-        body: data
-      });
-      const fileData = await res.json();
-      if (fileData.secure_url) {
-        setFormData({ ...formData, photoURL: fileData.secure_url });
-      }
-    } catch (err) {
+      const storageRef = ref(storage, `profiles/${auth.currentUser.uid}_${Date.now()}_${file.name}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      
+      setFormData({ ...formData, photoURL: downloadURL });
+      console.log("Profile image uploaded:", downloadURL);
+    } catch (err: any) {
       console.error("Upload error:", err);
-      alert("حدث خطأ أثناء رفع الصورة");
+      alert("حدث خطأ أثناء رفع الصورة: " + (err.message || "فشلت العملية"));
     } finally {
       setUploading(false);
     }
