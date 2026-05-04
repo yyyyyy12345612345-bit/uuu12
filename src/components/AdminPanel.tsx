@@ -5,7 +5,7 @@ import {
   ShieldCheck, Users, Trophy, Trash2, 
   Search, RefreshCw, AlertTriangle, 
   MapPin, Star, TrendingUp, CheckCircle, Ban, PlusCircle, Calendar,
-  Mail, Phone, ArrowUpRight, UserCheck, Loader2, Bell, Image as ImageIcon
+  Mail, Phone, ArrowUpRight, UserCheck, Loader2, Bell, Image as ImageIcon, Save
 } from "lucide-react";
 import { auth, db } from "@/lib/firebase";
 import { 
@@ -259,6 +259,19 @@ export function AdminPanel() {
     }
   };
 
+  const handleSetAnnouncement = async () => {
+    if (!db) return;
+    setIsSettingAnnouncement(true);
+    try {
+      await setDoc(doc(db, "settings", "global"), {
+        announcement,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      alert("تم تحديث الإعلان العام بنجاح!");
+    } catch (e) { console.error(e); }
+    finally { setIsSettingAnnouncement(false); }
+  };
+
   const handleBanUser = async (uid: string, currentStatus: boolean) => {
     if (!db || !window.confirm(`هل أنت متأكد من ${currentStatus ? 'إلغاء حظر' : 'حظر'} هذا المستخدم؟`)) return;
     try {
@@ -389,7 +402,31 @@ export function AdminPanel() {
                     <p className="text-3xl font-black">{s.value}</p>
                  </div>
                ))}
-            </div>
+             </div>
+
+             {/* Global Announcement Banner Management */}
+             <div className="bg-card border border-border p-8 rounded-[3rem] shadow-xl space-y-6">
+                <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-black flex items-center gap-3">شريط التنبيهات العلوي <Bell className="w-6 h-6 text-primary" /></h3>
+                    <span className="text-[10px] font-bold text-foreground/30 uppercase">يظهر لجميع المستخدمين في أعلى الشاشة</span>
+                </div>
+                <div className="flex flex-col md:flex-row gap-4">
+                    <input 
+                        value={announcement} 
+                        onChange={e => setAnnouncement(e.target.value)}
+                        className="flex-1 bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 font-bold"
+                        placeholder="اكتب نص التنبيه هنا (مثال: تم تحديث التطبيق للإصدار 3.2)"
+                    />
+                    <button 
+                        onClick={handleSetAnnouncement}
+                        disabled={isSettingAnnouncement}
+                        className="px-10 py-4 bg-primary text-black rounded-2xl font-black shadow-lg shadow-primary/20 hover:scale-105 transition-all flex items-center justify-center gap-2"
+                    >
+                        {isSettingAnnouncement ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                        تحديث الإعلان
+                    </button>
+                </div>
+             </div>
           </>
         )}
 
