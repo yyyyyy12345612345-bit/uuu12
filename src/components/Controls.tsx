@@ -5,7 +5,7 @@ import { useEditor } from "@/store/useEditor";
 import { usePexelsBackgrounds, PexelsMediaItem } from "@/hooks/usePexelsBackgrounds";
 import { RECITERS } from "@/data/reciters";
 import { useUserPlan } from "@/hooks/useUserPlan";
-import { Crown, Lock } from "lucide-react";
+import { Crown, Lock, ShieldCheck, Star } from "lucide-react";
 
 // ============================================================
 // مكتبة خلفيات إسلامية ثابتة — لن تتغير أبداً
@@ -98,6 +98,28 @@ export function Controls() {
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Premium Subscription Button */}
+      <button 
+        onClick={onOpenSubscription}
+        className="relative overflow-hidden group p-4 rounded-3xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all flex items-center justify-between"
+      >
+         <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+         <div className="flex items-center gap-4 relative z-10">
+            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 group-hover:scale-110 transition-transform">
+               <Crown className="w-6 h-6 fill-primary/20" />
+            </div>
+            <div className="text-right">
+               <span className="block text-sm font-black text-foreground">خطط الاشتراك المميزة</span>
+               <p className="text-[10px] text-primary/60 font-black uppercase tracking-widest">
+                  {userPlan?.plan === 'free' ? 'ترقية حسابك الآن' : 'عرض تفاصيل اشتراكك'}
+               </p>
+            </div>
+         </div>
+         <div className="w-10 h-10 rounded-xl bg-foreground/5 flex items-center justify-center text-foreground/20 group-hover:text-primary transition-all">
+            <Star className="w-4 h-4" />
+         </div>
+      </button>
+
       <div className="flex p-1 bg-foreground/5 rounded-2xl border border-border shadow-inner">
         {[
           { id: "bg", label: "الخلفية" },

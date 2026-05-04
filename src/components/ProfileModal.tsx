@@ -3,13 +3,13 @@
 import React, { useState, useEffect } from "react";
 import { 
   X, Camera, User, Phone, Calendar, 
-  MapPin, Save, Loader2, CheckCircle, Image as ImageIcon
+  MapPin, Save, Loader2, CheckCircle, Image as ImageIcon, LogOut
 } from "lucide-react";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 const CLOUDINARY_CLOUD_NAME = "dtuyo4gqm";
-const CLOUDINARY_UPLOAD_PRESET = "ml_default"; // Change this if you have a custom one
+const CLOUDINARY_UPLOAD_PRESET = "ml_default"; 
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -53,7 +53,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       }
     } catch (err) {
       console.error("Upload error:", err);
-      alert("حدث خطأ أثناء رفع الصورة، تأكد من إعدادات Cloudinary");
+      alert("حدث خطأ أثناء رفع الصورة");
     } finally {
       setUploading(false);
     }
@@ -112,12 +112,10 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
 
   return (
     <div className="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-md overflow-y-auto font-arabic py-10 px-4 flex justify-center items-start">
-       {/* Backdrop Click-to-Close */}
        <div className="fixed inset-0" onClick={onClose} />
        
        <div className="relative w-full max-w-xl bg-background border border-border rounded-[2.5rem] shadow-[0_50px_100px_rgba(0,0,0,0.5)] flex flex-col animate-in zoom-in-95 duration-500 mb-20">
           
-          {/* Header */}
           <div className="p-6 md:p-8 border-b border-border flex items-center justify-between bg-foreground/[0.02] sticky top-0 bg-background z-10 rounded-t-[2.5rem]">
              <button onClick={onClose} className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/40 hover:text-foreground transition-all">
                 <X className="w-5 h-5 md:w-6 md:h-6" />
@@ -133,8 +131,6 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 </div>
              ) : (
                 <form onSubmit={handleSave} className="space-y-6 md:space-y-8">
-                   
-                   {/* Photo Selection */}
                    <div className="flex flex-col items-center gap-4 md:gap-6 mb-6 md:mb-10">
                       <div className="relative group">
                          <div className={`w-24 h-24 md:w-32 md:h-32 rounded-[2rem] md:rounded-[2.5rem] border-4 ${uploading ? 'border-primary animate-pulse' : 'border-primary/20'} p-1 bg-background relative overflow-hidden shadow-2xl`}>
@@ -165,10 +161,9 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                       <p className="text-[9px] md:text-[10px] text-foreground/40 font-bold font-arabic text-center">اضغط على الصورة لتغييرها</p>
                    </div>
 
-                   {/* Display Name */}
                    <div className="space-y-1.5">
                       <label className="text-[10px] md:text-xs font-bold text-foreground/40 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
-                         اسم الحساب (مسموح بالزخرفة والإيموجي)
+                         اسم الحساب
                          <User className="w-3 h-3" />
                       </label>
                       <input 
@@ -176,12 +171,10 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                         value={formData.displayName}
                         onChange={e => setFormData({...formData, displayName: e.target.value})}
                         className="w-full bg-foreground/5 border border-border rounded-xl md:rounded-2xl py-3.5 md:py-4 px-5 md:px-6 text-right outline-none focus:border-primary/40 transition-all text-lg md:text-xl font-bold"
-                        placeholder="مثلاً: خادم القرآن ❤️✨"
                       />
                    </div>
 
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-                      {/* Phone */}
                       <div className="space-y-1.5">
                          <label className="text-[10px] md:text-xs font-bold text-foreground/40 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
                             رقم الهاتف
@@ -192,11 +185,8 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                            value={formData.phoneNumber}
                            onChange={e => setFormData({...formData, phoneNumber: e.target.value})}
                            className="w-full bg-foreground/5 border border-border rounded-xl md:rounded-2xl py-3.5 md:py-4 px-5 md:px-6 text-right outline-none focus:border-primary/40 transition-all font-mono"
-                           placeholder="0123456789"
                          />
                       </div>
-
-                      {/* Birthday */}
                       <div className="space-y-1.5">
                          <label className="text-[10px] md:text-xs font-bold text-foreground/40 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
                             تاريخ الميلاد
@@ -211,7 +201,6 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                       </div>
                    </div>
 
-                   {/* Governorate */}
                    <div className="space-y-1.5">
                       <label className="text-[10px] md:text-xs font-bold text-foreground/40 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
                          المحافظة
@@ -244,6 +233,23 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                       )}
                       {success ? 'تم حفظ التعديلات بنجاح' : 'حفظ التغييرات'}
                    </button>
+
+                   <div className="h-px bg-border my-2" />
+
+                   <button 
+                     type="button"
+                     onClick={async () => {
+                        if (window.confirm("هل أنت متأكد من تسجيل الخروج؟")) {
+                           await auth.signOut();
+                           onClose();
+                           window.location.href = "/";
+                        }
+                     }}
+                     className="w-full py-4 rounded-2xl font-bold text-red-500 bg-red-500/5 border border-red-500/10 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center gap-2"
+                   >
+                      <LogOut className="w-5 h-5" />
+                      تسجيل الخروج من الحساب
+                   </button>
                 </form>
              )}
           </div>
@@ -251,4 +257,3 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     </div>
   );
 }
-
