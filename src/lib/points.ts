@@ -5,7 +5,8 @@ import {
   increment, 
   getDoc, 
   setDoc, 
-  Timestamp 
+  Timestamp,
+  serverTimestamp
 } from "firebase/firestore";
 
 // Constants for Anti-Cheat
