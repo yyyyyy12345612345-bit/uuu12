@@ -81,6 +81,15 @@ function CatchAllContent() {
         </div>
         <div className="flex items-center gap-2">
           <PWAInstallButton />
+          {activeView === 'video' && (
+            <button 
+              onClick={() => setIsRenderOpen(true)}
+              className="hidden lg:flex items-center gap-2 bg-primary text-black px-6 py-2.5 rounded-2xl font-bold text-[11px] hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20"
+            >
+              <Download className="w-4 h-4" />
+              <span className="font-arabic">تصدير الفيديو</span>
+            </button>
+          )}
           <button 
             onClick={() => setIsMenuOpen(true)}
             className="flex items-center gap-2 bg-foreground/5 hover:bg-foreground/10 border border-border px-4 py-2 rounded-2xl transition-all text-foreground/40 hover:text-foreground group"
