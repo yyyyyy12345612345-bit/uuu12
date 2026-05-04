@@ -45,7 +45,7 @@ const STATIC_LIBRARY: PexelsMediaItem[] = [
   { type: "image", src: "https://images.pexels.com/photos/462118/pexels-photo-462118.jpeg", poster: "" },
 ];
 
-export function Controls() {
+export function Controls({ onOpenSubscription }: { onOpenSubscription: () => void }) {
   const [activeTab, setActiveTab] = useState("bg");
   const [bgMode, setBgMode] = useState<"library" | "search">("library");
   const [search, setSearch] = useState("islamic");

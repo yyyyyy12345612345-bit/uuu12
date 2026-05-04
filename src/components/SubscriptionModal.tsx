@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { X, Check, ShieldCheck, CreditCard, Send, Upload, Loader2, Globe, Phone, ExternalLink } from "lucide-react";
 import { db, auth } from "@/lib/firebase";
-import { doc, getDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, addDoc, collection, serverTimestamp, query, where, getDocs, limit } from "firebase/firestore";
+import { useUserPlan } from "@/hooks/useUserPlan";
 
 interface SubscriptionModalProps {
   isOpen: boolean;
@@ -23,11 +24,14 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
     instapay: ""
   });
 
+  const { userPlan: currentPlanData } = useUserPlan();
+  const [isPending, setIsPending] = useState(false);
+
   // Form State
   const [formData, setFormData] = useState({
     platformLink: "",
     senderInfo: "",
-    proofUrl: "" // For now, asking for URL or we can handle file later
+    proofUrl: ""
   });
 
   useEffect(() => {
@@ -49,6 +53,19 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
           vodafoneCash: d.vodafoneCash || "",
           instapay: d.instapay || ""
         });
+      }
+
+      // Check for pending requests
+      const user = auth?.currentUser;
+      if (user) {
+        const q = query(
+          collection(db, "subscription_requests"), 
+          where("userId", "==", user.uid),
+          where("status", "==", "pending"),
+          limit(1)
+        );
+        const snap = await getDocs(q);
+        setIsPending(!snap.empty);
       }
     } catch (e) { console.error(e); }
   };
@@ -108,21 +125,29 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
             <p className="text-foreground/40 text-sm mb-8">اختر الخطة المناسبة لاحتياجاتك وابدأ في الإبداع</p>
 
             <div className="space-y-3">
-                {PLANS.map((p) => (
-                    <button 
-                        key={p.id}
-                        onClick={() => { setSelectedPlan(p.id); setActiveTab("plans"); }}
-                        className={`w-full p-4 rounded-2xl border text-right transition-all flex items-center justify-between group ${
-                            selectedPlan === p.id ? 'border-primary bg-primary/5 shadow-lg shadow-primary/5' : 'border-border hover:border-primary/20'
-                        }`}
-                    >
-                        <div className="flex flex-col">
-                            <span className={`font-bold ${selectedPlan === p.id ? 'text-primary' : 'text-foreground'}`}>{p.name}</span>
-                            <span className="text-[10px] text-foreground/40">{p.price === 0 ? "مجاناً للأبد" : `${p.price} ج.م / شهر`}</span>
-                        </div>
-                        {selectedPlan === p.id && <Check className="w-5 h-5 text-primary" />}
-                    </button>
-                ))}
+                {PLANS.map((p) => {
+                    const isCurrent = currentPlanData?.plan === p.id;
+                    return (
+                        <button 
+                            key={p.id}
+                            onClick={() => { setSelectedPlan(p.id); setActiveTab("plans"); }}
+                            className={`w-full p-4 rounded-2xl border text-right transition-all flex items-center justify-between group relative ${
+                                selectedPlan === p.id ? 'border-primary bg-primary/5 shadow-lg shadow-primary/5' : 'border-border hover:border-primary/20'
+                            }`}
+                        >
+                            <div className="flex flex-col">
+                                <div className="flex items-center gap-2">
+                                    <span className={`font-bold ${selectedPlan === p.id ? 'text-primary' : 'text-foreground'}`}>{p.name}</span>
+                                    {isCurrent && (
+                                        <span className="bg-primary/20 text-primary text-[8px] font-black px-2 py-0.5 rounded-full border border-primary/20">خطتك الحالية</span>
+                                    )}
+                                </div>
+                                <span className="text-[10px] text-foreground/40">{p.price === 0 ? "مجاناً للأبد" : `${p.price} ج.م / شهر`}</span>
+                            </div>
+                            {selectedPlan === p.id && <Check className="w-5 h-5 text-primary" />}
+                        </button>
+                    );
+                })}
             </div>
 
             <div className="mt-8 p-6 bg-foreground/[0.02] rounded-3xl border border-border">
@@ -167,13 +192,25 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                         </div>
                     </div>
 
-                    <button 
-                        disabled={selectedPlan === 'free'}
-                        onClick={() => setActiveTab("pay")}
-                        className="w-full py-5 bg-primary text-black rounded-2xl font-black text-lg shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
-                    >
-                        {selectedPlan === 'free' ? "أنت بالفعل على الخطة المجانية" : "تأكيد الدفع وإرسال الإثبات"}
-                    </button>
+                    {isPending ? (
+                        <div className="p-6 bg-amber-500/10 border border-amber-500/20 rounded-3xl flex flex-col items-center text-center gap-2">
+                            <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+                            <p className="text-sm font-bold text-amber-500">طلبك قيد المراجعة حالياً</p>
+                            <p className="text-[10px] text-amber-500/60">سيتم تفعيل حسابك فور تأكد الأدمن من التحويل.</p>
+                        </div>
+                    ) : (
+                        <button 
+                            disabled={selectedPlan === 'free' || currentPlanData?.plan === selectedPlan}
+                            onClick={() => setActiveTab("pay")}
+                            className="w-full py-5 bg-primary text-black rounded-2xl font-black text-lg shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
+                        >
+                            {currentPlanData?.plan === selectedPlan 
+                                ? "هذه هي خطتك الحالية" 
+                                : selectedPlan === 'free' 
+                                    ? "أنت بالفعل على الخطة المجانية" 
+                                    : "تأكيد الدفع وإرسال الإثبات"}
+                        </button>
+                    )}
                 </div>
             ) : (
                 <form onSubmit={handleSubmitRequest} className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">

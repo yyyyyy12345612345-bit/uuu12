@@ -162,7 +162,7 @@ function CatchAllContent() {
           <div key={`video-${activeView === 'video'}`} className={`h-full w-full ${activeView === 'video' ? 'block view-transition' : 'hidden'}`}>
              <div className="flex h-full w-full overflow-hidden">
                 <aside className="hidden lg:flex w-[350px] h-full border-r border-white/5 flex-col p-6 overflow-y-auto no-scrollbar gap-6 pb-40">
-                   <SurahSelector /><Controls />
+                   <SurahSelector /><Controls onOpenSubscription={() => setIsSubscriptionOpen(true)} />
                 </aside>
                 <div className="flex-1 flex flex-col h-full overflow-y-auto no-scrollbar">
                    <div className="flex items-center justify-between px-4 pt-4 pb-2 shrink-0 lg:hidden">
@@ -207,7 +207,7 @@ function CatchAllContent() {
                 <div className="flex-1 overflow-y-auto no-scrollbar pb-10 px-2">
                     <SurahSelector />
                     <div className="h-8" />
-                    <Controls />
+                    <Controls onOpenSubscription={() => setIsSubscriptionOpen(true)} />
                 </div>
             </div>
         </div>
