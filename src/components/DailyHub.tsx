@@ -5,8 +5,13 @@ import { AthkarLibrary } from "./AthkarLibrary";
 import { addPoints, addSebhaPoints, startThikrTimer, endThikrTimer, claimQuestPoints } from "@/lib/points";
 import { useRouter } from "next/navigation";
 import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { useRef } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
+import { 
+  CheckCircle2, RotateCcw, Target, Fingerprint, 
+  ArrowUpRight, ChevronRight, ChevronLeft, 
+  Sun, Moon, Bed, BookOpen, Compass, MapPin, Search 
+} from "lucide-react";
+import { db, auth } from "@/lib/firebase";
 
 export function DailyHub() {
   const [athkarProgress, setAthkarProgress] = useState<Record<string, number>>({});
@@ -29,6 +34,7 @@ export function DailyHub() {
     loading: boolean;
   }>({ heading: null, angle: null, error: null, loading: false });
   const [scrollState, setScrollState] = useState({ left: false, right: false });
+  const [activeTab, setActiveTab] = useState<"sibha" | "morning" | "evening" | "sleep" | "library" | "goal" | "qibla">("sibha");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const checkScroll = useCallback(() => {

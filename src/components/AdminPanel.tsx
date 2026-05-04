@@ -538,27 +538,34 @@ export function AdminPanel() {
                         <tr className="bg-foreground/5 text-[10px] font-black uppercase border-b border-border">
                             <th className="p-6">المستخدم</th>
                             <th className="p-6">الخطة</th>
+                            <th className="p-6">المبلغ</th>
+                            <th className="p-6">رابط المنصة</th>
                             <th className="p-6">الإجراء</th>
                         </tr>
                     </thead>
                     <tbody>
                         {subRequests.map(r => (
                             <tr key={r.id} className="border-b border-border/50">
-                                <td className="p-6 font-bold">{r.userName}</td>
-                                <td className="p-6">{r.plan}</td>
                                 <td className="p-6">
+                                    <div className="flex flex-col">
+                                       <span className="font-bold">{r.userName}</span>
+                                       <span className="text-[10px] text-foreground/40">{r.senderInfo}</span>
+                                    </div>
+                                 </td>
+                                 <td className="p-6">
+                                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold">{r.plan}</span>
+                                 </td>
+                                 <td className="p-6 font-black text-emerald-500">{r.amount || "---"} ج.م</td>
+                                 <td className="p-6">
+                                    {r.platformLink ? (
+                                       <a href={r.platformLink} target="_blank" rel="noreferrer" className="text-primary hover:underline text-[10px] font-bold">فتح الرابط</a>
+                                    ) : "---"}
+                                 </td>
+                                 <td className="p-6">
                                     <div className="flex gap-2">
                                         {r.status === 'pending' && (
                                            <div className="flex flex-col gap-2">
-                                              {r.proofUrl && (
-                                                 <button 
-                                                   onClick={() => window.open(r.proofUrl, '_blank')}
-                                                   className="bg-primary/10 text-primary px-4 py-2 rounded-xl text-[9px] font-black flex items-center justify-center gap-1"
-                                                 >
-                                                    <ImageIcon className="w-3 h-3" /> عرض الإيصال
-                                                 </button>
-                                              )}
-                                              <button onClick={() => handleActionSubscription(r.id, r.userId, r.plan, 'approve')} className="bg-emerald-500 text-black px-4 py-2 rounded-xl text-[10px] font-black">تفعيل</button>
+                                              <button onClick={() => handleActionSubscription(r.id, r.userId, r.plan, 'approve')} className="bg-emerald-500 text-black px-6 py-2.5 rounded-xl text-[10px] font-black w-full shadow-lg shadow-emerald-500/20 active:scale-95 transition-all">تفعيل الحساب</button>
                                            </div>
                                         )}
                                         {r.status === 'approved' && (
