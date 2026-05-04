@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { X, Check, ShieldCheck, CreditCard, Send, Upload, Loader2, Globe, Phone, ExternalLink, Star, Crown, Image as ImageIcon } from "lucide-react";
-import { db, auth } from "@/lib/firebase";
+import { db, auth, storage } from "@/lib/firebase";
 import { doc, getDoc, addDoc, collection, serverTimestamp, query, where, getDocs, limit } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useUserPlan } from "@/hooks/useUserPlan";
 
 const CLOUDINARY_CLOUD_NAME = "dtuyo4gqm";
@@ -75,25 +76,24 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !auth.currentUser) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert("حجم الصورة كبير جداً، يرجى اختيار صورة أقل من 10 ميجابايت");
+      return;
+    }
 
     setUploading(true);
-    const data = new FormData();
-    data.append("file", file);
-    data.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
     try {
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-        method: "POST",
-        body: data
-      });
-      const fileData = await res.json();
-      if (fileData.secure_url) {
-        setFormData({ ...formData, proofUrl: fileData.secure_url });
-      }
-    } catch (err) {
+      const storageRef = ref(storage, `proofs/${auth.currentUser.uid}_${Date.now()}_${file.name}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      
+      setFormData({ ...formData, proofUrl: downloadURL });
+      console.log("Image uploaded to Firebase:", downloadURL);
+    } catch (err: any) {
       console.error("Upload error:", err);
-      alert("حدث خطأ أثناء رفع الصورة، حاول مرة أخرى");
+      alert(`خطأ في الرفع: ${err.message || "فشلت عملية الرفع"}`);
     } finally {
       setUploading(false);
     }
