@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Check, ShieldCheck, CreditCard, Send, Upload, Loader2, Globe, Phone, ExternalLink, Star, Crown } from "lucide-react";
+import { X, Check, ShieldCheck, CreditCard, Send, Upload, Loader2, Globe, Phone, ExternalLink, Star, Crown, Image as ImageIcon } from "lucide-react";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, addDoc, collection, serverTimestamp, query, where, getDocs, limit } from "firebase/firestore";
 import { useUserPlan } from "@/hooks/useUserPlan";
