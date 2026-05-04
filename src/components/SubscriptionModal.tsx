@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Check, ShieldCheck, CreditCard, Send, Upload, Loader2, Globe, Phone, ExternalLink, Star, Crown, Image as ImageIcon } from "lucide-react";
+import { X, Check, ShieldCheck, CreditCard, Send, Loader2, Globe, Phone, ExternalLink, Star, Crown } from "lucide-react";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, addDoc, collection, serverTimestamp, query, where, getDocs, limit } from "firebase/firestore";
+
 
 import { useUserPlan } from "@/hooks/useUserPlan";
 
@@ -36,7 +37,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
   const [formData, setFormData] = useState({
     platformLink: "",
     senderInfo: "",
-    proofUrl: ""
+    amount: ""
   });
 
   useEffect(() => {
@@ -74,53 +75,15 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
     } catch (e) { console.error(e); }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !auth.currentUser) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      alert("حجم الصورة كبير جداً، يرجى اختيار صورة أقل من 10 ميجابايت");
-      return;
-    }
-
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("فشل الرفع إلى Cloudinary");
-      }
-
-      const data = await response.json();
-      const downloadURL = data.secure_url;
-      
-      setFormData(prev => ({ ...prev, proofUrl: downloadURL }));
-      console.log("Image uploaded to Cloudinary:", downloadURL);
-    } catch (err: any) {
-      console.error("Upload error:", err);
-      alert(`خطأ في الرفع: ${err.message || "فشلت عملية الرفع"}`);
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const handleSubmitRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     const user = auth?.currentUser;
     if (!user || !db) return;
 
-    if (!formData.senderInfo || !formData.proofUrl) {
-        alert("يرجى إدخال بيانات المحول ورفع صورة الإيصال");
+    if (!formData.senderInfo || !formData.amount) {
+        alert("يرجى إدخال بيانات المحول والمبلغ المحول");
         return;
     }
 
@@ -132,7 +95,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
         plan: selectedPlan,
         platformLink: formData.platformLink,
         senderInfo: formData.senderInfo,
-        proofUrl: formData.proofUrl,
+        amount: formData.amount,
         paymentMethod: formData.senderInfo.includes("@") ? "Instapay" : "Vodafone Cash",
         status: "pending",
         createdAt: serverTimestamp()
@@ -306,37 +269,15 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                         </div>
 
                         <div className="space-y-1.5 text-right">
-                            <label className="text-[10px] font-black text-foreground/30 uppercase mr-4">إثبات الدفع (صورة الإيصال)</label>
-                            <div className="relative group">
-                                <div className={`w-full aspect-video rounded-2xl border-2 border-dashed ${uploading ? 'border-primary animate-pulse' : 'border-border'} bg-foreground/5 flex flex-col items-center justify-center overflow-hidden transition-all relative`}>
-                                    {formData.proofUrl ? (
-                                        <>
-                                            <img src={formData.proofUrl} alt="Proof" className="w-full h-full object-cover" />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                                <Upload className="w-6 h-6 text-white" />
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <>
-                                            {uploading ? (
-                                                <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                                            ) : (
-                                                <>
-                                                    <ImageIcon className="w-8 h-8 text-foreground/20 mb-2" />
-                                                    <span className="text-[10px] font-bold text-foreground/40">اضغط لرفع صورة الإيصال</span>
-                                                </>
-                                            )}
-                                        </>
-                                    )}
-                                    <input 
-                                        type="file" 
-                                        accept="image/*" 
-                                        className="absolute inset-0 opacity-0 cursor-pointer" 
-                                        onChange={handleFileUpload}
-                                        disabled={uploading}
-                                    />
-                                </div>
-                            </div>
+                            <label className="text-[10px] font-black text-foreground/30 uppercase mr-4">المبلغ المحول (ج.م)</label>
+                            <input 
+                                required
+                                type="number"
+                                value={formData.amount}
+                                onChange={e => setFormData({...formData, amount: e.target.value})}
+                                className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 font-bold text-sm"
+                                placeholder={`أدخل المبلغ (مثلاً ${PLANS.find(p => p.id === selectedPlan)?.price})`}
+                            />
                         </div>
                     </div>
 
