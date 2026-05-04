@@ -27,6 +27,7 @@ const AdminPanel = nextDynamic(() => import("@/components/AdminPanel").then(mod 
 const ProfileModal = nextDynamic(() => import("@/components/ProfileModal").then(mod => mod.ProfileModal), { ssr: false });
 const AuthGate = nextDynamic(() => import("@/components/AuthGate").then(mod => mod.AuthGate), { ssr: false });
 const MushafChoice = nextDynamic(() => import("@/components/MushafChoice").then(mod => mod.MushafChoice), { ssr: false });
+const SubscriptionModal = nextDynamic(() => import("@/components/SubscriptionModal").then(mod => mod.SubscriptionModal), { ssr: false });
 
 export function CatchAllPageClient() {
   return (
@@ -46,6 +47,7 @@ function CatchAllContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
+  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
 
 
   // Derived active view from pathname - the safest way in Next.js 15/16 Client Components
@@ -205,7 +207,12 @@ function CatchAllContent() {
       )}
 
       <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
-      <RenderModal isOpen={isRenderOpen} onClose={() => setIsRenderOpen(false)} />
+      <RenderModal 
+        isOpen={isRenderOpen} 
+        onClose={() => setIsRenderOpen(false)} 
+        onOpenSubscription={() => setIsSubscriptionOpen(true)}
+      />
+      <SubscriptionModal isOpen={isSubscriptionOpen} onClose={() => setIsSubscriptionOpen(false)} />
       <GlobalMenu 
         isOpen={isMenuOpen} 
         onClose={() => setIsMenuOpen(false)} 

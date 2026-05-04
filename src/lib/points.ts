@@ -208,3 +208,23 @@ export async function addSebhaPoints(amount: number = 3) {
    return await addPoints("athkar", amount);
 }
 
+/**
+ * Increments the video render counter for a user
+ */
+export async function incrementVideoRenderCount() {
+  const user = auth?.currentUser;
+  if (!user || !db) return { success: false };
+
+  const userRef = doc(db, "users", user.uid);
+  try {
+    await updateDoc(userRef, {
+      videoRendersCount: increment(1),
+      lastRenderAt: serverTimestamp()
+    });
+    return { success: true };
+  } catch (e) {
+    console.error("Error incrementing render count:", e);
+    return { success: false };
+  }
+}
+

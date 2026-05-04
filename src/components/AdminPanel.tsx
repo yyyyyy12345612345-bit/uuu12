@@ -58,6 +58,21 @@ export function AdminPanel() {
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  
+  // Subscription Requests State
+  const [subRequests, setSubRequests] = useState<any[]>([]);
+  const [isSubsLoading, setIsSubsLoading] = useState(false);
+  
+  // Payment Settings State
+  const [paymentSettings, setPaymentSettings] = useState({
+    vodafoneCash: "",
+    instapay: "",
+    priceStarter: 100,
+    priceSupporter: 200,
+    pricePremium: 250
+  });
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [activeTab, setActiveTab] = useState<"stats" | "users" | "quests" | "subs" | "settings">("stats");
 
   useEffect(() => {
     if (!auth) return;
@@ -67,6 +82,8 @@ export function AdminPanel() {
         fetchStats();
         fetchQuests();
         fetchAnnouncement();
+        fetchPaymentSettings();
+        fetchSubRequests();
       } else {
         setIsAdmin(false);
       }
@@ -83,6 +100,84 @@ export function AdminPanel() {
       if (s.exists()) setAnnouncement(s.data().announcement || "");
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const fetchPaymentSettings = async () => {
+    if (!db) return;
+    try {
+      const docRef = doc(db, "settings", "pricing");
+      const s = await getDoc(docRef);
+      if (s.exists()) {
+        const data = s.data();
+        setPaymentSettings({
+          vodafoneCash: data.vodafoneCash || "",
+          instapay: data.instapay || "",
+          priceStarter: data.priceStarter || 100,
+          priceSupporter: data.priceSupporter || 200,
+          pricePremium: data.pricePremium || 250
+        });
+      }
+    } catch (e) { console.error(e); }
+  };
+
+  const handleSavePaymentSettings = async () => {
+    if (!db) return;
+    setIsSavingSettings(true);
+    try {
+      await setDoc(doc(db, "settings", "pricing"), {
+        ...paymentSettings,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      alert("تم حفظ إعدادات الدفع والأسعار بنجاح!");
+    } catch (e) {
+      console.error(e);
+      alert("فشل حفظ الإعدادات");
+    } finally {
+      setIsSavingSettings(false);
+    }
+  };
+
+  const fetchSubRequests = async () => {
+    if (!db) return;
+    setIsSubsLoading(true);
+    try {
+      const q = query(collection(db, "subscription_requests"), orderBy("createdAt", "desc"));
+      const snapshot = await getDocs(q);
+      setSubRequests(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+    } catch (e) { console.error(e); }
+    finally { setIsSubsLoading(false); }
+  };
+
+  const handleActionSubscription = async (requestId: string, userId: string, plan: string, action: 'approve' | 'reject') => {
+    if (!db || !window.confirm(`هل أنت متأكد من ${action === 'approve' ? 'تفعيل' : 'رفض'} هذا الاشتراك؟`)) return;
+    
+    try {
+      const batch = writeBatch(db);
+      
+      // 1. Update Request Status
+      batch.update(doc(db, "subscription_requests", requestId), {
+        status: action === 'approve' ? 'approved' : 'rejected',
+        processedAt: serverTimestamp()
+      });
+      
+      // 2. Update User Plan if approved
+      if (action === 'approve') {
+        batch.update(doc(db, "users", userId), {
+          plan: plan,
+          isPremium: true, // Legacy support for older components
+          subscriptionActive: true,
+          subscriptionType: plan,
+          subscriptionDate: serverTimestamp()
+        });
+      }
+      
+      await batch.commit();
+      alert(action === 'approve' ? "تم تفعيل الاشتراك بنجاح!" : "تم رفض الطلب.");
+      fetchSubRequests();
+    } catch (e) {
+      console.error(e);
+      alert("حدث خطأ أثناء تنفيذ الإجراء");
     }
   };
 
@@ -338,8 +433,31 @@ export function AdminPanel() {
     <div className="h-full w-full bg-background text-foreground font-arabic p-4 md:p-8 pt-6 pb-40 overflow-y-auto scroll-smooth">
       <div className="max-w-7xl mx-auto space-y-8">
         
-        {/* Top Navigation & Welcome */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-card border border-border p-8 rounded-[3rem] shadow-xl relative overflow-hidden">
+        {/* Tab Switcher */}
+        <div className="flex bg-card border border-border p-1.5 rounded-3xl w-full max-w-2xl mx-auto overflow-x-auto no-scrollbar">
+            {[
+                { id: "stats", label: "الإحصائيات", icon: TrendingUp },
+                { id: "users", label: "المستخدمين", icon: Users },
+                { id: "subs", label: "طلبات الاشتراكات", icon: ShieldCheck },
+                { id: "quests", label: "المهام", icon: Star },
+                { id: "settings", label: "الإعدادات والأسعار", icon: Bell }
+            ].map((t) => (
+                <button
+                    key={t.id}
+                    onClick={() => setActiveTab(t.id as any)}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-2xl transition-all whitespace-nowrap ${
+                        activeTab === t.id ? 'bg-primary text-black font-bold shadow-lg' : 'text-foreground/40 hover:text-foreground'
+                    }`}
+                >
+                    <t.icon className="w-4 h-4" />
+                    <span className="text-sm">{t.label}</span>
+                </button>
+            ))}
+        </div>
+
+        {activeTab === "stats" && (
+          <>
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-card border border-border p-8 rounded-[3rem] shadow-xl relative overflow-hidden">
            <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
            <div className="relative z-10 text-right">
               <div className="flex items-center gap-3 justify-end mb-2">
@@ -373,9 +491,179 @@ export function AdminPanel() {
              </div>
            ))}
         </div>
+          </>
+        )}
 
-        {/* Push & Reset Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {activeTab === "settings" && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="bg-card border border-border p-8 rounded-[3rem] shadow-lg space-y-8">
+                    <h3 className="text-xl font-bold flex items-center gap-3">إعدادات الدفع <Phone className="w-5 h-5 text-primary" /></h3>
+                    <div className="space-y-4">
+                        <div className="space-y-2 text-right">
+                            <label className="text-[10px] font-black text-foreground/30 uppercase mr-4">رقم فودافون كاش</label>
+                            <input 
+                                value={paymentSettings.vodafoneCash} 
+                                onChange={e => setPaymentSettings({...paymentSettings, vodafoneCash: e.target.value})}
+                                className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 font-bold"
+                                placeholder="010XXXXXXXX"
+                            />
+                        </div>
+                        <div className="space-y-2 text-right">
+                            <label className="text-[10px] font-black text-foreground/30 uppercase mr-4">يوزر انستا باي (Instapay ID)</label>
+                            <input 
+                                value={paymentSettings.instapay} 
+                                onChange={e => setPaymentSettings({...paymentSettings, instapay: e.target.value})}
+                                className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 font-bold"
+                                placeholder="username@instapay"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-card border border-border p-8 rounded-[3rem] shadow-lg space-y-8">
+                    <h3 className="text-xl font-bold flex items-center gap-3">إدارة الأسعار (ج.م) <Trophy className="w-5 h-5 text-primary" /></h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2 text-right">
+                            <label className="text-[10px] font-black text-foreground/30 uppercase">خطة الهواة</label>
+                            <input 
+                                type="number"
+                                value={paymentSettings.priceStarter} 
+                                onChange={e => setPaymentSettings({...paymentSettings, priceStarter: parseInt(e.target.value)})}
+                                className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-4 text-center outline-none focus:border-primary/40 font-black text-xl"
+                            />
+                        </div>
+                        <div className="space-y-2 text-right">
+                            <label className="text-[10px] font-black text-foreground/30 uppercase">ادعم المشروع</label>
+                            <input 
+                                type="number"
+                                value={paymentSettings.priceSupporter} 
+                                onChange={e => setPaymentSettings({...paymentSettings, priceSupporter: parseInt(e.target.value)})}
+                                className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-4 text-center outline-none focus:border-primary/40 font-black text-xl"
+                            />
+                        </div>
+                        <div className="space-y-2 text-right">
+                            <label className="text-[10px] font-black text-foreground/30 uppercase">البريميوم</label>
+                            <input 
+                                type="number"
+                                value={paymentSettings.pricePremium} 
+                                onChange={e => setPaymentSettings({...paymentSettings, pricePremium: parseInt(e.target.value)})}
+                                className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-4 text-center outline-none focus:border-primary/40 font-black text-xl"
+                            />
+                        </div>
+                    </div>
+                    <button 
+                        onClick={handleSavePaymentSettings}
+                        disabled={isSavingSettings}
+                        className="w-full py-5 bg-primary text-black rounded-2xl font-black shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all"
+                    >
+                        {isSavingSettings ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : "حفظ جميع الإعدادات والأسعار"}
+                    </button>
+                </div>
+
+                <div className="lg:col-span-2">
+                    <div className="bg-card border border-border p-8 rounded-[3rem] shadow-lg flex flex-col gap-6">
+                        <h3 className="text-xl font-bold">تنبيه عام للمستخدمين</h3>
+                        <textarea 
+                            value={announcement} onChange={e => setAnnouncement(e.target.value)}
+                            className="w-full bg-foreground/5 border border-border rounded-2xl p-6 text-right outline-none focus:border-primary/40 min-h-[120px] font-bold"
+                            placeholder="اكتب التنبيه الذي سيظهر في شاشة الرئيسية..."
+                        />
+                        <button 
+                            onClick={handleSetAnnouncement} disabled={isSettingAnnouncement}
+                            className="w-full py-5 bg-foreground text-background rounded-2xl font-black transition-all hover:bg-foreground/90"
+                        >
+                            {isSettingAnnouncement ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : "نشر التنبيه لجميع المستخدمين"}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
+
+        {activeTab === "subs" && (
+            <div className="bg-card border border-border rounded-[3.5rem] shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="p-8 md:p-12 border-b border-border bg-foreground/[0.01] flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
+                            <ShieldCheck className="w-6 h-6 text-primary" />
+                        </div>
+                        <div className="text-right">
+                            <h3 className="text-2xl font-black">طلبات الاشتراكات المعلقة</h3>
+                            <p className="text-[10px] text-foreground/30 font-bold uppercase tracking-widest mt-1">Review Payment Proofs & Activate Plans</p>
+                        </div>
+                    </div>
+                    <button onClick={fetchSubRequests} className="p-4 bg-foreground/5 rounded-2xl hover:bg-foreground/10 transition-all">
+                        <RefreshCw className={`w-5 h-5 ${isSubsLoading ? 'animate-spin' : ''}`} />
+                    </button>
+                </div>
+
+                <div className="overflow-x-auto no-scrollbar">
+                    <table className="w-full text-right">
+                        <thead>
+                            <tr className="bg-foreground/[0.02] text-[10px] font-black text-foreground/30 uppercase tracking-[0.2em] border-b border-border text-right">
+                                <th className="p-8">المستخدم / المنصة</th>
+                                <th className="p-8">نوع الخطة</th>
+                                <th className="p-8">بيانات التحويل</th>
+                                <th className="p-8">صورة الإثبات</th>
+                                <th className="p-8 text-center">الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                            {subRequests.filter(r => r.status === 'pending').length === 0 ? (
+                                <tr><td colSpan={5} className="p-20 text-center text-foreground/10 font-black text-3xl italic uppercase">No Pending Requests</td></tr>
+                            ) : (
+                                subRequests.filter(r => r.status === 'pending').map((r) => (
+                                    <tr key={r.id} className="hover:bg-foreground/[0.01] transition-colors">
+                                        <td className="p-8">
+                                            <div className="flex flex-col gap-1">
+                                                <span className="font-black text-lg">{r.userName}</span>
+                                                <a href={r.platformLink} target="_blank" rel="noreferrer" className="text-primary text-[10px] font-bold flex items-center gap-1 hover:underline">
+                                                    رابط منصته <ArrowUpRight className="w-3 h-3" />
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td className="p-8">
+                                            <span className="bg-primary/10 text-primary px-4 py-2 rounded-full font-black text-xs">
+                                                {r.plan === 'starter' ? 'هواة (100ج)' : r.plan === 'supporter' ? 'داعم (200ج)' : 'بريميوم (250ج)'}
+                                            </span>
+                                        </td>
+                                        <td className="p-8">
+                                            <div className="flex flex-col gap-1">
+                                                <span className="font-bold text-sm text-foreground/70">{r.senderInfo}</span>
+                                                <span className="text-[10px] text-foreground/30 uppercase">Method: {r.paymentMethod}</span>
+                                            </div>
+                                        </td>
+                                        <td className="p-8">
+                                            <a href={r.proofUrl} target="_blank" rel="noreferrer" className="w-20 h-20 rounded-xl overflow-hidden border border-border flex items-center justify-center hover:scale-105 transition-all block">
+                                                <img src={r.proofUrl} alt="إثبات الدفع" className="w-full h-full object-cover" />
+                                            </a>
+                                        </td>
+                                        <td className="p-8">
+                                            <div className="flex items-center justify-center gap-3">
+                                                <button 
+                                                    onClick={() => handleActionSubscription(r.id, r.userId, r.plan, 'approve')}
+                                                    className="bg-emerald-500 text-black px-6 py-3 rounded-2xl font-black text-xs shadow-lg shadow-emerald-500/20 hover:scale-105 transition-all"
+                                                >
+                                                    تفعيل الحساب
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleActionSubscription(r.id, r.userId, r.plan, 'reject')}
+                                                    className="bg-red-500/10 text-red-500 px-6 py-3 rounded-2xl font-black text-xs border border-red-500/20 hover:bg-red-500 hover:text-white transition-all"
+                                                >
+                                                    رفض
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        )}
+
+        {activeTab === "quests" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
           
           {/* Push Notification Manager */}
           <div className="bg-card border border-border p-8 rounded-[3rem] shadow-lg flex flex-col gap-6">
@@ -528,10 +816,11 @@ export function AdminPanel() {
                  )}
               </div>
            </div>
-        </div>
+          </div>
+        )}
 
-        {/* User Management Section */}
-        <div className="bg-card border border-border rounded-[3.5rem] shadow-2xl overflow-hidden">
+        {activeTab === "users" && (
+          <div className="bg-card border border-border rounded-[3.5rem] shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
            <div className="p-8 md:p-12 border-b border-border flex flex-col md:flex-row items-center justify-between gap-8 bg-foreground/[0.01]">
               <div className="flex items-center gap-4">
                  <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">

@@ -6,8 +6,16 @@ import { useEditor } from "@/store/useEditor";
 import { useSurahData } from "@/hooks/useSurahData";
 import { RECITERS } from "@/data/reciters";
 import { getAudioUrl } from "@/lib/quranUtils";
+import { db, auth } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { incrementVideoRenderCount } from "@/lib/points";
+import { Crown, Lock, Info } from "lucide-react";
 
-export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+export function RenderModal({ isOpen, onClose, onOpenSubscription }: { 
+  isOpen: boolean; 
+  onClose: () => void;
+  onOpenSubscription: () => void;
+}) {
   const { state } = useEditor();
   const { data: surahData } = useSurahData(state.surahId);
   
@@ -22,6 +30,41 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   const [message, setMessage] = useState("");
   const [progressPct, setProgressPct] = useState(0);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+
+  // User Plan State
+  const [userPlan, setUserPlan] = useState<any>(null);
+  const [isLimitReached, setIsLimitReached] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchUserPlan();
+    }
+  }, [isOpen]);
+
+  const fetchUserPlan = async () => {
+    const user = auth?.currentUser;
+    if (!user || !db) return;
+    try {
+      const s = await getDoc(doc(db, "users", user.uid));
+      if (s.exists()) {
+        const data = s.data();
+        const plan = data.plan || "free";
+        const count = data.videoRendersCount || 0;
+        
+        setUserPlan({ ...data, plan, count });
+
+        // Check Limits
+        if (plan === "free" && count >= 5) {
+          setIsLimitReached(true);
+        } else if (plan === "starter" && count >= 50) {
+          // In a real app we'd check the month reset, but for now 50 total for starter too if you want
+          setIsLimitReached(true);
+        } else {
+          setIsLimitReached(false);
+        }
+      }
+    } catch (e) { console.error(e); }
+  };
 
   const handleStart = async () => {
     if (renderMode === "server") {
@@ -63,6 +106,7 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           overlay: state.overlay || "none",
           animation: state.animation || "fade",
           textPosition: state.textPosition || "center",
+          userPlan: userPlan?.plan || "free",
         }),
       });
 
@@ -320,6 +364,9 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           'font_size': state.fontSize,
           'text_color': state.textColor
         });
+
+        // Increment Render Count on Server Success (if applicable)
+        await incrementVideoRenderCount();
       };
 
     } catch (e: any) {
@@ -381,6 +428,28 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         const h = bg.height * sc;
         ctx.drawImage(bg, (canvas.width - w) / 2, (canvas.height - h) / 2, w, h);
       }
+
+      // ── Watermark for Free Users ──
+      const isFree = !userPlan || userPlan.plan === "free";
+      if (isFree) {
+        ctx.save();
+        ctx.fillStyle = "rgba(255, 255, 255, 0.12)";
+        ctx.font = "bold 24px Arial";
+        ctx.textAlign = "center";
+        
+        const brand = "quran1-mu.vercel.app";
+        // Dynamic scattered watermarks
+        for (let y = 100; y < canvas.height; y += 400) {
+          for (let x = 150; x < canvas.width; x += 400) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(-Math.PI / 4);
+            ctx.fillText(brand, 0, 0);
+            ctx.restore();
+          }
+        }
+        ctx.restore();
+      }
   
       ctx.fillStyle = "rgba(0,0,0,0.5)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -431,8 +500,37 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
       
       <div className="w-full max-w-sm bg-background border border-border rounded-[3rem] p-10 flex flex-col items-center shadow-2xl">
         
-        {status === "idle" ? (
+        {isLimitReached ? (
+          <div className="animate-in fade-in zoom-in duration-500 flex flex-col items-center">
+            <div className="w-20 h-20 rounded-full bg-amber-500/10 flex items-center justify-center mb-6 border border-amber-500/20">
+              <Lock className="w-10 h-10 text-amber-500" />
+            </div>
+            <h3 className="text-xl font-black text-foreground mb-4">انتهت محاولاتك المجانية</h3>
+            <p className="text-foreground/40 text-xs text-center mb-8 px-4 leading-relaxed">
+              لقد استهلكت جميع الفيديوهات المتاحة في خطتك الحالية ({userPlan?.plan === 'free' ? '5' : '50'} فيديوهات). قم بالترقية الآن للحصول على رندر غير محدود وبدون علامة مائية.
+            </p>
+            <button 
+              onClick={() => { onClose(); onOpenSubscription(); }}
+              className="w-full bg-gradient-to-r from-primary to-amber-500 text-black py-5 rounded-2xl font-black shadow-xl hover:scale-[1.02] transition-all"
+            >
+              عرض خطط الاشتراك
+            </button>
+          </div>
+        ) : status === "idle" ? (
           <>
+            <div className="flex items-center justify-between w-full mb-6">
+                <div className="flex flex-col items-start">
+                    <span className="text-[10px] text-foreground/30 font-bold uppercase">الخطة الحالية</span>
+                    <span className="text-sm font-black text-primary">{userPlan?.plan === 'free' ? 'المجانية' : userPlan?.plan === 'starter' ? 'الهواة' : 'بريميوم'}</span>
+                </div>
+                <div className="text-right">
+                    <span className="text-[10px] text-foreground/30 font-bold uppercase">الرندرة المتبقية</span>
+                    <p className="text-sm font-black">
+                        {userPlan?.plan === 'free' ? `${5 - (userPlan?.count || 0)} / 5` : userPlan?.plan === 'starter' ? `${50 - (userPlan?.count || 0)} / 50` : 'غير محدود'}
+                    </p>
+                </div>
+            </div>
+
             <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
               <Play className="w-10 h-10 text-primary" />
             </div>
@@ -450,12 +548,23 @@ export function RenderModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
                 <button 
                   onClick={() => setRenderMode("server")}
-                  className={`w-full p-4 rounded-2xl border transition-all flex flex-col items-start gap-1 ${renderMode === "server" ? "border-primary bg-primary/10" : "border-border bg-foreground/5"}`}
+                  disabled={userPlan?.plan === 'free'}
+                  className={`w-full p-4 rounded-2xl border transition-all flex items-center justify-between gap-3 ${renderMode === "server" ? "border-primary bg-primary/10" : "border-border bg-foreground/5"} ${userPlan?.plan === 'free' ? 'opacity-50 grayscale' : ''}`}
                 >
-                    <span className="text-sm font-bold text-foreground">جودة احترافية (TikTok / MP4)</span>
-                    <span className="text-[10px] text-foreground/40 text-right">يستغرق وقتاً أطول، يدعم TikTok ومدة الفيديو.</span>
+                    <div className="flex flex-col items-start gap-1">
+                        <span className="text-sm font-bold text-foreground">جودة احترافية (MP4)</span>
+                        <span className="text-[10px] text-foreground/40 text-right">رندر سحابي فائق الجودة.</span>
+                    </div>
+                    {userPlan?.plan === 'free' && <Crown className="w-4 h-4 text-amber-500" />}
                 </button>
             </div>
+
+            {userPlan?.plan === 'free' && (
+                <div className="w-full p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl mb-6 flex items-center gap-3">
+                    <Info className="w-4 h-4 text-amber-500 shrink-0" />
+                    <p className="text-[9px] text-amber-500 font-bold leading-relaxed">أنت على الخطة المجانية: سيتم وضع علامة مائية، والخلفيات فيديو مقفولة.</p>
+                </div>
+            )}
 
             <button onClick={handleStart} className="w-full bg-primary text-black py-4 rounded-2xl font-bold hover:scale-105 transition-all">
               بدء التصميم والتصدير
