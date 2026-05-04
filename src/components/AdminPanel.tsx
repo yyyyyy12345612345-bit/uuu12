@@ -390,18 +390,104 @@ export function AdminPanel() {
         )}
 
         {activeTab === "showcase" && (
-           <div className="bg-card border border-border rounded-[3rem] p-8">
-              <h3 className="text-2xl font-black mb-8">إدارة المعرض</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                 {showcaseItems.map(item => (
-                   <div key={item.id} className="bg-foreground/5 border border-border p-6 rounded-3xl flex flex-col gap-4">
-                      <p className="font-bold">{item.userName}</p>
-                      <p className="text-xs text-foreground/40">{item.surahName}</p>
-                      <button onClick={() => handleDeleteShowcaseItem(item.id)} className="text-red-500"><Trash2 className="w-4 h-4" /></button>
-                   </div>
-                 ))}
-              </div>
-           </div>
+          <div className="bg-card border border-border rounded-[3.5rem] shadow-2xl overflow-hidden">
+             <div className="p-8 border-b border-border flex items-center justify-between">
+                <h3 className="text-2xl font-black flex items-center gap-3">معرض المجتمع <Star className="w-6 h-6 text-primary" /></h3>
+                <button onClick={fetchShowcaseItems} className="p-4 bg-foreground/5 rounded-2xl">
+                    <RefreshCw className="w-5 h-5" />
+                </button>
+             </div>
+             <div className="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {showcaseItems.length === 0 ? (
+                  <div className="col-span-full p-20 text-center text-foreground/10 font-black text-3xl italic uppercase">Showcase is Empty</div>
+                ) : (
+                  showcaseItems.map(item => (
+                    <div key={item.id} className="bg-foreground/[0.02] border border-border rounded-[2.5rem] overflow-hidden group hover:border-primary/20 transition-all flex flex-col">
+                       <div className="aspect-video relative bg-black flex items-center justify-center p-4">
+                          <a href={item.videoUrl} target="_blank" rel="noreferrer" className="text-primary font-black hover:underline text-center">{item.surahName}</a>
+                       </div>
+                       <div className="p-6 flex items-center justify-between">
+                          <div className="flex flex-col">
+                             <span className="font-black text-sm">{item.userName}</span>
+                             <span className="text-[10px] text-foreground/30">{item.surahName}</span>
+                          </div>
+                          <button onClick={() => handleDeleteShowcaseItem(item.id)} className="p-3 bg-red-500/10 text-red-500 rounded-xl">
+                             <Trash2 className="w-4 h-4" />
+                          </button>
+                       </div>
+                    </div>
+                  ))
+                )}
+             </div>
+          </div>
+        )}
+
+        {activeTab === "settings" && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="bg-card border border-border p-8 rounded-[3rem] shadow-lg space-y-8">
+                    <h3 className="text-xl font-bold flex items-center gap-3">إعدادات الدفع <Phone className="w-5 h-5 text-primary" /></h3>
+                    <div className="space-y-4">
+                        <div className="space-y-2 text-right">
+                            <label className="text-[10px] font-black text-foreground/30 uppercase mr-4">رقم فودافون كاش</label>
+                            <input 
+                                value={paymentSettings.vodafoneCash} 
+                                onChange={e => setPaymentSettings({...paymentSettings, vodafoneCash: e.target.value})}
+                                className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 font-bold"
+                                placeholder="010XXXXXXXX"
+                            />
+                        </div>
+                        <div className="space-y-2 text-right">
+                            <label className="text-[10px] font-black text-foreground/30 uppercase mr-4">يوزر انستا باي (Instapay ID)</label>
+                            <input 
+                                value={paymentSettings.instapay} 
+                                onChange={e => setPaymentSettings({...paymentSettings, instapay: e.target.value})}
+                                className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 font-bold"
+                                placeholder="username@instapay"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-card border border-border p-8 rounded-[3rem] shadow-lg space-y-8">
+                    <h3 className="text-xl font-bold flex items-center gap-3">إدارة الأسعار (ج.م) <Trophy className="w-5 h-5 text-primary" /></h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2 text-right">
+                            <label className="text-[10px] font-black text-foreground/30 uppercase">خطة الهواة</label>
+                            <input 
+                                type="number"
+                                value={paymentSettings.priceStarter} 
+                                onChange={e => setPaymentSettings({...paymentSettings, priceStarter: parseInt(e.target.value)})}
+                                className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-4 text-center outline-none focus:border-primary/40 font-black text-xl"
+                            />
+                        </div>
+                        <div className="space-y-2 text-right">
+                            <label className="text-[10px] font-black text-foreground/30 uppercase">ادعم المشروع</label>
+                            <input 
+                                type="number"
+                                value={paymentSettings.priceSupporter} 
+                                onChange={e => setPaymentSettings({...paymentSettings, priceSupporter: parseInt(e.target.value)})}
+                                className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-4 text-center outline-none focus:border-primary/40 font-black text-xl"
+                            />
+                        </div>
+                        <div className="space-y-2 text-right">
+                            <label className="text-[10px] font-black text-foreground/30 uppercase">البريميوم</label>
+                            <input 
+                                type="number"
+                                value={paymentSettings.pricePremium} 
+                                onChange={e => setPaymentSettings({...paymentSettings, pricePremium: parseInt(e.target.value)})}
+                                className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-4 text-center outline-none focus:border-primary/40 font-black text-xl"
+                            />
+                        </div>
+                    </div>
+                    <button 
+                        onClick={handleSavePaymentSettings}
+                        disabled={isSavingSettings}
+                        className="w-full py-5 bg-primary text-black rounded-2xl font-black shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all"
+                    >
+                        {isSavingSettings ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : "حفظ جميع الإعدادات والأسعار"}
+                    </button>
+                </div>
+            </div>
         )}
 
         {activeTab === "subs" && (
