@@ -223,6 +223,15 @@ body {
   scrollbar-width: none;
 }
 
+/* Global Scrollbar Hide */
+::-webkit-scrollbar {
+  display: none !important;
+}
+* {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
 .horizontal-scroll {
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;

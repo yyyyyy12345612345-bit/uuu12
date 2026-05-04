@@ -101,22 +101,22 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
       {/* Premium Subscription Button */}
       <button 
         onClick={onOpenSubscription}
-        className="relative overflow-hidden group p-4 rounded-3xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all flex items-center justify-between"
+        className="relative overflow-hidden group p-3 md:p-4 rounded-[2rem] border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all flex items-center justify-between"
       >
          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-         <div className="flex items-center gap-4 relative z-10">
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 group-hover:scale-110 transition-transform">
-               <Crown className="w-6 h-6 fill-primary/20" />
+         <div className="flex items-center gap-3 md:gap-4 relative z-10">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 group-hover:scale-110 transition-transform">
+               <Crown className="w-5 h-5 md:w-6 md:h-6 fill-primary/20" />
             </div>
             <div className="text-right">
-               <span className="block text-sm font-black text-foreground">خطط الاشتراك المميزة</span>
-               <p className="text-[10px] text-primary/60 font-black uppercase tracking-widest">
+               <span className="block text-xs md:text-sm font-black text-foreground leading-tight">خطط الاشتراك المميزة</span>
+               <p className="text-[8px] md:text-[10px] text-primary/60 font-black uppercase tracking-widest mt-0.5">
                   {userPlan?.plan === 'free' ? 'ترقية حسابك الآن' : 'عرض تفاصيل اشتراكك'}
                </p>
             </div>
          </div>
-         <div className="w-10 h-10 rounded-xl bg-foreground/5 flex items-center justify-center text-foreground/20 group-hover:text-primary transition-all">
-            <Star className="w-4 h-4" />
+         <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-foreground/5 flex items-center justify-center text-foreground/20 group-hover:text-primary transition-all">
+            <Star className="w-3 h-3 md:w-4 h-4" />
          </div>
       </button>
 
