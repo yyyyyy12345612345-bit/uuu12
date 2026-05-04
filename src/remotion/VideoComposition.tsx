@@ -200,6 +200,16 @@ export const MainVideo: React.FC<MainVideoProps> = ({
 
       <AbsoluteFill style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.95), transparent, rgba(0,0,0,0.6))' }} />
 
+      {/* ── Audio Visualizer (Waves) ── */}
+      <AbsoluteFill style={{ 
+        justifyContent: 'flex-end', 
+        alignItems: 'center', 
+        paddingBottom: '80px',
+        pointerEvents: 'none' 
+      }}>
+         <AudioVisualizer color={textColor} />
+      </AbsoluteFill>
+
       <AbsoluteFill>
         {verses.map((verse, index) => {
           const startFrame = verse.startFrame ?? Math.floor(index * (durationInFrames / verses.length));
@@ -372,6 +382,36 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
       }}>
         {verse.translation}
       </p>
+    </div>
+  );
+}
+
+const AudioVisualizer = ({ color }: { color: string }) => {
+  const frame = useCurrentFrame();
+  const bars = 40;
+  
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '100px' }}>
+      {[...Array(bars)].map((_, i) => {
+        // Create a moving wave effect using multiple sine waves
+        const wave1 = Math.sin(frame / 5 + i / 3);
+        const wave2 = Math.sin(frame / 10 - i / 5);
+        const combined = (wave1 + wave2 + 2) / 4; // Normalized 0-1
+        
+        const height = interpolate(combined, [0, 1], [10, 80]);
+        const opacity = interpolate(combined, [0, 1], [0.3, 0.8]);
+        
+        return (
+          <div key={i} style={{
+            width: '8px',
+            height: `${height}px`,
+            backgroundColor: color,
+            borderRadius: '4px',
+            opacity,
+            boxShadow: `0 0 15px ${color}40`,
+          }} />
+        );
+      })}
     </div>
   );
 }

@@ -44,6 +44,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile }: G
       title: "الأقسام الرئيسية",
       items: [
         { id: "mushaf", label: "المصحف", icon: BookOpen, path: "/" },
+        { id: "showcase", label: "معرض المبدعين", icon: Star, path: "/showcase", highlight: true },
         { id: "rank", label: "لوحة المتصدرين (الرانك)", icon: Trophy, path: "/rank", highlight: true },
         { id: "mushaf-full", label: "مصحف كامل", icon: ScrollText, path: "/mushaf-full" },
         { id: "daily", label: "يومياتي (الأذكار)", icon: Calendar, path: "/daily" },

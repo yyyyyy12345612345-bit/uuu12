@@ -28,6 +28,7 @@ const ProfileModal = nextDynamic(() => import("@/components/ProfileModal").then(
 const AuthGate = nextDynamic(() => import("@/components/AuthGate").then(mod => mod.AuthGate), { ssr: false });
 const MushafChoice = nextDynamic(() => import("@/components/MushafChoice").then(mod => mod.MushafChoice), { ssr: false });
 const SubscriptionModal = nextDynamic(() => import("@/components/SubscriptionModal").then(mod => mod.SubscriptionModal), { ssr: false });
+const CommunityShowcase = nextDynamic(() => import("@/components/CommunityShowcase").then(mod => mod.CommunityShowcase), { ssr: false });
 
 export function CatchAllPageClient() {
   return (
@@ -121,8 +122,9 @@ function CatchAllContent() {
           </div>
         )}
         {visited['mushaf-choice'] && (
-          <div key={`mushaf-choice-${activeView === 'mushaf-choice'}`} className={`h-full w-full relative pb-20 ${activeView === 'mushaf-choice' ? 'block view-transition' : 'hidden'}`}>
+          <div key={`mushaf-choice-${activeView === 'mushaf-choice'}`} className={`h-full w-full relative pb-20 overflow-y-auto no-scrollbar ${activeView === 'mushaf-choice' ? 'block view-transition' : 'hidden'}`}>
             <MushafChoice />
+            <CommunityShowcase />
           </div>
         )}
         {visited.daily && (
@@ -148,6 +150,11 @@ function CatchAllContent() {
         {visited.admin && (
           <div key={`admin-${activeView === 'admin'}`} className={`h-full w-full pb-32 ${activeView === 'admin' ? 'block view-transition' : 'hidden'}`}>
             <AdminPanel />
+          </div>
+        )}
+        {visited.showcase && (
+          <div key={`showcase-${activeView === 'showcase'}`} className={`h-full w-full pb-32 overflow-y-auto no-scrollbar ${activeView === 'showcase' ? 'block view-transition' : 'hidden'}`}>
+            <CommunityShowcase />
           </div>
         )}
         
