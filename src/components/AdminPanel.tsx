@@ -5,7 +5,7 @@ import {
   ShieldCheck, Users, Trophy, Trash2, 
   Search, RefreshCw, AlertTriangle, 
   MapPin, Star, TrendingUp, CheckCircle, Ban, PlusCircle, Calendar,
-  Mail, Phone, ArrowUpRight, UserCheck, Loader2, Bell
+  Mail, Phone, ArrowUpRight, UserCheck, Loader2, Bell, Image as ImageIcon
 } from "lucide-react";
 import { auth, db } from "@/lib/firebase";
 import { 
@@ -43,6 +43,8 @@ export function AdminPanel() {
   // Quest Management State
   const [questTitle, setQuestTitle] = useState("");
   const [questPoints, setQuestPoints] = useState(50);
+  const [questTarget, setQuestTarget] = useState("mushaf");
+  const [questSurahId, setQuestSurahId] = useState("1");
   const [isAddingQuest, setIsAddingQuest] = useState(false);
   const [activeQuests, setActiveQuests] = useState<any[]>([]);
   const [announcement, setAnnouncement] = useState("");
@@ -273,6 +275,8 @@ export function AdminPanel() {
       await addDoc(collection(db, "global_quests"), {
         title: questTitle,
         points: questPoints,
+        target: questTarget,
+        surahId: questTarget === 'surah' ? questSurahId : null,
         createdAt: serverTimestamp(),
         active: true
       });
@@ -508,7 +512,17 @@ export function AdminPanel() {
                                 <td className="p-6">
                                     <div className="flex gap-2">
                                         {r.status === 'pending' && (
-                                           <button onClick={() => handleActionSubscription(r.id, r.userId, r.plan, 'approve')} className="bg-emerald-500 text-black px-4 py-2 rounded-xl text-[10px] font-black">تفعيل</button>
+                                           <div className="flex flex-col gap-2">
+                                              {r.proofUrl && (
+                                                 <button 
+                                                   onClick={() => window.open(r.proofUrl, '_blank')}
+                                                   className="bg-primary/10 text-primary px-4 py-2 rounded-xl text-[9px] font-black flex items-center justify-center gap-1"
+                                                 >
+                                                    <ImageIcon className="w-3 h-3" /> عرض الإيصال
+                                                 </button>
+                                              )}
+                                              <button onClick={() => handleActionSubscription(r.id, r.userId, r.plan, 'approve')} className="bg-emerald-500 text-black px-4 py-2 rounded-xl text-[10px] font-black">تفعيل</button>
+                                           </div>
                                         )}
                                         {r.status === 'approved' && (
                                            <button onClick={() => handleAddToShowcase(r.platformLink, r.userName, r.surahName || "سورة")} className="bg-primary/20 text-primary px-4 py-2 rounded-xl text-[10px] font-black">إضافة للمعرض</button>
@@ -528,8 +542,42 @@ export function AdminPanel() {
                  <h3 className="text-xl font-bold mb-6">إضافة مهمة</h3>
                  <form onSubmit={handleAddQuest} className="space-y-4">
                     <input value={questTitle} onChange={e => setQuestTitle(e.target.value)} className="w-full bg-foreground/5 p-4 rounded-2xl outline-none" placeholder="عنوان المهمة" />
-                    <input type="number" value={questPoints} onChange={e => setQuestPoints(parseInt(e.target.value))} className="w-full bg-foreground/5 p-4 rounded-2xl outline-none" placeholder="النقاط" />
-                    <button type="submit" className="w-full py-4 bg-primary text-black rounded-2xl font-black">نشر</button>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                       <div className="space-y-1">
+                          <label className="text-[10px] font-black text-foreground/30 mr-2 uppercase">الوجهة (Target)</label>
+                          <select 
+                             value={questTarget} onChange={e => setQuestTarget(e.target.value)}
+                             className="w-full bg-foreground/5 border border-border rounded-xl p-3 text-right font-bold text-xs"
+                          >
+                             <option value="mushaf">الآية اليومية</option>
+                             <option value="mushaf-full">المصحف الرقمي</option>
+                             <option value="daily">الأذكار والورد</option>
+                             <option value="video">استوديو الفيديو</option>
+                             <option value="surah">سورة محددة</option>
+                             <option value="rank">لوحة المتصدرين</option>
+                          </select>
+                       </div>
+                       <div className="space-y-1">
+                          <label className="text-[10px] font-black text-foreground/30 mr-2 uppercase">النقاط</label>
+                          <input 
+                             type="number" value={questPoints} onChange={e => setQuestPoints(parseInt(e.target.value))}
+                             className="w-full bg-foreground/5 border border-border rounded-xl p-3 text-center font-black"
+                          />
+                       </div>
+                    </div>
+                    {questTarget === 'surah' && (
+                       <div className="space-y-1">
+                          <label className="text-[10px] font-black text-foreground/30 mr-2 uppercase">رقم السورة</label>
+                          <input 
+                             type="number" value={questSurahId} onChange={e => setQuestSurahId(e.target.value)}
+                             className="w-full bg-foreground/5 border border-border rounded-xl p-4 text-center font-bold"
+                             placeholder="مثلاً 18 لسورة الكهف"
+                          />
+                       </div>
+                    )}
+                    <button type="submit" disabled={isAddingQuest} className="w-full py-4 bg-primary text-black rounded-2xl font-black">
+                       {isAddingQuest ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "نشر المهمة"}
+                    </button>
                  </form>
               </div>
               <div className="bg-card border border-border p-8 rounded-[3rem] space-y-4">

@@ -43,7 +43,11 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
 
   const fetchUserPlan = async () => {
     const user = auth?.currentUser;
-    if (!user || !db) return;
+    if (!user) {
+      setUserPlan(null);
+      return;
+    }
+    if (!db) return;
     try {
       const s = await getDoc(doc(db, "users", user.uid));
       if (s.exists()) {
@@ -500,7 +504,23 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       
       <div className="w-full max-w-sm bg-background border border-border rounded-[3rem] p-10 flex flex-col items-center shadow-2xl">
         
-        {isLimitReached ? (
+        {!auth?.currentUser ? (
+          <div className="animate-in fade-in zoom-in duration-500 flex flex-col items-center">
+            <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center mb-6 border border-red-500/20">
+              <Lock className="w-10 h-10 text-red-500" />
+            </div>
+            <h3 className="text-xl font-black text-foreground mb-4">يجب تسجيل الدخول</h3>
+            <p className="text-foreground/40 text-xs text-center mb-8 px-4 leading-relaxed">
+              عذراً، يجب عليك تسجيل الدخول بحساب جوجل لتتمكن من تصميم وتصدير الفيديوهات.
+            </p>
+            <button 
+              onClick={() => { window.location.href = '/'; }}
+              className="w-full bg-primary text-black py-5 rounded-2xl font-black shadow-xl hover:scale-[1.02] transition-all"
+            >
+              الذهاب لتسجيل الدخول
+            </button>
+          </div>
+        ) : isLimitReached ? (
           <div className="animate-in fade-in zoom-in duration-500 flex flex-col items-center">
             <div className="w-20 h-20 rounded-full bg-amber-500/10 flex items-center justify-center mb-6 border border-amber-500/20">
               <Lock className="w-10 h-10 text-amber-500" />

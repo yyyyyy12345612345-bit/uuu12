@@ -6,6 +6,9 @@ import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, addDoc, collection, serverTimestamp, query, where, getDocs, limit } from "firebase/firestore";
 import { useUserPlan } from "@/hooks/useUserPlan";
 
+const CLOUDINARY_CLOUD_NAME = "dtuyo4gqm";
+const CLOUDINARY_UPLOAD_PRESET = "ml_default";
+
 interface SubscriptionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -24,6 +27,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
     instapay: ""
   });
 
+  const [uploading, setUploading] = useState(false);
   const { userPlan: currentPlanData } = useUserPlan();
   const [isPending, setIsPending] = useState(false);
 
@@ -69,13 +73,39 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
     } catch (e) { console.error(e); }
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+    try {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+        method: "POST",
+        body: data
+      });
+      const fileData = await res.json();
+      if (fileData.secure_url) {
+        setFormData({ ...formData, proofUrl: fileData.secure_url });
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      alert("حدث خطأ أثناء رفع الصورة، حاول مرة أخرى");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmitRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     const user = auth?.currentUser;
     if (!user || !db) return;
 
-    if (!formData.platformLink || !formData.senderInfo || !formData.proofUrl) {
-        alert("يرجى ملء جميع البيانات ورفع إثبات الدفع");
+    if (!formData.senderInfo || !formData.proofUrl) {
+        alert("يرجى إدخال بيانات المحول ورفع صورة الإيصال");
         return;
     }
 
@@ -237,15 +267,14 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
 
                     <div className="space-y-4">
                         <div className="space-y-1.5 text-right">
-                            <label className="text-[10px] font-black text-foreground/30 uppercase mr-4">رابط منصتك (تيك توك / إنستا)</label>
+                            <label className="text-[10px] font-black text-foreground/30 uppercase mr-4">رابط منصتك (اختياري)</label>
                             <div className="relative">
                                 <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/20" />
                                 <input 
-                                    required
                                     value={formData.platformLink}
                                     onChange={e => setFormData({...formData, platformLink: e.target.value})}
                                     className="w-full bg-foreground/5 border border-border rounded-2xl py-4 pr-6 pl-12 text-right outline-none focus:border-primary/40 font-bold text-sm"
-                                    placeholder="https://tiktok.com/@yourname"
+                                    placeholder="https://tiktok.com/@yourname (اختياري)"
                                 />
                             </div>
                         </div>
@@ -262,18 +291,37 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                         </div>
 
                         <div className="space-y-1.5 text-right">
-                            <label className="text-[10px] font-black text-foreground/30 uppercase mr-4">رابط صورة الإثبات (سكرين شوت)</label>
-                            <div className="relative">
-                                <Upload className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/20" />
-                                <input 
-                                    required
-                                    value={formData.proofUrl}
-                                    onChange={e => setFormData({...formData, proofUrl: e.target.value})}
-                                    className="w-full bg-foreground/5 border border-border rounded-2xl py-4 pr-6 pl-12 text-right outline-none focus:border-primary/40 font-bold text-sm"
-                                    placeholder="ارفع الصورة وضع الرابط هنا"
-                                />
+                            <label className="text-[10px] font-black text-foreground/30 uppercase mr-4">إثبات الدفع (صورة الإيصال)</label>
+                            <div className="relative group">
+                                <div className={`w-full aspect-video rounded-2xl border-2 border-dashed ${uploading ? 'border-primary animate-pulse' : 'border-border'} bg-foreground/5 flex flex-col items-center justify-center overflow-hidden transition-all relative`}>
+                                    {formData.proofUrl ? (
+                                        <>
+                                            <img src={formData.proofUrl} alt="Proof" className="w-full h-full object-cover" />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                                <Upload className="w-6 h-6 text-white" />
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            {uploading ? (
+                                                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                                            ) : (
+                                                <>
+                                                    <ImageIcon className="w-8 h-8 text-foreground/20 mb-2" />
+                                                    <span className="text-[10px] font-bold text-foreground/40">اضغط لرفع صورة الإيصال</span>
+                                                </>
+                                            )}
+                                        </>
+                                    )}
+                                    <input 
+                                        type="file" 
+                                        accept="image/*" 
+                                        className="absolute inset-0 opacity-0 cursor-pointer" 
+                                        onChange={handleFileUpload}
+                                        disabled={uploading}
+                                    />
+                                </div>
                             </div>
-                            <p className="text-[9px] text-foreground/30 text-right mt-1 px-4 italic leading-relaxed">ارفع الصورة على أي موقع رفع صور (مثل imgbb) وضع الرابط.</p>
                         </div>
                     </div>
 

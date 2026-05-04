@@ -1,15 +1,18 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
-import { Sun, Moon, Target, Compass, CheckCircle2, RotateCcw, Fingerprint, MapPin, Search, Bed, BookOpen, ChevronRight, ChevronLeft } from "lucide-react";
 import { ATHKAR } from "@/data/athkar";
 import { AthkarLibrary } from "./AthkarLibrary";
-import { addPoints, addSebhaPoints, startThikrTimer, endThikrTimer } from "@/lib/points";
+import { addPoints, addSebhaPoints, startThikrTimer, endThikrTimer, claimQuestPoints } from "@/lib/points";
+import { useRouter } from "next/navigation";
+import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { useRef } from "react";
 
 export function DailyHub() {
-  const [activeTab, setActiveTab] = useState<"morning" | "evening" | "qibla" | "goal" | "sibha" | "sleep" | "library">("sibha");
   const [athkarProgress, setAthkarProgress] = useState<Record<string, number>>({});
+  const [globalQuests, setGlobalQuests] = useState<any[]>([]);
+  const [completedQuestIds, setCompletedQuestIds] = useState<Set<string>>(new Set());
+  const router = useRouter();
   
   // Daily Goal state
   const [dailyGoal, setDailyGoal] = useState<number>(2); // Default 2 pages
@@ -84,7 +87,61 @@ export function DailyHub() {
       setSibhaCount(0);
       setAthkarProgress({});
     }
+
+    fetchGlobalQuests();
+    fetchCompletedQuests();
   }, []);
+
+  const handleClaimQuest = async (e: React.MouseEvent, quest: any) => {
+    e.stopPropagation();
+    const res = await claimQuestPoints(quest.id, quest.points);
+    if (res.success) {
+        alert(res.message);
+        fetchCompletedQuests();
+    } else {
+        alert(res.message || "فشل استلام النقاط");
+    }
+  };
+
+  const fetchCompletedQuests = async () => {
+    const user = auth?.currentUser;
+    if (!user || !db) return;
+    try {
+      const q = query(collection(db, "users", user.uid, "completed_quests"));
+      const snap = await getDocs(q);
+      setCompletedQuestIds(new Set(snap.docs.map(d => d.id)));
+    } catch (e) { console.error(e); }
+  };
+
+  const fetchGlobalQuests = async () => {
+    if (!db) return;
+    try {
+      const q = query(collection(db, "global_quests"), where("active", "==", true), orderBy("createdAt", "desc"), limit(5));
+      const snapshot = await getDocs(q);
+      setGlobalQuests(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+    } catch (e) { console.error(e); }
+  };
+
+  const handleQuestClick = (quest: any) => {
+    if (!quest.target) return;
+    
+    switch (quest.target) {
+      case 'mushaf': router.push('/mushaf'); break;
+      case 'mushaf-full': router.push('/mushaf-full'); break;
+      case 'daily': setActiveTab('goal'); break;
+      case 'video': router.push('/video'); break;
+      case 'rank': router.push('/rank'); break;
+      case 'surah': 
+        if (quest.surahId) {
+            // We can handle Surah ID in the editor state if needed
+            router.push('/mushaf');
+        } else {
+            router.push('/mushaf');
+        }
+        break;
+      default: break;
+    }
+  };
 
   const lastClickTime = useRef<number>(0);
 
@@ -396,7 +453,54 @@ export function DailyHub() {
       </div>
 
       <div className="w-full max-w-3xl mx-auto z-10 space-y-6 shrink-0 flex-1">
-         
+         {/* Global Quests Section */}
+         {globalQuests.length > 0 && (
+            <div className="mb-10 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex items-center justify-between px-2">
+                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">المهام اليومية المكلفة</span>
+                    <div className="h-px flex-1 mx-4 bg-primary/10" />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {globalQuests.map((q) => {
+                        const isDone = completedQuestIds.has(q.id);
+                        return (
+                            <button 
+                                key={q.id}
+                                onClick={() => !isDone && handleQuestClick(q)}
+                                className={`group relative overflow-hidden p-4 rounded-3xl border transition-all flex items-center justify-between text-right ${
+                                    isDone 
+                                    ? 'bg-emerald-500/5 border-emerald-500/20 opacity-80' 
+                                    : 'border-primary/20 bg-primary/5 hover:bg-primary/10'
+                                }`}
+                            >
+                                <div className="flex flex-col">
+                                    <span className={`text-xs font-bold mb-1 ${isDone ? 'text-emerald-500' : 'text-foreground group-hover:text-primary'} transition-colors`}>{q.title}</span>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`text-[10px] font-black ${isDone ? 'text-emerald-500/60' : 'text-primary/60'}`}>
+                                            {isDone ? 'تم الإكمال' : `+${q.points} نقطة`}
+                                        </span>
+                                        {!isDone && (
+                                            <button 
+                                                onClick={(e) => handleClaimQuest(e, q)}
+                                                className="bg-primary text-black text-[8px] font-black px-2 py-0.5 rounded-full hover:scale-105 active:scale-95 transition-all"
+                                            >
+                                                استلام النقاط
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-transform ${
+                                    isDone ? 'bg-emerald-500/10 text-emerald-500' : 'bg-primary/10 text-primary group-hover:scale-110'
+                                }`}>
+                                    {isDone ? <CheckCircle2 className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
+                                </div>
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+         )}
+
          {activeTab === "sibha" && (
             <div className="glass-effect p-8 md:p-12 rounded-[2.5rem] border border-border animate-in fade-in slide-in-from-bottom-4 duration-700 flex flex-col items-center text-center relative overflow-hidden">
                <button 
