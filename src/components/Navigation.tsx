@@ -3,7 +3,13 @@
 import React from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Video, BookOpen, Timer, Headphones, Calendar, Trophy } from "lucide-react";
+import { Video, BookOpen, Timer, Headphones, Calendar, Trophy, Sparkles } from "lucide-react";
+import { Tajawal } from "next/font/google";
+
+const tajawal = Tajawal({
+  weight: ["400", "500", "700", "800", "900"],
+  subsets: ["arabic"],
+});
 
 export function Navigation() {
   const pathname = usePathname();
@@ -19,8 +25,12 @@ export function Navigation() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-[250] w-full bg-background/80 backdrop-blur-3xl border-t border-border pb-safe">
-      <div className="px-2 py-3 flex items-center justify-around relative max-w-lg mx-auto">
+    <nav className={`fixed bottom-0 left-0 right-0 z-[1000] w-full px-4 pb-6 pt-2 pointer-events-none ${tajawal.className}`}>
+      <div className="max-w-2xl mx-auto w-full h-[84px] bg-[#064E3B]/80 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] flex items-center justify-around px-4 shadow-[0_30px_100px_rgba(0,0,0,0.6)] pointer-events-auto relative overflow-hidden group">
+        
+        {/* Background Pattern */}
+        <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
+        
         {tabs.map((tab) => {
           const isMushafGroup = tab.id === "mushaf" && (currentPath === "/" || currentPath === "/mushaf-full" || currentPath === "/mushaf-choice" || currentPath === "/mushaf" || currentPath === "/mushaf-tafseer");
           const isActive = currentPath === tab.path || isMushafGroup;
@@ -30,17 +40,29 @@ export function Navigation() {
             <Link
               key={tab.id}
               href={tab.path}
-              className={`group flex flex-col items-center gap-1.5 transition-all duration-300 relative py-1 flex-1 min-w-0 ${isActive ? 'text-primary' : 'text-foreground/30 hover:text-foreground/50'}`}
+              className={`relative flex flex-col items-center justify-center gap-1.5 transition-all duration-700 flex-1 py-2 group/nav ${isActive ? 'scale-110' : 'opacity-40 grayscale hover:opacity-100 hover:grayscale-0'}`}
             >
-              <div className={`w-12 h-10 rounded-2xl flex items-center justify-center transition-all duration-500 relative ${isActive ? 'bg-primary/10 shadow-lg shadow-primary/5' : 'hover:bg-foreground/5'}`}>
-                <Icon className={`w-5 h-5 transition-transform duration-500 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+              {/* Active Aura */}
+              {isActive && (
+                <div className="absolute -top-1 w-8 h-8 bg-primary/20 rounded-full blur-xl animate-pulse" />
+              )}
+              
+              <div className={`relative w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-700 ${isActive ? 'bg-primary text-black shadow-[0_15px_30px_rgba(212,175,55,0.3)] rotate-[360deg]' : 'text-white'}`}>
+                <Icon className={`w-5 h-5 stroke-[2.5px] transition-transform duration-700 ${isActive ? 'scale-110' : 'group-hover/nav:scale-125 group-hover/nav:rotate-12'}`} />
+                
                 {isActive && (
-                  <span className="absolute -top-1 right-2 w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+                  <Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-black animate-spin-slow" />
                 )}
               </div>
-              <span className={`text-[10px] font-bold font-arabic transition-all duration-300 truncate px-1 ${isActive ? 'opacity-100 transform translate-y-0' : 'opacity-60 transform translate-y-0.5'}`}>
+
+              <span className={`text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-700 ${isActive ? 'text-primary opacity-100' : 'text-white/40 opacity-0 group-hover/nav:opacity-100'}`}>
                 {tab.label}
               </span>
+
+              {/* Indicator Bar */}
+              {isActive && (
+                <div className="absolute -bottom-1 w-4 h-1 bg-primary rounded-full shadow-[0_0_15px_rgba(212,175,55,0.8)]" />
+              )}
             </Link>
           );
         })}
