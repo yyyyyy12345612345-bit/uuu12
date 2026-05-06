@@ -5,7 +5,8 @@ import {
   Trophy, Medal, Users, MapPin, Star, 
   Search, ShieldCheck, ChevronRight, LogIn,
   TrendingUp, Award, Crown, Phone, User, X,
-  BookOpen, Headphones, Fingerprint, Calendar
+  BookOpen, Headphones, Fingerprint, Calendar,
+  ArrowLeft, LayoutDashboard, ChevronLeft
 } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
 import { Capacitor } from '@capacitor/core';
@@ -62,13 +63,10 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
           const userDoc = await getDoc(doc(db, "users", u.uid));
           if (userDoc.exists()) {
             const data = userDoc.data();
-            
-            // Silently backfill email if it's missing
             if (u.email && !data.email) {
               await updateDoc(doc(db, "users", u.uid), { email: u.email });
               data.email = u.email;
             }
-
             setUserData(data);
             setShowProfileSetup(false);
           } else {
@@ -85,10 +83,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
     });
 
     const authTimeout = setTimeout(() => {
-      if (loading) {
-        // console.log('[Leaderboard] Auth timeout, showing guest view');
-        setLoading(false);
-      }
+      if (loading) setLoading(false);
     }, 5000);
 
     return () => {
@@ -112,40 +107,29 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
 
   const handleQuestClick = (quest: any) => {
     if (!quest.type || !quest.target) return;
-
     if (quest.type === "quran" || quest.type === "surah") {
-       updateState({ 
-         view: "mushaf", 
-         surahId: String(quest.target),
-         startAyah: 1 
-       });
+       updateState({ view: "mushaf", surahId: String(quest.target), startAyah: 1 });
        onEditProfile?.(); 
     } else if (quest.type === "athkar" || quest.type === "daily") {
        updateState({ view: "daily" });
        onEditProfile?.();
     }
-
-    // محاولة استلام النقاط تلقائياً عند الضغط (كعرض ترحيبي للمهمة)
     handleClaimPoints(quest);
   };
 
   const handleClaimPoints = async (quest: any) => {
     if (completedQuests.includes(quest.id)) return;
-    
     const { claimQuestPoints } = await import("@/lib/points");
     const result = await claimQuestPoints(quest.id, quest.points || 10);
-    
     if (result.success) {
       setCompletedQuests(prev => [...prev, quest.id]);
-      alert(`🎉 مبروك! حصلت على +${quest.points} نقطة إضافية للمهمة`);
-      fetchLeaderboard(); // لتحديث نقاط المستخدم في القائمة
+      fetchLeaderboard();
     }
   };
 
   const fetchLeaderboard = async () => {
     if (!db) return;
     try {
-      // Fetch top users without a composite index, then filter and slice client-side
       const q = query(collection(db, "users"), orderBy("totalPoints", "desc"), limit(100));
       const snapshot = await getDocs(q);
       let data = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter((u: any) => !u.isBanned).slice(0, 50);
@@ -160,11 +144,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
     try {
       if (Capacitor.isNativePlatform()) {
         const { GoogleSignIn } = await import('@capawesome/capacitor-google-sign-in');
-        
-        await GoogleSignIn.initialize({
-          clientId: "194649785258-818jpl0c7it5dsmn7a7mufu8jc1i1uud.apps.googleusercontent.com",
-        });
-
+        await GoogleSignIn.initialize({ clientId: "194649785258-818jpl0c7it5dsmn7a7mufu8jc1i1uud.apps.googleusercontent.com" });
         try { await GoogleSignIn.signOut(); } catch (e) {}
         const result = await GoogleSignIn.signIn();
         if (result && result.idToken) {
@@ -173,53 +153,37 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
           return;
         }
       }
-      
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
       await signInWithPopup(auth, provider);
     } catch (e: any) {
       console.error("Login Error:", e);
-      if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
-        alert("حدث خطأ أثناء تسجيل الدخول: " + (e.message || "فشل الاتصال بجوجل"));
-      }
     }
   };
 
   const [setupError, setSetupError] = useState("");
+  const [setupData, setSetupData] = useState({
+    username: "",
+    displayName: "",
+    phone: "",
+    governorate: GOVERNORATES[0]
+  });
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !db) return;
     setSetupError("");
-
     const username = setupData.username.trim().toLowerCase();
     const displayName = setupData.displayName.trim();
 
-    if (username.length < 3 || username.length > 15) {
-      setSetupError("يجب أن يكون الاسم المميز بين 3 و 15 حرفاً");
-      return;
-    }
-
-    if (displayName.length < 2) {
-      setSetupError("يرجى إدخال اسمك بشكل صحيح");
-      return;
-    }
-
-    // Strict validation for Unique Username: English letters, numbers, underscores only. No spaces.
-    const strictUsernameRegex = /^[a-z0-9_]+$/;
-    if (!strictUsernameRegex.test(username)) {
-      setSetupError("الاسم المميز يجب أن يحتوي على حروف إنجليزية وأرقام فقط (بدون مسافات أو رموز)");
-      return;
-    }
+    if (username.length < 3 || username.length > 15) { setSetupError("يجب أن يكون الاسم المميز بين 3 و 15 حرفاً"); return; }
+    if (displayName.length < 2) { setSetupError("يرجى إدخال اسمك بشكل صحيح"); return; }
+    if (!/^[a-z0-9_]+$/.test(username)) { setSetupError("الاسم المميز يجب أن يحتوي على حروف إنجليزية وأرقام فقط"); return; }
 
     try {
       const q = query(collection(db, "users"), where("username", "==", username));
       const querySnapshot = await getDocs(q);
-      
-      if (!querySnapshot.empty) {
-        setSetupError("هذا الاسم محجوز بالفعل، اختر اسماً آخر");
-        return;
-      }
+      if (!querySnapshot.empty) { setSetupError("هذا الاسم محجوز بالفعل، اختر اسماً آخر"); return; }
 
       const newUserData = {
         uid: user.uid,
@@ -245,377 +209,338 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
       setShowProfileSetup(false);
       fetchLeaderboard();
     } catch (e) {
-      console.error("Error saving profile:", e);
-      setSetupError("حدث خطأ أثناء حفظ البيانات، حاول مرة أخرى");
+      setSetupError("حدث خطأ أثناء حفظ البيانات");
     }
   };
 
-  const [setupData, setSetupData] = useState({
-    username: "",
-    displayName: "",
-    phone: "",
-    governorate: GOVERNORATES[0]
-  });
+  const sortedLeaderboard = leaderboardData
+    .filter((entry: any) => activeTab === "governorate" ? (userData && entry.governorate === userData.governorate) : true)
+    .sort((a: any, b: any) => {
+      if (activeTab === "quran") return (b.quranPoints || 0) - (a.quranPoints || 0);
+      if (activeTab === "athkar") return (b.athkarPoints || 0) - (a.athkarPoints || 0);
+      if (activeTab === "listen") return (b.listenPoints || 0) - (a.listenPoints || 0);
+      return (b.totalPoints || 0) - (a.totalPoints || 0);
+    });
+
+  const topThree = sortedLeaderboard.slice(0, 3);
+  const others = sortedLeaderboard.slice(3);
 
   if (loading || user === undefined) return (
-    <div className="flex h-full items-center justify-center p-20">
-       <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-    </div>
+    <div className="flex h-full items-center justify-center"><div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" /></div>
   );
 
   return (
-    <div className="flex flex-col h-full p-6 md:p-10 pt-16 md:pt-8 animate-in fade-in duration-1000 overflow-y-auto relative [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+    <div className="flex flex-col h-full font-arabic overflow-y-auto no-scrollbar pb-32">
       
-      <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/40 to-background" />
-          <div className="absolute inset-0 islamic-pattern opacity-[0.03] dark:opacity-[0.05]" />
+      {/* Premium Header Backdrop */}
+      <div className="relative bg-[#064E3B] pt-24 pb-40 px-6 overflow-hidden">
+          <div className="absolute inset-0 islamic-pattern opacity-10" />
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary/20 blur-[150px] rounded-full -translate-x-1/2 -translate-y-1/2" />
+          
+          <div className="max-w-4xl mx-auto relative z-10 flex flex-col items-center text-center gap-6">
+              <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-primary mb-2">
+                  <Trophy className="w-8 h-8 animate-bounce" />
+              </div>
+              <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-2xl">لوحة الشرف</h1>
+              <p className="text-white/60 font-bold text-lg md:text-xl max-w-xl">سابقوا إلى مغفرة من ربكم وجنة عرضها السموات والأرض</p>
+              
+              {!user && (
+                <button 
+                  onClick={handleGoogleLogin}
+                  className="mt-4 flex items-center gap-3 px-10 py-5 bg-white text-[#064E3B] rounded-[2rem] font-black text-lg hover:scale-105 active:scale-95 transition-all shadow-2xl"
+                >
+                    <LogIn className="w-6 h-6" />
+                    انضم للمنافسين الآن
+                </button>
+              )}
+          </div>
       </div>
 
-      <div className="max-w-6xl mx-auto w-full relative z-10 flex flex-col gap-8 pb-32">
-        
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-           <div className="text-right">
-              <h1 className="text-4xl font-black text-foreground font-arabic mb-2 flex items-center gap-3 justify-end">
-                 لوحة الشرف والمنافسات
-                 <Trophy className="w-8 h-8 text-primary animate-bounce" />
-              </h1>
-              <p className="text-foreground/40 text-sm font-bold font-arabic">سابقوا إلى مغفرة من ربكم وجنة عرضها السموات والأرض</p>
-           </div>
-
-           {!user && (
-             <button 
-               onClick={handleGoogleLogin}
-               className="flex items-center gap-3 px-8 py-4 bg-white text-black rounded-2xl font-bold hover:scale-105 active:scale-95 transition-all shadow-xl"
-             >
-                <LogIn className="w-5 h-5" />
-                تسجيل الدخول بجوجل للمنافسة
-             </button>
-           )}
-
-           {user && userData && (
-             <div className="premium-card px-5 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                   <div className="w-12 h-12 rounded-[1rem] overflow-hidden border border-primary/20 shadow-lg">
-                      <img src={userData.photoURL || "/logo/logo.png"} alt="User" className="w-full h-full object-cover" />
-                   </div>
-                   <div className="text-right">
-                      <p className="text-[9px] text-primary font-black uppercase tracking-widest mb-0.5">المتسابق الحالي</p>
-                      <p className="text-lg font-black text-foreground font-arabic leading-none">
-                        {userData.displayName || userData.username}
-                      </p>
-                   </div>
-                </div>
-                <button 
-                  onClick={onEditProfile}
-                  className="w-full md:w-auto px-4 py-2 bg-foreground/5 hover:bg-primary/10 border border-border hover:border-primary/30 rounded-xl text-[10px] font-black text-foreground/80 hover:text-primary transition-all font-arabic"
-                >
-                  تعديل بيانات الحساب
-                </button>
-             </div>
-           )}
-        </div>
-
-        {/* Stats Grid */}
-        {user && userData && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-             {[
-               { label: "إجمالي النقاط", value: userData.totalPoints, icon: Star, color: "text-amber-400" },
-               { label: "نقاط القرآن", value: userData.quranPoints, icon: BookOpen, color: "text-primary" },
-               { label: "نقاط الأذكار", value: userData.athkarPoints, icon: Fingerprint, color: "text-emerald-400" },
-               { label: "نقاط الاستماع", value: userData.listenPoints || 0, icon: Headphones, color: "text-blue-400" },
-             ].map((stat, i) => (
-               <div key={i} className="premium-card p-4 md:p-6 flex flex-col items-center justify-center gap-1 md:gap-2 text-center group hover:border-primary/40 transition-all">
-                  <stat.icon className={`w-4 h-4 md:w-6 md:h-6 ${stat.color} mb-0.5 md:mb-1`} />
-                  <p className="text-[8px] md:text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{stat.label}</p>
-                  <p className="text-lg md:text-2xl font-black text-foreground">
-                    {typeof stat.value === 'number' ? Math.round(stat.value * 10) / 10 : stat.value}
-                  </p>
-               </div>
-             ))}
-          </div>
-        )}
-
-      {/* Quests Section */}
-      {activeQuests.length > 0 && (
-        <div className="w-full max-w-xl mx-auto mb-10 space-y-4 animate-in slide-in-from-top-10 duration-1000">
-           <div className="flex items-center justify-between px-4">
-              <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">مسابقات حالية</span>
-              <h3 className="text-sm font-bold text-foreground font-arabic">المهام الأسبوعية</h3>
-           </div>
-           <div className="flex flex-col gap-3">
-              {activeQuests.map(q => {
-                const isDone = completedQuests.includes(q.id);
-                return (
-                <button 
-                  key={q.id} 
-                  disabled={isDone}
-                  onClick={() => handleQuestClick(q)}
-                  className={`w-full p-5 glass-effect border rounded-[2rem] flex items-center justify-between group transition-all text-right ${isDone ? 'opacity-50 grayscale border-emerald-500/20' : 'border-primary/20 hover:border-primary/40 hover:scale-[1.01] active:scale-[0.98]'}`}
-                >
-                   <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isDone ? 'bg-emerald-500/20 text-emerald-500' : 'bg-primary/20 text-primary group-hover:scale-110'}`}>
-                         {isDone ? <ShieldCheck className="w-5 h-5" /> : <Star className="w-5 h-5 fill-current" />}
+      {/* Main Content Overlay */}
+      <div className="max-w-5xl mx-auto w-full px-6 -mt-24 relative z-20 space-y-12">
+          
+          {/* User Status Card */}
+          {user && userData && (
+              <div className="bg-card border border-border rounded-[3rem] p-8 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 group">
+                  <div className="flex items-center gap-6">
+                      <div className="relative">
+                          <div className="w-20 h-20 rounded-full border-4 border-primary p-1 bg-card shadow-xl overflow-hidden group-hover:scale-105 transition-transform">
+                              <img src={userData.photoURL || "/logo/logo.png"} alt="User" className="w-full h-full object-cover rounded-full" />
+                          </div>
+                          <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#064E3B] rounded-lg flex items-center justify-center border-2 border-primary text-white shadow-lg">
+                              <Star className="w-4 h-4 text-primary fill-primary" />
+                          </div>
                       </div>
                       <div className="text-right">
-                         <p className={`text-sm font-bold font-arabic ${isDone ? 'text-emerald-500' : 'text-foreground'}`}>{q.title}</p>
-                         <p className="text-[10px] text-foreground/40 font-bold font-arabic">
-                            {isDone ? "تم إتمام المهمة بنجاح ✅" : "اضغط للبدء واستلام النقاط"}
-                         </p>
+                          <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-1">الرتبة: الحافظ المتميز</p>
+                          <h2 className="text-3xl font-black text-foreground">{userData.displayName || userData.username}</h2>
+                          <p className="text-foreground/40 text-sm font-bold">باقي لك ١٥٠ نقطة للوصول للمركز التالي</p>
                       </div>
-                   </div>
-                   <div className={`px-4 py-2 rounded-2xl border ${isDone ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'bg-primary/10 border-primary/20 text-primary'}`}>
-                      <span className="font-black text-sm">{isDone ? "تم" : `+${q.points}`}</span>
-                   </div>
-                </button>
-                );
-              })}
-           </div>
-        </div>
-      )}
-
-      {/* Category Leaders */}
-      <div className="grid grid-cols-3 gap-2 md:gap-4 w-full max-w-4xl mx-auto mb-10">
-         <div className="glass-effect p-3 md:p-6 rounded-2xl md:rounded-[2rem] border border-blue-500/20 flex flex-col items-center gap-1 md:gap-2 text-center relative overflow-hidden group">
-            <BookOpen className="w-5 h-5 md:w-8 md:h-8 text-blue-400 mb-1 md:mb-2 opacity-50 group-hover:opacity-100 transition-all" />
-            <span className="text-[7px] md:text-[9px] font-black text-blue-400 uppercase tracking-widest">بطل القرآن</span>
-            <span className="font-bold text-foreground font-arabic text-[9px] md:text-sm truncate max-w-full">
-              {leaderboardData.sort((a,b) => (b.quranPoints||0) - (a.quranPoints||0))[0]?.displayName?.split(' ')[0] || "..." }
-            </span>
-         </div>
-         <div className="glass-effect p-3 md:p-6 rounded-2xl md:rounded-[2rem] border border-emerald-500/20 flex flex-col items-center gap-1 md:gap-2 text-center relative overflow-hidden group">
-            <Fingerprint className="w-5 h-5 md:w-8 md:h-8 text-emerald-400 mb-1 md:mb-2 opacity-50 group-hover:opacity-100 transition-all" />
-            <span className="text-[7px] md:text-[9px] font-black text-emerald-400 uppercase tracking-widest">بطل الأذكار</span>
-            <span className="font-bold text-foreground font-arabic text-[9px] md:text-sm truncate max-w-full">
-              {leaderboardData.sort((a,b) => (b.athkarPoints||0) - (a.athkarPoints||0))[0]?.displayName?.split(' ')[0] || "..." }
-            </span>
-         </div>
-         <div className="glass-effect p-3 md:p-6 rounded-2xl md:rounded-[2rem] border border-amber-500/20 flex flex-col items-center gap-1 md:gap-2 text-center relative overflow-hidden group">
-            <Headphones className="w-5 h-5 md:w-8 md:h-8 text-amber-400 mb-1 md:mb-2 opacity-50 group-hover:opacity-100 transition-all" />
-            <span className="text-[7px] md:text-[9px] font-black text-amber-400 uppercase tracking-widest">بطل الاستماع</span>
-            <span className="font-bold text-foreground font-arabic text-[9px] md:text-sm truncate max-w-full">
-              {leaderboardData.sort((a,b) => (b.listenPoints||0) - (a.listenPoints||0))[0]?.displayName?.split(' ')[0] || "..." }
-            </span>
-         </div>
-      </div>
-
-      {/* Tabs */}
-        <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 p-1 bg-foreground/5 rounded-2xl w-full md:w-fit mx-auto md:mx-0">
-           <button 
-             onClick={() => setActiveTab("global")}
-             className={`px-4 md:px-6 py-2.5 rounded-xl font-bold font-arabic text-xs md:text-sm transition-all ${activeTab === "global" ? 'bg-primary text-black shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
-           >
-              الترتيب العام
-           </button>
-           <button 
-             onClick={() => setActiveTab("governorate")}
-             className={`px-4 md:px-6 py-2.5 rounded-xl font-bold font-arabic text-xs md:text-sm transition-all ${activeTab === "governorate" ? 'bg-primary text-black shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
-           >
-              المحافظة
-           </button>
-           <button 
-             onClick={() => setActiveTab("quran")}
-             className={`px-4 md:px-6 py-2.5 rounded-xl font-bold font-arabic text-xs md:text-sm transition-all ${activeTab === "quran" ? 'bg-primary text-black shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
-           >
-              قراءة القرآن
-           </button>
-           <button 
-             onClick={() => setActiveTab("athkar")}
-             className={`px-4 md:px-6 py-2.5 rounded-xl font-bold font-arabic text-xs md:text-sm transition-all ${activeTab === "athkar" ? 'bg-primary text-black shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
-           >
-              الأذكار والتسبيح
-           </button>
-           <button 
-             onClick={() => setActiveTab("listen")}
-             className={`px-4 md:px-6 py-2.5 rounded-xl font-bold font-arabic text-xs md:text-sm transition-all ${activeTab === "listen" ? 'bg-primary text-black shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
-           >
-              الاستماع
-           </button>
-        </div>
-
-        {/* Leaderboard Table */}
-        <div className="premium-card overflow-hidden">
-            <div className="p-6 border-b border-border bg-foreground/[0.02] flex items-center justify-between">
-               <div className="flex items-center gap-3">
-                  <Users className="w-5 h-5 text-primary" />
-                  <h3 className="font-bold font-arabic">أبطال المسابقة</h3>
-               </div>
-               <div className="flex items-center gap-2 text-[10px] font-bold text-foreground/20 uppercase tracking-widest">
-                  <span>النقاط</span>
-               </div>
-            </div>
-
-           <div className="divide-y divide-border">
-              {leaderboardData.length === 0 ? (
-                <div className="p-20 text-center text-foreground/20 font-arabic font-bold">لا توجد بيانات حالياً.. كن أول المنافسين!</div>
-              ) : (
-              leaderboardData
-                .filter((entry: any) => activeTab === "governorate" ? (userData && entry.governorate === userData.governorate) : true)
-                .sort((a: any, b: any) => {
-                  if (activeTab === "quran") return (b.quranPoints || 0) - (a.quranPoints || 0);
-                  if (activeTab === "athkar") return (b.athkarPoints || 0) - (a.athkarPoints || 0);
-                  if (activeTab === "listen") return (b.listenPoints || 0) - (a.listenPoints || 0);
-                  return (b.totalPoints || 0) - (a.totalPoints || 0);
-                })
-                .map((entry, index) => {
-                  const getTabPoints = () => {
-                    if (activeTab === "quran") return entry.quranPoints || 0;
-                    if (activeTab === "athkar") return entry.athkarPoints || 0;
-                    if (activeTab === "listen") return entry.listenPoints || 0;
-                    return entry.totalPoints || 0;
-                  };
-                  const displayedPoints = getTabPoints();
-
-                  return (
-                  <div key={entry.id} className="flex items-center justify-between p-4 md:p-6 hover:bg-foreground/[0.02] transition-colors group gap-4">
-                      <div className="flex items-center gap-3 md:gap-6 min-w-0 flex-1">
-                         <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold font-mono relative shrink-0 ${index === 0 ? 'bg-amber-400 text-black' : index === 1 ? 'bg-slate-300 text-black' : index === 2 ? 'bg-amber-700 text-white' : 'bg-foreground/5 text-foreground/40'}`}>
-                            {index + 1}
-                            {index < 3 && <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full border-2 border-background flex items-center justify-center text-[8px]"><Trophy className="w-2 h-2 text-black" /></div>}
-                         </div>
-                         
-                         <div className="w-12 h-12 rounded-2xl border-2 border-border p-0.5 overflow-hidden bg-background shrink-0">
-                            <img 
-                               src={entry.photoURL || "/logo/logo.png"} 
-                               alt={entry.username} 
-                               className="w-full h-full object-cover rounded-xl"
-                            />
-                         </div>
-
-                         <div className="flex flex-col text-right min-w-0">
-                             <div className="flex items-center gap-2 mb-0.5">
-                                <span className="font-bold font-arabic text-sm md:text-lg group-hover:text-primary transition-colors leading-tight truncate">
-                                  {entry.displayName || entry.username}
-                                </span>
-                                {index === 0 && <Crown className="w-3 h-3 text-amber-400 fill-amber-400 shrink-0" />}
-                             </div>
-                             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                                <span className="text-[9px] text-foreground/30 font-mono tracking-wider">@{entry.username}</span>
-                                <div className="flex items-center gap-1 text-[9px] text-primary/40 font-bold">
-                                   <MapPin className="w-2.5 h-2.5" />
-                                   <span className="font-arabic">{entry.governorate}</span>
-                                </div>
-                             </div>
-                          </div>
-                      </div>
-
-                      <div className="text-left flex flex-col items-end gap-1 shrink-0 ml-auto md:ml-0 min-w-fit">
-                          {/* النقاط المعروضة */}
-                          <div className="flex items-center gap-1 bg-primary/10 border border-primary/20 px-2 md:px-3 py-1 rounded-lg">
-                             <Star className="w-3 h-3 text-primary fill-primary" />
-                             <span className="text-sm md:text-xl font-black text-primary">
-                                {(Math.round(displayedPoints * 10) / 10).toFixed(1)}
-                             </span>
-                          </div>
-                          {/* تفاصيل النقاط - تظهر دائما للتمييز */}
-                          <div className="flex items-center gap-2 opacity-40 text-[8px] md:text-[9px]">
-                             <div className="flex items-center gap-0.5" title="القرآن">
-                                <BookOpen className="w-2 h-2" />
-                                <span>{Math.round(entry.quranPoints || 0)}</span>
-                             </div>
-                             <div className="flex items-center gap-0.5" title="الأذكار">
-                                <Fingerprint className="w-2 h-2" />
-                                <span>{Math.round(entry.athkarPoints || 0)}</span>
-                             </div>
-                             <div className="flex items-center gap-0.5" title="الاستماع">
-                                <Headphones className="w-2 h-2" />
-                                <span>{Math.round(entry.listenPoints || 0)}</span>
-                             </div>
-                          </div>
-                       </div>
                   </div>
-                )})
-              )}
-           </div>
-        </div>
+                  <div className="flex items-center gap-3 bg-foreground/5 p-4 rounded-3xl border border-border">
+                      <div className="text-center px-4">
+                          <p className="text-[9px] font-black text-foreground/30 uppercase">النقاط</p>
+                          <p className="text-2xl font-black text-primary">{Math.round(userData.totalPoints)}</p>
+                      </div>
+                      <div className="w-[1px] h-10 bg-border" />
+                      <button onClick={onEditProfile} className="px-6 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl font-black text-xs transition-all">تعديل الملف</button>
+                  </div>
+              </div>
+          )}
 
+          {/* Top 3 Podium */}
+          {topThree.length > 0 && (
+              <div className="flex flex-col items-center gap-10">
+                  <div className="flex items-end justify-center gap-4 md:gap-12 w-full">
+                      {/* Rank 2 */}
+                      {topThree[1] && (
+                          <div className="flex flex-col items-center gap-4 animate-in slide-in-from-bottom-10 duration-1000 delay-200">
+                              <div className="relative group">
+                                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-[6px] border-slate-300 p-1.5 bg-card shadow-2xl relative z-10 overflow-hidden">
+                                      <img src={topThree[1].photoURL || "/logo/logo.png"} alt="2" className="w-full h-full object-cover rounded-full" />
+                                  </div>
+                                  <div className="absolute -top-3 -right-3 w-10 h-10 bg-slate-300 rounded-2xl flex items-center justify-center text-black font-black z-20 shadow-xl border-4 border-card">2</div>
+                              </div>
+                              <div className="text-center">
+                                  <h3 className="font-black text-foreground text-lg truncate max-w-[120px]">{topThree[1].displayName?.split(' ')[0]}</h3>
+                                  <p className="text-primary font-black text-xs">{Math.round(topThree[1].totalPoints)} نقطة</p>
+                              </div>
+                          </div>
+                      )}
+
+                      {/* Rank 1 */}
+                      {topThree[0] && (
+                          <div className="flex flex-col items-center gap-6 animate-in slide-in-from-bottom-12 duration-1000">
+                              <div className="relative group scale-110">
+                                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 text-primary animate-pulse"><Crown className="w-12 h-12 fill-current" /></div>
+                                  <div className="w-32 h-32 md:w-44 md:h-44 rounded-full border-[8px] border-primary p-2 bg-card shadow-[0_20px_50px_rgba(212,175,55,0.3)] relative z-10 overflow-hidden">
+                                      <img src={topThree[0].photoURL || "/logo/logo.png"} alt="1" className="w-full h-full object-cover rounded-full" />
+                                  </div>
+                                  <div className="absolute -top-4 -right-4 w-12 h-12 bg-primary rounded-[1.2rem] flex items-center justify-center text-[#064E3B] font-black z-20 shadow-2xl border-4 border-card text-xl">1</div>
+                              </div>
+                              <div className="text-center">
+                                  <h3 className="font-black text-foreground text-2xl truncate max-w-[160px]">{topThree[0].displayName?.split(' ')[0]}</h3>
+                                  <p className="text-primary font-black text-lg">{Math.round(topThree[0].totalPoints)} نقطة</p>
+                              </div>
+                          </div>
+                      )}
+
+                      {/* Rank 3 */}
+                      {topThree[2] && (
+                          <div className="flex flex-col items-center gap-4 animate-in slide-in-from-bottom-10 duration-1000 delay-500">
+                              <div className="relative group">
+                                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-[6px] border-amber-700 p-1.5 bg-card shadow-2xl relative z-10 overflow-hidden">
+                                      <img src={topThree[2].photoURL || "/logo/logo.png"} alt="3" className="w-full h-full object-cover rounded-full" />
+                                  </div>
+                                  <div className="absolute -top-3 -right-3 w-10 h-10 bg-amber-700 rounded-2xl flex items-center justify-center text-white font-black z-20 shadow-xl border-4 border-card">3</div>
+                              </div>
+                              <div className="text-center">
+                                  <h3 className="font-black text-foreground text-lg truncate max-w-[120px]">{topThree[2].displayName?.split(' ')[0]}</h3>
+                                  <p className="text-primary font-black text-xs">{Math.round(topThree[2].totalPoints)} نقطة</p>
+                              </div>
+                          </div>
+                      )}
+                  </div>
+              </div>
+          )}
+
+          {/* Quests */}
+          {activeQuests.length > 0 && (
+              <div className="space-y-6">
+                  <div className="flex items-center justify-between px-4">
+                      <h3 className="text-2xl font-black text-foreground">المهام والمنافسات</h3>
+                      <LayoutDashboard className="w-6 h-6 text-primary/40" />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {activeQuests.map(q => {
+                          const isDone = completedQuests.includes(q.id);
+                          return (
+                              <button 
+                                key={q.id} 
+                                disabled={isDone}
+                                onClick={() => handleQuestClick(q)}
+                                className={`flex items-center justify-between p-6 rounded-[2.5rem] bg-card border transition-all text-right group ${isDone ? 'opacity-50 grayscale border-border' : 'border-primary/20 hover:border-primary hover:shadow-2xl active:scale-95'}`}
+                              >
+                                  <div className="flex items-center gap-4">
+                                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${isDone ? 'bg-emerald-500/10 text-emerald-500' : 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-black transition-all'}`}>
+                                          {isDone ? <ShieldCheck className="w-7 h-7" /> : <Star className="w-7 h-7 fill-current" />}
+                                      </div>
+                                      <div className="text-right">
+                                          <p className="text-lg font-black text-foreground mb-0.5">{q.title}</p>
+                                          <p className="text-xs font-bold text-foreground/40">{isDone ? "تم إكمال المهمة بنجاح ✅" : "ابدأ الآن واجمع النقاط"}</p>
+                                      </div>
+                                  </div>
+                                  <div className={`px-5 py-2 rounded-2xl font-black ${isDone ? 'bg-emerald-500/10 text-emerald-500' : 'bg-primary/20 text-primary'}`}>
+                                      {isDone ? "تم" : `+${q.points}`}
+                                  </div>
+                              </button>
+                          );
+                      })}
+                  </div>
+              </div>
+          )}
+
+          {/* Leaderboard List */}
+          <div className="space-y-8 pb-40">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                  <h3 className="text-3xl font-black text-foreground">ترتيب المتسابقين</h3>
+                  <div className="flex flex-wrap items-center justify-center gap-2 p-2 bg-foreground/5 rounded-[2rem] border border-border">
+                      {[
+                          { id: "global", label: "العام" },
+                          { id: "governorate", label: "المحافظة" },
+                          { id: "quran", label: "القرآن" },
+                          { id: "athkar", label: "الأذكار" },
+                          { id: "listen", label: "الاستماع" }
+                      ].map(tab => (
+                          <button 
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id as any)}
+                            className={`px-6 py-2 rounded-2xl font-black text-xs transition-all ${activeTab === tab.id ? 'bg-primary text-[#064E3B] shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
+                          >
+                              {tab.label}
+                          </button>
+                      ))}
+                  </div>
+              </div>
+
+              <div className="bg-card border border-border rounded-[3rem] overflow-hidden shadow-2xl">
+                  <div className="p-8 border-b border-border bg-foreground/[0.02] hidden md:flex items-center text-xs font-black text-foreground/20 uppercase tracking-[0.3em]">
+                      <div className="w-16">المركز</div>
+                      <div className="flex-1">المتسابق</div>
+                      <div className="w-40 text-center">الإحصائيات</div>
+                      <div className="w-32 text-left">النقاط</div>
+                  </div>
+                  <div className="divide-y divide-border">
+                      {others.length === 0 && topThree.length === 0 ? (
+                          <div className="p-20 text-center text-foreground/20 font-black">لا توجد بيانات حالياً.. كن أول المنافسين!</div>
+                      ) : (
+                          sortedLeaderboard.map((entry, index) => (
+                              <div key={entry.id} className={`flex items-center p-6 md:p-8 hover:bg-foreground/[0.02] transition-colors group gap-6 ${userData?.uid === entry.uid ? 'bg-primary/5' : ''}`}>
+                                  <div className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center font-black text-lg shrink-0 ${index === 0 ? 'bg-primary text-black' : index === 1 ? 'bg-slate-300 text-black' : index === 2 ? 'bg-amber-700 text-white' : 'bg-foreground/5 text-foreground/30'}`}>
+                                      {index + 1}
+                                  </div>
+                                  
+                                  <div className="flex items-center gap-5 flex-1 min-w-0">
+                                      <div className="w-16 h-16 rounded-[1.5rem] border-2 border-border p-1 bg-card shrink-0 overflow-hidden relative group-hover:border-primary transition-colors">
+                                          <img src={entry.photoURL || "/logo/logo.png"} alt={entry.username} className="w-full h-full object-cover rounded-xl" />
+                                      </div>
+                                      <div className="text-right min-w-0">
+                                          <div className="flex items-center gap-2 mb-1">
+                                              <span className="font-black text-lg md:text-xl text-foreground truncate">{entry.displayName || entry.username}</span>
+                                              {index < 3 && <Trophy className="w-4 h-4 text-primary" />}
+                                          </div>
+                                          <div className="flex items-center gap-3">
+                                              <span className="text-[10px] font-bold text-foreground/30 uppercase tracking-widest">@{entry.username}</span>
+                                              <div className="flex items-center gap-1 text-[10px] text-primary font-black bg-primary/10 px-2 py-0.5 rounded-lg">
+                                                  <MapPin className="w-2.5 h-2.5" />
+                                                  <span>{entry.governorate}</span>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+
+                                  <div className="hidden lg:flex items-center gap-4 w-40 justify-center">
+                                      <div className="flex flex-col items-center gap-1 opacity-20 hover:opacity-100 transition-opacity" title="نقاط القرآن">
+                                          <BookOpen className="w-4 h-4" />
+                                          <span className="text-[9px] font-black">{Math.round(entry.quranPoints || 0)}</span>
+                                      </div>
+                                      <div className="flex flex-col items-center gap-1 opacity-20 hover:opacity-100 transition-opacity" title="نقاط الأذكار">
+                                          <Fingerprint className="w-4 h-4" />
+                                          <span className="text-[9px] font-black">{Math.round(entry.athkarPoints || 0)}</span>
+                                      </div>
+                                      <div className="flex flex-col items-center gap-1 opacity-20 hover:opacity-100 transition-opacity" title="نقاط الاستماع">
+                                          <Headphones className="w-4 h-4" />
+                                          <span className="text-[9px] font-black">{Math.round(entry.listenPoints || 0)}</span>
+                                      </div>
+                                  </div>
+
+                                  <div className="text-left shrink-0">
+                                      <div className="flex items-center gap-2 bg-primary/10 border border-primary/20 px-5 py-2 rounded-2xl">
+                                          <Star className="w-4 h-4 text-primary fill-primary" />
+                                          <span className="text-2xl font-black text-primary">{Math.round(entry.totalPoints)}</span>
+                                      </div>
+                                  </div>
+                              </div>
+                          ))
+                      )}
+                  </div>
+              </div>
+          </div>
       </div>
 
       {/* Profile Setup Modal */}
       {showProfileSetup && (
         <div className="fixed inset-0 z-[3000] flex items-center justify-center p-4">
-           <div className="absolute inset-0 bg-black backdrop-blur-md" />
-           <div className="relative w-full max-w-lg bg-[#0a0a0a] border border-[#d4af37]/30 rounded-[3rem] shadow-[0_0_50px_rgba(212,175,55,0.1)] p-10 flex flex-col items-center animate-in zoom-in-95 duration-500">
-              <div className="w-20 h-20 rounded-[2rem] bg-[#d4af37]/10 flex items-center justify-center mb-6 border border-[#d4af37]/20">
-                 <ShieldCheck className="w-10 h-10 text-[#d4af37]" />
+           <div className="absolute inset-0 bg-black/90 backdrop-blur-xl" />
+           <div className="relative w-full max-w-lg bg-[#064E3B] border border-primary/30 rounded-[3rem] shadow-[0_0_100px_rgba(212,175,55,0.2)] p-12 flex flex-col items-center animate-in zoom-in-95 duration-500 overflow-hidden">
+              <div className="absolute inset-0 islamic-pattern opacity-10" />
+              
+              <div className="relative z-10 w-full flex flex-col items-center">
+                  <div className="w-24 h-24 rounded-[2rem] bg-white/10 flex items-center justify-center mb-8 border border-white/20 text-primary">
+                      <ShieldCheck className="w-12 h-12" />
+                  </div>
+                  <h3 className="text-3xl font-black text-white mb-2">إكمال الملف الشخصي</h3>
+                  <p className="text-white/50 text-sm font-bold mb-10 text-center">أهلاً بك في رحاب القرآن! يرجى إدخال بياناتك للمشاركة في المنافسات</p>
+
+                  <form onSubmit={handleProfileSubmit} className="w-full space-y-6">
+                      {setupError && <div className="bg-red-500/20 border border-red-500/40 text-red-400 text-xs font-bold p-5 rounded-2xl text-center">{setupError}</div>}
+                      
+                      <div className="space-y-3">
+                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] pr-4">الاسم الذي سيظهر للناس</label>
+                          <input 
+                            required
+                            maxLength={20}
+                            value={setupData.displayName}
+                            onChange={e => setSetupData({...setupData, displayName: e.target.value})}
+                            className="w-full bg-white/5 border border-white/10 rounded-3xl py-5 px-8 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-white font-black"
+                            placeholder="مثلاً: خادم القرآن ✨"
+                          />
+                      </div>
+
+                      <div className="space-y-3">
+                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] pr-4">الاسم المميز (إنجليزي فقط)</label>
+                          <input 
+                            required
+                            maxLength={15}
+                            value={setupData.username}
+                            onChange={e => setSetupData({...setupData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '')})}
+                            className="w-full bg-white/5 border border-white/10 rounded-3xl py-5 px-8 text-left outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-white font-mono"
+                            placeholder="username123"
+                          />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-3">
+                              <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] pr-4">المحافظة</label>
+                              <select 
+                                value={setupData.governorate}
+                                onChange={e => setSetupData({...setupData, governorate: e.target.value})}
+                                className="w-full bg-white/5 border border-white/10 rounded-3xl py-5 px-6 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-white font-black appearance-none"
+                              >
+                                {GOVERNORATES.map(gov => <option key={gov} value={gov} className="bg-[#064E3B]">{gov}</option>)}
+                              </select>
+                          </div>
+                          <div className="space-y-3">
+                              <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] pr-4">رقم الهاتف</label>
+                              <input 
+                                required
+                                type="tel"
+                                value={setupData.phone}
+                                onChange={e => setSetupData({...setupData, phone: e.target.value})}
+                                className="w-full bg-white/5 border border-white/10 rounded-3xl py-5 px-6 text-center outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-white font-mono"
+                                placeholder="01XXXXXXXX"
+                              />
+                          </div>
+                      </div>
+
+                      <button 
+                        type="submit"
+                        className="w-full py-6 bg-primary text-[#064E3B] rounded-[2.5rem] font-black text-xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all mt-6"
+                      >
+                          بدء المنافسة الآن
+                      </button>
+                  </form>
               </div>
-              <h3 className="text-2xl font-black text-white font-arabic mb-2">إكمال الملف الشخصي</h3>
-              <p className="text-white/50 text-sm font-bold font-arabic mb-8 text-center">أهلاً بك! يرجى إدخال بياناتك للمشاركة في المسابقات</p>
-
-              <form onSubmit={handleProfileSubmit} className="w-full space-y-6">
-                 {setupError && (
-                   <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-[11px] font-bold p-4 rounded-xl text-center font-arabic animate-shake">
-                     {setupError}
-                   </div>
-                 )}
-                 
-                 <div className="space-y-2">
-                    <label className="text-xs font-bold text-white/50 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
-                       الاسم المستعار / الذي يظهر للناس (عادي بأي لغة)
-                       <User className="w-3 h-3" />
-                    </label>
-                    <input 
-                      required
-                      maxLength={20}
-                      value={setupData.displayName}
-                      onChange={e => setSetupData({...setupData, displayName: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all font-arabic text-white placeholder-white/20"
-                      placeholder="مثلاً: خادم القرآن ✨"
-                    />
-                 </div>
-
-                 <div className="space-y-2">
-                    <label className="text-xs font-bold text-white/50 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
-                       الاسم المميز (حروف إنجليزية وأرقام فقط، بدون مسافات)
-                       <User className="w-3 h-3" />
-                    </label>
-                    <input 
-                      required
-                      maxLength={15}
-                      value={setupData.username}
-                      onChange={e => setSetupData({...setupData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '')})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all font-mono text-white placeholder-white/20"
-                      placeholder="مثلاً: youssef123"
-                      dir="ltr"
-                    />
-                 </div>
-
-                 <div className="space-y-2">
-                    <label className="text-xs font-bold text-white/50 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
-                       رقم الهاتف (للتواصل عند الفوز)
-                       <Phone className="w-3 h-3" />
-                    </label>
-                    <input 
-                      required
-                      type="tel"
-                      value={setupData.phone}
-                      onChange={e => setSetupData({...setupData, phone: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all font-mono text-white placeholder-white/20"
-                      placeholder="01XXXXXXXXX"
-                    />
-                 </div>
-
-                 <div className="space-y-2">
-                    <label className="text-xs font-bold text-white/50 uppercase tracking-widest mr-2 flex items-center gap-2 justify-end">
-                       المحافظة
-                       <MapPin className="w-3 h-3" />
-                    </label>
-                    <select 
-                      value={setupData.governorate}
-                      onChange={e => setSetupData({...setupData, governorate: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all font-arabic appearance-none text-white"
-                    >
-                       {GOVERNORATES.map(gov => <option key={gov} value={gov} className="bg-[#111] text-white">{gov}</option>)}
-                    </select>
-                 </div>
-
-                 <button 
-                   type="submit"
-                   className="w-full py-5 bg-[#d4af37] text-black rounded-[2rem] font-black text-lg shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:scale-[1.02] active:scale-95 transition-all mt-4"
-                 >
-                    بدء المنافسة الآن
-                 </button>
-              </form>
            </div>
         </div>
       )}

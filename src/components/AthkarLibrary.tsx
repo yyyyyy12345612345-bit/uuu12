@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Search, ChevronLeft, ChevronRight, BookOpen, Share2, Copy, Sparkles } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, BookOpen, Share2, Copy, Sparkles, Star, Heart, Bookmark, ArrowLeft } from "lucide-react";
 import { startThikrTimer, endThikrTimer } from "@/lib/points";
 
 interface Category {
@@ -16,6 +16,15 @@ interface Thikr {
   REPEAT: string;
   TRANSLATED_TEXT: string;
 }
+
+const CATEGORY_DESCRIPTIONS: Record<string, string> = {
+    "1": "ابدأ يومك بنور الذكر وطمأنينة القلب",
+    "2": "طمأنينة المساء وحفظ الله في الليل",
+    "3": "لحفظ النفس عند المنام وراحة الروح",
+    "4": "الذكر عند الاستيقاظ وشكر النعمة",
+    "5": "جوامع الكلم من التنزيل الحكيم",
+    "6": "ما صح عن خير الأنام في كل حال",
+};
 
 export function AthkarLibrary() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -64,64 +73,24 @@ export function AthkarLibrary() {
     }
   }, [search, categories]);
 
-  useEffect(() => {
-    const container = document.querySelector('.daily-hub-container');
-    if (container) {
-      container.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }, [selectedCategory]);
-
-  // Points Tracking Observer for Athkar
-  useEffect(() => {
-    if (!selectedCategory || athkar.length === 0) return;
-
-    const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const thikrId = entry.target.getAttribute("data-thikr-id");
-            if (thikrId) {
-              endThikrTimer(thikrId, 0.5).then(res => {
-                if (res?.success) {
-                   console.log(`Earned 0.5 points for Thikr ${thikrId}`);
-                }
-              });
-              startThikrTimer(thikrId);
-            }
-          }
-        });
-      },
-      { threshold: 0.8 } // Must see 80% of the Thikr to start counting
-    );
-
-    const thikrElements = document.querySelectorAll("[data-thikr-id]");
-    thikrElements.forEach(el => observer.observe(el));
-
-    return () => observer.disconnect();
-  }, [selectedCategory, athkar]);
-
   if (selectedCategory) {
     return (
-      <div className="flex flex-col gap-8 animate-in slide-in-from-left-6 duration-700 pb-24">
-        {/* Header Section */}
-        <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-8 animate-in fade-in duration-700 pb-40 font-arabic">
+        {/* Detail Header */}
+        <div className="flex flex-col gap-6">
             <button 
                 onClick={() => { setSelectedCategory(null); setAthkar([]); }}
-                className="flex items-center gap-2 text-[#8a6d3b] hover:text-[#d4af37] transition-all self-start"
+                className="flex items-center gap-3 text-primary font-black hover:opacity-70 transition-all self-start bg-primary/10 px-6 py-3 rounded-2xl"
             >
-                <ChevronLeft className="w-5 h-5 translate-y-[1px]" />
-                <span className="font-bold font-arabic">العودة إلى المكتبة الشاملة</span>
+                <ArrowLeft className="w-5 h-5" />
+                <span>العودة للمكتبة</span>
             </button>
 
-            <div className="relative overflow-hidden p-8 rounded-[2.5rem] border-2 border-[#d4af37]/30 bg-[#06402B] text-white shadow-2xl">
-                <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/islamic-art.png')" }} />
-                
-                <div className="relative z-10 flex flex-col items-center">
-                    <div className="w-12 h-1 bg-[#d4af37] rounded-full mb-4 opacity-50" />
-                    <h3 className="text-3xl font-black text-center mb-2 font-arabic tracking-tight drop-shadow-md">
-                        {selectedCategory.TITLE}
-                    </h3>
-                    <div className="flex items-center gap-2 text-[#d4af37] text-sm font-bold uppercase tracking-widest">
+            <div className="relative bg-[#064E3B] border border-primary/30 rounded-[3rem] p-10 text-white shadow-2xl overflow-hidden">
+                <div className="absolute inset-0 islamic-pattern opacity-10" />
+                <div className="relative z-10 flex flex-col items-center text-center">
+                    <h3 className="text-4xl font-black mb-4 drop-shadow-lg">{selectedCategory.TITLE}</h3>
+                    <div className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs">
                         <Sparkles className="w-4 h-4" />
                         <span>حصن المسلم الشريف</span>
                         <Sparkles className="w-4 h-4" />
@@ -131,118 +100,106 @@ export function AthkarLibrary() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-24">
-             <div className="w-12 h-12 border-4 border-[#d4af37] border-t-transparent rounded-full animate-spin shadow-lg" />
-          </div>
+            <div className="flex justify-center py-20"><div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>
         ) : (
-          <div className="space-y-8">
-            {athkar.map((t, idx) => (
-              <div 
-                key={idx} 
-                data-thikr-id={`${selectedCategory.ID}-${idx}`}
-                className="relative bg-card p-6 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] border-r-8 border-r-secondary border border-border shadow-xl overflow-hidden group hover:shadow-2xl transition-all"
-              >
-                  <div className="absolute inset-0 opacity-[0.03] pointer-events-none islamic-pattern" />
-                  
-                  <div className="absolute top-0 right-0 w-24 h-24 pointer-events-none opacity-[0.05] group-hover:opacity-[0.1] transition-opacity">
-                      <svg viewBox="0 0 100 100" className="w-full h-full fill-secondary">
-                          <path d="M100 0 L100 100 Q50 50 0 0 Z" />
-                      </svg>
-                  </div>
-
-                  <div className="flex items-center justify-between mb-8">
-                      <div className="bg-foreground/5 px-4 py-1.5 rounded-full border border-border/40">
-                          <span className="text-[10px] font-black text-foreground/40 tracking-widest">الذكر {idx + 1}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                         <div className="w-2 h-2 rounded-full bg-primary" />
-                         <div className="w-2 h-2 rounded-full bg-primary/40" />
-                         <div className="w-2 h-2 rounded-full bg-primary/20" />
-                      </div>
-                  </div>
-                  
-                  <p className="text-2xl md:text-4xl font-arabic leading-[2] md:leading-[2.4] text-foreground text-center mb-10 font-bold drop-shadow-sm">
-                    {t.ARABIC_TEXT}
-                  </p>
-
-                  <div className="flex flex-col md:flex-row items-center justify-between gap-8 pt-8 border-t border-border/50">
-                      <div className="flex items-center gap-6">
-                         <div className="flex flex-col items-center">
-                            <div className="w-16 h-16 rounded-[1.5rem] bg-secondary shadow-lg flex flex-col items-center justify-center border-2 border-primary/30 transform group-hover:scale-105 transition-transform overflow-hidden relative">
-                                <div className="absolute inset-0 bg-primary/10 opacity-30" />
-                                <span className="relative z-10 text-[8px] text-primary font-black uppercase mb-1">تكرار</span>
-                                <span className="relative z-10 text-2xl font-black text-white leading-none">{t.REPEAT || "1"}</span>
+            <div className="space-y-6">
+                {athkar.map((t, idx) => (
+                    <div key={idx} className="bg-card border border-border rounded-[3rem] p-8 md:p-12 shadow-xl hover:shadow-2xl transition-all relative group overflow-hidden">
+                        <div className="absolute top-0 left-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
+                            <BookOpen className="w-40 h-40" />
+                        </div>
+                        <div className="flex items-center justify-between mb-8 relative z-10">
+                            <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] bg-primary/10 px-4 py-1.5 rounded-full border border-primary/20">الذكر {idx + 1}</span>
+                            <div className="flex gap-2">
+                                <button className="p-3 rounded-2xl bg-foreground/5 text-foreground/40 hover:text-primary transition-all"><Copy className="w-5 h-5" /></button>
+                                <button className="p-3 rounded-2xl bg-foreground/5 text-foreground/40 hover:text-primary transition-all"><Share2 className="w-5 h-5" /></button>
                             </div>
-                         </div>
-                         {t.TRANSLATED_TEXT && (
-                             <p className="text-sm text-foreground/60 font-arabic max-w-[240px] leading-relaxed italic">
-                                {t.TRANSLATED_TEXT}
-                             </p>
-                         )}
-                      </div>
-
-                       <div className="flex items-center gap-4">
-                           <button className="flex items-center gap-2 px-5 py-3 bg-foreground/5 rounded-2xl text-foreground/60 hover:text-white hover:bg-[#06402B] transition-all border border-transparent hover:border-[#d4af37]/30">
-                              <Copy className="w-5 h-5" />
-                              <span className="text-sm font-bold font-arabic">نسخ</span>
-                           </button>
-                           <button className="flex items-center gap-2 px-5 py-3 bg-foreground/5 rounded-2xl text-foreground/60 hover:text-white hover:bg-[#06402B] transition-all border border-transparent hover:border-[#d4af37]/30">
-                              <Share2 className="w-5 h-5" />
-                              <span className="text-sm font-bold font-arabic">مشاركة</span>
-                           </button>
-                       </div>
-                  </div>
-              </div>
-            ))}
-          </div>
+                        </div>
+                        <p className="text-3xl md:text-5xl font-black leading-[1.8] md:leading-[2] text-foreground text-center mb-10 relative z-10 font-arabic">
+                            {t.ARABIC_TEXT}
+                        </p>
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-10 border-t border-border/50 relative z-10">
+                             <div className="flex items-center gap-4">
+                                <div className="w-20 h-20 rounded-[1.5rem] bg-[#064E3B] flex flex-col items-center justify-center text-white border-2 border-primary shadow-xl">
+                                    <span className="text-[8px] font-black uppercase opacity-60">تكرار</span>
+                                    <span className="text-3xl font-black">{t.REPEAT || "١"}</span>
+                                </div>
+                                {t.TRANSLATED_TEXT && <p className="text-sm text-foreground/40 italic font-bold max-w-xs">{t.TRANSLATED_TEXT}</p>}
+                             </div>
+                             <button className="flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground rounded-2xl font-black hover:scale-105 active:scale-95 transition-all shadow-lg">
+                                <Bookmark className="w-5 h-5" />
+                                <span>تم القراءة</span>
+                             </button>
+                        </div>
+                    </div>
+                ))}
+            </div>
         )}
       </div>
     );
   }
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-1000">
-      {/* Balanced Search Bar */}
-      <div className="relative group max-w-xl mx-auto">
-          <div className="relative">
-              <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-foreground/40 group-focus-within:text-[#06402B] transition-colors" />
+    <div className="space-y-12 animate-in fade-in duration-1000 font-arabic pb-40">
+      {/* Search Header */}
+      <div className="flex flex-col items-center gap-8 text-center max-w-2xl mx-auto">
+          <div className="space-y-4">
+              <h2 className="text-5xl font-black text-foreground">المكتبة الشاملة</h2>
+              <p className="text-foreground/40 font-bold text-lg leading-relaxed">ابحث في كنوز الأذكار والأدعية اليومية من صحيح السنة النبوية</p>
+          </div>
+          <div className="relative w-full group">
+              <Search className="absolute right-6 top-1/2 -translate-y-1/2 text-foreground/20 group-focus-within:text-primary transition-colors" />
               <input 
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="ابحث عن ذكر..."
-                className="w-full bg-foreground/[0.03] border border-border rounded-2xl py-5 pr-14 pl-8 text-lg text-foreground outline-none focus:border-[#06402B]/30 transition-all font-arabic"
+                placeholder="ابحث عن موضوع أو ذكر..."
+                className="w-full bg-card border border-border rounded-[2rem] py-6 pr-16 pl-8 text-xl text-foreground outline-none focus:border-primary/40 focus:shadow-2xl transition-all font-black shadow-lg"
               />
           </div>
       </div>
 
       {loading && categories.length === 0 ? (
-        <div className="flex justify-center py-20">
-           <div className="w-12 h-12 border-4 border-[#06402B] border-t-transparent rounded-full animate-spin shadow-md" />
-        </div>
+        <div className="flex justify-center py-20"><div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-          {filteredCategories.map((c) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredCategories.slice(0, 100).map((c, idx) => (
             <button 
               key={c.ID}
               onClick={() => { setSelectedCategory(c); fetchAthkar(c.ID); }}
-              className="flex items-center justify-between p-6 rounded-[2rem] bg-card/60 dark:bg-foreground/[0.03] backdrop-blur-md border border-border hover:border-primary/40 hover:bg-primary/[0.03] transition-all group text-right shadow-sm active:scale-95"
+              className="flex items-center justify-between p-8 rounded-[2.5rem] bg-card border border-border hover:border-primary/40 hover:bg-primary/[0.03] transition-all group text-right shadow-sm active:scale-[0.98]"
             >
-              <div className="flex items-center gap-5 relative z-10">
-                 <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-all shadow-inner">
-                    <BookOpen className="w-6 h-6 text-primary group-hover:text-black transition-colors" />
+              <div className="flex items-center gap-6">
+                 <div className="w-16 h-16 rounded-[1.5rem] bg-foreground/5 flex items-center justify-center group-hover:bg-primary transition-all border border-border group-hover:border-primary/20">
+                    <BookOpen className="w-7 h-7 text-foreground/20 group-hover:text-primary-foreground transition-all" />
                  </div>
-                 <div className="flex flex-col items-start text-right">
-                    <span className="text-lg font-bold text-foreground group-hover:text-primary transition-colors font-arabic leading-tight">
-                        {c.TITLE}
-                    </span>
-                    <span className="text-[9px] text-foreground/30 font-bold uppercase tracking-widest mt-1">حصن المسلم</span>
+                 <div className="text-right">
+                    <h3 className="text-xl font-black text-foreground group-hover:text-primary transition-colors mb-1">{c.TITLE}</h3>
+                    <p className="text-xs text-foreground/30 font-bold uppercase tracking-widest">{CATEGORY_DESCRIPTIONS[c.ID] || "حصن المسلم الشريف"}</p>
                  </div>
               </div>
-              <div className="w-8 h-8 rounded-full bg-foreground/5 flex items-center justify-center group-hover:bg-primary/20 transition-all">
-                <ChevronRight className="w-5 h-5 text-foreground/20 group-hover:text-primary transition-all" />
+              <div className="w-10 h-10 rounded-full bg-foreground/5 flex items-center justify-center group-hover:bg-primary/10 transition-all">
+                <ChevronRight className="w-6 h-6 text-foreground/10 group-hover:text-primary transition-all" />
               </div>
             </button>
           ))}
+
+          {/* Full Hisn Al-Muslim Card */}
+          <div className="md:col-span-2 mt-8">
+              <div className="relative bg-[#064E3B] rounded-[3rem] p-12 text-white border border-primary/30 overflow-hidden shadow-2xl group cursor-pointer hover:scale-[1.01] transition-transform">
+                  <div className="absolute inset-0 islamic-pattern opacity-10" />
+                  <div className="absolute right-0 bottom-0 p-12 opacity-5 translate-y-1/2 group-hover:translate-y-0 transition-transform">
+                      <Star className="w-64 h-64" />
+                  </div>
+                  <div className="relative z-10 max-w-lg text-right">
+                      <h3 className="text-4xl font-black mb-4">حصن المسلم كاملاً</h3>
+                      <p className="text-white/60 font-bold text-lg mb-8 leading-relaxed">استكشف أكثر من ٢٠٠ باب من الأذكار النبوية المختارة بعناية لحفظ المسلم في يومه وليله.</p>
+                      <button className="flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground rounded-2xl font-black hover:scale-105 active:scale-95 transition-all">
+                          <LayoutDashboard className="w-5 h-5" />
+                          <span>فتح الفهرس الكامل</span>
+                      </button>
+                  </div>
+              </div>
+          </div>
         </div>
       )}
     </div>
