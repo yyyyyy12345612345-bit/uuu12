@@ -162,7 +162,7 @@ function CatchAllContent() {
           <div key={`video-${activeView === 'video'}`} className={`h-full w-full ${activeView === 'video' ? 'block view-transition' : 'hidden'}`}>
              <div className="flex h-full w-full overflow-hidden bg-[#064E3B]">
                 {/* Desktop Sidebar */}
-                <aside className="hidden lg:flex w-[400px] h-full border-r border-white/5 flex-col p-8 overflow-y-auto no-scrollbar gap-10 pb-40 relative z-50 bg-black/20 backdrop-blur-3xl">
+                <aside className="hidden lg:flex w-[400px] h-full border-r border-border flex-col p-8 overflow-y-auto no-scrollbar gap-10 pb-40 relative z-50 bg-background/50 backdrop-blur-3xl">
                    <div className="absolute inset-0 islamic-pattern opacity-[0.02] pointer-events-none" />
                    <div className="relative z-10 flex flex-col gap-10">
                       <SurahSelector />

@@ -326,44 +326,47 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
       </main>
 
       {/* Floating Action Bar */}
-      <footer className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-[#064E3B]/80 backdrop-blur-3xl border border-white/10 rounded-[3rem] px-8 py-4 flex items-center gap-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[100]">
-          <div className="flex items-center gap-3">
+      <footer className="fixed bottom-28 left-1/2 -translate-x-1/2 bg-[#064E3B]/90 backdrop-blur-3xl border border-white/10 rounded-[2rem] px-6 py-3 flex items-center gap-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[100]">
+          <div className="flex items-center gap-2">
               <button 
                 onClick={() => updateState({ mushafFontSize: Math.max(16, state.mushafFontSize - 2) })}
-                className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center font-black transition-all"
+                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-white flex items-center justify-center font-black transition-all text-xs"
               >A-</button>
-              <div className="px-4 text-center">
-                  <p className="text-[8px] font-black text-primary uppercase mb-0.5">الخط</p>
-                  <p className="text-lg font-black text-white leading-none">{state.mushafFontSize}</p>
-              </div>
               <button 
                 onClick={() => updateState({ mushafFontSize: Math.min(60, state.mushafFontSize + 2) })}
-                className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center font-black transition-all"
+                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-white flex items-center justify-center font-black transition-all text-xs"
               >A+</button>
           </div>
 
-          <div className="w-px h-10 bg-white/10" />
+          <div className="w-px h-8 bg-white/10" />
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
               <button 
                 onClick={() => { const prevPage = (pages[0]?.page || 1) - 3; if (prevPage >= 1) { setPages([]); fetchPageBatch(prevPage, true); } }}
-                className="w-12 h-12 rounded-2xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all"
+                className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all"
               >
-                  <ChevronRight className="w-6 h-6" />
+                  <ChevronRight className="w-5 h-5" />
               </button>
-              <div className="text-center min-w-[80px]">
-                  <p className="text-[9px] font-black text-primary uppercase mb-0.5">الصفحة</p>
-                  <p className="text-2xl font-black text-white leading-none">{pages[pages.length-1]?.page || ".."}</p>
+              <div className="text-center min-w-[100px]">
+                  <p className="text-[10px] font-black text-primary font-arabic mb-0.5">
+                    {(() => {
+                      const vKey = pages[pages.length-1]?.verses[0]?.verse_key;
+                      if (!vKey) return "سورة ...";
+                      const sId = parseInt(vKey.split(':')[0]);
+                      return `سورة ${surahsData.find(s => s.id === sId)?.name || ""}`;
+                    })()}
+                  </p>
+                  <p className="text-xs font-bold text-white/40 leading-none">صفحة {pages[pages.length-1]?.page || ".."}</p>
               </div>
               <button 
                 onClick={() => { const nextPage = (pages[pages.length-1]?.page || 1) + 1; if (nextPage <= 604) fetchPageBatch(nextPage); }}
-                className="w-12 h-12 rounded-2xl bg-primary text-black hover:scale-110 flex items-center justify-center transition-all shadow-[0_0_20px_rgba(212,175,55,0.3)]"
+                className="w-10 h-10 rounded-xl bg-primary text-black hover:scale-110 flex items-center justify-center transition-all shadow-[0_0_20px_rgba(212,175,55,0.3)]"
               >
-                  <ChevronLeft className="w-6 h-6" />
+                  <ChevronLeft className="w-5 h-5" />
               </button>
           </div>
 
-          <div className="w-px h-10 bg-white/10" />
+          <div className="w-px h-8 bg-white/10" />
 
           <button 
             onClick={() => {
@@ -375,9 +378,9 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
                     playVerse(0, 0);
                 }
             }}
-            className={`w-14 h-14 rounded-full flex items-center justify-center transition-all shadow-xl ${isPlayingPage ? 'bg-red-500 text-white' : 'bg-primary text-black hover:scale-110'}`}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-xl ${isPlayingPage ? 'bg-red-500 text-white' : 'bg-primary text-black hover:scale-110'}`}
           >
-              {isPlayingPage ? <X className="w-7 h-7" /> : <Play className="w-7 h-7 fill-current" />}
+              {isPlayingPage ? <X className="w-6 h-6" /> : <Play className="w-6 h-6 fill-current" />}
           </button>
       </footer>
 
