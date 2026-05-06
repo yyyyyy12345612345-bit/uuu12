@@ -117,7 +117,7 @@ export function Mushaf() {
                 <div className="relative z-10 flex flex-col h-full">
                     {/* Header */}
                     <header className="p-8 md:p-12 text-center">
-                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mb-2 block">Sacred Serenity</span>
+
                         <h1 className={`font-['Amiri'] text-4xl md:text-6xl font-black mb-4 drop-shadow-2xl`}>المصحف الشريف</h1>
                         <div className="flex items-center justify-center gap-4">
                             <div className="h-px w-12 bg-primary/30" />

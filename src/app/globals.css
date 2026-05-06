@@ -2,7 +2,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* Sacred Serenity - Light Theme (Neutral/Premium) */
+  /* Light Theme (Neutral/Premium) */
   --background: 220 20% 98%;
   --foreground: 220 30% 10%;
   
@@ -26,7 +26,7 @@
 }
 
 .dark {
-  /* Sacred Serenity - Dark Theme (Midnight Charcoal & Gold) */
+  /* Dark Theme (Midnight Charcoal & Gold) */
   --background: 220 25% 4%; /* Deep Midnight Charcoal */
   --foreground: 210 20% 98%;
   
@@ -238,7 +238,7 @@ body {
   scroll-snap-type: x proximity;
 }
 
-/* Arabic Text & Typography from Sacred Serenity */
+/* Arabic Text & Typography */
 .font-arabic {
   font-family: 'Amiri', 'Tajawal', serif;
   line-height: 1.6;

@@ -39,12 +39,12 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/logo/logo.png?v=15", sizes: "32x32", type: "image/png" },
-      { url: "/logo/logo.png?v=15", sizes: "192x192", type: "image/png" },
-      { url: "/logo/logo.png?v=15", sizes: "512x512", type: "image/png" },
+      { url: "/logo/logo.png?v=25", sizes: "32x32", type: "image/png" },
+      { url: "/logo/logo.png?v=25", sizes: "192x192", type: "image/png" },
+      { url: "/logo/logo.png?v=25", sizes: "512x512", type: "image/png" },
     ],
-    shortcut: "/logo/logo.png?v=15",
-    apple: "/logo/logo.png?v=15",
+    shortcut: "/logo/logo.png?v=25",
+    apple: "/logo/logo.png?v=25",
   }
 };
 
@@ -89,9 +89,9 @@ export default function RootLayout({
           <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[150px] opacity-40" />
         </div>
 
-        <link rel="icon" href="/logo/logo.png?v=15" type="image/png" sizes="32x32" />
-        <link rel="shortcut icon" href="/logo/logo.png?v=15" type="image/png" />
-        <link rel="apple-touch-icon" href="/logo/logo.png?v=15" />
+        <link rel="icon" href="/logo/logo.png?v=25" type="image/png" sizes="32x32" />
+        <link rel="shortcut icon" href="/logo/logo.png?v=25" type="image/png" />
+        <link rel="apple-touch-icon" href="/logo/logo.png?v=25" />
         
         {/* Arabic Video Fonts */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -103,9 +103,20 @@ export default function RootLayout({
             var link = document.querySelector("link[rel*='icon']") || document.createElement('link');
             link.type = 'image/png';
             link.rel = 'shortcut icon';
-            link.href = '/logo/logo.png?v=20';
+            link.href = '/logo/logo.png?v=25';
             document.getElementsByTagName('head')[0].appendChild(link);
-          })();
+            
+            // Handle ChunkLoadError for better deployment UX
+            window.addEventListener('error', function(e) {
+              if (e.message && e.message.includes('ChunkLoadError')) {
+                window.location.reload();
+              }
+            }, true);
+            window.addEventListener('unhandledrejection', function(e) {
+              if (e.reason && e.reason.name === 'ChunkLoadError') {
+                window.location.reload();
+              }
+            });
         ` }} />
 
 

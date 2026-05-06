@@ -74,7 +74,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile }: G
         onClick={onClose} 
       />
       
-      {/* Sacred Sidebar */}
+      {/* Sidebar Content */}
       <div className="relative w-full max-w-[380px] h-full bg-[#064E3B] text-white shadow-[-20px_0_100px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden animate-in slide-in-from-right duration-500">
         
         {/* Background Pattern */}
@@ -162,7 +162,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile }: G
 
         {/* Footer Credits */}
         <div className="p-8 border-t border-white/10 text-center relative z-10 bg-[#064E3B]/80 backdrop-blur-md">
-            <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-2">Sacred Serenity v1.9</p>
+
             <div className="flex items-center justify-center gap-2 text-white/40">
                 <Heart className="w-3 h-3 text-red-500 fill-red-500" />
                 <span className="text-[9px] font-bold">صنع بكل حب لكل مسلم</span>

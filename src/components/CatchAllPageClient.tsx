@@ -79,7 +79,7 @@ function CatchAllContent() {
       {/* Global Top Bar - Logo + Install + Feedback */}
       <header className="h-12 shrink-0 bg-background/80 backdrop-blur-xl border-b border-border px-3 md:px-8 flex items-center justify-between z-[200]">
         <div className="flex items-center gap-2">
-          <img src="/logo/logo.png?v=20" alt="قرآن" className="w-7 h-7 rounded-full border border-primary/20 p-0.5" />
+          <img src="/logo/logo.png?v=25" alt="قرآن" className="w-7 h-7 rounded-full border border-primary/20 p-0.5" />
           <span className="text-xs font-bold font-arabic text-primary hidden sm:block">قرآن</span>
         </div>
         <div className="flex items-center gap-2">

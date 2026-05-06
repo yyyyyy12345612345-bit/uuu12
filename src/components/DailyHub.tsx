@@ -240,7 +240,7 @@ export function DailyHub() {
       <div className="relative z-10 flex flex-col md:flex-row items-center md:items-end justify-between gap-6 mb-10 animate-in fade-in duration-700">
           <div className="text-center md:text-right">
               <div className="flex items-center justify-center md:justify-end gap-2 mb-2">
-                  <span className="bg-primary/20 text-primary text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">Sacred Serenity</span>
+
                   <Sparkles className="w-4 h-4 text-primary" />
               </div>
               <h2 className="text-3xl md:text-6xl font-black mb-1 tracking-tight">مرحباً، {userData?.displayName || "أحمد"}</h2>

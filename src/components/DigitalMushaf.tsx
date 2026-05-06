@@ -207,7 +207,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
               <div className="flex items-center gap-3 mt-1">
                   <div className="h-[1px] w-8 bg-primary/40" />
                   <Star className="w-2 h-2 text-primary fill-primary" />
-                  <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em]">Sacred Serenity</span>
+
                   <Star className="w-2 h-2 text-primary fill-primary" />
                   <div className="h-[1px] w-8 bg-primary/40" />
               </div>
