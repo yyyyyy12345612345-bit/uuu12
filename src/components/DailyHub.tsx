@@ -325,32 +325,52 @@ export function DailyHub() {
                         <span className="text-[10px] font-black text-primary uppercase tracking-widest">Daily Quests</span>
                     </div>
                     <div className="space-y-4">
-                        {[
-                            { id: 'q1', title: 'أذكار الصباح', info: 'تم الإنجاز في 07:30 ص', status: 'done', icon: Sun },
-                            { id: 'q2', title: 'قراءة سورة الملك', info: 'قبل النوم', status: 'todo', icon: BookOpen },
-                            { id: 'q3', title: 'صلاة الضحى', info: 'ركعتان فأكثر', status: 'todo', icon: Star }
-                        ].map((q) => (
-                            <div key={q.id} className={`flex items-center justify-between p-6 rounded-[2.5rem] border transition-all ${
-                                q.status === 'done' ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-card border-border hover:border-primary/20'
-                            }`}>
-                                <div className="flex items-center gap-6">
-                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
-                                        q.status === 'done' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-primary/10 text-primary'
-                                    }`}>
-                                        <q.icon className="w-7 h-7" />
+                        {globalQuests.length > 0 ? (
+                            globalQuests.map((q) => {
+                                const isCompleted = completedQuestIds.has(q.id);
+                                return (
+                                    <div 
+                                        key={q.id} 
+                                        onClick={() => handleQuestClick(q)}
+                                        className={`flex items-center justify-between p-6 rounded-[2.5rem] border transition-all cursor-pointer group ${
+                                            isCompleted ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-card border-border hover:border-primary/20'
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-6">
+                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${
+                                                isCompleted ? 'bg-emerald-500/10 text-emerald-500' : 'bg-primary/10 text-primary'
+                                            }`}>
+                                                {q.target === 'video' ? <Sparkles className="w-7 h-7" /> : q.target === 'daily' ? <Sun className="w-7 h-7" /> : <BookOpen className="w-7 h-7" />}
+                                            </div>
+                                            <div className="text-right">
+                                                <h4 className="text-lg font-black">{q.title}</h4>
+                                                <p className="text-xs text-foreground/40 font-bold">اربح {q.points} نقطة عند الإنجاز</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            {isCompleted ? (
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] font-black text-emerald-500 uppercase">تم الإنجاز</span>
+                                                    <CheckCircle2 className="w-7 h-7 text-emerald-500" />
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-3">
+                                                    <button 
+                                                        onClick={(e) => handleClaimQuest(e, q)}
+                                                        className="px-4 py-2 bg-primary text-black rounded-xl text-[10px] font-black hover:scale-105 transition-all"
+                                                    >استلام</button>
+                                                    <ArrowUpRight className="w-5 h-5 text-foreground/20 group-hover:text-primary transition-colors" />
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="text-right">
-                                        <h4 className="text-lg font-black">{q.title}</h4>
-                                        <p className="text-xs text-foreground/40 font-bold">{q.info}</p>
-                                    </div>
-                                </div>
-                                {q.status === 'done' ? (
-                                    <CheckCircle2 className="w-7 h-7 text-emerald-500" />
-                                ) : (
-                                    <div className="w-3 h-3 rounded-full bg-primary/20" />
-                                )}
+                                );
+                            })
+                        ) : (
+                            <div className="p-12 bg-card border border-border border-dashed rounded-[3rem] text-center">
+                                <p className="text-foreground/20 font-black text-sm uppercase tracking-widest">لا توجد مهام متاحة حالياً</p>
                             </div>
-                        ))}
+                        )}
                     </div>
                 </div>
             </div>

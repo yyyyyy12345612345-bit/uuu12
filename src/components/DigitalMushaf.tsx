@@ -342,27 +342,43 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
 
           <div className="flex items-center gap-4">
               <button 
-                onClick={() => { const prevPage = (pages[0]?.page || 1) - 3; if (prevPage >= 1) { setPages([]); fetchPageBatch(prevPage, true); } }}
-                className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all"
+                disabled={isLoading}
+                onClick={() => { 
+                    const p = pages[0]?.page || currentPage;
+                    const target = Math.max(1, p - 1);
+                    if (target !== p) {
+                        setPages([]);
+                        fetchPageBatch(target, true);
+                    }
+                }}
+                className={`w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                  <ChevronRight className="w-5 h-5" />
+                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ChevronRight className="w-5 h-5" />}
               </button>
               <div className="text-center min-w-[100px]">
                   <p className="text-[10px] font-black text-primary font-arabic mb-0.5">
                     {(() => {
-                      const vKey = pages[pages.length-1]?.verses[0]?.verse_key;
+                      const vKey = pages[0]?.verses[0]?.verse_key || pages[pages.length-1]?.verses[0]?.verse_key;
                       if (!vKey) return "سورة ...";
                       const sId = parseInt(vKey.split(':')[0]);
                       return `سورة ${surahsData.find(s => s.id === sId)?.name || ""}`;
                     })()}
                   </p>
-                  <p className="text-xs font-bold text-white/40 leading-none">صفحة {pages[pages.length-1]?.page || ".."}</p>
+                  <p className="text-xs font-bold text-white/40 leading-none">صفحة {pages[0]?.page || currentPage || ".."}</p>
               </div>
               <button 
-                onClick={() => { const nextPage = (pages[pages.length-1]?.page || 1) + 1; if (nextPage <= 604) fetchPageBatch(nextPage); }}
-                className="w-10 h-10 rounded-xl bg-primary text-black hover:scale-110 flex items-center justify-center transition-all shadow-[0_0_20px_rgba(212,175,55,0.3)]"
+                disabled={isLoading}
+                onClick={() => { 
+                    const p = pages[pages.length-1]?.page || currentPage;
+                    const target = Math.min(604, p + 1);
+                    if (target <= 604 && target !== p) {
+                        setPages([]);
+                        fetchPageBatch(target, true);
+                    }
+                }}
+                className={`w-10 h-10 rounded-xl bg-primary text-black hover:scale-110 flex items-center justify-center transition-all shadow-[0_0_20px_rgba(212,175,55,0.3)] ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                  <ChevronLeft className="w-5 h-5" />
+                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ChevronLeft className="w-5 h-5" />}
               </button>
           </div>
 
