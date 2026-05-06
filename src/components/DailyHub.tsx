@@ -130,15 +130,45 @@ export function DailyHub() {
   };
 
   const handleQuestClick = (quest: any) => {
-    if (!quest.target) return;
-    switch (quest.target) {
-      case 'mushaf': router.push('/mushaf'); break;
-      case 'mushaf-full': router.push('/mushaf-full'); break;
-      case 'daily': setActiveTab('dashboard'); break;
-      case 'video': router.push('/video'); break;
-      case 'surah': router.push(`/audio?surahId=${quest.surahId}`); break;
-      case 'rank': router.push('/rank'); break;
-      default: break;
+    console.log("Quest clicked:", quest);
+    if (!quest.target) {
+      console.warn("Quest has no target:", quest);
+      return;
+    }
+    
+    // Support both direct target string or legacy mapping
+    const target = quest.target.toLowerCase();
+    console.log("Navigating to target:", target);
+
+    switch (target) {
+      case 'mushaf': 
+        router.push('/mushaf'); 
+        break;
+      case 'mushaf-full': 
+      case 'digital':
+        router.push('/mushaf-full'); 
+        break;
+      case 'daily': 
+        setActiveTab('dashboard'); 
+        break;
+      case 'video': 
+        router.push('/video'); 
+        break;
+      case 'surah': 
+        if (quest.surahId) {
+          console.log("Deep linking to Surah:", quest.surahId);
+          router.push(`/audio?surahId=${quest.surahId}`);
+        } else {
+          router.push('/audio');
+        }
+        break;
+      case 'rank': 
+      case 'leaderboard':
+        router.push('/rank'); 
+        break;
+      default: 
+        console.warn("Unknown quest target:", target);
+        break;
     }
   };
 
