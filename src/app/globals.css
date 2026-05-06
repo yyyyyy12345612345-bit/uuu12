@@ -2,49 +2,49 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* Premium Light Theme (Warm/Paper tone) */
-  --background: 35 30% 96%;
-  --foreground: 230 40% 4%;
+  /* Sacred Serenity - Light Theme (Tranquil/Premium) */
+  --background: 35 20% 98%;
+  --foreground: 0 0% 11%;
   
-  --card: 35 30% 98%;
-  --card-foreground: 230 40% 4%;
+  --card: 35 20% 100%;
+  --card-foreground: 0 0% 11%;
   
-  --primary: 43 96% 40%;
-  --primary-foreground: 35 30% 96%;
+  --primary: 161 85% 14%; /* Deep Emerald Green */
+  --primary-foreground: 35 20% 98%;
   
-  --secondary: 161 94% 20%;
-  --secondary-foreground: 35 30% 96%;
+  --secondary: 43 66% 52%; /* Soft Gold */
+  --secondary-foreground: 35 20% 98%;
   
-  --accent: 35 20% 90%;
-  --accent-foreground: 230 40% 4%;
+  --accent: 43 66% 90%;
+  --accent-foreground: 161 85% 14%;
   
-  --border: 35 15% 85%;
-  --input: 35 15% 85%;
-  --ring: 43 96% 40%;
+  --border: 161 85% 90%;
+  --input: 161 85% 90%;
+  --ring: 161 85% 14%;
   
-  --radius: 2rem;
+  --radius: 1.5rem; /* Softened geometry */
 }
 
 .dark {
-  /* Dark Theme */
-  --background: 230 40% 4%;
-  --foreground: 210 40% 98%;
+  /* Sacred Serenity - Dark Theme (Deep Emerald Focus) */
+  --background: 161 85% 4%; /* Near black emerald */
+  --foreground: 35 20% 98%;
   
-  --card: 230 40% 6%;
-  --card-foreground: 210 40% 98%;
+  --card: 161 85% 6%;
+  --card-foreground: 35 20% 98%;
   
-  --primary: 43 96% 58%; /* Golden Yellow */
-  --primary-foreground: 230 40% 4%;
+  --primary: 43 66% 52%; /* Gold shines in dark mode */
+  --primary-foreground: 161 85% 4%;
   
-  --secondary: 161 94% 30%; /* Deep Emerald */
-  --secondary-foreground: 210 40% 98%;
+  --secondary: 161 85% 20%; /* Muted emerald */
+  --secondary-foreground: 35 20% 98%;
   
-  --accent: 230 40% 12%;
-  --accent-foreground: 210 40% 98%;
+  --accent: 161 85% 12%;
+  --accent-foreground: 43 66% 52%;
   
-  --border: 230 40% 15%;
-  --input: 230 40% 15%;
-  --ring: 43 96% 58%;
+  --border: 161 85% 15%;
+  --input: 161 85% 15%;
+  --ring: 43 66% 52%;
 }
 
 @theme inline {

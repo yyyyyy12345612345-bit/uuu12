@@ -61,8 +61,10 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         if (plan === "free" && count >= 5) {
           setIsLimitReached(true);
         } else if (plan === "starter" && count >= 50) {
-          // In a real app we'd check the month reset, but for now 50 total for starter too if you want
           setIsLimitReached(true);
+        } else if (plan === "trial") {
+          // Trial is unlimited for its duration (duration check would be elsewhere)
+          setIsLimitReached(false);
         } else {
           setIsLimitReached(false);
         }
@@ -435,7 +437,9 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
 
       // ── Watermark for Free Users ──
       const isFree = !userPlan || userPlan.plan === "free";
-      if (isFree) {
+      const isTrial = userPlan?.plan === "trial";
+      
+      if (isFree && !isTrial) {
         ctx.save();
         ctx.fillStyle = "rgba(255, 255, 255, 0.12)";
         ctx.font = "bold 24px Arial";
@@ -541,12 +545,18 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             <div className="flex items-center justify-between w-full mb-6">
                 <div className="flex flex-col items-start">
                     <span className="text-[10px] text-foreground/30 font-bold uppercase">الخطة الحالية</span>
-                    <span className="text-sm font-black text-primary">{userPlan?.plan === 'free' ? 'المجانية' : userPlan?.plan === 'starter' ? 'الهواة' : 'بريميوم'}</span>
+                    <span className="text-sm font-black text-primary">
+                        {userPlan?.plan === 'free' ? 'المجانية' : 
+                         userPlan?.plan === 'trial' ? 'عرض الشهر المجاني 🎁' :
+                         userPlan?.plan === 'starter' ? 'الهواة' : 'بريميوم'}
+                    </span>
                 </div>
                 <div className="text-right">
                     <span className="text-[10px] text-foreground/30 font-bold uppercase">الرندرة المتبقية</span>
                     <p className="text-sm font-black">
-                        {userPlan?.plan === 'free' ? `${5 - (userPlan?.count || 0)} / 5` : userPlan?.plan === 'starter' ? `${50 - (userPlan?.count || 0)} / 50` : 'غير محدود'}
+                        {userPlan?.plan === 'free' ? `${5 - (userPlan?.count || 0)} / 5` : 
+                         userPlan?.plan === 'trial' ? 'غير محدود (تجريبي)' :
+                         userPlan?.plan === 'starter' ? `${50 - (userPlan?.count || 0)} / 50` : 'غير محدود'}
                     </p>
                 </div>
             </div>
