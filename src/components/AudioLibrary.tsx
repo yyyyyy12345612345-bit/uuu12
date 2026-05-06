@@ -184,40 +184,38 @@ export function AudioLibrary() {
       {/* ═══ SCROLLABLE CONTENT ═══ */}
       <div className="flex-1 overflow-y-auto pb-56">
 
-        {/* ── Spotify Style Now Playing ── */}
-        <div className="relative px-8 pt-10 pb-12 flex flex-col items-center">
+        {/* ── Spotify Style Now Playing - Optimized for Compactness ── */}
+        <div className="relative px-6 pt-6 pb-6 flex flex-col items-center">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent opacity-40" />
           
-          {/* Compact Surah Card (Replaces Large Album Art) */}
-          <div className="relative z-10 w-full max-w-[200px] aspect-[4/3] mb-8 group">
-             <div className="absolute inset-0 bg-primary/10 rounded-3xl blur-xl group-hover:bg-primary/20 transition-all duration-700" />
-             <div className="relative h-full w-full rounded-3xl bg-gradient-to-br from-[#0d1411] to-[#0a0f0d] border border-white/5 shadow-2xl overflow-hidden flex flex-col items-center justify-center p-6 text-center">
+          {/* Compact Surah Card */}
+          <div className="relative z-10 w-full max-w-[160px] aspect-[4/3] mb-4 group">
+             <div className="absolute inset-0 bg-primary/10 rounded-2xl blur-lg group-hover:bg-primary/20 transition-all duration-700" />
+             <div className="relative h-full w-full rounded-2xl bg-gradient-to-br from-[#0d1411] to-[#0a0f0d] border border-white/5 shadow-xl overflow-hidden flex flex-col items-center justify-center p-4 text-center">
                 <div className="absolute inset-0 islamic-pattern opacity-[0.03]" />
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                    <Headphones className="w-6 h-6 text-primary" />
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                    <Headphones className="w-5 h-5 text-primary" />
                 </div>
-                <span className="text-2xl font-black text-primary font-['Amiri']">سورة {currentSurah.name}</span>
-                <span className="text-[8px] text-white/20 font-black uppercase tracking-[0.2em] mt-2">جاري الاستماع الآن</span>
+                <span className="text-xl font-black text-primary font-['Amiri']">سورة {currentSurah.name}</span>
              </div>
           </div>
 
           {/* Track Metadata */}
-          <div className="relative z-10 text-center mb-8 w-full">
+          <div className="relative z-10 text-center mb-4 w-full">
             <button
               onClick={() => setShowReciters(true)}
-              className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all group"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all group"
             >
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-sm font-bold text-white/70 group-hover:text-primary transition-colors">
+              <span className="text-xs font-bold text-white/60 group-hover:text-primary transition-colors">
                 {selectedReciter.name}
               </span>
-              <ChevronDown className="w-4 h-4 text-white/30" />
+              <ChevronDown className="w-3 h-3 text-white/30" />
             </button>
           </div>
 
           {/* Spotify Progress Section */}
-          <div className="relative z-10 w-full max-w-md px-4 mb-10">
-            <div className="relative group h-6 flex items-center">
+          <div className="relative z-10 w-full max-w-sm px-4 mb-6">
+            <div className="relative group h-4 flex items-center">
                 <input
                   type="range"
                   min="0"
@@ -225,51 +223,51 @@ export function AudioLibrary() {
                   value={progress}
                   onChange={handleSeek}
                   dir="rtl"
-                  className="absolute w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary z-10 hover:h-2 transition-all"
+                  className="absolute w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary z-10"
                 />
                 <div 
-                  className="absolute right-0 top-1/2 -translate-y-1/2 h-1.5 bg-primary rounded-full pointer-events-none transition-all group-hover:h-2"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 h-1 bg-primary rounded-full pointer-events-none"
                   style={{ width: `${progress}%` }}
                 />
-            </div>
-            <div className="flex justify-between items-center mt-2">
-              <span className="text-[10px] font-black text-white/30 font-mono tracking-tighter">{fmt(currentTime)}</span>
-              <span className="text-[10px] font-black text-white/30 font-mono tracking-tighter">{fmt(duration)}</span>
             </div>
           </div>
 
           {/* Main Controls Section */}
-          <div className="relative z-10 flex items-center justify-between w-full max-w-md px-6">
+          <div className="relative z-10 flex items-center justify-between w-full max-w-sm px-4">
             <button 
               onClick={() => setIsShuffle(!isShuffle)}
-              className={`p-2 transition-all ${isShuffle ? 'text-primary' : 'text-white/20 hover:text-white/40'}`}
+              className={`p-2 transition-all ${isShuffle ? 'text-primary' : 'text-white/20'}`}
             >
-              <Shuffle className={`w-5 h-5 ${isShuffle ? 'drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]' : ''}`} />
+              <Shuffle className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center gap-8">
-                <button onClick={prevSurah} className="text-white/40 hover:text-white transition-all hover:scale-110 active:scale-90">
-                  <SkipBack className="w-7 h-7 fill-current" />
+            <div className="flex items-center gap-6">
+                <button onClick={prevSurah} className="text-white/40 hover:text-white transition-all">
+                  <SkipBack className="w-6 h-6 fill-current" />
                 </button>
 
                 <button 
                   onClick={togglePlay}
-                  className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-black shadow-[0_0_40px_rgba(212,175,55,0.3)] hover:scale-110 active:scale-95 transition-all"
+                  className="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-black shadow-lg hover:scale-105 active:scale-95 transition-all"
                 >
-                  {isPlaying ? <Pause className="w-8 h-8 fill-current" /> : <Play className="w-8 h-8 fill-current translate-x-1" />}
+                  {isPlaying ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current translate-x-1" />}
                 </button>
 
-                <button onClick={nextSurah} className="text-white/40 hover:text-white transition-all hover:scale-110 active:scale-90">
-                  <SkipForward className="w-7 h-7 fill-current" />
+                <button onClick={nextSurah} className="text-white/40 hover:text-white transition-all">
+                  <SkipForward className="w-6 h-6 fill-current" />
                 </button>
             </div>
 
             <button 
               onClick={() => setIsRepeat(!isRepeat)}
-              className={`p-2 transition-all ${isRepeat ? 'text-primary' : 'text-white/20 hover:text-white/40'}`}
+              className={`p-2 transition-all ${isRepeat ? 'text-primary' : 'text-white/20'}`}
             >
-              <Repeat className={`w-5 h-5 ${isRepeat ? 'drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]' : ''}`} />
+              <Repeat className="w-4 h-4" />
             </button>
+          </div>
+          
+          <div className="mt-4 opacity-10">
+              <span className="text-[8px] font-black uppercase tracking-[0.2em]">Audio Player V2.0</span>
           </div>
         </div>
 
