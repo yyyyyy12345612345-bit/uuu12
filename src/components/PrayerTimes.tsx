@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { 
   Clock, MapPin, Bell, BellOff, Volume2, Settings2, 
   RefreshCw, Map as MapIcon, Calendar, X, Globe,
-  ArrowRight, Play, Check, ChevronDown
+  ArrowRight, Play, Check, ChevronDown, Sparkles, Music, VolumeX
 } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
 import { Capacitor } from '@capacitor/core';
@@ -17,9 +17,6 @@ import {
   PRAYER_NAMES_AR,
 } from "@/lib/notifications";
 
-
-// PrayerTimesData is imported from notifications.ts
-
 interface PrayerSetting {
     athanEnabled: boolean;
     notificationsEnabled: boolean;
@@ -27,9 +24,8 @@ interface PrayerSetting {
     offset: number; 
 }
 
-
 const MUEZZINS = [
-  { id: "haram", name: "أذان الحرم المكي", file: "/adhan/الحرم المكي.mp3" },
+  { id: "haram", name: "الحرم المكي - الشيخ علي الملا", file: "/adhan/الحرم المكي.mp3" },
   { id: "naqshandi", name: "الشيخ سيد النقشبندي", file: "/adhan/الشيخ سيد النقشبندى.p3.mp3" },
   { id: "rifat", name: "الشيخ محمد رفعت", file: "/adhan/الشيخ محمد رفعت.mp3" },
 ];
@@ -46,7 +42,6 @@ export function PrayerTimes() {
   const [customCountry, setCustomCountry] = useState("");
   const [customTestTime, setCustomTestTime] = useState("");
 
-  // Athan & Notification Settings
   const { state: editorState, updateState: updateEditor } = useEditor();
   const activeSettingsPrayer = editorState.activeSettingsPrayer;
   const setActiveSettingsPrayer = (val: string | null) => updateEditor({ activeSettingsPrayer: val });
@@ -59,7 +54,6 @@ export function PrayerTimes() {
     Isha: { athanEnabled: true, notificationsEnabled: true, muezzinId: "haram", offset: 0 }
   });
 
-  // Convert old prayer settings to new notification format for scheduling
   const getNotifSettings = () => {
     const result: Record<string, { enabled: boolean; soundEnabled: boolean; offset: number }> = {};
     for (const key of ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']) {
@@ -69,8 +63,6 @@ export function PrayerTimes() {
     return result;
   };
 
-
-
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlayingTest, setIsPlayingTest] = useState(false);
 
@@ -79,27 +71,17 @@ export function PrayerTimes() {
     try {
       let url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=5`;
       if (lat && lon) url = `https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=5`;
-      
       const res = await fetch(url);
       const data = await res.json();
       if (data.code === 200) {
         setTimes(data.data.timings);
-        // Save to cache
         localStorage.setItem("prayer_times_cache", JSON.stringify(data.data.timings));
         localStorage.setItem("prayer_location_cache", `${city}، ${country}`);
-
-        if (!lat) {
-            setLocationName(`${city}، ${country}`);
-            localStorage.setItem("user_city", city);
-            localStorage.setItem("user_country", country);
-        }
+        if (!lat) setLocationName(`${city}، ${country}`);
       }
     } catch (err) {
-      console.error("Prayer times fetch failed, trying cache", err);
       const cached = localStorage.getItem("prayer_times_cache");
-      const cachedLoc = localStorage.getItem("prayer_location_cache");
       if (cached) setTimes(JSON.parse(cached));
-      if (cachedLoc) setLocationName(cachedLoc);
     } finally {
       setLoading(false);
     }
@@ -108,12 +90,7 @@ export function PrayerTimes() {
   const detectLocation = () => {
     if (!navigator.geolocation) return;
     setLoading(true);
-    // Analytics: تتبع التحديد التلقائي للموقع
-    // @ts-ignore
-    window.gtag?.('event', 'location_detect_gps');
-    
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
+    navigator.geolocation.getCurrentPosition(async (pos) => {
         const { latitude, longitude } = pos.coords;
         await fetchTimes("", "", latitude, longitude);
         try {
@@ -127,146 +104,41 @@ export function PrayerTimes() {
     );
   };
 
-  // Schedule notifications whenever times or settings change
   useEffect(() => {
     if (!times) return;
     schedulePrayerNotifications(times, getNotifSettings());
   }, [times, prayerSettings]);
 
   useEffect(() => {
-    // 1. Loading cached data immediately for offline speed
     const cachedTimes = localStorage.getItem("prayer_times_cache");
     const cachedLoc = localStorage.getItem("prayer_location_cache");
-    if (cachedTimes) {
-      const parsed = JSON.parse(cachedTimes);
-      setTimes(parsed);
-    }
+    if (cachedTimes) setTimes(JSON.parse(cachedTimes));
     if (cachedLoc) setLocationName(cachedLoc);
-
-    // 2. Refresh from network in background
-    const savedCity = localStorage.getItem("user_city");
-    const savedCountry = localStorage.getItem("user_country");
-    if (savedCity && savedCountry) fetchTimes(savedCity, savedCountry);
-    else fetchTimes("Cairo", "Egypt");
-
-    // 3. Load Per-Prayer Settings
-    try {
-        const savedSettings = localStorage.getItem("prayer_settings_v2");
-        if (savedSettings) {
-            const parsed = JSON.parse(savedSettings);
-            if (parsed && typeof parsed === 'object') setPrayerSettings(parsed);
-        }
-    } catch (e) {
-        console.error("Failed to load settings", e);
-        localStorage.removeItem("prayer_settings_v2");
-    }
-
-    // 4. Setup Timer
+    fetchTimes("Cairo", "Egypt");
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-
-    // 5. Auto-request notification permission
-    setTimeout(() => requestNotificationPermission(), 3000);
-
     return () => clearInterval(timer);
   }, []);
-
-
-
-  // Check for Athan triggering (Foreground)
-  useEffect(() => {
-    if (!times) return;
-    
-    const interval = setInterval(() => {
-      checkForegroundPrayer(times, getNotifSettings(), (prayerKey) => {
-        const setting = prayerSettings[prayerKey];
-        if (setting?.athanEnabled && audioRef.current) {
-          const muezzin = MUEZZINS.find(m => m.id === setting.muezzinId) || MUEZZINS[0];
-          audioRef.current.src = muezzin.file;
-          audioRef.current.play().catch(err => console.log("Audio play blocked", err));
-        }
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [times, prayerSettings]);
-
-
-  // Use imported PRAYER_NAMES_AR from notifications.ts
-  const prayerNamesAr = PRAYER_NAMES_AR;
 
   const getNextPrayer = () => {
     if (!times) return null;
     const now = new Date();
-    const list = Object.entries(prayerNamesAr).map(([id, name]) => {
+    const list = Object.entries(PRAYER_NAMES_AR).map(([id, name]) => {
       const setting = prayerSettings[id];
       const [h, m] = (times[id as keyof PrayerTimesData] as string).split(':').map(Number);
       const d = new Date(now);
       d.setHours(h, m + (setting?.offset || 0), 0, 0);
       return { id, name, date: d };
     });
-
     let next = list.find(p => p.date > now);
     if (!next) next = { ...list[0], date: new Date(list[0].date.getTime() + 24 * 60 * 60 * 1000) };
-
     const diff = next.date.getTime() - now.getTime();
     const hrs = Math.floor(diff / (1000 * 60 * 60));
     const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
     return { ...next, remaining: `${hrs}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}` };
   };
 
   const nextPrayer = getNextPrayer();
-
-  const scheduleTestNotification = async () => {
-    const ok = await sendTestNotification();
-    if (ok) {
-      alert("تم جدولة إشعار تجريبي بعد 5 ثوانٍ. أغلق التطبيق الآن لتجربته.");
-    } else {
-      alert("فشل إرسال الإشعار التجريبي. تأكد من تفعيل الإشعارات.");
-    }
-  };
-
-  const scheduleCustomTest = async () => {
-    if (!customTestTime) {
-      alert("يرجى اختيار وقت أولاً");
-      return;
-    }
-
-    const [h, m] = customTestTime.split(':').map(Number);
-    const targetDate = new Date();
-    targetDate.setHours(h, m, 0, 0);
-
-    // If time is in the past today, assume tomorrow
-    if (targetDate <= new Date()) {
-      targetDate.setDate(targetDate.getDate() + 1);
-    }
-
-    if (!Capacitor.isNativePlatform()) {
-      alert("هذه الميزة تعمل فقط على الموبايل");
-      return;
-    }
-
-    try {
-      const { LocalNotifications } = await import('@capacitor/local-notifications');
-      await LocalNotifications.schedule({
-        notifications: [{
-          id: 8888,
-          title: '🔔 تجربة الأذان المجدولة',
-          body: `موعد التجربة الذي حددته: ${customTestTime} ✅`,
-          schedule: { at: targetDate, allowWhileIdle: true },
-          sound: 'adhan',
-          channelId: 'prayer-notifications',
-          smallIcon: 'ic_notification',
-          iconColor: '#c5a059',
-        }],
-      });
-      alert(`تم جدولة تجربة الأذان بنجاح في وقت: ${customTestTime}. يمكنك إغلاق التطبيق الآن.`);
-    } catch (e) {
-      console.error(e);
-      alert("حدث خطأ أثناء الجدولة");
-    }
-  };
 
   const toggleTestAthan = () => {
     if (audioRef.current) {
@@ -274,11 +146,8 @@ export function PrayerTimes() {
             audioRef.current.pause();
             setIsPlayingTest(false);
         } else {
-            // Find the muezzin for the currently active prayer setting
-            const prayerId = activeSettingsPrayer || "Fajr";
-            const muezzinId = prayerSettings[prayerId]?.muezzinId || "haram";
+            const muezzinId = prayerSettings[nextPrayer?.id || "Fajr"]?.muezzinId || "haram";
             const muezzin = MUEZZINS.find(m => m.id === muezzinId) || MUEZZINS[0];
-
             audioRef.current.src = muezzin.file;
             audioRef.current.play();
             setIsPlayingTest(true);
@@ -287,308 +156,183 @@ export function PrayerTimes() {
   };
 
   return (
-    <div className="flex flex-col h-full p-8 md:p-16 pt-24 md:pt-16 animate-in fade-in duration-1000 overflow-y-auto no-scrollbar custom-scrollbar relative">
-      {/* Unified Background Layer */}
+    <div className="flex flex-col h-full p-6 md:p-14 pt-24 md:pt-14 overflow-y-auto no-scrollbar font-arabic relative animate-in fade-in duration-700">
+      {/* Sacred Serenity Background */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-          <div 
-              className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-[0.4] dark:opacity-[0.25]"
-              style={{ 
-                  backgroundImage: "url('/mushaf-bg.jpg.png')",
-                  filter: "sepia(0.3) brightness(0.95) contrast(1.2)"
-              }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/40 to-background" />
-          <div className="absolute inset-0 islamic-pattern opacity-[0.02] dark:opacity-[0.05]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/40 to-background" />
+          <div className="absolute inset-0 islamic-pattern opacity-[0.03] dark:opacity-[0.05]" />
+          <div className="absolute -top-20 -left-20 w-[500px] h-[500px] bg-primary/5 blur-[150px] rounded-full animate-pulse" />
       </div>
 
-      <div className="max-w-6xl mx-auto w-full flex flex-col gap-10 relative z-10 pb-40">
+      <div className="max-w-5xl mx-auto w-full flex flex-col gap-10 relative z-10 pb-40">
         
-        {/* Header Bar */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-4">
-            <div className="flex flex-col text-right">
-                <button onClick={() => setShowLocationPicker(true)} className="flex items-center gap-2 text-primary/60 hover:text-primary transition-all justify-end">
+        {/* Location & Time Header */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="text-right">
+                <div className="flex items-center justify-end gap-2 text-primary mb-2">
                     <MapPin className="w-4 h-4" />
-                    <span className="text-sm font-bold font-arabic">{locationName}</span>
-                </button>
-                <h1 className="text-4xl font-black text-foreground font-mono mt-2 tracking-tighter">
-                   {currentTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                    <button onClick={() => setShowLocationPicker(true)} className="text-lg font-black hover:opacity-70 transition-opacity underline decoration-primary/20 underline-offset-4">{locationName}</button>
+                </div>
+                <h1 className="text-6xl font-black tracking-tighter text-foreground font-mono">
+                    {currentTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })}
                 </h1>
             </div>
-
             <div className="flex items-center gap-4">
-                {Capacitor.isNativePlatform() && (
-                  <button 
-                    onClick={() => setShowAthanSettings(true)}
-                    className="p-4 rounded-2xl bg-foreground/5 border border-border text-foreground/60 hover:bg-foreground/10 hover:text-primary transition-all flex items-center gap-2 group"
-                  >
-                      <span className="text-sm font-bold font-arabic">إعدادات الأذان</span>
-                      <Settings2 className="w-5 h-5 group-hover:rotate-45 transition-transform" />
-                  </button>
-                )}
-                <button onClick={detectLocation} className="p-4 rounded-2xl bg-foreground/5 border border-border text-foreground/60 hover:text-foreground transition-all"><RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} /></button>
+                <button onClick={detectLocation} className="p-5 rounded-3xl bg-card border border-border shadow-xl hover:text-primary transition-all active:scale-95">
+                    <RefreshCw className={`w-6 h-6 ${loading ? 'animate-spin' : ''}`} />
+                </button>
+                <button onClick={() => setShowAthanSettings(true)} className="flex items-center gap-3 p-5 rounded-3xl bg-[#064E3B] text-white shadow-2xl hover:scale-105 active:scale-95 transition-all">
+                    <Music className="w-6 h-6 text-primary" />
+                    <span className="font-black">صوت الآذان</span>
+                </button>
             </div>
         </div>
 
         {/* Main Countdown Card */}
-        <div className="premium-card p-8 md:p-12 flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-br from-primary/[0.03] to-secondary/[0.03]">
-             <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-             {nextPrayer ? (
-                <>
-                    <p className="text-primary text-[10px] font-bold uppercase tracking-[0.4em] mb-4 drop-shadow-sm">الصلاة القادمة: {nextPrayer.name}</p>
-                    <p className="text-foreground text-3xl md:text-8xl font-mono font-bold tracking-widest gold-shimmer-pro leading-none">
-                      -{nextPrayer.remaining}
-                    </p>
-                    <div className="mt-8 flex items-center gap-3 glass-effect px-6 py-2 rounded-full border border-border shadow-lg">
-                         <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                         <span className="text-[10px] text-foreground/50 font-bold uppercase tracking-[0.2em]">{new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
-                    </div>
-                </>
-            ) : (
-                <div className="w-14 h-14 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-            )}
+        <div className="relative group">
+            <div className="absolute inset-0 bg-primary/10 rounded-[4rem] blur-[80px] opacity-20" />
+            <div className="relative bg-card/60 backdrop-blur-3xl border border-border rounded-[4rem] p-12 md:p-20 flex flex-col items-center justify-center text-center shadow-2xl overflow-hidden">
+                <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:scale-110 transition-transform">
+                    <Clock className="w-48 h-48 text-primary" />
+                </div>
+                
+                {nextPrayer ? (
+                    <>
+                        <div className="flex items-center gap-3 mb-6 bg-primary/10 px-6 py-2 rounded-full border border-primary/20">
+                            <Sparkles className="w-4 h-4 text-primary" />
+                            <span className="text-xs font-black text-primary uppercase tracking-widest">الصلاة القادمة: {nextPrayer.name}</span>
+                        </div>
+                        <h2 className="text-7xl md:text-9xl font-black tracking-widest text-foreground font-mono mb-8 drop-shadow-2xl">
+                            -{nextPrayer.remaining}
+                        </h2>
+                        <div className="flex items-center gap-2 text-foreground/40 font-bold">
+                            <Calendar className="w-5 h-5" />
+                            <span>{new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+                        </div>
+                    </>
+                ) : (
+                    <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+                )}
+            </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-            {!times ? (
-                [...Array(5)].map((_, i) => <div key={i} className="h-44 premium-card animate-pulse" />)
-            ) : (
-                Object.entries(prayerNamesAr).map(([id, name]) => {
-                    const time = times[id as keyof PrayerTimesData];
-                    const isNext = nextPrayer?.id === id;
-                    const setting = prayerSettings[id];
-
-                    return (
-                        <div 
-                            key={id} 
-                            onDoubleClick={() => Capacitor.isNativePlatform() && setActiveSettingsPrayer(id)}
-                            className={`premium-card p-8 flex flex-col items-center gap-6 relative group/card transition-all active:scale-[0.98] ${isNext ? 'border-primary/40 bg-primary/5' : ''}`}
-                        >
-                            {Capacitor.isNativePlatform() && (
-                                <button 
-                                    onClick={() => setActiveSettingsPrayer(id)}
-                                    className="absolute top-3 right-3 p-3 rounded-2xl bg-foreground/5 text-primary/80 border border-border shadow-lg active:scale-90 transition-all z-20"
-                                >
-                                    <Settings2 className="w-5 h-5" />
-                                </button>
-                            )}
-                            
-                            <h3 className={`text-xl font-bold font-arabic transition-all ${isNext ? 'text-primary' : 'text-foreground/60'}`}>{name}</h3>
-                            <p className={`text-3xl font-mono font-black ${isNext ? 'text-foreground scale-110' : 'text-foreground/20'}`}>
-                                {(() => {
-                                    const [h, m] = time.split(':').map(Number);
-                                    const d = new Date();
-                                    d.setHours(h, m + (setting?.offset || 0));
-                                    return d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
-                                })()}
-                            </p>
-                            
-                            {Capacitor.isNativePlatform() && (
-                                <div className="flex items-center gap-3">
-                                    <div className={`p-2 rounded-xl border transition-all ${setting?.athanEnabled ? 'bg-primary/20 border-primary/20 text-primary' : 'bg-foreground/5 border-border text-foreground/10'}`}>
-                                         {setting?.athanEnabled ? <Volume2 className="w-4 h-4" /> : <X className="w-4 h-4" />}
-                                    </div>
-                                    <div className={`p-2 rounded-xl border transition-all ${setting?.notificationsEnabled ? 'bg-emerald-500/20 border-emerald-500/20 text-emerald-500' : 'bg-foreground/5 border-border text-foreground/10'}`}>
-                                         {setting?.notificationsEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-                                    </div>
-                                </div>
-                            )}
+        {/* Prayers Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            {times && Object.entries(PRAYER_NAMES_AR).map(([id, name]) => {
+                const isNext = nextPrayer?.id === id;
+                const time = times[id as keyof PrayerTimesData];
+                return (
+                    <div 
+                        key={id}
+                        onClick={() => setActiveSettingsPrayer(id)}
+                        className={`p-8 rounded-[2.5rem] border transition-all cursor-pointer flex flex-col items-center gap-4 group ${
+                            isNext ? 'bg-[#064E3B] border-primary/40 text-white shadow-2xl scale-105' : 'bg-card border-border hover:border-primary/20 text-foreground'
+                        }`}
+                    >
+                        <span className={`text-sm font-black uppercase tracking-widest ${isNext ? 'text-primary' : 'text-foreground/40'}`}>{name}</span>
+                        <span className="text-3xl font-black font-mono">{time}</span>
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isNext ? 'bg-white/10' : 'bg-foreground/5 group-hover:bg-primary/10'}`}>
+                            {prayerSettings[id]?.notificationsEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4 text-foreground/20" />}
                         </div>
-                    );
-                })
-            )}
+                    </div>
+                );
+            })}
         </div>
 
-
-        {/* --- MODALS --- */}
-
-        {/* Prayer Specific Settings Modal */}
-        {activeSettingsPrayer && (
-            <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
-                <div className="absolute inset-0 bg-black/98 backdrop-blur-md" onClick={() => setActiveSettingsPrayer(null)} />
-                <div className="relative w-full max-w-xl premium-card p-6 md:p-10 overflow-y-auto max-h-[90vh] no-scrollbar animate-in zoom-in-95 duration-500 pb-24">
-                    <button onClick={() => setActiveSettingsPrayer(null)} className="absolute top-6 left-6 text-white/20 hover:text-white z-50"><X /></button>
-
-
-                    
-                    <div className="flex flex-col items-center mb-6 text-center">
-                        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 border border-primary/20 shadow-inner">
-                            <Clock className="w-8 h-8 text-primary" />
-                        </div>
-                        <h3 className="text-2xl font-bold text-white font-arabic">إعدادات صلاة {prayerNamesAr[activeSettingsPrayer]}</h3>
-                    </div>
-
-                    <div className="space-y-4">
-                        {/* Athan Toggle */}
-                        <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
-
-                            <div className="text-right">
-                                <p className="text-white font-bold font-arabic">صوت الأذان</p>
-                                <p className="text-[10px] text-white/20 uppercase font-bold tracking-widest mt-1">Play Athan Audio</p>
-                            </div>
-                            <button 
-                                onClick={() => {
-                                    const newSet = { ...prayerSettings, [activeSettingsPrayer]: { ...prayerSettings[activeSettingsPrayer], athanEnabled: !prayerSettings[activeSettingsPrayer].athanEnabled } };
-                                    setPrayerSettings(newSet);
-                                    localStorage.setItem("prayer_settings_v2", JSON.stringify(newSet));
-                                }}
-                                className={`w-14 h-8 rounded-full relative transition-all ${prayerSettings[activeSettingsPrayer].athanEnabled ? 'bg-primary' : 'bg-white/10'}`}
-                            >
-                                <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${prayerSettings[activeSettingsPrayer].athanEnabled ? 'left-7' : 'left-1'}`} />
-                            </button>
-                        </div>
-
-                        {/* Notifications Toggle */}
-                        <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
-                            <div className="text-right">
-                                <p className="text-white font-bold font-arabic">إشعارات الصلاة</p>
-                                <p className="text-[9px] text-white/20 uppercase font-bold tracking-widest mt-0.5">Push Notifications</p>
-                            </div>
-                            <button 
-                                onClick={async () => {
-                                    if (Notification.permission !== "granted") await Notification.requestPermission();
-                                    const newSet = { ...prayerSettings, [activeSettingsPrayer]: { ...prayerSettings[activeSettingsPrayer], notificationsEnabled: !prayerSettings[activeSettingsPrayer].notificationsEnabled } };
-                                    setPrayerSettings(newSet);
-                                    localStorage.setItem("prayer_settings_v2", JSON.stringify(newSet));
-                                }}
-                                className={`w-12 h-7 rounded-full relative transition-all ${prayerSettings[activeSettingsPrayer].notificationsEnabled ? 'bg-emerald-500' : 'bg-white/10'}`}
-                            >
-                                <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all ${prayerSettings[activeSettingsPrayer].notificationsEnabled ? 'left-6' : 'left-1'}`} />
-                            </button>
-                        </div>
-
-                        {/* Muezzin Selection for this prayer */}
-                        <div className="space-y-3">
-                            <label className="text-[9px] uppercase font-bold text-white/20 ml-2">صوت المؤذن لهذه الصلاة</label>
-                            <div className="grid grid-cols-1 gap-2">
-                                {MUEZZINS.map(m => (
-                                    <button 
-                                        key={m.id}
-                                        onClick={() => {
-                                            const newSet = { ...prayerSettings, [activeSettingsPrayer]: { ...prayerSettings[activeSettingsPrayer], muezzinId: m.id } };
-                                            setPrayerSettings(newSet);
-                                            localStorage.setItem("prayer_settings_v2", JSON.stringify(newSet));
-
-                                            // Analytics: تتبع اختيار المؤذن
-                                            // @ts-ignore
-                                            window.gtag?.('event', 'muezzin_select', { 'muezzin_name': m.name });
-                                        }}
-                                        className={`flex items-center justify-between p-4 rounded-xl border transition-all ${prayerSettings[activeSettingsPrayer].muezzinId === m.id ? 'border-primary bg-primary/10 text-primary' : 'bg-white/5 border-white/5 text-white/40 hover:bg-white/10'}`}
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            {prayerSettings[activeSettingsPrayer].muezzinId === m.id ? <Check className="w-4 h-4" /> : <div className="w-4" />}
-                                            <span className="text-sm font-bold font-arabic">{m.name}</span>
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Manual Offset Adjustment */}
-                        <div className="p-5 bg-white/5 rounded-2xl border border-white/5 space-y-4">
-                            <div className="flex items-center justify-between">
-                                <div className="text-right">
-                                    <p className="text-white font-bold font-arabic">ضبط الوقت يدوياً</p>
-                                    <p className="text-[9px] text-white/20 uppercase font-bold tracking-widest mt-0.5">Time Correction (Minutes)</p>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <button 
-                                        onClick={() => {
-                                            const current = prayerSettings[activeSettingsPrayer].offset || 0;
-                                            const newSet = { ...prayerSettings, [activeSettingsPrayer]: { ...prayerSettings[activeSettingsPrayer], offset: current - 1 } };
-                                            setPrayerSettings(newSet);
-                                            localStorage.setItem("prayer_settings_v2", JSON.stringify(newSet));
-                                        }}
-                                        className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 active:scale-90 transition-all"
-                                    >
-                                        -
-                                    </button>
-                                    <span className={`text-xl font-mono font-black ${prayerSettings[activeSettingsPrayer].offset > 0 ? 'text-emerald-400' : prayerSettings[activeSettingsPrayer].offset < 0 ? 'text-red-400' : 'text-white'}`}>
-                                        {prayerSettings[activeSettingsPrayer].offset > 0 ? `+${prayerSettings[activeSettingsPrayer].offset}` : prayerSettings[activeSettingsPrayer].offset || 0}
-                                    </span>
-                                    <button 
-                                        onClick={() => {
-                                            const current = prayerSettings[activeSettingsPrayer].offset || 0;
-                                            const newSet = { ...prayerSettings, [activeSettingsPrayer]: { ...prayerSettings[activeSettingsPrayer], offset: current + 1 } };
-                                            setPrayerSettings(newSet);
-                                            localStorage.setItem("prayer_settings_v2", JSON.stringify(newSet));
-                                        }}
-                                        className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 active:scale-90 transition-all"
-                                    >
-                                        +
-                                    </button>
-                                </div>
-                            </div>
-                            <p className="text-[9px] text-white/20 text-center font-bold">يمكنك زيادة أو تقليل الدقائق لتوافق وقت المسجد عندك بضبط دقيق.</p>
-                        </div>
-
-
-                        {/* Test Button */}
-                        <div className="grid grid-cols-1 gap-3">
-                            <button 
-                                onClick={toggleTestAthan}
-                                className={`w-full py-5 rounded-3xl font-bold flex items-center justify-center gap-3 transition-all ${isPlayingTest ? 'bg-red-500/10 border border-red-500/20 text-red-500' : 'bg-primary/20 border border-primary/20 text-primary'}`}
-                            >
-                                {isPlayingTest ? (
-                                    <><X className="w-5 h-5" /><span>إيقاف تجربة الصوت</span></>
-                                ) : (
-                                    <><Play className="w-5 h-5 translate-x-1" /><span>تجربة الصوت فقط</span></>
-                                )}
-                            </button>
-
-                            <button 
-                                onClick={scheduleTestNotification}
-                                className="w-full py-5 bg-primary/10 border border-primary/20 text-primary rounded-3xl font-bold flex items-center justify-center gap-3 active:scale-95 transition-all"
-                            >
-                                <Bell className="w-5 h-5" />
-                                <span>تجربة سريعة (5 ثوانٍ)</span>
-                            </button>
-
-                            <div className="p-5 bg-white/5 rounded-3xl border border-white/5 space-y-4">
-                                <p className="text-[10px] text-white/40 font-bold text-center uppercase tracking-widest">اختبار وقت محدد (كأنه منبه)</p>
-                                <div className="flex items-center gap-3">
-                                    <input 
-                                        type="time"
-                                        value={customTestTime}
-                                        onChange={(e) => setCustomTestTime(e.target.value)}
-                                        className="flex-1 bg-white/10 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-primary/40 text-center font-mono font-bold"
-                                    />
-                                    <button 
-                                        onClick={scheduleCustomTest}
-                                        className="px-6 py-4 bg-primary text-black rounded-2xl font-black text-xs hover:scale-105 active:scale-95 transition-all"
-                                    >
-                                        جدولة الاختبار
-                                    </button>
-                                </div>
-                                <p className="text-[9px] text-white/20 text-center">اضبط الوقت بعد دقيقة من الآن ثم أغلق التطبيق تماماً لتتأكد من عمل الأذان.</p>
-                            </div>
-                        </div>
-                    </div>
+        {/* Quick Audio Toggle Bar */}
+        <div className="bg-card border border-border p-6 rounded-[2.5rem] flex items-center justify-between shadow-xl">
+            <div className="flex items-center gap-6">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+                    <Volume2 className="w-7 h-7 text-primary" />
+                </div>
+                <div className="text-right">
+                    <h4 className="text-lg font-black">صوت الآذان الحالي</h4>
+                    <p className="text-xs text-foreground/40 font-bold">{MUEZZINS.find(m => m.id === (prayerSettings[nextPrayer?.id || 'Fajr']?.muezzinId))?.name || MUEZZINS[0].name}</p>
                 </div>
             </div>
-        )}
+            <button onClick={toggleTestAthan} className={`px-8 py-3 rounded-2xl font-black transition-all ${isPlayingTest ? 'bg-red-500/10 text-red-500' : 'bg-primary text-primary-foreground hover:scale-105'}`}>
+                {isPlayingTest ? "إيقاف" : "تجربة الصوت"}
+            </button>
+        </div>
 
+      </div>
 
-        {/* Location Picker (Old) */}
-        {showLocationPicker && (
-            <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 animat-in fade-in duration-300">
-                <div className="absolute inset-0 bg-black/95 backdrop-blur-3xl" onClick={() => setShowLocationPicker(false)} />
-                <div className="relative w-full max-w-lg premium-card p-12 overflow-hidden">
-                    <button onClick={() => setShowLocationPicker(false)} className="absolute top-8 left-8 text-white/20 hover:text-white"><X /></button>
-                    <div className="flex flex-col items-center mb-10 text-center">
-                        <div className="w-20 h-20 rounded-[2rem] bg-primary/10 flex items-center justify-center mb-6 border border-primary/20 shadow-inner">
-                            <Globe className="w-10 h-10 text-primary" />
-                        </div>
-                        <h3 className="text-3xl font-bold text-white font-arabic">تغيير المنطقة</h3>
-                    </div>
-                    <div className="space-y-6">
-                        <input value={customCity} onChange={(e) => setCustomCity(e.target.value)} placeholder="City (e.g. Cairo)" className="w-full bg-white/5 border border-white/5 rounded-2xl py-5 px-8 text-white outline-none focus:border-primary/40 transition-all font-bold" />
-                        <input value={customCountry} onChange={(e) => setCustomCountry(e.target.value)} placeholder="Country (e.g. Egypt)" className="w-full bg-white/5 border border-white/5 rounded-2xl py-5 px-8 text-white outline-none focus:border-primary/40 transition-all font-bold" />
-                        <button 
-                            onClick={async () => { 
-                                if (customCity && customCountry) { 
-                                    await fetchTimes(customCity, customCountry); 
-                                    setShowLocationPicker(false); 
-                                    // Analytics: تتبع التغيير اليدوي للموقع
+      {/* Muezzin Selection Modal */}
+      {showAthanSettings && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6">
+              <div className="absolute inset-0 bg-black/95 backdrop-blur-3xl" onClick={() => setShowAthanSettings(false)} />
+              <div className="relative w-full max-w-xl bg-card border border-border rounded-[3rem] p-10 shadow-2xl animate-in zoom-in-95 duration-500">
+                  <button onClick={() => setShowAthanSettings(false)} className="absolute top-8 left-8 text-foreground/20 hover:text-foreground"><X /></button>
+                  <div className="flex flex-col items-center mb-10 text-center">
+                      <div className="w-20 h-20 rounded-[2rem] bg-primary/10 flex items-center justify-center mb-6 border border-primary/20">
+                          <Music className="w-10 h-10 text-primary" />
+                      </div>
+                      <h3 className="text-3xl font-black">اختر المؤذن</h3>
+                      <p className="text-foreground/40 font-bold mt-2">سيتم تشغيل هذا الصوت عند دخول وقت الصلاة</p>
+                  </div>
+                  <div className="space-y-4">
+                      {MUEZZINS.map(m => (
+                          <button 
+                            key={m.id}
+                            onClick={() => {
+                                const newSet = { ...prayerSettings };
+                                Object.keys(newSet).forEach(k => newSet[k].muezzinId = m.id);
+                                setPrayerSettings(newSet);
+                                localStorage.setItem("prayer_settings_v2", JSON.stringify(newSet));
+                                setShowAthanSettings(false);
+                            }}
+                            className={`w-full p-6 rounded-[2rem] border text-right flex items-center justify-between transition-all group ${
+                                prayerSettings['Fajr'].muezzinId === m.id ? 'bg-[#064E3B] border-primary/40 text-white shadow-xl' : 'bg-foreground/5 border-transparent hover:border-primary/20'
+                            }`}
+                          >
+                              <span className="text-lg font-black">{m.name}</span>
+                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${prayerSettings['Fajr'].muezzinId === m.id ? 'bg-white/10' : 'bg-primary/10 group-hover:bg-primary transition-all'}`}>
+                                  <Check className={`w-6 h-6 ${prayerSettings['Fajr'].muezzinId === m.id ? 'text-primary' : 'text-primary group-hover:text-white'}`} />
+                              </div>
+                          </button>
+                      ))}
+                  </div>
+              </div>
+          </div>
+      )}
+
+      {/* Location Picker Modal */}
+      {showLocationPicker && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6">
+              <div className="absolute inset-0 bg-black/95 backdrop-blur-3xl" onClick={() => setShowLocationPicker(false)} />
+              <div className="relative w-full max-w-lg bg-card border border-border rounded-[3rem] p-10 shadow-2xl animate-in zoom-in-95 duration-500">
+                  <button onClick={() => setShowLocationPicker(false)} className="absolute top-8 left-8 text-foreground/20 hover:text-foreground"><X /></button>
+                  <div className="flex flex-col items-center mb-10 text-center">
+                      <div className="w-20 h-20 rounded-[2rem] bg-primary/10 flex items-center justify-center mb-6 border border-primary/20">
+                          <Globe className="w-10 h-10 text-primary" />
+                      </div>
+                      <h3 className="text-3xl font-black">تغيير المنطقة</h3>
+                  </div>
+                  <div className="space-y-6">
+                      <div className="space-y-2 text-right">
+                          <label className="text-xs font-black text-foreground/40 uppercase tracking-widest mr-4">المدينة</label>
+                          <input value={customCity} onChange={(e) => setCustomCity(e.target.value)} placeholder="القاهرة" className="w-full bg-foreground/5 border border-transparent rounded-[1.5rem] py-5 px-8 text-foreground outline-none focus:border-primary/40 transition-all font-black" />
+                      </div>
+                      <div className="space-y-2 text-right">
+                          <label className="text-xs font-black text-foreground/40 uppercase tracking-widest mr-4">الدولة</label>
+                          <input value={customCountry} onChange={(e) => setCustomCountry(e.target.value)} placeholder="مصر" className="w-full bg-foreground/5 border border-transparent rounded-[1.5rem] py-5 px-8 text-foreground outline-none focus:border-primary/40 transition-all font-black" />
+                      </div>
+                      <button 
+                        onClick={() => { fetchTimes(customCity, customCountry); setShowLocationPicker(false); }}
+                        className="w-full py-5 bg-primary text-primary-foreground rounded-[2rem] font-black text-xl shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all mt-4"
+                      >
+                          تحديث المنطقة
+                      </button>
+                  </div>
+              </div>
+          </div>
+      )}
+
+      <audio ref={audioRef} onEnded={() => setIsPlayingTest(false)} />
+    </div>
+  );
+}
+ للموقع
                                     // @ts-ignore
                                     window.gtag?.('event', 'location_update_manual', { 'city': customCity, 'country': customCountry });
                                 } 
