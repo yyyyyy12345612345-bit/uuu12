@@ -136,39 +136,31 @@ export function DailyHub() {
       return;
     }
     
-    // Support both direct target string or legacy mapping
     const target = quest.target.toLowerCase();
-    console.log("Navigating to target:", target);
+    let url = "";
 
     switch (target) {
-      case 'mushaf': 
-        router.push('/mushaf'); 
-        break;
+      case 'mushaf': url = '/mushaf'; break;
       case 'mushaf-full': 
-      case 'digital':
-        router.push('/mushaf-full'); 
-        break;
+      case 'digital': url = '/mushaf-full'; break;
       case 'daily': 
         setActiveTab('dashboard'); 
-        break;
-      case 'video': 
-        router.push('/video'); 
-        break;
+        return; // Internal state change
+      case 'video': url = '/video'; break;
       case 'surah': 
-        if (quest.surahId) {
-          console.log("Deep linking to Surah:", quest.surahId);
-          router.push(`/audio?surahId=${quest.surahId}`);
-        } else {
-          router.push('/audio');
-        }
+        url = quest.surahId ? `/audio?surahId=${quest.surahId}` : '/audio';
         break;
       case 'rank': 
-      case 'leaderboard':
-        router.push('/rank'); 
-        break;
+      case 'leaderboard': url = '/rank'; break;
       default: 
-        console.warn("Unknown quest target:", target);
-        break;
+        console.warn("Unknown target:", target);
+        return;
+    }
+
+    if (url) {
+      console.log("Navigating to URL:", url);
+      // Use direct navigation to bypass any SPA routing issues
+      window.location.href = url;
     }
   };
 
