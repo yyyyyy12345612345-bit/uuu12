@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Search, ChevronLeft, ChevronRight, BookOpen, Share2, Copy, Sparkles, Star, Heart, Bookmark, ArrowLeft } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, BookOpen, Share2, Copy, Sparkles, Star, Heart, Bookmark, ArrowLeft, LayoutDashboard } from "lucide-react";
 import { startThikrTimer, endThikrTimer } from "@/lib/points";
 
 interface Category {
