@@ -642,15 +642,20 @@ export function AdminPanel() {
                     </div>
                     {questTarget === 'surah' && (
                        <div className="space-y-1 animate-in slide-in-from-top-2">
-                          <label className="text-[10px] font-black text-foreground/30 mr-2 uppercase">اختر السورة المطلوبة</label>
-                          <select 
-                             value={questSurahId} onChange={e => setQuestSurahId(e.target.value)}
-                             className="w-full bg-foreground/5 border border-border rounded-xl p-4 text-right font-bold"
-                          >
-                             {surahsData.map(s => (
-                                <option key={s.id} value={s.id}>{s.id}. {s.name}</option>
-                             ))}
-                          </select>
+                          <label className="text-[10px] font-black text-foreground/30 mr-2 uppercase">رقم السورة (1-114)</label>
+                          <div className="flex gap-2">
+                             <input 
+                                type="number" min="1" max="114" value={questSurahId} onChange={e => setQuestSurahId(e.target.value)}
+                                className="w-24 bg-foreground/5 border border-border rounded-xl p-4 text-center font-black text-xl text-primary"
+                             />
+                             <div className="flex-1 bg-foreground/5 border border-border rounded-xl p-4 flex items-center justify-center">
+                                <span className="text-primary font-black text-lg">
+                                    {surahsData.find(s => s.id === parseInt(questSurahId))?.name 
+                                      ? `سورة ${surahsData.find(s => s.id === parseInt(questSurahId))?.name}` 
+                                      : "رقم غير صحيح"}
+                                </span>
+                             </div>
+                          </div>
                        </div>
                     )}
                     <button type="submit" disabled={isAddingQuest} className="w-full py-5 bg-primary text-black rounded-2xl font-black shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
