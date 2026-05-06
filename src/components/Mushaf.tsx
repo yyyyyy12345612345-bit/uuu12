@@ -12,17 +12,7 @@ import surahsData from "@/data/surahs.json";
 import { getAudioUrl } from "@/lib/quranUtils";
 import { startAyahTimer, endAyahTimer } from "@/lib/points";
 import { VerseDetailsModal } from "./VerseDetailsModal";
-import { Amiri, Tajawal } from "next/font/google";
 
-const amiri = Amiri({
-  weight: ["400", "700"],
-  subsets: ["arabic"],
-});
-
-const tajawal = Tajawal({
-  weight: ["400", "500", "700", "800", "900"],
-  subsets: ["arabic"],
-});
 
 export function Mushaf() {
     const { state, updateState } = useEditor();
@@ -117,7 +107,7 @@ export function Mushaf() {
 
     if (!selectedSurah) {
         return (
-            <div className={`flex flex-col h-full bg-[#064E3B] text-white ${tajawal.className} relative overflow-hidden animate-in fade-in duration-700`}>
+            <div className={`flex flex-col h-full bg-[#064E3B] text-white font-['Tajawal'] relative overflow-hidden animate-in fade-in duration-700`}>
                 {/* Background Patterns */}
                 <div className="absolute inset-0 z-0 pointer-events-none opacity-10">
                     <div className="absolute inset-0 islamic-pattern" />
@@ -128,7 +118,7 @@ export function Mushaf() {
                     {/* Header */}
                     <header className="p-8 md:p-12 text-center">
                         <span className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mb-2 block">Sacred Serenity</span>
-                        <h1 className={`${amiri.className} text-4xl md:text-6xl font-black mb-4 drop-shadow-2xl`}>المصحف الشريف</h1>
+                        <h1 className={`font-['Amiri'] text-4xl md:text-6xl font-black mb-4 drop-shadow-2xl`}>المصحف الشريف</h1>
                         <div className="flex items-center justify-center gap-4">
                             <div className="h-px w-12 bg-primary/30" />
                             <Star className="w-3 h-3 text-primary fill-primary" />
@@ -207,7 +197,7 @@ export function Mushaf() {
     }
 
     return (
-        <div className={`flex flex-col h-full bg-[#064E3B] text-white ${tajawal.className} relative overflow-hidden animate-reveal`}>
+        <div className={`flex flex-col h-full bg-[#064E3B] text-white font-['Tajawal'] relative overflow-hidden animate-reveal`}>
             {/* Background Layer */}
             <div className="absolute inset-0 z-0 pointer-events-none opacity-10">
                 <div className="absolute inset-0 islamic-pattern" />
@@ -224,7 +214,7 @@ export function Mushaf() {
 
                 <div className="text-center">
                     <span className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mb-1 block">سُورَةُ</span>
-                    <h2 className={`${amiri.className} text-3xl md:text-5xl font-black`}>
+                    <h2 className="font-['Amiri'] text-3xl md:text-5xl font-black">
                         {surahContent?.name || "..."}
                     </h2>
                 </div>

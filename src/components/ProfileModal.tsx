@@ -8,12 +8,6 @@ import {
 import { auth, db, storage } from "@/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Tajawal } from "next/font/google";
-
-const tajawal = Tajawal({
-  weight: ["400", "500", "700", "800", "900"],
-  subsets: ["arabic"],
-});
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -107,7 +101,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className={`fixed inset-0 z-[2000] bg-black/90 backdrop-blur-2xl overflow-y-auto ${tajawal.className} py-10 px-4 flex justify-center items-start no-scrollbar`}>
+    <div className={`fixed inset-0 z-[2000] bg-black/90 backdrop-blur-2xl overflow-y-auto font-['Tajawal'] py-10 px-4 flex justify-center items-start no-scrollbar`}>
        <div className="fixed inset-0" onClick={onClose} />
        
        <div className="relative w-full max-w-xl bg-[#064E3B] border border-white/10 rounded-[3.5rem] shadow-[0_50px_100px_rgba(0,0,0,0.6)] flex flex-col animate-in zoom-in-95 duration-700 overflow-hidden">

@@ -9,17 +9,7 @@ import { getAudioUrl } from "@/lib/quranUtils";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { incrementVideoRenderCount } from "@/lib/points";
-import { Tajawal, Amiri } from "next/font/google";
 
-const tajawal = Tajawal({
-  weight: ["400", "500", "700", "800", "900"],
-  subsets: ["arabic"],
-});
-
-const amiri = Amiri({
-  weight: ["400", "700"],
-  subsets: ["arabic"],
-});
 
 export function RenderModal({ isOpen, onClose, onOpenSubscription }: { 
   isOpen: boolean; 
@@ -321,7 +311,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
   if (!isOpen) return null;
 
   return (
-    <div className={`fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/90 backdrop-blur-2xl ${tajawal.className}`}>
+    <div className={`fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/90 backdrop-blur-2xl font-['Tajawal']`}>
       <canvas ref={canvasRef} style={{ position: 'fixed', left: '-10000px', top: 0 }} />
       
       <div className="relative w-full max-w-xl bg-[#064E3B] border border-white/10 rounded-[3.5rem] p-10 flex flex-col items-center shadow-[0_40px_120px_rgba(0,0,0,0.6)] overflow-hidden">
@@ -369,7 +359,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
               <Play className="w-10 h-10 text-black fill-current" />
             </div>
             
-            <h3 className={`${amiri.className} text-4xl font-black text-white mb-2`}>تجهيز العمل الفني</h3>
+            <h3 className="font-['Amiri'] text-4xl font-black text-white mb-2">تجهيز العمل الفني</h3>
             <p className="text-white/40 text-xs text-center mb-10 uppercase tracking-widest">اختر دقة الإخراج والجودة المطلوبة</p>
             
             <div className="w-full space-y-4 mb-10">

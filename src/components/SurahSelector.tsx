@@ -6,12 +6,6 @@ import { useEditor } from "@/store/useEditor";
 import { ChevronDown, Search, Lock, Crown, Sparkles, Hash } from "lucide-react";
 import { AyahSearchModal } from "./AyahSearchModal";
 import { useUserPlan } from "@/hooks/useUserPlan";
-import { Tajawal } from "next/font/google";
-
-const tajawal = Tajawal({
-  weight: ["400", "500", "700", "800", "900"],
-  subsets: ["arabic"],
-});
 
 export function SurahSelector() {
   const { state, updateState } = useEditor();
@@ -39,7 +33,7 @@ export function SurahSelector() {
   }, [state.startAyah, state.endAyah]);
 
   return (
-    <div className={`flex flex-col gap-8 ${tajawal.className}`}>
+    <div className={`flex flex-col gap-8 font-['Tajawal']`}>
       <AyahSearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       
       {/* Search Button */}

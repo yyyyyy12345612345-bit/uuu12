@@ -7,7 +7,6 @@ import {
   Download, BookOpen, Settings, Volume2,
   Maximize2, Menu
 } from "lucide-react";
-import { Scheherazade_New, Amiri, Tajawal } from "next/font/google";
 import surahsData from "@/data/surahs.json";
 import { RECITERS } from "@/data/reciters";
 import { useEditor } from "@/store/useEditor";
@@ -18,16 +17,6 @@ import { startPageTimer, endPageTimer } from "@/lib/points";
 import { VerseDetailsModal } from "./VerseDetailsModal";
 
 const API_ROOT = "https://api.quran.com/api/v4";
-
-const amiri = Amiri({
-  weight: ["400", "700"],
-  subsets: ["arabic"],
-});
-
-const tajawal = Tajawal({
-  weight: ["400", "500", "700", "800", "900"],
-  subsets: ["arabic"],
-});
 
 const SURAH_START_PAGES: Record<number, number> = {
   1:1, 2:2, 3:50, 4:77, 5:106, 6:128, 7:151, 8:177, 9:187, 10:208, 11:221, 12:235, 13:249, 14:255, 15:262, 16:267, 17:282, 18:293, 19:305, 20:312, 
@@ -186,7 +175,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
   const filteredSurahs = surahsData.filter(s => s.name.includes(searchQuery) || s.transliteration.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
-    <div className={`h-full w-full flex flex-col bg-[#064E3B] text-black ${tajawal.className} relative overflow-hidden`}>
+    <div className={`h-full w-full flex flex-col bg-[#064E3B] text-black font-['Tajawal'] relative overflow-hidden`}>
       
       {/* Background Decorative Pattern */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-10">
@@ -212,7 +201,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
           </div>
 
           <div className="flex flex-col items-center">
-              <h1 className={`${amiri.className} text-3xl md:text-5xl font-black text-white drop-shadow-2xl`}>
+              <h1 className="font-['Amiri'] text-3xl md:text-5xl font-black text-white drop-shadow-2xl">
                 {isTafseerMode ? 'مصحف التفسير' : 'المصحف الشريف'}
               </h1>
               <div className="flex items-center gap-3 mt-1">
@@ -488,10 +477,10 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                                 <path d="M0,50 L20,10 L380,10 L400,50 L380,90 L20,90 Z" fill="rgba(6, 78, 59, 0.05)" stroke="currentColor" strokeWidth="2" />
                                                 <path d="M40,25 L360,25 M40,75 L360,75" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.3" />
                                             </svg>
-                                            <h3 className={`${amiri.className} text-4xl font-black text-[#064E3B]`}>سُورَةُ {surahName}</h3>
+                                            <h3 className="font-['Amiri'] text-4xl font-black text-[#064E3B]">سُورَةُ {surahName}</h3>
                                         </div>
                                         {sId !== "1" && sId !== "9" && (
-                                            <div className={`${amiri.className} text-4xl py-6 font-bold text-[#064E3B] opacity-90`}>
+                                            <div className="font-['Amiri'] text-4xl py-6 font-bold text-[#064E3B] opacity-90">
                                                 بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
                                             </div>
                                         )}
@@ -502,7 +491,7 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                     onClick={() => playVerse(pIdx, vIdx)} 
                                     className={`inline transition-all duration-300 rounded-2xl cursor-pointer py-1 px-2 ${isPlaying ? 'bg-primary/20 text-[#064E3B] shadow-[0_0_30px_rgba(212,175,55,0.3)] scale-105 z-50' : 'hover:bg-primary/5'}`}
                                 >
-                                    <span className={`${amiri.className} inline font-bold antialiased`} style={{ fontSize: `${mushafFontSize}px` }}>
+                                    <span className="font-['Amiri'] inline font-bold antialiased" style={{ fontSize: `${mushafFontSize}px` }}>
                                         {verse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => {
                                             const isAllah = word.text_uthmani?.includes('للَّ') || word.text_uthmani?.includes('اللَّ');
                                             return (

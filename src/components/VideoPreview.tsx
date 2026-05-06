@@ -5,18 +5,7 @@ import { useEditor } from "@/store/useEditor";
 import { useSurahData } from "@/hooks/useSurahData";
 import { getAudioUrl } from "@/lib/quranUtils";
 import { RECITERS } from "@/data/reciters";
-import { Tajawal, Amiri } from "next/font/google";
 import { Play, Pause, Loader2, Sparkles, AlertCircle } from "lucide-react";
-
-const tajawal = Tajawal({
-  weight: ["400", "500", "700", "800", "900"],
-  subsets: ["arabic"],
-});
-
-const amiri = Amiri({
-  weight: ["400", "700"],
-  subsets: ["arabic"],
-});
 
 const isVideoUrl = (url: string) => {
   if (!url) return false;
@@ -112,7 +101,7 @@ export function VideoPreview() {
   const currentVerse = surahData?.verses.find(v => v.id === currentAyahIndex);
 
   return (
-    <div className={`relative aspect-[9/16] h-full max-h-[78vh] group select-none ${tajawal.className}`} id="video-render-container">
+    <div className={`relative aspect-[9/16] h-full max-h-[78vh] group select-none font-['Tajawal']`} id="video-render-container">
       <style>{`
         @keyframes dustMovePreview {
           0% { transform: translateY(0) translateX(0); opacity: 0; }
@@ -256,7 +245,7 @@ export function VideoPreview() {
 
               {/* Quranic Text */}
               <p
-                className={`${amiri.className} text-white leading-[1.8] text-center w-full break-words`}
+                className={`font-['Amiri'] text-white leading-[1.8] text-center w-full break-words`}
                 style={{
                   color: state.textColor,
                   fontSize: `${Math.min(state.fontSize, 70)}px`,

@@ -228,7 +228,7 @@ export function DailyHub() {
   };
 
   return (
-    <div className="w-full h-full flex flex-col p-6 md:p-14 overflow-y-auto font-arabic pb-40 no-scrollbar relative daily-hub-container">
+    <div className="w-full h-full flex flex-col p-4 md:p-10 overflow-y-auto font-arabic pb-32 no-scrollbar relative daily-hub-container">
       {/* Background Aesthetics */}
       <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/40 to-background" />
@@ -237,19 +237,21 @@ export function DailyHub() {
       </div>
 
       {/* Header Section */}
-      <div className="relative z-10 flex flex-col md:flex-row items-end justify-between gap-8 mb-12 animate-in fade-in duration-700">
-          <div className="text-right">
-              <div className="flex items-center justify-end gap-3 mb-2">
-                  <span className="bg-primary/20 text-primary text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest">Sacred Serenity</span>
-                  <Sparkles className="w-5 h-5 text-primary" />
+      <div className="relative z-10 flex flex-col md:flex-row items-center md:items-end justify-between gap-6 mb-10 animate-in fade-in duration-700">
+          <div className="text-center md:text-right">
+              <div className="flex items-center justify-center md:justify-end gap-2 mb-2">
+                  <span className="bg-primary/20 text-primary text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">Sacred Serenity</span>
+                  <Sparkles className="w-4 h-4 text-primary" />
               </div>
-              <h2 className="text-5xl md:text-6xl font-black mb-2 tracking-tight">مرحباً، {userData?.displayName || "أحمد"}</h2>
-              <p className="text-foreground/40 font-bold text-lg">السلام عليكم ورحمة الله وبركاته</p>
+              <h2 className="text-3xl md:text-6xl font-black mb-1 tracking-tight">مرحباً، {userData?.displayName || "أحمد"}</h2>
+              <p className="text-foreground/40 font-bold text-base">السلام عليكم ورحمة الله وبركاته</p>
           </div>
-          <div className="flex flex-col items-center gap-2 bg-card border border-border p-6 rounded-[2.5rem] shadow-xl">
-              <Star className="w-8 h-8 text-primary" />
-              <span className="text-2xl font-black">{userData?.totalPoints || 0}</span>
-              <span className="text-[10px] font-black text-foreground/30 uppercase tracking-widest">نقطة إجمالية</span>
+          <div className="flex flex-row md:flex-col items-center gap-3 bg-card border border-border p-4 md:p-6 rounded-[2rem] shadow-xl">
+              <Star className="w-6 h-6 text-primary" />
+              <div className="flex flex-col items-center">
+                  <span className="text-xl md:text-2xl font-black leading-none">{userData?.totalPoints || 0}</span>
+                  <span className="text-[8px] font-black text-foreground/30 uppercase tracking-widest">نقطة</span>
+              </div>
           </div>
       </div>
 
