@@ -619,21 +619,21 @@ export function AdminPanel() {
                     <input value={questTitle} onChange={e => setQuestTitle(e.target.value)} className="w-full bg-foreground/5 p-4 rounded-2xl outline-none" placeholder="عنوان المهمة" />
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                        <div className="space-y-1">
-                          <label className="text-[10px] font-black text-foreground/30 mr-2 uppercase">الوجهة (Target)</label>
+                          <label className="text-[10px] font-black text-foreground/30 mr-2 uppercase">نوع المهمة (Quest Type)</label>
                           <select 
                              value={questTarget} onChange={e => setQuestTarget(e.target.value)}
                              className="w-full bg-foreground/5 border border-border rounded-xl p-3 text-right font-bold text-xs"
                           >
-                             <option value="mushaf">الآية اليومية</option>
-                             <option value="mushaf-full">المصحف الرقمي</option>
-                             <option value="daily">الأذكار والورد</option>
-                             <option value="video">استوديو الفيديو</option>
-                             <option value="surah">سورة محددة</option>
-                             <option value="rank">لوحة المتصدرين</option>
+                             <option value="mushaf">📖 قراءة (الآية اليومية)</option>
+                             <option value="mushaf-full">📱 المصحف الرقمي الكامل</option>
+                             <option value="daily">📿 الأذكار والورد اليومي</option>
+                             <option value="video">🎬 استوديو تصميم الفيديو</option>
+                             <option value="surah">🎧 استماع لسورة معينة</option>
+                             <option value="rank">🏆 لوحة المتصدرين</option>
                           </select>
                        </div>
                        <div className="space-y-1">
-                          <label className="text-[10px] font-black text-foreground/30 mr-2 uppercase">النقاط</label>
+                          <label className="text-[10px] font-black text-foreground/30 mr-2 uppercase">النقاط المكافئة</label>
                           <input 
                              type="number" value={questPoints} onChange={e => setQuestPoints(parseInt(e.target.value))}
                              className="w-full bg-foreground/5 border border-border rounded-xl p-3 text-center font-black"
@@ -641,24 +641,20 @@ export function AdminPanel() {
                        </div>
                     </div>
                     {questTarget === 'surah' && (
-                       <div className="space-y-1">
-                          <label className="text-[10px] font-black text-foreground/30 mr-2 uppercase">رقم السورة</label>
-                          <input 
-                             type="number" value={questSurahId} onChange={e => setQuestSurahId(e.target.value)}
-                             className="w-full bg-foreground/5 border border-border rounded-xl p-4 text-center font-bold"
-                             placeholder="مثلاً 18 لسورة الكهف"
-                          />
-                          <div className="mt-2 text-center">
-                             <span className="text-primary font-black text-lg">
-                                {surahsData.find(s => s.id === parseInt(questSurahId))?.name 
-                                  ? `سورة ${surahsData.find(s => s.id === parseInt(questSurahId))?.name}` 
-                                  : "رقم غير معروف"}
-                             </span>
-                          </div>
+                       <div className="space-y-1 animate-in slide-in-from-top-2">
+                          <label className="text-[10px] font-black text-foreground/30 mr-2 uppercase">اختر السورة المطلوبة</label>
+                          <select 
+                             value={questSurahId} onChange={e => setQuestSurahId(e.target.value)}
+                             className="w-full bg-foreground/5 border border-border rounded-xl p-4 text-right font-bold"
+                          >
+                             {surahsData.map(s => (
+                                <option key={s.id} value={s.id}>{s.id}. {s.name}</option>
+                             ))}
+                          </select>
                        </div>
                     )}
-                    <button type="submit" disabled={isAddingQuest} className="w-full py-4 bg-primary text-black rounded-2xl font-black">
-                       {isAddingQuest ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "نشر المهمة"}
+                    <button type="submit" disabled={isAddingQuest} className="w-full py-5 bg-primary text-black rounded-2xl font-black shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+                       {isAddingQuest ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "نشر المهمة للجميع ✅"}
                     </button>
                  </form>
               </div>

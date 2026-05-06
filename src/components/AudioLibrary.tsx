@@ -23,12 +23,28 @@ export function AudioLibrary() {
   const [currentSurah, setCurrentSurah] = useState(surahsData[0]);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const sId = params.get('surahId');
-    if (sId) {
-      const found = surahsData.find(s => s.id === parseInt(sId));
-      if (found) setCurrentSurah(found);
-    }
+    const handleUrlParams = () => {
+      const params = new URLSearchParams(window.location.search);
+      const sId = params.get('surahId');
+      if (sId) {
+        const found = surahsData.find(s => s.id === parseInt(sId));
+        if (found) {
+          setCurrentSurah(found);
+          // Auto-play when deep linked
+          setIsPlaying(true);
+          // Scroll to it
+          setTimeout(() => {
+            const el = document.getElementById(`surah-${found.id}`);
+            el?.scrollIntoView({ behavior: "smooth", block: "center" });
+          }, 500);
+        }
+      }
+    };
+
+    handleUrlParams();
+    // Listen for manual URL changes if the user clicks another quest
+    window.addEventListener('popstate', handleUrlParams);
+    return () => window.removeEventListener('popstate', handleUrlParams);
   }, []);
   const [selectedReciter, setSelectedReciter] = useState(RECITERS[0]);
   const [isPlaying, setIsPlaying] = useState(false);
