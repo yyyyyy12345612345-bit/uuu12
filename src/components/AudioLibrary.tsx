@@ -47,20 +47,35 @@ export function AudioLibrary() {
       audio.pause();
       audio.src = newSrc;
       audio.load();
-      if (isPlaying) audio.play().catch(() => setIsPlaying(false));
+      if (isPlaying) {
+        audio.play().catch(() => setIsPlaying(false));
+        setPlaybackState('playing');
+      }
       logAppEvent("change_reciter", { reciter_name: selectedReciter.name });
     }
     setupMediaSession(
-      { title: `سورة ${currentSurah.name}`, artist: selectedReciter.name, album: "المكتبة الصوتية" },
+      { 
+        title: `سورة ${currentSurah.name}`, 
+        artist: selectedReciter.name, 
+        album: "المكتبة الصوتية" 
+      },
       {
-        onPlay: () => { audio.play(); setIsPlaying(true); },
-        onPause: () => { audio.pause(); setIsPlaying(false); },
-        onNext: nextSurah,
-        onPrev: prevSurah,
-        onSeekTo: (t) => { audio.currentTime = t; },
+        onPlay: () => { 
+          audio.play(); 
+          setIsPlaying(true); 
+          setPlaybackState('playing');
+        },
+        onPause: () => { 
+          audio.pause(); 
+          setIsPlaying(false); 
+          setPlaybackState('paused');
+        },
+        onNext: () => nextSurah(),
+        onPrev: () => prevSurah(),
+        onSeekTo: (t) => { if (audio) audio.currentTime = t; },
       }
     );
-  }, [currentSurah, selectedReciter]);
+  }, [currentSurah, selectedReciter, isPlaying]);
 
   useEffect(() => { setPlaybackState(isPlaying ? "playing" : "paused"); }, [isPlaying]);
 
@@ -124,7 +139,15 @@ export function AudioLibrary() {
     playSurah(surahsData[(idx - 1 + surahsData.length) % surahsData.length]);
   };
 
-  const onEnded = () => { if (isRepeat) { audioRef.current!.currentTime = 0; audioRef.current!.play(); } else nextSurah(); };
+  const onEnded = () => { 
+    if (isRepeat) { 
+      audioRef.current!.currentTime = 0; 
+      audioRef.current!.play(); 
+      setPlaybackState('playing');
+    } else {
+      nextSurah(); 
+    }
+  };
 
   return (
     <div className="h-full w-full flex flex-col bg-[#0a0f0d] text-white overflow-hidden relative font-['Tajawal']">
