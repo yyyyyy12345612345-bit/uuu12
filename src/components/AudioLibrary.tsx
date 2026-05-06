@@ -127,7 +127,7 @@ export function AudioLibrary() {
   const onEnded = () => { if (isRepeat) { audioRef.current!.currentTime = 0; audioRef.current!.play(); } else nextSurah(); };
 
   return (
-    <div className="h-full w-full flex flex-col bg-[#00170f] text-white overflow-hidden relative font-['Tajawal']">
+    <div className="h-full w-full flex flex-col bg-[#0a0f0d] text-white overflow-hidden relative font-['Tajawal']">
       <audio ref={audioRef} onTimeUpdate={onTimeUpdate} onEnded={onEnded} preload="auto" />
 
       {/* ═══ SCROLLABLE CONTENT ═══ */}
@@ -135,7 +135,7 @@ export function AudioLibrary() {
 
         {/* ── Hero / Now Playing ── */}
         <div className="relative px-5 pt-6 pb-8">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#043927] via-[#00170f] to-transparent opacity-60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0d1411] via-[#0a0f0d] to-transparent opacity-60" />
           <div className="absolute inset-0 islamic-pattern opacity-[0.03]" />
 
           <div className="relative z-10 flex flex-col items-center">
@@ -144,20 +144,20 @@ export function AudioLibrary() {
             <div className="flex items-center gap-5 w-full max-w-md mb-6">
               {/* Disc */}
               <div className="relative shrink-0">
-                <div className={`w-20 h-20 rounded-full border-4 border-[#0b241b] shadow-lg overflow-hidden ${isPlaying ? "animate-spin-slow" : ""}`}>
-                  <div className="w-full h-full bg-[#021a10] flex items-center justify-center">
-                    <Disc className="w-10 h-10 text-[#D4AF37]/30" />
-                    <div className="absolute w-5 h-5 bg-[#043927] rounded-full border-2 border-[#D4AF37]/30 flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 bg-[#D4AF37] rounded-full" />
+                <div className={`w-20 h-20 rounded-full border-4 border-primary/10 shadow-lg overflow-hidden ${isPlaying ? "animate-spin-slow" : ""}`}>
+                  <div className="w-full h-full bg-[#0d1411] flex items-center justify-center">
+                    <Disc className="w-10 h-10 text-primary/30" />
+                    <div className="absolute w-5 h-5 bg-[#0a0f0d] rounded-full border-2 border-primary/30 flex items-center justify-center">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full" />
                     </div>
                   </div>
                 </div>
-                {isPlaying && <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#D4AF37] rounded-full flex items-center justify-center shadow-lg"><Pause className="w-2.5 h-2.5 text-black fill-current" /></div>}
+                {isPlaying && <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center shadow-lg"><Pause className="w-2.5 h-2.5 text-black fill-current" /></div>}
               </div>
 
               {/* Track Info */}
               <div className="flex-1 min-w-0 text-right">
-                <h1 className="text-2xl font-black text-[#D4AF37] truncate font-['Amiri'] leading-tight">
+                <h1 className="text-2xl font-black text-primary truncate font-['Amiri'] leading-tight">
                   سورة {currentSurah.name}
                 </h1>
                 <button
