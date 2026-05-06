@@ -1,8 +1,19 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, BookOpen, Languages, Loader2, Book } from "lucide-react";
+import { X, BookOpen, Languages, Loader2, Star, ChevronLeft } from "lucide-react";
 import { fetchVerseTafsir, fetchVerseTranslations } from "@/lib/quranUtils";
+import { Amiri, Tajawal } from "next/font/google";
+
+const amiri = Amiri({
+  weight: ["400", "700"],
+  subsets: ["arabic"],
+});
+
+const tajawal = Tajawal({
+  weight: ["400", "500", "700", "800", "900"],
+  subsets: ["arabic"],
+});
 
 interface VerseDetailsModalProps {
   verseKey: string;
@@ -36,37 +47,52 @@ export function VerseDetailsModal({ verseKey, onClose, surahName }: VerseDetails
   }, [verseKey]);
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-300">
+    <div className={`fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-300 ${tajawal.className}`}>
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
       
       {/* Modal Container */}
-      <div className="relative w-full max-w-2xl bg-white dark:bg-zinc-950 rounded-[2.5rem] shadow-2xl border border-border overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-300">
+      <div className="relative w-full max-w-3xl bg-[#064E3B] rounded-[3.5rem] shadow-[0_40px_100px_rgba(0,0,0,0.6)] border border-white/10 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-500">
         
+        {/* Background Pattern */}
+        <div className="absolute inset-0 z-0 pointer-events-none opacity-5">
+            <div className="absolute inset-0 islamic-pattern" />
+        </div>
+
         {/* Header */}
-        <div className="p-6 md:p-8 border-b border-border flex items-center justify-between bg-gradient-to-r from-primary/5 to-transparent">
-          <div className="flex flex-col">
-            <h2 className="text-2xl font-bold font-arabic text-foreground">سورة {surahName}</h2>
-            <p className="text-xs font-bold text-primary tracking-widest uppercase opacity-60">الآية {verseKey.split(':')[1]}</p>
+        <div className="relative z-10 p-8 md:p-12 border-b border-white/5 flex items-center justify-between bg-gradient-to-b from-white/[0.03] to-transparent">
+          <div className="flex flex-col text-right">
+            <div className="flex items-center gap-2 mb-2">
+                <div className="h-px w-8 bg-primary/30" />
+                <span className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">تفسير الآية</span>
+            </div>
+            <h2 className={`${amiri.className} text-3xl md:text-5xl font-black text-white`}>سورة {surahName}</h2>
+            <div className="flex items-center gap-3 mt-2">
+                <Star className="w-3 h-3 text-primary fill-primary opacity-40" />
+                <p className="text-sm font-bold text-white/40 tracking-widest uppercase">الآية {verseKey.split(':')[1]}</p>
+            </div>
           </div>
-          <button onClick={onClose} className="w-10 h-10 rounded-full bg-foreground/5 hover:bg-foreground/10 flex items-center justify-center transition-all">
-            <X className="w-5 h-5 text-foreground/40" />
+          <button 
+            onClick={onClose} 
+            className="w-14 h-14 rounded-2xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all border border-white/5 group"
+          >
+            <X className="w-6 h-6 text-white/40 group-hover:text-white group-hover:rotate-90 transition-all duration-300" />
           </button>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex px-4 md:px-8 py-4 gap-2 border-b border-border bg-foreground/[0.01]">
+        <div className="relative z-10 flex px-8 md:px-12 py-6 gap-4 bg-black/20">
           {[
-            { id: 'tafsir', label: 'التفسير', icon: BookOpen },
-            { id: 'translation', label: 'الميسر', icon: Languages },
+            { id: 'tafsir', label: 'تفسير السعدي', icon: BookOpen },
+            { id: 'translation', label: 'التفسير الميسر', icon: Languages },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl transition-all font-bold text-xs md:text-sm ${
+              className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl transition-all font-bold text-xs md:text-sm border ${
                 activeTab === tab.id 
-                  ? 'bg-primary text-black shadow-lg shadow-primary/20' 
-                  : 'text-foreground/40 hover:bg-foreground/5 hover:text-foreground'
+                  ? 'bg-primary border-primary text-black shadow-xl shadow-primary/20' 
+                  : 'bg-white/5 border-white/5 text-white/40 hover:bg-white/10 hover:text-white'
               }`}
             >
               <tab.icon className="w-4 h-4" />
@@ -76,59 +102,68 @@ export function VerseDetailsModal({ verseKey, onClose, surahName }: VerseDetails
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-10 no-scrollbar">
+        <div className="relative z-10 flex-1 overflow-y-auto p-8 md:p-12 no-scrollbar">
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-4">
-              <Loader2 className="w-10 h-10 text-primary animate-spin" />
-              <span className="text-xs font-black text-foreground/20 uppercase tracking-[0.3em]">جاري جلب البيانات...</span>
+            <div className="flex flex-col items-center justify-center py-24 gap-8">
+              <div className="w-14 h-14 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+              <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">جاري جلب التفسير...</span>
             </div>
           ) : (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
               
               {/* Verse Text Display */}
-              <div className="mb-10 text-center p-8 bg-primary/[0.03] rounded-[2rem] border border-primary/10 relative">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-zinc-950 px-4 py-1 rounded-full border border-primary/20 text-[10px] font-black text-primary">نص الآية</div>
-                <p className="text-3xl md:text-4xl font-arabic font-bold text-foreground leading-[1.8]" dir="rtl">
+              <div className="mb-16 text-center p-10 md:p-14 bg-white/5 rounded-[3rem] border border-white/10 relative overflow-hidden group">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#064E3B] px-6 py-2 rounded-full border border-primary/40 text-[10px] font-black text-primary uppercase tracking-widest z-10">نص الآية الكريمة</div>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <p className={`${amiri.className} text-4xl md:text-6xl font-bold text-white leading-[1.8] drop-shadow-2xl relative z-10`} dir="rtl">
                   {verseData?.text_uthmani}
                 </p>
               </div>
 
               {/* Tab Content */}
-              {activeTab === 'tafsir' && (
-                <div className="space-y-6" dir="rtl">
-                  <h3 className="text-lg font-bold text-primary flex items-center gap-2">
-                    <div className="w-1.5 h-6 bg-primary rounded-full" />
-                    تفسير السعدي
-                  </h3>
-                  <div 
-                    className="text-lg leading-[2.2] text-foreground/80 font-medium font-arabic text-justify"
-                    dangerouslySetInnerHTML={{ __html: tafsir?.text || "التفسير غير متوفر حالياً" }}
-                  />
-                </div>
-              )}
-
-              {activeTab === 'translation' && (
-                <div className="space-y-8" dir="rtl">
-                  {verseData?.translations?.map((t: any) => (
-                    <div key={t.id} className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-black text-[10px]">AR</div>
-                        <span className="text-[10px] font-black text-foreground/30 uppercase tracking-widest">
-                          التفسير الميسر
-                        </span>
+              <div dir="rtl" className="max-w-2xl mx-auto">
+                  {activeTab === 'tafsir' && (
+                    <div className="space-y-10">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-inner">
+                            <BookOpen className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-black text-white">تفسير السعدي</h3>
+                            <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest">تيسير الكريم الرحمن</p>
+                        </div>
                       </div>
-                      <p className="text-lg leading-relaxed text-foreground/80 font-arabic font-bold text-right">
-                        {t.text.replace(/<[^>]*>?/gm, '')}
-                      </p>
+                      <div 
+                        className="text-2xl md:text-3xl leading-[2.4] text-white/80 font-medium font-arabic text-justify md:text-right"
+                        dangerouslySetInnerHTML={{ __html: tafsir?.text || "التفسير غير متوفر حالياً" }}
+                      />
                     </div>
-                  ))}
-                </div>
-              )}
+                  )}
+
+                  {activeTab === 'translation' && (
+                    <div className="space-y-12">
+                      {verseData?.translations?.map((t: any) => (
+                        <div key={t.id} className="space-y-8 p-10 rounded-[3rem] bg-white/[0.03] border border-white/5">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-black shadow-xl shadow-primary/20">
+                                <Languages className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black text-white">التفسير الميسر</h3>
+                                <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest">مجمع الملك فهد</p>
+                            </div>
+                          </div>
+                          <p className="text-2xl md:text-3xl leading-relaxed text-white/90 font-arabic font-bold text-right">
+                            {t.text.replace(/<[^>]*>?/gm, '')}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+              </div>
             </div>
           )}
         </div>
-
-
       </div>
     </div>
   );
