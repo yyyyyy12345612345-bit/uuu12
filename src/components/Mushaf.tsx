@@ -107,11 +107,11 @@ export function Mushaf() {
 
     if (!selectedSurah) {
         return (
-            <div className={`flex flex-col h-full bg-[#064E3B] text-white font-['Tajawal'] relative overflow-hidden animate-in fade-in duration-700`}>
+            <div className={`flex flex-col h-full bg-[#0a0f0d] text-white font-['Tajawal'] relative overflow-hidden animate-in fade-in duration-700`}>
                 {/* Background Patterns */}
-                <div className="absolute inset-0 z-0 pointer-events-none opacity-10">
+                <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]">
                     <div className="absolute inset-0 islamic-pattern" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-[#064E3B] via-transparent to-[#064E3B]" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#0a0f0d] via-transparent to-[#0a0f0d]" />
                 </div>
 
                 <div className="relative z-10 flex flex-col h-full">
@@ -197,14 +197,14 @@ export function Mushaf() {
     }
 
     return (
-        <div className={`flex flex-col h-full bg-[#064E3B] text-white font-['Tajawal'] relative overflow-hidden animate-reveal`}>
+        <div className={`flex flex-col h-full bg-[#0a0f0d] text-foreground font-['Tajawal'] relative overflow-hidden animate-reveal`}>
             {/* Background Layer */}
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-10">
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]">
                 <div className="absolute inset-0 islamic-pattern" />
             </div>
 
             {/* Header */}
-            <header className="shrink-0 p-6 md:p-8 flex items-center justify-between z-40 bg-[#064E3B]/80 backdrop-blur-xl border-b border-white/10">
+            <header className="shrink-0 p-6 md:p-8 flex items-center justify-between z-40 bg-[#0d1411]/80 backdrop-blur-xl border-b border-white/5">
                 <button
                     onClick={() => setSelectedSurah(null)}
                     className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all border border-white/5"

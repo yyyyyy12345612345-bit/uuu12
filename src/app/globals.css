@@ -2,48 +2,48 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* Sacred Serenity - Light Theme (Tranquil/Premium) */
-  --background: 35 20% 98%;
-  --foreground: 0 0% 11%;
+  /* Sacred Serenity - Light Theme (Neutral/Premium) */
+  --background: 220 20% 98%;
+  --foreground: 220 30% 10%;
   
-  --card: 35 20% 100%;
-  --card-foreground: 0 0% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 220 30% 10%;
   
-  --primary: 161 85% 14%; /* Deep Emerald Green */
-  --primary-foreground: 35 20% 98%;
+  --primary: 43 66% 45%; /* Sophisticated Gold */
+  --primary-foreground: 220 30% 10%; /* Dark Charcoal for contrast on gold */
   
-  --secondary: 43 66% 52%; /* Soft Gold */
-  --secondary-foreground: 35 20% 98%;
+  --secondary: 161 85% 14%; /* Emerald as secondary */
+  --secondary-foreground: 0 0% 100%;
   
-  --accent: 43 66% 90%;
-  --accent-foreground: 161 85% 14%;
+  --accent: 220 20% 90%;
+  --accent-foreground: 220 30% 10%;
   
-  --border: 161 85% 90%;
-  --input: 161 85% 90%;
-  --ring: 161 85% 14%;
+  --border: 220 20% 90%;
+  --input: 220 20% 90%;
+  --ring: 43 66% 45%;
   
-  --radius: 1.5rem; /* Softened geometry */
+  --radius: 1.5rem;
 }
 
 .dark {
-  /* Sacred Serenity - Dark Theme (Deep Emerald Focus) */
-  --background: 161 85% 4%; /* Near black emerald */
-  --foreground: 35 20% 98%;
+  /* Sacred Serenity - Dark Theme (Midnight Charcoal & Gold) */
+  --background: 220 25% 4%; /* Deep Midnight Charcoal */
+  --foreground: 210 20% 98%;
   
-  --card: 161 85% 6%;
-  --card-foreground: 35 20% 98%;
+  --card: 220 25% 6%;
+  --card-foreground: 210 20% 98%;
   
-  --primary: 43 66% 52%; /* Gold shines in dark mode */
-  --primary-foreground: 161 85% 4%;
+  --primary: 43 66% 52%; /* Radiant Gold */
+  --primary-foreground: 220 25% 4%;
   
-  --secondary: 161 85% 20%; /* Muted emerald */
-  --secondary-foreground: 35 20% 98%;
+  --secondary: 161 85% 18%; /* Emerald Accent */
+  --secondary-foreground: 210 20% 98%;
   
-  --accent: 161 85% 12%;
+  --accent: 215 25% 12%;
   --accent-foreground: 43 66% 52%;
   
-  --border: 161 85% 15%;
-  --input: 161 85% 15%;
+  --border: 215 25% 12%;
+  --input: 215 25% 12%;
   --ring: 43 66% 52%;
 }
 

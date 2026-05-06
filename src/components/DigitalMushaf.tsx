@@ -175,18 +175,18 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
   const filteredSurahs = surahsData.filter(s => s.name.includes(searchQuery) || s.transliteration.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
-    <div className={`h-full w-full flex flex-col bg-[#064E3B] text-black font-['Tajawal'] relative overflow-hidden`}>
+    <div className={`h-full w-full flex flex-col bg-[#0a0f0d] text-white font-['Tajawal'] relative overflow-hidden`}>
       
       {/* Background Decorative Pattern */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-10">
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]">
           <div className="absolute inset-0 islamic-pattern" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#064E3B] via-transparent to-[#064E3B]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0f0d] via-transparent to-[#0a0f0d]" />
       </div>
       
       <audio ref={audioRef} onEnded={handleAudioEnd} onError={handleAudioEnd} />
 
       {/* Premium Header */}
-      <header className="h-24 md:h-28 shrink-0 border-b border-white/10 bg-[#064E3B]/80 backdrop-blur-3xl px-6 md:px-12 flex items-center justify-between z-[100] shadow-2xl">
+      <header className="h-24 md:h-28 shrink-0 border-b border-white/5 bg-[#0d1411]/80 backdrop-blur-3xl px-6 md:px-12 flex items-center justify-between z-[100] shadow-2xl">
           <div className="flex items-center gap-4">
               <button 
                 onClick={() => setIsIndexOpen(true)}
@@ -230,7 +230,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
 
       {/* Reciter Picker Popover */}
       {showReciterPicker && (
-          <div className="absolute top-28 right-6 md:right-12 w-80 bg-[#064E3B]/95 backdrop-blur-3xl border border-white/10 rounded-[3rem] shadow-[0_30px_90px_rgba(0,0,0,0.5)] z-[200] p-6 animate-in zoom-in-95 duration-300">
+          <div className="absolute top-28 right-6 md:right-12 w-80 bg-[#0d1411]/95 backdrop-blur-3xl border border-white/10 rounded-[3rem] shadow-[0_30px_90px_rgba(0,0,0,0.5)] z-[200] p-6 animate-in zoom-in-95 duration-300">
               <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] text-center mb-6">اختر قارئ المصحف</p>
               <div className="flex flex-col gap-2 max-h-[50vh] overflow-y-auto no-scrollbar">
                   {RECITERS.map(reciter => (
@@ -477,10 +477,10 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                                 <path d="M0,50 L20,10 L380,10 L400,50 L380,90 L20,90 Z" fill="rgba(6, 78, 59, 0.05)" stroke="currentColor" strokeWidth="2" />
                                                 <path d="M40,25 L360,25 M40,75 L360,75" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.3" />
                                             </svg>
-                                            <h3 className="font-['Amiri'] text-4xl font-black text-[#064E3B]">سُورَةُ {surahName}</h3>
+                                            <h3 className="font-['Amiri'] text-4xl font-black text-primary">سُورَةُ {surahName}</h3>
                                         </div>
                                         {sId !== "1" && sId !== "9" && (
-                                            <div className="font-['Amiri'] text-4xl py-6 font-bold text-[#064E3B] opacity-90">
+                                            <div className="font-['Amiri'] text-4xl py-6 font-bold text-primary opacity-90">
                                                 بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
                                             </div>
                                         )}
@@ -489,7 +489,7 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                 
                                 <span 
                                     onClick={() => playVerse(pIdx, vIdx)} 
-                                    className={`inline transition-all duration-300 rounded-2xl cursor-pointer py-1 px-2 ${isPlaying ? 'bg-primary/20 text-[#064E3B] shadow-[0_0_30px_rgba(212,175,55,0.3)] scale-105 z-50' : 'hover:bg-primary/5'}`}
+                                    className={`inline transition-all duration-300 rounded-2xl cursor-pointer py-1 px-2 ${isPlaying ? 'bg-primary/20 text-primary shadow-[0_0_30px_rgba(212,175,55,0.3)] scale-105 z-50' : 'hover:bg-primary/5 text-white/80'}`}
                                 >
                                     <span className="font-['Amiri'] inline font-bold antialiased" style={{ fontSize: `${mushafFontSize}px` }}>
                                         {verse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => {

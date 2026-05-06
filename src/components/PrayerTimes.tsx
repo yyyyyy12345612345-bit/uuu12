@@ -181,8 +181,8 @@ export function PrayerTimes() {
                 <button onClick={detectLocation} className="p-4 rounded-2xl bg-card border border-border shadow-xl hover:text-primary transition-all active:scale-95">
                     <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
                 </button>
-                <button onClick={() => setShowAthanSettings(true)} className="flex items-center gap-3 p-4 rounded-2xl bg-[#064E3B] text-white shadow-2xl hover:scale-105 active:scale-95 transition-all">
-                    <Music className="w-5 h-5 text-primary" />
+                <button onClick={() => setShowAthanSettings(true)} className="flex items-center gap-3 p-4 rounded-2xl bg-primary text-black shadow-2xl hover:scale-105 active:scale-95 transition-all">
+                    <Music className="w-5 h-5 text-black" />
                     <span className="font-black text-sm">صوت الآذان</span>
                 </button>
             </div>
@@ -226,10 +226,10 @@ export function PrayerTimes() {
                         key={id}
                         onClick={() => setActiveSettingsPrayer(id)}
                         className={`p-8 rounded-[2.5rem] border transition-all cursor-pointer flex flex-col items-center gap-4 group ${
-                            isNext ? 'bg-[#064E3B] border-primary/40 text-white shadow-2xl scale-105' : 'bg-card border-border hover:border-primary/20 text-foreground'
+                            isNext ? 'bg-primary border-primary/40 text-black shadow-2xl scale-105' : 'bg-card border-border hover:border-primary/20 text-foreground'
                         }`}
                     >
-                        <span className={`text-sm font-black uppercase tracking-widest ${isNext ? 'text-primary' : 'text-foreground/40'}`}>{name}</span>
+                        <span className={`text-sm font-black uppercase tracking-widest ${isNext ? 'text-black' : 'text-foreground/40'}`}>{name}</span>
                         <span className="text-3xl font-black font-mono">{time}</span>
                         <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isNext ? 'bg-white/10' : 'bg-foreground/5 group-hover:bg-primary/10'}`}>
                             {prayerSettings[id]?.notificationsEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4 text-foreground/20" />}
@@ -282,7 +282,7 @@ export function PrayerTimes() {
                                 setShowAthanSettings(false);
                             }}
                             className={`w-full p-6 rounded-[2rem] border text-right flex items-center justify-between transition-all group ${
-                                prayerSettings['Fajr'].muezzinId === m.id ? 'bg-[#064E3B] border-primary/40 text-white shadow-xl' : 'bg-foreground/5 border-transparent hover:border-primary/20'
+                                prayerSettings['Fajr'].muezzinId === m.id ? 'bg-primary border-primary/40 text-black shadow-xl' : 'bg-foreground/5 border-transparent hover:border-primary/20'
                             }`}
                           >
                               <span className="text-lg font-black">{m.name}</span>

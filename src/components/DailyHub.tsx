@@ -301,15 +301,15 @@ export function DailyHub() {
                 </div>
 
                 {/* Qibla Card */}
-                <div className="bg-[#064E3B] text-white border border-primary/20 rounded-[3rem] p-8 relative overflow-hidden shadow-2xl group cursor-pointer" onClick={() => setActiveTab('qibla')}>
+                <div className="bg-primary text-black border border-primary/20 rounded-[3rem] p-8 relative overflow-hidden shadow-2xl group cursor-pointer" onClick={() => setActiveTab('qibla')}>
                     <div className="absolute top-0 right-0 p-8 opacity-20">
-                        <Compass className="w-24 h-24 text-primary" />
+                        <Compass className="w-24 h-24 text-black" />
                     </div>
                     <h3 className="text-2xl font-black mb-2">اتجاه القبلة</h3>
-                    <p className="text-white/40 text-sm mb-8">145° جنوب شرق</p>
+                    <p className="text-black/40 text-sm mb-8">145° جنوب شرق</p>
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
-                            <MapPin className="w-6 h-6 text-primary" />
+                        <div className="w-12 h-12 rounded-full bg-black/10 flex items-center justify-center border border-black/10">
+                            <MapPin className="w-6 h-6 text-black" />
                         </div>
                         <span className="font-bold text-sm">مكة المكرمة</span>
                     </div>

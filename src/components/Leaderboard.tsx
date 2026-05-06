@@ -233,7 +233,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
     <div className="flex flex-col h-full font-arabic overflow-y-auto no-scrollbar pb-32">
       
       {/* Premium Header Backdrop */}
-      <div className="relative bg-[#064E3B] pt-24 pb-40 px-6 overflow-hidden">
+      <div className="relative bg-[#0a0f0d] pt-24 pb-40 px-6 overflow-hidden">
           <div className="absolute inset-0 islamic-pattern opacity-10" />
           <div className="absolute top-0 left-0 w-96 h-96 bg-primary/20 blur-[150px] rounded-full -translate-x-1/2 -translate-y-1/2" />
           
@@ -247,7 +247,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
               {!user && (
                 <button 
                   onClick={handleGoogleLogin}
-                  className="mt-4 flex items-center gap-3 px-10 py-5 bg-white text-[#064E3B] rounded-[2rem] font-black text-lg hover:scale-105 active:scale-95 transition-all shadow-2xl"
+                  className="mt-4 flex items-center gap-3 px-10 py-5 bg-white text-black rounded-[2rem] font-black text-lg hover:scale-105 active:scale-95 transition-all shadow-2xl"
                 >
                     <LogIn className="w-6 h-6" />
                     انضم للمنافسين الآن
@@ -267,14 +267,14 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                           <div className="w-20 h-20 rounded-full border-4 border-primary p-1 bg-card shadow-xl overflow-hidden group-hover:scale-105 transition-transform">
                               <img src={userData.photoURL || "/logo/logo.png"} alt="User" className="w-full h-full object-cover rounded-full" />
                           </div>
-                          <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#064E3B] rounded-lg flex items-center justify-center border-2 border-primary text-white shadow-lg">
+                          <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-lg flex items-center justify-center border-2 border-primary text-black shadow-lg">
                               <Star className="w-4 h-4 text-primary fill-primary" />
                           </div>
                       </div>
                       <div className="text-right">
                           <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-1">الرتبة: الحافظ المتميز</p>
                           <h2 className="text-3xl font-black text-foreground">{userData.displayName || userData.username}</h2>
-                          <p className="text-foreground/40 text-sm font-bold">باقي لك ١٥٠ نقطة للوصول للمركز التالي</p>
+
                       </div>
                   </div>
                   <div className="flex items-center gap-3 bg-foreground/5 p-4 rounded-3xl border border-border">
@@ -316,7 +316,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                                   <div className="w-32 h-32 md:w-44 md:h-44 rounded-full border-[8px] border-primary p-2 bg-card shadow-[0_20px_50px_rgba(212,175,55,0.3)] relative z-10 overflow-hidden">
                                       <img src={topThree[0].photoURL || "/logo/logo.png"} alt="1" className="w-full h-full object-cover rounded-full" />
                                   </div>
-                                  <div className="absolute -top-4 -right-4 w-12 h-12 bg-primary rounded-[1.2rem] flex items-center justify-center text-[#064E3B] font-black z-20 shadow-2xl border-4 border-card text-xl">1</div>
+                                  <div className="absolute -top-4 -right-4 w-12 h-12 bg-primary rounded-[1.2rem] flex items-center justify-center text-black font-black z-20 shadow-2xl border-4 border-card text-xl">1</div>
                               </div>
                               <div className="text-center">
                                   <h3 className="font-black text-foreground text-2xl truncate max-w-[160px]">{topThree[0].displayName?.split(' ')[0]}</h3>
