@@ -136,6 +136,8 @@ export function DailyHub() {
       case 'mushaf-full': router.push('/mushaf-full'); break;
       case 'daily': setActiveTab('dashboard'); break;
       case 'video': router.push('/video'); break;
+      case 'surah': router.push(`/audio?surahId=${quest.surahId}`); break;
+      case 'rank': router.push('/rank'); break;
       default: break;
     }
   };

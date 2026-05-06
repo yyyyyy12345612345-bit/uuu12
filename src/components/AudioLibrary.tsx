@@ -21,6 +21,15 @@ const fmt = (s: number) => {
 /* ─── Main Component ─── */
 export function AudioLibrary() {
   const [currentSurah, setCurrentSurah] = useState(surahsData[0]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sId = params.get('surahId');
+    if (sId) {
+      const found = surahsData.find(s => s.id === parseInt(sId));
+      if (found) setCurrentSurah(found);
+    }
+  }, []);
   const [selectedReciter, setSelectedReciter] = useState(RECITERS[0]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
