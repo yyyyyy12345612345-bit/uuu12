@@ -115,6 +115,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
 
   const PLANS = [
     { id: "free", name: "المجانية", price: 0, icon: Star, features: ["5 فيديوهات فقط", "علامة مائية مكثفة", "خلفيات ثابتة فقط"] },
+    { id: "trial", name: "عرض الشهر المجاني 🎁", price: 0, icon: Globe, features: ["فيديوهات غير محدودة", "بدون علامة مائية", "خلفيات فيديو", "صلاحية لمدة 30 يوم"] },
     { id: "starter", name: "خطة الهواة", price: pricing.priceStarter, icon: Crown, features: ["50 فيديو / شهر", "بدون علامة مائية", "خلفيات فيديو", "فتح ميزة البحث"] },
     { id: "supporter", name: "ادعم المشروع ❤️", price: pricing.priceSupporter, icon: ShieldCheck, features: ["فيديوهات غير محدودة", "بدون علامة مائية", "أولوية في الرندر", "جودة 1080p"] },
     { id: "premium", name: "البريميوم 👑", price: pricing.pricePremium, icon: Crown, features: ["غير محدود + 4K", "بدون علامة مائية", "رندر فائق السرعة", "قوالب حصرية"] },
