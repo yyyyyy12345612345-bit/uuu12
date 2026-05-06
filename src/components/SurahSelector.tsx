@@ -39,22 +39,22 @@ export function SurahSelector() {
       {/* Search Button */}
       <button 
         onClick={() => !isSearchLocked && setIsSearchOpen(true)}
-        className={`relative overflow-hidden group w-full flex items-center justify-between p-5 rounded-[2rem] border-2 transition-all duration-500 shadow-2xl ${isSearchLocked ? 'bg-white/5 border-white/5 opacity-50 cursor-not-allowed' : 'bg-primary/10 border-primary/20 hover:border-primary shadow-primary/5 hover:scale-[1.02]'}`}
+        className={`relative overflow-hidden group w-full flex items-center justify-between p-5 rounded-[2rem] border-2 transition-all duration-500 shadow-2xl ${isSearchLocked ? 'bg-foreground/5 border-foreground/5 opacity-50 cursor-not-allowed' : 'bg-primary/10 border-primary/20 hover:border-primary shadow-primary/5 hover:scale-[1.02]'}`}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         <div className="flex items-center gap-4 relative z-10">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 ${isSearchLocked ? 'bg-white/5 text-white/10' : 'bg-primary text-black shadow-xl shadow-primary/20 group-hover:rotate-12'}`}>
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 ${isSearchLocked ? 'bg-foreground/5 text-foreground/10' : 'bg-primary text-black shadow-xl shadow-primary/20 group-hover:rotate-12'}`}>
                 {isSearchLocked ? <Lock className="w-5 h-5" /> : <Search className="w-5 h-5 stroke-[3px]" />}
             </div>
             <div className="text-right">
-                <span className={`block text-xs font-black uppercase tracking-widest ${isSearchLocked ? 'text-white/20' : 'text-primary'}`}>
+                <span className={`block text-xs font-black uppercase tracking-widest ${isSearchLocked ? 'text-foreground/20' : 'text-primary'}`}>
                     {isSearchLocked ? 'ميزة البحث الذكي' : 'محرك البحث القرآني'}
                 </span>
-                <p className="text-[10px] text-white/40 mt-0.5">ابحث عن آية لبدء الفيديو</p>
+                <p className="text-[10px] text-foreground/40 mt-0.5">ابحث عن آية لبدء الفيديو</p>
             </div>
         </div>
         {!isSearchLocked && (
-            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-primary/40 group-hover:text-primary transition-colors">
+            <div className="w-8 h-8 rounded-full bg-foreground/5 flex items-center justify-center text-primary/40 group-hover:text-primary transition-colors">
                 <Sparkles className="w-4 h-4 animate-pulse" />
             </div>
         )}
@@ -64,16 +64,16 @@ export function SurahSelector() {
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-3 px-1">
             <div className="w-1 h-1 rounded-full bg-primary" />
-            <label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30">السورة الكريمة</label>
+            <label className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/40">السورة الكريمة</label>
         </div>
         <div className="relative group">
           <select 
             value={state.surahId}
             onChange={(e) => updateState({ surahId: e.target.value })}
-            className="w-full bg-white/5 border-2 border-white/5 p-5 rounded-[2rem] outline-none appearance-none cursor-pointer text-base font-bold text-white transition-all duration-500 hover:border-white/10 focus:border-primary/50 focus:bg-white/10 shadow-xl"
+            className="w-full bg-foreground/5 border-2 border-foreground/5 p-5 rounded-[2rem] outline-none appearance-none cursor-pointer text-base font-bold text-foreground transition-all duration-500 hover:border-foreground/10 focus:border-primary/50 focus:bg-foreground/10 shadow-xl"
           >
             {surahsData.map((s) => (
-              <option key={s.id} value={s.id.toString()} className="bg-[#064E3B] text-white">
+              <option key={s.id} value={s.id.toString()} className="bg-card text-foreground">
                 {s.id}. {s.name}
               </option>
             ))}
@@ -89,7 +89,7 @@ export function SurahSelector() {
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3 px-1">
              <div className="w-1 h-1 rounded-full bg-primary" />
-             <label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30">البداية</label>
+             <label className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/40">البداية</label>
           </div>
           <div className="relative">
             <input 
@@ -107,9 +107,9 @@ export function SurahSelector() {
                         updateState({ startAyah: 1 });
                     }
                 }}
-                className="w-full bg-white/5 border-2 border-white/5 p-5 rounded-[1.8rem] outline-none transition-all duration-500 text-base font-bold text-white text-center focus:border-primary/50 focus:bg-white/10"
+                className="w-full bg-foreground/5 border-2 border-foreground/5 p-5 rounded-[1.8rem] outline-none transition-all duration-500 text-base font-bold text-foreground text-center focus:border-primary/50 focus:bg-foreground/10"
             />
-            <div className="absolute right-6 top-1/2 -translate-y-1/2 text-white/10">
+            <div className="absolute right-6 top-1/2 -translate-y-1/2 text-foreground/10">
                 <Hash className="w-4 h-4" />
             </div>
           </div>
@@ -118,7 +118,7 @@ export function SurahSelector() {
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3 px-1">
              <div className="w-1 h-1 rounded-full bg-primary" />
-             <label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30">النهاية</label>
+             <label className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/40">النهاية</label>
           </div>
           <div className="relative">
             <input 
@@ -136,9 +136,9 @@ export function SurahSelector() {
                         updateState({ endAyah: maxVerses });
                     }
                 }}
-                className="w-full bg-white/5 border-2 border-white/5 p-5 rounded-[1.8rem] outline-none transition-all duration-500 text-base font-bold text-white text-center focus:border-primary/50 focus:bg-white/10"
+                className="w-full bg-foreground/5 border-2 border-foreground/5 p-5 rounded-[1.8rem] outline-none transition-all duration-500 text-base font-bold text-foreground text-center focus:border-primary/50 focus:bg-foreground/10"
             />
-            <div className="absolute right-6 top-1/2 -translate-y-1/2 text-white/10">
+            <div className="absolute right-6 top-1/2 -translate-y-1/2 text-foreground/10">
                 <Hash className="w-4 h-4" />
             </div>
           </div>
@@ -146,15 +146,15 @@ export function SurahSelector() {
       </div>
       
       {/* Selected Ayahs Hint */}
-      <div className="flex items-center gap-6 px-4 py-4 bg-white/5 rounded-[1.5rem] border border-white/5">
+      <div className="flex items-center gap-6 px-4 py-4 bg-foreground/5 rounded-[1.5rem] border border-foreground/5">
         <div className="flex -space-x-2 rtl:space-x-reverse">
             {[...Array(3)].map((_, i) => (
-                <div key={i} className="w-6 h-6 rounded-full border-2 border-[#064E3B] bg-primary/20 flex items-center justify-center text-[8px] font-bold text-primary">
+                <div key={i} className="w-6 h-6 rounded-full border-2 border-background bg-primary/20 flex items-center justify-center text-[8px] font-bold text-primary">
                     {state.startAyah + i}
                 </div>
             ))}
         </div>
-        <span className="text-[10px] text-white/40 font-black uppercase tracking-[0.4em]">
+        <span className="text-[10px] text-foreground/40 font-black uppercase tracking-[0.4em]">
           {state.endAyah - state.startAyah + 1} آيات مختارة للتصميم
         </span>
       </div>

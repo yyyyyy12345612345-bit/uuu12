@@ -85,24 +85,24 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                <Crown className="w-7 h-7 fill-current" />
             </div>
             <div className="text-right">
-               <span className="block text-lg font-black text-white leading-tight">عضوية التميز النادرة</span>
+               <span className="block text-lg font-black text-foreground leading-tight">عضوية التميز النادرة</span>
                <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em] mt-1">
                   {userPlan?.plan === 'free' ? 'قم بترقية حسابك لتجربة كاملة' : 'أنت الآن مشترك في باقة التميز'}
                </p>
             </div>
          </div>
-         <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-black transition-all duration-500">
+         <div className="w-10 h-10 rounded-2xl bg-foreground/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-black transition-all duration-500">
             <Star className="w-4 h-4 fill-current" />
          </div>
       </button>
 
       {/* Main Tabs */}
-      <div className="flex p-2 bg-black/40 backdrop-blur-xl rounded-[2rem] border border-white/5 shadow-2xl">
+      <div className="flex p-2 bg-foreground/5 backdrop-blur-xl rounded-[2rem] border border-foreground/5 shadow-2xl">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 flex flex-col items-center gap-2 py-4 rounded-[1.5rem] transition-all duration-500 ${activeTab === tab.id ? 'bg-primary text-black shadow-2xl shadow-primary/30 scale-[1.02]' : 'text-white/20 hover:text-white/40'}`}
+            className={`flex-1 flex flex-col items-center gap-2 py-4 rounded-[1.5rem] transition-all duration-500 ${activeTab === tab.id ? 'bg-primary text-black shadow-2xl shadow-primary/30 scale-[1.02]' : 'text-foreground/20 hover:text-foreground/40'}`}
           >
             <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'animate-bounce' : ''}`} />
             <span className="text-[10px] font-black uppercase tracking-widest">{tab.label}</span>
@@ -111,7 +111,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
       </div>
 
       {/* Content Container */}
-      <div className="flex-1 min-h-[500px] rounded-[3rem] bg-[#064E3B]/40 backdrop-blur-3xl border border-white/10 p-8 relative overflow-hidden group">
+      <div className="flex-1 min-h-[500px] rounded-[3rem] bg-foreground/5 backdrop-blur-3xl border border-foreground/10 p-8 relative overflow-hidden group">
         <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
         
         <div className="h-full overflow-y-auto no-scrollbar pb-12">
@@ -119,16 +119,16 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
           {activeTab === "bg" && (
             <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
                 {/* Bg Mode Switcher */}
-                <div className="flex p-1.5 bg-black/20 rounded-2xl border border-white/5 gap-2">
+                <div className="flex p-1.5 bg-foreground/5 rounded-2xl border border-foreground/5 gap-2">
                     <button
                         onClick={() => setBgMode("library")}
-                        className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 ${bgMode === "library" ? "bg-white/10 text-white shadow-xl" : "text-white/20 hover:text-white/40"}`}
+                        className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 ${bgMode === "library" ? "bg-primary text-black shadow-xl" : "text-foreground/20 hover:text-foreground/40"}`}
                     >
                         المكتبة المختارة
                     </button>
                     <button
                         onClick={() => !isSearchLocked && setBgMode("search")}
-                        className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 flex items-center justify-center gap-2 ${bgMode === "search" ? "bg-white/10 text-white shadow-xl" : "text-white/20 hover:text-white/40"} ${isSearchLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 flex items-center justify-center gap-2 ${bgMode === "search" ? "bg-primary text-black shadow-xl" : "text-foreground/20 hover:text-foreground/40"} ${isSearchLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                         {isSearchLocked && <Lock className="w-3 h-3 text-primary" />}
                         بحث إضافي
@@ -138,13 +138,13 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                 {bgMode === "search" && (
                 <div className="flex items-center gap-4 animate-in slide-in-from-top-4 duration-500">
                     <div className="relative flex-1">
-                        <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-white/20 w-5 h-5" />
+                        <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-foreground/20 w-5 h-5" />
                         <input
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && setQuery(search)}
                             placeholder="ابحث عن مشاهد (مكة، سماء...)"
-                            className="w-full rounded-2xl bg-white/5 border border-white/10 pr-14 pl-6 py-4 text-sm text-white outline-none focus:border-primary/50 transition-all font-arabic"
+                            className="w-full rounded-2xl bg-foreground/5 border border-foreground/10 pr-14 pl-6 py-4 text-sm text-foreground outline-none focus:border-primary/50 transition-all font-arabic placeholder:text-foreground/20"
                         />
                     </div>
                     <button
@@ -203,19 +203,19 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
 
           {activeTab === "reciter" && (
             <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-4">اختر الصوت المناسب للمشهد</p>
+                <p className="text-[10px] font-black text-foreground/20 uppercase tracking-[0.3em] mb-4">اختر الصوت المناسب للمشهد</p>
                 {RECITERS.map((r) => (
                     <button
                         key={r.id}
                         onClick={() => updateState({ reciterId: r.id })}
-                        className={`flex items-center justify-between p-6 rounded-[2rem] border-2 transition-all duration-500 group/reciter ${state.reciterId === r.id ? 'bg-primary/10 border-primary shadow-2xl shadow-primary/10' : 'bg-white/5 border-white/5 hover:border-white/10'}`}
+                        className={`flex items-center justify-between p-6 rounded-[2rem] border-2 transition-all duration-500 group/reciter ${state.reciterId === r.id ? 'bg-primary/10 border-primary shadow-2xl shadow-primary/10' : 'bg-foreground/5 border-foreground/5 hover:border-foreground/10'}`}
                     >
                         <div className="flex items-center gap-4">
-                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${state.reciterId === r.id ? 'bg-primary text-black shadow-xl shadow-primary/20' : 'bg-white/5 text-white/20'}`}>
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${state.reciterId === r.id ? 'bg-primary text-black shadow-xl shadow-primary/20' : 'bg-foreground/5 text-foreground/20'}`}>
                                 <Music className="w-5 h-5" />
                             </div>
                             <div className="text-right">
-                                <span className={`block text-base font-bold font-arabic ${state.reciterId === r.id ? 'text-white' : 'text-white/60'}`}>{r.name}</span>
+                                <span className={`block text-base font-bold font-arabic ${state.reciterId === r.id ? 'text-foreground' : 'text-foreground/60'}`}>{r.name}</span>
                                 <p className="text-[9px] font-black text-primary/40 uppercase tracking-widest mt-0.5">صوت نقي عالي الجودة</p>
                             </div>
                         </div>
@@ -230,9 +230,9 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                 {/* Font Family */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-4">
-                        <div className="h-px flex-1 bg-white/10" />
+                        <div className="h-px flex-1 bg-foreground/10" />
                         <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">نمط الخط العربي</span>
-                        <div className="h-px flex-1 bg-white/10" />
+                        <div className="h-px flex-1 bg-foreground/10" />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         {[
@@ -245,7 +245,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                         <button
                             key={font.id}
                             onClick={() => updateState({ fontFamily: font.id })}
-                            className={`p-5 rounded-2xl border-2 transition-all duration-500 text-center ${state.fontFamily === font.id ? 'bg-primary/10 border-primary text-white' : 'bg-white/5 border-white/5 text-white/30 hover:bg-white/10'}`}
+                            className={`p-5 rounded-2xl border-2 transition-all duration-500 text-center ${state.fontFamily === font.id ? 'bg-primary/10 border-primary text-foreground' : 'bg-foreground/5 border-foreground/5 text-foreground/30 hover:bg-foreground/10'}`}
                         >
                             <span className="text-xs font-black block mb-2">{font.label}</span>
                             <span className="text-2xl" style={{ fontFamily: font.id, direction: 'rtl' }}>بسم الله</span>
@@ -257,9 +257,9 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                 {/* Filters */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-4">
-                        <div className="h-px flex-1 bg-white/10" />
+                        <div className="h-px flex-1 bg-foreground/10" />
                         <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">مرشحات المشهد</span>
-                        <div className="h-px flex-1 bg-white/10" />
+                        <div className="h-px flex-1 bg-foreground/10" />
                     </div>
                     <div className="grid grid-cols-4 gap-3">
                         {[
@@ -275,10 +275,10 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                         <button
                             key={f.id}
                             onClick={() => updateState({ filter: f.id })}
-                            className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-500 ${state.filter === f.id ? 'bg-primary/10 border-primary shadow-xl' : 'bg-white/5 border-white/5'}`}
+                            className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-500 ${state.filter === f.id ? 'bg-primary/10 border-primary shadow-xl' : 'bg-foreground/5 border-foreground/5'}`}
                         >
                             <span className="text-xl">{f.icon}</span>
-                            <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">{f.label}</span>
+                            <span className="text-[9px] font-black text-foreground/40 uppercase tracking-widest">{f.label}</span>
                         </button>
                         ))}
                     </div>
@@ -288,14 +288,14 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                 <div className="space-y-8">
                     {/* Color Picker */}
                     <div className="space-y-4">
-                        <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">لون النص</span>
+                        <span className="text-[10px] font-black text-foreground/20 uppercase tracking-[0.3em]">لون النص</span>
                         <div className="flex flex-wrap gap-3">
                             {['#ffffff', '#FFD700', '#D4AF37', '#00FFC2', '#00E5FF', '#F43F5E', '#22C55E'].map((color) => (
                             <button
                                 key={color}
                                 onClick={() => updateState({ textColor: color })}
                                 style={{ backgroundColor: color }}
-                                className={`w-10 h-10 rounded-full border-2 transition-all duration-500 ${state.textColor === color ? 'border-white scale-125 ring-8 ring-primary/20' : 'border-white/10 hover:scale-110'}`}
+                                className={`w-10 h-10 rounded-full border-2 transition-all duration-500 ${state.textColor === color ? 'border-primary scale-125 ring-8 ring-primary/20' : 'border-foreground/10 hover:scale-110'}`}
                             />
                             ))}
                         </div>
@@ -304,28 +304,28 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                     {/* Font Size Slider */}
                     <div className="space-y-6">
                         <div className="flex justify-between items-center px-2">
-                            <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">حجم الخط</span>
+                            <span className="text-[10px] font-black text-foreground/20 uppercase tracking-[0.3em]">حجم الخط</span>
                             <span className="text-xs font-black text-primary font-mono">{state.fontSize}px</span>
                         </div>
                         <input
                             type="range" min="20" max="300" step="2"
                             value={state.fontSize}
                             onChange={(e) => updateState({ fontSize: Number(e.target.value) })}
-                            className="w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary"
+                            className="w-full h-2 bg-foreground/10 rounded-full appearance-none cursor-pointer accent-primary"
                         />
                     </div>
 
                     {/* Vertical Offset */}
                     <div className="space-y-6">
                         <div className="flex justify-between items-center px-2">
-                            <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">الموقع الرأسي</span>
+                            <span className="text-[10px] font-black text-foreground/20 uppercase tracking-[0.3em]">الموقع الرأسي</span>
                             <span className="text-xs font-black text-primary font-mono">{state.textVerticalOffset}px</span>
                         </div>
                         <input
                             type="range" min="-500" max="500" step="5"
                             value={state.textVerticalOffset}
                             onChange={(e) => updateState({ textVerticalOffset: Number(e.target.value) })}
-                            className="w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary"
+                            className="w-full h-2 bg-foreground/10 rounded-full appearance-none cursor-pointer accent-primary"
                         />
                     </div>
                 </div>
@@ -334,19 +334,19 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
 
           {activeTab === "support" && (
             <div className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 space-y-4">
-                    <h3 className="text-xl font-black text-white font-arabic">مركز المقترحات والتحسين</h3>
-                    <p className="text-[10px] text-white/40 leading-relaxed uppercase tracking-widest">مساهمتكم تبني مستقبل التطبيق</p>
+                <div className="p-8 rounded-[2.5rem] bg-foreground/5 border border-foreground/10 space-y-4">
+                    <h3 className="text-xl font-black text-foreground font-arabic">مركز المقترحات والتحسين</h3>
+                    <p className="text-[10px] text-foreground/40 leading-relaxed uppercase tracking-widest">مساهمتكم تبني مستقبل التطبيق</p>
                     <textarea 
                         value={feedback}
                         onChange={(e) => setFeedback(e.target.value)}
                         placeholder="اكتب اقتراحك هنا بكامل التفاصيل..."
-                        className="w-full h-40 bg-black/40 border border-white/10 rounded-2xl p-6 text-sm text-white outline-none focus:border-primary/50 transition-all resize-none font-arabic"
+                        className="w-full h-40 bg-foreground/5 border border-foreground/10 rounded-2xl p-6 text-sm text-foreground outline-none focus:border-primary/50 transition-all resize-none font-arabic placeholder:text-foreground/20"
                     />
                     <button 
                         onClick={handleSendFeedback}
                         disabled={isSending || !feedback.trim()}
-                        className={`w-full py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] transition-all ${isSending || !feedback.trim() ? 'bg-white/5 text-white/10' : 'bg-primary text-black shadow-xl shadow-primary/20 hover:scale-[1.02]'}`}
+                        className={`w-full py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] transition-all ${isSending || !feedback.trim() ? 'bg-foreground/5 text-foreground/10' : 'bg-primary text-black shadow-xl shadow-primary/20 hover:scale-[1.02]'}`}
                     >
                         {isSending ? 'جاري الإرسال...' : 'إرسال الاقتراح الآن'}
                     </button>
