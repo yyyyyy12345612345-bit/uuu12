@@ -87,10 +87,31 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
   }
 
   useEffect(() => {
-    const savedPage = localStorage.getItem("last_read_page");
-    const initialPage = savedPage ? parseInt(savedPage) : 1;
+    const params = new URLSearchParams(window.location.search);
+    const sId = params.get('surahId');
+    const pId = params.get('page');
+    
+    let initialPage = 1;
+    if (pId) {
+      initialPage = parseInt(pId);
+    } else if (sId) {
+      initialPage = SURAH_START_PAGES[parseInt(sId)] || 1;
+    } else {
+      const savedPage = localStorage.getItem("last_read_page");
+      initialPage = savedPage ? parseInt(savedPage) : 1;
+    }
     fetchPageBatch(initialPage, true);
   }, []);
+
+  // Update URL when page changes to support sharing/deep-linking
+  useEffect(() => {
+    if (currentPage > 0) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', currentPage.toString());
+        url.searchParams.delete('surahId'); // Prioritize page for accuracy
+        window.history.replaceState(null, '', url.toString());
+    }
+  }, [currentPage]);
 
   useEffect(() => {
     fetchPageBatch(pages[0]?.page || currentPage, true);
