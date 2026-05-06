@@ -298,7 +298,7 @@ export function Mushaf() {
                                             return (
                                                 <span
                                                     key={word.id}
-                                                    className={`${amiri.className} text-4xl md:text-6xl px-1 transition-colors ${isAllah ? 'text-red-400' : 'text-white/90 group-hover:text-white'}`}
+                                                    className={`font-['Amiri'] text-4xl md:text-6xl px-1 transition-colors ${isAllah ? 'text-red-400' : 'text-white/90 group-hover:text-white'}`}
                                                 >
                                                     {word.text_uthmani}
                                                 </span>

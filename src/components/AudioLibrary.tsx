@@ -205,10 +205,45 @@ export function AudioLibrary() {
                   className="absolute left-0 top-1/2 -translate-y-1/2 h-1.5 bg-primary rounded-full pointer-events-none transition-all group-hover:h-2"
                   style={{ width: `${progress}%` }}
                 />
-              >
-                <Repeat className="w-5 h-5" />
-              </button>
             </div>
+            <div className="flex justify-between items-center mt-2">
+              <span className="text-[10px] font-black text-white/30 font-mono tracking-tighter">{fmt(currentTime)}</span>
+              <span className="text-[10px] font-black text-white/30 font-mono tracking-tighter">{fmt(duration)}</span>
+            </div>
+          </div>
+
+          {/* Main Controls Section */}
+          <div className="relative z-10 flex items-center justify-between w-full max-w-md px-6">
+            <button 
+              onClick={() => setIsShuffle(!isShuffle)}
+              className={`p-2 transition-all ${isShuffle ? 'text-primary' : 'text-white/20 hover:text-white/40'}`}
+            >
+              <Shuffle className={`w-5 h-5 ${isShuffle ? 'drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]' : ''}`} />
+            </button>
+
+            <div className="flex items-center gap-8">
+                <button onClick={prevSurah} className="text-white/40 hover:text-white transition-all hover:scale-110 active:scale-90">
+                  <SkipBack className="w-7 h-7 fill-current" />
+                </button>
+
+                <button 
+                  onClick={togglePlay}
+                  className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-black shadow-[0_0_40px_rgba(212,175,55,0.3)] hover:scale-110 active:scale-95 transition-all"
+                >
+                  {isPlaying ? <Pause className="w-8 h-8 fill-current" /> : <Play className="w-8 h-8 fill-current translate-x-1" />}
+                </button>
+
+                <button onClick={nextSurah} className="text-white/40 hover:text-white transition-all hover:scale-110 active:scale-90">
+                  <SkipForward className="w-7 h-7 fill-current" />
+                </button>
+            </div>
+
+            <button 
+              onClick={() => setIsRepeat(!isRepeat)}
+              className={`p-2 transition-all ${isRepeat ? 'text-primary' : 'text-white/20 hover:text-white/40'}`}
+            >
+              <Repeat className={`w-5 h-5 ${isRepeat ? 'drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]' : ''}`} />
+            </button>
           </div>
         </div>
 
