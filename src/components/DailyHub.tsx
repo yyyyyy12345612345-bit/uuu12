@@ -123,7 +123,7 @@ export function DailyHub() {
   const fetchGlobalQuests = async () => {
     if (!db) return;
     try {
-      const q = query(collection(db, "global_quests"), where("active", "==", true), orderBy("createdAt", "desc"), limit(5));
+      const q = query(collection(db, "global_quests"), where("active", "==", true), limit(5));
       const snapshot = await getDocs(q);
       setGlobalQuests(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
     } catch (e) { console.error(e); }

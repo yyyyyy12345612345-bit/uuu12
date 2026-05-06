@@ -8,6 +8,7 @@ import { initializePushNotifications } from '@/lib/pushNotifications';
 import { Geolocation } from '@capacitor/geolocation';
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { registerPlugin } from '@capacitor/core';
 
 // Custom Native Plugin for Battery Optimization
@@ -132,14 +133,10 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     const handleManualUpdate = () => checkForUpdates(true);
     window.addEventListener('check-for-updates', handleManualUpdate);
 
-    // 5. Listen for Global Announcements & Force Token Update on Login
-    let unsubscribeSettings: () => void;
-    let unsubscribeAuth: () => void;
+    let unsubscribeSettings: (() => void) | null = null;
+    let unsubscribeAuth: (() => void) | null = null;
 
-    const setupListeners = async () => {
-      // Use static imports for firestore to avoid chunking issues during init
-      const { doc, onSnapshot } = await import("firebase/firestore");
-      
+    const setupListeners = () => {
       unsubscribeSettings = onSnapshot(doc(db, "settings", "global"), (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.data();
