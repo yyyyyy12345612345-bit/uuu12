@@ -48,7 +48,9 @@ export function AudioLibrary() {
       audio.src = newSrc;
       audio.load();
       if (isPlaying) {
-        audio.play().catch(() => setIsPlaying(false));
+        audio.play().catch(err => {
+          if (err.name !== 'AbortError') setIsPlaying(false);
+        });
         setPlaybackState('playing');
       }
       logAppEvent("change_reciter", { reciter_name: selectedReciter.name });
@@ -161,24 +163,21 @@ export function AudioLibrary() {
         <div className="relative px-8 pt-10 pb-12 flex flex-col items-center">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent opacity-40" />
           
-          {/* Large Album Art */}
-          <div className="relative z-10 w-full max-w-[280px] aspect-square mb-10 group">
-             <div className="absolute inset-0 bg-primary/20 rounded-[2.5rem] blur-2xl group-hover:bg-primary/30 transition-all duration-700" />
-             <div className="relative h-full w-full rounded-[2.5rem] bg-[#0d1411] border-2 border-white/5 shadow-2xl overflow-hidden flex items-center justify-center">
-                <div className="absolute inset-0 islamic-pattern opacity-10" />
-                <Disc className={`w-32 h-32 text-primary/20 ${isPlaying ? 'animate-spin-slow' : ''}`} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute bottom-6 right-6 w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-black shadow-2xl">
-                    <Headphones className="w-6 h-6" />
+          {/* Compact Surah Card (Replaces Large Album Art) */}
+          <div className="relative z-10 w-full max-w-[200px] aspect-[4/3] mb-8 group">
+             <div className="absolute inset-0 bg-primary/10 rounded-3xl blur-xl group-hover:bg-primary/20 transition-all duration-700" />
+             <div className="relative h-full w-full rounded-3xl bg-gradient-to-br from-[#0d1411] to-[#0a0f0d] border border-white/5 shadow-2xl overflow-hidden flex flex-col items-center justify-center p-6 text-center">
+                <div className="absolute inset-0 islamic-pattern opacity-[0.03]" />
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <Headphones className="w-6 h-6 text-primary" />
                 </div>
+                <span className="text-2xl font-black text-primary font-['Amiri']">سورة {currentSurah.name}</span>
+                <span className="text-[8px] text-white/20 font-black uppercase tracking-[0.2em] mt-2">جاري الاستماع الآن</span>
              </div>
           </div>
 
           {/* Track Metadata */}
-          <div className="relative z-10 text-center mb-10 w-full">
-            <h1 className="text-4xl font-black text-white mb-3 font-['Amiri'] drop-shadow-xl">
-              سورة {currentSurah.name}
-            </h1>
+          <div className="relative z-10 text-center mb-8 w-full">
             <button
               onClick={() => setShowReciters(true)}
               className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all group"
@@ -200,10 +199,11 @@ export function AudioLibrary() {
                   max="100"
                   value={progress}
                   onChange={handleSeek}
+                  dir="rtl"
                   className="absolute w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary z-10 hover:h-2 transition-all"
                 />
                 <div 
-                  className="absolute left-0 top-1/2 -translate-y-1/2 h-1.5 bg-primary rounded-full pointer-events-none transition-all group-hover:h-2"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 h-1.5 bg-primary rounded-full pointer-events-none transition-all group-hover:h-2"
                   style={{ width: `${progress}%` }}
                 />
             </div>

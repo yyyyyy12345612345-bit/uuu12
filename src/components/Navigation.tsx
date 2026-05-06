@@ -34,7 +34,7 @@ export function Navigation() {
             <Link
               key={tab.id}
               href={tab.path}
-              className={`relative flex flex-col items-center justify-center gap-1 transition-all duration-500 flex-1 py-1 group/nav ${isActive ? 'scale-105' : 'opacity-40 grayscale hover:opacity-100 hover:grayscale-0'}`}
+              className={`relative flex flex-col items-center justify-center gap-1 transition-all duration-500 flex-1 py-1 group/nav ${isActive ? 'scale-105' : 'opacity-70 grayscale hover:opacity-100 hover:grayscale-0'}`}
             >
               {/* Active Aura */}
               {isActive && (
@@ -49,7 +49,7 @@ export function Navigation() {
                 )}
               </div>
 
-              <span className={`text-[8px] font-black uppercase tracking-[0.1em] transition-all duration-700 ${isActive ? 'text-primary opacity-100' : 'text-white/40 opacity-0 group-hover/nav:opacity-100'}`}>
+              <span className={`text-[10px] font-bold tracking-tight transition-all duration-700 ${isActive ? 'text-primary' : 'text-white'}`}>
                 {tab.label}
               </span>
 
