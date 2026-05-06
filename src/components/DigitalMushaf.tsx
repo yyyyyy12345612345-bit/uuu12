@@ -529,15 +529,3 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
     );
 });
 MushafPage.displayName = "MushafPage";
-                       </span>
-                                    </span>
-                                </span>
-                            </React.Fragment>
-                        );
-                    })}
-                </div>
-            </div>
-        </div>
-    );
-});
-MushafPage.displayName = "MushafPage";

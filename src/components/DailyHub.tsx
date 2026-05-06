@@ -409,22 +409,3 @@ export function DailyHub() {
     </div>
   );
 }
->
-                     </div>
-                     
-                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="w-3 h-3 bg-foreground rounded-full shadow-[0_0_20px_rgba(var(--foreground-rgb),0.5)]" />
-                     </div>
-                  </div>
-               )}
-               {qibla.heading !== null && qibla.angle !== null && (
-                 <p className="text-foreground/40 mt-8 text-sm">قم بتدوير الجهاز حتى يشير السهم الذهبي للأمام</p>
-               )}
-            </div>
-         )}
-      </div>
-      
-      <div className="h-40 shrink-0 w-full" />
-    </div>
-  );
-}
