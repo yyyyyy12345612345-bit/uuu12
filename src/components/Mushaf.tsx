@@ -363,10 +363,3 @@ export function Mushaf() {
         </div>
     );
 }
-.surahName}
-                    onClose={() => setSelectedVerseForDetail(null)}
-                />
-            )}
-        </div>
-    );
-}

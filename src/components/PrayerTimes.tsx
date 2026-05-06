@@ -332,22 +332,3 @@ export function PrayerTimes() {
     </div>
   );
 }
- للموقع
-                                    // @ts-ignore
-                                    window.gtag?.('event', 'location_update_manual', { 'city': customCity, 'country': customCountry });
-                                } 
-                            }} 
-                            className="w-full py-5 bg-primary text-black rounded-[2rem] font-bold text-lg shadow-2xl shadow-primary/20 hover:scale-105 transition-all mt-4"
-                        >
-                            تحديث
-                        </button>
-                    </div>
-                </div>
-            </div>
-        )}
-
-      </div>
-      <audio ref={audioRef} onEnded={() => setIsPlayingTest(false)} />
-    </div>
-  );
-}
