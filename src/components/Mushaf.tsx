@@ -24,6 +24,20 @@ export function Mushaf() {
     const [showReciterPicker, setShowReciterPicker] = useState(false);
     const [selectedVerseForDetail, setSelectedVerseForDetail] = useState<{verseKey: string, surahName: string} | null>(null);
 
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const sId = params.get('surahId');
+        if (sId) setSelectedSurah(sId);
+    }, []);
+
+    useEffect(() => {
+        if (selectedSurah) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('surahId', selectedSurah);
+            window.history.replaceState(null, '', url.toString());
+        }
+    }, [selectedSurah]);
+
     const audioRef = useRef<HTMLAudioElement>(null);
     const selectedReciter = RECITERS.find(r => r.id === state.reciterId) || RECITERS[0];
 

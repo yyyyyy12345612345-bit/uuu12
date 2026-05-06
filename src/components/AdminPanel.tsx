@@ -82,6 +82,12 @@ export function AdminPanel() {
   const [activeTab, setActiveTab] = useState<"stats" | "users" | "quests" | "subs" | "settings" | "showcase">("stats");
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab && ["stats", "users", "quests", "subs", "settings", "showcase"].includes(tab)) {
+      setActiveTab(tab as any);
+    }
+
     if (!auth) return;
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user && user.email === ADMIN_EMAIL) {
@@ -99,6 +105,14 @@ export function AdminPanel() {
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (isAdmin) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', activeTab);
+      window.history.replaceState(null, '', url.toString());
+    }
+  }, [activeTab, isAdmin]);
 
   const fetchAnnouncement = async () => {
     if (!db) return;

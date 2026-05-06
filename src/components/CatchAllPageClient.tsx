@@ -54,7 +54,24 @@ function CatchAllContent() {
   // Derived active view from pathname - the safest way in Next.js 15/16 Client Components
   const activeView = useMemo(() => {
     if (!pathname || pathname === "/") return "mushaf-choice";
-    return pathname.split('/').filter(Boolean)[0] || "mushaf-choice";
+    const segment = pathname.split('/').filter(Boolean)[0];
+    
+    // Alias mapping for cleaner URLs and quest compatibility
+    const mapping: Record<string, string> = {
+      'audio': 'library',
+      'mushaf-full': 'mushaf-full',
+      'mushaf-tafseer': 'mushaf-tafseer',
+      'digital': 'mushaf-full',
+      'daily': 'daily',
+      'video': 'video',
+      'rank': 'rank',
+      'leaderboard': 'rank',
+      'admin': 'admin',
+      'showcase': 'showcase',
+      'prayers': 'prayers'
+    };
+
+    return mapping[segment] || segment || "mushaf-choice";
   }, [pathname]);
 
   const [visited, setVisited] = useState<Record<string, boolean>>({ 'mushaf-choice': true });
