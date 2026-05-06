@@ -27,9 +27,9 @@ export interface PrayerNotifSetting {
 
 export type PrayerSettingsMap = Record<string, PrayerNotifSetting>;
 
-const PRAYER_KEYS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
+export const PRAYER_KEYS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
 
-const PRAYER_NAMES_AR: Record<string, string> = {
+export const PRAYER_NAMES_AR: Record<string, string> = {
   Fajr: 'الفجر',
   Dhuhr: 'الظهر',
   Asr: 'العصر',
@@ -300,4 +300,4 @@ export function saveSettings(settings: PrayerSettingsMap): void {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
 }
 
-export { PRAYER_KEYS, PRAYER_NAMES_AR };
+

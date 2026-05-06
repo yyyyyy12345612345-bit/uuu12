@@ -380,6 +380,12 @@ export function DailyHub() {
             </div>
           )}
 
+          {activeTab === "library" && (
+            <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <AthkarLibrary />
+            </div>
+          )}
+
           {activeTab === "qibla" && (
             <div className="glass-effect p-12 rounded-[3rem] border border-border animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center min-h-[600px] shadow-2xl">
                 <h3 className="text-4xl font-black mb-2">اتجاه القبلة</h3>

@@ -11,7 +11,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { registerPlugin } from '@capacitor/core';
 
 // Custom Native Plugin for Battery Optimization
-const BatteryOptimization = registerPlugin<any>('BatteryOptimization');
+
 
 export default function AppInitializer({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState(true);
@@ -59,6 +59,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
       // 3. Android Specific: Battery Optimization Exemption
       if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
          try {
+           const BatteryOptimization = registerPlugin<any>('BatteryOptimization');
            const { isIgnoring } = await BatteryOptimization.isIgnoringBatteryOptimizations();
            if (!isIgnoring) {
              await BatteryOptimization.requestIgnoreBatteryOptimizations();
@@ -132,13 +133,13 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     window.addEventListener('check-for-updates', handleManualUpdate);
 
     // 5. Listen for Global Announcements & Force Token Update on Login
-    let unsubscribeSettings: any = null;
-    let unsubscribeAuth: any = null;
+    let unsubscribeSettings: () => void;
+    let unsubscribeAuth: () => void;
 
     const setupListeners = async () => {
+      // Use static imports for firestore to avoid chunking issues during init
       const { doc, onSnapshot } = await import("firebase/firestore");
       
-      // Settings listener
       unsubscribeSettings = onSnapshot(doc(db, "settings", "global"), (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.data();
@@ -153,7 +154,6 @@ export default function AppInitializer({ children }: { children: React.ReactNode
         }
       });
 
-      // Auth listener to re-register push token when user logs in
       unsubscribeAuth = onAuthStateChanged(auth, (user) => {
         if (user && Capacitor.isNativePlatform()) {
           console.log("[App] User detected, re-initializing push token...");
