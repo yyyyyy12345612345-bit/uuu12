@@ -37,7 +37,7 @@ export const PRAYER_NAMES_AR: Record<string, string> = {
   Isha: 'العشاء',
 };
 
-const CHANNEL_ID = 'prayer-notifications';
+const CHANNEL_ID = 'prayer_notifications_v4'; // Changed ID to force channel recreation with max importance
 
 // ── Permission Request ───────────────────────────────────────────────────
 
@@ -99,14 +99,14 @@ async function ensureChannel(): Promise<void> {
     const { LocalNotifications } = await import('@capacitor/local-notifications');
     await LocalNotifications.createChannel({
       id: CHANNEL_ID,
-      name: 'أذان الصلاة',
-      description: 'تنبيهات مواقيت الصلاة والأذان',
-      importance: 5, // MAX — shows heads-up notification with sound
+      name: 'أذان الصلاة والمواقيت',
+      description: 'تنبيهات عاجلة لمواقيت الصلاة مع الأذان',
+      importance: 5, // MAX
       visibility: 1, // PUBLIC
-      sound: 'adhan', // ✅ Removed .mp3 for native resource mapping
+      sound: 'adhan',
       vibration: true,
       lights: true,
-      lightColor: '#c5a059',
+      lightColor: '#D4AF37',
     });
   } catch (e) {
     console.error('[Notifications] Channel creation failed:', e);
@@ -174,6 +174,7 @@ export async function schedulePrayerNotifications(
           },
           sound: setting.soundEnabled ? 'adhan' : undefined,
           channelId: CHANNEL_ID,
+          importance: 5,
           smallIcon: 'ic_notification',
           iconColor: '#c5a059',
           autoCancel: true,
@@ -226,6 +227,7 @@ export async function sendTestNotification(): Promise<boolean> {
         schedule: { at: new Date(Date.now() + 5000), allowWhileIdle: true },
         sound: 'adhan',
         channelId: CHANNEL_ID,
+        importance: 5,
         smallIcon: 'ic_notification',
         iconColor: '#c5a059',
       }],
