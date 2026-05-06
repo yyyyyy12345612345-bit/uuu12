@@ -150,6 +150,7 @@ export function AudioLibrary() {
   };
 
   return (
+    <>
     <div className="h-full w-full flex flex-col bg-[#0a0f0d] text-white overflow-hidden relative font-['Tajawal']">
       <audio ref={audioRef} onTimeUpdate={onTimeUpdate} onEnded={onEnded} preload="auto" />
 
@@ -317,9 +318,8 @@ export function AudioLibrary() {
             })}
           </div>
         </div>
-      </div>
 
-      {/* ═══ RECITER BOTTOM SHEET ═══ */}
+        {/* ═══ RECITER BOTTOM SHEET ═══ */}
       {showReciters && (
         <div className="fixed inset-0 z-[500]">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowReciters(false)} />
@@ -378,5 +378,6 @@ export function AudioLibrary() {
         </div>
       )}
     </div>
+    </>
   );
 }
