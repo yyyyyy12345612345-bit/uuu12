@@ -489,7 +489,7 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                 
                                 <span 
                                     onClick={() => playVerse(pIdx, vIdx)} 
-                                    className={`inline transition-all duration-300 rounded-2xl cursor-pointer py-1 px-2 ${isPlaying ? 'bg-primary/20 text-primary shadow-[0_0_30px_rgba(212,175,55,0.3)] scale-105 z-50' : 'hover:bg-primary/5 text-white/80'}`}
+                                    className={`inline transition-all duration-300 rounded-2xl cursor-pointer py-1 px-2 ${isPlaying ? 'bg-primary/20 text-primary shadow-[0_0_30px_rgba(212,175,55,0.3)] scale-105 z-50' : 'hover:bg-primary/5 text-black'}`}
                                 >
                                     <span className="font-['Amiri'] inline font-bold antialiased" style={{ fontSize: `${mushafFontSize}px` }}>
                                         {verse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => {

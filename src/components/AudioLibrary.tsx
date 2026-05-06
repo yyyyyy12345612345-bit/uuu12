@@ -156,86 +156,55 @@ export function AudioLibrary() {
       {/* ═══ SCROLLABLE CONTENT ═══ */}
       <div className="flex-1 overflow-y-auto pb-56">
 
-        {/* ── Hero / Now Playing ── */}
-        <div className="relative px-5 pt-6 pb-8">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0d1411] via-[#0a0f0d] to-transparent opacity-60" />
-          <div className="absolute inset-0 islamic-pattern opacity-[0.03]" />
-
-          <div className="relative z-10 flex flex-col items-center">
-
-            {/* Small Disc + Info */}
-            <div className="flex items-center gap-5 w-full max-w-md mb-6">
-              {/* Disc */}
-              <div className="relative shrink-0">
-                <div className={`w-20 h-20 rounded-full border-4 border-primary/10 shadow-lg overflow-hidden ${isPlaying ? "animate-spin-slow" : ""}`}>
-                  <div className="w-full h-full bg-[#0d1411] flex items-center justify-center">
-                    <Disc className="w-10 h-10 text-primary/30" />
-                    <div className="absolute w-5 h-5 bg-[#0a0f0d] rounded-full border-2 border-primary/30 flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 bg-primary rounded-full" />
-                    </div>
-                  </div>
+        {/* ── Spotify Style Now Playing ── */}
+        <div className="relative px-8 pt-10 pb-12 flex flex-col items-center">
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent opacity-40" />
+          
+          {/* Large Album Art */}
+          <div className="relative z-10 w-full max-w-[280px] aspect-square mb-10 group">
+             <div className="absolute inset-0 bg-primary/20 rounded-[2.5rem] blur-2xl group-hover:bg-primary/30 transition-all duration-700" />
+             <div className="relative h-full w-full rounded-[2.5rem] bg-[#0d1411] border-2 border-white/5 shadow-2xl overflow-hidden flex items-center justify-center">
+                <div className="absolute inset-0 islamic-pattern opacity-10" />
+                <Disc className={`w-32 h-32 text-primary/20 ${isPlaying ? 'animate-spin-slow' : ''}`} />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="absolute bottom-6 right-6 w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-black shadow-2xl">
+                    <Headphones className="w-6 h-6" />
                 </div>
-                {isPlaying && <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center shadow-lg"><Pause className="w-2.5 h-2.5 text-black fill-current" /></div>}
-              </div>
+             </div>
+          </div>
 
-              {/* Track Info */}
-              <div className="flex-1 min-w-0 text-right">
-                <h1 className="text-2xl font-black text-primary truncate font-['Amiri'] leading-tight">
-                  سورة {currentSurah.name}
-                </h1>
-                <button
-                  onClick={() => setShowReciters(true)}
-                  className="flex items-center gap-2 mt-1 group"
-                >
-                  <span className="text-sm text-white/50 font-bold truncate group-hover:text-[#D4AF37] transition-colors">
-                    {selectedReciter.name}
-                  </span>
-                  <ChevronDown className="w-3.5 h-3.5 text-white/30 shrink-0" />
-                </button>
-              </div>
-            </div>
+          {/* Track Metadata */}
+          <div className="relative z-10 text-center mb-10 w-full">
+            <h1 className="text-4xl font-black text-white mb-3 font-['Amiri'] drop-shadow-xl">
+              سورة {currentSurah.name}
+            </h1>
+            <button
+              onClick={() => setShowReciters(true)}
+              className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all group"
+            >
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <span className="text-sm font-bold text-white/70 group-hover:text-primary transition-colors">
+                {selectedReciter.name}
+              </span>
+              <ChevronDown className="w-4 h-4 text-white/30" />
+            </button>
+          </div>
 
-            {/* Progress Bar */}
-            <div className="w-full max-w-md space-y-2">
-              <div className="relative w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#D4AF37] to-[#f0d060] rounded-full transition-[width] duration-300"
+          {/* Spotify Progress Section */}
+          <div className="relative z-10 w-full max-w-md px-4 mb-10">
+            <div className="relative group h-6 flex items-center">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={progress}
+                  onChange={handleSeek}
+                  className="absolute w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary z-10 hover:h-2 transition-all"
+                />
+                <div 
+                  className="absolute left-0 top-1/2 -translate-y-1/2 h-1.5 bg-primary rounded-full pointer-events-none transition-all group-hover:h-2"
                   style={{ width: `${progress}%` }}
                 />
-              </div>
-              <div className="flex justify-between text-[10px] text-white/30 font-bold tabular-nums">
-                <span>{fmt(currentTime)}</span>
-                <span>{fmt(duration)}</span>
-              </div>
-            </div>
-
-            {/* Controls */}
-            <div className="flex items-center justify-center gap-5 mt-4 w-full max-w-xs">
-              <button
-                onClick={() => setIsShuffle(!isShuffle)}
-                className={`p-2 rounded-full transition-all ${isShuffle ? "text-[#D4AF37] bg-[#D4AF37]/10" : "text-white/25 hover:text-white/60"}`}
-              >
-                <Shuffle className="w-5 h-5" />
-              </button>
-
-              <button onClick={prevSurah} className="p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all active:scale-90">
-                <SkipBack className="w-5 h-5 fill-current" />
-              </button>
-
-              <button
-                onClick={togglePlay}
-                className="w-16 h-16 rounded-full bg-[#D4AF37] text-black flex items-center justify-center shadow-[0_8px_30px_rgba(212,175,55,0.35)] hover:scale-105 active:scale-95 transition-all"
-              >
-                {isPlaying ? <Pause className="w-7 h-7 fill-current" /> : <Play className="w-7 h-7 fill-current ml-1" />}
-              </button>
-
-              <button onClick={nextSurah} className="p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all active:scale-90">
-                <SkipForward className="w-5 h-5 fill-current" />
-              </button>
-
-              <button
-                onClick={() => setIsRepeat(!isRepeat)}
-                className={`p-2 rounded-full transition-all ${isRepeat ? "text-[#D4AF37] bg-[#D4AF37]/10" : "text-white/25 hover:text-white/60"}`}
               >
                 <Repeat className="w-5 h-5" />
               </button>
@@ -243,37 +212,24 @@ export function AudioLibrary() {
           </div>
         </div>
 
-        {/* ── Reciter Chip (quick access) ── */}
-        <div className="px-5 mb-5">
-          <button
-            onClick={() => setShowReciters(true)}
-            className="w-full flex items-center justify-between p-4 rounded-2xl bg-[#043927]/50 border border-white/5 hover:border-[#D4AF37]/20 transition-all active:scale-[0.98]"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#D4AF37]/10 flex items-center justify-center">
-                <Headphones className="w-5 h-5 text-[#D4AF37]" />
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-bold text-white/80">{selectedReciter.name}</p>
-                <p className="text-[10px] text-white/30 font-bold">اضغط لتغيير القارئ</p>
-              </div>
-            </div>
-            <ChevronDown className="w-5 h-5 text-white/20" />
-          </button>
+        {/* ── Surah List Header ── */}
+        <div className="px-8 mt-4 mb-8">
+           <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-black text-white">قائمة السور</h2>
+              <div className="text-[10px] font-black text-white/20 uppercase tracking-widest">{filteredSurahs.length} سورة</div>
+           </div>
+           
+           {/* Spotify Search Bar */}
+           <div className="relative group">
+             <Search className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-primary transition-all" />
+             <input
+               value={search}
+               onChange={(e) => setSearch(e.target.value)}
+               placeholder="ابحث عن سورة..."
+               className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-5 pr-14 pl-6 text-base font-bold outline-none focus:bg-white/[0.07] focus:border-primary/20 transition-all placeholder:text-white/10"
+             />
+           </div>
         </div>
-
-        {/* ── Surah List ── */}
-        <div className="px-5">
-          {/* Search */}
-          <div className="relative mb-4">
-            <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="ابحث عن سورة..."
-              className="w-full bg-white/5 border border-white/5 rounded-2xl py-3.5 pr-11 pl-4 text-sm font-bold outline-none focus:border-[#D4AF37]/40 transition-all placeholder:text-white/20"
-            />
-          </div>
 
           {/* List */}
           <div ref={listRef} className="space-y-2">
@@ -284,15 +240,15 @@ export function AudioLibrary() {
                   key={surah.id}
                   id={`surah-${surah.id}`}
                   onClick={() => playSurah(surah)}
-                  className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 border text-right ${
+                  className={`w-full flex items-center gap-6 p-5 rounded-[2rem] transition-all duration-500 border text-right group ${
                     active
-                      ? "bg-[#043927] border-[#D4AF37]/30 shadow-[0_4px_20px_rgba(4,57,39,0.6)]"
-                      : "bg-white/[0.02] border-transparent hover:bg-white/[0.04] hover:border-white/5"
+                      ? "bg-primary/10 border-primary/30 shadow-[0_15px_40px_rgba(212,175,55,0.1)] scale-[1.02]"
+                      : "bg-white/[0.02] border-transparent hover:bg-white/[0.05] hover:scale-[1.01]"
                   }`}
                 >
                   {/* Number */}
-                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-xs font-black shrink-0 transition-all ${
-                    active ? "bg-[#D4AF37] text-black" : "bg-white/5 text-white/30"
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xs font-black shrink-0 transition-all duration-500 ${
+                    active ? "bg-primary text-black shadow-xl shadow-primary/20" : "bg-white/5 text-white/20 group-hover:bg-white/10"
                   }`}>
                     {active && isPlaying ? (
                       <div className="flex gap-[3px] items-end h-4">
@@ -307,11 +263,11 @@ export function AudioLibrary() {
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <h4 className={`text-base font-black truncate font-['Amiri'] ${active ? "text-[#D4AF37]" : "text-white/90"}`}>
+                    <h4 className={`text-lg font-bold truncate font-arabic ${active ? "text-primary" : "text-white/90 group-hover:text-white"}`}>
                       {surah.name}
                     </h4>
-                    <p className="text-[10px] text-white/30 font-bold mt-0.5">
-                      {surah.transliteration} • {surah.total_verses} آية
+                    <p className="text-[10px] text-white/20 font-black uppercase tracking-widest mt-1">
+                      {surah.transliteration} • {surah.total_verses} آيات
                     </p>
                   </div>
 

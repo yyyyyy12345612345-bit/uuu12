@@ -138,7 +138,7 @@ export function AyahSearchModal({ isOpen, onClose }: { isOpen: boolean; onClose:
                 })}
              </div>
            ) : query && !isLoading ? (
-             <div className="flex flex-col items-center justify-center py-20 text-white/20 text-center">
+             <div className="flex flex-col items-center justify-center py-20 text-foreground/20 text-center">
                 <Search className="w-12 h-12 mb-4 opacity-5" />
                 <p className="text-sm font-arabic">لا توجد نتائج.. حاول كتابة الكلمة بشكل مختلف</p>
              </div>
