@@ -7,6 +7,7 @@ import {
   MapPin, Star, TrendingUp, CheckCircle, Ban, PlusCircle, Calendar,
   Mail, Phone, ArrowUpRight, UserCheck, Loader2, Bell, Image as ImageIcon, Save
 } from "lucide-react";
+import surahsData from "@/data/surahs.json";
 import { auth, db } from "@/lib/firebase";
 import { 
   collection, 
@@ -633,6 +634,13 @@ export function AdminPanel() {
                              className="w-full bg-foreground/5 border border-border rounded-xl p-4 text-center font-bold"
                              placeholder="مثلاً 18 لسورة الكهف"
                           />
+                          <div className="mt-2 text-center">
+                             <span className="text-primary font-black text-lg">
+                                {surahsData.find(s => s.id === parseInt(questSurahId))?.name 
+                                  ? `سورة ${surahsData.find(s => s.id === parseInt(questSurahId))?.name}` 
+                                  : "رقم غير معروف"}
+                             </span>
+                          </div>
                        </div>
                     )}
                     <button type="submit" disabled={isAddingQuest} className="w-full py-4 bg-primary text-black rounded-2xl font-black">
