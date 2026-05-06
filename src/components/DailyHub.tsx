@@ -339,51 +339,78 @@ export function DailyHub() {
                     </div>
                 </div>
 
-                {/* Quests Section */}
+                {/* Quests Section - Rebuilt for maximum reliability */}
                 <div className="md:col-span-2 space-y-6">
                     <div className="flex items-center justify-between px-4">
                         <div className="flex items-center gap-3">
-                            <Clock className="w-5 h-5 text-primary" />
-                            <h3 className="text-2xl font-black">مهام اليوم</h3>
+                            <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+                            <h3 className="text-2xl font-black">تحديات اليوم</h3>
                         </div>
-                        <span className="text-[10px] font-black text-primary uppercase tracking-widest">Daily Quests</span>
+                        <div className="bg-primary/10 px-4 py-1.5 rounded-full">
+                            <span className="text-[10px] font-black text-primary uppercase tracking-widest">Global Quests</span>
+                        </div>
                     </div>
+                    
                     <div className="space-y-4">
                         {globalQuests.length > 0 ? (
                             globalQuests.map((q) => {
                                 const isCompleted = completedQuestIds.has(q.id);
+                                
+                                // Map target to UI assets
+                                const questConfig: any = {
+                                    'mushaf': { icon: BookOpen, color: 'text-primary', bg: 'bg-primary/10', label: 'قراءة' },
+                                    'mushaf-full': { icon: BookOpen, color: 'text-amber-500', bg: 'bg-amber-500/10', label: 'المصحف' },
+                                    'daily': { icon: Sun, color: 'text-emerald-500', bg: 'bg-emerald-500/10', label: 'أذكار' },
+                                    'video': { icon: Sparkles, color: 'text-indigo-500', bg: 'bg-indigo-500/10', label: 'فيديو' },
+                                    'surah': { icon: Clock, color: 'text-rose-500', bg: 'bg-rose-500/10', label: 'استماع' },
+                                    'rank': { icon: Target, color: 'text-blue-500', bg: 'bg-blue-500/10', label: 'ترتيب' }
+                                };
+                                
+                                const config = questConfig[q.target?.toLowerCase()] || questConfig['mushaf'];
+                                const Icon = config.icon;
+
                                 return (
                                     <div 
                                         key={q.id} 
                                         onClick={() => handleQuestClick(q)}
-                                        className={`flex items-center justify-between p-6 rounded-[2.5rem] border transition-all cursor-pointer group ${
-                                            isCompleted ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-card border-border hover:border-primary/20'
+                                        className={`flex items-center justify-between p-5 rounded-[2.5rem] border transition-all duration-300 cursor-pointer group active:scale-[0.98] ${
+                                            isCompleted 
+                                            ? 'bg-foreground/[0.02] border-border/40 opacity-60 grayscale' 
+                                            : 'bg-card border-border hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/5'
                                         }`}
                                     >
-                                        <div className="flex items-center gap-6">
-                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${
-                                                isCompleted ? 'bg-emerald-500/10 text-emerald-500' : 'bg-primary/10 text-primary'
-                                            }`}>
-                                                {q.target === 'video' ? <Sparkles className="w-7 h-7" /> : q.target === 'daily' ? <Sun className="w-7 h-7" /> : <BookOpen className="w-7 h-7" />}
+                                        <div className="flex items-center gap-5">
+                                            <div className={`w-16 h-16 rounded-[1.8rem] flex items-center justify-center transition-all group-hover:scale-110 ${config.bg} ${config.color}`}>
+                                                <Icon className="w-8 h-8" />
                                             </div>
                                             <div className="text-right">
-                                                <h4 className="text-lg font-black">{q.title}</h4>
-                                                <p className="text-xs text-foreground/40 font-bold">اربح {q.points} نقطة عند الإنجاز</p>
+                                                <div className="flex items-center gap-2 mb-0.5">
+                                                    <span className={`text-[8px] font-black uppercase tracking-tighter px-2 py-0.5 rounded-full ${config.bg} ${config.color}`}>
+                                                        {config.label}
+                                                    </span>
+                                                    {isCompleted && <span className="text-[8px] font-black text-emerald-500 uppercase">تم الإنجاز</span>}
+                                                </div>
+                                                <h4 className="text-lg font-black text-foreground group-hover:text-primary transition-colors">{q.title}</h4>
+                                                <p className="text-[10px] text-foreground/40 font-bold uppercase">المكافأة: <span className="text-primary">{q.points} نقطة</span></p>
                                             </div>
                                         </div>
+
                                         <div className="flex items-center gap-4">
                                             {isCompleted ? (
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-[10px] font-black text-emerald-500 uppercase">تم الإنجاز</span>
-                                                    <CheckCircle2 className="w-7 h-7 text-emerald-500" />
+                                                <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center">
+                                                    <CheckCircle2 className="w-6 h-6 text-emerald-500" />
                                                 </div>
                                             ) : (
-                                                <div className="flex items-center gap-3">
+                                                <div className="flex items-center gap-2">
                                                     <button 
                                                         onClick={(e) => handleClaimQuest(e, q)}
-                                                        className="px-4 py-2 bg-primary text-black rounded-xl text-[10px] font-black hover:scale-105 transition-all"
-                                                    >استلام</button>
-                                                    <ArrowUpRight className="w-5 h-5 text-foreground/20 group-hover:text-primary transition-colors" />
+                                                        className="px-6 py-3 bg-primary text-black rounded-2xl text-[10px] font-black hover:scale-105 active:scale-90 transition-all shadow-lg shadow-primary/20"
+                                                    >
+                                                        استلام الجائزة
+                                                    </button>
+                                                    <div className="w-10 h-10 rounded-full bg-foreground/5 flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition-all">
+                                                        <ChevronRight className="w-5 h-5 rotate-180" />
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
@@ -391,8 +418,9 @@ export function DailyHub() {
                                 );
                             })
                         ) : (
-                            <div className="p-12 bg-card border border-border border-dashed rounded-[3rem] text-center">
-                                <p className="text-foreground/20 font-black text-sm uppercase tracking-widest">لا توجد مهام متاحة حالياً</p>
+                            <div className="p-16 bg-card border border-border border-dashed rounded-[3.5rem] flex flex-col items-center justify-center gap-4 group">
+                                <Clock className="w-12 h-12 text-foreground/10 group-hover:text-primary/20 transition-colors" />
+                                <p className="text-foreground/20 font-black text-sm uppercase tracking-widest italic">جميع المهام مكتملة أو غير متوفرة</p>
                             </div>
                         )}
                     </div>
