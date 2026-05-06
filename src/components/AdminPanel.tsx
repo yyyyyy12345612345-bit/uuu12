@@ -405,25 +405,41 @@ export function AdminPanel() {
              </div>
 
              {/* Global Announcement Banner Management */}
-             <div className="bg-card border border-border p-8 rounded-[3rem] shadow-xl space-y-6">
-                <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-black flex items-center gap-3">شريط التنبيهات العلوي <Bell className="w-6 h-6 text-primary" /></h3>
-                    <span className="text-[10px] font-bold text-foreground/30 uppercase">يظهر لجميع المستخدمين في أعلى الشاشة</span>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="bg-card border border-border p-8 rounded-[3rem] shadow-xl space-y-6">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-xl font-black flex items-center gap-3">شريط التنبيهات العلوي <Bell className="w-6 h-6 text-primary" /></h3>
+                    </div>
+                    <div className="flex flex-col gap-4">
+                        <input 
+                            value={announcement} 
+                            onChange={e => setAnnouncement(e.target.value)}
+                            className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 font-bold"
+                            placeholder="اكتب نص التنبيه هنا"
+                        />
+                        <button 
+                            onClick={handleSetAnnouncement}
+                            disabled={isSettingAnnouncement}
+                            className="w-full py-4 bg-primary text-black rounded-2xl font-black shadow-lg shadow-primary/20 hover:scale-105 transition-all flex items-center justify-center gap-2"
+                        >
+                            {isSettingAnnouncement ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                            تحديث الإعلان
+                        </button>
+                    </div>
                 </div>
-                <div className="flex flex-col md:flex-row gap-4">
-                    <input 
-                        value={announcement} 
-                        onChange={e => setAnnouncement(e.target.value)}
-                        className="flex-1 bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 font-bold"
-                        placeholder="اكتب نص التنبيه هنا (مثال: تم تحديث التطبيق للإصدار 3.2)"
-                    />
+
+                <div className="bg-card border border-border p-8 rounded-[3rem] shadow-xl space-y-6">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-xl font-black flex items-center gap-3 text-red-500">تصفير النقاط <Trash2 className="w-6 h-6" /></h3>
+                    </div>
+                    <p className="text-xs text-foreground/40 font-bold">سيقوم هذا الإجراء بحذف جميع نقاط المستخدمين والبدء من جديد (Leaderboard Reset).</p>
                     <button 
-                        onClick={handleSetAnnouncement}
-                        disabled={isSettingAnnouncement}
-                        className="px-10 py-4 bg-primary text-black rounded-2xl font-black shadow-lg shadow-primary/20 hover:scale-105 transition-all flex items-center justify-center gap-2"
+                        onClick={handleResetLeaderboard}
+                        disabled={isResetting}
+                        className="w-full py-4 bg-red-500 text-white rounded-2xl font-black shadow-lg shadow-red-500/20 hover:scale-105 transition-all flex items-center justify-center gap-2"
                     >
-                        {isSettingAnnouncement ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                        تحديث الإعلان
+                        {isResetting ? <Loader2 className="w-5 h-5 animate-spin" /> : <AlertTriangle className="w-5 h-5" />}
+                        تصفير نقاط جميع المستخدمين
                     </button>
                 </div>
              </div>
