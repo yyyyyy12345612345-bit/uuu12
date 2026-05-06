@@ -5,12 +5,7 @@ import { X, Check, ShieldCheck, CreditCard, Send, Loader2, Globe, Phone, Externa
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, addDoc, collection, serverTimestamp, query, where, getDocs, limit } from "firebase/firestore";
 import { useUserPlan } from "@/hooks/useUserPlan";
-import { Tajawal } from "next/font/google";
 
-const tajawal = Tajawal({
-  weight: ["400", "500", "700", "800", "900"],
-  subsets: ["arabic"],
-});
 
 interface SubscriptionModalProps {
   isOpen: boolean;
@@ -117,7 +112,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
   const currentSelected = PLANS.find(p => p.id === selectedPlan);
 
   return (
-    <div className={`fixed inset-0 z-[2000] flex items-center justify-center p-0 md:p-6 bg-black/90 backdrop-blur-2xl ${tajawal.className} overflow-y-auto no-scrollbar`}>
+    <div className={`fixed inset-0 z-[2000] flex items-center justify-center p-0 md:p-6 bg-black/90 backdrop-blur-2xl font-['Tajawal'] overflow-y-auto no-scrollbar`}>
       <div className="fixed inset-0" onClick={onClose} />
       
       <div className="relative w-full max-w-6xl bg-[#064E3B] border border-white/10 rounded-[3rem] shadow-[0_50px_100px_rgba(0,0,0,0.7)] flex flex-col md:flex-row h-full md:h-auto md:max-h-[85vh] animate-in zoom-in-95 duration-700 overflow-hidden">

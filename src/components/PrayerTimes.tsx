@@ -156,7 +156,7 @@ export function PrayerTimes() {
   };
 
   return (
-    <div className="flex flex-col h-full p-6 md:p-14 pt-24 md:pt-14 overflow-y-auto no-scrollbar font-arabic relative animate-in fade-in duration-700">
+    <div className="flex flex-col h-full p-4 md:p-10 pt-20 md:pt-14 overflow-y-auto no-scrollbar font-arabic relative animate-in fade-in duration-700">
       {/* Sacred Serenity Background */}
       <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/40 to-background" />
@@ -164,54 +164,54 @@ export function PrayerTimes() {
           <div className="absolute -top-20 -left-20 w-[500px] h-[500px] bg-primary/5 blur-[150px] rounded-full animate-pulse" />
       </div>
 
-      <div className="max-w-5xl mx-auto w-full flex flex-col gap-10 relative z-10 pb-40">
+      <div className="max-w-5xl mx-auto w-full flex flex-col gap-8 relative z-10 pb-32">
         
         {/* Location & Time Header */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="text-right">
-                <div className="flex items-center justify-end gap-2 text-primary mb-2">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-center md:text-right">
+                <div className="flex items-center justify-center md:justify-end gap-2 text-primary mb-1">
                     <MapPin className="w-4 h-4" />
-                    <button onClick={() => setShowLocationPicker(true)} className="text-lg font-black hover:opacity-70 transition-opacity underline decoration-primary/20 underline-offset-4">{locationName}</button>
+                    <button onClick={() => setShowLocationPicker(true)} className="text-base font-black hover:opacity-70 transition-opacity underline decoration-primary/20 underline-offset-4">{locationName}</button>
                 </div>
-                <h1 className="text-6xl font-black tracking-tighter text-foreground font-mono">
+                <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-foreground font-mono">
                     {currentTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })}
                 </h1>
             </div>
-            <div className="flex items-center gap-4">
-                <button onClick={detectLocation} className="p-5 rounded-3xl bg-card border border-border shadow-xl hover:text-primary transition-all active:scale-95">
-                    <RefreshCw className={`w-6 h-6 ${loading ? 'animate-spin' : ''}`} />
+            <div className="flex items-center gap-3">
+                <button onClick={detectLocation} className="p-4 rounded-2xl bg-card border border-border shadow-xl hover:text-primary transition-all active:scale-95">
+                    <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
                 </button>
-                <button onClick={() => setShowAthanSettings(true)} className="flex items-center gap-3 p-5 rounded-3xl bg-[#064E3B] text-white shadow-2xl hover:scale-105 active:scale-95 transition-all">
-                    <Music className="w-6 h-6 text-primary" />
-                    <span className="font-black">صوت الآذان</span>
+                <button onClick={() => setShowAthanSettings(true)} className="flex items-center gap-3 p-4 rounded-2xl bg-[#064E3B] text-white shadow-2xl hover:scale-105 active:scale-95 transition-all">
+                    <Music className="w-5 h-5 text-primary" />
+                    <span className="font-black text-sm">صوت الآذان</span>
                 </button>
             </div>
         </div>
 
         {/* Main Countdown Card */}
         <div className="relative group">
-            <div className="absolute inset-0 bg-primary/10 rounded-[4rem] blur-[80px] opacity-20" />
-            <div className="relative bg-card/60 backdrop-blur-3xl border border-border rounded-[4rem] p-12 md:p-20 flex flex-col items-center justify-center text-center shadow-2xl overflow-hidden">
-                <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:scale-110 transition-transform">
-                    <Clock className="w-48 h-48 text-primary" />
+            <div className="absolute inset-0 bg-primary/10 rounded-[3rem] blur-[80px] opacity-20" />
+            <div className="relative bg-card/60 backdrop-blur-3xl border border-border rounded-[3rem] p-8 md:p-16 flex flex-col items-center justify-center text-center shadow-2xl overflow-hidden">
+                <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform">
+                    <Clock className="w-32 h-32 text-primary" />
                 </div>
                 
                 {nextPrayer ? (
                     <>
-                        <div className="flex items-center gap-3 mb-6 bg-primary/10 px-6 py-2 rounded-full border border-primary/20">
-                            <Sparkles className="w-4 h-4 text-primary" />
-                            <span className="text-xs font-black text-primary uppercase tracking-widest">الصلاة القادمة: {nextPrayer.name}</span>
+                        <div className="flex items-center gap-3 mb-4 bg-primary/10 px-5 py-1.5 rounded-full border border-primary/20">
+                            <Sparkles className="w-3.5 h-3.5 text-primary" />
+                            <span className="text-[10px] font-black text-primary uppercase tracking-widest">الصلاة القادمة: {nextPrayer.name}</span>
                         </div>
-                        <h2 className="text-7xl md:text-9xl font-black tracking-widest text-foreground font-mono mb-8 drop-shadow-2xl">
+                        <h2 className="text-5xl md:text-9xl font-black tracking-widest text-foreground font-mono mb-6 drop-shadow-2xl">
                             -{nextPrayer.remaining}
                         </h2>
-                        <div className="flex items-center gap-2 text-foreground/40 font-bold">
-                            <Calendar className="w-5 h-5" />
+                        <div className="flex items-center gap-2 text-foreground/40 font-bold text-sm">
+                            <Calendar className="w-4 h-4" />
                             <span>{new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
                         </div>
                     </>
                 ) : (
-                    <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+                    <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
                 )}
             </div>
         </div>

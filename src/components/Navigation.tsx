@@ -4,12 +4,6 @@ import React from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Video, BookOpen, Timer, Headphones, Calendar, Trophy, Sparkles } from "lucide-react";
-import { Tajawal } from "next/font/google";
-
-const tajawal = Tajawal({
-  weight: ["400", "500", "700", "800", "900"],
-  subsets: ["arabic"],
-});
 
 export function Navigation() {
   const pathname = usePathname();
@@ -25,8 +19,8 @@ export function Navigation() {
   ];
 
   return (
-    <nav className={`fixed bottom-0 left-0 right-0 z-[1000] w-full px-4 pb-6 pt-2 pointer-events-none ${tajawal.className}`}>
-      <div className="max-w-2xl mx-auto w-full h-[84px] bg-[#064E3B]/80 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] flex items-center justify-around px-4 shadow-[0_30px_100px_rgba(0,0,0,0.6)] pointer-events-auto relative overflow-hidden group">
+    <nav className={`fixed bottom-0 left-0 right-0 z-[1000] w-full px-2 pb-4 pt-2 pointer-events-none font-['Tajawal']`}>
+      <div className="max-w-md mx-auto w-full h-[72px] bg-[#064E3B]/90 backdrop-blur-3xl border border-white/10 rounded-[2rem] flex items-center justify-around px-2 shadow-[0_20px_60px_rgba(0,0,0,0.6)] pointer-events-auto relative overflow-hidden group">
         
         {/* Background Pattern */}
         <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
@@ -40,28 +34,28 @@ export function Navigation() {
             <Link
               key={tab.id}
               href={tab.path}
-              className={`relative flex flex-col items-center justify-center gap-1.5 transition-all duration-700 flex-1 py-2 group/nav ${isActive ? 'scale-110' : 'opacity-40 grayscale hover:opacity-100 hover:grayscale-0'}`}
+              className={`relative flex flex-col items-center justify-center gap-1 transition-all duration-500 flex-1 py-1 group/nav ${isActive ? 'scale-105' : 'opacity-40 grayscale hover:opacity-100 hover:grayscale-0'}`}
             >
               {/* Active Aura */}
               {isActive && (
-                <div className="absolute -top-1 w-8 h-8 bg-primary/20 rounded-full blur-xl animate-pulse" />
+                <div className="absolute -top-1 w-6 h-6 bg-primary/20 rounded-full blur-lg animate-pulse" />
               )}
               
-              <div className={`relative w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-700 ${isActive ? 'bg-primary text-black shadow-[0_15px_30px_rgba(212,175,55,0.3)] rotate-[360deg]' : 'text-white'}`}>
-                <Icon className={`w-5 h-5 stroke-[2.5px] transition-transform duration-700 ${isActive ? 'scale-110' : 'group-hover/nav:scale-125 group-hover/nav:rotate-12'}`} />
+              <div className={`relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-700 ${isActive ? 'bg-primary text-black shadow-[0_10px_20px_rgba(212,175,55,0.3)] rotate-[360deg]' : 'text-white'}`}>
+                <Icon className={`w-4 h-4 stroke-[2.5px] transition-transform duration-700 ${isActive ? 'scale-110' : 'group-hover/nav:scale-125 group-hover/nav:rotate-12'}`} />
                 
                 {isActive && (
-                  <Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-black animate-spin-slow" />
+                  <Sparkles className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 text-black animate-spin-slow" />
                 )}
               </div>
 
-              <span className={`text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-700 ${isActive ? 'text-primary opacity-100' : 'text-white/40 opacity-0 group-hover/nav:opacity-100'}`}>
+              <span className={`text-[8px] font-black uppercase tracking-[0.1em] transition-all duration-700 ${isActive ? 'text-primary opacity-100' : 'text-white/40 opacity-0 group-hover/nav:opacity-100'}`}>
                 {tab.label}
               </span>
 
               {/* Indicator Bar */}
               {isActive && (
-                <div className="absolute -bottom-1 w-4 h-1 bg-primary rounded-full shadow-[0_0_15px_rgba(212,175,55,0.8)]" />
+                <div className="absolute -bottom-0.5 w-3 h-0.5 bg-primary rounded-full shadow-[0_0_10px_rgba(212,175,55,0.8)]" />
               )}
             </Link>
           );

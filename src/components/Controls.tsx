@@ -6,12 +6,7 @@ import { usePexelsBackgrounds, PexelsMediaItem } from "@/hooks/usePexelsBackgrou
 import { RECITERS } from "@/data/reciters";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import { Crown, Lock, ShieldCheck, Star, Search, Image as ImageIcon, Music, Type, MessageSquare, Check } from "lucide-react";
-import { Tajawal } from "next/font/google";
 
-const tajawal = Tajawal({
-  weight: ["400", "500", "700", "800", "900"],
-  subsets: ["arabic"],
-});
 
 // ============================================================
 // مكتبة خلفيات إسلامية ثابتة — لن تتغير أبداً
@@ -78,7 +73,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
   ];
 
   return (
-    <div className={`flex flex-col gap-8 ${tajawal.className}`}>
+    <div className="flex flex-col gap-8 font-['Tajawal']">
       {/* Premium Subscription Card */}
       <button 
         onClick={onOpenSubscription}

@@ -3,17 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { X, BookOpen, Languages, Loader2, Star, ChevronLeft } from "lucide-react";
 import { fetchVerseTafsir, fetchVerseTranslations } from "@/lib/quranUtils";
-import { Amiri, Tajawal } from "next/font/google";
 
-const amiri = Amiri({
-  weight: ["400", "700"],
-  subsets: ["arabic"],
-});
-
-const tajawal = Tajawal({
-  weight: ["400", "500", "700", "800", "900"],
-  subsets: ["arabic"],
-});
 
 interface VerseDetailsModalProps {
   verseKey: string;
@@ -47,7 +37,7 @@ export function VerseDetailsModal({ verseKey, onClose, surahName }: VerseDetails
   }, [verseKey]);
 
   return (
-    <div className={`fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-300 ${tajawal.className}`}>
+    <div className={`fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-300 font-['Tajawal']`}>
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
       
@@ -66,7 +56,7 @@ export function VerseDetailsModal({ verseKey, onClose, surahName }: VerseDetails
                 <div className="h-px w-8 bg-primary/30" />
                 <span className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">تفسير الآية</span>
             </div>
-            <h2 className={`${amiri.className} text-3xl md:text-5xl font-black text-white`}>سورة {surahName}</h2>
+            <h2 className="font-['Amiri'] text-3xl md:text-5xl font-black text-white">سورة {surahName}</h2>
             <div className="flex items-center gap-3 mt-2">
                 <Star className="w-3 h-3 text-primary fill-primary opacity-40" />
                 <p className="text-sm font-bold text-white/40 tracking-widest uppercase">الآية {verseKey.split(':')[1]}</p>
@@ -115,7 +105,7 @@ export function VerseDetailsModal({ verseKey, onClose, surahName }: VerseDetails
               <div className="mb-16 text-center p-10 md:p-14 bg-white/5 rounded-[3rem] border border-white/10 relative overflow-hidden group">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#064E3B] px-6 py-2 rounded-full border border-primary/40 text-[10px] font-black text-primary uppercase tracking-widest z-10">نص الآية الكريمة</div>
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <p className={`${amiri.className} text-4xl md:text-6xl font-bold text-white leading-[1.8] drop-shadow-2xl relative z-10`} dir="rtl">
+                <p className="font-['Amiri'] text-4xl md:text-6xl font-bold text-white leading-[1.8] drop-shadow-2xl relative z-10" dir="rtl">
                   {verseData?.text_uthmani}
                 </p>
               </div>

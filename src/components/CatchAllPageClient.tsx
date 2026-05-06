@@ -77,10 +77,10 @@ function CatchAllContent() {
     <div className="fixed inset-0 bg-background text-foreground flex flex-col w-full font-arabic overflow-hidden transition-opacity duration-1000">
       
       {/* Global Top Bar - Logo + Install + Feedback */}
-      <header className="h-14 shrink-0 bg-background/80 backdrop-blur-xl border-b border-border px-4 md:px-8 flex items-center justify-between z-[200]">
-        <div className="flex items-center gap-3">
-          <img src="/logo/logo.png?v=20" alt="قرآن" className="w-8 h-8 rounded-full border border-primary/20 p-0.5" />
-          <span className="text-sm font-bold font-arabic text-primary hidden sm:block">قرآن</span>
+      <header className="h-12 shrink-0 bg-background/80 backdrop-blur-xl border-b border-border px-3 md:px-8 flex items-center justify-between z-[200]">
+        <div className="flex items-center gap-2">
+          <img src="/logo/logo.png?v=20" alt="قرآن" className="w-7 h-7 rounded-full border border-primary/20 p-0.5" />
+          <span className="text-xs font-bold font-arabic text-primary hidden sm:block">قرآن</span>
         </div>
         <div className="flex items-center gap-2">
           <PWAInstallButton />
