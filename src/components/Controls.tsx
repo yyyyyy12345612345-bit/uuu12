@@ -5,40 +5,38 @@ import { useEditor } from "@/store/useEditor";
 import { usePexelsBackgrounds, PexelsMediaItem } from "@/hooks/usePexelsBackgrounds";
 import { RECITERS } from "@/data/reciters";
 import { useUserPlan } from "@/hooks/useUserPlan";
-import { Crown, Lock, ShieldCheck, Star } from "lucide-react";
+import { Crown, Lock, ShieldCheck, Star, Search, Image as ImageIcon, Music, Type, MessageSquare, Check } from "lucide-react";
+import { Tajawal } from "next/font/google";
+
+const tajawal = Tajawal({
+  weight: ["400", "500", "700", "800", "900"],
+  subsets: ["arabic"],
+});
 
 // ============================================================
 // مكتبة خلفيات إسلامية ثابتة — لن تتغير أبداً
-// Static Islamic background library — always shows same results
 // ============================================================
 const STATIC_LIBRARY: PexelsMediaItem[] = [
-  // مساجد
   { type: "image", src: "https://images.pexels.com/photos/1537086/pexels-photo-1537086.jpeg", poster: "" },
   { type: "image", src: "https://images.pexels.com/photos/2826415/pexels-photo-2826415.jpeg", poster: "" },
   { type: "image", src: "https://images.pexels.com/photos/3214995/pexels-photo-3214995.jpeg", poster: "" },
   { type: "image", src: "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg", poster: "" },
-  // مكة والكعبة
   { type: "image", src: "https://images.pexels.com/photos/6633920/pexels-photo-6633920.jpeg", poster: "" },
   { type: "image", src: "https://images.pexels.com/photos/11589926/pexels-photo-11589926.jpeg", poster: "" },
-  // طبيعة وسماء
   { type: "image", src: "https://images.pexels.com/photos/1252869/pexels-photo-1252869.jpeg", poster: "" },
   { type: "image", src: "https://images.pexels.com/photos/3408354/pexels-photo-3408354.jpeg", poster: "" },
   { type: "image", src: "https://images.pexels.com/photos/1819649/pexels-photo-1819649.jpeg", poster: "" },
   { type: "image", src: "https://images.pexels.com/photos/2387793/pexels-photo-2387793.jpeg", poster: "" },
-  // نجوم وليل
   { type: "image", src: "https://images.pexels.com/photos/1624496/pexels-photo-1624496.jpeg", poster: "" },
   { type: "image", src: "https://images.pexels.com/photos/998641/pexels-photo-998641.jpeg", poster: "" },
   { type: "image", src: "https://images.pexels.com/photos/1146134/pexels-photo-1146134.jpeg", poster: "" },
   { type: "image", src: "https://images.pexels.com/photos/2832034/pexels-photo-2832034.jpeg", poster: "" },
-  // صحراء وجبال
   { type: "image", src: "https://images.pexels.com/photos/21395/pexels-photo.jpg", poster: "" },
   { type: "image", src: "https://images.pexels.com/photos/847402/pexels-photo-847402.jpeg", poster: "" },
   { type: "image", src: "https://images.pexels.com/photos/1624438/pexels-photo-1624438.jpeg", poster: "" },
   { type: "image", src: "https://images.pexels.com/photos/1366919/pexels-photo-1366919.jpeg", poster: "" },
-  // ماء وبحر
   { type: "image", src: "https://images.pexels.com/photos/1295036/pexels-photo-1295036.jpeg", poster: "" },
   { type: "image", src: "https://images.pexels.com/photos/3680219/pexels-photo-3680219.jpeg", poster: "" },
-  // خلفيات داكنة فاخرة
   { type: "image", src: "https://images.pexels.com/photos/1261728/pexels-photo-1261728.jpeg", poster: "" },
   { type: "image", src: "https://images.pexels.com/photos/3876401/pexels-photo-3876401.jpeg", poster: "" },
   { type: "image", src: "https://images.pexels.com/photos/1040499/pexels-photo-1040499.jpeg", poster: "" },
@@ -65,13 +63,6 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
   const handleSendFeedback = () => {
     if (!feedback.trim()) return;
     setIsSending(true);
-    
-    window.gtag?.('event', 'user_feedback', { 
-        'message_content': feedback,
-        'feedback_type': 'support_tab'
-    });
-    console.log("Support Feedback Sent to GA:", feedback);
-
     setTimeout(() => {
         setIsSending(false);
         setFeedback("");
@@ -79,483 +70,294 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
     }, 1000);
   };
 
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    // Analytics: تتبع التبويبات
-    // @ts-ignore
-    window.gtag?.('event', 'tab_switch', { 'tab_name': tab });
-  };
-
-  const handleBgSelect = (item: PexelsMediaItem) => {
-    updateState({ backgroundUrl: item.src });
-    // Analytics: تتبع اختيار الخلفيات
-    // @ts-ignore
-    window.gtag?.('event', 'bg_select', { 
-        'bg_url': item.src,
-        'bg_type': item.type 
-    });
-  };
+  const tabs = [
+    { id: "bg", label: "الخلفية", icon: ImageIcon },
+    { id: "reciter", label: "القاريء", icon: Music },
+    { id: "style", label: "التصميم", icon: Type },
+    { id: "support", label: "الدعم", icon: MessageSquare },
+  ];
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Premium Subscription Button */}
+    <div className={`flex flex-col gap-8 ${tajawal.className}`}>
+      {/* Premium Subscription Card */}
       <button 
         onClick={onOpenSubscription}
-        className="relative overflow-hidden group p-3 md:p-4 rounded-[2rem] border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all flex items-center justify-between"
+        className="relative overflow-hidden group p-6 rounded-[2.5rem] border border-primary/20 bg-primary/10 hover:bg-primary/20 transition-all flex items-center justify-between shadow-[0_20px_50px_rgba(212,175,55,0.1)]"
       >
-         <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-         <div className="flex items-center gap-3 md:gap-4 relative z-10">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 group-hover:scale-110 transition-transform">
-               <Crown className="w-5 h-5 md:w-6 md:h-6 fill-primary/20" />
+         <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-transparent" />
+         <div className="flex items-center gap-5 relative z-10">
+            <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center text-black shadow-xl shadow-primary/20 group-hover:scale-110 transition-transform duration-500">
+               <Crown className="w-7 h-7 fill-current" />
             </div>
             <div className="text-right">
-               <span className="block text-xs md:text-sm font-black text-foreground leading-tight">خطط الاشتراك المميزة</span>
-               <p className="text-[8px] md:text-[10px] text-primary/60 font-black uppercase tracking-widest mt-0.5">
-                  {userPlan?.plan === 'free' ? 'ترقية حسابك الآن' : 'عرض تفاصيل اشتراكك'}
+               <span className="block text-lg font-black text-white leading-tight">عضوية التميز النادرة</span>
+               <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em] mt-1">
+                  {userPlan?.plan === 'free' ? 'قم بترقية حسابك لتجربة كاملة' : 'أنت الآن مشترك في باقة التميز'}
                </p>
             </div>
          </div>
-         <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-foreground/5 flex items-center justify-center text-foreground/20 group-hover:text-primary transition-all">
-            <Star className="w-3 h-3 md:w-4 h-4" />
+         <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-black transition-all duration-500">
+            <Star className="w-4 h-4 fill-current" />
          </div>
       </button>
 
-      <div className="flex p-1 bg-foreground/5 rounded-2xl border border-border shadow-inner">
-        {[
-          { id: "bg", label: "الخلفية" },
-          { id: "reciter", label: "القاريء" },
-          { id: "style", label: "الخط" },
-          { id: "support", label: "الدعم" },
-        ].map((tab) => (
+      {/* Main Tabs */}
+      <div className="flex p-2 bg-black/40 backdrop-blur-xl rounded-[2rem] border border-white/5 shadow-2xl">
+        {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => handleTabChange(tab.id)}
-            className={`flex-1 px-2 py-3 text-[10px] font-bold rounded-xl transition-all duration-300 ${activeTab === tab.id ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-foreground/40 hover:text-foreground/60'}`}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex-1 flex flex-col items-center gap-2 py-4 rounded-[1.5rem] transition-all duration-500 ${activeTab === tab.id ? 'bg-primary text-black shadow-2xl shadow-primary/30 scale-[1.02]' : 'text-white/20 hover:text-white/40'}`}
           >
-            {tab.label}
+            <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'animate-bounce' : ''}`} />
+            <span className="text-[10px] font-black uppercase tracking-widest">{tab.label}</span>
           </button>
         ))}
       </div>
 
-      <div className="flex-1 rounded-3xl bg-black/20 border border-white/5 p-4 relative overflow-hidden group min-h-[400px]">
-        <div className="absolute inset-0 bg-primary/[0.01] pointer-events-none" />
+      {/* Content Container */}
+      <div className="flex-1 min-h-[500px] rounded-[3rem] bg-[#064E3B]/40 backdrop-blur-3xl border border-white/10 p-8 relative overflow-hidden group">
+        <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
         
-        {/* Added extra padding bottom to ensure it clears fixed navigation bar */}
-        <div className="h-full overflow-y-auto pr-2 custom-scrollbar pb-32">
+        <div className="h-full overflow-y-auto no-scrollbar pb-12">
           
           {activeTab === "bg" && (
-            <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
-            
-            {/* Mode Switcher */}
-            <div className="flex p-1 bg-foreground/5 rounded-xl border border-border gap-1">
-              <button
-                onClick={() => {
-                   setBgMode("library");
-                   // @ts-ignore
-                   window.gtag?.('event', 'bg_mode_switch', { 'mode': 'library' });
-                }}
-                className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all duration-300 ${bgMode === "library" ? "bg-primary text-black shadow shadow-primary/20" : "text-foreground/30 hover:text-foreground/60"}`}
-              >
-                📚 المكتبة الثابتة
-              </button>
-              <button
-                onClick={() => {
-                   if (isSearchLocked) return;
-                   setBgMode("search");
-                   // @ts-ignore
-                   window.gtag?.('event', 'bg_mode_switch', { 'mode': 'search' });
-                }}
-                className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all duration-300 flex items-center justify-center gap-2 ${bgMode === "search" ? "bg-primary text-black shadow shadow-primary/20" : "text-foreground/30 hover:text-foreground/60"} ${isSearchLocked ? 'opacity-50' : ''}`}
-              >
-                🔍 بحث إضافي
-                {isSearchLocked && <Crown className="w-3 h-3 text-amber-500" />}
-              </button>
-            </div>
-
-            {/* Search bar — only when in search mode */}
-            {bgMode === "search" && (
-              <div className="flex items-center gap-3">
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && setQuery(search || "islamic")}
-                  placeholder="مثلاً: مكة، نجوم، طبيعة..."
-                  className="flex-1 rounded-2xl border border-border bg-foreground/5 px-5 py-3 text-sm text-foreground outline-none focus:border-primary/40 focus:ring-4 focus:ring-primary/5 transition-all shadow-inner"
-                />
-                <button
-                  onClick={() => {
-                    setQuery(search || "islamic");
-                    // @ts-ignore
-                    window.gtag?.('event', 'bg_search', { 'query': search });
-                  }}
-                  className="rounded-2xl bg-foreground/5 px-5 py-3 text-sm font-bold text-foreground hover:bg-primary/20 hover:text-primary transition-all border border-border"
-                >
-                  بحث
-                </button>
-              </div>
-            )}
-
-            {/* Label */}
-            {bgMode === "library" && (
-              <p className="text-[10px] text-foreground/25 text-center tracking-widest uppercase px-2">
-                24 خلفية إسلامية منتقاة — ثابتة دائماً
-              </p>
-            )}
-
-            {/* Grid */}
-            {loading && bgMode === "search" ? (
-              <div className="flex flex-col items-center justify-center p-20 gap-4">
-                <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-                <span className="text-[10px] text-white/30 uppercase tracking-[0.2em]">جارٍ البحث...</span>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 mt-4">
-                {displayMedia.map((item, index) => (
-                  <button
-                    key={`${item.src}-${index}`}
-                    onClick={() => {
-                      if (item.type === 'video' && isVideoLocked) return;
-                      handleBgSelect(item);
-                    }}
-                    className={`relative aspect-[9/16] overflow-hidden rounded-[1.5rem] border-2 transition-all duration-500 group/item ${state.backgroundUrl === item.src ? 'border-primary shadow-[0_0_30px_rgba(212,175,55,0.2)] scale-[0.98]' : 'border-white/5 hover:border-white/20'} ${item.type === 'video' && isVideoLocked ? 'grayscale opacity-80' : ''}`}
-                  >
-                    {item.type === "video" ? (
-                      <video
-                        src={item.src}
-                        poster={item.poster}
-                        muted
-                        loop
-                        playsInline
-                        className="h-full w-full object-cover transition-transform duration-1000 group-hover/item:scale-110"
-                      />
-                    ) : (
-                      <img
-                        src={`${item.src}?auto=compress&cs=tinysrgb&dpr=2&h=400&w=300`}
-                        alt="خلفية"
-                        loading="lazy"
-                        className="h-full w-full object-cover transition-transform duration-1000 group-hover/item:scale-110"
-                      />
-                    )}
-                    <div className={`absolute inset-0 bg-black/20 group-hover/item:bg-transparent transition-colors duration-500 ${state.backgroundUrl === item.src ? 'bg-transparent' : ''}`} />
-                    {state.backgroundUrl === item.src && (
-                      <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center text-[9px] font-black text-black shadow-lg">✓</div>
-                    )}
-                    {item.type === "video" && (
-                      <div className={`absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full px-2 py-1 text-[9px] font-bold text-white backdrop-blur-md border ${isVideoLocked ? 'bg-amber-500/80 border-amber-500' : 'bg-black/60 border-white/10'}`}>
-                        {isVideoLocked ? <Lock className="w-2 h-2" /> : <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />}
-                        {isVideoLocked ? 'Locked' : 'HD'}
-                      </div>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === "reciter" && (
-          <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-8 duration-700">
-            {RECITERS.map((r) => (
-              <button
-                key={r.id}
-                onClick={() => {
-                   updateState({ reciterId: r.id });
-                   // Analytics: تتبع اختيار القارئ
-                   // @ts-ignore
-                   window.gtag?.('event', 'reciter_select', { 'reciter_name': r.name, 'reciter_id': r.id });
-                }}
-                className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all duration-300 group/reciter ${state.reciterId === r.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-foreground/5 border-border hover:border-foreground/20'}`}
-              >
-                <div className="flex items-center gap-3">
-                   <div className={`w-2 h-2 rounded-full transition-all ${state.reciterId === r.id ? 'bg-primary scale-125' : 'bg-foreground/10 group-hover/reciter:bg-foreground/30'}`} />
-                   <span className={`text-sm font-bold font-arabic ${state.reciterId === r.id ? 'text-foreground' : 'text-foreground/60'}`}>{r.name}</span>
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {activeTab === "style" && (
-          <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
-            
-            {/* ── نوع الخط ── */}
-            <div className="flex flex-col gap-3">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 px-1">نوع الخط</span>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { id: "Amiri", label: "أميري", preview: "بِسْمِ ٱللَّهِ" },
-                  { id: "Noto Naskh Arabic", label: "نسخ", preview: "بِسْمِ ٱللَّهِ" },
-                  { id: "Scheherazade New", label: "شهرزاد", preview: "بِسْمِ ٱللَّهِ" },
-                  { id: "Lateef", label: "لطيف", preview: "بِسْمِ ٱللَّهِ" },
-                  { id: "Cairo", label: "القاهرة", preview: "بِسْمِ ٱللَّهِ" },
-                  { id: "Tajawal", label: "تجوال", preview: "بِسْمِ ٱللَّهِ" },
-                ].map((font) => (
-                  <button
-                    key={font.id}
-                    onClick={() => updateState({ fontFamily: font.id })}
-                    className={`p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.fontFamily === font.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-foreground/5 border-border hover:border-foreground/20'}`}
-                  >
-                    <span className={`text-[10px] font-bold ${state.fontFamily === font.id ? 'text-primary' : 'text-foreground/40'}`}>{font.label}</span>
-                    <span 
-                      className={`text-lg ${state.fontFamily === font.id ? 'text-foreground' : 'text-foreground/60'}`}
-                      style={{ fontFamily: `"${font.id}", serif`, direction: 'rtl' }}
+            <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                {/* Bg Mode Switcher */}
+                <div className="flex p-1.5 bg-black/20 rounded-2xl border border-white/5 gap-2">
+                    <button
+                        onClick={() => setBgMode("library")}
+                        className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 ${bgMode === "library" ? "bg-white/10 text-white shadow-xl" : "text-white/20 hover:text-white/40"}`}
                     >
-                      {font.preview}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* ── فلاتر الخلفية ── */}
-            <div className="flex flex-col gap-3">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 px-1">فلتر الخلفية</span>
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { id: "none", label: "بدون", icon: "✨" },
-                  { id: "vintage", label: "عتيق", icon: "🎞️" },
-                  { id: "cool", label: "بارد", icon: "❄️" },
-                  { id: "warm", label: "دافئ", icon: "🔥" },
-                  { id: "bw", label: "أبيض وأسود", icon: "🖤" },
-                  { id: "dramatic", label: "درامي", icon: "🌑" },
-                  { id: "blur", label: "ضبابي", icon: "🌫️" },
-                  { id: "invert", label: "عكس", icon: "🌓" },
-                  { id: "midnight", label: "منتصف الليل", icon: "🌌" },
-                  { id: "oceanic", label: "محيطي", icon: "🌊" },
-                  { id: "sepia", label: "بني قديم", icon: "📜" },
-                  { id: "saturated", label: "مشبع", icon: "🌈" },
-                ].map((f) => (
-                  <button
-                    key={f.id}
-                    onClick={() => updateState({ filter: f.id })}
-                    className={`p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.filter === f.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-foreground/5 border-border hover:border-foreground/20'}`}
-                  >
-                    <span className="text-lg">{f.icon}</span>
-                    <span className={`text-[10px] font-bold ${state.filter === f.id ? 'text-primary' : 'text-foreground/40'}`}>{f.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* ── مكان النص ── */}
-            <div className="flex flex-col gap-3">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 px-1">مكان النص</span>
-              <div className="flex gap-2">
-                {[
-                  { id: "top" as const, label: "أعلى", icon: "⬆️" },
-                  { id: "center" as const, label: "وسط", icon: "⏺️" },
-                  { id: "bottom" as const, label: "أسفل", icon: "⬇️" },
-                ].map((pos) => (
-                  <button
-                    key={pos.id}
-                    onClick={() => updateState({ textPosition: pos.id })}
-                    className={`flex-1 p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.textPosition === pos.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-foreground/5 border-border hover:border-foreground/20'}`}
-                  >
-                    <span className="text-lg">{pos.icon}</span>
-                    <span className={`text-[10px] font-bold ${state.textPosition === pos.id ? 'text-primary' : 'text-foreground/40'}`}>{pos.label}</span>
-                  </button>
-                ))}
-              </div>
-              
-              <div className="space-y-3 px-1 mt-2">
-                <div className="flex justify-between items-center bg-foreground/[0.02] p-2 rounded-xl border border-border">
-                  <span className="text-[10px] font-bold text-foreground/50 uppercase tracking-widest">تعديل الارتفاع الدقيق</span>
-                  <span className="text-xs font-black text-primary font-mono">{state.textVerticalOffset}px</span>
+                        المكتبة المختارة
+                    </button>
+                    <button
+                        onClick={() => !isSearchLocked && setBgMode("search")}
+                        className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 flex items-center justify-center gap-2 ${bgMode === "search" ? "bg-white/10 text-white shadow-xl" : "text-white/20 hover:text-white/40"} ${isSearchLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                        {isSearchLocked && <Lock className="w-3 h-3 text-primary" />}
+                        بحث إضافي
+                    </button>
                 </div>
-                <input
-                  type="range"
-                  min="-500"
-                  max="500"
-                  step="5"
-                  value={state.textVerticalOffset}
-                  onChange={(e) => updateState({ textVerticalOffset: Number(e.target.value) })}
-                  className="w-full h-1.5 bg-foreground/5 rounded-full appearance-none cursor-pointer accent-primary hover:accent-primary/80 transition-all"
-                />
-                <button 
-                  onClick={() => updateState({ textVerticalOffset: 0 })}
-                  className="w-full py-1 text-[9px] text-foreground/20 hover:text-foreground/40 transition-colors uppercase tracking-[0.2em]"
-                >
-                  إعادة ضبط الارتفاع
-                </button>
-              </div>
-            </div>
 
-            {/* ── التأثيرات البصرية (Overlays) ── */}
-            <div className="flex flex-col gap-3">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 px-1">التأثيرات البصرية</span>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { id: "none" as const, label: "بدون", icon: "🚫" },
-                  { id: "dust" as const, label: "ذرات الغبار", icon: "✨" },
-                  { id: "rays" as const, label: "أشعة الضوء", icon: "🌤️" },
-                  { id: "bokeh" as const, label: "بوكيه ناعم", icon: "⚪" },
-                ].map((ov) => (
-                  <button
-                    key={ov.id}
-                    onClick={() => updateState({ overlay: ov.id })}
-                    className={`p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.overlay === ov.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-foreground/5 border-border hover:border-foreground/20'}`}
-                  >
-                    <span className="text-lg">{ov.icon}</span>
-                    <span className={`text-[10px] font-bold ${state.overlay === ov.id ? 'text-primary' : 'text-foreground/40'}`}>{ov.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* ── حركة دخول النص ── */}
-            <div className="flex flex-col gap-3">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 px-1">حركة دخول النص</span>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { id: "fade" as const, label: "تلاشي", icon: "🌫️" },
-                  { id: "scale" as const, label: "تكبير", icon: "🔍" },
-                  { id: "slide" as const, label: "انزلاق", icon: "↔️" },
-                  { id: "blur" as const, label: "زغللة", icon: "👁️" },
-                  { id: "zoom" as const, label: "زووم", icon: "🚀" },
-                  { id: "flip" as const, label: "قلب", icon: "🔄" },
-                  { id: "bounce" as const, label: "قفز", icon: "🏀" },
-                  { id: "glitch" as const, label: "جليتش", icon: "👾" },
-                ].map((ani) => (
-                  <button
-                    key={ani.id}
-                    onClick={() => updateState({ animation: ani.id })}
-                    className={`p-3 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${state.animation === ani.id ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-foreground/5 border-border hover:border-foreground/20'}`}
-                  >
-                    <span className="text-lg">{ani.icon}</span>
-                    <span className={`text-[10px] font-bold ${state.animation === ani.id ? 'text-primary' : 'text-foreground/40'}`}>{ani.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* ── لون النص ── */}
-            <div className="flex flex-col gap-3">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 px-1">لون النص</span>
-              <div className="flex flex-wrap gap-3">
-                {[
-                  '#ffffff', '#FFD700', '#D4AF37', '#00FFC2', '#00E5FF', 
-                  '#3B82F6', '#A855F7', '#EC4899', '#F43F5E', '#FF5C5C', 
-                  '#F59E0B', '#22C55E'
-                ].map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => updateState({ textColor: color })}
-                    style={{ backgroundColor: color }}
-                    className={`h-10 w-10 rounded-full border-2 transition-all duration-500 ${state.textColor === color ? 'border-white scale-110 ring-8 ring-primary/10 shadow-lg shadow-black/40' : 'border-foreground/10 hover:scale-110'}`}
-                  />
-                ))}
-                <div className="relative group/cp">
-                  <input
-                    type="color"
-                    value={state.textColor}
-                    onChange={(e) => updateState({ textColor: e.target.value })}
-                    className="h-10 w-10 rounded-full border-2 border-foreground/10 bg-transparent cursor-pointer overflow-hidden opacity-0 absolute inset-0 z-10"
-                  />
-                  <div 
-                    className="h-10 w-10 rounded-full border-2 border-foreground/20 flex items-center justify-center text-xs font-bold transition-all group-hover/cp:scale-110 shadow-lg"
-                    style={{ backgroundColor: state.textColor }}
-                  >
-                    🎨
-                  </div>
+                {bgMode === "search" && (
+                <div className="flex items-center gap-4 animate-in slide-in-from-top-4 duration-500">
+                    <div className="relative flex-1">
+                        <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-white/20 w-5 h-5" />
+                        <input
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && setQuery(search)}
+                            placeholder="ابحث عن مشاهد (مكة، سماء...)"
+                            className="w-full rounded-2xl bg-white/5 border border-white/10 pr-14 pl-6 py-4 text-sm text-white outline-none focus:border-primary/50 transition-all font-arabic"
+                        />
+                    </div>
+                    <button
+                        onClick={() => setQuery(search)}
+                        className="bg-primary text-black px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/10"
+                    >
+                        بحث
+                    </button>
                 </div>
-              </div>
-            </div>
-
-            {/* ── حجم الخط ── */}
-            <div className="space-y-3 px-1">
-              <div className="flex justify-between items-center bg-foreground/[0.02] p-3 rounded-xl border border-border">
-                <span className="text-[11px] font-bold text-foreground/50 uppercase tracking-widest">حجم الخط</span>
-                <span className="text-sm font-black text-primary font-mono">{state.fontSize}px</span>
-              </div>
-              <input
-                type="range"
-                min="20"
-                max="300"
-                step="2"
-                value={state.fontSize}
-                onChange={(e) => updateState({ fontSize: Number(e.target.value) })}
-                className="w-full h-1.5 bg-foreground/5 rounded-full appearance-none cursor-pointer accent-primary hover:accent-primary/80 transition-all"
-              />
-              <div className="flex gap-2 justify-center">
-                {[40, 60, 100, 150, 200].map(size => (
-                  <button
-                    key={size}
-                    onClick={() => updateState({ fontSize: size })}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${state.fontSize === size ? 'bg-primary text-black' : 'bg-foreground/5 text-foreground/40 hover:bg-foreground/10'}`}
-                  >
-                    {size}px
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* ── سُمك الخط ── */}
-            <div className="space-y-3 px-1">
-              <div className="flex justify-between items-center bg-foreground/[0.02] p-3 rounded-xl border border-border">
-                <span className="text-[11px] font-bold text-foreground/50 uppercase tracking-widest">سُمك الخط</span>
-                <span className="text-sm font-black text-primary font-mono">{state.fontWeight}</span>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                 {[300, 400, 500, 600, 700, 800].map(weight => {
-                   const labels: Record<number, string> = {
-                     300: "خفيف",
-                     400: "عادي",
-                     500: "متوسط",
-                     600: "شبه عريض", // Semi-bold
-                     700: "عريض",
-                     800: "أسمك"
-                   };
-                   return (
-                     <button
-                        key={weight}
-                        onClick={() => updateState({ fontWeight: weight })}
-                        className={`py-3 rounded-xl border-2 transition-all font-bold text-[10px] flex flex-col items-center gap-1 ${state.fontWeight === weight ? 'bg-primary/10 border-primary text-primary' : 'bg-foreground/5 border-border text-foreground/30 hover:bg-foreground/10'}`}
-                     >
-                        <span className="opacity-50">{weight}</span>
-                        <span>{labels[weight]}</span>
-                     </button>
-                   );
-                 })}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === "support" && (
-          <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700 p-2">
-             <div className="flex flex-col gap-2">
-                <h3 className="text-lg font-bold text-foreground font-arabic">الشكاوى والاقتراحات</h3>
-                <p className="text-[10px] text-foreground/40 leading-relaxed">يسعدنا سماع رأيك أو أي مشكلة تواجهك لتحسين التطبيق.</p>
-             </div>
-
-             <textarea 
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                placeholder="اكتب رسالتك هنا..."
-                className="w-full h-32 bg-foreground/5 border border-border rounded-2xl p-4 text-sm text-foreground outline-none focus:border-primary/40 transition-all resize-none font-arabic"
-             />
-
-             <button 
-                onClick={handleSendFeedback}
-                disabled={isSending || !feedback.trim()}
-                className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all ${isSending || !feedback.trim() ? 'bg-foreground/5 text-foreground/20 cursor-not-allowed' : 'bg-primary text-black hover:scale-[1.02] shadow-lg shadow-primary/20'}`}
-             >
-                {isSending ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                    <span>جاري الإرسال...</span>
-                  </>
-                ) : (
-                  <span>إرسال الاقتراح</span>
                 )}
-             </button>
 
-             <div className="mt-4 p-4 rounded-xl bg-foreground/[0.02] border border-border">
-                <span className="text-[9px] text-foreground/20 uppercase tracking-widest block mb-2">ملاحظة</span>
-                <p className="text-[9px] text-foreground/30 leading-relaxed">رسالتك تصل مباشرة لمالك التطبيق عبر نظام الأحداث المتقدم لضمان الخصوصية وسرعة المتابعة.</p>
-             </div>
-          </div>
-        )}
+                {/* Grid */}
+                {loading && bgMode === "search" ? (
+                    <div className="flex flex-col items-center justify-center py-32 gap-6">
+                        <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+                        <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">جاري جلب المشاهد...</span>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 gap-4">
+                        {displayMedia.map((item, index) => (
+                        <button
+                            key={`${item.src}-${index}`}
+                            onClick={() => {
+                                if (item.type === 'video' && isVideoLocked) return;
+                                updateState({ backgroundUrl: item.src });
+                            }}
+                            className={`relative aspect-[9/16] overflow-hidden rounded-[2rem] border-2 transition-all duration-700 group/item ${state.backgroundUrl === item.src ? 'border-primary shadow-[0_0_50px_rgba(212,175,55,0.3)] scale-[0.98]' : 'border-white/5 hover:border-white/20'}`}
+                        >
+                            {item.type === "video" ? (
+                            <video src={item.src} poster={item.poster} muted loop playsInline className="h-full w-full object-cover group-hover/item:scale-110 transition-transform duration-1000" />
+                            ) : (
+                            <img src={`${item.src}?auto=compress&cs=tinysrgb&dpr=2&h=600&w=400`} alt="bg" className="h-full w-full object-cover group-hover/item:scale-110 transition-transform duration-1000" />
+                            )}
+                            <div className={`absolute inset-0 bg-black/40 group-hover/item:bg-transparent transition-colors duration-700 ${state.backgroundUrl === item.src ? 'bg-transparent' : ''}`} />
+                            
+                            {state.backgroundUrl === item.src && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-black shadow-2xl animate-in zoom-in duration-300">
+                                    <Check className="w-6 h-6 stroke-[4px]" />
+                                </div>
+                            </div>
+                            )}
+
+                            {item.type === "video" && (
+                            <div className={`absolute bottom-4 right-4 flex items-center gap-2 rounded-xl px-3 py-1.5 text-[10px] font-black text-white backdrop-blur-xl border ${isVideoLocked ? 'bg-primary/80 border-primary text-black' : 'bg-black/60 border-white/10'}`}>
+                                {isVideoLocked ? <Lock className="w-3 h-3" /> : <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />}
+                                {isVideoLocked ? 'PREMIUM' : 'LIVE'}
+                            </div>
+                            )}
+                        </button>
+                        ))}
+                    </div>
+                )}
+            </div>
+          )}
+
+          {activeTab === "reciter" && (
+            <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-4">اختر الصوت المناسب للمشهد</p>
+                {RECITERS.map((r) => (
+                    <button
+                        key={r.id}
+                        onClick={() => updateState({ reciterId: r.id })}
+                        className={`flex items-center justify-between p-6 rounded-[2rem] border-2 transition-all duration-500 group/reciter ${state.reciterId === r.id ? 'bg-primary/10 border-primary shadow-2xl shadow-primary/10' : 'bg-white/5 border-white/5 hover:border-white/10'}`}
+                    >
+                        <div className="flex items-center gap-4">
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${state.reciterId === r.id ? 'bg-primary text-black shadow-xl shadow-primary/20' : 'bg-white/5 text-white/20'}`}>
+                                <Music className="w-5 h-5" />
+                            </div>
+                            <div className="text-right">
+                                <span className={`block text-base font-bold font-arabic ${state.reciterId === r.id ? 'text-white' : 'text-white/60'}`}>{r.name}</span>
+                                <p className="text-[9px] font-black text-primary/40 uppercase tracking-widest mt-0.5">صوت نقي عالي الجودة</p>
+                            </div>
+                        </div>
+                        {state.reciterId === r.id && <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-black"><Check className="w-4 h-4 stroke-[4px]" /></div>}
+                    </button>
+                ))}
+            </div>
+          )}
+
+          {activeTab === "style" && (
+            <div className="flex flex-col gap-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                {/* Font Family */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <div className="h-px flex-1 bg-white/10" />
+                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">نمط الخط العربي</span>
+                        <div className="h-px flex-1 bg-white/10" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        {[
+                            { id: "Amiri", label: "أميري" },
+                            { id: "Noto Naskh Arabic", label: "نسخ" },
+                            { id: "Scheherazade New", label: "شهرزاد" },
+                            { id: "Cairo", label: "القاهرة" },
+                            { id: "Tajawal", label: "تجوال" },
+                        ].map((font) => (
+                        <button
+                            key={font.id}
+                            onClick={() => updateState({ fontFamily: font.id })}
+                            className={`p-5 rounded-2xl border-2 transition-all duration-500 text-center ${state.fontFamily === font.id ? 'bg-primary/10 border-primary text-white' : 'bg-white/5 border-white/5 text-white/30 hover:bg-white/10'}`}
+                        >
+                            <span className="text-xs font-black block mb-2">{font.label}</span>
+                            <span className="text-2xl" style={{ fontFamily: font.id, direction: 'rtl' }}>بسم الله</span>
+                        </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Filters */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <div className="h-px flex-1 bg-white/10" />
+                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">مرشحات المشهد</span>
+                        <div className="h-px flex-1 bg-white/10" />
+                    </div>
+                    <div className="grid grid-cols-4 gap-3">
+                        {[
+                            { id: "none", icon: "✨", label: "بدون" },
+                            { id: "vintage", icon: "🎞️", label: "قديم" },
+                            { id: "cool", icon: "❄️", label: "بارد" },
+                            { id: "warm", icon: "🔥", label: "دافئ" },
+                            { id: "bw", icon: "🖤", label: "أبيض" },
+                            { id: "dramatic", icon: "🌑", label: "درامي" },
+                            { id: "blur", icon: "🌫️", label: "ضباب" },
+                            { id: "sepia", icon: "📜", label: "عتيق" },
+                        ].map((f) => (
+                        <button
+                            key={f.id}
+                            onClick={() => updateState({ filter: f.id })}
+                            className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-500 ${state.filter === f.id ? 'bg-primary/10 border-primary shadow-xl' : 'bg-white/5 border-white/5'}`}
+                        >
+                            <span className="text-xl">{f.icon}</span>
+                            <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">{f.label}</span>
+                        </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Text Controls */}
+                <div className="space-y-8">
+                    {/* Color Picker */}
+                    <div className="space-y-4">
+                        <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">لون النص</span>
+                        <div className="flex flex-wrap gap-3">
+                            {['#ffffff', '#FFD700', '#D4AF37', '#00FFC2', '#00E5FF', '#F43F5E', '#22C55E'].map((color) => (
+                            <button
+                                key={color}
+                                onClick={() => updateState({ textColor: color })}
+                                style={{ backgroundColor: color }}
+                                className={`w-10 h-10 rounded-full border-2 transition-all duration-500 ${state.textColor === color ? 'border-white scale-125 ring-8 ring-primary/20' : 'border-white/10 hover:scale-110'}`}
+                            />
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Font Size Slider */}
+                    <div className="space-y-6">
+                        <div className="flex justify-between items-center px-2">
+                            <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">حجم الخط</span>
+                            <span className="text-xs font-black text-primary font-mono">{state.fontSize}px</span>
+                        </div>
+                        <input
+                            type="range" min="20" max="300" step="2"
+                            value={state.fontSize}
+                            onChange={(e) => updateState({ fontSize: Number(e.target.value) })}
+                            className="w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary"
+                        />
+                    </div>
+
+                    {/* Vertical Offset */}
+                    <div className="space-y-6">
+                        <div className="flex justify-between items-center px-2">
+                            <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">الموقع الرأسي</span>
+                            <span className="text-xs font-black text-primary font-mono">{state.textVerticalOffset}px</span>
+                        </div>
+                        <input
+                            type="range" min="-500" max="500" step="5"
+                            value={state.textVerticalOffset}
+                            onChange={(e) => updateState({ textVerticalOffset: Number(e.target.value) })}
+                            className="w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary"
+                        />
+                    </div>
+                </div>
+            </div>
+          )}
+
+          {activeTab === "support" && (
+            <div className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 space-y-4">
+                    <h3 className="text-xl font-black text-white font-arabic">مركز المقترحات والتحسين</h3>
+                    <p className="text-[10px] text-white/40 leading-relaxed uppercase tracking-widest">مساهمتكم تبني مستقبل التطبيق</p>
+                    <textarea 
+                        value={feedback}
+                        onChange={(e) => setFeedback(e.target.value)}
+                        placeholder="اكتب اقتراحك هنا بكامل التفاصيل..."
+                        className="w-full h-40 bg-black/40 border border-white/10 rounded-2xl p-6 text-sm text-white outline-none focus:border-primary/50 transition-all resize-none font-arabic"
+                    />
+                    <button 
+                        onClick={handleSendFeedback}
+                        disabled={isSending || !feedback.trim()}
+                        className={`w-full py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] transition-all ${isSending || !feedback.trim() ? 'bg-white/5 text-white/10' : 'bg-primary text-black shadow-xl shadow-primary/20 hover:scale-[1.02]'}`}
+                    >
+                        {isSending ? 'جاري الإرسال...' : 'إرسال الاقتراح الآن'}
+                    </button>
+                </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

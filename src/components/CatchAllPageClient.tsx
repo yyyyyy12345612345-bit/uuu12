@@ -160,32 +160,56 @@ function CatchAllContent() {
         
         {visited.video && (
           <div key={`video-${activeView === 'video'}`} className={`h-full w-full ${activeView === 'video' ? 'block view-transition' : 'hidden'}`}>
-             <div className="flex h-full w-full overflow-hidden">
-                <aside className="hidden lg:flex w-[350px] h-full border-r border-white/5 flex-col p-6 overflow-y-auto no-scrollbar gap-6 pb-40">
-                   <SurahSelector /><Controls onOpenSubscription={() => setIsSubscriptionOpen(true)} />
+             <div className="flex h-full w-full overflow-hidden bg-[#064E3B]">
+                {/* Desktop Sidebar */}
+                <aside className="hidden lg:flex w-[400px] h-full border-r border-white/5 flex-col p-8 overflow-y-auto no-scrollbar gap-10 pb-40 relative z-50 bg-black/20 backdrop-blur-3xl">
+                   <div className="absolute inset-0 islamic-pattern opacity-[0.02] pointer-events-none" />
+                   <div className="relative z-10 flex flex-col gap-10">
+                      <SurahSelector />
+                      <div className="h-px bg-white/5 w-full" />
+                      <Controls onOpenSubscription={() => setIsSubscriptionOpen(true)} />
+                   </div>
                 </aside>
-                <div className="flex-1 flex flex-col h-full overflow-y-auto no-scrollbar">
-                   <div className="flex items-center justify-between px-4 pt-4 pb-2 shrink-0 lg:hidden">
+
+                <div className="flex-1 flex flex-col h-full overflow-y-auto no-scrollbar relative">
+                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.05)_0%,transparent_70%)] pointer-events-none" />
+                   
+                   {/* Mobile Header Controls */}
+                   <div className="flex items-center justify-between px-6 pt-6 pb-4 shrink-0 lg:hidden relative z-50">
                       <button 
                          onClick={() => setIsMobileControlsOpen(true)}
-                         className="flex items-center gap-2 px-4 py-2.5 bg-primary/10 border border-primary/20 rounded-2xl active:scale-95 transition-all"
+                         className="flex items-center gap-3 px-6 py-3.5 bg-black/40 backdrop-blur-xl border border-white/10 rounded-[1.5rem] active:scale-95 transition-all group"
                       >
-                         <Settings className="w-4 h-4 text-primary" />
-                         <span className="text-xs font-bold font-arabic text-primary">الإعدادات</span>
+                         <Settings className="w-5 h-5 text-primary group-hover:rotate-90 transition-transform duration-500" />
+                         <span className="text-[10px] font-black font-arabic text-primary uppercase tracking-widest">إعدادات التصميم</span>
                       </button>
                       
                       <button 
                          onClick={() => setIsRenderOpen(true)}
-                         className="flex items-center gap-2 px-4 py-2.5 bg-primary text-black rounded-2xl font-bold text-xs active:scale-95 transition-all shadow-lg shadow-primary/20"
+                         className="flex items-center gap-3 px-6 py-3.5 bg-primary text-black rounded-[1.5rem] font-black text-[10px] active:scale-95 transition-all shadow-[0_20px_50px_rgba(212,175,55,0.2)] uppercase tracking-widest"
                       >
-                         <Download className="w-4 h-4" />
+                         <Download className="w-5 h-5" />
                          <span className="font-arabic">تصدير الفيديو</span>
                       </button>
                    </div>
                    
-                   <div className="flex-1 flex items-center justify-center p-2 min-h-0 bg-[#000000]">
-                      <div className="scale-[0.85] h-full flex items-center justify-center">
+                   {/* Main Preview Area */}
+                   <div className="flex-1 flex items-center justify-center p-4 md:p-12 min-h-0 relative z-10">
+                      <div className="scale-[0.8] md:scale-[0.95] lg:scale-100 h-full flex items-center justify-center transition-all duration-1000">
                         <VideoPreview key={state.reciterId} />
+                      </div>
+                   </div>
+
+                   {/* Desktop Export Hint */}
+                   <div className="hidden lg:flex absolute bottom-10 right-10 z-50 animate-in fade-in slide-in-from-right-10 duration-1000">
+                      <div className="p-1 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-2xl">
+                        <button 
+                            onClick={() => setIsRenderOpen(true)}
+                            className="flex items-center gap-4 bg-primary text-black px-8 py-4 rounded-[1.8rem] font-black text-xs hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-primary/20 uppercase tracking-widest"
+                        >
+                            <Download className="w-5 h-5" />
+                            <span>تصدير فيديو عالي الجودة</span>
+                        </button>
                       </div>
                    </div>
                 </div>

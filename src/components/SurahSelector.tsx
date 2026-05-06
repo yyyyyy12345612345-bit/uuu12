@@ -3,9 +3,15 @@
 import React, { useEffect, useState } from "react";
 import surahsData from "@/data/surahs.json";
 import { useEditor } from "@/store/useEditor";
-import { ChevronDown, Search, Lock, Crown } from "lucide-react";
+import { ChevronDown, Search, Lock, Crown, Sparkles, Hash } from "lucide-react";
 import { AyahSearchModal } from "./AyahSearchModal";
 import { useUserPlan } from "@/hooks/useUserPlan";
+import { Tajawal } from "next/font/google";
+
+const tajawal = Tajawal({
+  weight: ["400", "500", "700", "800", "900"],
+  subsets: ["arabic"],
+});
 
 export function SurahSelector() {
   const { state, updateState } = useEditor();
@@ -19,125 +25,145 @@ export function SurahSelector() {
     const surah = surahsData.find(s => s.id.toString() === state.surahId);
     if (surah) {
       setMaxVerses(surah.total_verses);
-      // Only clamp if surah changed and current values are definitely out of range
-      if (state.startAyah > surah.total_verses) {
-        updateState({ startAyah: 1 });
-      }
-      if (state.endAyah > surah.total_verses) {
-        updateState({ endAyah: surah.total_verses });
-      }
+      if (state.startAyah > surah.total_verses) updateState({ startAyah: 1 });
+      if (state.endAyah > surah.total_verses) updateState({ endAyah: surah.total_verses });
     }
   }, [state.surahId, updateState]);
 
   const [startInput, setStartInput] = useState(state.startAyah.toString());
   const [endInput, setEndInput] = useState(state.endAyah.toString());
 
-  // Sync back if global state changes
   useEffect(() => {
     setStartInput(state.startAyah.toString());
     setEndInput(state.endAyah.toString());
   }, [state.startAyah, state.endAyah]);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className={`flex flex-col gap-8 ${tajawal.className}`}>
       <AyahSearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       
-      {/* Smart Search Initiation */}
+      {/* Search Button */}
       <button 
-        onClick={() => {
-            if (isSearchLocked) return;
-            setIsSearchOpen(true);
-        }}
-        className={`w-full flex items-center justify-between p-4 border rounded-2xl transition-all group animate-in slide-in-from-top-4 duration-500 shadow-lg ${isSearchLocked ? 'bg-foreground/5 border-border opacity-60' : 'bg-primary/10 border-primary/20 hover:bg-primary/20 shadow-primary/5'}`}
+        onClick={() => !isSearchLocked && setIsSearchOpen(true)}
+        className={`relative overflow-hidden group w-full flex items-center justify-between p-5 rounded-[2rem] border-2 transition-all duration-500 shadow-2xl ${isSearchLocked ? 'bg-white/5 border-white/5 opacity-50 cursor-not-allowed' : 'bg-primary/10 border-primary/20 hover:border-primary shadow-primary/5 hover:scale-[1.02]'}`}
       >
-        <div className="flex items-center gap-3">
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-transform ${isSearchLocked ? 'bg-foreground/10 text-foreground/20' : 'bg-primary/20 text-primary group-hover:scale-110'}`}>
-                {isSearchLocked ? <Lock className="w-4 h-4" /> : <Search className="w-4 h-4" />}
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="flex items-center gap-4 relative z-10">
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 ${isSearchLocked ? 'bg-white/5 text-white/10' : 'bg-primary text-black shadow-xl shadow-primary/20 group-hover:rotate-12'}`}>
+                {isSearchLocked ? <Lock className="w-5 h-5" /> : <Search className="w-5 h-5 stroke-[3px]" />}
             </div>
-            <span className={`text-sm font-bold font-arabic ${isSearchLocked ? 'text-foreground/20' : 'text-primary'}`}>
-                {isSearchLocked ? 'ميزة البحث (مقفولة للمجاني)' : 'ابحث عن آية للفيديو...'}
-            </span>
+            <div className="text-right">
+                <span className={`block text-xs font-black uppercase tracking-widest ${isSearchLocked ? 'text-white/20' : 'text-primary'}`}>
+                    {isSearchLocked ? 'ميزة البحث الذكي' : 'محرك البحث القرآني'}
+                </span>
+                <p className="text-[10px] text-white/40 mt-0.5">ابحث عن آية لبدء الفيديو</p>
+            </div>
         </div>
-        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-            {isSearchLocked ? <Crown className="w-3 h-3 text-amber-500" /> : <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />}
-        </div>
+        {!isSearchLocked && (
+            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-primary/40 group-hover:text-primary transition-colors">
+                <Sparkles className="w-4 h-4 animate-pulse" />
+            </div>
+        )}
       </button>
 
-      <div className="flex flex-col gap-2.5">
-        <label className="text-[10px] uppercase tracking-[0.2em] text-foreground/30 mr-2 font-bold">السورة الكريمة</label>
+      {/* Surah Dropdown */}
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-3 px-1">
+            <div className="w-1 h-1 rounded-full bg-primary" />
+            <label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30">السورة الكريمة</label>
+        </div>
         <div className="relative group">
           <select 
             value={state.surahId}
             onChange={(e) => updateState({ surahId: e.target.value })}
-            className="w-full bg-foreground/[0.03] border border-border p-4 rounded-2xl focus:border-primary/40 focus:bg-foreground/[0.05] outline-none appearance-none cursor-pointer text-base font-bold text-foreground transition-all shadow-xl"
+            className="w-full bg-white/5 border-2 border-white/5 p-5 rounded-[2rem] outline-none appearance-none cursor-pointer text-base font-bold text-white transition-all duration-500 hover:border-white/10 focus:border-primary/50 focus:bg-white/10 shadow-xl"
           >
             {surahsData.map((s) => (
-              <option key={s.id} value={s.id.toString()} className="bg-background text-foreground">
+              <option key={s.id} value={s.id.toString()} className="bg-[#064E3B] text-white">
                 {s.id}. {s.name}
               </option>
             ))}
           </select>
-          <div className="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none text-primary/40">
-             <ChevronDown className="w-4 h-4" />
+          <div className="absolute left-6 top-1/2 -translate-y-1/2 pointer-events-none text-primary group-hover:scale-125 transition-transform duration-500">
+             <ChevronDown className="w-5 h-5" />
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="flex flex-col gap-2.5">
-          <label className="text-[10px] uppercase tracking-[0.2em] text-foreground/30 mr-2 font-bold">بداية المقطع</label>
-          <input 
-            type="number" 
-            value={startInput}
-            onChange={(e) => {
-              const val = e.target.value;
-              setStartInput(val);
-              const value = parseInt(val, 10);
-              if (!Number.isNaN(value)) {
-                updateState({ startAyah: value });
-              }
-            }}
-            onBlur={() => {
-                if (!startInput || parseInt(startInput) < 1) {
-                    setStartInput("1");
-                    updateState({ startAyah: 1 });
-                }
-            }}
-            className="w-full bg-foreground/[0.03] border border-border p-4 rounded-2xl focus:border-primary/40 focus:bg-foreground/[0.05] outline-none transition-all text-base font-bold text-foreground text-center"
-          />
+      {/* Ayah Range */}
+      <div className="grid grid-cols-2 gap-5">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-3 px-1">
+             <div className="w-1 h-1 rounded-full bg-primary" />
+             <label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30">البداية</label>
+          </div>
+          <div className="relative">
+            <input 
+                type="number" 
+                value={startInput}
+                onChange={(e) => {
+                    const val = e.target.value;
+                    setStartInput(val);
+                    const value = parseInt(val, 10);
+                    if (!Number.isNaN(value)) updateState({ startAyah: value });
+                }}
+                onBlur={() => {
+                    if (!startInput || parseInt(startInput) < 1) {
+                        setStartInput("1");
+                        updateState({ startAyah: 1 });
+                    }
+                }}
+                className="w-full bg-white/5 border-2 border-white/5 p-5 rounded-[1.8rem] outline-none transition-all duration-500 text-base font-bold text-white text-center focus:border-primary/50 focus:bg-white/10"
+            />
+            <div className="absolute right-6 top-1/2 -translate-y-1/2 text-white/10">
+                <Hash className="w-4 h-4" />
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-2.5">
-          <label className="text-[10px] uppercase tracking-[0.2em] text-foreground/30 mr-2 font-bold">نهاية المقطع</label>
-          <input 
-            type="number" 
-            value={endInput}
-            onChange={(e) => {
-              const val = e.target.value;
-              setEndInput(val);
-              const value = parseInt(val, 10);
-              if (!Number.isNaN(value)) {
-                updateState({ endAyah: value });
-              }
-            }}
-            onBlur={() => {
-                if (!endInput || parseInt(endInput) < 1) {
-                    setEndInput(maxVerses.toString());
-                    updateState({ endAyah: maxVerses });
-                }
-            }}
-            className="w-full bg-foreground/[0.03] border border-border p-4 rounded-2xl focus:border-primary/40 focus:bg-foreground/[0.05] outline-none transition-all text-base font-bold text-foreground text-center"
-          />
+
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-3 px-1">
+             <div className="w-1 h-1 rounded-full bg-primary" />
+             <label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30">النهاية</label>
+          </div>
+          <div className="relative">
+            <input 
+                type="number" 
+                value={endInput}
+                onChange={(e) => {
+                    const val = e.target.value;
+                    setEndInput(val);
+                    const value = parseInt(val, 10);
+                    if (!Number.isNaN(value)) updateState({ endAyah: value });
+                }}
+                onBlur={() => {
+                    if (!endInput || parseInt(endInput) < 1) {
+                        setEndInput(maxVerses.toString());
+                        updateState({ endAyah: maxVerses });
+                    }
+                }}
+                className="w-full bg-white/5 border-2 border-white/5 p-5 rounded-[1.8rem] outline-none transition-all duration-500 text-base font-bold text-white text-center focus:border-primary/50 focus:bg-white/10"
+            />
+            <div className="absolute right-6 top-1/2 -translate-y-1/2 text-white/10">
+                <Hash className="w-4 h-4" />
+            </div>
+          </div>
         </div>
       </div>
       
-      <div className="flex items-center justify-between gap-4 px-2">
-        <div className="h-px flex-1 bg-foreground/5" />
-        <span className="text-[10px] text-primary/60 font-bold uppercase tracking-widest">
-          {state.endAyah - state.startAyah + 1} آيات مختارة
+      {/* Selected Ayahs Hint */}
+      <div className="flex items-center gap-6 px-4 py-4 bg-white/5 rounded-[1.5rem] border border-white/5">
+        <div className="flex -space-x-2 rtl:space-x-reverse">
+            {[...Array(3)].map((_, i) => (
+                <div key={i} className="w-6 h-6 rounded-full border-2 border-[#064E3B] bg-primary/20 flex items-center justify-center text-[8px] font-bold text-primary">
+                    {state.startAyah + i}
+                </div>
+            ))}
+        </div>
+        <span className="text-[10px] text-white/40 font-black uppercase tracking-[0.4em]">
+          {state.endAyah - state.startAyah + 1} آيات مختارة للتصميم
         </span>
-        <div className="h-px flex-1 bg-foreground/5" />
       </div>
     </div>
-
   );
 }
