@@ -8,7 +8,7 @@ export type PexelsMediaItem = {
   poster?: string;
 };
 
-export function usePexelsBackgrounds(query: string) {
+export function usePexelsBackgrounds(query: string, type: "images" | "videos" | "both" = "both") {
   const [media, setMedia] = useState<PexelsMediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +20,7 @@ export function usePexelsBackgrounds(query: string) {
 
     const fetchMedia = async () => {
       try {
-        const response = await fetch(`https://quran1-mu.vercel.app/api/pexels?query=${encodeURIComponent(query)}&per_page=12&type=both`);
+        const response = await fetch(`https://quran1-mu.vercel.app/api/pexels?query=${encodeURIComponent(query)}&per_page=12&type=${type}`);
         if (!response.ok) {
           const body = await response.json();
           throw new Error(body.error || "فشل تحميل الخلفيات");
@@ -42,7 +42,7 @@ export function usePexelsBackgrounds(query: string) {
     return () => {
       isMounted = false;
     };
-  }, [query]);
+  }, [query, type]);
 
   return { media, loading, error };
 }

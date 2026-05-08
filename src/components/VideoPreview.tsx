@@ -147,7 +147,7 @@ export function VideoPreview() {
               />
             ) : (
               <div
-                className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
+                className="absolute inset-0 bg-cover bg-center transition-[opacity,filter] duration-700"
                 style={{ backgroundImage: `url(${state.backgroundUrl})`, filter: getFilterCSS(state.filter) }}
               />
             )
