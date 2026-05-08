@@ -182,21 +182,21 @@ export function AudioLibrary() {
       <audio ref={audioRef} onTimeUpdate={onTimeUpdate} onEnded={onEnded} preload="auto" />
 
       {/* ═══ SCROLLABLE CONTENT ═══ */}
-      <div className="flex-1 overflow-y-auto pb-56">
+      <div className="flex-1 overflow-y-auto pb-32">
 
         {/* ── Spotify Style Now Playing - Optimized for Compactness ── */}
         <div className="relative px-6 pt-6 pb-6 flex flex-col items-center">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent opacity-40" />
           
           {/* Compact Surah Card */}
-          <div className="relative z-10 w-full max-w-[160px] aspect-[4/3] mb-4 group">
-             <div className="absolute inset-0 bg-primary/10 rounded-2xl blur-lg group-hover:bg-primary/20 transition-all duration-700" />
-             <div className="relative h-full w-full rounded-2xl bg-gradient-to-br from-[#0d1411] to-[#0a0f0d] border border-white/5 shadow-xl overflow-hidden flex flex-col items-center justify-center p-4 text-center">
+          <div className="relative z-10 w-full max-w-[120px] aspect-[4/3] mb-2 group">
+             <div className="absolute inset-0 bg-primary/10 rounded-xl blur-md group-hover:bg-primary/20 transition-all duration-700" />
+             <div className="relative h-full w-full rounded-xl bg-gradient-to-br from-[#0d1411] to-[#0a0f0d] border border-white/5 shadow-xl overflow-hidden flex flex-col items-center justify-center p-2 text-center">
                 <div className="absolute inset-0 islamic-pattern opacity-[0.03]" />
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-                    <Headphones className="w-5 h-5 text-primary" />
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mb-1">
+                    <Headphones className="w-4 h-4 text-primary" />
                 </div>
-                <span className="text-xl font-black text-primary font-['Amiri']">سورة {currentSurah.name}</span>
+                <span className="text-sm font-black text-primary font-['Amiri']">سورة {currentSurah.name}</span>
              </div>
           </div>
 
