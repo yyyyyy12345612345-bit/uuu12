@@ -44,26 +44,13 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
   const [search, setSearch] = useState("islamic");
   const [query, setQuery] = useState("");
   const { state, updateState } = useEditor();
-  const { media, loading } = usePexelsBackgrounds(query);
+  const { media, loading } = usePexelsBackgrounds(query, bgMode === "search" ? "images" : "both");
   const { userPlan, isFeatureLocked } = useUserPlan();
 
   const isSearchLocked = isFeatureLocked("search");
   const isVideoLocked = isFeatureLocked("video_bg");
 
   const displayMedia = bgMode === "library" ? STATIC_LIBRARY : (media.length > 0 ? media : STATIC_LIBRARY);
-
-  const [feedback, setFeedback] = useState("");
-  const [isSending, setIsSending] = useState(false);
-
-  const handleSendFeedback = () => {
-    if (!feedback.trim()) return;
-    setIsSending(true);
-    setTimeout(() => {
-        setIsSending(false);
-        setFeedback("");
-        alert("تم إرسال اقتراحك بنجاح.. شكراً لك!");
-    }, 1000);
-  };
 
   const tabs = [
     { id: "bg", label: "الخلفية", icon: ImageIcon },
@@ -143,7 +130,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && setQuery(search)}
-                            placeholder="ابحث عن مشاهد (مكة، سماء...)"
+                            placeholder="ابحث عن صور (مكة، سماء...)"
                             className="w-full rounded-2xl bg-foreground/5 border border-foreground/10 pr-14 pl-6 py-4 text-sm text-foreground outline-none focus:border-primary/50 transition-all font-arabic placeholder:text-foreground/20"
                         />
                     </div>
@@ -160,7 +147,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                 {loading && bgMode === "search" ? (
                     <div className="flex flex-col items-center justify-center py-32 gap-6">
                         <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-                        <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">جاري جلب المشاهد...</span>
+                        <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">جاري جلب الصور...</span>
                     </div>
                 ) : (
                     <div className="grid grid-cols-2 gap-4">
@@ -171,18 +158,19 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                                 if (item.type === 'video' && isVideoLocked) return;
                                 updateState({ backgroundUrl: item.src });
                             }}
-                            className={`relative aspect-[9/16] overflow-hidden rounded-[2rem] border-2 transition-all duration-700 group/item ${state.backgroundUrl === item.src ? 'border-primary shadow-[0_0_50px_rgba(212,175,55,0.3)] scale-[0.98]' : 'border-white/5 hover:border-white/20'}`}
+                            className={`relative aspect-[9/16] overflow-hidden rounded-[2rem] border-2 transition-all duration-700 group/item ${state.backgroundUrl === item.src ? 'border-primary shadow-[0_0_50px_rgba(212,175,55,0.3)]' : 'border-white/5 hover:border-white/20'}`}
                         >
                             {item.type === "video" ? (
-                            <video src={item.src} poster={item.poster} muted loop playsInline className="h-full w-full object-cover group-hover/item:scale-110 transition-transform duration-1000" />
+                            <video src={item.src} poster={item.poster} muted loop playsInline className="h-full w-full object-cover transition-transform duration-1000" />
                             ) : (
-                            <img src={`${item.src}?auto=compress&cs=tinysrgb&dpr=2&h=600&w=400`} alt="bg" className="h-full w-full object-cover group-hover/item:scale-110 transition-transform duration-1000" />
+                            <img src={`${item.src}?auto=compress&cs=tinysrgb&dpr=2&h=600&w=400`} alt="bg" className="h-full w-full object-cover transition-transform duration-1000" />
                             )}
                             <div className={`absolute inset-0 bg-black/40 group-hover/item:bg-transparent transition-colors duration-700 ${state.backgroundUrl === item.src ? 'bg-transparent' : ''}`} />
                             
                             {state.backgroundUrl === item.src && (
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-black shadow-2xl animate-in zoom-in duration-300">
+                                    <circle className="w-6 h-6 stroke-[4px]" />
                                     <Check className="w-6 h-6 stroke-[4px]" />
                                 </div>
                             </div>
@@ -334,25 +322,29 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
 
           {activeTab === "support" && (
             <div className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                <div className="p-8 rounded-[2.5rem] bg-foreground/5 border border-foreground/10 space-y-4">
+                <div className="p-8 rounded-[2.5rem] bg-foreground/5 border border-foreground/10 space-y-6 text-center">
+                    <div className="w-20 h-20 bg-primary/20 rounded-[2rem] flex items-center justify-center mx-auto mb-4">
+                        <MessageSquare className="w-10 h-10 text-primary" />
+                    </div>
                     <h3 className="text-xl font-black text-foreground font-arabic">مركز المقترحات والتحسين</h3>
-                    <p className="text-[10px] text-foreground/40 leading-relaxed uppercase tracking-widest">مساهمتكم تبني مستقبل التطبيق</p>
-                    <textarea 
-                        value={feedback}
-                        onChange={(e) => setFeedback(e.target.value)}
-                        placeholder="اكتب اقتراحك هنا بكامل التفاصيل..."
-                        className="w-full h-40 bg-foreground/5 border border-foreground/10 rounded-2xl p-6 text-sm text-foreground outline-none focus:border-primary/50 transition-all resize-none font-arabic placeholder:text-foreground/20"
-                    />
-                    <button 
-                        onClick={handleSendFeedback}
-                        disabled={isSending || !feedback.trim()}
-                        className={`w-full py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] transition-all ${isSending || !feedback.trim() ? 'bg-foreground/5 text-foreground/10' : 'bg-primary text-black shadow-xl shadow-primary/20 hover:scale-[1.02]'}`}
+                    <p className="text-[10px] text-foreground/40 leading-relaxed uppercase tracking-widest px-4">مساهمتكم تبني مستقبل التطبيق. تواصل معنا مباشرة عبر انستجرام لمشاركتنا أفكارك</p>
+                    
+                    <a 
+                        href="https://www.instagram.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-4 w-full py-5 rounded-2xl bg-primary text-black font-black text-xs uppercase tracking-[0.3em] transition-all hover:scale-[1.02] shadow-xl shadow-primary/20"
                     >
-                        {isSending ? 'جاري الإرسال...' : 'إرسال الاقتراح الآن'}
-                    </button>
+                        <span>تواصل معنا على انستجرام</span>
+                    </a>
                 </div>
             </div>
           )}
+        </div>
+      </div>
+    </div>
+  );
+}
         </div>
       </div>
     </div>
