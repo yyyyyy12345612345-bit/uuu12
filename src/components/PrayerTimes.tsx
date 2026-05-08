@@ -164,7 +164,7 @@ export function PrayerTimes() {
           <div className="absolute -top-20 -left-20 w-[500px] h-[500px] bg-primary/5 blur-[150px] rounded-full animate-pulse" />
       </div>
 
-      <div className="max-w-5xl mx-auto w-full flex flex-col gap-8 relative z-10 pb-32">
+      <div className="max-w-5xl mx-auto w-full flex flex-col gap-8 relative z-10">
         
         {/* Location & Time Header */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">

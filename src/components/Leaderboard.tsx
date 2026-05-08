@@ -230,7 +230,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
   );
 
   return (
-    <div className="flex flex-col h-full font-arabic overflow-y-auto no-scrollbar pb-32">
+    <div className="flex flex-col h-full font-arabic overflow-y-auto no-scrollbar">
       
       {/* Premium Header Backdrop */}
       <div className="relative bg-[#0a0f0d] pt-24 pb-40 px-6 overflow-hidden">
@@ -381,7 +381,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
           )}
 
           {/* Leaderboard List */}
-          <div className="space-y-8 pb-40">
+          <div className="space-y-8">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                   <h3 className="text-3xl font-black text-foreground">ترتيب المتسابقين</h3>
                   <div className="flex flex-wrap items-center justify-center gap-2 p-2 bg-foreground/5 rounded-[2rem] border border-border">
