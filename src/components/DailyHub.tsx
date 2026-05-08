@@ -253,7 +253,7 @@ export function DailyHub() {
   };
 
   return (
-    <div className="w-full h-full flex flex-col p-4 md:p-10 overflow-y-auto font-arabic pb-32 no-scrollbar relative daily-hub-container">
+    <div className="w-full h-full flex flex-col p-4 md:p-10 overflow-y-auto font-arabic no-scrollbar relative daily-hub-container">
       {/* Background Aesthetics */}
       <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/40 to-background" />
@@ -484,7 +484,7 @@ export function DailyHub() {
           )}
       </div>
       
-      <div className="h-40 shrink-0 w-full" />
+
     </div>
   );
 }

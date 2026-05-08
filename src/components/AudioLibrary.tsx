@@ -216,7 +216,7 @@ export function AudioLibrary() {
   };
 
   return (
-    <div className="h-full w-full bg-[#0a0a0a] text-white overflow-y-auto lg:overflow-hidden relative font-['Tajawal'] flex flex-col lg:flex-row no-scrollbar pb-32 lg:pb-0">
+    <div className="h-full w-full bg-[#0a0a0a] text-white overflow-y-auto lg:overflow-hidden relative font-['Tajawal'] flex flex-col lg:flex-row no-scrollbar">
       <audio ref={audioRef} onTimeUpdate={onTimeUpdate} onEnded={handleNext} preload="auto" />
 
       {/* Atmospheric Background */}
@@ -446,6 +446,28 @@ export function AudioLibrary() {
                           >
                               <User className="w-5 h-5" />
                           </button>
+                      </div>
+
+                      {/* Recently Played (Mobile Specific) */}
+                      <div className="mt-12 lg:hidden">
+                           <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4 block">آخر القراءات</span>
+                           <div className="grid grid-cols-2 gap-3">
+                                {recentlyPlayed.slice(0, 4).map(id => {
+                                    const s = surahsData.find(sur => sur.id === id);
+                                    if (!s) return null;
+                                    return (
+                                        <button 
+                                            key={id}
+                                            onClick={() => handleSurahSelect(s)}
+                                            className="flex flex-col p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/20 transition-all text-right group"
+                                        >
+                                            <span className="text-[10px] font-black font-['Amiri'] block truncate group-hover:text-primary transition-colors">{s.name}</span>
+                                            <span className="text-[8px] text-white/20 uppercase tracking-widest mt-1">Surah {s.id}</span>
+                                        </button>
+                                    );
+                                })}
+                                {recentlyPlayed.length === 0 && <span className="text-[10px] text-white/20 italic">لا يوجد تاريخ استماع بعد</span>}
+                           </div>
                       </div>
                   </div>
               </div>
