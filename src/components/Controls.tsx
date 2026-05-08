@@ -345,8 +345,3 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
     </div>
   );
 }
-        </div>
-      </div>
-    </div>
-  );
-}
