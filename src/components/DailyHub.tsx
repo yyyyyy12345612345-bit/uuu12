@@ -2,6 +2,7 @@
 
 import { ATHKAR } from "@/data/athkar";
 import { AthkarLibrary } from "./AthkarLibrary";
+import { QiblaCompass } from "./QiblaCompass";
 import { addPoints, addSebhaPoints, startThikrTimer, endThikrTimer, claimQuestPoints } from "@/lib/points";
 import { useRouter } from "next/navigation";
 import { collection, query, where, getDocs, orderBy, limit, doc, getDoc } from "firebase/firestore";
@@ -464,26 +465,21 @@ export function DailyHub() {
           )}
 
           {activeTab === "qibla" && (
-            <div className="glass-effect p-12 rounded-[3rem] border border-border animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center min-h-[600px] shadow-2xl">
-                <h3 className="text-4xl font-black mb-2">اتجاه القبلة</h3>
-                <p className="text-foreground/40 font-bold mb-12">بوصلة دقيقة لتحديد اتجاه مكة المكرمة</p>
-                
-                {qibla.angle === null ? (
-                    <button onClick={requestQibla} className="px-12 py-5 bg-primary text-black font-black rounded-[2rem] shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-4 text-xl">
-                        <MapPin className="w-6 h-6" /> تحديد موقعي الآن
-                    </button>
-                ) : (
-                    <div className="relative w-80 h-80 flex items-center justify-center">
-                        <div className="absolute inset-0 border-4 border-primary/10 rounded-full" />
-                        <div className="relative w-full h-full animate-spin-slow" style={{ transform: `rotate(${qibla.angle}deg)` }}>
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-6 flex flex-col items-center">
-                                <Search className="w-10 h-10 text-primary drop-shadow-[0_0_15px_rgba(212,175,55,0.8)]" />
-                                <div className="w-2 h-20 bg-gradient-to-b from-primary to-transparent rounded-full" />
-                            </div>
-                        </div>
-                        <div className="absolute w-4 h-4 bg-foreground rounded-full shadow-2xl" />
+            <div className="glass-effect p-8 md:p-12 rounded-[3rem] border border-border animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center min-h-[600px] shadow-2xl relative overflow-hidden">
+                <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
+                <div className="relative z-10 w-full flex flex-col items-center">
+                    <div className="text-center mb-10">
+                        <h3 className="text-4xl md:text-5xl font-black mb-3">اتجاه القبلة</h3>
+                        <p className="text-foreground/40 font-bold max-w-xs mx-auto">بوصلة ذكية دقيقة لتحديد اتجاه مكة المكرمة من موقعك الحالي</p>
                     </div>
-                )}
+
+                    <QiblaCompass 
+                        qiblaAngle={qibla.angle}
+                        onRequestLocation={requestQibla}
+                        isLoading={qibla.loading}
+                        error={qibla.error}
+                    />
+                </div>
             </div>
           )}
       </div>
