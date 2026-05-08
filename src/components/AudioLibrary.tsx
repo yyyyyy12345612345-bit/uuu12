@@ -41,6 +41,10 @@ const RubElHizb = ({ number, active }: { number: number; active: boolean }) => (
   </div>
 );
 
+import { db, auth } from "@/lib/firebase";
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+
 export function AudioLibrary() {
   const [currentSurah, setCurrentSurah] = useState(surahsData[0]);
   const [selectedReciter, setSelectedReciter] = useState(RECITERS[0]);
@@ -55,22 +59,78 @@ export function AudioLibrary() {
   const [reciterSearch, setReciterSearch] = useState("");
   const [favorites, setFavorites] = useState<number[]>([]);
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [recentlyPlayed, setRecentlyPlayed] = useState<number[]>([]);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const horizontalListRef = useRef<HTMLDivElement>(null);
 
-  // Persistence
+  // Auth & Persistence
   useEffect(() => {
-    const saved = localStorage.getItem("quran_favorites");
-    if (saved) setFavorites(JSON.parse(saved));
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setUser(user);
+      if (user) {
+        // Fetch from Firestore
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          if (data.audioFavorites) setFavorites(data.audioFavorites);
+          if (data.audioHistory) setRecentlyPlayed(data.audioHistory);
+        } else {
+          // Fallback to local
+          const saved = localStorage.getItem("quran_favorites");
+          const savedHistory = localStorage.getItem("quran_history");
+          const favs = saved ? JSON.parse(saved) : [];
+          const hist = savedHistory ? JSON.parse(savedHistory) : [];
+          setFavorites(favs);
+          setRecentlyPlayed(hist);
+          await setDoc(doc(db, "users", user.uid), { audioFavorites: favs, audioHistory: hist }, { merge: true });
+        }
+      } else {
+        const saved = localStorage.getItem("quran_favorites");
+        const savedHistory = localStorage.getItem("quran_history");
+        if (saved) setFavorites(JSON.parse(saved));
+        if (savedHistory) setRecentlyPlayed(JSON.parse(savedHistory));
+      }
+    });
+    return () => unsubscribe();
   }, []);
 
-  const toggleFavorite = (id: number) => {
-    const newFavs = favorites.includes(id) 
+  const toggleFavorite = async (id: number) => {
+    const isFav = favorites.includes(id);
+    const newFavs = isFav 
       ? favorites.filter(f => f !== id) 
       : [...favorites, id];
+    
     setFavorites(newFavs);
     localStorage.setItem("quran_favorites", JSON.stringify(newFavs));
+
+    if (user) {
+      try {
+        const userRef = doc(db, "users", user.uid);
+        await updateDoc(userRef, {
+          audioFavorites: isFav ? arrayRemove(id) : arrayUnion(id)
+        });
+      } catch (err) {
+        console.error("Error updating favorites in cloud:", err);
+      }
+    }
+  };
+
+  const addToHistory = async (id: number) => {
+    const newHistory = [id, ...recentlyPlayed.filter(h => h !== id)].slice(0, 10);
+    setRecentlyPlayed(newHistory);
+    localStorage.setItem("quran_history", JSON.stringify(newHistory));
+
+    if (user) {
+      try {
+        await updateDoc(doc(db, "users", user.uid), {
+          audioHistory: newHistory
+        });
+      } catch (err) {
+        console.error("Error updating history in cloud:", err);
+      }
+    }
   };
 
   const filteredSurahs = useMemo(() => {
@@ -130,14 +190,12 @@ export function AudioLibrary() {
     const next = isShuffle 
       ? surahsData[Math.floor(Math.random() * surahsData.length)]
       : surahsData[(idx + 1) % surahsData.length];
-    setCurrentSurah(next);
-    setIsPlaying(true);
+    handleSurahSelect(next);
   };
 
   const handlePrev = () => {
     const idx = surahsData.findIndex(s => s.id === currentSurah.id);
-    setCurrentSurah(surahsData[(idx - 1 + surahsData.length) % surahsData.length]);
-    setIsPlaying(true);
+    handleSurahSelect(surahsData[(idx - 1 + surahsData.length) % surahsData.length]);
   };
 
   const downloadSurah = () => {
@@ -151,6 +209,12 @@ export function AudioLibrary() {
     document.body.removeChild(a);
   };
 
+  const handleSurahSelect = (s: typeof surahsData[0]) => {
+      setCurrentSurah(s);
+      setIsPlaying(true);
+      addToHistory(s.id);
+  };
+
   return (
     <div className="h-full w-full bg-[#0a0a0a] text-white overflow-y-auto lg:overflow-hidden relative font-['Tajawal'] flex flex-col lg:flex-row no-scrollbar pb-32 lg:pb-0">
       <audio ref={audioRef} onTimeUpdate={onTimeUpdate} onEnded={handleNext} preload="auto" />
@@ -162,231 +226,228 @@ export function AudioLibrary() {
           <div className="absolute inset-0 islamic-pattern opacity-[0.03]" />
       </div>
 
-      {/* ─── LEFT/TOP: PLAYER CONTROLS ─── */}
-      <div className="relative z-10 w-full lg:w-[420px] lg:h-full flex flex-col p-6 lg:p-10 lg:border-l lg:border-white/5 bg-black/60 backdrop-blur-3xl shrink-0 overflow-y-auto no-scrollbar">
+      {/* ─── MAIN CONTENT ─── */}
+      <div className="relative z-10 w-full h-full flex flex-col items-center p-6 lg:p-12 overflow-y-auto no-scrollbar">
           
-          {/* Horizontal Surah Selection (Mobile Only) */}
-          <div className="lg:hidden mb-8">
-              <div className="flex items-center justify-between mb-4 px-2">
-                  <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">اختر السورة</span>
-                  <div className="flex gap-2">
-                      <button onClick={() => setShowOnlyFavorites(!showOnlyFavorites)} className={`p-2 rounded-xl border transition-all ${showOnlyFavorites ? 'bg-primary border-primary text-black shadow-lg shadow-primary/20' : 'bg-white/5 border-white/5 text-white/40'}`}>
-                          <Heart className={`w-3.5 h-3.5 ${showOnlyFavorites ? 'fill-current' : ''}`} />
-                      </button>
-                  </div>
-              </div>
-              <div ref={horizontalListRef} className="flex gap-3 overflow-x-auto no-scrollbar pb-2 px-1">
-                  {surahsData.map((s) => {
-                      const active = s.id === currentSurah.id;
-                      return (
-                          <button 
-                            key={s.id}
-                            onClick={() => { setCurrentSurah(s); setIsPlaying(true); }}
-                            className={`flex flex-col items-center gap-2 shrink-0 p-3 rounded-[2rem] border transition-all duration-500 ${active ? 'bg-primary border-primary shadow-xl shadow-primary/20 scale-105' : 'bg-white/5 border-white/5 opacity-60'}`}
-                          >
-                              <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-[10px] ${active ? 'bg-black/10 text-black' : 'bg-white/5 text-white'}`}>
-                                  {s.id}
-                              </div>
-                              <span className={`text-[9px] font-black font-['Amiri'] ${active ? 'text-black' : 'text-white'}`}>{s.name}</span>
-                          </button>
-                      );
-                  })}
-              </div>
-          </div>
-
-          {/* Header Metadata */}
-          <div className="flex items-center justify-between mb-8 lg:mb-10">
-              <div className="flex flex-col">
-                  <span className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mb-1">يتم تشغيله الآن</span>
-                  <h2 className="text-xl lg:text-3xl font-black font-['Amiri'] leading-tight">سورة {currentSurah.name}</h2>
-              </div>
-              <div className="flex items-center gap-3">
-                  <button 
-                    onClick={downloadSurah}
-                    className="p-3.5 rounded-2xl bg-white/5 hover:bg-white/10 transition-all border border-white/5 group shadow-xl"
-                    title="تحميل MP3"
-                  >
-                      <ChevronDown className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
-                  </button>
-                  <button onClick={() => setShowReciters(true)} className="p-3.5 rounded-2xl bg-white/5 hover:bg-white/10 transition-all border border-white/5 group shadow-xl">
-                      <User className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
-                  </button>
-              </div>
-          </div>
-
-          {/* Artwork / Visualizer Area */}
-          <div className="relative flex flex-col items-center justify-center mb-8 lg:mb-12 lg:flex-1">
-              <div className="relative w-56 h-56 lg:w-80 lg:h-80">
-                  <div className="absolute inset-0 bg-primary/20 rounded-full blur-[60px] lg:blur-[100px] animate-pulse" />
-                  <motion.div 
-                    animate={{ rotate: isPlaying ? 360 : 0 }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="relative w-full h-full rounded-full border-[12px] border-black p-2 overflow-hidden bg-gradient-to-br from-white/10 to-transparent shadow-[0_40px_100px_rgba(0,0,0,0.8)] flex items-center justify-center"
-                  >
-                      <div className="absolute inset-0 islamic-pattern opacity-10" />
-                      <div className="w-full h-full rounded-full border border-white/5 flex flex-col items-center justify-center text-center p-6 lg:p-10">
-                          <Disc className={`w-10 h-10 lg:w-16 lg:h-16 text-primary/30 mb-3 lg:mb-5 ${isPlaying ? 'animate-spin-slow' : ''}`} />
-                          <span className="text-[10px] lg:text-sm font-bold text-white/70 mb-1.5">{selectedReciter.name}</span>
-                          <span className="text-[8px] lg:text-[10px] font-black text-primary uppercase tracking-[0.3em] px-4 py-1.5 bg-primary/10 rounded-full">Premium Audio</span>
-                      </div>
-                  </motion.div>
-              </div>
-          </div>
-
-          {/* Player Progress */}
-          <div className="w-full space-y-4 mb-8 lg:mb-10">
-              <div className="flex justify-between items-end px-1">
-                  <div className="flex flex-col">
-                      <span className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">الوقت المنقضي</span>
-                      <span className="text-sm lg:text-base font-bold tabular-nums text-white/90">{fmt(currentTime)}</span>
-                  </div>
-                  <div className="text-right flex flex-col">
-                      <span className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">المدة الإجمالية</span>
-                      <span className="text-sm lg:text-base font-bold tabular-nums text-white/90">{fmt(duration)}</span>
-                  </div>
-              </div>
-              <div className="relative h-2 w-full bg-white/5 rounded-full overflow-hidden group cursor-pointer border border-white/5">
-                  <div 
-                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-primary/80 to-primary/40 transition-all duration-300"
-                    style={{ width: `${progress}%` }}
-                  />
-                  <input 
-                    type="range" min="0" max="100" value={progress}
-                    onChange={(e) => {
-                        const a = audioRef.current;
-                        if (a) a.currentTime = (parseFloat(e.target.value)/100) * a.duration;
-                    }}
-                    className="absolute inset-0 w-full opacity-0 cursor-pointer z-10"
-                  />
-              </div>
-          </div>
-
-          {/* Main Controls */}
-          <div className="flex flex-col gap-10 lg:gap-12">
-              <div className="flex items-center justify-between">
-                  <button onClick={() => setIsShuffle(!isShuffle)} className={`p-3 rounded-2xl transition-all ${isShuffle ? 'text-primary bg-primary/10 scale-110' : 'text-white/20 hover:text-white/40 hover:bg-white/5'}`}>
-                      <Shuffle className="w-5 h-5 lg:w-6 lg:h-6" />
-                  </button>
-                  <div className="flex items-center gap-8 lg:gap-10">
-                      <button onClick={handlePrev} className="text-white/40 hover:text-white transition-all hover:scale-125 active:scale-90">
-                          <SkipBack className="w-8 h-8 lg:w-10 lg:h-10 fill-current" />
-                      </button>
-                      <button 
-                        onClick={() => setIsPlaying(!isPlaying)}
-                        className="w-20 h-20 lg:w-24 lg:h-24 rounded-[2.5rem] bg-primary flex items-center justify-center text-black shadow-[0_20px_50px_rgba(212,175,55,0.4)] hover:scale-105 active:scale-95 transition-all group"
-                      >
-                          {isPlaying ? <Pause className="w-8 h-8 lg:w-10 lg:h-10 fill-current" /> : <Play className="w-8 h-8 lg:w-10 lg:h-10 fill-current translate-x-1" />}
-                      </button>
-                      <button onClick={handleNext} className="text-white/40 hover:text-white transition-all hover:scale-125 active:scale-90">
-                          <SkipForward className="w-8 h-8 lg:w-10 lg:h-10 fill-current" />
-                      </button>
-                  </div>
-                  <button onClick={() => setIsRepeat(!isRepeat)} className={`p-3 rounded-2xl transition-all ${isRepeat ? 'text-primary bg-primary/10 scale-110' : 'text-white/20 hover:text-white/40 hover:bg-white/5'}`}>
-                      <Repeat className="w-5 h-5 lg:w-6 lg:h-6" />
-                  </button>
-              </div>
-
-              <div className="flex items-center justify-center gap-4 border-t border-white/5 pt-8">
-                  <button 
-                    onClick={() => toggleFavorite(currentSurah.id)}
-                    className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-[1.5rem] border transition-all text-xs font-black uppercase tracking-[0.2em] ${favorites.includes(currentSurah.id) ? 'bg-primary border-primary text-black shadow-xl shadow-primary/20' : 'bg-white/5 border-white/5 text-white/40 hover:text-primary hover:border-primary/20'}`}
-                  >
-                      <Heart className={`w-4 h-4 ${favorites.includes(currentSurah.id) ? 'fill-current' : ''}`} /> {favorites.includes(currentSurah.id) ? 'مفضلة' : 'إضافة للمفضلة'}
-                  </button>
-                  <button 
-                    onClick={downloadSurah}
-                    className="flex-1 flex items-center justify-center gap-3 py-4 rounded-[1.5rem] bg-white/5 border border-white/5 hover:bg-white/10 transition-all text-xs font-black uppercase tracking-[0.2em] text-white/40 hover:text-primary"
-                  >
-                      <ChevronDown className="w-4 h-4" /> تحميل MP3
-                  </button>
-              </div>
-          </div>
-      </div>
-
-      {/* ─── RIGHT: SCROLLABLE SURAH LIST ─── */}
-      <div className="flex-1 flex flex-col relative z-10 bg-black/20">
-          
-          {/* List Header */}
-          <div className="p-8 pb-4 flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/5">
+          {/* Professional Header */}
+          <div className="w-full max-w-4xl flex items-center justify-between mb-10">
               <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-[1.5rem] bg-primary/10 flex items-center justify-center text-primary shadow-inner">
-                      <ListMusic className="w-6 h-6" />
+                  <div className="w-14 h-14 rounded-full border border-white/10 p-1 relative">
+                      <div className="w-full h-full rounded-full bg-gradient-to-tr from-primary to-primary/40 flex items-center justify-center text-black font-black text-sm">
+                          {user?.displayName?.[0] || <User className="w-5 h-5" />}
+                      </div>
+                      {user && (
+                          <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#06402B] rounded-full border-2 border-black flex items-center justify-center">
+                              <Sparkles className="w-2.5 h-2.5 text-primary animate-pulse" />
+                          </div>
+                      )}
                   </div>
                   <div className="flex flex-col">
-                      <h3 className="text-2xl font-black">المكتبة الصوتية</h3>
-                      <div className="flex items-center gap-3 mt-1">
-                          <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">{filteredSurahs.length} SURAHS AVAILABLE</p>
-                          {favorites.length > 0 && <div className="w-1 h-1 rounded-full bg-primary/40" />}
-                          {favorites.length > 0 && <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{favorites.length} FAVORITED</p>}
+                      <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">مكتبتك الصوتية</span>
+                          {user && <span className="text-[8px] font-black text-primary uppercase bg-primary/10 px-2 py-0.5 rounded-full shadow-lg shadow-primary/5">Sync Active</span>}
                       </div>
+                      <span className="text-lg font-black truncate max-w-[200px]">{user?.displayName || "ضيف الرحمن"}</span>
                   </div>
               </div>
               
-              <div className="flex items-center gap-4 w-full md:w-auto">
-                  <button 
-                    onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
-                    className={`p-4 rounded-2xl border transition-all ${showOnlyFavorites ? 'bg-primary border-primary text-black shadow-xl shadow-primary/20' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
-                  >
-                      <Heart className={`w-5 h-5 ${showOnlyFavorites ? 'fill-current' : ''}`} />
-                  </button>
-                  <div className="relative flex-1 md:w-80 group">
-                      <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-primary transition-all" />
-                      <input 
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="ابحث عن سورة..."
-                        className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-4 pr-12 pl-6 text-sm font-bold outline-none focus:bg-white/[0.07] focus:border-primary/20 transition-all placeholder:text-white/10"
-                      />
-                  </div>
+              <div className="flex items-center gap-3">
+                   <a 
+                    href="https://www.instagram.com/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="p-3 rounded-2xl bg-white/5 border border-white/5 text-white/20 hover:text-primary hover:border-primary/20 transition-all group"
+                   >
+                       <Share2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                   </a>
+                   <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/5 rounded-2xl border border-white/5">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Divine Studio v2</span>
+                   </div>
               </div>
           </div>
 
-          {/* Surahs Scroll Grid */}
-          <div className="flex-1 overflow-y-auto p-6 md:p-10 no-scrollbar pb-60">
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-5">
-                  {filteredSurahs.map((surah) => {
-                      const active = currentSurah.id === surah.id;
-                      const isFav = favorites.includes(surah.id);
-                      return (
-                          <button
-                            key={surah.id}
-                            id={`surah-${surah.id}`}
-                            onClick={() => { setCurrentSurah(surah); setIsPlaying(true); }}
-                            className={`flex items-center gap-6 p-6 rounded-[2.5rem] transition-all duration-700 border text-right group relative overflow-hidden ${
-                                active 
-                                ? 'bg-primary/10 border-primary/40 shadow-2xl shadow-primary/5 scale-[1.02]' 
-                                : 'bg-white/[0.02] border-transparent hover:bg-white/[0.05] hover:border-white/5'
-                            }`}
+          <div className="w-full max-w-4xl flex flex-col gap-12">
+              
+              {/* Surah Selection & Search */}
+              <div className="space-y-6">
+                  <div className="flex items-center justify-between px-2">
+                      <div className="flex flex-col">
+                           <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-1">اختر السورة</span>
+                           <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">{filteredSurahs.length} SURAHS AVAILABLE</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                          <button 
+                            onClick={() => setShowOnlyFavorites(!showOnlyFavorites)} 
+                            className={`p-3 rounded-2xl border transition-all ${showOnlyFavorites ? 'bg-primary border-primary text-black shadow-xl shadow-primary/20 scale-105' : 'bg-white/5 border-white/5 text-white/40 hover:text-white'}`}
                           >
-                              <div className="absolute top-4 left-4">
-                                  {isFav && <Heart className="w-3 h-3 text-primary fill-current" />}
-                              </div>
-
-                              <RubElHizb number={surah.id} active={active} />
-                              
-                              <div className="flex-1 min-w-0">
-                                  <h4 className={`text-xl font-black font-['Amiri'] mb-1 transition-colors ${active ? 'text-primary' : 'text-white/80 group-hover:text-white'}`}>
-                                      سورة {surah.name}
-                                  </h4>
-                                  <p className="text-[10px] font-black text-white/20 uppercase tracking-widest truncate">
-                                      {surah.transliteration} • {surah.total_verses} آيات
-                                  </p>
-                              </div>
-
-                              {active && isPlaying && (
-                                  <div className="flex gap-1 items-end h-5 mb-2">
-                                      {[...Array(3)].map((_, i) => (
-                                          <div 
-                                            key={i} 
-                                            className="w-1 bg-primary rounded-full animate-music-bar" 
-                                            style={{ animationDelay: `${i * 0.2}s` }} 
-                                          />
-                                      ))}
-                                  </div>
-                              )}
+                              <Heart className={`w-4 h-4 ${showOnlyFavorites ? 'fill-current' : ''}`} />
                           </button>
-                      );
-                  })}
+                          <div className="relative group w-48 lg:w-64">
+                               <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20 group-focus-within:text-primary transition-all" />
+                               <input 
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    placeholder="ابحث..."
+                                    className="w-full bg-white/5 border border-white/5 rounded-2xl py-3 pr-10 pl-4 text-xs font-bold outline-none focus:bg-white/10 focus:border-primary/40 transition-all placeholder:text-white/10"
+                               />
+                          </div>
+                      </div>
+                  </div>
+
+                  <div ref={horizontalListRef} className="flex gap-4 overflow-x-auto no-scrollbar pb-4 px-2 -mx-2">
+                      {filteredSurahs.map((s) => {
+                          const active = s.id === currentSurah.id;
+                          return (
+                              <button 
+                                key={s.id}
+                                onClick={() => handleSurahSelect(s)}
+                                className={`flex flex-col items-center gap-3 shrink-0 p-4 rounded-[2.5rem] border transition-all duration-500 group ${active ? 'bg-primary border-primary shadow-2xl shadow-primary/20 scale-110' : 'bg-white/5 border-white/5 opacity-60 hover:opacity-100 hover:bg-white/10'}`}
+                              >
+                                  <div className={`w-14 h-14 rounded-full flex items-center justify-center font-black text-xs transition-all ${active ? 'bg-black/10 text-black' : 'bg-white/5 text-white group-hover:scale-110'}`}>
+                                      {s.id}
+                                  </div>
+                                  <span className={`text-[10px] font-black font-['Amiri'] ${active ? 'text-black' : 'text-white'}`}>{s.name}</span>
+                              </button>
+                          );
+                      })}
+                      <div className="w-20 shrink-0" />
+                      {filteredSurahs.length === 0 && (
+                          <div className="w-full py-10 flex flex-col items-center justify-center text-white/20 gap-3">
+                               <Sparkles className="w-8 h-8 opacity-20" />
+                               <span className="text-xs font-bold italic">لا توجد سور تطابق بحثك</span>
+                          </div>
+                      )}
+                  </div>
+              </div>
+
+              {/* Main Player Visualizer & Metadata */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                  
+                  {/* Artwork / Visualizer Area */}
+                  <div className="relative flex flex-col items-center justify-center">
+                      <div className="relative w-64 h-64 lg:w-96 lg:h-96">
+                          <div className="absolute inset-0 bg-primary/20 rounded-full blur-[60px] lg:blur-[120px] animate-pulse" />
+                          <motion.div 
+                            animate={{ rotate: isPlaying ? 360 : 0 }}
+                            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                            className="relative w-full h-full rounded-full border-[16px] border-black p-3 overflow-hidden bg-gradient-to-br from-white/10 to-transparent shadow-[0_50px_120px_rgba(0,0,0,0.9)] flex items-center justify-center"
+                          >
+                              <div className="absolute inset-0 islamic-pattern opacity-10" />
+                              <div className="w-full h-full rounded-full border border-white/5 flex flex-col items-center justify-center text-center p-8 lg:p-12">
+                                  <Disc className={`w-12 h-12 lg:w-20 lg:h-20 text-primary/30 mb-4 lg:mb-6 ${isPlaying ? 'animate-spin-slow' : ''}`} />
+                                  <span className="text-[10px] lg:text-base font-bold text-white/70 mb-2">{selectedReciter.name}</span>
+                                  <span className="text-[8px] lg:text-xs font-black text-primary uppercase tracking-[0.4em] px-5 py-2 bg-primary/10 rounded-full">Premium Audio</span>
+                              </div>
+                          </motion.div>
+                          
+                          {/* Recently Played History (Desktop Only - Floating) */}
+                          <div className="hidden lg:flex absolute -right-20 top-1/2 -translate-y-1/2 flex-col gap-3">
+                               <span className="text-[8px] font-black text-primary/40 uppercase tracking-widest vertical-text mb-2">History</span>
+                               {recentlyPlayed.slice(0, 4).map(id => {
+                                   const s = surahsData.find(sur => sur.id === id);
+                                   if (!s) return null;
+                                   return (
+                                       <button 
+                                            key={id}
+                                            onClick={() => handleSurahSelect(s)}
+                                            className={`w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-[10px] font-black transition-all hover:scale-110 hover:border-primary/40 ${s.id === currentSurah.id ? 'bg-primary text-black border-primary' : 'bg-black/40 text-white/40'}`}
+                                            title={s.name}
+                                       >
+                                            {s.id}
+                                       </button>
+                                   );
+                               })}
+                          </div>
+                      </div>
+                  </div>
+
+                  {/* Player Metadata & Controls */}
+                  <div className="flex flex-col">
+                      <div className="flex flex-col mb-10">
+                          <span className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mb-2">يتم تشغيله الآن</span>
+                          <h2 className="text-3xl lg:text-5xl font-black font-['Amiri'] leading-tight mb-2">سورة {currentSurah.name}</h2>
+                          <div className="flex items-center gap-4 text-white/40">
+                               <span className="text-sm font-bold uppercase tracking-widest">{currentSurah.transliteration}</span>
+                               <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
+                               <span className="text-sm font-bold uppercase tracking-widest">{currentSurah.total_verses} Verses</span>
+                          </div>
+                      </div>
+
+                      {/* Progress */}
+                      <div className="w-full space-y-5 mb-10">
+                          <div className="flex justify-between items-end px-1">
+                              <div className="flex flex-col">
+                                  <span className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">الوقت المنقضي</span>
+                                  <span className="text-lg font-bold tabular-nums text-white/90">{fmt(currentTime)}</span>
+                              </div>
+                              <div className="text-right flex flex-col">
+                                  <span className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">المدة الإجمالية</span>
+                                  <span className="text-lg font-bold tabular-nums text-white/90">{fmt(duration)}</span>
+                              </div>
+                          </div>
+                          <div className="relative h-2.5 w-full bg-white/5 rounded-full overflow-hidden group cursor-pointer border border-white/5">
+                              <div 
+                                className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-primary/80 to-primary/40 transition-all duration-300"
+                                style={{ width: `${progress}%` }}
+                              />
+                              <input 
+                                type="range" min="0" max="100" value={progress}
+                                onChange={(e) => {
+                                    const a = audioRef.current;
+                                    if (a) a.currentTime = (parseFloat(e.target.value)/100) * a.duration;
+                                }}
+                                className="absolute inset-0 w-full opacity-0 cursor-pointer z-10"
+                              />
+                          </div>
+                      </div>
+
+                      {/* Controls */}
+                      <div className="flex items-center justify-between mb-12">
+                          <button onClick={() => setIsShuffle(!isShuffle)} className={`p-4 rounded-2xl transition-all ${isShuffle ? 'text-primary bg-primary/10 scale-110' : 'text-white/20 hover:text-white/40 hover:bg-white/5'}`}>
+                              <Shuffle className="w-6 h-6" />
+                          </button>
+                          <div className="flex items-center gap-10 lg:gap-14">
+                              <button onClick={handlePrev} className="text-white/40 hover:text-white transition-all hover:scale-125 active:scale-90">
+                                  <SkipBack className="w-10 h-10 lg:w-12 lg:h-12 fill-current" />
+                              </button>
+                              <button 
+                                onClick={() => setIsPlaying(!isPlaying)}
+                                className="w-24 h-24 lg:w-32 lg:h-32 rounded-[3rem] bg-primary flex items-center justify-center text-black shadow-[0_25px_60px_rgba(212,175,55,0.5)] hover:scale-105 active:scale-95 transition-all group"
+                              >
+                                  {isPlaying ? <Pause className="w-10 h-10 lg:w-14 lg:h-14 fill-current" /> : <Play className="w-10 h-10 lg:w-14 lg:h-14 fill-current translate-x-1" />}
+                              </button>
+                              <button onClick={handleNext} className="text-white/40 hover:text-white transition-all hover:scale-125 active:scale-90">
+                                  <SkipForward className="w-10 h-10 lg:w-12 lg:h-12 fill-current" />
+                              </button>
+                          </div>
+                          <button onClick={() => setIsRepeat(!isRepeat)} className={`p-4 rounded-2xl transition-all ${isRepeat ? 'text-primary bg-primary/10 scale-110' : 'text-white/20 hover:text-white/40 hover:bg-white/5'}`}>
+                              <Repeat className="w-6 h-6" />
+                          </button>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex items-center justify-center gap-4 border-t border-white/5 pt-10">
+                          <button 
+                            onClick={() => toggleFavorite(currentSurah.id)}
+                            className={`flex-1 flex items-center justify-center gap-3 py-5 rounded-[2rem] border transition-all text-xs font-black uppercase tracking-[0.2em] ${favorites.includes(currentSurah.id) ? 'bg-primary border-primary text-black shadow-xl shadow-primary/20' : 'bg-white/5 border-white/5 text-white/40 hover:text-primary hover:border-primary/20'}`}
+                          >
+                              <Heart className={`w-5 h-5 ${favorites.includes(currentSurah.id) ? 'fill-current' : ''}`} /> {favorites.includes(currentSurah.id) ? 'مفضلة' : 'إضافة للمفضلة'}
+                          </button>
+                          <button 
+                            onClick={downloadSurah}
+                            className="flex-1 flex items-center justify-center gap-3 py-5 rounded-[2rem] bg-white/5 border border-white/5 hover:bg-white/10 transition-all text-xs font-black uppercase tracking-[0.2em] text-white/40 hover:text-primary"
+                          >
+                              <ChevronDown className="w-5 h-5" /> تحميل السورة
+                          </button>
+                          <button 
+                            onClick={() => setShowReciters(true)}
+                            className="p-5 rounded-[2rem] bg-white/5 border border-white/5 hover:bg-white/10 transition-all text-white/40 hover:text-primary"
+                          >
+                              <User className="w-5 h-5" />
+                          </button>
+                      </div>
+                  </div>
               </div>
           </div>
       </div>
@@ -446,6 +507,7 @@ export function AudioLibrary() {
               </div>
           )}
       </AnimatePresence>
+
 
     </div>
   );
