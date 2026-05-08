@@ -30,9 +30,7 @@ export function AudioLibrary() {
         const found = surahsData.find(s => s.id === parseInt(sId));
         if (found) {
           setCurrentSurah(found);
-          // Auto-play when deep linked
           setIsPlaying(true);
-          // Scroll to it
           setTimeout(() => {
             const el = document.getElementById(`surah-${found.id}`);
             el?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -42,10 +40,10 @@ export function AudioLibrary() {
     };
 
     handleUrlParams();
-    // Listen for manual URL changes if the user clicks another quest
     window.addEventListener('popstate', handleUrlParams);
     return () => window.removeEventListener('popstate', handleUrlParams);
   }, []);
+
   const [selectedReciter, setSelectedReciter] = useState(RECITERS[0]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
@@ -62,7 +60,6 @@ export function AudioLibrary() {
   const filteredReciters = RECITERS.filter((r) => r.name.includes(reciterSearch));
   const filteredSurahs = surahsData.filter((s) => s.name.includes(search) || s.transliteration.toLowerCase().includes(search.toLowerCase()));
 
-  /* ── Audio source sync ── */
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -78,25 +75,12 @@ export function AudioLibrary() {
         });
         setPlaybackState('playing');
       }
-      logAppEvent("change_reciter", { reciter_name: selectedReciter.name });
     }
     setupMediaSession(
-      { 
-        title: `سورة ${currentSurah.name}`, 
-        artist: selectedReciter.name, 
-        album: "المكتبة الصوتية" 
-      },
+      { title: `سورة ${currentSurah.name}`, artist: selectedReciter.name, album: "المكتبة الصوتية" },
       {
-        onPlay: () => { 
-          audio.play(); 
-          setIsPlaying(true); 
-          setPlaybackState('playing');
-        },
-        onPause: () => { 
-          audio.pause(); 
-          setIsPlaying(false); 
-          setPlaybackState('paused');
-        },
+        onPlay: () => { audio.play(); setIsPlaying(true); setPlaybackState('playing'); },
+        onPause: () => { audio.pause(); setIsPlaying(false); setPlaybackState('paused'); },
         onNext: () => nextSurah(),
         onPrev: () => prevSurah(),
         onSeekTo: (t) => { if (audio) audio.currentTime = t; },
@@ -121,7 +105,6 @@ export function AudioLibrary() {
     return () => clearInterval(iv);
   }, [isPlaying]);
 
-  /* ── Playback controls ── */
   const togglePlay = () => {
     const a = audioRef.current;
     if (!a) return;
@@ -145,8 +128,6 @@ export function AudioLibrary() {
   const playSurah = (s: any) => {
     setCurrentSurah(s);
     setIsPlaying(true);
-    logAppEvent("play_audio", { surah_id: s.id, surah_name: s.name, reciter: selectedReciter.name });
-    // Scroll to active surah in list
     setTimeout(() => {
       const el = document.getElementById(`surah-${s.id}`);
       el?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -181,117 +162,98 @@ export function AudioLibrary() {
     <div className="h-full w-full flex flex-col bg-[#0a0f0d] text-white overflow-hidden relative font-['Tajawal']">
       <audio ref={audioRef} onTimeUpdate={onTimeUpdate} onEnded={onEnded} preload="auto" />
 
-      {/* ═══ SCROLLABLE CONTENT ═══ */}
-      <div className="flex-1 overflow-y-auto pb-32">
+      <div className="flex-1 overflow-hidden lg:grid lg:grid-cols-[400px,1fr] lg:gap-0">
+        
+        {/* ═══ PLAYER SECTION (FIXED ON DESKTOP) ═══ */}
+        <div className="relative lg:h-full lg:border-l lg:border-white/5 bg-black/20 overflow-y-auto no-scrollbar">
+          <div className="sticky top-0 z-20 px-6 pt-6 pb-10 flex flex-col items-center">
+            <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent opacity-40" />
+            
+            <div className="relative z-10 w-full max-w-[140px] aspect-[4/3] mb-4 group">
+               <div className="absolute inset-0 bg-primary/10 rounded-xl blur-md group-hover:bg-primary/20 transition-all duration-700" />
+               <div className="relative h-full w-full rounded-xl bg-gradient-to-br from-[#0d1411] to-[#0a0f0d] border border-white/5 shadow-xl overflow-hidden flex flex-col items-center justify-center p-2 text-center">
+                  <div className="absolute inset-0 islamic-pattern opacity-[0.03]" />
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mb-1">
+                      <Headphones className="w-4 h-4 text-primary" />
+                  </div>
+                  <span className="text-sm font-black text-primary font-['Amiri']">سورة {currentSurah.name}</span>
+               </div>
+            </div>
 
-        {/* ── Spotify Style Now Playing - Optimized for Compactness ── */}
-        <div className="relative px-6 pt-6 pb-6 flex flex-col items-center">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent opacity-40" />
-          
-          {/* Compact Surah Card */}
-          <div className="relative z-10 w-full max-w-[120px] aspect-[4/3] mb-2 group">
-             <div className="absolute inset-0 bg-primary/10 rounded-xl blur-md group-hover:bg-primary/20 transition-all duration-700" />
-             <div className="relative h-full w-full rounded-xl bg-gradient-to-br from-[#0d1411] to-[#0a0f0d] border border-white/5 shadow-xl overflow-hidden flex flex-col items-center justify-center p-2 text-center">
-                <div className="absolute inset-0 islamic-pattern opacity-[0.03]" />
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mb-1">
-                    <Headphones className="w-4 h-4 text-primary" />
-                </div>
-                <span className="text-sm font-black text-primary font-['Amiri']">سورة {currentSurah.name}</span>
+            <div className="relative z-10 text-center mb-6 w-full">
+              <button
+                onClick={() => setShowReciters(true)}
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all group"
+              >
+                <span className="text-xs font-bold text-white/60 group-hover:text-primary transition-colors">
+                  {selectedReciter.name}
+                </span>
+                <ChevronDown className="w-3 h-3 text-white/30" />
+              </button>
+            </div>
+
+            <div className="relative z-10 w-full max-w-xs px-4 mb-8">
+              <div className="relative group h-4 flex items-center">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={progress}
+                    onChange={handleSeek}
+                    dir="rtl"
+                    className="absolute w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary z-10"
+                  />
+                  <div 
+                    className="absolute right-0 top-1/2 -translate-y-1/2 h-1 bg-primary rounded-full pointer-events-none"
+                    style={{ width: `${progress}%` }}
+                  />
+              </div>
+            </div>
+
+            <div className="relative z-10 flex items-center justify-between w-full max-w-xs px-4">
+              <button onClick={() => setIsShuffle(!isShuffle)} className={`p-2 transition-all ${isShuffle ? 'text-primary' : 'text-white/20'}`}>
+                <Shuffle className="w-4 h-4" />
+              </button>
+
+              <div className="flex items-center gap-6">
+                  <button onClick={prevSurah} className="text-white/40 hover:text-white transition-all">
+                    <SkipBack className="w-6 h-6 fill-current" />
+                  </button>
+                  <button onClick={togglePlay} className="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-black shadow-lg hover:scale-105 active:scale-95 transition-all">
+                    {isPlaying ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current translate-x-1" />}
+                  </button>
+                  <button onClick={nextSurah} className="text-white/40 hover:text-white transition-all">
+                    <SkipForward className="w-6 h-6 fill-current" />
+                  </button>
+              </div>
+
+              <button onClick={() => setIsRepeat(!isRepeat)} className={`p-2 transition-all ${isRepeat ? 'text-primary' : 'text-white/20'}`}>
+                <Repeat className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ═══ LIST SECTION ═══ */}
+        <div className="flex-1 overflow-y-auto pb-40 no-scrollbar">
+          <div className="px-8 mt-10 mb-8">
+             <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-black text-white">قائمة السور</h2>
+                <div className="text-[10px] font-black text-white/20 uppercase tracking-widest">{filteredSurahs.length} سورة</div>
+             </div>
+             
+             <div className="relative group">
+               <Search className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-primary transition-all" />
+               <input
+                 value={search}
+                 onChange={(e) => setSearch(e.target.value)}
+                 placeholder="ابحث عن سورة..."
+                 className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-5 pr-14 pl-6 text-base font-bold outline-none focus:bg-white/[0.07] focus:border-primary/20 transition-all placeholder:text-white/10"
+               />
              </div>
           </div>
 
-          {/* Track Metadata */}
-          <div className="relative z-10 text-center mb-4 w-full">
-            <button
-              onClick={() => setShowReciters(true)}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all group"
-            >
-              <span className="text-xs font-bold text-white/60 group-hover:text-primary transition-colors">
-                {selectedReciter.name}
-              </span>
-              <ChevronDown className="w-3 h-3 text-white/30" />
-            </button>
-          </div>
-
-          {/* Spotify Progress Section */}
-          <div className="relative z-10 w-full max-w-sm px-4 mb-6">
-            <div className="relative group h-4 flex items-center">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={progress}
-                  onChange={handleSeek}
-                  dir="rtl"
-                  className="absolute w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary z-10"
-                />
-                <div 
-                  className="absolute right-0 top-1/2 -translate-y-1/2 h-1 bg-primary rounded-full pointer-events-none"
-                  style={{ width: `${progress}%` }}
-                />
-            </div>
-          </div>
-
-          {/* Main Controls Section */}
-          <div className="relative z-10 flex items-center justify-between w-full max-w-sm px-4">
-            <button 
-              onClick={() => setIsShuffle(!isShuffle)}
-              className={`p-2 transition-all ${isShuffle ? 'text-primary' : 'text-white/20'}`}
-            >
-              <Shuffle className="w-4 h-4" />
-            </button>
-
-            <div className="flex items-center gap-6">
-                <button onClick={prevSurah} className="text-white/40 hover:text-white transition-all">
-                  <SkipBack className="w-6 h-6 fill-current" />
-                </button>
-
-                <button 
-                  onClick={togglePlay}
-                  className="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-black shadow-lg hover:scale-105 active:scale-95 transition-all"
-                >
-                  {isPlaying ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current translate-x-1" />}
-                </button>
-
-                <button onClick={nextSurah} className="text-white/40 hover:text-white transition-all">
-                  <SkipForward className="w-6 h-6 fill-current" />
-                </button>
-            </div>
-
-            <button 
-              onClick={() => setIsRepeat(!isRepeat)}
-              className={`p-2 transition-all ${isRepeat ? 'text-primary' : 'text-white/20'}`}
-            >
-              <Repeat className="w-4 h-4" />
-            </button>
-          </div>
-          
-          <div className="mt-4 opacity-10">
-              <span className="text-[8px] font-black uppercase tracking-[0.2em]">Audio Player V2.0</span>
-          </div>
-        </div>
-
-        {/* ── Surah List Header ── */}
-        <div className="px-8 mt-4 mb-8">
-           <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-black text-white">قائمة السور</h2>
-              <div className="text-[10px] font-black text-white/20 uppercase tracking-widest">{filteredSurahs.length} سورة</div>
-           </div>
-           
-           {/* Spotify Search Bar */}
-           <div className="relative group">
-             <Search className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-primary transition-all" />
-             <input
-               value={search}
-               onChange={(e) => setSearch(e.target.value)}
-               placeholder="ابحث عن سورة..."
-               className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-5 pr-14 pl-6 text-base font-bold outline-none focus:bg-white/[0.07] focus:border-primary/20 transition-all placeholder:text-white/10"
-             />
-           </div>
-        </div>
-
-          {/* List */}
-          <div ref={listRef} className="space-y-2">
+          <div ref={listRef} className="space-y-2 px-4">
             {filteredSurahs.map((surah) => {
               const active = currentSurah.id === surah.id;
               return (
@@ -305,7 +267,6 @@ export function AudioLibrary() {
                       : "bg-white/[0.02] border-transparent hover:bg-white/[0.05] hover:scale-[1.01]"
                   }`}
                 >
-                  {/* Number */}
                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xs font-black shrink-0 transition-all duration-500 ${
                     active ? "bg-primary text-black shadow-xl shadow-primary/20" : "bg-white/5 text-white/20 group-hover:bg-white/10"
                   }`}>
@@ -320,7 +281,6 @@ export function AudioLibrary() {
                     )}
                   </div>
 
-                  {/* Info */}
                   <div className="flex-1 min-w-0">
                     <h4 className={`text-lg font-bold truncate font-arabic ${active ? "text-primary" : "text-white/90 group-hover:text-white"}`}>
                       {surah.name}
@@ -330,7 +290,6 @@ export function AudioLibrary() {
                     </p>
                   </div>
 
-                  {/* Play indicator */}
                   {!active && (
                     <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <Play className="w-3.5 h-3.5 text-white/40 fill-current ml-0.5" />
@@ -341,26 +300,22 @@ export function AudioLibrary() {
             })}
           </div>
         </div>
+      </div>
 
-        {/* ═══ RECITER BOTTOM SHEET ═══ */}
+      {/* ═══ RECITER BOTTOM SHEET ═══ */}
       {showReciters && (
         <div className="fixed inset-0 z-[500]">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowReciters(false)} />
           <div className="absolute bottom-0 left-0 right-0 max-h-[80vh] bg-[#021a10] rounded-t-[2rem] border-t border-[#D4AF37]/10 flex flex-col overflow-hidden animate-premium-in">
-            {/* Handle */}
             <div className="flex justify-center pt-3 pb-2">
               <div className="w-10 h-1 bg-white/10 rounded-full" />
             </div>
-
-            {/* Header */}
             <div className="flex items-center justify-between px-6 pb-4">
               <button onClick={() => setShowReciters(false)} className="p-2 rounded-full bg-white/5">
                 <X className="w-5 h-5 text-white/40" />
               </button>
               <h3 className="text-lg font-black">اختر القارئ</h3>
             </div>
-
-            {/* Search */}
             <div className="px-6 pb-4">
               <div className="relative">
                 <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
@@ -372,8 +327,6 @@ export function AudioLibrary() {
                 />
               </div>
             </div>
-
-            {/* Reciter Grid */}
             <div className="flex-1 overflow-y-auto px-6 pb-8">
               <div className="grid grid-cols-1 gap-2">
                 {filteredReciters.map((r) => {
@@ -383,9 +336,7 @@ export function AudioLibrary() {
                       key={r.id}
                       onClick={() => { setSelectedReciter(r); setShowReciters(false); }}
                       className={`flex items-center gap-4 p-4 rounded-2xl transition-all border text-right ${
-                        sel
-                          ? "bg-[#D4AF37] text-black border-[#D4AF37]"
-                          : "bg-white/[0.03] border-white/5 hover:border-white/10"
+                        sel ? "bg-[#D4AF37] text-black border-[#D4AF37]" : "bg-white/[0.03] border-white/5 hover:border-white/10"
                       }`}
                     >
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${sel ? "bg-black/10" : "bg-white/5"}`}>
