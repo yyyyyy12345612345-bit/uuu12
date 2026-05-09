@@ -217,7 +217,15 @@ export function AudioLibrary() {
 
   return (
     <div className="h-full w-full bg-transparent text-foreground overflow-y-auto lg:overflow-hidden relative font-['Tajawal'] flex flex-col lg:flex-row no-scrollbar">
-      <audio ref={audioRef} onTimeUpdate={onTimeUpdate} onEnded={handleNext} preload="auto" />
+      <audio 
+        ref={audioRef} 
+        onTimeUpdate={onTimeUpdate} 
+        onEnded={() => {
+          handleNext();
+          addPoints(10); // Reward for listening to a full surah
+        }} 
+        preload="auto" 
+      />
 
       {/* Atmospheric Background */}
       <div className="absolute inset-0 pointer-events-none">
