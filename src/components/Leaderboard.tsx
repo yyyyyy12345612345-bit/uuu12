@@ -233,7 +233,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
     <div className="flex flex-col h-full font-arabic overflow-y-auto no-scrollbar">
       
       {/* Premium Header Backdrop */}
-      <div className="relative bg-background pt-24 pb-40 px-6 overflow-hidden">
+      <div className="relative bg-transparent pt-24 pb-40 px-6 overflow-hidden">
           <div className="absolute inset-0 islamic-pattern opacity-10" />
           <div className="absolute top-0 left-0 w-96 h-96 bg-primary/20 blur-[150px] rounded-full -translate-x-1/2 -translate-y-1/2" />
           
