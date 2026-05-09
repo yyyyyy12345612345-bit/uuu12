@@ -86,9 +86,20 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
       if (loading) setLoading(false);
     }, 5000);
 
+    const handlePointsUpdate = () => {
+      if (auth.currentUser) {
+        getDoc(doc(db, "users", auth.currentUser.uid)).then(s => {
+          if (s.exists()) setUserData(s.data());
+        });
+      }
+    };
+
+    window.addEventListener('pointsUpdated', handlePointsUpdate);
+
     return () => {
       unsubscribe();
       clearTimeout(authTimeout);
+      window.removeEventListener('pointsUpdated', handlePointsUpdate);
     };
   }, []);
 

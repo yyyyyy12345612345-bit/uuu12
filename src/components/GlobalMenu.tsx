@@ -16,9 +16,10 @@ interface GlobalMenuProps {
   onClose: () => void;
   onOpenFeedback: () => void;
   onOpenProfile: () => void;
+  onOpenPointsGuide: () => void;
 }
 
-export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile }: GlobalMenuProps) {
+export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onOpenPointsGuide }: GlobalMenuProps) {
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const [userData, setUserData] = React.useState<any>(null);
@@ -63,6 +64,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile }: G
         { id: "install-apk", label: "تثبيت التطبيق (APK)", icon: Smartphone, onClick: () => {
           window.open('https://quran1-mu.vercel.app/download/', '_blank');
         }},
+        { id: "points-guide", label: "دليل النقاط", icon: Map, onClick: onOpenPointsGuide },
       ]
     }
   ];

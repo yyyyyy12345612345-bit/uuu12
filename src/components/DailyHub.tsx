@@ -100,6 +100,19 @@ export function DailyHub() {
 
     fetchGlobalQuests();
     fetchCompletedQuests();
+
+    const handlePointsUpdate = () => {
+      const user = auth?.currentUser;
+      if (user && db) {
+        getDoc(doc(db, "users", user.uid)).then(s => {
+          if (s.exists()) setUserData(s.data());
+        });
+      }
+    };
+    window.addEventListener('pointsUpdated', handlePointsUpdate);
+    return () => {
+      window.removeEventListener('pointsUpdated', handlePointsUpdate);
+    };
   }, []);
 
   useEffect(() => {
