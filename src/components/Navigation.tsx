@@ -19,8 +19,8 @@ export function Navigation() {
   ];
 
   return (
-    <nav className={`fixed bottom-0 left-0 right-0 z-[1000] w-full px-2 pb-4 pt-2 pointer-events-none font-['Tajawal']`}>
-      <div className="max-w-md mx-auto w-full h-[72px] bg-[#0d1411]/90 backdrop-blur-3xl border border-white/5 rounded-[2rem] flex items-center justify-around px-2 shadow-[0_20px_60px_rgba(0,0,0,0.6)] pointer-events-auto relative overflow-hidden group">
+    <nav className={`fixed bottom-0 left-0 right-0 z-[1000] w-full px-0 pb-0 pt-2 pointer-events-none font-['Tajawal']`}>
+      <div className="max-w-md mx-auto w-full h-[72px] bg-[#0d1411] backdrop-blur-3xl border-t border-white/5 rounded-t-[2rem] flex items-center justify-around px-2 shadow-[0_-20px_60px_rgba(0,0,0,0.6)] pointer-events-auto relative overflow-hidden group">
         
         {/* Background Pattern */}
         <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
