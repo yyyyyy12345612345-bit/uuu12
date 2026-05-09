@@ -74,7 +74,7 @@ export default function RootLayout({
       lang="ar"
       dir="rtl"
       className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
-      style={{ overflowX: 'hidden', width: '100vw', backgroundColor: 'hsl(220 25% 4%)' }}
+      style={{ overflow: 'hidden', width: '100vw', height: '100dvh', backgroundColor: '#050505' }}
     >
       <head>
         {/* Apply dark theme ASAP to prevent white flash (FOUC) */}
@@ -90,8 +90,8 @@ export default function RootLayout({
         ` }} />
       </head>
       <body 
-        className="h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground"
-        style={{ overflowX: 'clip', width: '100%', maxWidth: '100%', touchAction: 'pan-y' }}
+        className="h-full bg-[#050505] text-foreground selection:bg-primary selection:text-primary-foreground"
+        style={{ overflow: 'hidden', width: '100%', height: '100dvh', maxWidth: '100%', touchAction: 'pan-y', overscrollBehavior: 'none' }}
       >
 
         <div className="absolute inset-0 pointer-events-none overflow-hidden w-full h-full">

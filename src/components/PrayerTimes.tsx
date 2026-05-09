@@ -160,7 +160,7 @@ export function PrayerTimes() {
       {/* Background */}
       <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/40 to-background" />
-          <div className="absolute inset-0 islamic-pattern opacity-[0.03] dark:opacity-[0.05]" />
+          <div className="absolute inset-0 mushaf-pattern opacity-[0.1] dark:opacity-[0.15]" />
           <div className="absolute -top-20 -left-20 w-[500px] h-[500px] bg-primary/5 blur-[150px] rounded-full animate-pulse" />
       </div>
 

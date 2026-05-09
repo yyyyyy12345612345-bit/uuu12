@@ -4,7 +4,7 @@ import { BookOpen, ScrollText, Sparkles, History } from 'lucide-react';
 
 export function MushafChoice() {
   return (
-    <div className="relative w-full h-full flex flex-col items-center p-6 animate-in zoom-in-95 duration-700">
+    <div className="relative w-full min-h-full flex flex-col items-center p-6 pb-60 animate-in zoom-in-95 duration-700">
       <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/40 to-background" />
           <div className="absolute inset-0 islamic-pattern opacity-[0.03] dark:opacity-[0.05]" />
@@ -71,7 +71,7 @@ export function MushafChoice() {
         </div>
 
         {/* History Section from Stitch */}
-        <div className="w-full mt-12 mb-40 p-6 rounded-[2rem] bg-primary/5 border border-primary/10 flex items-center justify-between group cursor-pointer hover:bg-primary/10 transition-all">
+        <div className="w-full mt-12 p-6 rounded-[2rem] bg-primary/5 border border-primary/10 flex items-center justify-between group cursor-pointer hover:bg-primary/10 transition-all">
            <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                  <History className="w-6 h-6 text-primary" />
