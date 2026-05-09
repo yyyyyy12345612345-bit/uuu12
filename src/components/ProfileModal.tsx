@@ -260,6 +260,8 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                    </div>
                 </form>
              )}
+          <div className="p-8 border-t border-white/5 text-center bg-black/40">
+             <span className="text-[9px] font-black text-white/10 uppercase tracking-[0.5em]">الإصدار العالمي الفائق v4.0</span>
           </div>
        </div>
     </div>
