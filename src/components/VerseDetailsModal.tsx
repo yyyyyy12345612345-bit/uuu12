@@ -37,12 +37,12 @@ export function VerseDetailsModal({ verseKey, onClose, surahName }: VerseDetails
   }, [verseKey]);
 
   return (
-    <div className={`fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-300 font-['Tajawal']`}>
+    <div className={`fixed inset-0 z-[3000] flex items-center justify-center p-4 md:p-10 animate-in fade-in duration-300 font-['Tajawal']`}>
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
       
       {/* Modal Container */}
-      <div className="relative w-full max-w-3xl bg-[#064E3B] rounded-[3.5rem] shadow-[0_40px_100px_rgba(0,0,0,0.6)] border border-white/10 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-500">
+      <div className="relative w-full max-w-3xl bg-[#064E3B] rounded-[3.5rem] shadow-[0_40px_100px_rgba(0,0,0,0.6)] border border-white/10 overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-500">
         
         {/* Background Pattern */}
         <div className="absolute inset-0 z-0 pointer-events-none opacity-5">
@@ -92,7 +92,7 @@ export function VerseDetailsModal({ verseKey, onClose, surahName }: VerseDetails
         </div>
 
         {/* Content Area */}
-        <div className="relative z-10 flex-1 overflow-y-auto p-8 md:p-12 no-scrollbar">
+        <div className="relative z-10 flex-1 overflow-y-auto p-8 md:p-14 pb-20 no-scrollbar">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-24 gap-8">
               <div className="w-14 h-14 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />

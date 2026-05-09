@@ -121,7 +121,7 @@ export function Mushaf() {
 
     if (!selectedSurah) {
         return (
-            <div className="flex flex-col h-full p-6 md:p-12 font-arabic relative animate-in fade-in duration-700 bg-transparent">
+            <div className="flex flex-col min-h-full p-6 md:p-12 font-arabic relative animate-in fade-in duration-700 bg-transparent">
                 {/* Background Patterns */}
                 <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]">
                     <div className="absolute inset-0 islamic-pattern" />
@@ -263,7 +263,7 @@ export function Mushaf() {
             )}
 
             {/* Verse List */}
-            <div className="flex-1 px-4 md:px-12 pb-20 no-scrollbar">
+            <div className="flex-1 overflow-y-auto px-4 md:px-12 pb-20 no-scrollbar overscroll-contain">
                 <div className="max-w-4xl mx-auto py-6">
                     {loading ? (
                         <div className="flex flex-col items-center justify-center p-32 gap-8 text-center">
