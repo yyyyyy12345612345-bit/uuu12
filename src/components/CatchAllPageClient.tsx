@@ -129,7 +129,7 @@ function CatchAllContent() {
 
       <main className="flex-1 relative overflow-hidden bg-transparent">
         {visited.mushaf && (
-          <div key={`mushaf-${activeView === 'mushaf'}`} className={`h-full w-full pb-56 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'mushaf' ? 'block view-transition' : 'hidden'}`}>
+          <div key={`mushaf-${activeView === 'mushaf'}`} className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'mushaf' ? 'block view-transition' : 'hidden'}`}>
             <Mushaf />
           </div>
         )}
