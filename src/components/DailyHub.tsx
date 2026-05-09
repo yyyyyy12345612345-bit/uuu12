@@ -256,9 +256,8 @@ export function DailyHub() {
     <div className="w-full h-full flex flex-col p-4 md:p-10 overflow-y-auto font-arabic no-scrollbar relative daily-hub-container">
       {/* Background Aesthetics */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/40 to-background" />
-          <div className="absolute inset-0 islamic-pattern opacity-[0.03] dark:opacity-[0.05]" />
-          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 blur-[120px] rounded-full animate-pulse" />
+          <div className="absolute inset-0 bg-transparent" />
+          <div className="absolute inset-0 mushaf-pattern opacity-[0.1]" />
       </div>
 
       {/* Header Section */}

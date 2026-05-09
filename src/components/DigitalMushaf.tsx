@@ -196,7 +196,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
   const filteredSurahs = surahsData.filter(s => s.name.includes(searchQuery) || s.transliteration.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
-    <div className={`h-full w-full flex flex-col bg-background text-foreground font-['Tajawal'] relative overflow-hidden`}>
+    <div className={`h-full w-full flex flex-col bg-transparent text-foreground font-['Tajawal'] relative overflow-hidden`}>
       
       {/* Background Decorative Pattern */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]">
@@ -207,7 +207,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
       <audio ref={audioRef} onEnded={handleAudioEnd} onError={handleAudioEnd} />
 
       {/* Premium Header */}
-      <header className="h-24 md:h-28 shrink-0 border-b border-border bg-background/80 backdrop-blur-3xl px-6 md:px-12 flex items-center justify-between z-[100] shadow-2xl">
+      <header className="h-24 md:h-28 shrink-0 bg-transparent px-6 md:px-12 flex items-center justify-between z-[100] shadow-2xl">
           <div className="flex items-center gap-4">
               <button 
                 onClick={() => setIsIndexOpen(true)}
@@ -274,15 +274,15 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
       {isIndexOpen && (
           <div className="absolute inset-0 z-[2000] flex animate-in fade-in duration-300">
               <div className="absolute inset-0 bg-[#064E3B]/60 backdrop-blur-md" onClick={() => setIsIndexOpen(false)} />
-              <div className="relative w-full max-w-lg bg-[#064E3B] border-l border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col p-10 animate-in slide-in-from-left duration-500">
-                  <div className="flex items-center justify-between mb-12">
-                      <h3 className="text-3xl font-black text-white">فهرس السور</h3>
-                      <button onClick={() => setIsIndexOpen(false)} className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-white hover:bg-primary hover:text-black transition-all">
-                          <X className="w-6 h-6" />
+              <div className="relative w-full max-w-lg bg-[#064E3B] border-l border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col p-6 md:p-8 animate-in slide-in-from-left duration-500 overflow-hidden">
+                  <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-2xl font-black text-white">فهرس السور</h3>
+                      <button onClick={() => setIsIndexOpen(false)} className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-white hover:bg-primary hover:text-black transition-all">
+                          <X className="w-5 h-5" />
                       </button>
                   </div>
 
-                  <div className="relative mb-10 group">
+                  <div className="relative mb-6 group">
                       <Search className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-all w-5 h-5" />
                       <input 
                         value={searchQuery} 

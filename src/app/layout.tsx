@@ -94,10 +94,7 @@ export default function RootLayout({
         style={{ overflow: 'hidden', width: '100%', height: '100dvh', maxWidth: '100%', touchAction: 'pan-y', overscrollBehavior: 'none' }}
       >
 
-        <div className="absolute inset-0 pointer-events-none overflow-hidden w-full h-full">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[150px] opacity-40 animate-pulse" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[150px] opacity-40" />
-        </div>
+        <div className="absolute inset-0 pointer-events-none overflow-hidden w-full h-full" />
 
         <link rel="icon" href="/logo/logo.png?v=25" type="image/png" sizes="32x32" />
         <link rel="shortcut icon" href="/logo/logo.png?v=25" type="image/png" />
