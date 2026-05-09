@@ -91,7 +91,12 @@ function CatchAllContent() {
   if (!isClient || !state.isHydrated) return <LoadingShell />;
 
   return (
-    <div className="fixed inset-0 bg-[#050505] text-foreground flex flex-col w-full h-[100dvh] font-arabic overflow-hidden transition-opacity duration-1000">
+    <div className={`fixed inset-0 bg-background text-foreground flex flex-col w-full h-[100dvh] font-arabic overflow-hidden transition-opacity duration-1000 ${(activeView?.includes('mushaf') || activeView === 'daily' || activeView === 'prayers') ? 'mushaf-full-bg' : ''}`}>
+      
+      {/* Background Overlay to ensure readability */}
+      {(activeView?.includes('mushaf') || activeView === 'daily' || activeView === 'prayers') && (
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-0 pointer-events-none" />
+      )}
       
       {/* Global Top Bar - Logo + Install + Feedback */}
       <header className="h-12 shrink-0 bg-background/80 backdrop-blur-xl border-b border-border px-3 md:px-8 flex items-center justify-between z-[200]">

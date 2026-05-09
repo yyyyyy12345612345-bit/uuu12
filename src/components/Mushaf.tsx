@@ -121,11 +121,11 @@ export function Mushaf() {
 
     if (!selectedSurah) {
         return (
-            <div className={`flex flex-col h-full bg-background text-foreground font-['Tajawal'] relative overflow-hidden animate-in fade-in duration-700`}>
+            <div className="flex flex-col h-full p-4 md:p-10 pt-20 md:pt-14 overflow-y-auto no-scrollbar font-arabic relative animate-in fade-in duration-700 bg-transparent">
                 {/* Background Patterns */}
                 <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]">
                     <div className="absolute inset-0 islamic-pattern" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-transparent" />
                 </div>
 
                 <div className="relative z-10 flex flex-col h-full">
@@ -211,7 +211,7 @@ export function Mushaf() {
     }
 
     return (
-        <div className={`flex flex-col h-full bg-background text-foreground font-['Tajawal'] relative overflow-hidden animate-reveal`}>
+        <div className={`flex flex-col h-full bg-transparent text-foreground font-['Tajawal'] relative overflow-hidden animate-reveal`}>
             {/* Background Layer */}
             <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.15]">
                 <div className="absolute inset-0 mushaf-pattern" />

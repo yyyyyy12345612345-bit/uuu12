@@ -156,7 +156,7 @@ export function PrayerTimes() {
   };
 
   return (
-    <div className="flex flex-col h-full p-4 md:p-10 pt-20 md:pt-14 overflow-y-auto no-scrollbar font-arabic relative animate-in fade-in duration-700">
+    <div className="flex flex-col h-full p-4 md:p-10 pt-20 md:pt-14 overflow-y-auto no-scrollbar font-arabic relative animate-in fade-in duration-700 bg-transparent">
       {/* Background */}
       <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/40 to-background" />
