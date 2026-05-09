@@ -164,3 +164,16 @@ export async function claimQuestPoints(questId: string, amount: number) {
     return { success: false };
   }
 }
+
+export async function incrementVideoRenderCount() {
+  const user = auth?.currentUser;
+  if (user && db) {
+    try {
+      await updateDoc(doc(db, "users", user.uid), {
+        videoRendersCount: increment(1)
+      });
+      return { success: true };
+    } catch (e) { return { success: false }; }
+  }
+  return { success: false };
+}
