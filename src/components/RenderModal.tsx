@@ -438,8 +438,11 @@ function loadVideo(src: string): Promise<HTMLVideoElement> {
   return new Promise((r, j) => { 
     const v = document.createElement("video"); v.src = src; v.crossOrigin = "anonymous"; v.muted = true; v.loop = true; v.playsInline = true;
     v.oncanplaythrough = () => { v.play().catch(() => {}); r(v); }; 
-    v.onerror = () => j(new Error("Video load error"));
-    setTimeout(() => j(new Error("Video timeout")), 20000);
+    v.onerror = (e) => {
+      console.error("Video load error:", e);
+      j(new Error("فشل في تحميل الفيديو. تأكد من اتصالك بالإنترنت."));
+    };
+    setTimeout(() => j(new Error("انتهت مهلة تحميل الفيديو. حاول مرة أخرى.")), 40000);
     v.load();
   });
 }

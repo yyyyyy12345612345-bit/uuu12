@@ -82,6 +82,10 @@ export function VideoPreview() {
         await audioRef.current.play();
         videoRef.current?.play();
         setIsPlaying(true);
+        videoRef.current.onerror = (e) => {
+          console.error("Video load error:", e);
+        };
+        setTimeout(() => console.error("Video load timeout"), 40000);
       } catch (error) {
         console.error("Play failed:", error);
       }
@@ -148,7 +152,10 @@ export function VideoPreview() {
             ) : (
               <div
                 className="absolute inset-0 bg-cover bg-center transition-[opacity,filter] duration-700"
-                style={{ backgroundImage: `url(${state.backgroundUrl})`, filter: getFilterCSS(state.filter) }}
+                style={{ 
+                  backgroundImage: `url(${state.backgroundUrl.includes('pexels.com') ? `${state.backgroundUrl.split('?')[0]}?auto=compress&cs=tinysrgb&fit=crop&h=1280&w=720` : state.backgroundUrl})`, 
+                  filter: getFilterCSS(state.filter) 
+                }}
               />
             )
           ) : (

@@ -217,18 +217,6 @@ function CatchAllContent() {
                       </div>
                    </div>
 
-                   {/* Desktop Export Hint */}
-                   <div className="hidden lg:flex absolute bottom-10 right-10 z-50 animate-in fade-in slide-in-from-right-10 duration-1000">
-                      <div className="p-1 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-2xl">
-                        <button 
-                            onClick={() => setIsRenderOpen(true)}
-                            className="flex items-center gap-4 bg-primary text-black px-8 py-4 rounded-[1.8rem] font-black text-xs hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-primary/20 uppercase tracking-widest"
-                        >
-                            <Download className="w-5 h-5" />
-                            <span>تصدير فيديو عالي الجودة</span>
-                        </button>
-                      </div>
-                   </div>
                 </div>
              </div>
           </div>
