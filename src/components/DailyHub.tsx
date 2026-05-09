@@ -102,6 +102,31 @@ export function DailyHub() {
     fetchCompletedQuests();
   }, []);
 
+  useEffect(() => {
+    if (activeTab === "morning" || activeTab === "evening" || activeTab === "sleep") {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const thikrId = entry.target.getAttribute("data-thikr-id");
+              if (thikrId) {
+                endThikrTimer(1).then((res) => {
+                  if (res?.success) console.log("Earned point for Daily Thikr");
+                });
+                startThikrTimer(thikrId);
+              }
+            }
+          });
+        },
+        { threshold: 0.6 }
+      );
+
+      const elements = document.querySelectorAll("[data-thikr-id]");
+      elements.forEach((el) => observer.observe(el));
+      return () => observer.disconnect();
+    }
+  }, [activeTab, athkarProgress]);
+
   const handleClaimQuest = async (e: React.MouseEvent, quest: any) => {
     e.stopPropagation();
     const res = await claimQuestPoints(quest.id, quest.points);
@@ -233,6 +258,7 @@ export function DailyHub() {
       return (
         <div 
           key={thikr.id} 
+          data-thikr-id={`${type}_${thikr.id}`}
           onClick={() => handleThikrClick(thikr.id, thikr.count, type)}
           className={`p-6 rounded-[2rem] border transition-all cursor-pointer relative overflow-hidden active:scale-[0.97] duration-300 ${
              isComplete ? 'bg-primary/5 border-primary/20 opacity-70' : 'bg-card border-border hover:border-primary/20 shadow-lg'
