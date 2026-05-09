@@ -107,6 +107,14 @@ body {
   background-size: 120px 120px;
 }
 
+.mushaf-full-bg {
+  background-image: url("/mushaf-bg.jpg.png");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
 .gold-shimmer {
   background: linear-gradient(
     90deg,
