@@ -122,55 +122,55 @@ function CatchAllContent() {
 
 
 
-      <main className="flex-1 relative overflow-hidden">
+      <main className="flex-1 relative overflow-hidden bg-background">
         {visited.mushaf && (
-          <div key={`mushaf-${activeView === 'mushaf'}`} className={`h-full w-full pb-56 overflow-y-auto no-scrollbar ${activeView === 'mushaf' ? 'block view-transition' : 'hidden'}`}>
+          <div key={`mushaf-${activeView === 'mushaf'}`} className={`h-full w-full pb-56 overflow-y-auto no-scrollbar bg-background ${activeView === 'mushaf' ? 'block view-transition' : 'hidden'}`}>
             <Mushaf />
           </div>
         )}
         {visited['mushaf-full'] && (
-          <div key={`mushaf-full-${activeView === 'mushaf-full'}`} className={`h-full w-full pb-28 ${activeView === 'mushaf-full' ? 'block view-transition' : 'hidden'}`}>
+          <div key={`mushaf-full-${activeView === 'mushaf-full'}`} className={`h-full w-full pb-36 bg-background ${activeView === 'mushaf-full' ? 'block view-transition' : 'hidden'}`}>
             <DigitalMushaf />
           </div>
         )}
         {visited['mushaf-tafseer'] && (
-          <div key={`mushaf-tafseer-${activeView === 'mushaf-tafseer'}`} className={`h-full w-full pb-28 ${activeView === 'mushaf-tafseer' ? 'block view-transition' : 'hidden'}`}>
+          <div key={`mushaf-tafseer-${activeView === 'mushaf-tafseer'}`} className={`h-full w-full pb-36 bg-background ${activeView === 'mushaf-tafseer' ? 'block view-transition' : 'hidden'}`}>
             <DigitalMushaf isTafseerMode={true} />
           </div>
         )}
         {visited['mushaf-choice'] && (
-          <div key={`mushaf-choice-${activeView === 'mushaf-choice'}`} className={`h-full w-full relative pb-28 overflow-y-auto no-scrollbar ${activeView === 'mushaf-choice' ? 'block view-transition' : 'hidden'}`}>
+          <div key={`mushaf-choice-${activeView === 'mushaf-choice'}`} className={`h-full w-full relative pb-36 overflow-y-auto no-scrollbar bg-background ${activeView === 'mushaf-choice' ? 'block view-transition' : 'hidden'}`}>
             <MushafChoice />
             <CommunityShowcase />
           </div>
         )}
         {visited.daily && (
-          <div key={`daily-${activeView === 'daily'}`} className={`h-full w-full pb-28 overflow-y-auto no-scrollbar ${activeView === 'daily' ? 'block view-transition' : 'hidden'}`}>
+          <div key={`daily-${activeView === 'daily'}`} className={`h-full w-full pb-36 overflow-y-auto no-scrollbar bg-background ${activeView === 'daily' ? 'block view-transition' : 'hidden'}`}>
             <DailyHub />
           </div>
         )}
         {visited.library && (
-          <div key={`library-${activeView === 'library'}`} className={`h-full w-full pb-28 ${activeView === 'library' ? 'block view-transition' : 'hidden'}`}>
+          <div key={`library-${activeView === 'library'}`} className={`h-full w-full pb-36 bg-background ${activeView === 'library' ? 'block view-transition' : 'hidden'}`}>
             <AudioLibrary />
           </div>
         )}
         {visited.prayers && (
-          <div key={`prayers-${activeView === 'prayers'}`} className={`h-full w-full pb-28 ${activeView === 'prayers' ? 'block view-transition' : 'hidden'}`}>
+          <div key={`prayers-${activeView === 'prayers'}`} className={`h-full w-full pb-36 bg-background ${activeView === 'prayers' ? 'block view-transition' : 'hidden'}`}>
             <PrayerTimes />
           </div>
         )}
         {visited.rank && (
-          <div key={`rank-${activeView === 'rank'}`} className={`h-full w-full pb-28 ${activeView === 'rank' ? 'block view-transition' : 'hidden'}`}>
+          <div key={`rank-${activeView === 'rank'}`} className={`h-full w-full pb-36 bg-background ${activeView === 'rank' ? 'block view-transition' : 'hidden'}`}>
             <Leaderboard onEditProfile={() => setIsProfileOpen(true)} />
           </div>
         )}
         {visited.admin && (
-          <div key={`admin-${activeView === 'admin'}`} className={`h-full w-full pb-28 ${activeView === 'admin' ? 'block view-transition' : 'hidden'}`}>
+          <div key={`admin-${activeView === 'admin'}`} className={`h-full w-full pb-36 bg-background ${activeView === 'admin' ? 'block view-transition' : 'hidden'}`}>
             <AdminPanel />
           </div>
         )}
         {visited.showcase && (
-          <div key={`showcase-${activeView === 'showcase'}`} className={`h-full w-full pb-28 overflow-y-auto no-scrollbar ${activeView === 'showcase' ? 'block view-transition' : 'hidden'}`}>
+          <div key={`showcase-${activeView === 'showcase'}`} className={`h-full w-full pb-36 overflow-y-auto no-scrollbar bg-background ${activeView === 'showcase' ? 'block view-transition' : 'hidden'}`}>
             <CommunityShowcase />
           </div>
         )}

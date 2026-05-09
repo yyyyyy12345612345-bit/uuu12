@@ -73,11 +73,21 @@ export default function RootLayout({
     <html
       lang="ar"
       dir="rtl"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-      style={{ overflowX: 'hidden', width: '100vw' }}
+      className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
+      style={{ overflowX: 'hidden', width: '100vw', backgroundColor: 'hsl(220 25% 4%)' }}
     >
       <head>
-        {/* Scripts moved to body */}
+        {/* Apply dark theme ASAP to prevent white flash (FOUC) */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            var theme = localStorage.getItem('app-theme');
+            if (!theme || theme === 'dark') {
+              document.documentElement.classList.add('dark');
+            } else {
+              document.documentElement.classList.remove('dark');
+            }
+          })();
+        ` }} />
       </head>
       <body 
         className="h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground"

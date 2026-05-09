@@ -74,7 +74,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
             });
         }
         if (newPagesData.length > 0) {
-            setCurrentPage(startPage + newPagesData.length - 1);
+            setCurrentPage(startPage);
             localStorage.setItem("last_read_page", startPage.toString());
             logAppEvent("change_page", { page: startPage });
         }
@@ -196,7 +196,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
   const filteredSurahs = surahsData.filter(s => s.name.includes(searchQuery) || s.transliteration.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
-    <div className={`h-full w-full flex flex-col bg-[#0a0f0d] text-white font-['Tajawal'] relative overflow-hidden`}>
+    <div className={`h-full w-full flex flex-col bg-background text-foreground font-['Tajawal'] relative overflow-hidden`}>
       
       {/* Background Decorative Pattern */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]">
@@ -207,7 +207,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
       <audio ref={audioRef} onEnded={handleAudioEnd} onError={handleAudioEnd} />
 
       {/* Premium Header */}
-      <header className="h-24 md:h-28 shrink-0 border-b border-white/5 bg-[#0d1411]/80 backdrop-blur-3xl px-6 md:px-12 flex items-center justify-between z-[100] shadow-2xl">
+      <header className="h-24 md:h-28 shrink-0 border-b border-border bg-background/80 backdrop-blur-3xl px-6 md:px-12 flex items-center justify-between z-[100] shadow-2xl">
           <div className="flex items-center gap-4">
               <button 
                 onClick={() => setIsIndexOpen(true)}
@@ -251,7 +251,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
 
       {/* Reciter Picker Popover */}
       {showReciterPicker && (
-          <div className="absolute top-28 right-6 md:right-12 w-80 bg-[#0d1411]/95 backdrop-blur-3xl border border-white/10 rounded-[3rem] shadow-[0_30px_90px_rgba(0,0,0,0.5)] z-[200] p-6 animate-in zoom-in-95 duration-300">
+          <div className="absolute top-28 right-6 md:right-12 w-80 bg-background/95 backdrop-blur-3xl border border-border rounded-[3rem] shadow-[0_30px_90px_rgba(0,0,0,0.5)] z-[200] p-6 animate-in zoom-in-95 duration-300">
               <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] text-center mb-6">اختر قارئ المصحف</p>
               <div className="flex flex-col gap-2 max-h-[50vh] overflow-y-auto no-scrollbar">
                   {RECITERS.map(reciter => (
@@ -390,7 +390,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
               <button 
                 disabled={isLoading}
                 onClick={() => { 
-                    const p = pages[pages.length-1]?.page || currentPage;
+                    const p = pages[0]?.page || currentPage;
                     const target = Math.min(604, p + 1);
                     if (target <= 604 && target !== p) {
                         setPages([]);

@@ -216,7 +216,7 @@ export function AudioLibrary() {
   };
 
   return (
-    <div className="h-full w-full bg-[#0a0a0a] text-white overflow-y-auto lg:overflow-hidden relative font-['Tajawal'] flex flex-col lg:flex-row no-scrollbar">
+    <div className="h-full w-full bg-background text-foreground overflow-y-auto lg:overflow-hidden relative font-['Tajawal'] flex flex-col lg:flex-row no-scrollbar">
       <audio ref={audioRef} onTimeUpdate={onTimeUpdate} onEnded={handleNext} preload="auto" />
 
       {/* Atmospheric Background */}

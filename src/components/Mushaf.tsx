@@ -121,11 +121,11 @@ export function Mushaf() {
 
     if (!selectedSurah) {
         return (
-            <div className={`flex flex-col h-full bg-[#0a0f0d] text-white font-['Tajawal'] relative overflow-hidden animate-in fade-in duration-700`}>
+            <div className={`flex flex-col h-full bg-background text-foreground font-['Tajawal'] relative overflow-hidden animate-in fade-in duration-700`}>
                 {/* Background Patterns */}
                 <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]">
                     <div className="absolute inset-0 islamic-pattern" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-[#0a0f0d] via-transparent to-[#0a0f0d]" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background" />
                 </div>
 
                 <div className="relative z-10 flex flex-col h-full">
@@ -211,14 +211,14 @@ export function Mushaf() {
     }
 
     return (
-        <div className={`flex flex-col h-full bg-[#0a0f0d] text-foreground font-['Tajawal'] relative overflow-hidden animate-reveal`}>
+        <div className={`flex flex-col h-full bg-background text-foreground font-['Tajawal'] relative overflow-hidden animate-reveal`}>
             {/* Background Layer */}
             <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]">
                 <div className="absolute inset-0 islamic-pattern" />
             </div>
 
             {/* Header */}
-            <header className="shrink-0 p-6 md:p-8 flex items-center justify-between z-40 bg-[#0d1411]/80 backdrop-blur-xl border-b border-white/5">
+            <header className="shrink-0 p-6 md:p-8 flex items-center justify-between z-40 bg-background/80 backdrop-blur-xl border-b border-border">
                 <button
                     onClick={() => setSelectedSurah(null)}
                     className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all border border-white/5"

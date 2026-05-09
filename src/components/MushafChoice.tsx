@@ -71,7 +71,7 @@ export function MushafChoice() {
         </div>
 
         {/* History Section from Stitch */}
-        <div className="w-full mt-12 p-6 rounded-[2rem] bg-primary/5 border border-primary/10 flex items-center justify-between group cursor-pointer hover:bg-primary/10 transition-all">
+        <div className="w-full mt-12 mb-40 p-6 rounded-[2rem] bg-primary/5 border border-primary/10 flex items-center justify-between group cursor-pointer hover:bg-primary/10 transition-all">
            <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                  <History className="w-6 h-6 text-primary" />

@@ -22,31 +22,54 @@ export function AyahSearchModal({ isOpen, onClose }: { isOpen: boolean; onClose:
     setResults([]);
     
     try {
-      // Using QDC Search API (More reliable for Arabic text)
+      // Primary: QDC Search API (confirmed working)
       const url = `https://api.qurancdn.com/api/qdc/search?query=${encodeURIComponent(query)}&size=20`;
       const resp = await fetch(url);
+      
+      if (!resp.ok) throw new Error(`QDC API returned ${resp.status}`);
+      
       const data = await resp.json();
       
-      // QDC API returns results in data.search.results
-      const searchResults = data.search?.results || [];
+      // QDC API returns { result: { verses: [...] } }
+      const searchResults = data?.result?.verses || data?.search?.results || [];
       
-      const formattedResults = searchResults.map((res: any) => ({
-        verse_key: res.verse_key,
-        // QDC API text is usually in 'text' field or 'words'
-        renderedText: res.text || "آية قرآنية"
-      }));
+      const formattedResults = searchResults.map((res: any) => {
+        // Build text from words array if available
+        let text = "";
+        if (res.words && Array.isArray(res.words)) {
+          text = res.words
+            .filter((w: any) => w.char_type === "word" || w.char_type_name === "word")
+            .map((w: any) => w.text_uthmani || w.text || w.code_v1 || "")
+            .join(" ");
+        }
+        // Fallback to direct text fields
+        if (!text) {
+          text = res.text_uthmani || res.text || res.renderedText || "آية قرآنية";
+        }
+        
+        return {
+          verse_key: res.verse_key,
+          renderedText: text
+        };
+      });
 
       setResults(formattedResults);
     } catch (err) {
       console.error("QDC Search Error:", err);
-      // Final Fallback to Quran.com v4
+      // Fallback: search in surah names locally
       try {
-         const fallbackUrl = `https://api.quran.com/api/v4/search?q=${encodeURIComponent(query)}&size=20&language=ar`;
-         const fResp = await fetch(fallbackUrl);
-         const fData = await fResp.json();
-         setResults(fData.search?.results || []);
+        const localResults: any[] = [];
+        surahsData.forEach(surah => {
+          if (surah.name.includes(query) || surah.transliteration.toLowerCase().includes(query.toLowerCase())) {
+            localResults.push({
+              verse_key: `${surah.id}:1`,
+              renderedText: `سورة ${surah.name} — بداية السورة`
+            });
+          }
+        });
+        setResults(localResults);
       } catch(e) {
-         setResults([]);
+        setResults([]);
       }
     } finally {
       setIsLoading(false);
