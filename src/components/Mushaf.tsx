@@ -213,8 +213,8 @@ export function Mushaf() {
     return (
         <div className={`flex flex-col h-full bg-background text-foreground font-['Tajawal'] relative overflow-hidden animate-reveal`}>
             {/* Background Layer */}
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]">
-                <div className="absolute inset-0 islamic-pattern" />
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.15]">
+                <div className="absolute inset-0 mushaf-pattern" />
             </div>
 
             {/* Header */}
