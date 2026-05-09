@@ -4,7 +4,7 @@ import React from "react";
 import { 
   X, Star, BookOpen, Headphones, Calendar, 
   Fingerprint, Sparkles, Target, Trophy, 
-  Map, ChevronLeft, Award, Zap
+  Map as MapIcon, ChevronLeft, Award, Zap
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -93,7 +93,7 @@ export function PointsGuideModal({ isOpen, onClose }: PointsGuideModalProps) {
             <div className="relative z-10 p-8 border-b border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-                  <Map className="w-6 h-6" />
+                  <MapIcon className="w-6 h-6" />
                 </div>
                 <div>
                   <h2 className="text-2xl font-black text-white">دليل النقاط</h2>

@@ -4,7 +4,7 @@ import React from "react";
 import { 
   X, MessageCircle, Moon, Sun, BookOpen, ScrollText, 
   Calendar, Headphones, Timer, Video, Share2, Heart, Smartphone, Trophy, ShieldCheck, Star,
-  ChevronLeft, LayoutDashboard, Settings, Info, LogOut
+  ChevronLeft, LayoutDashboard, Settings, Info, LogOut, Map as MapIcon
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/ThemeProvider";
@@ -64,7 +64,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
         { id: "install-apk", label: "تثبيت التطبيق (APK)", icon: Smartphone, onClick: () => {
           window.open('https://quran1-mu.vercel.app/download/', '_blank');
         }},
-        { id: "points-guide", label: "دليل النقاط", icon: Map, onClick: onOpenPointsGuide },
+        { id: "points-guide", label: "دليل النقاط", icon: MapIcon, onClick: onOpenPointsGuide },
       ]
     }
   ];
