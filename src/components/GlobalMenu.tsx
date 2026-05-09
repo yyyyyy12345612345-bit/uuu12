@@ -60,6 +60,9 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile }: G
             navigator.share({ title: 'سكينة', text: 'تطبيق القرآن الكريم واستوديو الفيديو الجنائزي', url: window.location.href });
           }
         }},
+        { id: "install-apk", label: "تثبيت التطبيق (APK)", icon: Smartphone, onClick: () => {
+          window.open('https://quran1-mu.vercel.app/download/', '_blank');
+        }},
       ]
     }
   ];
