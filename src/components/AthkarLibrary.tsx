@@ -73,6 +73,29 @@ export function AthkarLibrary() {
     }
   }, [search, categories]);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const thikrId = entry.target.getAttribute("data-thikr-id");
+            if (thikrId) {
+              endThikrTimer(0.5).then((res) => {
+                if (res?.success) console.log("Earned points for Thikr");
+              });
+              startThikrTimer(thikrId);
+            }
+          }
+        });
+      },
+      { threshold: 0.6 }
+    );
+
+    const elements = document.querySelectorAll("[data-thikr-id]");
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [athkar, selectedCategory]);
+
   if (selectedCategory) {
     return (
       <div className="flex flex-col gap-8 animate-in fade-in duration-700 pb-40 font-arabic">
@@ -104,7 +127,11 @@ export function AthkarLibrary() {
         ) : (
             <div className="space-y-6">
                 {athkar.map((t, idx) => (
-                    <div key={idx} className="bg-card border border-border rounded-[3rem] p-8 md:p-12 shadow-xl hover:shadow-2xl transition-all relative group overflow-hidden">
+                    <div 
+                      key={idx} 
+                      data-thikr-id={`${selectedCategory.ID}-${idx}`}
+                      className="bg-card border border-border rounded-[3rem] p-8 md:p-12 shadow-xl hover:shadow-2xl transition-all relative group overflow-hidden"
+                    >
                         <div className="absolute top-0 left-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
                             <BookOpen className="w-40 h-40" />
                         </div>

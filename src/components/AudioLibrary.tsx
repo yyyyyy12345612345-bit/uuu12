@@ -63,6 +63,7 @@ export function AudioLibrary() {
   const [recentlyPlayed, setRecentlyPlayed] = useState<number[]>([]);
 
   const audioRef = useRef<HTMLAudioElement>(null);
+  const lastAwardedTime = useRef<number>(0);
   const horizontalListRef = useRef<HTMLDivElement>(null);
 
   // Auth & Persistence
@@ -182,6 +183,13 @@ export function AudioLibrary() {
       setCurrentTime(a.currentTime);
       setDuration(a.duration || 0);
       setProgress(a.duration ? (a.currentTime / a.duration) * 100 : 0);
+
+      // Award 1 point for every 30 seconds of active listening
+      const totalSeconds = Math.floor(a.currentTime);
+      if (totalSeconds > 0 && totalSeconds % 30 === 0 && lastAwardedTime.current !== totalSeconds) {
+        addPoints("listen", 1);
+        lastAwardedTime.current = totalSeconds;
+      }
     }
   };
 
@@ -213,6 +221,7 @@ export function AudioLibrary() {
       setCurrentSurah(s);
       setIsPlaying(true);
       addToHistory(s.id);
+      lastAwardedTime.current = 0; // Reset timer for new surah
   };
 
   return (
@@ -222,7 +231,7 @@ export function AudioLibrary() {
         onTimeUpdate={onTimeUpdate} 
         onEnded={() => {
           handleNext();
-          addPoints(10); // Reward for listening to a full surah
+          addPoints("listen", 10); // Reward for listening to a full surah
         }} 
         preload="auto" 
       />
