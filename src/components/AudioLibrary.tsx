@@ -10,7 +10,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { setupMediaSession, setPlaybackState, updatePositionState } from "@/lib/mediaSession";
 import surahsData from "@/data/surahs.json";
-import { addPoints } from "@/lib/points";
+import { addPoints, claimSurahCompletionPoints } from "@/lib/points";
 
 /* ─── Helpers ─── */
 const fmt = (s: number) => {
@@ -231,7 +231,7 @@ export function AudioLibrary() {
         onTimeUpdate={onTimeUpdate} 
         onEnded={() => {
           handleNext();
-          addPoints("listen", 10); // Reward for listening to a full surah
+          claimSurahCompletionPoints(currentSurah.id, 10);
         }} 
         preload="auto" 
       />
@@ -279,7 +279,7 @@ export function AudioLibrary() {
                    </a>
                    <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/5 rounded-2xl border border-white/5">
                         <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Divine Studio v2</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Divine Studio v4.0</span>
                    </div>
               </div>
           </div>

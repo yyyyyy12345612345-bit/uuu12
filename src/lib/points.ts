@@ -165,6 +165,37 @@ export async function claimQuestPoints(questId: string, amount: number) {
   }
 }
 
+/**
+ * Award points for completing a surah, but only ONCE per surah.
+ */
+export async function claimSurahCompletionPoints(surahId: number, amount: number = 10) {
+  const user = auth?.currentUser;
+  if (!user || !db) return { success: false };
+
+  try {
+    const completionRef = doc(db, "users", user.uid, "completed_surahs", surahId.toString());
+    const snap = await getDoc(completionRef);
+    
+    if (snap.exists()) {
+      console.log(`[Points] Surah ${surahId} already claimed.`);
+      return { success: false, message: "تم الحصول على نقاط هذه السورة مسبقاً" };
+    }
+
+    const res = await addPoints("listen", amount);
+    if (res.success) {
+      await setDoc(completionRef, {
+        surahId,
+        completedAt: serverTimestamp(),
+        points: amount
+      });
+    }
+    return res;
+  } catch (e) {
+    console.error("[Points] claimSurahCompletionPoints error:", e);
+    return { success: false };
+  }
+}
+
 export async function incrementVideoRenderCount() {
   const user = auth?.currentUser;
   if (user && db) {

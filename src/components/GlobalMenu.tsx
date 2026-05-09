@@ -167,7 +167,9 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
 
         {/* Footer Credits */}
         <div className="p-8 border-t border-white/10 text-center relative z-10 bg-[#064E3B]/80 backdrop-blur-md">
-
+            <div className="mb-4">
+                <span className="text-[9px] font-black text-primary/40 uppercase tracking-[0.5em]">الإصدار العالمي الفائق v4.0</span>
+            </div>
             <div className="flex items-center justify-center gap-2 text-white/40">
                 <Heart className="w-3 h-3 text-red-500 fill-red-500" />
                 <span className="text-[9px] font-bold">صنع بكل حب لكل مسلم</span>

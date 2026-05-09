@@ -464,7 +464,7 @@ export function DailyHub() {
                         )}
                     </div>
                     <div className="flex justify-center pt-4">
-                        <span className="text-[8px] font-black text-foreground/10 uppercase tracking-[0.5em]">System V2.0 - Deep Link Ready</span>
+                        <span className="text-[8px] font-black text-foreground/10 uppercase tracking-[0.5em]">System V4.0 - Universal Points Engine</span>
                     </div>
                 </div>
             </div>
