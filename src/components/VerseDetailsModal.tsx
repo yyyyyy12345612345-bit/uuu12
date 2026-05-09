@@ -102,8 +102,8 @@ export function VerseDetailsModal({ verseKey, onClose, surahName }: VerseDetails
             <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
               
               {/* Verse Text Display */}
-              <div className="mb-16 text-center p-10 md:p-14 bg-white/5 rounded-[3rem] border border-white/10 relative overflow-hidden group">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#064E3B] px-6 py-2 rounded-full border border-primary/40 text-[10px] font-black text-primary uppercase tracking-widest z-10">نص الآية الكريمة</div>
+              <div className="mb-16 text-center p-10 md:p-14 bg-white/5 rounded-[3rem] border border-white/10 relative group">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#064E3B] px-6 py-1.5 rounded-full border border-primary/40 text-[10px] font-black text-primary uppercase tracking-widest z-10 whitespace-nowrap shadow-xl">نص الآية الكريمة</div>
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <p className="font-['Amiri'] text-4xl md:text-6xl font-bold text-white leading-[1.8] drop-shadow-2xl relative z-10" dir="rtl">
                   {verseData?.text_uthmani}
