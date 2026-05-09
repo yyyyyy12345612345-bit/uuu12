@@ -29,6 +29,7 @@ const AuthGate = nextDynamic(() => import("@/components/AuthGate").then(mod => m
 const MushafChoice = nextDynamic(() => import("@/components/MushafChoice").then(mod => mod.MushafChoice), { ssr: false });
 const SubscriptionModal = nextDynamic(() => import("@/components/SubscriptionModal").then(mod => mod.SubscriptionModal), { ssr: false });
 const CommunityShowcase = nextDynamic(() => import("@/components/CommunityShowcase").then(mod => mod.CommunityShowcase), { ssr: false });
+const PointsGuideModal = nextDynamic(() => import("@/components/PointsGuideModal").then(mod => mod.PointsGuideModal), { ssr: false });
 
 export function CatchAllPageClient() {
   return (
@@ -49,6 +50,7 @@ function CatchAllContent() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
   const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
+  const [isPointsGuideOpen, setIsPointsGuideOpen] = useState(false);
 
 
   // Derived active view from pathname - the safest way in Next.js 15/16 Client Components
@@ -265,8 +267,13 @@ function CatchAllContent() {
           setIsMenuOpen(false);
           setIsProfileOpen(true);
         }}
+        onOpenPointsGuide={() => {
+          setIsMenuOpen(false);
+          setIsPointsGuideOpen(true);
+        }}
       />
       <ProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
+      <PointsGuideModal isOpen={isPointsGuideOpen} onClose={() => setIsPointsGuideOpen(false)} />
     </div>
   );
 }

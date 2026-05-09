@@ -4,228 +4,163 @@ import {
   updateDoc, 
   increment, 
   getDoc, 
-  setDoc, 
-  Timestamp,
+  setDoc,
   serverTimestamp
 } from "firebase/firestore";
 
-// Constants for Anti-Cheat
-const MIN_PAGE_READ_TIME = 90; // 1.5 minutes for a full page
-const DAILY_POINTS_CAP = 5000; // Increased cap due to higher points
+/**
+ * Universal Points System v4.0 (Global & Reliable)
+ * Handles all point logic for Quran, Athkar, and Audio.
+ */
 
 export interface PointUpdateResult {
   success: boolean;
   message?: string;
 }
 
+// Internal state to track active timers
+let activeTimers: Record<string, number> = {};
+let lastAwardedAt: Record<string, number> = {};
+
 /**
- * Adds points to the user's account with anti-cheat checks
+ * Universal addPoints - The heart of the system.
+ * This is what actually hits Firestore and local storage.
  */
-export async function addPoints(type: "quran" | "athkar" | "listen", amount: number = 1): Promise<PointUpdateResult> {
+export async function addPoints(type: string, amount: number = 1): Promise<PointUpdateResult> {
   const user = auth?.currentUser;
-  if (!user || !db) {
-    console.warn("Points: User not logged in or DB not ready");
-    return { success: false, message: "User not logged in" };
-  }
+  const pointsToAdd = Math.max(0, Number(amount));
+  
+  if (isNaN(pointsToAdd) || pointsToAdd <= 0) return { success: false };
 
-  const userRef = doc(db, "users", user.uid);
-  const dailyRef = doc(db, "users", user.uid, "stats", "daily");
+  console.log(`[Points] Attempting to add ${pointsToAdd} for ${type}`);
 
+  // 1. Instant Local Update (for UI snappiness)
   try {
-    const userDoc = await getDoc(userRef);
-    if (!userDoc.exists()) {
-        console.warn("Points: User document does not exist");
-        return { success: false };
-    }
-    
-    const userData = userDoc.data();
-    
-    // 0. Check if user is banned
-    if (userData.isBanned) {
-      return { success: false, message: "عذراً، تم حظر حسابك لمخالفة القوانين" };
-    }
+    const localKey = "cached_total_points";
+    const current = parseInt(localStorage.getItem(localKey) || "0");
+    localStorage.setItem(localKey, (current + pointsToAdd).toString());
+  } catch (e) {}
 
-    const today = new Date().toISOString().split("T")[0];
-    const dailyDoc = await getDoc(dailyRef);
-    const dailyData = dailyDoc.exists() ? dailyDoc.data() : { date: today, points: 0 };
+  // 2. Persistent Firestore Update
+  if (user && db) {
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const today = new Date().toISOString().split("T")[0];
+      const dailyRef = doc(db, "users", user.uid, "stats", today);
 
-    // Reset daily points if it's a new day
-    let dailyPoints = dailyData.date === today ? dailyData.points : 0;
+      const fieldMap: any = {
+        quran: "quranPoints",
+        athkar: "athkarPoints",
+        listen: "listenPoints",
+        video: "videoPoints"
+      };
 
-    // 2. Check Daily Cap
-    if (dailyPoints >= DAILY_POINTS_CAP) {
-      return { success: false, message: "لقد وصلت للحد الأقصى للنقاط اليومية" };
-    }
+      const updateData: any = {
+        totalPoints: increment(pointsToAdd),
+        lastActive: serverTimestamp()
+      };
 
-    // 3. Update Firestore (Atomic)
-    const pointsToAdd = Number(amount);
-    if (isNaN(pointsToAdd) || pointsToAdd <= 0) return { success: false };
-    
-    const fieldMap: any = {
-      quran: "quranPoints",
-      athkar: "athkarPoints",
-      listen: "listenPoints"
-    };
-
-    const updateData: any = {
-      totalPoints: increment(pointsToAdd),
-      lastActive: new Date().toISOString()
-    };
-
-    if (fieldMap[type]) {
+      if (fieldMap[type]) {
         updateData[fieldMap[type]] = increment(pointsToAdd);
+      }
+
+      await updateDoc(userRef, updateData);
+      
+      // Update Daily Stats Collection
+      await setDoc(dailyRef, {
+        points: increment(pointsToAdd),
+        lastUpdate: serverTimestamp()
+      }, { merge: true });
+
+      // Dispatch global event for UI sync
+      window.dispatchEvent(new CustomEvent('pointsUpdated', { 
+        detail: { type, amount: pointsToAdd } 
+      }));
+
+      return { success: true };
+    } catch (err) {
+      console.error("[Points] Firestore update error:", err);
+      return { success: false };
     }
-
-    await updateDoc(userRef, updateData);
-
-    // Update daily stats
-    await setDoc(dailyRef, {
-      date: today,
-      points: increment(pointsToAdd)
-    }, { merge: true });
-
-    console.log(`[Points] Added ${pointsToAdd} to ${type}. New daily total: ${dailyPoints + pointsToAdd}`);
-    return { success: true };
-  } catch (e) {
-    console.error("Error adding points:", e);
-    return { success: false, message: "حدث خطأ أثناء تحديث النقاط" };
   }
+
+  return { success: true, message: "Local update successful" };
 }
 
 /**
- * Claims a specific quest's points
+ * Universal Timer Start
  */
-export async function claimQuestPoints(questId: string, amount: number): Promise<PointUpdateResult> {
-  const user = auth?.currentUser;
-  if (!user || !db) return { success: false, message: "يجب تسجيل الدخول أولاً" };
+export function startTimer(id: string) {
+  activeTimers[id] = Date.now();
+  console.log(`[Points] Timer started for: ${id}`);
+}
 
-  const questClaimRef = doc(db, "users", user.uid, "completed_quests", questId);
+/**
+ * Universal Timer End & Award
+ */
+export async function endTimer(id: string, minSeconds: number, type: string, amount: number) {
+  const startTime = activeTimers[id];
+  if (!startTime) return { success: false };
 
-  try {
-    const claimDoc = await getDoc(questClaimRef);
-    if (claimDoc.exists()) {
-      return { success: false, message: "لقد حصلت على نقاط هذه المهمة بالفعل" };
-    }
+  const elapsed = (Date.now() - startTime) / 1000;
+  
+  // Prevent double awarding for same ID in a short window (5s)
+  const lastAwarded = lastAwardedAt[id] || 0;
+  if (Date.now() - lastAwarded < 5000) return { success: false };
 
-    // إضافة النقاط كعملية "قمر" (quran) أو حسب نوع المهمة
-    const result = await addPoints("quran", amount);
+  if (elapsed >= minSeconds) {
+    const result = await addPoints(type, amount);
     if (result.success) {
-      // تسجيل المهمة كمكتملة
-      await setDoc(questClaimRef, {
-        completedAt: new Date().toISOString(),
-        pointsEarned: amount
-      });
-      return { success: true, message: `مبروك! حصلت على +${amount} نقطة` };
+      lastAwardedAt[id] = Date.now();
+      delete activeTimers[id];
     }
     return result;
-  } catch (e) {
-    console.error("Error claiming quest:", e);
-    return { success: false, message: "فشل استلام النقاط" };
   }
+
+  return { success: false, message: "Time threshold not met" };
 }
 
-/**
- * Handles Full Mushaf page reading with time validation
- */
-let pageStartTime: number | null = null;
-let lastPageId: string | null = null;
+/* ─── Standard Legacy Wrappers ─── */
 
-export function startPageTimer(pageId: string) {
-  // If moving to a new page, the observer should have called endPageTimer for the old one.
-  // But if not, we reset here.
-  pageStartTime = Date.now();
-  lastPageId = pageId;
-}
+export const startPageTimer = (pageId: string) => startTimer(`page_${pageId}`);
+export const endPageTimer = async (amount: number) => {
+    // Very flexible: just find any active page timer and end it
+    const activePageKey = Object.keys(activeTimers).find(k => k.startsWith("page_"));
+    if (activePageKey) return await endTimer(activePageKey, 10, "quran", amount);
+    return { success: false };
+};
 
-export async function endPageTimer(amount: number = 3) {
-  if (!pageStartTime || !lastPageId) return { success: false };
+export const startAyahTimer = (ayahId: string) => startTimer(`ayah_${ayahId}`);
+export const endAyahTimer = async (amount: number) => {
+    const activeAyahKey = Object.keys(activeTimers).find(k => k.startsWith("ayah_"));
+    if (activeAyahKey) return await endTimer(activeAyahKey, 2, "quran", amount);
+    return { success: false };
+};
 
-  const elapsedSeconds = (Date.now() - pageStartTime) / 1000;
-  
-  if (elapsedSeconds >= (MIN_PAGE_READ_TIME - 5)) {
-    const result = await addPoints("quran", amount);
-    pageStartTime = null;
-    lastPageId = null;
-    return result;
-  }
-  return { success: false, message: "يجب قراءة الصفحة بتمهل لاحتساب النقاط" };
-}
+export const startThikrTimer = (thikrId: string) => startTimer(`thikr_${thikrId}`);
+export const endThikrTimer = async (amount: number) => {
+    const activeThikrKey = Object.keys(activeTimers).find(k => k.startsWith("thikr_"));
+    if (activeThikrKey) return await endTimer(activeThikrKey, 2, "athkar", amount);
+    return { success: false };
+};
 
-/**
- * Handles Ayah reading in Normal Mushaf
- */
-const MIN_AYAH_READ_TIME = 4;
-let ayahStartTime: number | null = null;
-let lastAyahId: string | null = null;
+export const addSebhaPoints = async (amount: number = 3) => await addPoints("athkar", amount);
 
-export function startAyahTimer(ayahId: string) {
-  ayahStartTime = Date.now();
-  lastAyahId = ayahId;
-}
-
-export async function endAyahTimer(amount: number = 10) {
-  if (!ayahStartTime) return { success: false };
-  const elapsedSeconds = (Date.now() - ayahStartTime) / 1000;
-  
-  if (elapsedSeconds >= MIN_AYAH_READ_TIME) {
-    const result = await addPoints("quran", amount);
-    ayahStartTime = null;
-    lastAyahId = null;
-    return result;
-  }
-  return { success: false };
-}
-
-/**
- * Handles Thikr reading in Athkar Library
- */
-const MIN_THIKR_READ_TIME = 4;
-let thikrStartTime: number | null = null;
-let lastThikrId: string | null = null;
-
-export function startThikrTimer(thikrId: string) {
-  thikrStartTime = Date.now();
-  lastThikrId = thikrId;
-}
-
-export async function endThikrTimer(amount: number = 0.5) {
-  if (!thikrStartTime) return { success: false };
-  const elapsedSeconds = (Date.now() - thikrStartTime) / 1000;
-  
-  if (elapsedSeconds >= MIN_THIKR_READ_TIME) {
-    const result = await addPoints("athkar", amount);
-    thikrStartTime = null;
-    lastThikrId = null;
-    return result;
-  }
-  return { success: false };
-}
-
-
-/**
- * Handles Sebha (Electronic Rosary) points
- */
-export async function addSebhaPoints(amount: number = 3) {
-   return await addPoints("athkar", amount);
-}
-
-/**
- * Increments the video render counter for a user
- */
-export async function incrementVideoRenderCount() {
+export async function claimQuestPoints(questId: string, amount: number) {
   const user = auth?.currentUser;
   if (!user || !db) return { success: false };
-
-  const userRef = doc(db, "users", user.uid);
+  
   try {
-    await updateDoc(userRef, {
-      videoRendersCount: increment(1),
-      lastRenderAt: serverTimestamp()
-    });
-    return { success: true };
+    const questRef = doc(db, "users", user.uid, "completed_quests", questId);
+    const snap = await getDoc(questRef);
+    if (snap.exists()) return { success: false, message: "تم الاستلام" };
+    
+    const res = await addPoints("bonus", amount);
+    if (res.success) {
+      await setDoc(questRef, { completedAt: serverTimestamp(), points: amount });
+    }
+    return res;
   } catch (e) {
-    console.error("Error incrementing render count:", e);
     return { success: false };
   }
 }
-
