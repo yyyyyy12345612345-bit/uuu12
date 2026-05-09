@@ -121,7 +121,7 @@ export function Mushaf() {
 
     if (!selectedSurah) {
         return (
-            <div className="flex flex-col h-full p-4 md:p-10 pt-20 md:pt-14 overflow-y-auto no-scrollbar font-arabic relative animate-in fade-in duration-700 bg-transparent">
+            <div className="flex flex-col h-full p-6 md:p-12 font-arabic relative animate-in fade-in duration-700 bg-transparent">
                 {/* Background Patterns */}
                 <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]">
                     <div className="absolute inset-0 islamic-pattern" />
@@ -178,7 +178,7 @@ export function Mushaf() {
                                 </div>
                             )}
 
-                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-6">
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                                 {filteredSurahs.map((surah) => (
                                     <button
                                         key={surah.id}
@@ -263,8 +263,8 @@ export function Mushaf() {
             )}
 
             {/* Verse List */}
-            <div className="flex-1 overflow-y-auto px-6 md:px-12 pb-40 no-scrollbar overscroll-contain">
-                <div className="max-w-4xl mx-auto py-12">
+            <div className="flex-1 px-4 md:px-12 pb-20 no-scrollbar">
+                <div className="max-w-4xl mx-auto py-6">
                     {loading ? (
                         <div className="flex flex-col items-center justify-center p-32 gap-8 text-center">
                             <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
@@ -278,7 +278,7 @@ export function Mushaf() {
                                     id={`verse-${verse.id}`}
                                     data-ayah-id={verse.id}
                                     onClick={() => toggleAudio(verse.id)}
-                                    className={`group relative p-8 md:p-12 rounded-[3rem] border transition-all duration-700 cursor-pointer backdrop-blur-sm ${
+                                    className={`group relative p-6 md:p-14 rounded-[3rem] border transition-all duration-700 cursor-pointer backdrop-blur-sm ${
                                         playingAyah === verse.id 
                                         ? 'bg-primary/5 border-primary shadow-[0_0_80px_rgba(212,175,55,0.15)] scale-[1.02]' 
                                         : 'bg-white/[0.03] border-white/5 hover:border-white/10 hover:bg-white/[0.05]'
