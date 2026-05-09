@@ -95,7 +95,7 @@ function CatchAllContent() {
       
       {/* Background Overlay */}
       {(activeView?.includes('mushaf') || activeView === 'daily' || activeView === 'prayers' || activeView === 'rank' || activeView === 'library') && (
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px] z-0 pointer-events-none" />
+        <div className="absolute inset-0 bg-black/70 z-0 pointer-events-none" />
       )}
       
       {/* Global Top Bar - Logo + Install + Feedback */}
