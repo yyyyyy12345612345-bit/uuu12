@@ -160,11 +160,22 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                             }}
                             className={`relative aspect-[9/16] overflow-hidden rounded-[2rem] border-2 transition-all duration-700 group/item ${state.backgroundUrl === item.src ? 'border-primary shadow-[0_0_50px_rgba(212,175,55,0.3)]' : 'border-white/5 hover:border-white/20'}`}
                         >
-                            {item.type === "video" ? (
-                            <video src={item.src} poster={item.poster} muted loop playsInline className="h-full w-full object-cover transition-transform duration-1000" />
-                            ) : (
-                            <img src={`${item.src}?auto=compress&cs=tinysrgb&dpr=2&h=600&w=400`} alt="bg" className="h-full w-full object-cover transition-transform duration-1000" />
-                            )}
+                             {item.type === "video" ? (
+                             <video 
+                                src={item.src} 
+                                poster={item.poster} 
+                                muted 
+                                loop 
+                                playsInline 
+                                className="h-full w-full object-cover transition-transform duration-1000 group-hover/item:scale-110" 
+                             />
+                             ) : (
+                             <img 
+                                src={item.src.includes('pexels.com') ? `${item.src.split('?')[0]}?auto=compress&cs=tinysrgb&fit=crop&h=800&w=450` : item.src} 
+                                alt="bg" 
+                                className="h-full w-full object-cover transition-transform duration-1000 group-hover/item:scale-110" 
+                             />
+                             )}
                             <div className={`absolute inset-0 bg-black/40 group-hover/item:bg-transparent transition-colors duration-700 ${state.backgroundUrl === item.src ? 'bg-transparent' : ''}`} />
                             
                             {state.backgroundUrl === item.src && (
