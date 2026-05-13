@@ -5,7 +5,7 @@ import { useEditor } from "@/store/useEditor";
 import { usePexelsBackgrounds, PexelsMediaItem } from "@/hooks/usePexelsBackgrounds";
 import { RECITERS } from "@/data/reciters";
 import { useUserPlan } from "@/hooks/useUserPlan";
-import { Crown, Lock, ShieldCheck, Star, Search, Image as ImageIcon, Music, Type, MessageSquare, Check } from "lucide-react";
+import { Crown, Lock, ShieldCheck, Star, Search, Image as ImageIcon, Music, Type, MessageSquare, Check, Loader2 } from "lucide-react";
 
 
 // ============================================================

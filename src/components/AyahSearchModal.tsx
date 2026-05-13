@@ -28,41 +28,47 @@ export function AyahSearchModal({ isOpen, onClose }: { isOpen: boolean; onClose:
     if (!query.trim()) return;
     setIsLoading(true);
     setResults([]);
-    
-    try {
-      // 1. Try search with the user's exact query (honoring Tashkeel)
-      const url = `https://api.quran.com/api/v4/search?q=${encodeURIComponent(query)}&size=20&language=ar`;
-      const resp = await fetch(url);
-      
-      if (!resp.ok) throw new Error(`Quran API returned ${resp.status}`);
-      
-      const data = await resp.json();
-      let searchResults = data?.search?.results || [];
+    setError("");
 
-      // 2. Fallback: If no results found with original query, try with normalized query
+    try {
+      // 1. Try Quran.com v4 Search API (Primary)
+      const url = `https://api.quran.com/api/v4/search?q=${encodeURIComponent(query)}&size=20&language=ar`;
+      const response = await fetch(url);
+      const data = await response.json();
+
+      let searchResults = data.search?.results || [];
+
+      // 2. Fallback: If no results, try without language param or different pattern
       if (searchResults.length === 0) {
-        const normalizedQuery = normalizeArabic(query);
-        if (normalizedQuery !== query) {
-          const fallbackUrl = `https://api.quran.com/api/v4/search?q=${encodeURIComponent(normalizedQuery)}&size=20&language=ar`;
-          const fallbackResp = await fetch(fallbackUrl);
-          if (fallbackResp.ok) {
-            const fallbackData = await fallbackResp.json();
-            searchResults = fallbackData?.search?.results || [];
-          }
-        }
+        const fallbackUrl = `https://api.quran.com/api/v4/search?q=${encodeURIComponent(query)}&size=20`;
+        const fbRes = await fetch(fallbackUrl);
+        const fbData = await fbRes.json();
+        searchResults = fbData.search?.results || [];
       }
-      
+
+      if (searchResults.length === 0) {
+        setError("لا توجد نتائج.. حاول كتابة الكلمة بشكل مختلف");
+        return;
+      }
+
       const formattedResults = searchResults.map((res: any) => {
+        // Extract text from highlighted words if text is missing
+        let verseText = res.text;
+        if (!verseText && res.words) {
+          verseText = res.words.map((w: any) => w.text).join(" ");
+        }
+
         return {
           verse_key: res.verse_key,
-          renderedText: res.text || res.verse_text || "آية قرآنية"
+          renderedText: verseText || "آية قرآنية",
+          surahName: surahsData.find(s => s.id === parseInt(res.verse_key.split(":")[0]))?.name || "سورة"
         };
       });
 
       setResults(formattedResults);
     } catch (err) {
-      console.error("Quran Search Error:", err);
-      setResults([]);
+      console.error("Ayah search error:", err);
+      setError("حدث خطأ أثناء البحث. يرجى المحاولة مرة أخرى.");
     } finally {
       setIsLoading(false);
     }
