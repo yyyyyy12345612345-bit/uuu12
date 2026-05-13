@@ -16,18 +16,28 @@ interface AuthGateProps {
 
 const AVATARS = {
   male: [
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Max",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Oliver",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Jack",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=Felix",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=Max",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=Oliver",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=Jack",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=Charlie",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=George",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=Arthur",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=Harry",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=Leo",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=Oscar"
   ],
   female: [
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Sophia",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Mimi",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Bella",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucy",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=Aneka",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=Sophia",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=Mimi",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=Bella",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=Lucy",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=Daisy",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=Ruby",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=Alice",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=Freya",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=Grace"
   ]
 };
 
@@ -147,8 +157,9 @@ export function AuthGate({ children }: AuthGateProps) {
       });
 
       setHasProfile(true);
-    } catch (err) {
-      setError("حدث خطأ أثناء حفظ البيانات");
+    } catch (err: any) {
+      console.error("AuthGate Submit Error:", err);
+      setError(err.message || "حدث خطأ أثناء حفظ البيانات");
     } finally {
       setIsLoggingIn(false);
     }
