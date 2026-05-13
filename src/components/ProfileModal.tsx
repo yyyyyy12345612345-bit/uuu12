@@ -270,5 +270,6 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           </div>
        </div>
     </div>
+    </div>
   );
 }
