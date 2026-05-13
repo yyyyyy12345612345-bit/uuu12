@@ -16,18 +16,18 @@ interface AuthGateProps {
 
 const AVATARS = {
   male: [
-    "https://avatar.iran.liara.run/public/boy?username=1",
-    "https://avatar.iran.liara.run/public/boy?username=2",
-    "https://avatar.iran.liara.run/public/boy?username=3",
-    "https://avatar.iran.liara.run/public/boy?username=4",
-    "https://avatar.iran.liara.run/public/boy?username=5",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Max",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Oliver",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Jack",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie",
   ],
   female: [
-    "https://avatar.iran.liara.run/public/girl?username=1",
-    "https://avatar.iran.liara.run/public/girl?username=2",
-    "https://avatar.iran.liara.run/public/girl?username=3",
-    "https://avatar.iran.liara.run/public/girl?username=4",
-    "https://avatar.iran.liara.run/public/girl?username=5",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Sophia",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Mimi",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Bella",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucy",
   ]
 };
 
@@ -275,17 +275,17 @@ export function AuthGate({ children }: AuthGateProps) {
             </form>
           ) : (
             <div className="space-y-8">
-              <div className="grid grid-cols-3 gap-4">
+              <div className="flex flex-wrap gap-4 justify-center">
                 {AVATARS[formData.gender].map((url, idx) => (
                   <button
                     key={idx}
                     onClick={() => setFormData({ ...formData, avatar: url })}
-                    className={`relative aspect-square rounded-2xl overflow-hidden border-4 transition-all ${formData.avatar === url ? "border-[#d4af37] scale-110 shadow-lg" : "border-transparent opacity-50 hover:opacity-100"}`}
+                    className={`relative w-20 h-20 rounded-full overflow-hidden border-4 transition-all ${formData.avatar === url ? "border-[#d4af37] scale-110 shadow-lg" : "border-transparent opacity-50 hover:opacity-100"}`}
                   >
                     <img src={url} alt="Avatar" className="w-full h-full object-cover" />
                     {formData.avatar === url && (
                       <div className="absolute inset-0 bg-[#d4af37]/20 flex items-center justify-center">
-                        <Check className="w-6 h-6 text-white" />
+                        <Check className="w-8 h-8 text-white" />
                       </div>
                     )}
                   </button>
