@@ -16,28 +16,28 @@ interface AuthGateProps {
 
 const AVATARS = {
   male: [
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&top[]=shortHair&top[]=shaggy&top[]=shortFlat",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Max&top[]=shortHair&top[]=shaggy&top[]=shortFlat",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Oliver&top[]=shortHair&top[]=shaggy&top[]=shortFlat",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Jack&top[]=shortHair&top[]=shaggy&top[]=shortFlat",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&top[]=shortHair&top[]=shaggy&top[]=shortFlat",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=George&top[]=shortHair&top[]=shaggy&top[]=shortFlat",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Arthur&top[]=shortHair&top[]=shaggy&top[]=shortFlat",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Harry&top[]=shortHair&top[]=shaggy&top[]=shortFlat",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Leo&top[]=shortHair&top[]=shaggy&top[]=shortFlat",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Oscar&top[]=shortHair&top[]=shaggy&top[]=shortFlat"
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Max",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Oliver",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Jack",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=George",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Arthur",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Harry",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Leo",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Oscar"
   ],
   female: [
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka&top[]=longHair&top[]=bob&top[]=curly",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Sophia&top[]=longHair&top[]=bob&top[]=curly",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Mimi&top[]=longHair&top[]=bob&top[]=curly",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Bella&top[]=longHair&top[]=bob&top[]=curly",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucy&top[]=longHair&top[]=bob&top[]=curly",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Daisy&top[]=longHair&top[]=bob&top[]=curly",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Ruby&top[]=longHair&top[]=bob&top[]=curly",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Alice&top[]=longHair&top[]=bob&top[]=curly",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Freya&top[]=longHair&top[]=bob&top[]=curly",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Grace&top[]=longHair&top[]=bob&top[]=curly"
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Sophia",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Mimi",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Bella",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucy",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Daisy",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Ruby",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Alice",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Freya",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Grace"
   ]
 };
 
@@ -290,17 +290,19 @@ export function AuthGate({ children }: AuthGateProps) {
             </form>
           ) : (
             <div className="space-y-8">
-              <div className="flex flex-wrap gap-4 justify-center">
-                {AVATARS[formData.gender].map((url, idx) => (
+              <div className="grid grid-cols-4 sm:grid-cols-5 gap-4 max-h-[280px] overflow-y-auto p-4 scrollbar-hide">
+                {AVATARS[formData.gender as "male" | "female"].map((url, i) => (
                   <button
-                    key={idx}
+                    key={i}
                     onClick={() => setFormData({ ...formData, avatar: url })}
-                    className={`relative w-20 h-20 rounded-full overflow-hidden border-4 transition-all ${formData.avatar === url ? "border-[#d4af37] scale-110 shadow-lg" : "border-transparent opacity-50 hover:opacity-100"}`}
+                    className={`relative aspect-square rounded-2xl overflow-hidden transition-all border-2 ${
+                      formData.avatar === url ? "border-[#d4af37] scale-110 shadow-lg shadow-[#d4af37]/20" : "border-white/5 grayscale opacity-40 hover:opacity-100 hover:grayscale-0"
+                    }`}
                   >
                     <img src={url} alt="Avatar" className="w-full h-full object-cover" />
                     {formData.avatar === url && (
                       <div className="absolute inset-0 bg-[#d4af37]/20 flex items-center justify-center">
-                        <Check className="w-8 h-8 text-white" />
+                        <Check className="w-6 h-6 text-[#d4af37]" />
                       </div>
                     )}
                   </button>
