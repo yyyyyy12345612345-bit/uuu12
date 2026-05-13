@@ -151,6 +151,7 @@ export function AuthGate({ children }: AuthGateProps) {
         currentUser = res.user;
       }
 
+      console.log("[Auth]: Writing profile to Firestore for UID:", currentUser.uid);
       await setDoc(doc(db, "users", currentUser.uid), {
         uid: currentUser.uid,
         username: formData.username,
@@ -164,6 +165,9 @@ export function AuthGate({ children }: AuthGateProps) {
         lastActive: new Date().toISOString(),
         isBanned: false
       });
+      console.log("[Auth]: Profile written successfully!");
+      alert("تم إنشاء الحساب بنجاح! سيتم توجيهك الآن.");
+      window.location.reload();
 
       setHasProfile(true);
     } catch (err: any) {
@@ -184,7 +188,31 @@ export function AuthGate({ children }: AuthGateProps) {
   };
 
   if (isSkipped || (user && hasProfile === true)) {
-    return <>{children}</>;
+    return (
+      <div 
+        onClickCapture={(e) => {
+          if (isSkipped) {
+            const target = e.target as HTMLElement;
+            // Check if the click is on a button, link, or an interactive-looking element
+            if (
+              target.tagName === 'BUTTON' || 
+              target.tagName === 'A' || 
+              target.closest('button') || 
+              target.closest('a') ||
+              target.classList.contains('cursor-pointer')
+            ) {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsSkipped(false);
+              localStorage.removeItem('auth_skipped');
+            }
+          }
+        }}
+        className={isSkipped ? "pointer-events-auto" : ""}
+      >
+        {children}
+      </div>
+    );
   }
 
   if (user === undefined) {
