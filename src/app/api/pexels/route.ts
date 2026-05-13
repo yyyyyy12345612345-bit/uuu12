@@ -57,13 +57,16 @@ async function fetchPexelsVideos(apiKey: string, query: string, perPage: number)
 export async function GET(req: Request) {
   const apiKey = process.env.PEXELS_API_KEY?.trim();
   if (!apiKey) {
-    return NextResponse.json(
-      {
-        error: "Pexels is not configured.",
-        details: "Set PEXELS_API_KEY in the server environment (e.g. .env.local for local dev).",
-      },
-      { status: 503 }
-    );
+    // Return a subset of static items as fallback instead of 503
+    return NextResponse.json({ 
+      items: [
+        { type: "image", src: "https://images.pexels.com/photos/1537086/pexels-photo-1537086.jpeg", tags: ["مكة", "كعبة"] },
+        { type: "image", src: "https://images.pexels.com/photos/1624496/pexels-photo-1624496.jpeg", tags: ["طبيعة", "جبال"] },
+        { type: "image", src: "https://images.pexels.com/photos/1366919/pexels-photo-1366919.jpeg", tags: ["ثلج", "شتاء"] },
+        { type: "image", src: "https://images.pexels.com/photos/2088205/pexels-photo-2088205.jpeg", tags: ["سماء", "ليل"] }
+      ],
+      warning: "PEXELS_API_KEY missing, using fallback library."
+    });
   }
 
   try {

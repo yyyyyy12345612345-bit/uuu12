@@ -9,7 +9,7 @@ export const VARIED_CATEGORIES_BACKGROUNDS = [
   { type: "image" as const, src: "https://images.pexels.com/photos/281260/pexels-photo-281260.jpeg", poster: "", tags: ["سماء", "sky", "clouds", "سحب", "طولي"] },
   { type: "image" as const, src: "https://images.pexels.com/photos/531756/pexels-photo-531756.jpeg", poster: "", tags: ["سماء", "sky", "blue", "أزرق", "طولي"] },
   { type: "image" as const, src: "https://images.pexels.com/photos/53594/blue-clouds-day-fluffy-53594.jpeg", poster: "", tags: ["سماء", "sky", "clouds", "سحب", "طولي"] },
-  { type: "image" as const, src: "https://images.pexels.com/photos/158163/clouds-cloud-sky-skyline-158163.jpeg", poster: "", tags: ["سماء", "sky", "clouds", "سحب", "طولي"] },
+  { type: "image" as const, src: "https://images.pexels.com/photos/158163/pexels-photo-158163.jpeg", poster: "", tags: ["سماء", "sky", "clouds", "سحب", "طولي"] },
   { type: "image" as const, src: "https://images.pexels.com/photos/314726/pexels-photo-314726.jpeg", poster: "", tags: ["سماء", "sky", "sunset", "غروب", "طولي"] },
   { type: "image" as const, src: "https://images.pexels.com/photos/1114690/pexels-photo-1114690.jpeg", poster: "", tags: ["سماء", "sky", "night", "ليل", "طولي"] },
   { type: "image" as const, src: "https://images.pexels.com/photos/1252890/pexels-photo-1252890.jpeg", poster: "", tags: ["سماء", "sky", "blue", "أزرق", "طولي"] },
