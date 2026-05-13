@@ -32,18 +32,18 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
 
   const AVATARS = {
     male: [
-      "https://cdn3d.iconscout.com/3d/premium/thumb/man-avatar-6299539-5187871.png",
-      "https://cdn3d.iconscout.com/3d/premium/thumb/boy-avatar-6299537-5187869.png",
-      "https://cdn3d.iconscout.com/3d/premium/thumb/man-avatar-6299535-5187867.png",
-      "https://cdn3d.iconscout.com/3d/premium/thumb/man-avatar-6299531-5187863.png",
-      "https://cdn3d.iconscout.com/3d/premium/thumb/man-avatar-6299529-5187861.png"
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&mouth=smile&eyebrows=default",
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Max&mouth=smile&eyebrows=default",
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Oliver&mouth=smile&eyebrows=default",
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Jack&mouth=smile&eyebrows=default",
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&mouth=smile&eyebrows=default"
     ],
     female: [
-      "https://cdn3d.iconscout.com/3d/premium/thumb/woman-avatar-6299541-5187873.png",
-      "https://cdn3d.iconscout.com/3d/premium/thumb/girl-avatar-6299533-5187865.png",
-      "https://cdn3d.iconscout.com/3d/premium/thumb/woman-avatar-6299527-5187859.png",
-      "https://cdn3d.iconscout.com/3d/premium/thumb/woman-avatar-6299525-5187857.png",
-      "https://cdn3d.iconscout.com/3d/premium/thumb/woman-avatar-6299523-5187855.png"
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka&mouth=smile&eyebrows=default",
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Sophia&mouth=smile&eyebrows=default",
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Mimi&mouth=smile&eyebrows=default",
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Bella&mouth=smile&eyebrows=default",
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucy&mouth=smile&eyebrows=default"
     ]
   };
 
@@ -129,18 +129,18 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                          <div className="w-1 h-1 rounded-full bg-primary" />
                          <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">اختر الشخصية الرقمية</label>
                       </div>
-                      <div className="grid grid-cols-5 gap-4">
+                      <div className="flex flex-wrap gap-4 justify-center">
                          {AVATARS[formData.gender].map((url) => (
                             <button
                                key={url}
                                type="button"
                                onClick={() => setFormData(prev => ({ ...prev, photoURL: url }))}
-                               className={`relative aspect-square rounded-2xl overflow-hidden border-2 transition-all duration-500 ${formData.photoURL === url ? 'border-primary scale-110 shadow-2xl shadow-primary/20' : 'border-white/5 opacity-40 hover:opacity-100 hover:scale-105'}`}
+                               className={`relative w-16 h-16 rounded-full overflow-hidden border-2 transition-all duration-300 ${formData.photoURL === url ? 'border-primary scale-110 shadow-lg shadow-primary/20' : 'border-white/5 opacity-50 hover:opacity-100'}`}
                             >
                                <img src={url} alt="Avatar" className="w-full h-full object-cover" />
                                {formData.photoURL === url && (
                                   <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                                     <CheckCircle className="w-6 h-6 text-primary" />
+                                     <CheckCircle className="w-5 h-5 text-primary" />
                                   </div>
                                )}
                             </button>

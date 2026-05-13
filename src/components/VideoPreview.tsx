@@ -155,7 +155,6 @@ export function VideoPreview() {
                 muted
                 autoPlay
                 playsInline
-                crossOrigin="anonymous"
               />
             ) : (
               <div
