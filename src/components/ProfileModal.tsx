@@ -14,17 +14,14 @@ interface ProfileModalProps {
   onClose: () => void;
 }
 
-const GOVERNORATES = [
-  "القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "البحر الأحمر", "البحيرة", "الفيوم", "الغربية", "الإسماعيلية", "المنوفية", "المنيا", "القليوبية", "الوادي الجديد", "السويس", "الشرقية", "الأقصر", "أسوان", "أسيوط", "بني سويف", "بورسعيد", "دمياط", "جنوب سيناء", "كفر الشيخ", "مطروح", "قنا", "شمال سيناء", "سوهاج"
-];
-
 export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     const [formData, setFormData] = useState({
     displayName: "",
     username: "",
     photoURL: "",
     phoneNumber: "",
-    gender: "male" as "male" | "female"
+    gender: "male" as "male" | "female",
+    governorate: "القاهرة"
   });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -32,30 +29,37 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
 
   const AVATARS = {
     male: [
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Max",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Oliver",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Jack",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=George",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Arthur",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Harry",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Leo",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Oscar"
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=male1",
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=male2",
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=male3",
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=male4",
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=male5",
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=male6",
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=male7",
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=male8",
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=male9",
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=male10"
     ],
     female: [
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Sophia",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Mimi",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Bella",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucy",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Daisy",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Ruby",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Alice",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Freya",
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Grace"
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=female1",
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=female2",
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=female3",
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=female4",
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=female5",
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=female6",
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=female7",
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=female8",
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=female9",
+      "https://api.dicebear.com/7.x/lorelei/svg?seed=female10"
     ]
   };
+
+  const EGYPT_GOVERNORATES = [
+    "القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "البحر الأحمر", "البحيرة", "الفيوم", "الغربية", 
+    "الإسماعيلية", "المنوفية", "المنيا", "القليوبية", "الوادي الجديد", "السويس", "الشرقية", 
+    "جنوب سيناء", "شمال سيناء", "بني سويف", "بورسعيد", "دمياط", "سوهاج", "قنا", "كفر الشيخ", 
+    "مطروح", "الأقصر", "أسوان", "أسيوط"
+  ];
 
   useEffect(() => {
     if (isOpen && auth?.currentUser) {
@@ -75,7 +79,8 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           username: data.username || "",
           photoURL: data.photoURL || "",
           phoneNumber: data.phoneNumber || "",
-          gender: data.gender || "male"
+          gender: data.gender || "male",
+          governorate: data.governorate || "القاهرة"
         });
       }
     } catch (e) {

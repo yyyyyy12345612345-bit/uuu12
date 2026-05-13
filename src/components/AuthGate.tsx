@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { LogIn, Loader2, Star, BookOpen, Trophy, Users, Sparkles, User, Phone, Check, ArrowRight, ArrowLeft } from "lucide-react";
+import { LogIn, Loader2, Star, BookOpen, Trophy, Users, Sparkles, User, Phone, Check, ArrowRight, ArrowLeft, MapPin } from "lucide-react";
 import { auth, db } from "@/lib/firebase";
 import {
   signInAnonymously,
@@ -16,30 +16,37 @@ interface AuthGateProps {
 
 const AVATARS = {
   male: [
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Max",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Oliver",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Jack",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=George",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Arthur",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Harry",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Leo",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Oscar"
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=male1",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=male2",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=male3",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=male4",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=male5",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=male6",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=male7",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=male8",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=male9",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=male10"
   ],
   female: [
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Sophia",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Mimi",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Bella",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucy",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Daisy",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Ruby",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Alice",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Freya",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Grace"
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=female1",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=female2",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=female3",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=female4",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=female5",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=female6",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=female7",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=female8",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=female9",
+    "https://api.dicebear.com/7.x/lorelei/svg?seed=female10"
   ]
 };
+
+const EGYPT_GOVERNORATES = [
+  "القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "البحر الأحمر", "البحيرة", "الفيوم", "الغربية", 
+  "الإسماعيلية", "المنوفية", "المنيا", "القليوبية", "الوادي الجديد", "السويس", "الشرقية", 
+  "جنوب سيناء", "شمال سيناء", "بني سويف", "بورسعيد", "دمياط", "سوهاج", "قنا", "كفر الشيخ", 
+  "مطروح", "الأقصر", "أسوان", "أسيوط"
+];
 
 export function AuthGate({ children }: AuthGateProps) {
   const [user, setUser] = useState<FirebaseUser | null | undefined>(undefined);
@@ -53,7 +60,8 @@ export function AuthGate({ children }: AuthGateProps) {
     displayName: "",
     phone: "",
     gender: "male" as "male" | "female",
-    avatar: ""
+    avatar: AVATARS.male[0],
+    governorate: "القاهرة"
   });
 
   const [isSkipped, setIsSkipped] = useState<boolean>(() => {
@@ -149,6 +157,7 @@ export function AuthGate({ children }: AuthGateProps) {
         displayName: formData.displayName,
         phoneNumber: formData.phone,
         gender: formData.gender,
+        governorate: formData.governorate,
         photoURL: formData.avatar,
         totalPoints: 0,
         createdAt: new Date().toISOString(),
@@ -258,6 +267,23 @@ export function AuthGate({ children }: AuthGateProps) {
                     className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pr-12 pl-4 text-sm text-white font-mono outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all"
                     placeholder="010XXXXXXXX"
                   />
+                </div>
+              </div>
+
+              <div className="space-y-1.5 text-right">
+                <label className="text-[10px] font-bold text-white/30 mr-2">المحافظة</label>
+                <div className="relative">
+                  <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+                  <select
+                    required
+                    value={formData.governorate}
+                    onChange={e => setFormData({ ...formData, governorate: e.target.value })}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pr-12 pl-4 text-sm text-white outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all appearance-none"
+                  >
+                    {EGYPT_GOVERNORATES.map(gov => (
+                      <option key={gov} value={gov} className="bg-[#050505] text-white">{gov}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
