@@ -1,9 +1,10 @@
 import { PEXELS_PORTRAIT_NATURE_BACKGROUNDS } from "./pexelsPortraitNature.generated";
+import { VARIED_CATEGORIES_BACKGROUNDS } from "./variedBackgrounds.generated";
 
 export type BackgroundItem = {
   type: "image" | "video";
   src: string;
-  poster: string;
+  poster?: string;
   tags?: string[];
 };
 
@@ -119,4 +120,5 @@ const STATIC_CORE: BackgroundItem[] = [
 export const STATIC_BACKGROUNDS: BackgroundItem[] = [
   ...STATIC_CORE,
   ...PEXELS_PORTRAIT_NATURE_BACKGROUNDS,
+  ...VARIED_CATEGORIES_BACKGROUNDS,
 ];

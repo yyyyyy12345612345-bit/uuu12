@@ -30,21 +30,33 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
 
   const categories = ["الكل", "مساجد", "بحار", "جبال", "غابات", "الثلج", "غروب", "سماء"];
   
-  const categoryMap: Record<string, string> = {
-    "الكل": "",
-    "مساجد": "islamic",
-    "بحار": "sea",
-    "جبال": "mountain",
-    "غابات": "forest",
-    "الثلج": "arctic",
-    "غروب": "sunset",
-    "سماء": "sky"
+  const normalizeForSearch = (text: string) => {
+    return text.toLowerCase()
+      .replace(/[أإآ]/g, "ا")
+      .replace(/ة/g, "ه")
+      .replace(/ى/g, "ي")
+      .replace(/[ًٌٍَُِّْ]/g, "");
+  };
+
+  const categoryMap: Record<string, string[]> = {
+    "الكل": [],
+    "مساجد": ["islamic", "مساجد", "مسجد", "مكة", "كعبة", "mosque", "islam", "prayer"],
+    "بحار": ["sea", "بحر", "محيط", "شاطئ", "ماء", "ocean", "water", "beach", "waves"],
+    "جبال": ["mountain", "جبال", "جبل", "صخور", "rocks", "peaks"],
+    "غابات": ["forest", "غابة", "أشجار", "شجر", "نبات", "أخضر", "nature", "طبيعة", "jungle"],
+    "الثلج": ["arctic", "ثلج", "جليد", "شتاء", "قطب", "snow", "ice", "winter", "cold", "تلج"],
+    "غروب": ["sunset", "غروب", "شمس", "أفق", "sun", "dawn", "dusk"],
+    "سماء": ["sky", "سماء", "نجوم", "ليل", "سحب", "غيوم", "clouds", "stars", "night", "سما"]
   };
 
   const filteredLibrary = useMemo(() => {
+    const normalizedSearch = normalizeForSearch(librarySearch);
     return STATIC_BACKGROUNDS.filter(item => {
-      const matchesCategory = libraryCategory === "الكل" || item.tags?.includes(categoryMap[libraryCategory]);
-      const matchesSearch = !librarySearch || item.tags?.some(tag => tag.toLowerCase().includes(librarySearch.toLowerCase()));
+      const itemTags = item.tags?.map(t => normalizeForSearch(t)) || [];
+      const matchesCategory = libraryCategory === "الكل" || 
+        item.tags?.some(tag => categoryMap[libraryCategory].some(catTag => normalizeForSearch(tag).includes(normalizeForSearch(catTag))));
+      
+      const matchesSearch = !librarySearch || itemTags.some(tag => tag.includes(normalizedSearch));
       return matchesCategory && matchesSearch;
     });
   }, [libraryCategory, librarySearch]);
@@ -182,53 +194,71 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                             بحث
                         </button>
                     </div>
+                    {query && !loading && displayMedia.length === 0 && (
+                        <p className="text-[9px] text-red-400/60 text-center font-bold uppercase tracking-tighter">
+                            إذا لم تظهر نتائج، تأكد من إعداد PEXELS_API_KEY في ملف .env.local
+                        </p>
+                    )}
                 </div>
                 )}
 
                 {/* Media Grid */}
                 <div className="grid grid-cols-2 gap-4">
-                    {displayMedia.map((item, idx) => (
-                        <button
-                            key={`${item.src}-${idx}`}
-                            onClick={() => {
-                                if (item.type === 'video' && isVideoLocked) return;
-                                updateState({ backgroundUrl: item.src });
-                            }}
-                            className="group/item relative h-48 rounded-3xl overflow-hidden border-2 transition-all duration-500 border-white/5 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/20"
-                        >
-                             {item.type === 'video' ? (
-                              <video 
-                                 src={item.src}
-                                 muted 
-                                 loop 
-                                 playsInline 
-                                 className="h-full w-full object-cover transition-transform duration-1000 group-hover/item:scale-110" 
-                              />
-                              ) : (
-                              <img 
-                                 src={item.src.includes('pexels.com') ? `${item.src.split('?')[0]}?auto=compress&cs=tinysrgb&fit=crop&h=800&w=450` : item.src} 
-                                 alt="bg" 
-                                 className="h-full w-full object-cover transition-transform duration-1000 group-hover/item:scale-110" 
-                              />
-                              )}
-                            <div className={`absolute inset-0 bg-black/40 group-hover/item:bg-transparent transition-colors duration-700 ${state.backgroundUrl === item.src ? 'bg-transparent' : ''}`} />
-                            
-                            {state.backgroundUrl === item.src && (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-black shadow-2xl animate-in zoom-in duration-300">
-                                    <Check className="w-6 h-6 stroke-[4px]" />
+                    {loading && bgMode === "search" ? (
+                        <div className="col-span-2 py-20 flex flex-col items-center justify-center gap-4">
+                            <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                            <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest">جاري البحث في المكتبة العالمية...</p>
+                        </div>
+                    ) : displayMedia.length === 0 ? (
+                        <div className="col-span-2 py-20 flex flex-col items-center justify-center gap-4 text-center">
+                            <Search className="w-12 h-12 text-foreground/5" />
+                            <p className="text-sm font-arabic text-foreground/20">لا توجد نتائج.. جرب كلمات بحث أخرى (مثل: مكة، طبيعة، بحر)</p>
+                        </div>
+                    ) : (
+                        displayMedia.map((item, idx) => (
+                            <button
+                                key={`${item.src}-${idx}`}
+                                onClick={() => {
+                                    if (item.type === 'video' && isVideoLocked) return;
+                                    console.log("Selected Background URL:", item.src);
+                                    updateState({ backgroundUrl: item.src });
+                                }}
+                                className="group/item relative h-48 rounded-3xl overflow-hidden border-2 transition-all duration-500 border-white/5 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/20"
+                            >
+                                 {item.type === 'video' ? (
+                                  <video 
+                                     src={item.src}
+                                     muted 
+                                     loop 
+                                     playsInline 
+                                     className="h-full w-full object-cover transition-transform duration-1000 group-hover/item:scale-110" 
+                                  />
+                                  ) : (
+                                  <img 
+                                     src={item.src.includes('pexels.com') ? `${item.src.split('?')[0]}?auto=compress&cs=tinysrgb&fit=crop&h=800&w=450` : item.src} 
+                                     alt="bg" 
+                                     className="h-full w-full object-cover transition-transform duration-1000 group-hover/item:scale-110" 
+                                  />
+                                  )}
+                                <div className={`absolute inset-0 bg-black/40 group-hover/item:bg-transparent transition-colors duration-700 ${state.backgroundUrl === item.src ? 'bg-transparent' : ''}`} />
+                                
+                                {state.backgroundUrl === item.src && (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-black shadow-2xl animate-in zoom-in duration-300">
+                                        <Check className="w-6 h-6 stroke-[4px]" />
+                                    </div>
                                 </div>
-                            </div>
-                            )}
-
-                            {item.type === "video" && (
-                            <div className={`absolute bottom-4 right-4 flex items-center gap-2 rounded-xl px-3 py-1.5 text-[10px] font-black text-white backdrop-blur-xl border ${isVideoLocked ? 'bg-primary/80 border-primary text-black' : 'bg-black/60 border-white/10'}`}>
-                                {isVideoLocked ? <Lock className="w-3 h-3" /> : <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />}
-                                {isVideoLocked ? 'PREMIUM' : 'LIVE'}
-                            </div>
-                            )}
-                        </button>
-                    ))}
+                                )}
+    
+                                {item.type === "video" && (
+                                <div className={`absolute bottom-4 right-4 flex items-center gap-2 rounded-xl px-3 py-1.5 text-[10px] font-black text-white backdrop-blur-xl border ${isVideoLocked ? 'bg-primary/80 border-primary text-black' : 'bg-black/60 border-white/10'}`}>
+                                    {isVideoLocked ? <Lock className="w-3 h-3" /> : <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />}
+                                    {isVideoLocked ? 'PREMIUM' : 'LIVE'}
+                                </div>
+                                )}
+                            </button>
+                        ))
+                    )}
                 </div>
             </div>
           )}
