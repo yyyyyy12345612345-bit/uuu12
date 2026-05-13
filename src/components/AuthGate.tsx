@@ -16,28 +16,28 @@ interface AuthGateProps {
 
 const AVATARS = {
   male: [
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=male1",
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=male2",
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=male3",
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=male4",
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=male5",
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=male6",
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=male7",
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=male8",
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=male9",
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=male10"
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Ahmed&top=shortFlat&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Omar&top=shortRound&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Ali&top=shortCurly&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Hassan&top=shortWaved&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Zaid&top=theCaesar&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Mustafa&top=shortFlat&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Youssef&top=shortRound&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Ibrahim&top=shortCurly&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Karim&top=shortWaved&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Amr&top=theCaesar&facialHairProbability=100&accessoriesProbability=0"
   ],
   female: [
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=female1",
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=female2",
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=female3",
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=female4",
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=female5",
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=female6",
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=female7",
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=female8",
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=female9",
-    "https://api.dicebear.com/7.x/lorelei/svg?seed=female10"
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Aisha&top=hijab&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Fatima&top=hijab&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Mariam&top=hijab&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Khadija&top=hijab&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Zaynab&top=hijab&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Sara&top=hijab&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Layla&top=hijab&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Hana&top=hijab&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Nour&top=hijab&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Amira&top=hijab&accessoriesProbability=0"
   ]
 };
 
