@@ -26,27 +26,73 @@ let lastAwardedAt: Record<string, number> = {};
  * Universal addPoints - The heart of the system.
  * This is what actually hits Firestore and local storage.
  */
+const DAILY_LIMITS: Record<string, number> = {
+  quran: 100,   // Doubled from 50
+  athkar: 200,  // Doubled from 100
+  listen: 200,  // Doubled from 100
+  video: 100,   // Doubled from 50
+  bonus: 1000   
+};
+
+/**
+ * Universal addPoints - The heart of the system.
+ * This is what actually hits Firestore and local storage.
+ */
 export async function addPoints(type: string, amount: number = 1): Promise<PointUpdateResult> {
   const user = auth?.currentUser;
   const pointsToAdd = Math.max(0, Number(amount));
   
   if (isNaN(pointsToAdd) || pointsToAdd <= 0) return { success: false };
 
-  console.log(`[Points] Attempting to add ${pointsToAdd} for ${type}`);
+  // --- Anti-Spam Cooldown ---
+  const now = Date.now();
+  if (lastAwardedAt[type] && now - lastAwardedAt[type] < 1000) {
+    console.warn(`[Points] Cooldown active for ${type}`);
+    return { success: false, message: "انتظر قليلاً قبل المحاولة مرة أخرى" };
+  }
+  // --------------------------
 
-  // 1. Instant Local Update (for UI snappiness)
+  // --- Daily Limit Logic ---
+  const today = new Date().toDateString();
+  const limitDateKey = "points_limit_date";
+  const earnedTodayKey = `points_earned_today_${type}`;
+  
+  const savedDate = localStorage.getItem(limitDateKey);
+  if (savedDate !== today) {
+    // Reset all limits for a new day
+    localStorage.setItem(limitDateKey, today);
+    Object.keys(DAILY_LIMITS).forEach(k => localStorage.setItem(`points_earned_today_${k}`, "0"));
+  }
+
+  const currentEarned = parseInt(localStorage.getItem(earnedTodayKey) || "0");
+  const limit = DAILY_LIMITS[type] || 100;
+
+  if (currentEarned >= limit) {
+    console.warn(`[Points] Daily limit reached for ${type}`);
+    return { success: false, message: "لقد وصلت للحد الأقصى للنقاط لهذا النشاط اليوم" };
+  }
+
+  // Adjust points if they would exceed the limit
+  const finalPointsToAdd = Math.min(pointsToAdd, limit - currentEarned);
+  localStorage.setItem(earnedTodayKey, (currentEarned + finalPointsToAdd).toString());
+  lastAwardedAt[type] = now; // Update cooldown timer
+  // --------------------------
+
+  console.log(`[Points] Adding ${finalPointsToAdd} for ${type} (Limit: ${currentEarned + finalPointsToAdd}/${limit})`);
+
+  // 1. Instant Local Update
   try {
     const localKey = "cached_total_points";
     const current = parseInt(localStorage.getItem(localKey) || "0");
-    localStorage.setItem(localKey, (current + pointsToAdd).toString());
+    localStorage.setItem(localKey, (current + finalPointsToAdd).toString());
   } catch (e) {}
 
   // 2. Persistent Firestore Update
   if (user && db) {
     try {
       const userRef = doc(db, "users", user.uid);
-      const today = new Date().toISOString().split("T")[0];
-      const dailyRef = doc(db, "users", user.uid, "stats", today);
+      const todayISO = new Date().toISOString().split("T")[0];
+      const dailyRef = doc(db, "users", user.uid, "stats", todayISO);
 
       const fieldMap: any = {
         quran: "quranPoints",
@@ -56,25 +102,23 @@ export async function addPoints(type: string, amount: number = 1): Promise<Point
       };
 
       const updateData: any = {
-        totalPoints: increment(pointsToAdd),
+        totalPoints: increment(finalPointsToAdd),
         lastActive: serverTimestamp()
       };
 
       if (fieldMap[type]) {
-        updateData[fieldMap[type]] = increment(pointsToAdd);
+        updateData[fieldMap[type]] = increment(finalPointsToAdd);
       }
 
       await updateDoc(userRef, updateData);
       
-      // Update Daily Stats Collection
       await setDoc(dailyRef, {
-        points: increment(pointsToAdd),
+        points: increment(finalPointsToAdd),
         lastUpdate: serverTimestamp()
       }, { merge: true });
 
-      // Dispatch global event for UI sync
       window.dispatchEvent(new CustomEvent('pointsUpdated', { 
-        detail: { type, amount: pointsToAdd } 
+        detail: { type, amount: finalPointsToAdd } 
       }));
 
       return { success: true };

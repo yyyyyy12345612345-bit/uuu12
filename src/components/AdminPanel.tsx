@@ -373,10 +373,12 @@ export function AdminPanel() {
   };
 
   const filteredUsers = useMemo(() => {
-    return users.filter(u => 
-      (u.displayName || u.username || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (u.email || "").toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    return users
+      .filter(u => 
+        (u.displayName || u.username || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (u.email || "").toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0));
   }, [users, searchQuery]);
 
   if (loading) return null;
@@ -692,21 +694,55 @@ export function AdminPanel() {
                  <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-foreground/5 p-4 rounded-2xl outline-none" placeholder="ابحث عن مستخدم..." />
               </div>
               <div className="overflow-x-auto">
-                 <table className="w-full text-right">
-                    <tbody className="divide-y divide-border">
-                       {filteredUsers.map(u => (
-                          <tr key={u.uid} className="hover:bg-foreground/5">
-                             <td className="p-6 font-bold">{u.displayName || u.username}</td>
-                             <td className="p-6 text-primary font-black">{u.totalPoints} نقطة</td>
-                             <td className="p-6">
-                                <button onClick={() => handleBanUser(u.uid, u.isBanned)} className={`p-3 rounded-xl ${u.isBanned ? 'bg-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
-                                   {u.isBanned ? <CheckCircle className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
-                                </button>
-                             </td>
-                          </tr>
-                       ))}
-                    </tbody>
-                 </table>
+                  <table className="w-full text-right">
+                     <thead>
+                        <tr className="bg-foreground/5 text-[10px] font-black uppercase border-b border-border text-foreground/40">
+                           <th className="p-6">المستخدم (الاسم واليوزر)</th>
+                           <th className="p-6">رقم الهاتف</th>
+                           <th className="p-6">المحافظة</th>
+                           <th className="p-6">إجمالي النقاط</th>
+                           <th className="p-6">إدارة الحساب</th>
+                        </tr>
+                     </thead>
+                     <tbody className="divide-y divide-border">
+                        {filteredUsers.map(u => (
+                           <tr key={u.uid} className="hover:bg-foreground/5 transition-colors">
+                              <td className="p-6">
+                                 <div className="flex flex-col">
+                                    <span className="font-bold text-sm">{u.displayName || "بدون اسم"}</span>
+                                    <span className="text-[10px] text-primary font-mono">@{u.username || "no_username"}</span>
+                                 </div>
+                              </td>
+                              <td className="p-6">
+                                 <span className="font-mono text-xs text-foreground/60">{u.phoneNumber || "---"}</span>
+                              </td>
+                              <td className="p-6">
+                                 <span className="text-xs font-bold text-foreground/60">{u.governorate || "---"}</span>
+                              </td>
+                              <td className="p-6">
+                                 <div className="flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                                    <span className="font-black text-primary">{u.totalPoints || 0}</span>
+                                 </div>
+                              </td>
+                              <td className="p-6">
+                                 <button 
+                                    onClick={() => handleBanUser(u.uid, u.isBanned)} 
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black transition-all ${
+                                       u.isBanned ? 'bg-emerald-500 text-black' : 'bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white'
+                                    }`}
+                                 >
+                                    {u.isBanned ? (
+                                       <><CheckCircle className="w-4 h-4" /> فك الحظر</>
+                                    ) : (
+                                       <><Ban className="w-4 h-4" /> حظر المستخدم</>
+                                    )}
+                                 </button>
+                              </td>
+                           </tr>
+                        ))}
+                     </tbody>
+                  </table>
               </div>
            </div>
         )}

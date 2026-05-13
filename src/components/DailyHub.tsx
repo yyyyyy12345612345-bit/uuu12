@@ -233,11 +233,15 @@ export function DailyHub() {
     }
   };
 
-  const handlePageRead = () => {
-    const newCount = pagesRead + 1;
-    setPagesRead(newCount);
-    localStorage.setItem("pages_read", newCount.toString());
-    addPoints("quran", 5);
+  const handlePageRead = async () => {
+    const res = await addPoints("quran", 2); // Reduced from 5 to 2 points
+    if (res.success) {
+      const newCount = pagesRead + 1;
+      setPagesRead(newCount);
+      localStorage.setItem("pages_read", newCount.toString());
+    } else if (res.message) {
+      alert(res.message); // Show "Daily limit reached"
+    }
   };
 
   const requestQibla = useCallback(() => {
