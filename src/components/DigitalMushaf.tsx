@@ -49,7 +49,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
     setIsLoading(true);
     try {
         const batchSize = 3;
-        const newPagesData = [];
+        const newPagesData: { page: number; verses: unknown[] }[] = [];
         const quranComIds: Record<string, number> = {
             'basit': 1, 'basit_m': 2, 'sds': 3, 'shur': 4, 'husr': 5, 'afasy': 7, 
             'abkr': 8, 'shatree': 9, 'minsh': 10, 'jbr': 11, 'yasser': 12, 'maher': 12,
@@ -311,7 +311,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
                               </div>
                               <div className="text-left">
                                   <p className="text-sm font-black text-primary">{s.total_verses} آية</p>
-                                  <p className="text-[10px] font-bold text-white/20">{s.revelation_type === 'Meccan' ? 'مكية' : 'مدنية'}</p>
+                                  <p className="text-[10px] font-bold text-white/20">{s.type === 'meccan' ? 'مكية' : 'مدنية'}</p>
                               </div>
                           </button>
                       ))}

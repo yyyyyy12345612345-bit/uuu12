@@ -82,9 +82,12 @@ export function VideoPreview() {
         await audioRef.current.play();
         videoRef.current?.play();
         setIsPlaying(true);
-        videoRef.current.onerror = (e) => {
-          console.error("Video load error:", e);
-        };
+        const videoEl = videoRef.current;
+        if (videoEl) {
+          videoEl.onerror = (e) => {
+            console.error("Video load error:", e);
+          };
+        }
         setTimeout(() => console.error("Video load timeout"), 40000);
       } catch (error) {
         console.error("Play failed:", error);

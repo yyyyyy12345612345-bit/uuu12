@@ -429,20 +429,39 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((r, j) => { 
-    const i = new Image(); i.crossOrigin="anonymous"; i.onload=()=>r(i); i.onerror=j; i.src=src; 
-    setTimeout(() => j(new Error("Image timeout")), 15000);
+    const i = new Image(); 
+    i.crossOrigin = "anonymous"; 
+    i.onload = () => {
+      console.log("[Render] Image loaded successfully:", src.substring(0, 50));
+      r(i);
+    };
+    i.onerror = (e) => {
+      console.error("[Render] Image load error:", src, e);
+      j(new Error("فشل في تحميل الصورة. تأكد من أن الرابط يعمل."));
+    };
+    i.src = src; 
+    setTimeout(() => j(new Error("Image timeout: " + src.substring(0, 30))), 20000);
   });
 }
 
 function loadVideo(src: string): Promise<HTMLVideoElement> {
   return new Promise((r, j) => { 
-    const v = document.createElement("video"); v.src = src; v.crossOrigin = "anonymous"; v.muted = true; v.loop = true; v.playsInline = true;
-    v.oncanplaythrough = () => { v.play().catch(() => {}); r(v); }; 
+    const v = document.createElement("video"); 
+    v.src = src; 
+    v.crossOrigin = "anonymous"; 
+    v.muted = true; 
+    v.loop = true; 
+    v.playsInline = true;
+    v.oncanplaythrough = () => { 
+      console.log("[Render] Video loaded successfully:", src.substring(0, 50));
+      v.play().catch(() => {}); 
+      r(v); 
+    }; 
     v.onerror = (e) => {
-      console.error("Video load error:", e);
+      console.error("[Render] Video load error:", src, e);
       j(new Error("فشل في تحميل الفيديو. تأكد من اتصالك بالإنترنت."));
     };
-    setTimeout(() => j(new Error("انتهت مهلة تحميل الفيديو. حاول مرة أخرى.")), 40000);
+    setTimeout(() => j(new Error("انتهت مهلة تحميل الفيديو. حاول مرة أخرى.")), 45000);
     v.load();
   });
 }

@@ -1,15 +1,13 @@
 import { NextResponse } from "next/server";
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
-const DEFAULT_KEY = process.env.PEXELS_API_KEY ?? "h9PtPcgv4BjjJXhvHWqrUqiNT4JKh7kQ9DcqBucOHOker00sXHkpy7QC";
-
-async function fetchPexelsImages(query: string, perPage: number) {
+async function fetchPexelsImages(apiKey: string, query: string, perPage: number) {
   const response = await fetch(
     `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${perPage}`,
     {
       headers: {
-        Authorization: DEFAULT_KEY,
+        Authorization: apiKey,
       },
     }
   );
@@ -26,12 +24,12 @@ async function fetchPexelsImages(query: string, perPage: number) {
   })) ?? [];
 }
 
-async function fetchPexelsVideos(query: string, perPage: number) {
+async function fetchPexelsVideos(apiKey: string, query: string, perPage: number) {
   const response = await fetch(
     `https://api.pexels.com/videos/search?query=${encodeURIComponent(query)}&per_page=${perPage}`,
     {
       headers: {
-        Authorization: DEFAULT_KEY,
+        Authorization: apiKey,
       },
     }
   );
@@ -57,6 +55,17 @@ async function fetchPexelsVideos(query: string, perPage: number) {
 }
 
 export async function GET(req: Request) {
+  const apiKey = process.env.PEXELS_API_KEY?.trim();
+  if (!apiKey) {
+    return NextResponse.json(
+      {
+        error: "Pexels is not configured.",
+        details: "Set PEXELS_API_KEY in the server environment (e.g. .env.local for local dev).",
+      },
+      { status: 503 }
+    );
+  }
+
   try {
     const url = new URL(req.url);
     const query = url.searchParams.get("query") || "islamic nature";
@@ -65,14 +74,14 @@ export async function GET(req: Request) {
 
     const items = [] as Array<{ type: "image" | "video"; src: string; poster?: string }>;
 
-    if (type === "image") {
-      items.push(...(await fetchPexelsImages(query, perPage)));
-    } else if (type === "video") {
-      items.push(...(await fetchPexelsVideos(query, perPage)));
+    if (type === "image" || type === "images") {
+      items.push(...(await fetchPexelsImages(apiKey, query, perPage)));
+    } else if (type === "video" || type === "videos") {
+      items.push(...(await fetchPexelsVideos(apiKey, query, perPage)));
     } else {
       const [images, videos] = await Promise.all([
-        fetchPexelsImages(query, Math.ceil(perPage / 2)),
-        fetchPexelsVideos(query, Math.floor(perPage / 2)),
+        fetchPexelsImages(apiKey, query, Math.ceil(perPage / 2)),
+        fetchPexelsVideos(apiKey, query, Math.floor(perPage / 2)),
       ]);
       items.push(...images, ...videos);
     }
