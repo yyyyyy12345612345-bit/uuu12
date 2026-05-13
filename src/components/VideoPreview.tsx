@@ -10,7 +10,12 @@ import { Play, Pause, Loader2, Sparkles, AlertCircle } from "lucide-react";
 const isVideoUrl = (url: string) => {
   if (!url) return false;
   const videoExtensions = /\.(mp4|webm|mov|ogg|m4v|3gp|flv|avi)(\?.*|#.*)?$/i;
-  return videoExtensions.test(url) || url.includes("pexels.com/video") || url.includes("vimeo.com/external");
+  const isVideo = videoExtensions.test(url) || 
+         url.includes("pexels.com/video") || 
+         url.includes("vimeo.com/external") ||
+         url.includes("pexels.com/video/download") ||
+         url.toLowerCase().includes(".mp4");
+  return isVideo;
 };
 
 const getFilterCSS = (filter?: string): string => {

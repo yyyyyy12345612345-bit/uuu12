@@ -16,61 +16,53 @@ export function AyahSearchModal({ isOpen, onClose }: { isOpen: boolean; onClose:
   const [isLoading, setIsLoading] = useState(false);
   const { updateState } = useEditor();
 
+  const normalizeArabic = (text: string) => {
+    return text
+      .replace(/[ًٌٍَُِّْ]/g, "") // إزالة التشكيل
+      .replace(/[أإآ]/g, "ا")
+      .replace(/ة/g, "ه")
+      .replace(/ى/g, "ي");
+  };
+
   const handleSearch = async () => {
     if (!query.trim()) return;
     setIsLoading(true);
     setResults([]);
     
     try {
-      // Primary: QDC Search API (confirmed working)
-      const url = `https://api.qurancdn.com/api/qdc/search?query=${encodeURIComponent(query)}&size=20`;
+      // 1. Try search with the user's exact query (honoring Tashkeel)
+      const url = `https://api.quran.com/api/v4/search?q=${encodeURIComponent(query)}&size=20&language=ar`;
       const resp = await fetch(url);
       
-      if (!resp.ok) throw new Error(`QDC API returned ${resp.status}`);
+      if (!resp.ok) throw new Error(`Quran API returned ${resp.status}`);
       
       const data = await resp.json();
-      
-      // QDC API returns { result: { verses: [...] } }
-      const searchResults = data?.result?.verses || data?.search?.results || [];
+      let searchResults = data?.search?.results || [];
+
+      // 2. Fallback: If no results found with original query, try with normalized query
+      if (searchResults.length === 0) {
+        const normalizedQuery = normalizeArabic(query);
+        if (normalizedQuery !== query) {
+          const fallbackUrl = `https://api.quran.com/api/v4/search?q=${encodeURIComponent(normalizedQuery)}&size=20&language=ar`;
+          const fallbackResp = await fetch(fallbackUrl);
+          if (fallbackResp.ok) {
+            const fallbackData = await fallbackResp.json();
+            searchResults = fallbackData?.search?.results || [];
+          }
+        }
+      }
       
       const formattedResults = searchResults.map((res: any) => {
-        // Build text from words array if available
-        let text = "";
-        if (res.words && Array.isArray(res.words)) {
-          text = res.words
-            .filter((w: any) => w.char_type === "word" || w.char_type_name === "word")
-            .map((w: any) => w.text_uthmani || w.text || w.code_v1 || "")
-            .join(" ");
-        }
-        // Fallback to direct text fields
-        if (!text) {
-          text = res.text_uthmani || res.text || res.renderedText || "آية قرآنية";
-        }
-        
         return {
           verse_key: res.verse_key,
-          renderedText: text
+          renderedText: res.text || res.verse_text || "آية قرآنية"
         };
       });
 
       setResults(formattedResults);
     } catch (err) {
-      console.error("QDC Search Error:", err);
-      // Fallback: search in surah names locally
-      try {
-        const localResults: any[] = [];
-        surahsData.forEach(surah => {
-          if (surah.name.includes(query) || surah.transliteration.toLowerCase().includes(query.toLowerCase())) {
-            localResults.push({
-              verse_key: `${surah.id}:1`,
-              renderedText: `سورة ${surah.name} — بداية السورة`
-            });
-          }
-        });
-        setResults(localResults);
-      } catch(e) {
-        setResults([]);
-      }
+      console.error("Quran Search Error:", err);
+      setResults([]);
     } finally {
       setIsLoading(false);
     }

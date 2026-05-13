@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 async function fetchPexelsImages(apiKey: string, query: string, perPage: number) {
   const response = await fetch(
-    `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${perPage}`,
+    `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${perPage}&orientation=portrait`,
     {
       headers: {
         Authorization: apiKey,
@@ -19,14 +19,14 @@ async function fetchPexelsImages(apiKey: string, query: string, perPage: number)
   const data = await response.json();
   return data.photos?.map((photo: any) => ({
     type: "image",
-    src: photo.src.landscape || photo.src.large,
+    src: photo.src.large2x || photo.src.large || photo.src.original,
     poster: photo.src.medium,
   })) ?? [];
 }
 
 async function fetchPexelsVideos(apiKey: string, query: string, perPage: number) {
   const response = await fetch(
-    `https://api.pexels.com/videos/search?query=${encodeURIComponent(query)}&per_page=${perPage}`,
+    `https://api.pexels.com/videos/search?query=${encodeURIComponent(query)}&per_page=${perPage}&orientation=portrait`,
     {
       headers: {
         Authorization: apiKey,
