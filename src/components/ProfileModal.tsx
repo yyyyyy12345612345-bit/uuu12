@@ -31,8 +31,20 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const [success, setSuccess] = useState(false);
 
   const AVATARS = {
-    male: Array.from({length: 5}, (_, i) => `https://avatar.iran.liara.run/public/boy?username=${i+1}`),
-    female: Array.from({length: 5}, (_, i) => `https://avatar.iran.liara.run/public/girl?username=${i+1}`)
+    male: [
+      "https://cdn3d.iconscout.com/3d/premium/thumb/man-avatar-6299539-5187871.png",
+      "https://cdn3d.iconscout.com/3d/premium/thumb/boy-avatar-6299537-5187869.png",
+      "https://cdn3d.iconscout.com/3d/premium/thumb/man-avatar-6299535-5187867.png",
+      "https://cdn3d.iconscout.com/3d/premium/thumb/man-avatar-6299531-5187863.png",
+      "https://cdn3d.iconscout.com/3d/premium/thumb/man-avatar-6299529-5187861.png"
+    ],
+    female: [
+      "https://cdn3d.iconscout.com/3d/premium/thumb/woman-avatar-6299541-5187873.png",
+      "https://cdn3d.iconscout.com/3d/premium/thumb/girl-avatar-6299533-5187865.png",
+      "https://cdn3d.iconscout.com/3d/premium/thumb/woman-avatar-6299527-5187859.png",
+      "https://cdn3d.iconscout.com/3d/premium/thumb/woman-avatar-6299525-5187857.png",
+      "https://cdn3d.iconscout.com/3d/premium/thumb/woman-avatar-6299523-5187855.png"
+    ]
   };
 
   useEffect(() => {
