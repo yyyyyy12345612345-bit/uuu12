@@ -227,7 +227,6 @@ export async function sendTestNotification(): Promise<boolean> {
         schedule: { at: new Date(Date.now() + 5000), allowWhileIdle: true },
         sound: 'adhan',
         channelId: CHANNEL_ID,
-        importance: 5,
         smallIcon: 'ic_notification',
         iconColor: '#c5a059',
       }],

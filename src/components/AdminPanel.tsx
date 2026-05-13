@@ -261,8 +261,9 @@ export function AdminPanel() {
       // Top 3 Reward Logic
       const top3 = sortedUsers.slice(0, 3);
       for (const topUser of top3) {
-        if (topUser.plan === "free" || !topUser.plan) {
-           await updateDoc(doc(db, "users", topUser.uid), {
+        const plan = (topUser as { uid: string; plan?: string }).plan;
+        if (plan === "free" || !plan) {
+           await updateDoc(doc(db, "users", (topUser as { uid: string }).uid), {
              plan: "starter",
              rewardedPlan: true,
              updatedAt: serverTimestamp()

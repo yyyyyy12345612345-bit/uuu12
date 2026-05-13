@@ -19,34 +19,20 @@ const GOVERNORATES = [
 ];
 
 export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState({
     displayName: "",
+    username: "",
     photoURL: "",
     phoneNumber: "",
-    birthday: "",
-    governorate: ""
+    gender: "male" as "male" | "female"
   });
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !auth.currentUser) return;
-
-    setUploading(true);
-    try {
-      const storageRef = ref(storage, `profiles/${auth.currentUser.uid}_${Date.now()}_${file.name}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      setFormData(prev => ({ ...prev, photoURL: downloadURL }));
-    } catch (err: any) {
-      console.error("Upload error:", err);
-      alert("حدث خطأ أثناء رفع الصورة");
-    } finally {
-      setUploading(false);
-    }
+  const AVATARS = {
+    male: Array.from({length: 5}, (_, i) => `https://avatar.iran.liara.run/public/boy?username=${i+1}`),
+    female: Array.from({length: 5}, (_, i) => `https://avatar.iran.liara.run/public/girl?username=${i+1}`)
   };
 
   useEffect(() => {
@@ -64,10 +50,10 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         const data = s.data();
         setFormData({
           displayName: data.displayName || "",
+          username: data.username || "",
           photoURL: data.photoURL || "",
           phoneNumber: data.phoneNumber || "",
-          birthday: data.birthday || "",
-          governorate: data.governorate || GOVERNORATES[0]
+          gender: data.gender || "male"
         });
       }
     } catch (e) {
@@ -104,7 +90,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     <div className={`fixed inset-0 z-[2000] bg-black/90 backdrop-blur-2xl overflow-y-auto font-['Tajawal'] py-10 px-4 flex justify-center items-start no-scrollbar`}>
        <div className="fixed inset-0" onClick={onClose} />
        
-       <div className="relative w-full max-w-xl bg-[#0d1411] border border-white/5 rounded-[3.5rem] shadow-[0_50px_100px_rgba(0,0,0,0.6)] flex flex-col animate-in zoom-in-95 duration-700 overflow-hidden">
+       <div className="relative w-full max-w-2xl bg-[#0d1411] border border-white/5 rounded-[3.5rem] shadow-[0_50px_100px_rgba(0,0,0,0.6)] flex flex-col animate-in zoom-in-95 duration-700 overflow-hidden">
           <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
           
           <div className="p-8 border-b border-white/5 flex items-center justify-between bg-black/20 backdrop-blur-3xl sticky top-0 z-50">
@@ -125,52 +111,68 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 </div>
              ) : (
                 <form onSubmit={handleSave} className="space-y-10">
-                   {/* Avatar Upload */}
-                   <div className="flex flex-col items-center gap-6 mb-4">
-                      <div className="relative group">
-                         <div className={`w-32 h-32 rounded-[2.5rem] border-4 ${uploading ? 'border-primary animate-pulse' : 'border-white/10'} p-1 bg-black/40 relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)]`}>
-                            <img 
-                              src={formData.photoURL || "/logo/logo.png"} 
-                              alt="Profile" 
-                              className="w-full h-full object-cover rounded-[2rem]" 
-                            />
-                            <label className="absolute inset-0 bg-primary/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer backdrop-blur-sm">
-                               {uploading ? (
-                                 <Loader2 className="w-10 h-10 text-black animate-spin" />
-                               ) : (
-                                 <>
-                                   <Camera className="w-10 h-10 text-black" />
-                                   <span className="text-[9px] text-black font-black mt-2 uppercase tracking-widest">تحديث الصورة</span>
-                                 </>
-                               )}
-                               <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} disabled={uploading} />
-                            </label>
-                         </div>
-                         <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl bg-primary text-black flex items-center justify-center shadow-xl">
-                            <Sparkles className="w-5 h-5 animate-pulse" />
-                         </div>
-                      </div>
-                   </div>
-
-                   {/* Display Name */}
-                   <div className="space-y-4">
+                   {/* Avatar Selection */}
+                   <div className="space-y-6">
                       <div className="flex items-center gap-3 px-2">
-                        <div className="w-1 h-1 rounded-full bg-primary" />
-                        <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">الاسم المستعار</label>
+                         <div className="w-1 h-1 rounded-full bg-primary" />
+                         <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">اختر الشخصية الرقمية</label>
                       </div>
-                      <div className="relative">
-                        <input 
-                            required
-                            value={formData.displayName}
-                            onChange={e => setFormData({...formData, displayName: e.target.value})}
-                            className="w-full bg-white/5 border-2 border-white/5 rounded-2xl py-5 px-8 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-lg font-bold text-white shadow-xl"
-                        />
-                        <User className="absolute left-6 top-1/2 -translate-y-1/2 text-white/10 w-5 h-5" />
+                      <div className="grid grid-cols-5 gap-4">
+                         {AVATARS[formData.gender].map((url) => (
+                            <button
+                               key={url}
+                               type="button"
+                               onClick={() => setFormData(prev => ({ ...prev, photoURL: url }))}
+                               className={`relative aspect-square rounded-2xl overflow-hidden border-2 transition-all duration-500 ${formData.photoURL === url ? 'border-primary scale-110 shadow-2xl shadow-primary/20' : 'border-white/5 opacity-40 hover:opacity-100 hover:scale-105'}`}
+                            >
+                               <img src={url} alt="Avatar" className="w-full h-full object-cover" />
+                               {formData.photoURL === url && (
+                                  <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                                     <CheckCircle className="w-6 h-6 text-primary" />
+                                  </div>
+                               )}
+                            </button>
+                         ))}
                       </div>
                    </div>
 
-                   {/* Phone & Birthday */}
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      {/* Display Name */}
+                      <div className="space-y-4">
+                         <div className="flex items-center gap-3 px-2">
+                           <div className="w-1 h-1 rounded-full bg-primary" />
+                           <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">الاسم بالكامل</label>
+                         </div>
+                         <div className="relative">
+                           <input 
+                               required
+                               value={formData.displayName}
+                               onChange={e => setFormData({...formData, displayName: e.target.value})}
+                               className="w-full bg-white/5 border-2 border-white/5 rounded-2xl py-5 px-8 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-lg font-bold text-white shadow-xl"
+                           />
+                           <User className="absolute left-6 top-1/2 -translate-y-1/2 text-white/10 w-5 h-5" />
+                         </div>
+                      </div>
+
+                      {/* Username (Read Only for safety, or allow change if unique) */}
+                      <div className="space-y-4">
+                         <div className="flex items-center gap-3 px-2">
+                           <div className="w-1 h-1 rounded-full bg-primary" />
+                           <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">اسم المستخدم</label>
+                         </div>
+                         <div className="relative">
+                           <input 
+                               disabled
+                               value={formData.username}
+                               className="w-full bg-white/5 border-2 border-white/5 rounded-2xl py-5 px-8 text-right outline-none opacity-50 cursor-not-allowed font-mono text-white"
+                           />
+                           <ShieldCheck className="absolute left-6 top-1/2 -translate-y-1/2 text-white/10 w-5 h-5" />
+                         </div>
+                      </div>
+                   </div>
+
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      {/* Phone */}
                       <div className="space-y-4">
                          <div className="flex items-center gap-3 px-2">
                             <div className="w-1 h-1 rounded-full bg-primary" />
@@ -186,38 +188,29 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                             <Phone className="absolute left-6 top-1/2 -translate-y-1/2 text-white/10 w-5 h-5" />
                          </div>
                       </div>
+
+                      {/* Gender */}
                       <div className="space-y-4">
                          <div className="flex items-center gap-3 px-2">
                             <div className="w-1 h-1 rounded-full bg-primary" />
-                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">تاريخ الميلاد</label>
+                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">الجنس</label>
                          </div>
-                         <div className="relative">
-                            <input 
-                                type="date"
-                                value={formData.birthday}
-                                onChange={e => setFormData({...formData, birthday: e.target.value})}
-                                className="w-full bg-white/5 border-2 border-white/5 rounded-2xl py-5 px-8 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-white"
-                            />
-                            <Calendar className="absolute left-6 top-1/2 -translate-y-1/2 text-white/10 w-5 h-5" />
+                         <div className="flex gap-4 p-1 bg-white/5 rounded-2xl border border-white/5">
+                            <button
+                               type="button"
+                               onClick={() => setFormData(prev => ({ ...prev, gender: "male" }))}
+                               className={`flex-1 py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.gender === "male" ? "bg-primary text-black" : "text-white/20"}`}
+                            >
+                               ذكر
+                            </button>
+                            <button
+                               type="button"
+                               onClick={() => setFormData(prev => ({ ...prev, gender: "female" }))}
+                               className={`flex-1 py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.gender === "female" ? "bg-primary text-black" : "text-white/20"}`}
+                            >
+                               أنثى
+                            </button>
                          </div>
-                      </div>
-                   </div>
-
-                   {/* Governorate */}
-                   <div className="space-y-4">
-                      <div className="flex items-center gap-3 px-2">
-                         <div className="w-1 h-1 rounded-full bg-primary" />
-                         <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">الموقع الجغرافي</label>
-                      </div>
-                      <div className="relative">
-                        <select 
-                            value={formData.governorate}
-                            onChange={e => setFormData({...formData, governorate: e.target.value})}
-                            className="w-full bg-white/5 border-2 border-white/5 rounded-2xl py-5 px-8 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all appearance-none font-bold text-white shadow-xl"
-                        >
-                            {GOVERNORATES.map(g => <option key={g} value={g} className="bg-[#064E3B] text-white">{g}</option>)}
-                        </select>
-                        <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 text-primary/40 w-5 h-5" />
                       </div>
                    </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useEditor } from "@/store/useEditor";
 import { usePexelsBackgrounds, PexelsMediaItem } from "@/hooks/usePexelsBackgrounds";
 import { RECITERS } from "@/data/reciters";
@@ -11,46 +11,45 @@ import { Crown, Lock, ShieldCheck, Star, Search, Image as ImageIcon, Music, Type
 // ============================================================
 // مكتبة خلفيات إسلامية ثابتة — لن تتغير أبداً
 // ============================================================
-const STATIC_LIBRARY: PexelsMediaItem[] = [
-  { type: "image", src: "https://images.pexels.com/photos/1537086/pexels-photo-1537086.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/2826415/pexels-photo-2826415.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/3214995/pexels-photo-3214995.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/6633920/pexels-photo-6633920.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/11589926/pexels-photo-11589926.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/1252869/pexels-photo-1252869.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/3408354/pexels-photo-3408354.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/1819649/pexels-photo-1819649.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/2387793/pexels-photo-2387793.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/1624496/pexels-photo-1624496.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/998641/pexels-photo-998641.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/1146134/pexels-photo-1146134.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/2832034/pexels-photo-2832034.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/21395/pexels-photo.jpg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/847402/pexels-photo-847402.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/1624438/pexels-photo-1624438.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/1366919/pexels-photo-1366919.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/1295036/pexels-photo-1295036.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/3680219/pexels-photo-3680219.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/1261728/pexels-photo-1261728.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/3876401/pexels-photo-3876401.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/1040499/pexels-photo-1040499.jpeg", poster: "" },
-  { type: "image", src: "https://images.pexels.com/photos/462118/pexels-photo-462118.jpeg", poster: "" },
-];
+import { STATIC_BACKGROUNDS } from "@/data/backgrounds";
 
 export function Controls({ onOpenSubscription }: { onOpenSubscription: () => void }) {
   const [activeTab, setActiveTab] = useState("bg");
   const [bgMode, setBgMode] = useState<"library" | "search">("library");
-  const [search, setSearch] = useState("islamic");
+  const [searchType, setSearchType] = useState<"images" | "videos">("images");
+  const [search, setSearch] = useState("");
+  const [librarySearch, setLibrarySearch] = useState("");
+  const [libraryCategory, setLibraryCategory] = useState("الكل");
   const [query, setQuery] = useState("");
   const { state, updateState } = useEditor();
-  const { media, loading } = usePexelsBackgrounds(query, bgMode === "search" ? "images" : "both");
+  const { media, loading } = usePexelsBackgrounds(query, bgMode === "search" ? searchType : "both");
   const { userPlan, isFeatureLocked } = useUserPlan();
 
   const isSearchLocked = isFeatureLocked("search");
   const isVideoLocked = isFeatureLocked("video_bg");
 
-  const displayMedia = bgMode === "library" ? STATIC_LIBRARY : (media.length > 0 ? media : STATIC_LIBRARY);
+  const categories = ["الكل", "مساجد", "بحار", "جبال", "غابات", "الثلج", "غروب", "سماء"];
+  
+  const categoryMap: Record<string, string> = {
+    "الكل": "",
+    "مساجد": "islamic",
+    "بحار": "sea",
+    "جبال": "mountain",
+    "غابات": "forest",
+    "الثلج": "arctic",
+    "غروب": "sunset",
+    "سماء": "sky"
+  };
+
+  const filteredLibrary = useMemo(() => {
+    return STATIC_BACKGROUNDS.filter(item => {
+      const matchesCategory = libraryCategory === "الكل" || item.tags?.includes(categoryMap[libraryCategory]);
+      const matchesSearch = !librarySearch || item.tags?.some(tag => tag.toLowerCase().includes(librarySearch.toLowerCase()));
+      return matchesCategory && matchesSearch;
+    });
+  }, [libraryCategory, librarySearch]);
+
+  const displayMedia = bgMode === "library" ? filteredLibrary : (media.length > 0 ? media : STATIC_BACKGROUNDS);
 
   const tabs = [
     { id: "bg", label: "الخلفية", icon: ImageIcon },
@@ -111,77 +110,112 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                         onClick={() => setBgMode("library")}
                         className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 ${bgMode === "library" ? "bg-primary text-black shadow-xl" : "text-foreground/20 hover:text-foreground/40"}`}
                     >
-                        المكتبة المختارة
+                        المكتبة الذكية (1000+)
                     </button>
                     <button
                         onClick={() => !isSearchLocked && setBgMode("search")}
                         className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 flex items-center justify-center gap-2 ${bgMode === "search" ? "bg-primary text-black shadow-xl" : "text-foreground/20 hover:text-foreground/40"} ${isSearchLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                         {isSearchLocked && <Lock className="w-3 h-3 text-primary" />}
-                        بحث إضافي
+                        بحث عالمي
                     </button>
                 </div>
 
-                {bgMode === "search" && (
-                <div className="flex items-center gap-4 animate-in slide-in-from-top-4 duration-500">
-                    <div className="relative flex-1">
-                        <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-foreground/20 w-5 h-5" />
+                {bgMode === "library" && (
+                  <div className="space-y-6 animate-in slide-in-from-top-4 duration-500">
+                     {/* Smart Search for Library */}
+                     <div className="relative">
+                        <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-primary/40 w-4 h-4" />
                         <input
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            onKeyDown={(e) => e.key === "Enter" && setQuery(search)}
-                            placeholder="ابحث عن صور (مكة، سماء...)"
-                            className="w-full rounded-2xl bg-foreground/5 border border-foreground/10 pr-14 pl-6 py-4 text-sm text-foreground outline-none focus:border-primary/50 transition-all font-arabic placeholder:text-foreground/20"
+                            value={librarySearch}
+                            onChange={(e) => setLibrarySearch(e.target.value)}
+                            placeholder="بحث ذكي في المكتبة (ثلج، بحر، هدوء...)"
+                            className="w-full rounded-xl bg-white/5 border border-white/10 pr-12 pl-6 py-3 text-xs text-white outline-none focus:border-primary/50 transition-all font-arabic"
                         />
+                     </div>
+                     {/* Category Chips */}
+                     <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+                        {categories.map(cat => (
+                           <button
+                              key={cat}
+                              onClick={() => setLibraryCategory(cat)}
+                              className={`px-6 py-2 rounded-full text-[10px] font-black whitespace-nowrap transition-all duration-500 border ${libraryCategory === cat ? 'bg-primary text-black border-primary shadow-lg shadow-primary/20 scale-105' : 'bg-white/5 text-white/40 border-white/5 hover:border-white/20'}`}
+                           >
+                              {cat}
+                           </button>
+                        ))}
+                     </div>
+                  </div>
+                )}
+
+                {bgMode === "search" && (
+                <div className="space-y-4 animate-in slide-in-from-top-4 duration-500">
+                    <div className="flex items-center gap-2 p-1 bg-white/5 rounded-xl border border-white/5">
+                        <button 
+                            onClick={() => setSearchType("images")}
+                            className={`flex-1 py-2 rounded-lg text-[10px] font-bold transition-all ${searchType === "images" ? "bg-primary text-black" : "text-white/40 hover:text-white"}`}
+                        >
+                            صور
+                        </button>
+                        <button 
+                            onClick={() => setSearchType("videos")}
+                            className={`flex-1 py-2 rounded-lg text-[10px] font-bold transition-all ${searchType === "videos" ? "bg-primary text-black" : "text-white/40 hover:text-white"}`}
+                        >
+                            فيديوهات
+                        </button>
                     </div>
-                    <button
-                        onClick={() => setQuery(search)}
-                        className="bg-primary text-black px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/10"
-                    >
-                        بحث
-                    </button>
+                    <div className="flex items-center gap-4">
+                        <div className="relative flex-1">
+                            <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-foreground/20 w-5 h-5" />
+                            <input
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && setQuery(search)}
+                                placeholder={`ابحث عن ${searchType === 'images' ? 'صور' : 'فيديوهات'} (مكة، سماء...)`}
+                                className="w-full rounded-2xl bg-foreground/5 border border-foreground/10 pr-14 pl-6 py-4 text-sm text-white outline-none focus:border-primary/50 transition-all font-arabic placeholder:text-foreground/20"
+                            />
+                        </div>
+                        <button
+                            onClick={() => setQuery(search)}
+                            className="bg-primary text-black px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/10"
+                        >
+                            بحث
+                        </button>
+                    </div>
                 </div>
                 )}
 
-                {/* Grid */}
-                {loading && bgMode === "search" ? (
-                    <div className="flex flex-col items-center justify-center py-32 gap-6">
-                        <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-                        <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">جاري جلب الصور...</span>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-2 gap-4">
-                        {displayMedia.map((item, index) => (
+                {/* Media Grid */}
+                <div className="grid grid-cols-2 gap-4">
+                    {displayMedia.map((item, idx) => (
                         <button
-                            key={`${item.src}-${index}`}
+                            key={`${item.src}-${idx}`}
                             onClick={() => {
                                 if (item.type === 'video' && isVideoLocked) return;
                                 updateState({ backgroundUrl: item.src });
                             }}
-                            className={`relative aspect-[9/16] overflow-hidden rounded-[2rem] border-2 transition-all duration-700 group/item ${state.backgroundUrl === item.src ? 'border-primary shadow-[0_0_50px_rgba(212,175,55,0.3)]' : 'border-white/5 hover:border-white/20'}`}
+                            className="group/item relative h-48 rounded-3xl overflow-hidden border-2 transition-all duration-500 border-white/5 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/20"
                         >
-                             {item.type === "video" ? (
-                             <video 
-                                src={item.src} 
-                                poster={item.poster} 
-                                muted 
-                                loop 
-                                playsInline 
-                                className="h-full w-full object-cover transition-transform duration-1000 group-hover/item:scale-110" 
-                             />
-                             ) : (
-                             <img 
-                                src={item.src.includes('pexels.com') ? `${item.src.split('?')[0]}?auto=compress&cs=tinysrgb&fit=crop&h=800&w=450` : item.src} 
-                                alt="bg" 
-                                className="h-full w-full object-cover transition-transform duration-1000 group-hover/item:scale-110" 
-                             />
-                             )}
+                             {item.type === 'video' ? (
+                              <video 
+                                 src={item.src}
+                                 muted 
+                                 loop 
+                                 playsInline 
+                                 className="h-full w-full object-cover transition-transform duration-1000 group-hover/item:scale-110" 
+                              />
+                              ) : (
+                              <img 
+                                 src={item.src.includes('pexels.com') ? `${item.src.split('?')[0]}?auto=compress&cs=tinysrgb&fit=crop&h=800&w=450` : item.src} 
+                                 alt="bg" 
+                                 className="h-full w-full object-cover transition-transform duration-1000 group-hover/item:scale-110" 
+                              />
+                              )}
                             <div className={`absolute inset-0 bg-black/40 group-hover/item:bg-transparent transition-colors duration-700 ${state.backgroundUrl === item.src ? 'bg-transparent' : ''}`} />
                             
                             {state.backgroundUrl === item.src && (
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-black shadow-2xl animate-in zoom-in duration-300">
-                                    <circle className="w-6 h-6 stroke-[4px]" />
                                     <Check className="w-6 h-6 stroke-[4px]" />
                                 </div>
                             </div>
@@ -194,9 +228,8 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                             </div>
                             )}
                         </button>
-                        ))}
-                    </div>
-                )}
+                    ))}
+                </div>
             </div>
           )}
 

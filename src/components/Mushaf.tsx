@@ -83,7 +83,7 @@ export function Mushaf() {
                 audioRef.current.play().catch(e => {
                     console.warn("Primary audio failed, trying fallback...", e);
                     if (audioRef.current) {
-                        audioRef.current.src = getAudioUrl(Number(selectedSurah), ayahId, state.reciterId, 'fallback');
+                        audioRef.current.src = getAudioUrl(Number(selectedSurah), ayahId, "afasy");
                         audioRef.current.play().catch(console.error);
                     }
                 });
