@@ -214,6 +214,7 @@ export function AdminPanel() {
         processedAt: serverTimestamp()
       });
       if (action === 'approve') {
+        console.log("[Auth]: Writing profile to Firestore for UID:", userId);
         batch.update(doc(db, "users", userId), {
           plan: plan,
           isPremium: true,
@@ -221,6 +222,7 @@ export function AdminPanel() {
           subscriptionType: plan,
           subscriptionDate: serverTimestamp()
         });
+        console.log("[Auth]: Profile written successfully!");
       }
       await batch.commit();
       alert(action === 'approve' ? "تم تفعيل الاشتراك بنجاح!" : "تم رفض الطلب.");
@@ -234,11 +236,20 @@ export function AdminPanel() {
   const fetchStats = async () => {
     if (!db) return;
     try {
+      console.log("[Admin]: Fetching users...");
       const snapshot = await getDocs(collection(db, "users"));
+      console.log(`[Admin]: Found ${snapshot.docs.length} users.`);
+      
       const usersData = snapshot.docs.map(d => ({ uid: d.id, ...d.data() }));
       const totalPoints = usersData.reduce((acc, curr: any) => acc + (curr.totalPoints || 0), 0);
       const today = new Date().toISOString().split('T')[0];
-      const activeTodayCount = usersData.filter((u: any) => u.lastActive?.startsWith(today)).length;
+      const activeTodayCount = usersData.filter((u: any) => {
+        if (!u.lastActive) return false;
+        // Handle both string ISO dates and Firebase Timestamps
+        const lastActiveStr = typeof u.lastActive === 'string' ? u.lastActive : 
+                             (u.lastActive.toDate ? u.lastActive.toDate().toISOString() : String(u.lastActive));
+        return lastActiveStr.startsWith(today);
+      }).length;
       const govCounts: any = {};
       usersData.forEach((u: any) => {
         if (u.governorate) govCounts[u.governorate] = (govCounts[u.governorate] || 0) + 1;
