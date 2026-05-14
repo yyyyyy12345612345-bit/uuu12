@@ -18,6 +18,12 @@ interface EditorState {
   animation: "fade" | "scale" | "slide" | "blur" | "zoom" | "flip" | "bounce" | "glitch";
   textPosition: "top" | "center" | "bottom";
   textVerticalOffset: number;
+  showVisualizer: boolean;
+  visualizerColor: string;
+  visualizerStyle: "bars" | "wave" | "dots";
+  tiktokHandle: string;
+  instaHandle: string;
+  particles: "none" | "snow" | "leaves" | "petals";
   mushafFontSize: number;
   bookmark?: { surahId: string; ayahId: number };
   activeSettingsPrayer: string | null;
@@ -47,6 +53,12 @@ const initialState: Omit<EditorState, 'isHydrated'> = {
   animation: "fade",
   textPosition: "center",
   textVerticalOffset: 0,
+  showVisualizer: true,
+  visualizerColor: "#D4AF37",
+  visualizerStyle: "bars",
+  tiktokHandle: "",
+  instaHandle: "",
+  particles: "none",
   mushafFontSize: 22,
   activeSettingsPrayer: null,
 };

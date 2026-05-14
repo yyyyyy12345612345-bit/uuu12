@@ -67,6 +67,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
     { id: "bg", label: "الخلفية", icon: ImageIcon },
     { id: "reciter", label: "القاريء", icon: Music },
     { id: "style", label: "التصميم", icon: Type },
+    { id: "advanced", label: "متقدم", icon: ShieldCheck },
     { id: "support", label: "الدعم", icon: MessageSquare },
   ];
 
@@ -333,6 +334,9 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                             { id: "dramatic", icon: "🌑", label: "درامي" },
                             { id: "blur", icon: "🌫️", label: "ضباب" },
                             { id: "sepia", icon: "📜", label: "عتيق" },
+                            { id: "midnight", icon: "🌃", label: "ليل" },
+                            { id: "oceanic", icon: "🌊", label: "محيط" },
+                            { id: "saturated", icon: "🌈", label: "مشبع" },
                         ].map((f) => (
                         <button
                             key={f.id}
@@ -346,18 +350,78 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                     </div>
                 </div>
 
+                {/* Overlays */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <div className="h-px flex-1 bg-foreground/10" />
+                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">تأثيرات الإضاءة (Overlays)</span>
+                        <div className="h-px flex-1 bg-foreground/10" />
+                    </div>
+                    <div className="grid grid-cols-4 gap-3">
+                        {[
+                            { id: "none", icon: "🚫", label: "بدون" },
+                            { id: "dust", icon: "✨", label: "غبار" },
+                            { id: "rays", icon: "☀️", label: "أشعة" },
+                            { id: "bokeh", icon: "🔮", label: "بوكيه" },
+                        ].map((o) => (
+                        <button
+                            key={o.id}
+                            onClick={() => updateState({ overlay: o.id as any })}
+                            className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-500 ${state.overlay === o.id ? 'bg-primary/10 border-primary shadow-xl' : 'bg-foreground/5 border-foreground/5'}`}
+                        >
+                            <span className="text-xl">{o.icon}</span>
+                            <span className="text-[9px] font-black text-foreground/40 uppercase tracking-widest">{o.label}</span>
+                        </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Animations */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <div className="h-px flex-1 bg-foreground/10" />
+                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">انتقالات النص (Animations)</span>
+                        <div className="h-px flex-1 bg-foreground/10" />
+                    </div>
+                    <div className="grid grid-cols-4 gap-3">
+                        {[
+                            { id: "fade", icon: "🌫️", label: "ظهور" },
+                            { id: "scale", icon: "🔍", label: "تكبير" },
+                            { id: "slide", icon: "➡️", label: "انزلاق" },
+                            { id: "blur", icon: "💨", label: "ضبابي" },
+                            { id: "zoom", icon: "🔭", label: "زووم" },
+                            { id: "flip", icon: "🔄", label: "قلب" },
+                            { id: "bounce", icon: "🏀", label: "قفز" },
+                            { id: "glitch", icon: "📺", label: "تشويش" },
+                        ].map((a) => (
+                        <button
+                            key={a.id}
+                            onClick={() => updateState({ animation: a.id as any })}
+                            className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-500 ${state.animation === a.id ? 'bg-primary/10 border-primary shadow-xl' : 'bg-foreground/5 border-foreground/5'}`}
+                        >
+                            <span className="text-xl">{a.icon}</span>
+                            <span className="text-[9px] font-black text-foreground/40 uppercase tracking-widest">{a.label}</span>
+                        </button>
+                        ))}
+                    </div>
+                </div>
+
                 {/* Text Controls */}
                 <div className="space-y-8">
                     {/* Color Picker */}
                     <div className="space-y-4">
                         <span className="text-[10px] font-black text-foreground/20 uppercase tracking-[0.3em]">لون النص</span>
-                        <div className="flex flex-wrap gap-3">
-                            {['#ffffff', '#FFD700', '#D4AF37', '#00FFC2', '#00E5FF', '#F43F5E', '#22C55E'].map((color) => (
+                        <div className="grid grid-cols-7 gap-3">
+                            {[
+                                '#ffffff', '#FFD700', '#D4AF37', '#C0C0C0', '#F5F5DC', '#FFFDD0', '#E6E6FA',
+                                '#00FFC2', '#00E5FF', '#3B82F6', '#8B5CF6', '#F43F5E', '#FB923C', '#22C55E',
+                                '#1E293B', '#F8FAFC', '#E2E8F0', '#94A3B8', '#64748B', '#475569', '#334155'
+                            ].map((color) => (
                             <button
                                 key={color}
                                 onClick={() => updateState({ textColor: color })}
                                 style={{ backgroundColor: color }}
-                                className={`w-10 h-10 rounded-full border-2 transition-all duration-500 ${state.textColor === color ? 'border-primary scale-125 ring-8 ring-primary/20' : 'border-foreground/10 hover:scale-110'}`}
+                                className={`w-8 h-8 rounded-full border-2 transition-all duration-300 ${state.textColor === color ? 'border-primary scale-125 ring-4 ring-primary/20' : 'border-white/10 hover:scale-110'}`}
                             />
                             ))}
                         </div>
@@ -389,6 +453,109 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                             onChange={(e) => updateState({ textVerticalOffset: Number(e.target.value) })}
                             className="w-full h-2 bg-foreground/10 rounded-full appearance-none cursor-pointer accent-primary"
                         />
+                    </div>
+
+                    {/* Font Weight */}
+                    <div className="space-y-6">
+                        <div className="flex justify-between items-center px-2">
+                            <span className="text-[10px] font-black text-foreground/20 uppercase tracking-[0.3em]">سمك وحجم الخط</span>
+                        </div>
+                        <div className="flex gap-3">
+                            {[
+                                { id: 400, label: "خفيف" },
+                                { id: 700, label: "عادي" },
+                                { id: 900, label: "عريض" },
+                            ].map((w) => (
+                                <button
+                                    key={w.id}
+                                    onClick={() => updateState({ fontWeight: w.id })}
+                                    className={`flex-1 py-3 rounded-xl border-2 text-[10px] font-black transition-all ${state.fontWeight === w.id ? 'border-primary bg-primary/10 text-white' : 'border-white/5 text-white/40'}`}
+                                >
+                                    {w.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+          )}
+
+          {activeTab === "advanced" && (
+            <div className="flex flex-col gap-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                {/* Audio Visualizer */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <div className="h-px flex-1 bg-foreground/10" />
+                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">الموجات الصوتية (Visualizer)</span>
+                        <div className="h-px flex-1 bg-foreground/10" />
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-4 rounded-2xl bg-foreground/5 border border-foreground/10">
+                        <div className="text-right">
+                           <span className="block text-sm font-bold text-white">إظهار الموجات التفاعلية</span>
+                           <span className="text-[10px] text-white/40">تتفاعل مباشرة مع صوت القارئ</span>
+                        </div>
+                        <button 
+                           onClick={() => updateState({ showVisualizer: !state.showVisualizer })}
+                           className={`w-14 h-8 rounded-full transition-colors relative ${state.showVisualizer ? 'bg-primary' : 'bg-white/10'}`}
+                        >
+                           <div className={`w-6 h-6 rounded-full bg-white absolute top-1 transition-all ${state.showVisualizer ? 'left-1' : 'left-7'}`} />
+                        </button>
+                    </div>
+
+                    {state.showVisualizer && (
+                       <div className="space-y-4">
+                           <span className="text-[10px] font-black text-foreground/20 uppercase tracking-[0.3em]">لون الموجات</span>
+                           <div className="flex flex-wrap gap-3">
+                               {['#ffffff', '#FFD700', '#D4AF37', '#00E5FF', '#F43F5E', '#22C55E'].map((color) => (
+                               <button
+                                   key={color}
+                                   onClick={() => updateState({ visualizerColor: color })}
+                                   style={{ backgroundColor: color }}
+                                   className={`w-8 h-8 rounded-full border-2 transition-all duration-300 ${state.visualizerColor === color ? 'border-white scale-125 ring-4 ring-white/20' : 'border-transparent hover:scale-110'}`}
+                               />
+                               ))}
+                           </div>
+                       </div>
+                    )}
+                </div>
+
+                {/* Social Layers */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <div className="h-px flex-1 bg-foreground/10" />
+                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">الهوية البصرية (Branding)</span>
+                        <div className="h-px flex-1 bg-foreground/10" />
+                    </div>
+                    
+                    <div className="space-y-4">
+                       <div className="relative">
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-md bg-black/40 flex items-center justify-center">
+                             <span className="text-white text-[10px] font-bold">TikTok</span>
+                          </div>
+                          <input 
+                             type="text" 
+                             placeholder="يوزر التيك توك (بدون @)"
+                             value={state.tiktokHandle}
+                             onChange={(e) => updateState({ tiktokHandle: e.target.value })}
+                             className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pr-14 pl-4 text-sm text-white font-mono text-left outline-none focus:border-primary/50"
+                             dir="ltr"
+                          />
+                       </div>
+
+                       <div className="relative">
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-md bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 flex items-center justify-center">
+                             <span className="text-white text-[10px] font-bold">Insta</span>
+                          </div>
+                          <input 
+                             type="text" 
+                             placeholder="يوزر الانستجرام (بدون @)"
+                             value={state.instaHandle}
+                             onChange={(e) => updateState({ instaHandle: e.target.value })}
+                             className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pr-14 pl-4 text-sm text-white font-mono text-left outline-none focus:border-primary/50"
+                             dir="ltr"
+                          />
+                       </div>
                     </div>
                 </div>
             </div>
