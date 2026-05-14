@@ -207,11 +207,17 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         const item = verseAudios[i];
         if (!item.failed) {
           const source = audioCtx.createMediaElementSource(item.audio);
-          source.connect(dest);
+          const analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 64;
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+          source.connect(analyser);
+          analyser.connect(dest);
           try { await item.audio.play(); } catch(e) {}
           const startTime = Date.now();
           while (isRenderingRef.current && !item.audio.ended && (Date.now() - startTime) < (item.duration * 1000 + 1000)) {
-            renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan);
+            analyser.getByteFrequencyData(dataArray);
+            const ayahProgress = item.audio.currentTime / item.duration;
+            renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, dataArray);
             const progress = Math.min(99, Math.round(((elapsed + item.audio.currentTime) / totalDuration) * 100));
             setProgressPct(progress);
             setMessage(`جاري التصميم: ${progress}%`);
@@ -219,10 +225,12 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           }
           item.audio.pause();
           source.disconnect();
+          analyser.disconnect();
         } else {
           for (let s = 0; s < 5 * 30; s++) {
             if (!isRenderingRef.current) break;
-            renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan);
+            const ayahProgress = s / (5 * 30);
+            renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, null);
             const progress = Math.min(99, Math.round(((elapsed + (s/30)) / totalDuration) * 100));
             setProgressPct(progress);
             await new Promise(r => setTimeout(r, 33));
@@ -259,9 +267,28 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     setDownloadUrl(null);
   };
 
-  const renderFrame = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, bg: HTMLImageElement | null, video: HTMLVideoElement | null, verse: any, state: any, userPlan: any) => {
+  const renderFrame = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, bg: HTMLImageElement | null, video: HTMLVideoElement | null, verse: any, state: any, userPlan: any, ayahProgress: number = 1, freqData: Uint8Array | null = null) => {
+    ctx.save();
+    
+    // 1. Background & Filter
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Apply CSS-like filters manually or via ctx.filter (supported in most modern canvas)
+    const filterMap: Record<string, string> = {
+      none: "none",
+      vintage: "sepia(0.5) contrast(1.1) brightness(0.8)",
+      cool: "saturate(0.8) hue-rotate(20deg) brightness(1.1)",
+      warm: "saturate(1.4) hue-rotate(-10deg) brightness(1.1)",
+      bw: "grayscale(1) contrast(1.3) brightness(0.9)",
+      dramatic: "contrast(1.5) brightness(0.6) saturate(1.3)",
+      blur: "blur(10px) brightness(0.7)",
+      midnight: "brightness(0.5) contrast(1.3) saturate(0.7) hue-rotate(20deg)",
+      oceanic: "hue-rotate(170deg) brightness(1.2) saturate(1.3) contrast(1.1)",
+      saturated: "saturate(3) contrast(1.2)",
+    };
+    ctx.filter = filterMap[state.filter || "none"] || "none";
+
     if (video) {
         const sc = Math.max(canvas.width / video.videoWidth, canvas.height / video.videoHeight);
         ctx.drawImage(video, (canvas.width - video.videoWidth * sc) / 2, (canvas.height - video.videoHeight * sc) / 2, video.videoWidth * sc, video.videoHeight * sc);
@@ -269,14 +296,52 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         const sc = Math.max(canvas.width / bg.width, canvas.height / bg.height);
         ctx.drawImage(bg, (canvas.width - bg.width * sc) / 2, (canvas.height - bg.height * sc) / 2, bg.width * sc, bg.height * sc);
     }
-    
-    // Watermark
+    ctx.filter = "none"; // Reset filter for overlays and text
+
+    // 2. Overlays (Dust, Rays, Bokeh)
+    if (state.overlay === "dust") {
+      ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+      for(let i=0; i<30; i++) {
+        const x = (Math.sin(i * 1000 + Date.now()/2000) * 0.5 + 0.5) * canvas.width;
+        const y = ((i * 50 - Date.now()/50) % canvas.height + canvas.height) % canvas.height;
+        ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI*2); ctx.fill();
+      }
+    }
+    if (state.overlay === "rays") {
+      const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      grad.addColorStop(0, "rgba(212,175,55,0)");
+      grad.addColorStop(0.5, "rgba(212,175,55,0.05)");
+      grad.addColorStop(1, "rgba(212,175,55,0)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    if (state.overlay === "bokeh") {
+      for(let i=0; i<10; i++) {
+        const x = (Math.cos(i * 500 + Date.now()/3000) * 0.4 + 0.5) * canvas.width;
+        const y = (Math.sin(i * 800 + Date.now()/4000) * 0.4 + 0.5) * canvas.height;
+        const rad = 50 + Math.sin(Date.now()/2000 + i) * 20;
+        const g = ctx.createRadialGradient(x, y, 0, x, y, rad);
+        g.addColorStop(0, "rgba(212,175,55,0.1)");
+        g.addColorStop(1, "rgba(212,175,55,0)");
+        ctx.fillStyle = g;
+        ctx.fillRect(x-rad, y-rad, rad*2, rad*2);
+      }
+    }
+
+    // 3. Dark Overlay & Vignette
+    const vignette = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.height);
+    vignette.addColorStop(0, "rgba(0,0,0,0.3)");
+    vignette.addColorStop(1, "rgba(0,0,0,0.7)");
+    ctx.fillStyle = vignette;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 4. Watermark
     if (!userPlan || (userPlan.plan === "free" && userPlan.plan !== "trial")) {
         ctx.save();
-        ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
-        ctx.font = "bold 20px Arial";
+        ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
+        ctx.font = "bold 24px Arial";
         ctx.textAlign = "center";
-        const brand = "quran-app-premium.com";
+        const brand = "QURAN PREMIUM";
         for (let y = 100; y < canvas.height; y += 400) {
           for (let x = 150; x < canvas.width; x += 400) {
             ctx.save(); ctx.translate(x, y); ctx.rotate(-Math.PI / 4); ctx.fillText(brand, 0, 0); ctx.restore();
@@ -285,27 +350,89 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         ctx.restore();
     }
 
-    ctx.fillStyle = "rgba(0,0,0,0.5)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // 4.5 Visualizer & Social Handles
+    if (state.showVisualizer && freqData) {
+        ctx.save();
+        ctx.globalAlpha = 0.4;
+        ctx.globalCompositeOperation = "screen";
+        const barWidth = (canvas.width / freqData.length) * 1.5;
+        let x = (canvas.width - (barWidth * freqData.length)) / 2;
+        for(let i = 0; i < freqData.length; i++) {
+            const barHeight = (freqData[i] / 255) * (canvas.height * 0.3);
+            ctx.fillStyle = state.visualizerColor || '#D4AF37';
+            ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
+            x += barWidth;
+        }
+        ctx.restore();
+    }
+
+    if (state.tiktokHandle || state.instaHandle) {
+        ctx.save();
+        ctx.textAlign = "center";
+        ctx.font = "bold 26px Arial";
+        ctx.fillStyle = "rgba(255,255,255,0.9)";
+        ctx.shadowColor = "rgba(0,0,0,0.8)";
+        ctx.shadowBlur = 10;
+        let yPos = canvas.height - 50;
+        if (state.instaHandle) {
+           ctx.fillText(`Insta: @${state.instaHandle}`, canvas.width/2, yPos);
+           yPos -= 40;
+        }
+        if (state.tiktokHandle) {
+           ctx.fillText(`TikTok: @${state.tiktokHandle}`, canvas.width/2, yPos);
+        }
+        ctx.restore();
+    }
+
+    // 5. Text Animation & Rendering
+    // ayahProgress goes from 0 to 1
+    let opacity = 1;
+    let scale = 1;
+    let translateY = state.textVerticalOffset || 0;
+    let blur = 0;
+
+    if (state.animation === "fade") opacity = Math.min(1, ayahProgress * 2);
+    if (state.animation === "scale") { scale = 0.8 + (Math.min(1, ayahProgress * 2) * 0.2); opacity = Math.min(1, ayahProgress * 2); }
+    if (state.animation === "slide") { translateY += (1 - Math.min(1, ayahProgress * 2)) * 100; opacity = Math.min(1, ayahProgress * 2); }
+    if (state.animation === "blur") { blur = (1 - Math.min(1, ayahProgress * 2)) * 20; opacity = Math.min(1, ayahProgress * 2); }
+    if (state.animation === "zoom") { scale = 1.5 - (Math.min(1, ayahProgress * 2) * 0.5); opacity = Math.min(1, ayahProgress * 2); }
+
+    ctx.save();
+    ctx.translate(canvas.width/2, canvas.height/2 + translateY);
+    ctx.scale(scale, scale);
+    ctx.globalAlpha = opacity;
+    if (blur > 0) ctx.filter = `blur(${blur}px)`;
+
     ctx.textAlign = "center";
-    ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetY = 4;
+    ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
+    ctx.shadowBlur = 15;
+    ctx.shadowOffsetY = 6;
+    
+    // Main Text
     ctx.fillStyle = state.textColor || "#ffffff";
-    ctx.font = `${state.fontWeight} ${state.fontSize * 1.8}px "${state.fontFamily || 'Amiri'}", serif`;
-    const lines = wrapText(ctx, verse.text, canvas.width - 120);
-    const lineHeight = state.fontSize * 2.0;
-    let startY = (canvas.height / 2) - (lines.length * lineHeight / 3);
-    lines.forEach((l, idx) => ctx.fillText(l, canvas.width / 2, startY + (idx * lineHeight)));
+    ctx.font = `${state.fontWeight || 700} ${state.fontSize * 1.8}px "${state.fontFamily || 'Amiri'}", serif`;
+    const lines = wrapText(ctx, verse.text, canvas.width - 140);
+    const lineHeight = state.fontSize * 2.2;
+    let startY = -(lines.length * lineHeight / 2);
     
+    lines.forEach((l, idx) => ctx.fillText(l, 0, startY + (idx * lineHeight)));
+    
+    // Translation
+    ctx.globalAlpha = opacity * 0.8;
     ctx.fillStyle = "#ffffff";
-    ctx.font = `500 42px Tajawal`;
-    const tLines = wrapText(ctx, verse.translation, canvas.width - 150);
-    tLines.forEach((l, idx) => ctx.fillText(l, canvas.width / 2, startY + (lines.length * lineHeight) + 100 + (idx * 55)));
+    ctx.font = `500 44px Tajawal`;
+    const tLines = wrapText(ctx, verse.translation, canvas.width - 160);
+    let transStartY = startY + (lines.length * lineHeight) + 80;
+    tLines.forEach((l, idx) => ctx.fillText(l, 0, transStartY + (idx * 60)));
     
-    ctx.fillStyle = "rgba(212,175,55,1)";
-    ctx.font = "bold 40px Amiri";
-    ctx.fillText(`﴿ ${verse.id} ﴾`, canvas.width/2, canvas.height - 150);
+    ctx.restore();
+
+    // 6. Verse Number (Bottom)
+    ctx.fillStyle = "rgba(212,175,55,0.9)";
+    ctx.font = "bold 45px Amiri";
+    ctx.fillText(`﴿ ${verse.id} ﴾`, canvas.width/2, canvas.height - 180);
+
+    ctx.restore();
   };
 
   if (!isOpen) return null;

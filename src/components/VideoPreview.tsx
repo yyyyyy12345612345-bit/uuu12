@@ -46,6 +46,53 @@ export function VideoPreview() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const visualizerCanvasRef = useRef<HTMLCanvasElement>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const animationFrameRef = useRef<number>();
+
+  useEffect(() => {
+    if (!audioRef.current || !state.showVisualizer) return;
+    
+    let audioContext: AudioContext;
+    try {
+      audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const analyser = audioContext.createAnalyser();
+      const source = audioContext.createMediaElementSource(audioRef.current);
+      source.connect(analyser);
+      analyser.connect(audioContext.destination);
+      analyser.fftSize = 64;
+      analyserRef.current = analyser;
+
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      const draw = () => {
+        if (!visualizerCanvasRef.current || !analyserRef.current) return;
+        const canvas = visualizerCanvasRef.current;
+        const ctx = canvas.getContext('2d')!;
+        analyserRef.current.getByteFrequencyData(dataArray);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const barWidth = (canvas.width / bufferLength) * 1.2;
+        let x = (canvas.width - (barWidth * bufferLength)) / 2;
+
+        for(let i = 0; i < bufferLength; i++) {
+          const barHeight = (dataArray[i] / 255) * canvas.height;
+          ctx.fillStyle = state.visualizerColor || '#D4AF37';
+          // Draw bars from center or bottom
+          ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
+          x += barWidth;
+        }
+        animationFrameRef.current = requestAnimationFrame(draw);
+      };
+
+      draw();
+      return () => {
+        if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+        audioContext.close().catch(() => {});
+      };
+    } catch (e) { console.error("Visualizer error:", e); }
+  }, [state.showVisualizer, state.visualizerColor]);
 
   useEffect(() => {
     setCurrentAyahIndex(state.startAyah);
@@ -211,9 +258,35 @@ export function VideoPreview() {
            </div>
         )}
 
+        {/* Visualizer Canvas */}
+        {state.showVisualizer && (
+           <canvas 
+              ref={visualizerCanvasRef} 
+              width={400} 
+              height={200} 
+              className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[30%] opacity-40 z-[4] mix-blend-screen pointer-events-none"
+           />
+        )}
+
         {/* Vignette & Gradients */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 z-[5]" />
         <div className="absolute inset-0 shadow-[inset_0_0_150px_rgba(0,0,0,0.6)] z-[5]" />
+
+        {/* Social Handles */}
+        <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center gap-2 z-[6] pointer-events-none">
+           {state.tiktokHandle && (
+              <div className="flex items-center gap-2 bg-black/40 px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-sm">
+                 <span className="text-white text-xs font-bold font-mono">@{state.tiktokHandle}</span>
+                 <svg className="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
+              </div>
+           )}
+           {state.instaHandle && (
+              <div className="flex items-center gap-2 bg-black/40 px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-sm">
+                 <span className="text-white text-xs font-bold font-mono">@{state.instaHandle}</span>
+                 <svg className="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+              </div>
+           )}
+        </div>
 
         {/* Content Layer */}
         <div 
@@ -240,6 +313,7 @@ export function VideoPreview() {
                 state.animation === 'zoom' ? 'animate-in zoom-in-150 fade-in duration-1000' :
                 state.animation === 'flip' ? 'animate-in flip-in-x fade-in' :
                 state.animation === 'bounce' ? 'animate-in slide-in-from-top-32 fade-in duration-1000' :
+                state.animation === 'glitch' ? 'animate-in skew-x-12 fade-in duration-100' :
                 'animate-in fade-in duration-1000'
               }`}
             >
