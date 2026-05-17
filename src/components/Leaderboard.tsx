@@ -241,10 +241,10 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
   );
 
   return (
-    <div className="flex flex-col h-full font-arabic overflow-y-auto no-scrollbar">
+    <div className="w-full h-full font-arabic overflow-y-auto no-scrollbar pb-32">
       
       {/* Premium Header Backdrop */}
-      <div className="relative bg-transparent pt-24 pb-40 px-6 overflow-hidden">
+      <div className="relative bg-transparent pt-16 pb-28 md:pt-24 md:pb-36 px-6 overflow-hidden">
           <div className="absolute inset-0 islamic-pattern opacity-10" />
           <div className="absolute top-0 left-0 w-96 h-96 bg-primary/20 blur-[150px] rounded-full -translate-x-1/2 -translate-y-1/2" />
           
@@ -254,41 +254,30 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
               </div>
               <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-2xl">لوحة الشرف</h1>
               <p className="text-white/60 font-bold text-lg md:text-xl max-w-xl">سابقوا إلى مغفرة من ربكم وجنة عرضها السموات والأرض</p>
-              
-              {!user && (
-                <button 
-                  onClick={() => window.dispatchEvent(new CustomEvent("show_auth_gate"))}
-                  className="mt-4 flex items-center gap-3 px-10 py-5 bg-white text-black rounded-[2rem] font-black text-lg hover:scale-105 active:scale-95 transition-all shadow-2xl"
-                >
-                    <LogIn className="w-6 h-6" />
-                    انضم للمنافسين الآن
-                </button>
-              )}
           </div>
       </div>
 
       {/* Main Content Overlay */}
-      <div className="max-w-5xl mx-auto w-full px-6 -mt-24 relative z-20 space-y-12">
+      <div className="max-w-5xl mx-auto w-full px-6 -mt-16 md:-mt-20 relative z-20 space-y-12">
           
           {/* User Status Card */}
           {user && userData ? (
-              <div className="bg-card border border-border rounded-[3rem] p-8 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 group">
-                  <div className="flex items-center gap-6">
-                      <div className="relative">
-                          <div className="w-20 h-20 rounded-full border-4 border-primary p-1 bg-card shadow-xl overflow-hidden group-hover:scale-105 transition-transform">
+              <div className="bg-card border border-border rounded-[3rem] p-6 md:p-8 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 group">
+                  <div className="flex flex-row items-center gap-4 md:gap-6 w-full md:w-auto">
+                      <div className="relative shrink-0">
+                          <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-primary p-1 bg-card shadow-xl overflow-hidden group-hover:scale-105 transition-transform">
                               <img src={userData.photoURL || "/logo/logo.png"} alt="User" className="w-full h-full object-cover rounded-full" />
                           </div>
-                          <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-lg flex items-center justify-center border-2 border-primary text-black shadow-lg">
-                              <Star className="w-4 h-4 text-primary fill-primary" />
+                          <div className="absolute -bottom-1 -right-1 w-6 h-6 md:w-7 md:h-7 bg-primary rounded-lg flex items-center justify-center border-2 border-primary text-black shadow-lg">
+                              <Star className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary fill-primary" />
                           </div>
                       </div>
                       <div className="text-right">
-                          <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-1">الرتبة: الحافظ المتميز</p>
-                          <h2 className="text-3xl font-black text-foreground">{userData.displayName || userData.username}</h2>
-
+                          <p className="text-[9px] md:text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-1">الرتبة: الحافظ المتميز</p>
+                          <h2 className="text-xl md:text-3xl font-black text-foreground truncate max-w-[200px] md:max-w-none">{userData.displayName || userData.username}</h2>
                       </div>
                   </div>
-                  <div className="flex items-center gap-3 bg-foreground/5 p-4 rounded-3xl border border-border">
+                  <div className="flex items-center gap-3 bg-foreground/5 p-4 rounded-3xl border border-border w-full md:w-auto justify-between md:justify-start">
                       <div className="text-center px-4">
                           <p className="text-[9px] font-black text-foreground/30 uppercase">النقاط</p>
                           <p className="text-2xl font-black text-primary">{Math.round(userData.totalPoints)}</p>
@@ -298,18 +287,18 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                   </div>
               </div>
           ) : (
-              <div className="bg-gradient-to-br from-[#121212]/90 to-[#0a0a0a]/95 border border-primary/20 rounded-[3rem] p-8 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 group relative overflow-hidden">
+              <div className="bg-gradient-to-br from-[#121212]/90 to-[#0a0a0a]/95 border border-primary/20 rounded-[3rem] p-6 md:p-8 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 group relative overflow-hidden">
                   <div className="absolute inset-0 islamic-pattern opacity-5 pointer-events-none" />
-                  <div className="flex items-center gap-6 relative z-10">
+                  <div className="flex flex-row items-center gap-4 md:gap-6 w-full md:w-auto">
                       <div className="relative shrink-0">
-                          <div className="w-20 h-20 rounded-full border-4 border-dashed border-primary/40 p-1 bg-card shadow-xl overflow-hidden flex items-center justify-center">
-                              <User className="w-10 h-10 text-primary/40" />
+                          <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-dashed border-primary/40 p-1 bg-card shadow-xl overflow-hidden flex items-center justify-center">
+                              <User className="w-8 h-8 md:w-10 md:h-10 text-primary/40" />
                           </div>
                       </div>
-                      <div className="text-right">
-                          <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-1">حساب زائر</p>
-                          <h2 className="text-2xl font-black text-foreground">لم تقم بتسجيل الدخول بعد</h2>
-                          <p className="text-xs text-white/40 mt-1 font-bold">سجل حساباً الآن لتجميع النقاط والظهور في لوحة الشرف ومنافسة القراء.</p>
+                      <div className="text-right flex-1 min-w-0">
+                          <p className="text-[9px] md:text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-1">حساب زائر</p>
+                          <h2 className="text-xl md:text-2xl font-black text-foreground truncate">لم تقم بتسجيل الدخول بعد</h2>
+                          <p className="text-[11px] md:text-xs text-white/40 mt-1 font-bold leading-relaxed">سجل حساباً الآن لتجميع النقاط والظهور في لوحة الشرف ومنافسة القراء.</p>
                       </div>
                   </div>
                   <div className="relative z-10 shrink-0 w-full md:w-auto">
