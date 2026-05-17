@@ -40,6 +40,8 @@ const DAILY_LIMITS: Record<string, number> = {
  */
 export async function addPoints(type: string, amount: number = 1): Promise<PointUpdateResult> {
   const user = auth?.currentUser;
+  if (!user) return { success: false, message: "يجب تسجيل الدخول لتجميع النقاط" };
+  
   const pointsToAdd = Math.max(0, Number(amount));
   
   if (isNaN(pointsToAdd) || pointsToAdd <= 0) return { success: false };
