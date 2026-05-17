@@ -699,7 +699,7 @@ export function AdminPanel() {
                         <tr className="bg-foreground/5 text-[10px] font-black uppercase border-b border-border text-foreground/40">
                            <th className="p-6">المستخدم (الاسم واليوزر)</th>
                            <th className="p-6">رقم الهاتف</th>
-                           <th className="p-6">المحافظة</th>
+                           <th className="p-6">الدولة</th>
                            <th className="p-6">إجمالي النقاط</th>
                            <th className="p-6">إدارة الحساب</th>
                         </tr>

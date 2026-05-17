@@ -99,6 +99,15 @@ export function ChatBot() {
     scrollToBottom();
   }, [messages, isTyping]);
 
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        scrollToBottom();
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
   const renderMessage = (text: string) => {
     const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
     const parts = [];
