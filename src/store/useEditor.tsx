@@ -42,7 +42,7 @@ const initialState: Omit<EditorState, 'isHydrated'> = {
   surahId: "1",
   startAyah: 1,
   endAyah: 7,
-  backgroundUrl: "https://images.pexels.com/photos/1537086/pexels-photo-1537086.jpeg",
+  backgroundUrl: "/mushaf-bg.jpg.png",
   reciterId: "afasy",
   textColor: "#ffffff",
   fontSize: 50,

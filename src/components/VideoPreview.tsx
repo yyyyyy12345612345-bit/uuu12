@@ -48,34 +48,53 @@ export function VideoPreview() {
   const [duration, setDuration] = useState(0);
   const visualizerCanvasRef = useRef<HTMLCanvasElement>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const sourceNodeRef = useRef<MediaElementSourceNode | null>(null);
   const animationFrameRef = useRef<number>();
 
   useEffect(() => {
     if (!audioRef.current || !state.showVisualizer) return;
     
-    let audioContext: AudioContext;
+    let audioContext = audioContextRef.current;
+    let analyser = analyserRef.current;
+    let source = sourceNodeRef.current;
+    
     try {
-      audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const analyser = audioContext.createAnalyser();
-      const source = audioContext.createMediaElementSource(audioRef.current);
-      source.connect(analyser);
-      analyser.connect(audioContext.destination);
-      analyser.fftSize = 64;
-      analyserRef.current = analyser;
-
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioContextRef.current = audioContext;
+      }
+      
+      if (audioContext.state === 'suspended') {
+        audioContext.resume().catch(() => {});
+      }
+ 
+      if (!analyser) {
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 64;
+        analyserRef.current = analyser;
+      }
+ 
+      if (!source) {
+        source = audioContext.createMediaElementSource(audioRef.current);
+        sourceNodeRef.current = source;
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+      }
+ 
       const bufferLength = analyser.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
-
+ 
       const draw = () => {
         if (!visualizerCanvasRef.current || !analyserRef.current) return;
         const canvas = visualizerCanvasRef.current;
         const ctx = canvas.getContext('2d')!;
         analyserRef.current.getByteFrequencyData(dataArray);
-
+ 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         const barWidth = (canvas.width / bufferLength) * 1.2;
         let x = (canvas.width - (barWidth * bufferLength)) / 2;
-
+ 
         for(let i = 0; i < bufferLength; i++) {
           const barHeight = (dataArray[i] / 255) * canvas.height;
           ctx.fillStyle = state.visualizerColor || '#D4AF37';
@@ -85,11 +104,11 @@ export function VideoPreview() {
         }
         animationFrameRef.current = requestAnimationFrame(draw);
       };
-
+ 
       draw();
       return () => {
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-        audioContext.close().catch(() => {});
+        // Do not close the AudioContext here to avoid breaking the source node connection
       };
     } catch (e) { console.error("Visualizer error:", e); }
   }, [state.showVisualizer, state.visualizerColor]);

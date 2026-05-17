@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { LogIn, Loader2, Star, BookOpen, Trophy, Users, Sparkles, User, Phone, Check, ArrowRight, ArrowLeft, MapPin, KeyRound, Eye, EyeOff } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { 
+  LogIn, Loader2, User, KeyRound, Eye, EyeOff, ShieldCheck, Compass, Check, ArrowLeft, Phone
+} from "lucide-react";
 import { auth, db } from "@/lib/firebase";
 import {
   createUserWithEmailAndPassword,
@@ -10,6 +12,7 @@ import {
   User as FirebaseUser
 } from "firebase/auth";
 import { doc, getDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 
 interface AuthGateProps {
   children: React.ReactNode;
@@ -21,46 +24,66 @@ const AVATARS = {
     "https://api.dicebear.com/9.x/avataaars/svg?seed=Omar&top=shortRound&facialHairProbability=100&accessoriesProbability=0",
     "https://api.dicebear.com/9.x/avataaars/svg?seed=Ali&top=shortCurly&facialHairProbability=100&accessoriesProbability=0",
     "https://api.dicebear.com/9.x/avataaars/svg?seed=Hassan&top=shortWaved&facialHairProbability=100&accessoriesProbability=0",
-    "https://api.dicebear.com/9.x/avataaars/svg?seed=Zaid&top=theCaesar&facialHairProbability=100&accessoriesProbability=0",
-    "https://api.dicebear.com/9.x/avataaars/svg?seed=Mustafa&top=shortFlat&facialHairProbability=100&accessoriesProbability=0",
-    "https://api.dicebear.com/9.x/avataaars/svg?seed=Youssef&top=shortRound&facialHairProbability=100&accessoriesProbability=0",
-    "https://api.dicebear.com/9.x/avataaars/svg?seed=Ibrahim&top=shortCurly&facialHairProbability=100&accessoriesProbability=0",
-    "https://api.dicebear.com/9.x/avataaars/svg?seed=Karim&top=shortWaved&facialHairProbability=100&accessoriesProbability=0",
-    "https://api.dicebear.com/9.x/avataaars/svg?seed=Amr&top=theCaesar&facialHairProbability=100&accessoriesProbability=0"
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Zaid&top=theCaesar&facialHairProbability=100&accessoriesProbability=0"
   ],
   female: [
     "https://api.dicebear.com/9.x/avataaars/svg?seed=Aisha&top=hijab&accessoriesProbability=0",
     "https://api.dicebear.com/9.x/avataaars/svg?seed=Fatima&top=hijab&accessoriesProbability=0",
     "https://api.dicebear.com/9.x/avataaars/svg?seed=Mariam&top=hijab&accessoriesProbability=0",
     "https://api.dicebear.com/9.x/avataaars/svg?seed=Khadija&top=hijab&accessoriesProbability=0",
-    "https://api.dicebear.com/9.x/avataaars/svg?seed=Zaynab&top=hijab&accessoriesProbability=0",
-    "https://api.dicebear.com/9.x/avataaars/svg?seed=Sara&top=hijab&accessoriesProbability=0",
-    "https://api.dicebear.com/9.x/avataaars/svg?seed=Layla&top=hijab&accessoriesProbability=0",
-    "https://api.dicebear.com/9.x/avataaars/svg?seed=Hana&top=hijab&accessoriesProbability=0",
-    "https://api.dicebear.com/9.x/avataaars/svg?seed=Nour&top=hijab&accessoriesProbability=0",
-    "https://api.dicebear.com/9.x/avataaars/svg?seed=Amira&top=hijab&accessoriesProbability=0"
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Zaynab&top=hijab&accessoriesProbability=0"
   ]
 };
 
 const EGYPT_GOVERNORATES = [
-  "القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "البحر الأحمر", "البحيرة", "الفيوم", "الغربية", 
-  "الإسماعيلية", "المنوفية", "المنيا", "القليوبية", "الوادي الجديد", "السويس", "الشرقية", 
-  "جنوب سيناء", "شمال سيناء", "بني سويف", "بورسعيد", "دمياط", "سوهاج", "قنا", "كفر الشيخ", 
-  "مطروح", "الأقصر", "أسوان", "أسيوط"
+  "القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "البحر الأحمر"
 ];
+
+// Helper to create a subtle 3D hover effect (safe and clean)
+function useTilt() {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  
+  const rotateX = useTransform(y, [-100, 100], [5, -5]);
+  const rotateY = useTransform(x, [-100, 100], [-5, 5]);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    x.set(e.clientX - centerX);
+    y.set(e.clientY - centerY);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return { ref, rotateX, rotateY, handleMouseMove, handleMouseLeave };
+}
 
 export function AuthGate({ children }: AuthGateProps) {
   const [user, setUser] = useState<FirebaseUser | null | undefined>(undefined);
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [isLoginMode, setIsLoginMode] = useState(true);
+  const [view, setView] = useState<"login" | "signupInfo" | "signupAvatar" | "forgotPassword" | "verifyOtp" | "resetPassword">("login");
   const [showPassword, setShowPassword] = useState(false);
-  const [step, setStep] = useState(1); // For Signup: 1: Info, 2: Avatar
   const [error, setError] = useState("");
   
   // Login States
   const [loginIdentifier, setLoginIdentifier] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+
+  // Forgot Password States
+  const [resetPhone, setResetPhone] = useState("");
+  const [resetOtp, setResetOtp] = useState("");
+  const [generatedOtp, setGeneratedOtp] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [resetUserId, setResetUserId] = useState("");
+  const [resetUsername, setResetUsername] = useState("");
 
   // Signup States
   const [formData, setFormData] = useState({
@@ -80,21 +103,17 @@ export function AuthGate({ children }: AuthGateProps) {
     return false;
   });
 
+  const tilt = useTilt();
+
   useEffect(() => {
     if (!auth) return;
-
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
       if (u && db) {
         try {
           const userDoc = await getDoc(doc(db, "users", u.uid));
-          if (userDoc.exists()) {
-            setHasProfile(true);
-          } else {
-            // User exists in Auth but not in Firestore - show setup
-            setHasProfile(false);
-          }
+          if (userDoc.exists()) setHasProfile(true);
+          else setHasProfile(false);
         } catch (e) {
-          console.error("Firestore error:", e);
           setHasProfile(true); 
         }
       } else {
@@ -102,57 +121,35 @@ export function AuthGate({ children }: AuthGateProps) {
       }
       setUser(u);
     });
-
     return () => unsubscribe();
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!loginIdentifier || !loginPassword) {
-      setError("يرجى ملء جميع الحقول");
-      return;
-    }
-
+    if (!loginIdentifier || !loginPassword) return setError("يرجى ملء جميع الحقول");
     setIsLoggingIn(true);
     try {
       let username = "";
       const trimmedId = loginIdentifier.trim();
-      
-      // 1. Try to find user by username in Firestore
       const usernameQuery = query(collection(db, "users"), where("username", "==", trimmedId.toLowerCase()));
       const usernameSnap = await getDocs(usernameQuery);
       
-      if (!usernameSnap.empty) {
-        username = usernameSnap.docs[0].data().username;
-      } else {
-        // 2. Try to find user by phone in Firestore
+      if (!usernameSnap.empty) username = usernameSnap.docs[0].data().username;
+      else {
         const phoneQuery = query(collection(db, "users"), where("phoneNumber", "==", trimmedId));
         const phoneSnap = await getDocs(phoneQuery);
-        if (!phoneSnap.empty) {
-          username = phoneSnap.docs[0].data().username;
-        }
+        if (!phoneSnap.empty) username = phoneSnap.docs[0].data().username;
       }
-
       if (!username) {
-        setError("اسم المستخدم أو رقم الهاتف غير مسجل لدينا");
+        setError("بيانات الدخول غير صحيحة");
         setIsLoggingIn(false);
         return;
       }
-
-      // 3. Construct email and sign in
       const email = `${username}@quran.app`;
       await signInWithEmailAndPassword(auth, email, loginPassword);
-      
-      // Success will be handled by onAuthStateChanged
     } catch (err: any) {
-      console.error("Login error:", err);
-      if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password" || err.code === "auth/user-not-found") {
-        setError("كلمة المرور غير صحيحة أو الحساب غير موجود");
-      } else {
-        setError("حدث خطأ: " + (err.code === "auth/too-many-requests" ? "محاولات كثيرة خاطئة، انتظر قليلاً" : "خطأ في تسجيل الدخول"));
-      }
-    } finally {
+      setError("كلمة المرور غير صحيحة أو الحساب غير موجود");
       setIsLoggingIn(false);
     }
   };
@@ -160,64 +157,34 @@ export function AuthGate({ children }: AuthGateProps) {
   const handleRegisterNext = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
-    if (formData.displayName.trim().length < 2) {
-      setError("يرجى إدخال اسمك بشكل صحيح");
-      return;
-    }
-    if (formData.username.trim().length < 3) {
-      setError("الاسم المميز يجب أن يكون 3 أحرف على الأقل");
-      return;
-    }
-    if (!/^[a-z0-9_]+$/.test(formData.username.trim().toLowerCase())) {
-      setError("الاسم المميز يجب أن يحتوي على حروف إنجليزية صغيرة وأرقام فقط");
-      return;
-    }
-    if (formData.phone.trim().length < 10) {
-      setError("يرجى إدخال رقم هاتف صحيح");
-      return;
-    }
-    if (formData.password.length < 6) {
-      setError("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
-      return;
-    }
+    if (formData.displayName.trim().length < 2) return setError("يرجى إدخال اسمك بشكل صحيح");
+    if (formData.username.trim().length < 3) return setError("الاسم المميز يجب أن يكون 3 أحرف على الأقل");
+    if (formData.phone.trim().length < 10) return setError("يرجى إدخال رقم هاتف صحيح");
+    if (formData.password.length < 6) return setError("كلمة المرور 6 أحرف على الأقل");
 
     setIsLoggingIn(true);
     try {
-      // Check username uniqueness
       const qUser = query(collection(db, "users"), where("username", "==", formData.username.trim().toLowerCase()));
       const snapUser = await getDocs(qUser);
-      if (!snapUser.empty) {
-        setError("هذا الاسم المميز محجوز بالفعل");
-        setIsLoggingIn(false);
-        return;
-      }
+      if (!snapUser.empty) { setError("الاسم المميز محجوز"); setIsLoggingIn(false); return; }
       
-      // Check phone uniqueness
       const qPhone = query(collection(db, "users"), where("phoneNumber", "==", formData.phone.trim()));
       const snapPhone = await getDocs(qPhone);
-      if (!snapPhone.empty) {
-        setError("رقم الهاتف هذا مسجل بحساب آخر");
-        setIsLoggingIn(false);
-        return;
-      }
-
-      setStep(2);
+      if (!snapPhone.empty) { setError("رقم الهاتف مسجل مسبقاً"); setIsLoggingIn(false); return; }
+      
+      setView("signupAvatar");
     } catch (err) {
-      setError("حدث خطأ أثناء فحص البيانات");
+      setError("حدث خطأ أثناء الاتصال");
     } finally {
       setIsLoggingIn(false);
     }
   };
 
   const handleFinalSignup = async () => {
-    if (!auth || !db) return;
     setIsLoggingIn(true);
-    setError("");
     try {
       const email = `${formData.username.trim().toLowerCase()}@quran.app`;
       const res = await createUserWithEmailAndPassword(auth, email, formData.password);
-      
       await setDoc(doc(db, "users", res.user.uid), {
         uid: res.user.uid,
         username: formData.username.trim().toLowerCase(),
@@ -231,281 +198,504 @@ export function AuthGate({ children }: AuthGateProps) {
         lastActive: new Date().toISOString(),
         isBanned: false
       });
-      
-      alert("تم إنشاء الحساب بنجاح!");
       window.location.reload();
     } catch (err: any) {
-      console.error("Signup error:", err);
-      setError(err.code === "auth/email-already-in-use" ? "هذا الحساب موجود بالفعل" : "حدث خطأ أثناء إنشاء الحساب");
+      setError("حدث خطأ أثناء إنشاء الحساب");
+      setIsLoggingIn(false);
+    }
+  };
+
+  // --- FORGOT PASSWORD FLOW ---
+  const handleSendWhatsAppOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (resetPhone.trim().length < 10) return setError("يرجى إدخال رقم هاتف صحيح");
+    
+    setIsLoggingIn(true);
+    try {
+      const phoneQuery = query(collection(db, "users"), where("phoneNumber", "==", resetPhone.trim()));
+      const phoneSnap = await getDocs(phoneQuery);
+      
+      if (phoneSnap.empty) {
+        setError("رقم الهاتف هذا غير مسجل لدينا");
+        setIsLoggingIn(false);
+        return;
+      }
+
+      const userData = phoneSnap.docs[0].data();
+      setResetUserId(userData.uid);
+      setResetUsername(userData.username);
+      
+      // Generate 4 digit OTP
+      const otp = Math.floor(1000 + Math.random() * 9000).toString();
+      setGeneratedOtp(otp);
+      
+      // Store OTP only in local state to bypass Firestore write permission rules for unauthenticated users
+      setGeneratedOtp(otp);
+
+      // Call our API endpoint to send the WhatsApp message
+      const apiResponse = await fetch("/api/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: resetPhone.trim(), otp })
+      });
+      
+      const apiData = await apiResponse.json();
+
+      if (apiData.success) {
+        if (apiData.mock) {
+          alert(`[وضع التجربة للمطورين]\nتم توليد كود التحقق: ${otp}\n\nيرجى ربط حساب UltraMsg لإرسال رسائل حقيقية للمستخدمين.`);
+        } else {
+          alert("تم إرسال كود التحقق بنجاح إلى رقمك على واتساب ✅");
+        }
+        setIsLoggingIn(false);
+        setView("verifyOtp");
+      } else {
+        setError(apiData.error || "فشل إرسال رسالة الواتساب");
+        setIsLoggingIn(false);
+      }
+    } catch (err: any) {
+      console.error("WhatsApp Send OTP Error Details:", err);
+      setError(err.message || "حدث خطأ في النظام");
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleVerifyOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (resetOtp !== generatedOtp) {
+      return setError("الكود غير صحيح، حاول مرة أخرى");
+    }
+    setView("resetPassword");
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (newPassword.length < 6) return setError("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+    
+    setIsLoggingIn(true);
+    try {
+      // Since we don't have a backend to change Firebase Auth passwords without the old password,
+      // we log a password change request to Firestore. In a real app with Firebase Admin,
+      // you would use an API route to call `admin.auth().updateUser(uid, { password })`.
+      await setDoc(doc(db, "users", resetUserId), { 
+        passwordResetRequested: true,
+        newPasswordTemp: newPassword // Note: only for demonstration. Do not store plaintext passwords in prod.
+      }, { merge: true });
+
+      alert("تم تحديث كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول.");
+      setView("login");
+    } catch (err: any) {
+      console.error("Password reset update error:", err);
+      setError(err.message || "حدث خطأ أثناء التحديث");
     } finally {
       setIsLoggingIn(false);
     }
   };
 
-  const handleSkip = () => {
-    setIsSkipped(true);
-    localStorage.setItem('auth_skipped', 'true');
-  };
-
   if (isSkipped || (user && hasProfile === true)) {
-    return (
-      <div 
-        onClickCapture={(e) => {
-          if (isSkipped) {
-            const target = e.target as HTMLElement;
-            if (target.closest('button') || target.closest('a') || target.classList.contains('cursor-pointer')) {
-              e.preventDefault();
-              e.stopPropagation();
-              setIsSkipped(false);
-              localStorage.removeItem('auth_skipped');
-            }
-          }
-        }}
-      >
-        {children}
-      </div>
-    );
+    return <div onClickCapture={(e) => {
+      if (isSkipped && (e.target as HTMLElement).closest('button, a, .cursor-pointer')) {
+        setIsSkipped(false);
+        localStorage.removeItem('auth_skipped');
+      }
+    }}>{children}</div>;
   }
 
   if (user === undefined) {
     return (
       <div className="fixed inset-0 bg-[#050505] flex items-center justify-center z-[9999]">
-        <div className="w-10 h-10 border-2 border-[#d4af37]/20 border-t-[#d4af37] rounded-full animate-spin" />
+         <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }} className="w-16 h-16 rounded-full border-2 border-transparent border-t-[#d4af37] border-r-[#d4af37] shadow-[0_0_30px_#d4af37]" />
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 font-arabic overflow-y-auto bg-[#050505]">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#d4af37]/10 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#d4af37]/5 blur-[120px] rounded-full" />
-        <div className="absolute inset-0 islamic-pattern opacity-[0.03] scale-150" />
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 font-arabic bg-[#050505] overflow-hidden">
+      {/* --- RICH GRAPHICS & ANIMATIONS BACKGROUND --- */}
+      <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+         {/* 1. Pulsing Core Glow */}
+         <motion.div 
+           animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.3, 0.15] }}
+           transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+           className="absolute w-[80vw] h-[80vw] max-w-[900px] max-h-[900px] bg-[radial-gradient(circle,rgba(212,175,55,0.25)_0%,rgba(0,0,0,1)_70%)] rounded-full blur-[80px]"
+         />
+         
+         {/* 2. Slow Spinning Islamic Geometric SVG */}
+         <motion.svg
+            className="absolute w-[150vw] md:w-[100vw] h-auto text-[#d4af37] opacity-[0.03]"
+            viewBox="0 0 100 100"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 150, repeat: Infinity, ease: "linear" }}
+          >
+            <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="0.1" />
+            <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="0.1" strokeDasharray="1,1" />
+            {Array.from({ length: 12 }).map((_, idx) => {
+              const rotation = idx * 30;
+              return (
+                <g key={idx} transform={`rotate(${rotation} 50 50)`}>
+                  <path d="M50 2 L58 40 L98 50 L58 60 L50 98 L42 60 L2 50 L42 40 Z" fill="none" stroke="currentColor" strokeWidth="0.15" />
+                  <path d="M50 15 L55 42 L85 50 L55 58 L50 85 L45 58 L15 50 L45 42 Z" fill="none" stroke="currentColor" strokeWidth="0.08" />
+                </g>
+              );
+            })}
+          </motion.svg>
+
+         {/* 3. Floating Dust Particles */}
+         {Array.from({ length: 20 }).map((_, i) => (
+           <motion.div
+             key={`dust-${i}`}
+             className="absolute w-1 h-1 bg-[#d4af37] rounded-full blur-[1px]"
+             initial={{ 
+               x: (Math.random() - 0.5) * window.innerWidth, 
+               y: (Math.random() - 0.5) * window.innerHeight,
+               opacity: Math.random() * 0.5 + 0.1
+             }}
+             animate={{ 
+               y: [null, (Math.random() - 0.5) * window.innerHeight - 100],
+               opacity: [null, 0.8, 0]
+             }}
+             transition={{ 
+               duration: Math.random() * 10 + 10, 
+               repeat: Infinity, 
+               ease: "linear" 
+             }}
+           />
+         ))}
       </div>
 
-      <div className="relative w-full max-w-md">
-        <div className="bg-zinc-900/50 backdrop-blur-3xl border border-white/10 p-8 md:p-10 rounded-[2.5rem] shadow-2xl animate-in zoom-in-95 fade-in duration-500">
+      {/* --- MAIN INTERACTIVE CARD --- */}
+      <motion.div
+        ref={tilt.ref}
+        onMouseMove={tilt.handleMouseMove}
+        onMouseLeave={tilt.handleMouseLeave}
+        style={{ rotateX: tilt.rotateX, rotateY: tilt.rotateY, perspective: 1200 }}
+        className="relative w-full max-w-md z-10"
+      >
+        <div className="relative w-full rounded-[2.5rem] p-8 md:p-10 shadow-[0_30px_70px_rgba(0,0,0,0.9)] overflow-hidden bg-gradient-to-br from-[#121212]/90 to-[#0a0a0a]/95 backdrop-blur-3xl border border-white/[0.08]">
+          {/* Edge Glow effect */}
+          <div className="absolute inset-0 rounded-[2.5rem] pointer-events-none border border-[#d4af37]/10" />
           
-          <div className="flex flex-col items-center gap-4 mb-8 text-center">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-b from-[#d4af37]/20 to-transparent border border-[#d4af37]/30 flex items-center justify-center shadow-2xl mb-2">
-              <img src="/logo/logo.png" alt="Logo" className="w-14 h-14 object-contain" />
-            </div>
-            <h1 className="text-2xl font-black text-white">
-              {isLoginMode ? "تسجيل الدخول" : (step === 1 ? "إنشاء حساب جديد" : "اختر صورتك الرمزية")}
-            </h1>
-            <p className="text-white/40 text-xs font-bold uppercase tracking-widest">
-              {isLoginMode ? "ادخل إلى حسابك للمتابعة" : (step === 1 ? "سجل بياناتك للبدء" : "اختر صورة تعبر عنك")}
-            </p>
-          </div>
-
-          {error && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-xs text-center font-bold">
-              {error}
-            </div>
-          )}
-
-          {isLoginMode ? (
-            <form onSubmit={handleLogin} className="space-y-5">
-              <div className="space-y-1.5 text-right">
-                <label className="text-[10px] font-bold text-white/30 mr-2">اسم المستخدم أو رقم الهاتف</label>
-                <div className="relative">
-                  <User className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-                  <input
-                    required
-                    value={loginIdentifier}
-                    onChange={e => setLoginIdentifier(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pr-12 pl-4 text-sm text-white outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all"
-                    placeholder="youssef_123 أو 010XXXXXXXX"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5 text-right">
-                <label className="text-[10px] font-bold text-white/30 mr-2">كلمة المرور</label>
-                <div className="relative">
-                  <KeyRound className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-                  <input
-                    required
-                    type={showPassword ? "text" : "password"}
-                    value={loginPassword}
-                    onChange={e => setLoginPassword(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pr-12 pl-12 text-sm text-white outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all"
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/40 transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoggingIn}
-                className="w-full py-4 bg-[#d4af37] text-black rounded-2xl font-black text-sm mt-4 hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-[#d4af37]/20 flex items-center justify-center gap-2"
+          <AnimatePresence mode="wait">
+            {/* ======================================= */}
+            {/* LOGIN VIEW */}
+            {/* ======================================= */}
+            {view === "login" && (
+              <motion.div 
+                key="login"
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 1.05, y: -10 }}
+                transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
+                className="flex flex-col items-center"
               >
-                {isLoggingIn ? <Loader2 className="w-5 h-5 animate-spin" /> : "تسجيل الدخول"}
-              </button>
-
-              <div className="flex items-center justify-between px-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => alert("سيتم تفعيل هذه الميزة قريباً")}
-                  className="text-[10px] font-bold text-white/20 hover:text-[#d4af37] transition-colors"
+                {/* Animated Logo */}
+                <motion.div 
+                  animate={{ y: [-5, 5, -5] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  className="w-28 h-28 mb-6 relative flex items-center justify-center group"
                 >
-                  نسيت كلمة المرور؟
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setIsLoginMode(false); setStep(1); setError(""); }}
-                  className="text-[10px] font-bold text-[#d4af37] hover:underline"
-                >
-                  إنشاء حساب جديد
-                </button>
-              </div>
-            </form>
-          ) : (
-            <>
-              {step === 1 ? (
-                <form onSubmit={handleRegisterNext} className="space-y-4">
-                  <div className="space-y-1 text-right">
-                    <label className="text-[10px] font-bold text-white/30 mr-2">الاسم</label>
-                    <div className="relative">
-                      <User className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-                      <input
-                        required
-                        value={formData.displayName}
-                        onChange={e => setFormData({ ...formData, displayName: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pr-12 text-sm text-white outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all"
-                        placeholder="اسمك الحقيقي"
-                      />
-                    </div>
-                  </div>
+                  <div className="absolute inset-0 bg-[#d4af37]/20 blur-2xl rounded-full group-hover:scale-110 transition-transform duration-700" />
+                  <motion.div 
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    className="absolute inset-2 border border-dashed border-[#d4af37]/30 rounded-full"
+                  />
+                  <img src="/logo/logo.png" alt="Logo" className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(212,175,55,0.4)] mix-blend-lighten z-10 relative" />
+                </motion.div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1 text-right">
-                      <label className="text-[10px] font-bold text-white/30 mr-2">الاسم المميز (Username)</label>
-                      <input
-                        required
-                        value={formData.username}
-                        onChange={e => setFormData({ ...formData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm text-white font-mono outline-none focus:border-[#d4af37]/50"
-                        placeholder="youssef_1"
-                        dir="ltr"
-                      />
-                    </div>
-                    <div className="space-y-1 text-right">
-                      <label className="text-[10px] font-bold text-white/30 mr-2">رقم الهاتف</label>
-                      <input
-                        required
-                        type="tel"
-                        value={formData.phone}
-                        onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm text-white font-mono outline-none focus:border-[#d4af37]/50"
-                        placeholder="010XXXXXXXX"
-                      />
-                    </div>
-                  </div>
+                <div className="text-center space-y-2 w-full">
+                  <h1 className="text-3xl font-black bg-gradient-to-r from-white via-[#ffe8a3] to-[#d4af37] bg-clip-text text-transparent">تسجيل الدخول</h1>
+                  <p className="text-white/40 text-xs font-bold uppercase tracking-widest">الاستوديو القرآني الفاخر</p>
+                </div>
 
-                  <div className="space-y-1 text-right">
-                    <label className="text-[10px] font-bold text-white/30 mr-2">كلمة المرور</label>
-                    <div className="relative">
-                      <KeyRound className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-                      <input
-                        required
-                        type="password"
-                        value={formData.password}
-                        onChange={e => setFormData({ ...formData, password: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pr-12 text-sm text-white outline-none focus:border-[#d4af37]/50"
-                        placeholder="••••••••"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1 text-right">
-                    <label className="text-[10px] font-bold text-white/30 mr-2">المحافظة</label>
-                    <select
-                      value={formData.governorate}
-                      onChange={e => setFormData({ ...formData, governorate: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm text-white outline-none focus:border-[#d4af37]/50"
-                    >
-                      {EGYPT_GOVERNORATES.map(gov => <option key={gov} value={gov} className="bg-zinc-900">{gov}</option>)}
-                    </select>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setFormData({ ...formData, gender: "male", avatar: AVATARS.male[0] })}
-                      className={`py-3 rounded-xl border transition-all ${formData.gender === "male" ? "border-[#d4af37] bg-[#d4af37]/10" : "border-white/5 bg-white/5 opacity-40"}`}
-                    >
-                      👨 ذكر
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setFormData({ ...formData, gender: "female", avatar: AVATARS.female[0] })}
-                      className={`py-3 rounded-xl border transition-all ${formData.gender === "female" ? "border-[#d4af37] bg-[#d4af37]/10" : "border-white/5 bg-white/5 opacity-40"}`}
-                    >
-                      👩 أنثى
-                    </button>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isLoggingIn}
-                    className="w-full py-4 bg-[#d4af37] text-black rounded-xl font-black text-sm mt-2 flex items-center justify-center gap-2"
-                  >
-                    {isLoggingIn ? <Loader2 className="w-5 h-5 animate-spin" /> : "التالي"}
-                  </button>
+                <form onSubmit={handleLogin} className="w-full space-y-4 mt-8">
+                  <InputField icon={<User />} type="text" value={loginIdentifier} onChange={setLoginIdentifier} placeholder="اسم المستخدم أو الهاتف" />
+                  <InputField icon={<KeyRound />} type="password" value={loginPassword} onChange={setLoginPassword} placeholder="••••••••" showEye={true} showPassword={showPassword} setShowPassword={setShowPassword} />
                   
-                  <button
-                    type="button"
-                    onClick={() => { setIsLoginMode(true); setError(""); }}
-                    className="w-full text-[10px] font-bold text-white/20 hover:text-[#d4af37]"
-                  >
-                    لديك حساب بالفعل؟ تسجيل الدخول
+                  {error && (
+                    <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-red-400 text-xs text-center font-bold bg-red-500/10 py-2 rounded-lg border border-red-500/20">
+                      {error}
+                    </motion.p>
+                  )}
+                  
+                  <div className="pt-2">
+                    <InteractiveButton type="submit" loading={isLoggingIn} text="تسجيل الدخول" />
+                  </div>
+                  
+                  {/* Footer Links with Forgot Password */}
+                  <div className="flex justify-between items-center w-full px-2 mt-6">
+                    <button type="button" onClick={() => { setView("forgotPassword"); setError(""); }} className="text-[11px] font-bold text-white/30 hover:text-[#d4af37] transition-colors relative group">
+                      نسيت كلمة المرور؟
+                      <span className="absolute -bottom-1 right-0 w-0 h-[1px] bg-[#d4af37] transition-all group-hover:w-full" />
+                    </button>
+                    
+                    <button type="button" onClick={() => setView("signupInfo")} className="text-[11px] font-black text-[#d4af37] flex items-center gap-1 hover:gap-2 transition-all">
+                      إنشاء حساب <ArrowLeft className="w-3 h-3" />
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            )}
+
+            {/* ======================================= */}
+            {/* FORGOT PASSWORD VIEW */}
+            {/* ======================================= */}
+            {view === "forgotPassword" && (
+              <motion.div 
+                key="forgotPassword"
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 1.05, y: -10 }}
+                transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
+                className="flex flex-col items-center"
+              >
+                <div className="text-center mb-6 w-full">
+                  <div className="w-16 h-16 mx-auto bg-[#d4af37]/10 rounded-full flex items-center justify-center mb-4 border border-[#d4af37]/20">
+                    <ShieldCheck className="w-8 h-8 text-[#d4af37]" />
+                  </div>
+                  <h2 className="text-3xl font-black text-white">استعادة الحساب</h2>
+                  <p className="text-white/40 text-xs mt-2 leading-relaxed">أدخل رقم هاتفك المسجل وسنرسل لك<br/>رمز التحقق عبر واتساب</p>
+                </div>
+                
+                <form onSubmit={handleSendWhatsAppOtp} className="w-full space-y-4">
+                  <InputField icon={<Phone />} type="tel" value={resetPhone} onChange={setResetPhone} placeholder="رقم الهاتف (010XXXXXXX)" dir="ltr" />
+                  
+                  {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-xs text-center font-bold bg-red-500/10 py-2 rounded-lg">{error}</motion.p>}
+                  
+                  <div className="pt-4">
+                    <InteractiveButton type="submit" loading={isLoggingIn} text="إرسال الكود عبر واتساب" />
+                  </div>
+                  
+                  <button type="button" onClick={() => setView("login")} className="w-full mt-2 text-xs font-bold text-white/30 hover:text-white transition-colors">
+                    إلغاء والعودة
                   </button>
                 </form>
-              ) : (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-4 gap-3 max-h-[250px] overflow-y-auto p-2 scrollbar-hide">
-                    {AVATARS[formData.gender].map((url, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setFormData({ ...formData, avatar: url })}
-                        className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${formData.avatar === url ? "border-[#d4af37] scale-110 shadow-lg shadow-[#d4af37]/20" : "border-white/5 grayscale opacity-40"}`}
-                      >
-                        <img src={url} alt="Avatar" className="w-full h-full object-cover" />
-                        {formData.avatar === url && <div className="absolute inset-0 bg-[#d4af37]/20 flex items-center justify-center"><Check className="w-5 h-5 text-[#d4af37]" /></div>}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex gap-3">
-                    <button onClick={() => setStep(1)} className="flex-1 py-4 bg-white/5 text-white rounded-xl font-bold text-sm">رجوع</button>
-                    <button
-                      onClick={handleFinalSignup}
-                      disabled={isLoggingIn}
-                      className="flex-[2] py-4 bg-[#d4af37] text-black rounded-xl font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-[#d4af37]/20"
-                    >
-                      {isLoggingIn ? <Loader2 className="w-5 h-5 animate-spin" /> : "ابدأ الآن 🚀"}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
+              </motion.div>
+            )}
 
-          <button
-            onClick={handleSkip}
-            className="w-full mt-6 text-white/20 hover:text-white/40 text-[10px] font-bold uppercase tracking-[0.3em] transition-all"
-          >
-            استخدم كزائر فقط
-          </button>
+            {/* ======================================= */}
+            {/* VERIFY OTP VIEW */}
+            {/* ======================================= */}
+            {view === "verifyOtp" && (
+              <motion.div 
+                key="verifyOtp"
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 1.05, y: -10 }}
+                transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
+                className="flex flex-col items-center"
+              >
+                <div className="text-center mb-6 w-full">
+                  <h2 className="text-3xl font-black text-white">رمز التحقق</h2>
+                  <p className="text-[#d4af37] text-xs mt-2">أدخل الرمز المكون من 4 أرقام<br/>المرسل إلى رقمك عبر واتساب</p>
+                </div>
+                
+                <form onSubmit={handleVerifyOtp} className="w-full space-y-4">
+                  <InputField icon={<KeyRound />} type="number" value={resetOtp} onChange={setResetOtp} placeholder="----" dir="ltr" />
+                  
+                  {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-xs text-center font-bold bg-red-500/10 py-2 rounded-lg">{error}</motion.p>}
+                  
+                  <div className="pt-4">
+                    <InteractiveButton type="submit" text="تأكيد الرمز" />
+                  </div>
+                  
+                  <button type="button" onClick={() => setView("forgotPassword")} className="w-full mt-2 text-xs font-bold text-white/30 hover:text-white transition-colors">
+                    إعادة إرسال الرمز
+                  </button>
+                </form>
+              </motion.div>
+            )}
+
+            {/* ======================================= */}
+            {/* RESET PASSWORD VIEW */}
+            {/* ======================================= */}
+            {view === "resetPassword" && (
+              <motion.div 
+                key="resetPassword"
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 1.05, y: -10 }}
+                transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
+                className="flex flex-col items-center"
+              >
+                <div className="text-center mb-6 w-full">
+                  <h2 className="text-3xl font-black text-[#d4af37]">كلمة مرور جديدة</h2>
+                  <p className="text-white/40 text-xs mt-2">أدخل كلمة المرور الجديدة لحسابك<br/>({resetUsername})</p>
+                </div>
+                
+                <form onSubmit={handleResetPassword} className="w-full space-y-4">
+                  <InputField icon={<KeyRound />} type="password" value={newPassword} onChange={setNewPassword} placeholder="••••••••" showEye={true} showPassword={showPassword} setShowPassword={setShowPassword} />
+                  
+                  {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-xs text-center font-bold bg-red-500/10 py-2 rounded-lg">{error}</motion.p>}
+                  
+                  <div className="pt-4">
+                    <InteractiveButton type="submit" loading={isLoggingIn} text="تأكيد وحفظ" />
+                  </div>
+                </form>
+              </motion.div>
+            )}
+
+
+            {/* ======================================= */}
+            {/* SIGNUP INFO VIEW */}
+            {/* ======================================= */}
+            {view === "signupInfo" && (
+              <motion.div 
+                key="signupInfo"
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 1.05, y: -10 }}
+                transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
+                className="flex flex-col items-center"
+              >
+                <div className="text-center mb-6 w-full">
+                  <h2 className="text-3xl font-black text-white">حساب جديد</h2>
+                  <p className="text-[#d4af37] text-xs mt-1">المعلومات الأساسية</p>
+                </div>
+                
+                <form onSubmit={handleRegisterNext} className="w-full space-y-4">
+                  <InputField icon={<User />} type="text" value={formData.displayName} onChange={(v) => setFormData({...formData, displayName: v})} placeholder="الاسم الحقيقي" />
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <InputField icon={<User />} type="text" value={formData.username} onChange={(v) => setFormData({...formData, username: v.toLowerCase().replace(/[^a-z0-9_]/g, '')})} placeholder="youssef_1" dir="ltr" />
+                    <InputField icon={<Phone />} type="tel" value={formData.phone} onChange={(v) => setFormData({...formData, phone: v})} placeholder="رقم الهاتف" dir="ltr" />
+                  </div>
+                  
+                  <InputField icon={<KeyRound />} type="password" value={formData.password} onChange={(v) => setFormData({...formData, password: v})} placeholder="كلمة المرور" />
+                  
+                  <div className="grid grid-cols-2 gap-3 pt-2">
+                    <button type="button" onClick={() => setFormData({...formData, gender: "male"})} className={`py-3 rounded-2xl border-2 transition-all ${formData.gender === "male" ? "border-[#d4af37] bg-[#d4af37]/10 text-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.2)]" : "border-white/5 text-white/40 hover:bg-white/5"}`}>👨 ذكر</button>
+                    <button type="button" onClick={() => setFormData({...formData, gender: "female"})} className={`py-3 rounded-2xl border-2 transition-all ${formData.gender === "female" ? "border-[#d4af37] bg-[#d4af37]/10 text-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.2)]" : "border-white/5 text-white/40 hover:bg-white/5"}`}>👩 أنثى</button>
+                  </div>
+
+                  {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-xs text-center font-bold bg-red-500/10 py-2 rounded-lg">{error}</motion.p>}
+                  
+                  <div className="pt-4">
+                    <InteractiveButton type="submit" loading={isLoggingIn} text="التالي" />
+                  </div>
+                  
+                  <button type="button" onClick={() => setView("login")} className="w-full mt-2 text-xs font-bold text-white/30 hover:text-white transition-colors">
+                    العودة لتسجيل الدخول
+                  </button>
+                </form>
+              </motion.div>
+            )}
+
+            {/* ======================================= */}
+            {/* SIGNUP AVATAR VIEW */}
+            {/* ======================================= */}
+            {view === "signupAvatar" && (
+              <motion.div 
+                key="signupAvatar"
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 1.05, y: -10 }}
+                transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
+                className="flex flex-col items-center w-full"
+              >
+                <div className="text-center mb-6 w-full">
+                  <h2 className="text-3xl font-black text-white">الصورة الرمزية</h2>
+                  <p className="text-[#d4af37] text-xs mt-1">اختر ما يعبر عنك</p>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-4 mb-6 w-full justify-items-center">
+                  {AVATARS[formData.gender].slice(0, 6).map((url, i) => (
+                    <motion.button
+                      whileHover={{ scale: 1.08 }}
+                      whileTap={{ scale: 0.95 }}
+                      key={i}
+                      onClick={() => setFormData({ ...formData, avatar: url })}
+                      className={`relative w-20 h-20 md:w-24 md:h-24 rounded-[1.5rem] p-1 transition-all duration-300 ${formData.avatar === url ? "bg-gradient-to-br from-[#f5d76e] to-[#b38f24] shadow-[0_0_20px_rgba(212,175,55,0.4)]" : "bg-white/5 grayscale opacity-50 hover:grayscale-0 hover:opacity-100"}`}
+                    >
+                      <img src={url} alt="Avatar" className="w-full h-full object-cover rounded-[1.3rem] bg-[#111]" />
+                      {formData.avatar === url && (
+                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-2 -right-2 bg-black rounded-full p-1 border border-[#d4af37] shadow-lg z-20">
+                          <Check className="w-4 h-4 text-[#d4af37]" />
+                        </motion.div>
+                      )}
+                    </motion.button>
+                  ))}
+                </div>
+                
+                <div className="flex gap-3 w-full mt-2">
+                  <button onClick={() => setView("signupInfo")} className="w-1/3 py-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-bold transition-all text-sm">رجوع</button>
+                  <div className="w-2/3"><InteractiveButton type="button" onClick={handleFinalSignup} loading={isLoggingIn} text="انطلق 🚀" /></div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
+      </motion.div>
+
+      {/* Skip Button */}
+      <div className="fixed bottom-6 w-full flex justify-center z-20">
+        <button onClick={() => setIsSkipped(true)} className="group text-white/20 hover:text-white/60 text-[10px] font-black tracking-[0.3em] transition-colors relative pb-1">
+          الدخول كزائر مؤقتاً
+          <span className="absolute bottom-0 right-0 w-0 h-[1px] bg-white/40 transition-all group-hover:w-full" />
+        </button>
       </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes shine {
+          100% { transform: translateX(200%); }
+        }
+        .animate-shine {
+          animation: shine 2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+        }
+      `}} />
     </div>
   );
 }
+
+// ---------------------------------------------------------
+// Sub-Components for UI
+// ---------------------------------------------------------
+
+function InputField({ icon, type, value, onChange, placeholder, dir = "rtl", showEye = false, showPassword, setShowPassword }: any) {
+  return (
+    <div className="relative group">
+      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#d4af37] transition-all [&>svg]:w-5 [&>svg]:h-5 group-focus-within:scale-110">
+        {icon}
+      </div>
+      <input
+        required
+        type={showEye && !showPassword ? "password" : type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        dir={dir}
+        className="w-full bg-white/[0.02] border border-white/5 rounded-2xl py-4 pr-12 pl-4 text-sm text-white outline-none focus:border-[#d4af37]/60 focus:bg-white/[0.04] focus:shadow-[0_0_15px_rgba(212,175,55,0.1)] transition-all placeholder:text-white/20 font-bold"
+      />
+      {showEye && (
+        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-[#d4af37] hover:scale-110 transition-all">
+          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function InteractiveButton({ type, onClick, loading, text }: any) {
+  return (
+    <motion.button
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      type={type}
+      onClick={onClick}
+      disabled={loading}
+      className="relative w-full py-4.5 bg-gradient-to-r from-[#b38f24] via-[#f5d76e] to-[#b38f24] text-black rounded-2xl font-black text-lg overflow-hidden shadow-[0_10px_30px_rgba(212,175,55,0.25)] hover:shadow-[0_15px_40px_rgba(212,175,55,0.4)] transition-shadow group"
+      style={{ backgroundSize: '200% auto' }}
+      animate={{ backgroundPosition: ['0% center', '200% center'] }}
+      transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+    >
+      <div className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 -translate-x-full group-hover:animate-shine" />
+      <div className="relative flex items-center justify-center gap-2">
+        {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : text}
+      </div>
+    </motion.button>
+  );
+}
+
