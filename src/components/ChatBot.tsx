@@ -124,7 +124,7 @@ export function ChatBot() {
         whileHover={{ scale: 1.1, rotate: 5 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-8 sm:bottom-24 left-6 z-[400] w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500 group ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100'}`}
+        className={`fixed bottom-[90px] sm:bottom-24 left-4 sm:left-6 z-[400] w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500 group ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100'}`}
       >
         {/* Pulsing Aura */}
         <div className="absolute inset-0 bg-[#d4af37]/30 rounded-full blur-xl animate-pulse" />
@@ -156,7 +156,7 @@ export function ChatBot() {
             animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, y: 50, scale: 0.9, filter: "blur(10px)" }}
             transition={{ type: "spring", damping: 20, stiffness: 200 }}
-            className="fixed bottom-0 sm:bottom-20 left-0 sm:left-6 z-[500] w-full sm:w-[420px] h-[85vh] sm:h-[600px] bg-[#050505]/90 backdrop-blur-2xl sm:rounded-[2.5rem] rounded-t-[2.5rem] border border-[#d4af37]/20 shadow-[0_0_80px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden"
+            className="fixed bottom-[85px] sm:bottom-20 left-0 sm:left-6 z-[500] w-full sm:w-[420px] h-[80vh] sm:h-[600px] bg-[#050505]/95 backdrop-blur-3xl sm:rounded-[2.5rem] rounded-[2.5rem] border border-[#d4af37]/20 shadow-[0_0_80px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden"
           >
             {/* Background Animations */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
