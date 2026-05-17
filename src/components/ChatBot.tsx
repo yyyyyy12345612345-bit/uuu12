@@ -165,59 +165,60 @@ export function ChatBot() {
     // Check if there is an active quiz we are waiting for an answer to
     if (activeQuiz) {
       const userAns = userText.trim().toLowerCase();
-      const normalizedAns = userAns
-        .replace(/أ/g, "أ")
-        .replace(/ا/g, "أ")
-        .replace(/ب/g, "ب")
-        .replace(/ج/g, "ج")
-        .replace(/د/g, "د")
-        .toLowerCase();
+      // استخراج الإجابة إذا كانت حرفاً واحداً أو تبدأ بكلمات مثل "الخيار أ" أو "إجابة ب"
+      const optionMatch = userAns.match(/^(?:الخيار\s+|الاجابة\s+|إجابة\s+|حرف\s+)?([أابجدa-d])$/i);
 
-      const correctOpt = activeQuiz.correctOption.toLowerCase();
-      const optionMap: Record<string, string> = {
-        "أ": "أ", "ا": "أ", "a": "أ",
-        "ب": "ب", "b": "ب",
-        "ج": "ج", "c": "ج",
-        "د": "د", "d": "د"
-      };
+      if (optionMatch) {
+        const letter = optionMatch[1].toLowerCase();
+        const correctOpt = activeQuiz.correctOption.toLowerCase();
+        const optionMap: Record<string, string> = {
+          "أ": "أ", "ا": "أ", "a": "أ",
+          "ب": "ب", "b": "ب",
+          "ج": "ج", "c": "ج",
+          "د": "د", "d": "د"
+        };
 
-      const userChoice = optionMap[normalizedAns] || normalizedAns;
-      const isCorrect = userChoice === correctOpt;
+        const userChoice = optionMap[letter] || letter;
+        const isCorrect = userChoice === correctOpt;
 
-      let replyText = "";
-      if (isCorrect) {
-        replyText = `🎉 **إجابة صحيحة بارك الله فيك!** 👏✨
-        
+        let replyText = "";
+        if (isCorrect) {
+          replyText = `🎉 **إجابة صحيحة بارك الله فيك!** 👏✨
+          
 **التفسير/الشرح:**
 ${activeQuiz.explanation}
 
 🏆 حصلت على **+15 نقطة** مكافأة ذكاء ديني! استمر في التحدي وسؤال أسئلة أخرى!`;
-        
-        if (auth?.currentUser && db && dbUser) {
-          const currentPoints = dbUser.totalPoints || 0;
-          updateDoc(doc(db, "users", auth.currentUser.uid), {
-            totalPoints: currentPoints + 15
-          }).catch(e => console.error("Failed to reward quiz points:", e));
-        }
-      } else {
-        replyText = `❌ **إجابة خاطئة للأسف، حاول مرة أخرى!**
-        
+          
+          if (auth?.currentUser && db && dbUser) {
+            const currentPoints = dbUser.totalPoints || 0;
+            updateDoc(doc(db, "users", auth.currentUser.uid), {
+              totalPoints: currentPoints + 15
+            }).catch(e => console.error("Failed to reward quiz points:", e));
+          }
+        } else {
+          replyText = `❌ **إجابة خاطئة للأسف، حاول مرة أخرى!**
+          
 الخيار الصحيح كان: **(${activeQuiz.correctOption})**
 
 **التفسير/الشرح:**
 ${activeQuiz.explanation}
 
 لا تحزن، يمكنك دائماً طلبي بسؤال ديني آخر وتحدي جديد! 💪✨`;
-      }
+        }
 
-      setMessages(prev => [
-        ...prev,
-        newUserMsg,
-        { id: Date.now() + 1, text: replyText, sender: "bot" }
-      ]);
-      setActiveQuiz(null);
-      setMessage("");
-      return;
+        setMessages(prev => [
+          ...prev,
+          newUserMsg,
+          { id: Date.now() + 1, text: replyText, sender: "bot" }
+        ]);
+        setActiveQuiz(null);
+        setMessage("");
+        return;
+      } else {
+        // لو الإدخال ليس خياراً (أ، ب، ج، د)، نقوم بإلغاء الكويز النشط حتى يستطيع الـ AI فهم السؤال الجديد
+        setActiveQuiz(null);
+      }
     }
 
     // Create the updated messages array to send to the API

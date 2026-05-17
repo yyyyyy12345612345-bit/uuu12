@@ -274,7 +274,7 @@ export function classifyQueryWithML(
   const userMinutes = userData?.stats?.audioMinutes || 0;
 
   // 1. فحص أسئلة المسابقة الدينية (Islamic Quiz Request Interception)
-  const isQuizReq = /(?:سؤال|اسالني|مسابقه|اختبار|تحدي|مسابقات|اسئله|اختبرني)\s+(?:ديني|اسلامي|معلومات|ثقافي)|^(?:سؤال|اسالني|اختبرني|تحدي|مسابقه|اسئله دينية)$/i.test(textClean);
+  const isQuizReq = /(?:سؤال|اسالني|مسابقه|مسابقة|اختبار|تحدي|مسابقات|اسئله|أسئلة|اختبرني|امتحان|امتحن|كويز)/i.test(textClean);
   if (isQuizReq) {
     const randomIndex = Math.floor(Math.random() * ISLAMIC_QUIZ_QUESTIONS.length);
     const quiz = ISLAMIC_QUIZ_QUESTIONS[randomIndex];
@@ -339,7 +339,7 @@ ${quiz.options}
   }
 
   // 5. فحص الأسئلة الاستفسارية العامة عن تغيير البيانات
-  const askChangeName = /^(?:هل )?(?:تقدر|ممكن|تستطيع|عايز|عاوز)\s+(?:تغير|تعدل|تغيير|تعديل)\s+(?:اسمي|الاسم)/i.test(textClean);
+  const askChangeName = /(?:ازاي|كيف|طريقة|طريقه|تغيير|تعديل|اغير|اعدل|بدل|ابدل)\s+(?:اغير|اعدل|تغيير|تعديل|اسم|اسمي|الاسم)|^(?:تغيير الاسم|تعديل الاسم)$/i.test(textClean);
   if (askChangeName) {
     return {
       reply: `بالتأكيد! يمكنك تغيير اسمك بسهولة وبضغطة زر. 👤✏️
@@ -352,7 +352,7 @@ ${quiz.options}
     };
   }
 
-  const askChangeCountry = /^(?:هل )?(?:تقدر|ممكن|تستطيع|عايز|عاوز)\s+(?:تغير|تعدل|تغيير|تعديل)\s+(?:بلدي|دوله|دولة|البلد|الدولة|الدوله)/i.test(textClean);
+  const askChangeCountry = /(?:ازاي|كيف|طريقة|طريقه|تغيير|تعديل|اغير|اعدل|بدل|ابدل)\s+(?:بلد|بلدي|دوله|دولة|البلد|الدولة|الدوله)|^(?:تغيير البلد|تعديل البلد)$/i.test(textClean);
   if (askChangeCountry) {
     return {
       reply: `بالتأكيد! يمكنك تغيير بلدك أو دولتك بسهولة تامة. 🌍✏️
