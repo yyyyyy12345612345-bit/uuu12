@@ -12,11 +12,17 @@ export async function POST(req: Request) {
     const openAiKey = process.env.OPENAI_API_KEY;
     const geminiKey = process.env.GEMINI_API_KEY || process.env.Value || process.env.VALUE;
 
-    const userPoints = userData?.points || 0;
+    const userPoints = userData?.totalPoints || userData?.points || 0;
     const userCountry = userData?.country || "غير محدد";
     const userMinutes = userData?.stats?.audioMinutes || 0;
-    const isGuest = userData?.isGuest ? "نعم (حساب زائر)" : "لا";
-    const userName = userData?.name || userData?.displayName || "أخي الكريم";
+    const userName = userData?.displayName || userData?.name || "أخي الكريم";
+    const userPhone = userData?.phoneNumber || "غير مسجل";
+    const userUsername = userData?.username || "غير مسجل";
+    const userPlan = userData?.plan || "free";
+    const userGender = userData?.gender === "male" ? "ذكر" : (userData?.gender === "female" ? "أنثى" : "غير محدد");
+    const videoRenders = userData?.videoRendersCount || 0;
+    const userCreatedAt = userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString("ar-EG") : "غير محدد";
+    const isGuest = userData ? (userData.isGuest ? "نعم (حساب زائر)" : "لا (مستخدم مسجل)") : "نعم (حساب زائر)";
 
     // الحصول على آخر رسالة كتبها المستخدم
     const lastUserMessage = messages[messages.length - 1]?.text || "";
@@ -39,12 +45,18 @@ export async function POST(req: Request) {
 - التخصص: AIE (مهندس ذكاء اصطناعي)
 - للتواصل: إنستقرام: aie_youssef
 
-معلومات عن المستخدم الحالي:
-- النقاط: ${userPoints}
-- البلد: ${userCountry}
-- دقائق الاستماع: ${userMinutes}
-- زائر: ${isGuest}
-- الصفحة الحالية: ${pathname || "غير معروف"}
+معلومات عن المستخدم الحالي المسجلة في قاعدة البيانات:
+- الاسم بالكامل: ${userName}
+- الاسم المميز (Username): ${userUsername}
+- رقم الهاتف (WhatsApp/Phone): ${userPhone}
+- مجموع النقاط: ${userPoints} نقطة
+- باقة الاشتراك الحالية: ${userPlan}
+- عدد رندرات الفيديوهات المنتجة: ${videoRenders}
+- الجنس: ${userGender}
+- بلد العميل: ${userCountry}
+- تاريخ التسجيل: ${userCreatedAt}
+- حساب زائر: ${isGuest}
+- الصفحة التي يتصفحها العميل الآن: ${pathname || "غير معروف"}
 
 أقسام التطبيق (وجّه المستخدم بروابط ماركدون):
 - إنشاء فيديو: [اضغط هنا لإنشاء فيديو](/video)
