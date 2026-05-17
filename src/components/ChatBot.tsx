@@ -6,20 +6,71 @@ import { X, Send, BotMessageSquare, MessageCircle, User, Wand2 } from "lucide-re
 import { useRouter, usePathname } from "next/navigation";
 import { classifyQueryWithML } from "@/lib/ml-model";
 import { auth, db } from "@/lib/firebase";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
 export function ChatBot() {
   const router = useRouter();
   const pathname = usePathname();
 
+  // مسح الرسائل المخزنة مؤقتاً فقط في حالة إعادة تحميل الصفحة الكاملة (Hard Refresh/Restart)
+  if (typeof window !== "undefined") {
+    if (!(window as any).__quran_chat_initialized) {
+      (window as any).__quran_chat_initialized = true;
+      sessionStorage.removeItem("quran_chat_messages");
+    }
+  }
+
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [messages, setMessages] = useState([
-    { id: 1, text: "مرحباً بك! أنا مساعدك الذكي 🌟، كيف يمكنني إثراء تجربتك اليوم؟", sender: "bot" }
-  ]);
+  
+  // استعادة الرسائل من جلسة العمل الحالية إن وجدت
+  const [messages, setMessages] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("quran_chat_messages");
+      if (saved) return JSON.parse(saved);
+    }
+    return [
+      { id: 1, text: "مرحباً بك! أنا مساعدك الذكي 🌟، كيف يمكنني إثراء تجربتك اليوم؟", sender: "bot" }
+    ];
+  });
   const [dbUser, setDbUser] = useState<any>(null);
+  const [leaderboardUsers, setLeaderboardUsers] = useState<any[]>([]);
+
+  // جلب المتصدرين الأوائل لتزويد الذكاء الاصطناعي ببيانات لوحة الشرف
+  useEffect(() => {
+    if (!db) return;
+    const fetchTopLeaderboard = async () => {
+      try {
+        const qLeaderboard = query(collection(db, "users"), orderBy("totalPoints", "desc"), limit(5));
+        const snapshot = await getDocs(qLeaderboard);
+        const data = snapshot.docs
+          .map(d => ({
+            displayName: d.data().displayName || d.data().name || "مستخدم قرآني",
+            username: d.data().username || "",
+            totalPoints: d.data().totalPoints || 0,
+            country: d.data().country || "مصر",
+            isBanned: d.data().isBanned || false
+          }))
+          .filter(u => !u.isBanned);
+        setLeaderboardUsers(data);
+      } catch (err) {
+        console.error("Error fetching leaderboard for chatbot context:", err);
+      }
+    };
+    fetchTopLeaderboard();
+  }, []);
+
+  // حفظ الرسائل مؤقتاً عند أي تغيير
+  useEffect(() => {
+    sessionStorage.setItem("quran_chat_messages", JSON.stringify(messages));
+  }, [messages]);
+
+  // إغلاق نافذة الشات تلقائياً عند الانتقال لصفحة أخرى (مع الحفاظ على محتوى الشات)
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (!auth || !db) return;
@@ -105,7 +156,8 @@ export function ChatBot() {
         body: JSON.stringify({ 
           messages: updatedMessages,
           userData,
-          pathname
+          pathname,
+          leaderboard: leaderboardUsers
         })
       });
 
