@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, BotMessageSquare, MessageCircle, User, Wand2 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { classifyQueryWithML } from "@/lib/ml-model";
+import { auth, db } from "@/lib/firebase";
+import { doc, onSnapshot } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 
 export function ChatBot() {
   const router = useRouter();
@@ -16,6 +19,24 @@ export function ChatBot() {
   const [messages, setMessages] = useState([
     { id: 1, text: "مرحباً بك! أنا مساعدك الذكي 🌟، كيف يمكنني إثراء تجربتك اليوم؟", sender: "bot" }
   ]);
+  const [dbUser, setDbUser] = useState<any>(null);
+
+  useEffect(() => {
+    if (!auth || !db) return;
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const unsubscribeDoc = onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+          if (docSnap.exists()) {
+            setDbUser(docSnap.data());
+          }
+        });
+        return () => unsubscribeDoc();
+      } else {
+        setDbUser(null);
+      }
+    });
+    return () => unsubscribeAuth();
+  }, []);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -75,13 +96,7 @@ export function ChatBot() {
     setMessage("");
     setIsTyping(true);
 
-    let userData = null;
-    try {
-      const sessionStr = localStorage.getItem("quran_user_session");
-      if (sessionStr) {
-        userData = JSON.parse(sessionStr);
-      }
-    } catch (err) {}
+    const userData = dbUser;
 
     try {
       const res = await fetch("/api/chat", {
