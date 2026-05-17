@@ -4,7 +4,7 @@ import React from "react";
 import { 
   X, Star, BookOpen, Headphones, Calendar, 
   Fingerprint, Sparkles, Target, Trophy, 
-  Map as MapIcon, ChevronLeft, Award, Zap
+  Map as MapIcon, ChevronLeft, Award, Zap, Heart
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -148,9 +148,78 @@ export function PointsGuideModal({ isOpen, onClose }: PointsGuideModalProps) {
                     <Sparkles className="w-8 h-8 text-primary mx-auto mb-4 animate-pulse" />
                     <h4 className="text-xl font-black text-white mb-2">لماذا نجمع النقاط؟</h4>
                     <p className="text-sm text-white/60 font-bold leading-relaxed max-w-md mx-auto">
-                      النقاط هي وسيلة تحفيزية لتشجيعك على وردك اليومي. يتم استخدامها في ترتيب المتصدرين (Leaderboard) لإضفاء روح المنافسة الشريفة.
+                       النقاط هي وسيلة تحفيزية لتشجيعك على وردك اليومي. يتم استخدامها في ترتيب المتصدرين (Leaderboard) لإضفاء روح المنافسة الشريفة.
                     </p>
                  </div>
+              </div>
+
+              {/* Acknowledgments & Credits */}
+              <div className="space-y-6 mt-12 border-t border-white/10 pt-12">
+                <div className="flex items-center gap-3 px-2">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                    <Heart className="w-4 h-4 text-primary fill-primary" />
+                  </div>
+                  <h3 className="text-lg font-black text-white/90">مصادر البيانات والشكر والتقدير</h3>
+                </div>
+
+                <p className="text-xs text-white/50 leading-relaxed font-bold px-2">
+                  نود أن نتقدم بخالص الشكر والتقدير للخدمات والمنصات العالمية المفتوحة التي ساهمت في توفير مصادر البيانات الإسلامية والتقنية لتشغيل هذا التطبيق المبارك:
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    {
+                      title: "بوابة القرآن والتفسير (Quran.com)",
+                      desc: "مصدر النص القرآني الموثق، مع التفاسير المتنوعة والترجمات لتسهيل الفهم والتدبر.",
+                      icon: BookOpen,
+                      color: "text-amber-500",
+                      bg: "bg-amber-500/10"
+                    },
+                    {
+                      title: "المكتبة الصوتية (EveryAyah)",
+                      desc: "مصدر التلاوات الصوتية العطرة للآيات بأصوات مشاهير القراء بجودة عالية.",
+                      icon: Headphones,
+                      color: "text-blue-500",
+                      bg: "bg-blue-500/10"
+                    },
+                    {
+                      title: "أوقات الصلاة والقبلة (AlAdhan)",
+                      desc: "الخدمة الذكية لحساب مواقيت الصلاة بدقة وتحديد اتجاه القبلة حسب موقعك الجغرافي.",
+                      icon: MapIcon,
+                      color: "text-emerald-500",
+                      bg: "bg-emerald-500/10"
+                    },
+                    {
+                      title: "مكتبة الخلفيات المرئية (Pexels)",
+                      desc: "مصدر الصور والفيديوهات الطبيعية والجمالية فائقة الدقة لتصميم خلفيات المقاطع.",
+                      icon: Sparkles,
+                      color: "text-purple-500",
+                      bg: "bg-purple-500/10"
+                    },
+                    {
+                      title: "محرك المونتاج (Remotion Engine)",
+                      desc: "التقنية المستخدمة لدمج الصوت مع النص وتوليد مقاطع الفيديو الإسلامية الاحترافية.",
+                      icon: Zap,
+                      color: "text-yellow-500",
+                      bg: "bg-yellow-500/10"
+                    }
+                  ].map((service, index) => (
+                    <div 
+                      key={index}
+                      className="bg-white/[0.03] border border-white/5 rounded-3xl p-5 hover:bg-white/[0.06] transition-all group flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className={`w-8 h-8 rounded-xl ${service.bg} ${service.color} flex items-center justify-center shrink-0`}>
+                            <service.icon className="w-4 h-4" />
+                          </div>
+                          <h4 className="text-xs font-black text-white group-hover:text-primary transition-colors">{service.title}</h4>
+                        </div>
+                        <p className="text-[10px] font-bold text-white/40 leading-relaxed">{service.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
