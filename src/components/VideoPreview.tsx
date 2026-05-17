@@ -75,8 +75,13 @@ export function VideoPreview() {
         analyserRef.current = analyser;
       }
  
-      if (!source) {
-        source = audioContext.createMediaElementSource(audioRef.current);
+      const audioEl = audioRef.current as any;
+      if (audioEl.__sourceNode) {
+        source = audioEl.__sourceNode;
+        sourceNodeRef.current = source;
+      } else if (!source) {
+        source = audioContext.createMediaElementSource(audioEl);
+        audioEl.__sourceNode = source;
         sourceNodeRef.current = source;
         source.connect(analyser);
         analyser.connect(audioContext.destination);
