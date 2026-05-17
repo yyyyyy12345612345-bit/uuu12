@@ -5,7 +5,7 @@ export async function POST(req: Request) {
     const { messages, userData, pathname } = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
-      return NextResponse.json({ error: "Invalid messages format" }, { status: 400 });
+      return NextResponse.json({ error: "صيغة الرسائل غير صحيحة" }, { status: 400 });
     }
 
     const openAiKey = process.env.OPENAI_API_KEY;
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
     if (!openAiKey && !geminiKey) {
       return NextResponse.json(
-        { error: "API key is missing. Please set OPENAI_API_KEY or GEMINI_API_KEY in .env" },
+        { error: "المفتاح غير موجود. يرجى إضافة GEMINI_API_KEY في إعدادات البيئة." },
         { status: 500 }
       );
     }
@@ -23,90 +23,92 @@ export async function POST(req: Request) {
     const userAudioMinutes = userData?.stats?.audioMinutes || 0;
     const isGuest = userData?.isGuest ? "نعم (حساب زائر)" : "لا";
 
-    const systemPrompt = `أنت المساعد الذكي، مساعد ذكاء اصطناعي ودود ومحترف داخل تطبيق "الاستوديو القرآني الفائق". 
-مهمتك الأساسية هي مساعدة المستخدمين وتوجيههم داخل الموقع، والإجابة عن أسئلتهم حول القرآن، الصلاة، الأذكار، أو عن كيفية استخدام التطبيق.
+    // تعليمات النظام - هذا هو "كتاب التعليمات" الخاص بموقعك
+    const systemPrompt = `أنت المساعد الذكي الخاص بتطبيق "الاستوديو القرآني الفائق" فقط.
+ممنوع تماماً الإجابة على أي سؤال خارج نطاق هذا التطبيق أو الإسلام والقرآن.
+إذا سألك المستخدم عن أي شيء خارج هذا النطاق، قل له: "عذراً، أنا مساعدك الخاص بالاستوديو القرآني فقط 🌙"
 
 معلومات عن مطور التطبيق:
 - الاسم: يوسف اسامه
-- التخصص: AIE (مهندس ذكاء اصطناعي - Artificial Intelligence Engineer)
-- للتواصل: (واتساب: متاح للرسائل الخاصة) و (إنستقرام: aie_youssef - يمكنك افتراض اسم الحساب أو إخبارهم بالتواصل معه عبر حساباته الرسمية).
+- التخصص: AIE (مهندس ذكاء اصطناعي)
+- للتواصل: إنستقرام: aie_youssef
 
-معلومات عن المستخدم الحالي الذي تتحدث معه:
-- النقاط التي جمعها: ${userPoints}
+معلومات عن المستخدم الحالي:
+- النقاط: ${userPoints}
 - البلد: ${userCountry}
-- دقائق الاستماع للقرآن: ${userAudioMinutes}
-- هل هو زائر؟ ${isGuest}
-- الصفحة التي يقف عليها الآن: ${pathname || "غير معروف"}
-- البيانات الكاملة المخزنة: ${JSON.stringify(userData)}
+- دقائق الاستماع: ${userAudioMinutes}
+- زائر: ${isGuest}
+- الصفحة الحالية: ${pathname || "غير معروف"}
 
-أدوات التنقل في الموقع (كيف توجه المستخدم):
-التطبيق يحتوي على عدة أقسام. إذا سأل المستخدم عن شيء، يجب أن توجهه برابط يمكنه الضغط عليه باستخدام صيغة الماركدون: [اسم الرابط](/المسار).
-أمثلة للمسارات:
-- لإنشاء فيديو أو الاستوديو: [اضغط هنا لإنشاء فيديو](/video)
-- للمصحف الشريف والقراءة: [المصحف المكتوب](/mushaf-full) أو [المصحف الرقمي](/digital)
-- لأوقات الصلاة: [مواقيت الصلاة](/prayers)
-- للمكتبة الصوتية: [المكتبة الصوتية](/library) أو [المكتبة](/audio)
-- للأوراد والأذكار اليومية: [الأوراد اليومية](/daily)
-- للوحة الشرف والترتيب: [لوحة الشرف](/rank)
-- للملف الشخصي والتقدم: [الملف الشخصي](/profile)
+أقسام التطبيق (وجّه المستخدم بروابط ماركدون):
+- إنشاء فيديو: [اضغط هنا لإنشاء فيديو](/video)
+- المصحف المكتوب: [المصحف المكتوب](/mushaf-full)
+- المصحف الرقمي: [المصحف الرقمي](/digital)
+- مواقيت الصلاة: [مواقيت الصلاة](/prayers)
+- المكتبة الصوتية: [المكتبة الصوتية](/library)
+- الأوراد اليومية: [الأوراد اليومية](/daily)
+- لوحة الشرف: [لوحة الشرف](/rank)
+- الملف الشخصي: [الملف الشخصي](/profile)
 
-تعليمات إضافية:
-1. تحدث دائماً باللغة العربية بأسلوب محترم جداً وراقي يناسب تطبيق قرآني.
-2. إذا سأل عن معلوماته (مثلاً من أي بلد أنا؟ أو كم نقطة عندي؟)، أجب باستخدام المعلومات المتاحة لك أعلاه.
-3. إذا سأل عن من برمج الموقع أو من مطوره، اذكر "يوسف اسامه" مهندس الذكاء الاصطناعي (AIE).
-4. استخدم إيموجي بشكل مناسب وجميل.
-5. كن مختصراً ومفيداً ولا تذكر معلومات برمجية معقدة بل تحدث كمساعد شخصي فائق الذكاء.`;
+تعليمات:
+1. تحدث دائماً بالعربية بأسلوب راقي ومحترم.
+2. إذا سأل عن معلوماته، أجب من البيانات أعلاه.
+3. إذا سأل عن المطور، اذكر "يوسف اسامه" مهندس الذكاء الاصطناعي.
+4. استخدم إيموجي بشكل جميل.
+5. كن مختصراً ومفيداً كمساعد شخصي فائق الذكاء.`;
 
     if (geminiKey) {
-      // Use Gemini API
-      const geminiMessages = [
-        { role: "user", parts: [{ text: systemPrompt }] },
-        { role: "model", parts: [{ text: "فهمت ذلك جيداً، وسأقوم بالرد بناءً على هذه التعليمات كمساعد الذكي للتطبيق." }] },
-        ...messages.map((m: any) => ({
-          role: m.sender === "user" ? "user" : "model",
-          parts: [{ text: m.text }]
-        }))
-      ];
+      // رسائل المحادثة
+      const geminiContents = messages.map((m: any) => ({
+        role: m.sender === "user" ? "user" : "model",
+        parts: [{ text: m.text }]
+      }));
 
+      // قائمة الموديلات للتجربة (الأحدث أولاً)
       const modelsToTry = [
-        "gemini-1.5-flash",
         "gemini-2.0-flash",
+        "gemini-1.5-flash",
         "gemini-1.5-flash-latest",
         "gemini-1.5-pro",
         "gemini-pro"
       ];
 
       let data: any = null;
-      let lastResponse: any = null;
-      let usedModel = "";
+      let lastResponse: Response | null = null;
 
       for (const model of modelsToTry) {
-        console.log("Trying model:", model);
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${geminiKey}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: geminiMessages,
-            generationConfig: { temperature: 0.7, maxOutputTokens: 500 }
-          })
-        });
+        console.log("🔄 جاري تجربة الموديل:", model);
+
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              systemInstruction: {
+                parts: [{ text: systemPrompt }]
+              },
+              contents: geminiContents,
+              generationConfig: { temperature: 0.7, maxOutputTokens: 500 }
+            })
+          }
+        );
 
         const responseData = await response.json();
-        
-        // If successful, or if error is NOT a 'not found' model error, stop here
+
         if (response.ok) {
-          console.log(`✅ Model ${model} succeeded!`);
-          lastResponse = response;
+          console.log(`✅ نجح الموديل: ${model}`);
           data = responseData;
-          usedModel = model;
+          lastResponse = response;
           break;
         } else {
-          console.warn(`❌ Model ${model} failed with error:`, responseData.error?.message);
-          // If it's a quota error, we probably shouldn't continue trying other models, but for safety we continue
+          console.warn(`❌ فشل ${model}:`, responseData.error?.message);
           lastResponse = response;
           data = responseData;
+
+          // لو المشكلة حصة الاستخدام، لا تكمل
           if (responseData.error?.message?.includes("quota")) {
-            console.error("⚠️ QUOTA EXCEEDED: Please check your Google account billing/limits.");
+            console.error("⚠️ الحصة انتهت! راجع حساب جوجل.");
             break;
           }
           continue;
@@ -114,15 +116,12 @@ export async function POST(req: Request) {
       }
 
       if (!lastResponse?.ok) {
-        console.error("Gemini Error:", data);
         const errorMsg = data?.error?.message || "";
         let arabicError = "فشل في الاتصال بالذكاء الاصطناعي.";
         if (errorMsg.includes("quota")) {
-          arabicError = "عذراً، لقد نفدت باقة الاستخدام الخاصة بالمفتاح (الرصيد انتهى). يرجى مراجعة حسابك.";
+          arabicError = "عذراً، انتهت حصة الاستخدام المجانية. يرجى الانتظار دقيقة والمحاولة مجدداً أو مراجعة حسابك في جوجل.";
         } else if (errorMsg.includes("not found")) {
-          arabicError = "الموديل غير متاح في منطقتك أو المفتاح غير صالح.";
-        } else if (errorMsg) {
-          arabicError = `حدث خطأ: ${errorMsg}`;
+          arabicError = "الموديل غير متاح حالياً. يرجى المحاولة لاحقاً.";
         }
         return NextResponse.json({ error: arabicError }, { status: lastResponse?.status || 500 });
       }
@@ -131,7 +130,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ text: botText });
 
     } else if (openAiKey) {
-      // Use OpenAI API
       const openAIMessages = [
         { role: "system", content: systemPrompt },
         ...messages.map((m: any) => ({
@@ -157,8 +155,7 @@ export async function POST(req: Request) {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error("OpenAI Error:", data);
-        return NextResponse.json({ error: "فشل في الاتصال بخوادم OpenAI. تأكد من صحة المفتاح." }, { status: response.status });
+        return NextResponse.json({ error: "فشل في الاتصال بخوادم الذكاء الاصطناعي." }, { status: response.status });
       }
 
       return NextResponse.json({ text: data.choices[0].message.content });
