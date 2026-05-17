@@ -90,21 +90,33 @@ export function ChatBot() {
   }, []);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (behavior: "smooth" | "auto" = "smooth") => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior
+      });
+    } else {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    }
   };
 
   useEffect(() => {
-    scrollToBottom();
+    scrollToBottom("smooth");
   }, [messages, isTyping]);
 
   useEffect(() => {
     if (isOpen) {
-      const timer = setTimeout(() => {
-        scrollToBottom();
-      }, 150);
-      return () => clearTimeout(timer);
+      const t1 = setTimeout(() => scrollToBottom("auto"), 50);
+      const t2 = setTimeout(() => scrollToBottom("smooth"), 150);
+      const t3 = setTimeout(() => scrollToBottom("smooth"), 350);
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+        clearTimeout(t3);
+      };
     }
   }, [isOpen]);
 
@@ -198,6 +210,28 @@ export function ChatBot() {
           console.log("👤 [ChatBot]: AI successfully updated profile in Firestore!", updateFields);
         } catch (dbErr) {
           console.error("❌ [ChatBot]: Failed to write AI profile update to Firestore:", dbErr);
+        }
+      }
+
+      if (data.createPlan && auth?.currentUser && db) {
+        const planData = {
+          activeQuranPlan: {
+            planName: data.createPlan.planName,
+            durationDays: Number(data.createPlan.durationDays) || 7,
+            dailyTarget: data.createPlan.dailyTarget,
+            targetPagesPerDay: Number(data.createPlan.targetPagesPerDay) || 1,
+            dayByDayBreakdown: Array.isArray(data.createPlan.dayByDayBreakdown) ? data.createPlan.dayByDayBreakdown : [],
+            currentDay: 1,
+            completedDays: [],
+            createdAt: new Date().toISOString()
+          }
+        };
+
+        try {
+          await updateDoc(doc(db, "users", auth.currentUser.uid), planData);
+          console.log("📖 [ChatBot]: AI successfully created and saved Custom Quran Plan in Firestore!", planData);
+        } catch (dbErr) {
+          console.error("❌ [ChatBot]: Failed to save custom Quran plan in Firestore:", dbErr);
         }
       }
     } catch (error: any) {
@@ -294,7 +328,7 @@ export function ChatBot() {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-6 font-sans relative z-10">
+            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-6 font-sans relative z-10">
               {messages.map((msg) => (
                 <motion.div 
                   initial={{ opacity: 0, x: msg.sender === "user" ? 20 : -20 }}

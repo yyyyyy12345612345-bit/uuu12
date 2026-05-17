@@ -176,6 +176,32 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                     </div>
                 </div>
             )}
+
+            {/* 10,000 Points Auto-Unlock Card */}
+            <div className="mt-6 p-6 rounded-[2rem] bg-gradient-to-r from-yellow-500/10 to-primary/10 border border-primary/20 flex flex-col md:flex-row items-center gap-4 text-right">
+              <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary shrink-0 animate-pulse">
+                <Crown className="w-6 h-6" />
+              </div>
+              <div className="flex-1">
+                <h5 className="font-black text-xs text-white">تحدي النخبة: باقة التميز مجاناً! 🏆</h5>
+                <p className="text-[10px] text-white/60 leading-relaxed mt-1">
+                  اجمع 10,000 نقطة من الأنشطة اليومية، وسيتم ترقيتك لعضوية التميز (Premium) لإنتاج الفيديوهات مجاناً بالكامل دون أي رسوم!
+                </p>
+                {currentPlanData?.totalPoints !== undefined && (
+                  <div className="mt-3 flex items-center gap-2">
+                    <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-primary rounded-full transition-all duration-1000"
+                        style={{ width: `${Math.min(100, (currentPlanData.totalPoints / 10000) * 100)}%` }}
+                      />
+                    </div>
+                    <span className="text-[9px] font-black text-primary shrink-0">
+                      {(currentPlanData.totalPoints || 0).toLocaleString()} / 10,000
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
         </div>
 
         {/* Right Section: Checkout */}

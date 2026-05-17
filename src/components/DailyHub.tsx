@@ -5,7 +5,7 @@ import { AthkarLibrary } from "./AthkarLibrary";
 import { QiblaCompass } from "./QiblaCompass";
 import { addPoints, addSebhaPoints, startThikrTimer, endThikrTimer, claimQuestPoints } from "@/lib/points";
 import { useRouter } from "next/navigation";
-import { collection, query, where, getDocs, orderBy, limit, doc, getDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, orderBy, limit, doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { useRef, useState, useEffect, useCallback } from "react";
 import { 
   CheckCircle2, RotateCcw, Target, Fingerprint, 
@@ -71,9 +71,12 @@ export function DailyHub() {
 
   useEffect(() => {
     const user = auth?.currentUser;
+    let unsubscribeUser: (() => void) | undefined;
     if (user && db) {
-      getDoc(doc(db, "users", user.uid)).then(s => {
-        if (s.exists()) setUserData(s.data());
+      unsubscribeUser = onSnapshot(doc(db, "users", user.uid), (snap) => {
+        if (snap.exists()) {
+          setUserData(snap.data());
+        }
       });
     }
 
@@ -101,17 +104,8 @@ export function DailyHub() {
     fetchGlobalQuests();
     fetchCompletedQuests();
 
-    const handlePointsUpdate = () => {
-      const user = auth?.currentUser;
-      if (user && db) {
-        getDoc(doc(db, "users", user.uid)).then(s => {
-          if (s.exists()) setUserData(s.data());
-        });
-      }
-    };
-    window.addEventListener('pointsUpdated', handlePointsUpdate);
     return () => {
-      window.removeEventListener('pointsUpdated', handlePointsUpdate);
+      if (unsubscribeUser) unsubscribeUser();
     };
   }, []);
 
@@ -244,6 +238,67 @@ export function DailyHub() {
     }
   };
 
+  const handleCompletePlanDay = async (plan: any) => {
+    const user = auth?.currentUser;
+    if (!user || !db || !plan) return;
+
+    const dayToComplete = plan.currentDay;
+    const isLastDay = dayToComplete >= plan.durationDays;
+    
+    const pointsRes = await addPoints("quran", 15);
+    if (!pointsRes.success) {
+      alert("⚠️ عذراً، حدث خطأ أثناء إضافة النقاط.");
+      return;
+    }
+
+    const updatedCompletedDays = [...(plan.completedDays || []), dayToComplete];
+    let nextDay = dayToComplete;
+    let showCongrats = false;
+
+    if (isLastDay) {
+      showCongrats = true;
+    } else {
+      nextDay = dayToComplete + 1;
+    }
+
+    const updatedPlan = {
+      ...plan,
+      completedDays: updatedCompletedDays,
+      currentDay: nextDay,
+      isFinished: isLastDay
+    };
+
+    try {
+      await updateDoc(doc(db, "users", user.uid), {
+        activeQuranPlan: updatedPlan
+      });
+
+      if (showCongrats) {
+        alert(`🎉 مبارك مبارك! لقد أتممت خطتك القرآنية المخصصة كاملاً بنجاح! 📖✨\nحصدت مكافآت التزامك الإيماني ونقاطاً إضافية في لوحة الشرف!`);
+      } else {
+        alert(`✅ تم إنجاز ورد اليوم ${dayToComplete} بنجاح! 🌟\nربحت +15 نقطة جديدة في رصيدك.`);
+      }
+    } catch (err) {
+      console.error("Error updating plan day completion:", err);
+    }
+  };
+
+  const handleDeleteCustomPlan = async () => {
+    const user = auth?.currentUser;
+    if (!user || !db) return;
+    if (!window.confirm("هل أنت متأكد من حذف هذه الخطة القرآنية والبدء من جديد مع الذكاء الاصطناعي؟")) return;
+
+    try {
+      const { deleteField } = await import("firebase/firestore");
+      await updateDoc(doc(db, "users", user.uid), {
+        activeQuranPlan: deleteField()
+      });
+      alert("🗑️ تم حذف الخطة بنجاح. يمكنك الآن التحدث مع الشات بوت لبرمجة خطة جديدة!");
+    } catch (err) {
+      console.error("Error deleting custom plan:", err);
+    }
+  };
+
   const requestQibla = useCallback(() => {
     setQibla(prev => ({ ...prev, loading: true, error: null }));
     if (navigator.geolocation) {
@@ -347,6 +402,105 @@ export function DailyHub() {
       <div className="w-full max-w-4xl mx-auto z-10 space-y-8 flex-1">
           {activeTab === "dashboard" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                {/* AI Custom Quran Plan Widget */}
+                {userData?.activeQuranPlan && (
+                  <div className="md:col-span-2 bg-[#064E3B] border border-primary/30 rounded-[3rem] p-8 relative overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.4)] group">
+                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
+                      <Star className="w-24 h-24 text-primary animate-pulse" />
+                    </div>
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-6">
+                      <div>
+                        <span className="inline-flex items-center gap-2 px-3 py-1 bg-primary/20 text-primary border border-primary/20 rounded-xl text-[10px] font-black tracking-widest uppercase mb-2">
+                          <Crown className="w-3 h-3 text-primary" /> خطة الورد المخصصة بالذكاء الاصطناعي
+                        </span>
+                        <h3 className="text-2xl font-black text-white">{userData.activeQuranPlan.planName}</h3>
+                        <p className="text-white/40 text-sm mt-1">الهدف اليومي: <span className="text-primary font-black">{userData.activeQuranPlan.dailyTarget}</span></p>
+                      </div>
+                      <button 
+                        onClick={handleDeleteCustomPlan} 
+                        className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold rounded-2xl text-[10px] transition-all flex items-center gap-2 border border-red-500/20"
+                      >
+                        إلغاء الخطة
+                      </button>
+                    </div>
+
+                    {/* Progress tracking */}
+                    <div className="bg-black/20 rounded-[2rem] p-6 border border-white/5 mb-6">
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-xs font-bold text-white/50">تقدم الخطة الكلي:</span>
+                        <span className="text-xs font-black text-primary" style={{ direction: 'ltr' }}>
+                          {userData.activeQuranPlan.completedDays?.length || 0} / {userData.activeQuranPlan.durationDays} يوم
+                        </span>
+                      </div>
+                      <div className="relative w-full h-3 bg-white/5 rounded-full overflow-hidden">
+                        <div 
+                          className="absolute inset-y-0 left-0 bg-primary transition-all duration-1000" 
+                          style={{ width: `${Math.round(((userData.activeQuranPlan.completedDays?.length || 0) / userData.activeQuranPlan.durationDays) * 100)}%` }} 
+                        />
+                      </div>
+                    </div>
+
+                    {/* Day-by-Day step checklist */}
+                    <div className="space-y-4">
+                      <h4 className="text-xs font-black text-white/40 uppercase tracking-[0.2em] px-2 mb-2">جدول الأيام والمهام:</h4>
+                      <div className="grid grid-cols-1 gap-3 max-h-[250px] overflow-y-auto pr-1 no-scrollbar">
+                        {userData.activeQuranPlan.dayByDayBreakdown?.map((task: string, index: number) => {
+                          const dayNum = index + 1;
+                          const isDayCompleted = userData.activeQuranPlan.completedDays?.includes(dayNum);
+                          const isCurrentActiveDay = userData.activeQuranPlan.currentDay === dayNum;
+                          const isLocked = dayNum > userData.activeQuranPlan.currentDay;
+
+                          return (
+                            <div 
+                              key={index} 
+                              className={`p-4 rounded-2xl border transition-all duration-300 flex items-center justify-between gap-4 ${
+                                isDayCompleted 
+                                  ? 'bg-primary/5 border-primary/20 opacity-60' 
+                                  : isCurrentActiveDay 
+                                    ? 'bg-white/5 border-primary shadow-[0_10px_30px_rgba(212,175,55,0.05)]' 
+                                    : 'bg-black/10 border-white/5 opacity-40'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className={`text-[10px] font-black px-2 py-1 rounded-lg ${
+                                  isDayCompleted 
+                                    ? 'bg-primary/20 text-primary' 
+                                    : isCurrentActiveDay 
+                                      ? 'bg-primary text-black' 
+                                      : 'bg-white/5 text-white/40'
+                                }`}>
+                                  يوم {dayNum}
+                                </span>
+                                <span className={`text-xs md:text-sm font-bold ${
+                                  isDayCompleted ? 'text-white/40 line-through' : 'text-white'
+                                }`}>
+                                  {task}
+                                </span>
+                              </div>
+
+                              {/* Interactive check button */}
+                              {isCurrentActiveDay && !isDayCompleted ? (
+                                <button 
+                                  onClick={() => handleCompletePlanDay(userData.activeQuranPlan)}
+                                  className="flex items-center gap-1.5 px-4 py-1.5 bg-primary hover:bg-primary/90 text-black font-black rounded-xl text-[10px] transition-all shadow-md"
+                                >
+                                  <CheckCircle2 className="w-3.5 h-3.5 stroke-[3px]" /> إنجاز
+                                </button>
+                              ) : isDayCompleted ? (
+                                <span className="text-primary font-black text-[10px] flex items-center gap-1">
+                                  <CheckCircle2 className="w-3.5 h-3.5" /> تم بنجاح
+                                </span>
+                              ) : (
+                                <span className="text-white/20 font-black text-[10px]">مغلق</span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Quran Ward Card */}
                 <div className="bg-card border border-border rounded-[3rem] p-8 relative overflow-hidden shadow-2xl group">
                     <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
