@@ -285,6 +285,39 @@ export function AuthGate({ children }: AuthGateProps) {
     setView("resetPassword"); // We reuse the view name but change its UI to show the recovered password
   };
 
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (newPassword.length < 6) return setError("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+    if (!recoveredPassword) return setError("لا يمكن إعادة تعيين كلمة المرور لهذا الحساب القديم، تواصل مع الإدارة.");
+    
+    setIsLoggingIn(true);
+    try {
+      // 1. Sign in behind the scenes using the old password we recovered
+      const email = `${resetUsername}@quran.app`;
+      await signInWithEmailAndPassword(auth, email, recoveredPassword);
+      
+      // 2. Now that we are authenticated, we can actually change the Firebase password!
+      if (auth.currentUser) {
+         const { updatePassword } = await import("firebase/auth");
+         await updatePassword(auth.currentUser, newPassword);
+         
+         // 3. Update the stored password in Firestore
+         await setDoc(doc(db, "users", resetUserId), { 
+           encP: btoa(newPassword)
+         }, { merge: true });
+
+         alert("تم تغيير كلمة المرور بنجاح! يمكنك الآن الدخول بكلمة المرور الجديدة.");
+         setView("login");
+      }
+    } catch (err: any) {
+      console.error("Password reset error:", err);
+      setError(err.message || "حدث خطأ أثناء تغيير كلمة المرور");
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
   if (isSkipped || (user && hasProfile === true)) {
     return <>{children}</>;
   }
@@ -495,7 +528,7 @@ export function AuthGate({ children }: AuthGateProps) {
             )}
 
             {/* ======================================= */}
-            {/* RESET PASSWORD VIEW (Shows Recovered Password) */}
+            {/* RESET PASSWORD VIEW */}
             {/* ======================================= */}
             {view === "resetPassword" && (
               <motion.div 
@@ -507,28 +540,32 @@ export function AuthGate({ children }: AuthGateProps) {
                 className="flex flex-col items-center"
               >
                 <div className="text-center mb-6 w-full">
-                  <h2 className="text-3xl font-black text-[#d4af37]">استعادة الحساب</h2>
-                  <p className="text-white/40 text-xs mt-2">بيانات الدخول لحسابك<br/>({resetUsername})</p>
+                  <h2 className="text-3xl font-black text-[#d4af37]">كلمة مرور جديدة</h2>
+                  <p className="text-white/40 text-xs mt-2">أدخل كلمة المرور الجديدة لحسابك<br/>({resetUsername})</p>
                 </div>
                 
                 <div className="w-full space-y-4">
                   {recoveredPassword ? (
-                    <div className="bg-white/5 border border-[#d4af37]/30 rounded-2xl p-6 text-center shadow-[0_0_20px_rgba(212,175,55,0.1)]">
-                       <p className="text-xs text-white/50 uppercase tracking-widest font-black mb-2">كلمة المرور الخاصة بك هي:</p>
-                       <p className="text-2xl font-black text-[#d4af37] tracking-widest">{recoveredPassword}</p>
-                    </div>
+                    <form onSubmit={handleResetPassword} className="w-full space-y-4">
+                      <InputField icon={<KeyRound />} type="password" value={newPassword} onChange={setNewPassword} placeholder="كلمة المرور الجديدة" showEye={true} showPassword={showPassword} setShowPassword={setShowPassword} />
+                      
+                      {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-xs text-center font-bold bg-red-500/10 py-2 rounded-lg">{error}</motion.p>}
+                      
+                      <div className="pt-4">
+                        <InteractiveButton type="submit" loading={isLoggingIn} text="تأكيد وحفظ" />
+                      </div>
+                    </form>
                   ) : (
                     <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-6 text-center">
                        <p className="text-xs text-white/80 font-bold leading-relaxed">
                           عذراً، هذا الحساب قديم ولم نتمكن من استعادة كلمة المرور تلقائياً.<br/>
                           يرجى التواصل مع الدعم الفني على الواتساب للمساعدة.
                        </p>
+                       <div className="pt-4">
+                         <InteractiveButton type="button" onClick={() => setView("login")} text="العودة لتسجيل الدخول" />
+                       </div>
                     </div>
                   )}
-                  
-                  <div className="pt-4">
-                    <InteractiveButton type="button" onClick={() => setView("login")} text="العودة لتسجيل الدخول" />
-                  </div>
                 </div>
               </motion.div>
             )}
