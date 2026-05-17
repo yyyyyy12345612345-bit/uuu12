@@ -68,7 +68,7 @@ export async function POST(req: Request) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemPrompt }] },
+          systemInstruction: { parts: [{ text: systemPrompt }] },
           contents: geminiMessages,
           generationConfig: { temperature: 0.7, maxOutputTokens: 500 }
         })
