@@ -310,7 +310,7 @@ export function DailyHub() {
 
                   <Sparkles className="w-4 h-4 text-primary" />
               </div>
-              <h2 className="text-3xl md:text-6xl font-black mb-1 tracking-tight">مرحباً، {userData?.displayName || "أحمد"}</h2>
+              <h2 className="text-3xl md:text-6xl font-black mb-1 tracking-tight">مرحباً، {userData?.displayName || "زائرنا الكريم"}</h2>
               <p className="text-foreground/40 font-bold text-base">السلام عليكم ورحمة الله وبركاته</p>
           </div>
           <div className="flex flex-row md:flex-col items-center gap-3 bg-card border border-border p-4 md:p-6 rounded-[2rem] shadow-xl">
