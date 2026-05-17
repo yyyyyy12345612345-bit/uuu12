@@ -96,12 +96,72 @@ ${leaderboardList}
 - لوحة الشرف: [لوحة الشرف](/rank)
 - الملف الشخصي: [الملف الشخصي](/profile)
 
+تحديث بيانات الملف الشخصي للعميل:
+- لديك صلاحية كاملة لتحديث بيانات العميل (الاسم الكامل، الدولة، رقم الهاتف) مباشرةً عند طلبه ذلك باستخدام أداة (update_user_profile).
+- إذا قال لك العميل: "غير اسمي إلى أحمد" أو "عدل بلدي للسعودية" أو "حدث رقمي"، قم باستدعاء الأداة (update_user_profile) فوراً بالقيم المطلوبة وسيقوم النظام بحفظها تلقائياً في قاعدة البيانات وتحديث الواجهة في نفس اللحظة!
+
 تعليمات:
 1. تحدث دائماً بالعربية بأسلوب راقي ومحترم.
 2. إذا سأل عن معلوماته، أجب من البيانات أعلاه.
 3. إذا سأل عن المطور، اذكر "يوسف اسامه" مهندس الذكاء الاصطناعي.
 4. استخدم إيموجي بشكل جميل.
 5. كن مختصراً ومفيداً كمساعد شخصي فائق الذكاء.`;
+
+    // ── نظام أدوات تعديل البيانات المتاحة للذكاء الاصطناعي ──
+    const geminiTools = [
+      {
+        functionDeclarations: [
+          {
+            name: "update_user_profile",
+            description: "تحديث بيانات ملفك الشخصي في قاعدة البيانات مثل الاسم الكامل (displayName)، أو الدولة (country)، أو رقم الهاتف (phoneNumber).",
+            parameters: {
+              type: "OBJECT",
+              properties: {
+                displayName: {
+                  type: "STRING",
+                  description: "الاسم الكامل الجديد للمستخدم باللغة العربية"
+                },
+                country: {
+                  type: "STRING",
+                  description: "اسم الدولة الجديدة للمستخدم من قائمة الدول العربية"
+                },
+                phoneNumber: {
+                  type: "STRING",
+                  description: "رقم الهاتف الجديد للمستخدم"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ];
+
+    const openAiTools = [
+      {
+        type: "function",
+        function: {
+          name: "update_user_profile",
+          description: "تحديث بيانات ملفك الشخصي في قاعدة البيانات مثل الاسم الكامل (displayName)، أو الدولة (country)، أو رقم الهاتف (phoneNumber).",
+          parameters: {
+            type: "object",
+            properties: {
+              displayName: {
+                type: "string",
+                description: "الاسم الكامل الجديد للمستخدم"
+              },
+              country: {
+                type: "string",
+                description: "اسم الدولة الجديدة للمستخدم"
+              },
+              phoneNumber: {
+                type: "string",
+                description: "رقم الهاتف الجديد للمستخدم"
+              }
+            }
+          }
+        }
+      }
+    ];
 
     // ── 1. محاولة استدعاء Gemini API ──
     if (geminiKey) {
@@ -136,6 +196,7 @@ ${leaderboardList}
                   parts: [{ text: systemPrompt }]
                 },
                 contents: geminiContents,
+                tools: geminiTools,
                 generationConfig: { temperature: 0.7, maxOutputTokens: 600 }
               })
             }
@@ -164,9 +225,38 @@ ${leaderboardList}
       }
 
       // لو نجح الاتصال الفعلي بـ Gemini ورجع رد سليم
-      if (lastResponse?.ok && data?.candidates?.[0]?.content?.parts?.[0]?.text) {
-        const botText = data.candidates[0].content.parts[0].text;
-        return NextResponse.json({ text: botText });
+      if (lastResponse?.ok && data?.candidates?.[0]?.content?.parts) {
+        const parts = data.candidates[0].content.parts;
+        let botText = "";
+        let triggerUpdate = false;
+        let updateArgs: any = null;
+
+        for (const part of parts) {
+          if (part.text) {
+            botText += part.text;
+          }
+          if (part.functionCall && part.functionCall.name === "update_user_profile") {
+            triggerUpdate = true;
+            updateArgs = part.functionCall.args;
+          }
+        }
+
+        if (triggerUpdate && updateArgs) {
+          const updatedFields = [];
+          if (updateArgs.displayName) updatedFields.push(`الاسم إلى: ${updateArgs.displayName}`);
+          if (updateArgs.country) updatedFields.push(`الدولة إلى: ${updateArgs.country}`);
+          if (updateArgs.phoneNumber) updatedFields.push(`رقم الهاتف إلى: ${updateArgs.phoneNumber}`);
+
+          const replyText = botText || `لقد قمت بتحديث بيانات ملفك الشخصي بنجاح! 💾 (${updatedFields.join("، ")})`;
+          return NextResponse.json({ 
+            text: replyText,
+            updateProfile: updateArgs
+          });
+        }
+
+        if (botText) {
+          return NextResponse.json({ text: botText });
+        }
       }
     }
 
@@ -188,14 +278,37 @@ ${leaderboardList}
                 content: m.text
               }))
             ],
+            tools: openAiTools,
+            tool_choice: "auto",
             temperature: 0.7,
             max_tokens: 600
           })
         });
 
         const data = await response.json();
-        if (response.ok && data.choices?.[0]?.message?.content) {
-          return NextResponse.json({ text: data.choices[0].message.content });
+        if (response.ok && data.choices?.[0]?.message) {
+          const message = data.choices[0].message;
+
+          if (message.tool_calls && message.tool_calls.length > 0) {
+            const toolCall = message.tool_calls[0];
+            if (toolCall.function.name === "update_user_profile") {
+              const args = JSON.parse(toolCall.function.arguments);
+              const updatedFields = [];
+              if (args.displayName) updatedFields.push(`الاسم إلى: ${args.displayName}`);
+              if (args.country) updatedFields.push(`الدولة إلى: ${args.country}`);
+              if (args.phoneNumber) updatedFields.push(`رقم الهاتف إلى: ${args.phoneNumber}`);
+
+              const replyText = message.content || `لقد قمت بتحديث بيانات ملفك الشخصي بنجاح! 💾 (${updatedFields.join("، ")})`;
+              return NextResponse.json({
+                text: replyText,
+                updateProfile: args
+              });
+            }
+          }
+
+          if (message.content) {
+            return NextResponse.json({ text: message.content });
+          }
         }
       } catch (openAiErr) {
         console.error("💥 خطأ في خوادم OpenAI:", openAiErr);

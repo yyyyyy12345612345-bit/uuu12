@@ -6,7 +6,7 @@ import { X, Send, BotMessageSquare, MessageCircle, User, Wand2 } from "lucide-re
 import { useRouter, usePathname } from "next/navigation";
 import { classifyQueryWithML } from "@/lib/ml-model";
 import { auth, db } from "@/lib/firebase";
-import { doc, onSnapshot, collection, query, orderBy, limit, getDocs } from "firebase/firestore";
+import { doc, onSnapshot, collection, query, orderBy, limit, getDocs, updateDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
 export function ChatBot() {
@@ -180,6 +180,26 @@ export function ChatBot() {
         ...prev,
         { id: Date.now() + 1, text: data.text, sender: "bot" }
       ]);
+
+      if (data.updateProfile && auth?.currentUser && db) {
+        const updateFields: any = {};
+        if (data.updateProfile.displayName) updateFields.displayName = data.updateProfile.displayName.trim();
+        if (data.updateProfile.country) {
+          updateFields.country = data.updateProfile.country;
+          updateFields.governorate = data.updateProfile.country;
+        }
+        if (data.updateProfile.phoneNumber) {
+          updateFields.phoneNumber = data.updateProfile.phoneNumber.trim();
+          updateFields.phone = data.updateProfile.phoneNumber.trim();
+        }
+
+        try {
+          await updateDoc(doc(db, "users", auth.currentUser.uid), updateFields);
+          console.log("👤 [ChatBot]: AI successfully updated profile in Firestore!", updateFields);
+        } catch (dbErr) {
+          console.error("❌ [ChatBot]: Failed to write AI profile update to Firestore:", dbErr);
+        }
+      }
     } catch (error: any) {
       console.warn("⚠️ API Call failed. Activating client-side Machine Learning Model Fallback...", error);
       
