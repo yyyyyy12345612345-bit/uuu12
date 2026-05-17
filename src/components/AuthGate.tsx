@@ -35,8 +35,30 @@ const AVATARS = {
   ]
 };
 
-const EGYPT_GOVERNORATES = [
-  "القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "البحر الأحمر"
+const ARAB_COUNTRIES = [
+  { name: "مصر", flag: "🇪🇬" },
+  { name: "السعودية", flag: "🇸🇦" },
+  { name: "الإمارات", flag: "🇦🇪" },
+  { name: "الكويت", flag: "🇰🇼" },
+  { name: "المغرب", flag: "🇲🇦" },
+  { name: "الجزائر", flag: "🇩🇿" },
+  { name: "تونس", flag: "🇹🇳" },
+  { name: "الأردن", flag: "🇯🇴" },
+  { name: "فلسطين", flag: "🇵🇸" },
+  { name: "قطر", flag: "🇶🇦" },
+  { name: "عمان", flag: "🇴🇲" },
+  { name: "البحرين", flag: "🇧🇭" },
+  { name: "العراق", flag: "🇮🇶" },
+  { name: "سوريا", flag: "🇸🇾" },
+  { name: "لبنان", flag: "🇱🇧" },
+  { name: "اليمن", flag: "🇾🇪" },
+  { name: "ليبيا", flag: "🇱🇾" },
+  { name: "السودان", flag: "🇸🇩" },
+  { name: "موريتانيا", flag: "🇲🇷" },
+  { name: "الصومال", flag: "🇸🇴" },
+  { name: "جيبوتي", flag: "🇩🇯" },
+  { name: "جزر القمر", flag: "🇰🇲" },
+  { name: "أخرى", flag: "🌍" }
 ];
 
 // Helper to create a subtle 3D hover effect (safe and clean)
@@ -94,7 +116,7 @@ export function AuthGate({ children }: AuthGateProps) {
     password: "",
     gender: "male" as "male" | "female",
     avatar: AVATARS.male[0],
-    governorate: "القاهرة"
+    country: "مصر"
   });
 
   const [isSkipped, setIsSkipped] = useState<boolean>(() => {
@@ -204,7 +226,7 @@ export function AuthGate({ children }: AuthGateProps) {
         displayName: formData.displayName.trim(),
         phoneNumber: formData.phone.trim(),
         gender: formData.gender,
-        governorate: formData.governorate,
+        country: formData.country,
         photoURL: formData.avatar,
         totalPoints: 0,
         createdAt: new Date().toISOString(),
@@ -598,21 +620,8 @@ export function AuthGate({ children }: AuthGateProps) {
                   
                   <InputField icon={<KeyRound />} type="password" value={formData.password} onChange={(v) => setFormData({...formData, password: v})} placeholder="كلمة المرور" />
                   
-                  <div className="relative group">
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#d4af37] transition-all">
-                      <Compass className="w-5 h-5" />
-                    </div>
-                    <select
-                      value={formData.governorate}
-                      onChange={(e) => setFormData({...formData, governorate: e.target.value})}
-                      className="w-full bg-white/[0.02] border border-white/5 rounded-2xl py-4 pr-12 pl-4 text-sm text-white outline-none focus:border-[#d4af37]/60 focus:bg-white/[0.04] transition-all appearance-none cursor-pointer font-bold"
-                    >
-                      {EGYPT_GOVERNORATES.map(gov => (
-                        <option key={gov} value={gov} className="bg-[#111] text-white">
-                          مُحافظة {gov}
-                        </option>
-                      ))}
-                    </select>
+                  <div className="relative z-50">
+                    <CountrySelect value={formData.country} onChange={(val) => setFormData({...formData, country: val})} />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 pt-2">
@@ -751,6 +760,56 @@ function InteractiveButton({ type, onClick, loading, text }: any) {
         {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : text}
       </div>
     </motion.button>
+  );
+}
+
+function CountrySelect({ value, onChange }: { value: string, onChange: (val: string) => void }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const selected = ARAB_COUNTRIES.find(c => c.name === value) || ARAB_COUNTRIES[0];
+
+  return (
+    <div className="relative w-full">
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full bg-white/[0.02] border ${isOpen ? 'border-[#d4af37]/60' : 'border-white/5'} rounded-2xl py-4 pr-12 pl-4 text-sm text-white outline-none hover:border-[#d4af37]/60 hover:bg-white/[0.04] transition-all cursor-pointer font-bold flex items-center justify-between group`}
+      >
+        <div className={`absolute right-4 top-1/2 -translate-y-1/2 transition-all ${isOpen ? 'text-[#d4af37]' : 'text-white/20 group-hover:text-[#d4af37]'}`}>
+          <Compass className="w-5 h-5" />
+        </div>
+        <span className="flex items-center gap-2 text-[#d4af37]">
+          <span>{selected.name}</span>
+          <span className="text-xl">{selected.flag}</span>
+        </span>
+        <span className={`text-white/40 text-[10px] transition-transform ${isOpen ? 'rotate-180' : ''}`}>▼</span>
+      </div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-xl border border-[#d4af37]/30 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.9)] max-h-56 overflow-y-auto no-scrollbar z-[999] p-2 flex flex-col gap-1"
+          >
+            {ARAB_COUNTRIES.map(country => (
+              <button
+                key={country.name}
+                type="button"
+                onClick={() => {
+                  onChange(country.name);
+                  setIsOpen(false);
+                }}
+                className={`w-full flex items-center justify-between p-3 rounded-xl transition-all ${value === country.name ? 'bg-gradient-to-r from-[#d4af37]/20 to-transparent text-[#d4af37] border border-[#d4af37]/20' : 'text-white hover:bg-white/5 hover:pr-4'}`}
+              >
+                <span className="font-bold text-sm">{country.name}</span>
+                <span className="text-lg">{country.flag}</span>
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 

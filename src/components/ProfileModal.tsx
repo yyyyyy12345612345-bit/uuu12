@@ -4,8 +4,9 @@ import React, { useState, useEffect } from "react";
 import {
    X, Camera, User, Phone, Calendar,
    MapPin, Save, Loader2, CheckCircle, Image as ImageIcon, LogOut, ShieldCheck,
-   BookOpen, Headphones, Trophy, PlayCircle
+   BookOpen, Headphones, Trophy, PlayCircle, Compass
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { auth, db, storage } from "@/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -22,7 +23,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       photoURL: "",
       phoneNumber: "",
       gender: "male" as "male" | "female",
-      governorate: "القاهرة"
+      country: "مصر"
    });
    const [userStats, setUserStats] = useState<any>(null);
    const [loading, setLoading] = useState(false);
@@ -56,11 +57,30 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       ]
    };
 
-   const EGYPT_GOVERNORATES = [
-      "القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "البحر الأحمر", "البحيرة", "الفيوم", "الغربية",
-      "الإسماعيلية", "المنوفية", "المنيا", "القليوبية", "الوادي الجديد", "السويس", "الشرقية",
-      "جنوب سيناء", "شمال سيناء", "بني سويف", "بورسعيد", "دمياط", "سوهاج", "قنا", "كفر الشيخ",
-      "مطروح", "الأقصر", "أسوان", "أسيوط"
+   const ARAB_COUNTRIES = [
+      { name: "مصر", flag: "🇪🇬" },
+      { name: "السعودية", flag: "🇸🇦" },
+      { name: "الإمارات", flag: "🇦🇪" },
+      { name: "الكويت", flag: "🇰🇼" },
+      { name: "المغرب", flag: "🇲🇦" },
+      { name: "الجزائر", flag: "🇩🇿" },
+      { name: "تونس", flag: "🇹🇳" },
+      { name: "الأردن", flag: "🇯🇴" },
+      { name: "فلسطين", flag: "🇵🇸" },
+      { name: "قطر", flag: "🇶🇦" },
+      { name: "عمان", flag: "🇴🇲" },
+      { name: "البحرين", flag: "🇧🇭" },
+      { name: "العراق", flag: "🇮🇶" },
+      { name: "سوريا", flag: "🇸🇾" },
+      { name: "لبنان", flag: "🇱🇧" },
+      { name: "اليمن", flag: "🇾🇪" },
+      { name: "ليبيا", flag: "🇱🇾" },
+      { name: "السودان", flag: "🇸🇩" },
+      { name: "موريتانيا", flag: "🇲🇷" },
+      { name: "الصومال", flag: "🇸🇴" },
+      { name: "جيبوتي", flag: "🇩🇯" },
+      { name: "جزر القمر", flag: "🇰🇲" },
+      { name: "أخرى", flag: "🌍" }
    ];
 
    useEffect(() => {
@@ -83,7 +103,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                photoURL: data.photoURL || "",
                phoneNumber: data.phoneNumber || "",
                gender: data.gender || "male",
-               governorate: data.governorate || "القاهرة"
+               country: data.country || data.governorate || "مصر"
             });
          }
       } catch (e) {
@@ -265,23 +285,18 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                            </div>
                         </div>
 
-                        {/* Governorate */}
+                        {/* Country */}
                         <div className="space-y-4">
                            <div className="flex items-center gap-3 px-2">
                               <div className="w-1 h-1 rounded-full bg-primary" />
-                              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">المحافظة</label>
+                              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">الدولة</label>
                            </div>
-                           <div className="relative">
-                              <select
-                                 value={formData.governorate}
-                                 onChange={e => setFormData({ ...formData, governorate: e.target.value })}
-                                 className="w-full bg-white/5 border-2 border-white/5 rounded-2xl py-5 px-8 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-white appearance-none"
-                              >
-                                 {EGYPT_GOVERNORATES.map(gov => (
-                                    <option key={gov} value={gov} className="bg-[#050505] text-white">{gov}</option>
-                                 ))}
-                              </select>
-                              <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 text-white/10 w-5 h-5" />
+                           <div className="relative z-50">
+                              <CountrySelectProfile 
+                                 value={formData.country} 
+                                 onChange={(val) => setFormData({...formData, country: val})} 
+                                 countries={ARAB_COUNTRIES} 
+                              />
                            </div>
                         </div>
                      </div>
@@ -356,4 +371,54 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
          </div>
       </div>
    );
+}
+
+function CountrySelectProfile({ value, onChange, countries }: { value: string, onChange: (val: string) => void, countries: any[] }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const selected = countries.find(c => c.name === value) || countries[0];
+
+  return (
+    <div className="relative w-full">
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full bg-white/5 border-2 ${isOpen ? 'border-primary/50 bg-white/10' : 'border-white/5'} rounded-2xl py-5 px-8 text-right outline-none transition-all cursor-pointer text-white shadow-xl flex items-center justify-between group`}
+      >
+        <div className={`absolute left-6 top-1/2 -translate-y-1/2 transition-all ${isOpen ? 'text-primary' : 'text-white/10 group-hover:text-primary/50'}`}>
+          <Compass className="w-5 h-5" />
+        </div>
+        <span className="flex items-center gap-3 text-lg font-bold">
+          <span className="text-2xl">{selected.flag}</span>
+          <span>{selected.name}</span>
+        </span>
+        <span className={`text-white/20 text-[10px] transition-transform ${isOpen ? 'rotate-180' : ''}`}>▼</span>
+      </div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-xl border border-primary/30 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.9)] max-h-56 overflow-y-auto no-scrollbar z-[999] p-2 flex flex-col gap-1"
+          >
+            {countries.map(country => (
+              <button
+                key={country.name}
+                type="button"
+                onClick={() => {
+                  onChange(country.name);
+                  setIsOpen(false);
+                }}
+                className={`w-full flex items-center justify-between p-4 rounded-xl transition-all ${value === country.name ? 'bg-gradient-to-r from-primary/20 to-transparent text-primary border border-primary/20' : 'text-white hover:bg-white/5 hover:pr-6'}`}
+              >
+                <span className="font-bold text-base">{country.name}</span>
+                <span className="text-xl">{country.flag}</span>
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
