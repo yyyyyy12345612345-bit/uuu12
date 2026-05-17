@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import nextDynamic from "next/dynamic";
 import { useEditor } from "@/store/useEditor";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Settings, X, Download, Menu } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
@@ -45,6 +45,7 @@ export function CatchAllPageClient() {
 function CatchAllContent() {
   const { state } = useEditor();
   const pathname = usePathname();
+  const router = useRouter();
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isRenderOpen, setIsRenderOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -71,10 +72,18 @@ function CatchAllContent() {
       'leaderboard': 'rank',
       'admin': 'admin',
       'showcase': 'showcase',
-      'prayers': 'prayers'
+      'prayers': 'prayers',
+      'profile': 'mushaf-choice'
     };
 
     return mapping[segment] || segment || "mushaf-choice";
+  }, [pathname]);
+
+  useEffect(() => {
+    const segment = pathname?.split('/').filter(Boolean)[0];
+    if (segment === "profile") {
+      setIsProfileOpen(true);
+    }
   }, [pathname]);
 
   const [visited, setVisited] = useState<Record<string, boolean>>({ 'mushaf-choice': true });
@@ -273,7 +282,16 @@ function CatchAllContent() {
           setIsPointsGuideOpen(true);
         }}
       />
-      <ProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
+      <ProfileModal 
+        isOpen={isProfileOpen} 
+        onClose={() => {
+          setIsProfileOpen(false);
+          const segment = pathname?.split('/').filter(Boolean)[0];
+          if (segment === "profile") {
+            router.push("/");
+          }
+        }} 
+      />
       <PointsGuideModal isOpen={isPointsGuideOpen} onClose={() => setIsPointsGuideOpen(false)} />
       
       {/* Global AI ChatBot */}

@@ -15,6 +15,7 @@ export async function generateStaticParams() {
     { slug: ['video'] },
     { slug: ['rank'] },
     { slug: ['admin'] },
+    { slug: ['profile'] },
   ];
 }
 
