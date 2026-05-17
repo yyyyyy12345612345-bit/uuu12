@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     }
 
     const openAiKey = process.env.OPENAI_API_KEY;
-    const geminiKey = process.env.GEMINI_API_KEY;
+    const geminiKey = process.env.GEMINI_API_KEY || process.env.Value || process.env.VALUE;
 
     if (!openAiKey && !geminiKey) {
       return NextResponse.json(
