@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, BotMessageSquare, MessageCircle, User, Wand2 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
+import { classifyQueryWithML } from "@/lib/ml-model";
 
 export function ChatBot() {
   const router = useRouter();
@@ -104,11 +105,14 @@ export function ChatBot() {
         { id: Date.now() + 1, text: data.text, sender: "bot" }
       ]);
     } catch (error: any) {
-      console.error("Chat API error:", error);
-      const errorMessage = error.message || "حدث خطأ غير معروف";
+      console.warn("⚠️ API Call failed. Activating client-side Machine Learning Model Fallback...", error);
+      
+      // تشغيل موديل الذكاء الاصطناعي المحلي فوراً في المتصفح لتجنب انقطاع الخدمة
+      const mlClassification = classifyQueryWithML(userText, userData);
+      
       setMessages(prev => [
         ...prev,
-        { id: Date.now() + 1, text: `عذراً، حدث خطأ: ${errorMessage} ⚠️. (تأكد من صحة المفتاح وإعدادات البيئة)`, sender: "bot" }
+        { id: Date.now() + 1, text: mlClassification.reply, sender: "bot" }
       ]);
     } finally {
       setIsTyping(false);
