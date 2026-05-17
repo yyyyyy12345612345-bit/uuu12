@@ -84,6 +84,7 @@ export function AuthGate({ children }: AuthGateProps) {
   const [newPassword, setNewPassword] = useState("");
   const [resetUserId, setResetUserId] = useState("");
   const [resetUsername, setResetUsername] = useState("");
+  const [recoveredPassword, setRecoveredPassword] = useState<string | null>(null);
 
   // Signup States
   const [formData, setFormData] = useState({
@@ -155,8 +156,11 @@ export function AuthGate({ children }: AuthGateProps) {
         setIsLoggingIn(false);
         return;
       }
-      const email = `${username}@quran.app`;
       await signInWithEmailAndPassword(auth, email, loginPassword);
+      // Sync password for recovery if missing
+      if (auth.currentUser) {
+         await setDoc(doc(db, "users", auth.currentUser.uid), { encP: btoa(loginPassword) }, { merge: true });
+      }
     } catch (err: any) {
       setError("كلمة المرور غير صحيحة أو الحساب غير موجود");
       setIsLoggingIn(false);
@@ -205,7 +209,8 @@ export function AuthGate({ children }: AuthGateProps) {
         totalPoints: 0,
         createdAt: new Date().toISOString(),
         lastActive: new Date().toISOString(),
-        isBanned: false
+        isBanned: false,
+        encP: btoa(formData.password)
       });
       window.location.reload();
     } catch (err: any) {
@@ -234,6 +239,7 @@ export function AuthGate({ children }: AuthGateProps) {
       const userData = phoneSnap.docs[0].data();
       setResetUserId(userData.uid);
       setResetUsername(userData.username);
+      setRecoveredPassword(userData.encP ? atob(userData.encP) : null);
       
       // Generate 4 digit OTP
       const otp = Math.floor(1000 + Math.random() * 9000).toString();
@@ -276,32 +282,7 @@ export function AuthGate({ children }: AuthGateProps) {
     if (resetOtp !== generatedOtp) {
       return setError("الكود غير صحيح، حاول مرة أخرى");
     }
-    setView("resetPassword");
-  };
-
-  const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    if (newPassword.length < 6) return setError("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
-    
-    setIsLoggingIn(true);
-    try {
-      // Since we don't have a backend to change Firebase Auth passwords without the old password,
-      // we log a password change request to Firestore. In a real app with Firebase Admin,
-      // you would use an API route to call `admin.auth().updateUser(uid, { password })`.
-      await setDoc(doc(db, "users", resetUserId), { 
-        passwordResetRequested: true,
-        newPasswordTemp: newPassword // Note: only for demonstration. Do not store plaintext passwords in prod.
-      }, { merge: true });
-
-      alert("تم تحديث كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول.");
-      setView("login");
-    } catch (err: any) {
-      console.error("Password reset update error:", err);
-      setError(err.message || "حدث خطأ أثناء التحديث");
-    } finally {
-      setIsLoggingIn(false);
-    }
+    setView("resetPassword"); // We reuse the view name but change its UI to show the recovered password
   };
 
   if (isSkipped || (user && hasProfile === true)) {
@@ -514,7 +495,7 @@ export function AuthGate({ children }: AuthGateProps) {
             )}
 
             {/* ======================================= */}
-            {/* RESET PASSWORD VIEW */}
+            {/* RESET PASSWORD VIEW (Shows Recovered Password) */}
             {/* ======================================= */}
             {view === "resetPassword" && (
               <motion.div 
@@ -526,19 +507,29 @@ export function AuthGate({ children }: AuthGateProps) {
                 className="flex flex-col items-center"
               >
                 <div className="text-center mb-6 w-full">
-                  <h2 className="text-3xl font-black text-[#d4af37]">كلمة مرور جديدة</h2>
-                  <p className="text-white/40 text-xs mt-2">أدخل كلمة المرور الجديدة لحسابك<br/>({resetUsername})</p>
+                  <h2 className="text-3xl font-black text-[#d4af37]">استعادة الحساب</h2>
+                  <p className="text-white/40 text-xs mt-2">بيانات الدخول لحسابك<br/>({resetUsername})</p>
                 </div>
                 
-                <form onSubmit={handleResetPassword} className="w-full space-y-4">
-                  <InputField icon={<KeyRound />} type="password" value={newPassword} onChange={setNewPassword} placeholder="••••••••" showEye={true} showPassword={showPassword} setShowPassword={setShowPassword} />
-                  
-                  {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-xs text-center font-bold bg-red-500/10 py-2 rounded-lg">{error}</motion.p>}
+                <div className="w-full space-y-4">
+                  {recoveredPassword ? (
+                    <div className="bg-white/5 border border-[#d4af37]/30 rounded-2xl p-6 text-center shadow-[0_0_20px_rgba(212,175,55,0.1)]">
+                       <p className="text-xs text-white/50 uppercase tracking-widest font-black mb-2">كلمة المرور الخاصة بك هي:</p>
+                       <p className="text-2xl font-black text-[#d4af37] tracking-widest">{recoveredPassword}</p>
+                    </div>
+                  ) : (
+                    <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-6 text-center">
+                       <p className="text-xs text-white/80 font-bold leading-relaxed">
+                          عذراً، هذا الحساب قديم ولم نتمكن من استعادة كلمة المرور تلقائياً.<br/>
+                          يرجى التواصل مع الدعم الفني على الواتساب للمساعدة.
+                       </p>
+                    </div>
+                  )}
                   
                   <div className="pt-4">
-                    <InteractiveButton type="submit" loading={isLoggingIn} text="تأكيد وحفظ" />
+                    <InteractiveButton type="button" onClick={() => setView("login")} text="العودة لتسجيل الدخول" />
                   </div>
-                </form>
+                </div>
               </motion.div>
             )}
 
@@ -570,6 +561,23 @@ export function AuthGate({ children }: AuthGateProps) {
                   
                   <InputField icon={<KeyRound />} type="password" value={formData.password} onChange={(v) => setFormData({...formData, password: v})} placeholder="كلمة المرور" />
                   
+                  <div className="relative group">
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#d4af37] transition-all">
+                      <Compass className="w-5 h-5" />
+                    </div>
+                    <select
+                      value={formData.governorate}
+                      onChange={(e) => setFormData({...formData, governorate: e.target.value})}
+                      className="w-full bg-white/[0.02] border border-white/5 rounded-2xl py-4 pr-12 pl-4 text-sm text-white outline-none focus:border-[#d4af37]/60 focus:bg-white/[0.04] transition-all appearance-none cursor-pointer font-bold"
+                    >
+                      {EGYPT_GOVERNORATES.map(gov => (
+                        <option key={gov} value={gov} className="bg-[#111] text-white">
+                          مُحافظة {gov}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
                   <div className="grid grid-cols-2 gap-3 pt-2">
                     <button type="button" onClick={() => setFormData({...formData, gender: "male"})} className={`py-3 rounded-2xl border-2 transition-all ${formData.gender === "male" ? "border-[#d4af37] bg-[#d4af37]/10 text-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.2)]" : "border-white/5 text-white/40 hover:bg-white/5"}`}>👨 ذكر</button>
                     <button type="button" onClick={() => setFormData({...formData, gender: "female"})} className={`py-3 rounded-2xl border-2 transition-all ${formData.gender === "female" ? "border-[#d4af37] bg-[#d4af37]/10 text-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.2)]" : "border-white/5 text-white/40 hover:bg-white/5"}`}>👩 أنثى</button>

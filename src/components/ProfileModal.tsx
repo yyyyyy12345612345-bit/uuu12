@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from "react";
 import {
    X, Camera, User, Phone, Calendar,
-   MapPin, Save, Loader2, CheckCircle, Image as ImageIcon, LogOut, ShieldCheck
+   MapPin, Save, Loader2, CheckCircle, Image as ImageIcon, LogOut, ShieldCheck,
+   BookOpen, Headphones, Trophy, PlayCircle
 } from "lucide-react";
 import { auth, db, storage } from "@/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -23,6 +24,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       gender: "male" as "male" | "female",
       governorate: "القاهرة"
    });
+   const [userStats, setUserStats] = useState<any>(null);
    const [loading, setLoading] = useState(false);
    const [saving, setSaving] = useState(false);
    const [success, setSuccess] = useState(false);
@@ -74,6 +76,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
          const s = await getDoc(doc(db, "users", auth.currentUser.uid));
          if (s.exists()) {
             const data = s.data();
+            setUserStats(data);
             setFormData({
                displayName: data.displayName || "",
                username: data.username || "",
@@ -137,6 +140,52 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                      <p className="text-primary font-black text-xs uppercase tracking-[0.4em]">جاري التحميل</p>
                   </div>
                ) : (
+                  <div className="space-y-10">
+                     {/* User Stats Dashboard */}
+                     {userStats && (
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                           <div className="bg-white/5 border border-white/5 rounded-[2rem] p-5 flex flex-col items-center justify-center text-center gap-3 hover:bg-white/10 transition-colors">
+                              <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                                 <Trophy className="w-5 h-5" />
+                              </div>
+                              <div>
+                                 <span className="block text-2xl font-black text-white">{userStats.totalPoints || 0}</span>
+                                 <span className="text-[10px] text-white/40 uppercase tracking-widest font-black mt-1 block">إجمالي النقاط</span>
+                              </div>
+                           </div>
+                           
+                           <div className="bg-white/5 border border-white/5 rounded-[2rem] p-5 flex flex-col items-center justify-center text-center gap-3 hover:bg-white/10 transition-colors">
+                              <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+                                 <BookOpen className="w-5 h-5" />
+                              </div>
+                              <div>
+                                 <span className="block text-2xl font-black text-white">{userStats.readAyahs || 0}</span>
+                                 <span className="text-[10px] text-white/40 uppercase tracking-widest font-black mt-1 block">آيات قُرئت</span>
+                              </div>
+                           </div>
+                           
+                           <div className="bg-white/5 border border-white/5 rounded-[2rem] p-5 flex flex-col items-center justify-center text-center gap-3 hover:bg-white/10 transition-colors">
+                              <div className="w-10 h-10 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center">
+                                 <Headphones className="w-5 h-5" />
+                              </div>
+                              <div>
+                                 <span className="block text-2xl font-black text-white">{Math.floor((userStats.audioSeconds || 0) / 60)}</span>
+                                 <span className="text-[10px] text-white/40 uppercase tracking-widest font-black mt-1 block">دقائق استماع</span>
+                              </div>
+                           </div>
+                           
+                           <div className="bg-white/5 border border-white/5 rounded-[2rem] p-5 flex flex-col items-center justify-center text-center gap-3 hover:bg-white/10 transition-colors">
+                              <div className="w-10 h-10 rounded-full bg-purple-500/10 text-purple-500 flex items-center justify-center">
+                                 <PlayCircle className="w-5 h-5" />
+                              </div>
+                              <div>
+                                 <span className="block text-2xl font-black text-white">{userStats.completedSurahs?.length || 0}</span>
+                                 <span className="text-[10px] text-white/40 uppercase tracking-widest font-black mt-1 block">سور مكتملة</span>
+                              </div>
+                           </div>
+                        </div>
+                     )}
+
                   <form onSubmit={handleSave} className="space-y-10">
                      {/* Avatar Selection */}
                      <div className="space-y-6">
@@ -298,6 +347,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                         </button>
                      </div>
                   </form>
+                  </div>
                )}
                <div className="p-8 border-t border-white/5 text-center bg-black/40">
                   <span className="text-[9px] font-black text-white/10 uppercase tracking-[0.5em]">الإصدار العالمي الفائق v4.0</span>

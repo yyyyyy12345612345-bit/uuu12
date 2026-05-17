@@ -74,14 +74,14 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
 
   return (
     <div className="fixed inset-0 z-[2000] flex justify-end font-arabic">
-      {/* Premium Dark Glass Backdrop */}
+      {/* Premium Dark/Light Glass Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/80 backdrop-blur-xl animate-in fade-in duration-500" 
+        className="absolute inset-0 bg-background/80 backdrop-blur-xl animate-in fade-in duration-500" 
         onClick={onClose} 
       />
       
       {/* Sidebar Content */}
-      <div className="relative w-full max-w-[420px] h-full bg-[#050505] text-white shadow-[-30px_0_100px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden animate-in slide-in-from-right duration-500 border-l border-white/5">
+      <div className="relative w-full max-w-[420px] h-full bg-background text-foreground shadow-[-30px_0_100px_rgba(0,0,0,0.2)] dark:shadow-[-30px_0_100px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden animate-in slide-in-from-right duration-500 border-l border-foreground/5">
         
         {/* Abstract Cinematic Background */}
         <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none mix-blend-overlay" />
@@ -93,52 +93,52 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
           <div className="flex items-center justify-between mb-10">
             <button 
                 onClick={onClose}
-                className="w-12 h-12 rounded-[1.5rem] bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 hover:rotate-90 transition-all duration-500 active:scale-90 shadow-xl"
+                className="w-12 h-12 rounded-[1.5rem] bg-foreground/5 border border-foreground/10 flex items-center justify-center text-foreground/40 hover:text-foreground hover:bg-foreground/10 hover:rotate-90 transition-all duration-500 active:scale-90 shadow-xl"
             >
                 <X className="w-5 h-5" />
             </button>
             <button 
                 onClick={toggleTheme}
-                className="w-12 h-12 rounded-[1.5rem] bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:bg-primary/10 transition-all duration-500 active:scale-90 shadow-xl"
+                className="w-12 h-12 rounded-[1.5rem] bg-foreground/5 border border-foreground/10 flex items-center justify-center text-foreground/40 hover:text-primary hover:bg-primary/10 transition-all duration-500 active:scale-90 shadow-xl"
             >
                 {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
           </div>
 
           {/* Premium Profile Section */}
-          <div className="relative p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 overflow-hidden group hover:border-primary/30 transition-colors duration-500 shadow-2xl">
+          <div className="relative p-6 rounded-[2.5rem] bg-foreground/[0.02] border border-foreground/5 overflow-hidden group hover:border-primary/30 transition-colors duration-500 shadow-2xl">
             <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             
             {auth?.currentUser && userData ? (
               <div className="flex items-center gap-5 relative z-10">
                  <div className="relative shrink-0" onClick={onOpenProfile}>
-                    <div className="w-16 h-16 rounded-[1.5rem] border border-white/10 bg-black shadow-2xl overflow-hidden cursor-pointer group-hover:scale-105 group-hover:border-primary/50 transition-all duration-500">
+                    <div className="w-16 h-16 rounded-[1.5rem] border border-foreground/10 bg-card shadow-2xl overflow-hidden cursor-pointer group-hover:scale-105 group-hover:border-primary/50 transition-all duration-500">
                        <img 
                          src={userData.photoURL || "/logo/logo.png"} 
                          alt="Profile" 
                          className="w-full h-full object-cover" 
                        />
                     </div>
-                    <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary rounded-xl flex items-center justify-center text-black shadow-lg shadow-primary/30 border-2 border-[#050505]">
+                    <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary rounded-xl flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/30 border-2 border-background">
                        <Trophy className="w-4 h-4" />
                     </div>
                  </div>
                  
                  <div className="flex-1 text-right overflow-hidden flex flex-col justify-center">
-                    <h3 className="text-xl font-black truncate text-white/90 mb-1">{userData.displayName || userData.username}</h3>
+                    <h3 className="text-xl font-black truncate text-foreground/90 mb-1">{userData.displayName || userData.username}</h3>
                     <div className="flex items-center justify-end gap-3">
                       <span className="text-xs font-black text-primary uppercase tracking-widest bg-primary/10 px-3 py-1 rounded-full">{userData.totalPoints || 0} نقطة</span>
-                      <button onClick={onOpenProfile} className="text-[10px] font-black text-white/30 hover:text-white transition-colors uppercase tracking-widest">تعديل</button>
+                      <button onClick={onOpenProfile} className="text-[10px] font-black text-foreground/30 hover:text-foreground transition-colors uppercase tracking-widest">تعديل</button>
                     </div>
                  </div>
               </div>
             ) : (
               <div className="flex items-center gap-5 relative z-10">
-                  <div className="w-16 h-16 rounded-[1.5rem] bg-white/5 border border-white/10 flex items-center justify-center p-3 shadow-inner">
+                  <div className="w-16 h-16 rounded-[1.5rem] bg-foreground/5 border border-foreground/10 flex items-center justify-center p-3 shadow-inner">
                     <img src="/logo/logo.png" alt="Logo" className="w-full h-full object-contain opacity-80" />
                   </div>
                   <div className="text-right">
-                    <h3 className="text-2xl font-black text-white/90">سكينة</h3>
+                    <h3 className="text-2xl font-black text-foreground/90">سكينة</h3>
                     <p className="text-[10px] text-primary font-black uppercase tracking-[0.3em] mt-1">تطبيق القرآن الكريم</p>
                   </div>
               </div>
@@ -151,8 +151,8 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
           {menuGroups.map((group, idx) => (
              <div key={idx} className="space-y-5 animate-in slide-in-from-right fade-in" style={{ animationDelay: `${idx * 100}ms`, animationFillMode: 'both' }}>
                  <div className="flex items-center gap-4">
-                    <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-white/5" />
-                    <h4 className="text-[10px] font-black text-white/30 tracking-[0.4em] uppercase">{group.title}</h4>
+                    <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-foreground/5" />
+                    <h4 className="text-[10px] font-black text-foreground/30 tracking-[0.4em] uppercase">{group.title}</h4>
                  </div>
                  <div className="space-y-3">
                     {group.items.map((item: any, itemIdx: number) => {
@@ -168,7 +168,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
                              className={`relative w-full group flex items-center justify-between p-5 rounded-[2rem] transition-all duration-300 border overflow-hidden animate-in fade-in slide-in-from-right-4 ${
                                isActive 
                                  ? 'bg-primary/10 border-primary/30 shadow-[0_0_30px_rgba(212,175,55,0.15)] scale-[1.02]' 
-                                 : 'bg-white/[0.02] border-white/[0.05] hover:bg-white/[0.06] hover:border-white/10'
+                                 : 'bg-foreground/[0.02] border-foreground/[0.05] hover:bg-foreground/[0.06] hover:border-foreground/10'
                              }`}
                              style={{ animationDelay: `${(idx * 100) + (itemIdx * 50)}ms`, animationFillMode: 'both' }}
                            >
@@ -180,13 +180,13 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
                               )}
                               <div className="flex items-center gap-5 relative z-10 w-full justify-end flex-row-reverse">
                                  <div className={`w-12 h-12 rounded-[1.2rem] flex items-center justify-center transition-all duration-500 shadow-inner shrink-0 ${
-                                   isActive ? 'bg-primary shadow-primary/40 text-black scale-110' : 'bg-black/40 text-white/40 group-hover:text-primary group-hover:bg-primary/10'
+                                   isActive ? 'bg-primary shadow-primary/40 text-primary-foreground scale-110' : 'bg-foreground/10 text-foreground/40 group-hover:text-primary group-hover:bg-primary/10'
                                  }`}>
-                                    <item.icon className={`w-5 h-5 ${isActive ? 'fill-black/10' : ''}`} />
+                                    <item.icon className={`w-5 h-5 ${isActive ? 'fill-primary-foreground/10' : ''}`} />
                                  </div>
-                                 <span className={`text-lg font-black truncate text-right ${isActive ? 'text-primary' : 'text-white/80 group-hover:text-white'}`}>{item.label}</span>
+                                 <span className={`text-lg font-black truncate text-right ${isActive ? 'text-primary' : 'text-foreground/80 group-hover:text-foreground'}`}>{item.label}</span>
                               </div>
-                              <ChevronLeft className={`w-5 h-5 transition-transform duration-500 relative z-10 ${isActive ? 'text-primary -translate-x-2 opacity-100' : 'text-white/10 group-hover:-translate-x-1 group-hover:text-white/40 opacity-0 group-hover:opacity-100'}`} />
+                              <ChevronLeft className={`w-5 h-5 transition-transform duration-500 relative z-10 ${isActive ? 'text-primary -translate-x-2 opacity-100' : 'text-foreground/10 group-hover:-translate-x-1 group-hover:text-foreground/40 opacity-0 group-hover:opacity-100'}`} />
                            </button>
                        );
                     })}
@@ -212,8 +212,8 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
           )}
         </div>
 
-        <div className="p-8 border-t border-white/5 relative z-10 bg-[#020202] text-center">
-            <div className="flex items-center justify-center gap-2 text-white/40">
+        <div className="p-8 border-t border-foreground/5 relative z-10 bg-card text-center">
+            <div className="flex items-center justify-center gap-2 text-foreground/40">
                 <Heart className="w-4 h-4 text-primary fill-primary animate-pulse" />
                 <span className="text-xs font-bold font-arabic">صنع بكل حب لكل مسلم</span>
             </div>
