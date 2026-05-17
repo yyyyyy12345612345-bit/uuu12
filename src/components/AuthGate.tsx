@@ -103,6 +103,15 @@ export function AuthGate({ children }: AuthGateProps) {
     return false;
   });
 
+  useEffect(() => {
+    const handleShowAuth = () => {
+      setIsSkipped(false);
+      localStorage.removeItem('auth_skipped');
+    };
+    window.addEventListener("show_auth_gate", handleShowAuth);
+    return () => window.removeEventListener("show_auth_gate", handleShowAuth);
+  }, []);
+
   const tilt = useTilt();
 
   useEffect(() => {
@@ -296,12 +305,7 @@ export function AuthGate({ children }: AuthGateProps) {
   };
 
   if (isSkipped || (user && hasProfile === true)) {
-    return <div onClickCapture={(e) => {
-      if (isSkipped && (e.target as HTMLElement).closest('button, a, .cursor-pointer')) {
-        setIsSkipped(false);
-        localStorage.removeItem('auth_skipped');
-      }
-    }}>{children}</div>;
+    return <>{children}</>;
   }
 
   if (user === undefined) {
@@ -632,7 +636,13 @@ export function AuthGate({ children }: AuthGateProps) {
 
       {/* Skip Button */}
       <div className="fixed bottom-6 w-full flex justify-center z-20">
-        <button onClick={() => setIsSkipped(true)} className="group text-white/20 hover:text-white/60 text-[10px] font-black tracking-[0.3em] transition-colors relative pb-1">
+        <button 
+          onClick={() => {
+            setIsSkipped(true);
+            localStorage.setItem('auth_skipped', 'true');
+          }} 
+          className="group text-white/20 hover:text-white/60 text-[10px] font-black tracking-[0.3em] transition-colors relative pb-1"
+        >
           الدخول كزائر مؤقتاً
           <span className="absolute bottom-0 right-0 w-0 h-[1px] bg-white/40 transition-all group-hover:w-full" />
         </button>

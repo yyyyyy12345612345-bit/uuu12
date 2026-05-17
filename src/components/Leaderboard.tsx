@@ -257,7 +257,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
               
               {!user && (
                 <button 
-                  onClick={handleGoogleLogin}
+                  onClick={() => window.dispatchEvent(new CustomEvent("show_auth_gate"))}
                   className="mt-4 flex items-center gap-3 px-10 py-5 bg-white text-black rounded-[2rem] font-black text-lg hover:scale-105 active:scale-95 transition-all shadow-2xl"
                 >
                     <LogIn className="w-6 h-6" />
@@ -271,7 +271,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
       <div className="max-w-5xl mx-auto w-full px-6 -mt-24 relative z-20 space-y-12">
           
           {/* User Status Card */}
-          {user && userData && (
+          {user && userData ? (
               <div className="bg-card border border-border rounded-[3rem] p-8 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 group">
                   <div className="flex items-center gap-6">
                       <div className="relative">
@@ -295,6 +295,30 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                       </div>
                       <div className="w-[1px] h-10 bg-border" />
                       <button onClick={onEditProfile} className="px-6 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl font-black text-xs transition-all">تعديل الملف</button>
+                  </div>
+              </div>
+          ) : (
+              <div className="bg-gradient-to-br from-[#121212]/90 to-[#0a0a0a]/95 border border-primary/20 rounded-[3rem] p-8 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 group relative overflow-hidden">
+                  <div className="absolute inset-0 islamic-pattern opacity-5 pointer-events-none" />
+                  <div className="flex items-center gap-6 relative z-10">
+                      <div className="relative shrink-0">
+                          <div className="w-20 h-20 rounded-full border-4 border-dashed border-primary/40 p-1 bg-card shadow-xl overflow-hidden flex items-center justify-center">
+                              <User className="w-10 h-10 text-primary/40" />
+                          </div>
+                      </div>
+                      <div className="text-right">
+                          <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-1">حساب زائر</p>
+                          <h2 className="text-2xl font-black text-foreground">لم تقم بتسجيل الدخول بعد</h2>
+                          <p className="text-xs text-white/40 mt-1 font-bold">سجل حساباً الآن لتجميع النقاط والظهور في لوحة الشرف ومنافسة القراء.</p>
+                      </div>
+                  </div>
+                  <div className="relative z-10 shrink-0 w-full md:w-auto">
+                      <button 
+                        onClick={() => window.dispatchEvent(new CustomEvent("show_auth_gate"))} 
+                        className="w-full md:w-auto px-8 py-4 bg-gradient-to-r from-[#b38f24] via-[#f5d76e] to-[#b38f24] text-black rounded-2xl font-black text-sm hover:scale-105 active:scale-95 transition-all shadow-[0_10px_20px_rgba(212,175,55,0.2)]"
+                      >
+                        سجل دخولك الآن 🏆
+                      </button>
                   </div>
               </div>
           )}

@@ -457,7 +457,15 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             </div>
             <h3 className="text-2xl font-black text-white mb-4">يتطلب تسجيل الدخول</h3>
             <p className="text-white/40 text-sm text-center mb-10 px-8 leading-relaxed">يرجى تسجيل الدخول بحسابك لتتمكن من إنشاء وتصدير الفيديوهات القرآنية.</p>
-            <button onClick={() => window.location.href = '/'} className="w-full bg-primary text-black py-5 rounded-[1.5rem] font-black shadow-2xl hover:scale-105 transition-all">العودة لتسجيل الدخول</button>
+            <button 
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent("show_auth_gate"));
+                onClose();
+              }} 
+              className="w-full bg-primary text-black py-5 rounded-[1.5rem] font-black shadow-2xl hover:scale-105 transition-all"
+            >
+              تسجيل الدخول الآن
+            </button>
           </div>
         ) : isLimitReached ? (
           <div className="animate-in fade-in zoom-in duration-500 flex flex-col items-center py-10">
