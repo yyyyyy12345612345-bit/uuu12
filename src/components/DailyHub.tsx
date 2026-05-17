@@ -385,9 +385,6 @@ export function DailyHub() {
                             <Target className="w-6 h-6 text-primary animate-pulse" />
                             <h3 className="text-2xl font-black">تحديات اليوم</h3>
                         </div>
-                        <div className="bg-primary/10 px-4 py-1.5 rounded-full">
-                            <span className="text-[10px] font-black text-primary uppercase tracking-widest">Global Quests</span>
-                        </div>
                     </div>
                     
                     <div className="space-y-4">
