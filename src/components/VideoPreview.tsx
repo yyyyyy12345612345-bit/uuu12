@@ -155,16 +155,14 @@ export function VideoPreview() {
       setIsPlaying(false);
     } else {
       try {
+        // Resume AudioContext if it was suspended by the browser
+        if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+          await audioContextRef.current.resume();
+        }
+        audioRef.current.load();
         await audioRef.current.play();
         videoRef.current?.play();
         setIsPlaying(true);
-        const videoEl = videoRef.current;
-        if (videoEl) {
-          videoEl.onerror = (e) => {
-            console.error("Video load error:", e);
-          };
-        }
-        setTimeout(() => console.error("Video load timeout"), 40000);
       } catch (error) {
         console.error("Play failed:", error);
       }
@@ -407,9 +405,12 @@ export function VideoPreview() {
         <audio
           ref={audioRef}
           src={getAudioUrl(Number(state.surahId), currentAyahIndex, state.reciterId)}
+          crossOrigin="anonymous"
+          preload="auto"
           onEnded={handleAyahEnd}
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
+          onError={(e) => console.error("Audio load error:", e)}
         />
       </div>
     </div>

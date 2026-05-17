@@ -27,13 +27,29 @@ export async function POST(req: Request) {
     // الحصول على آخر رسالة كتبها المستخدم
     const lastUserMessage = messages[messages.length - 1]?.text || "";
 
-    // ── تصفية الرسائل لتوافق شروط هياكل الـ APIs ──
-    // قانون Gemini و OpenAI للمحادثات التفاعلية: يجب أن تبدأ المحادثة برسالة من المستخدم (user) وليس الموديل (model).
-    // نقوم باستبعاد رسالة الترحيب الأولى التلقائية للذكاء الاصطناعي لتفادي خطأ الـ 400 البنائي.
-    let apiMessages = messages;
-    if (apiMessages.length > 0 && apiMessages[0].sender === "bot") {
+    // ── تصفية وتنظيف الرسائل لتوافق شروط هياكل الـ APIs ──
+    // Gemini يتطلب: 1) أول رسالة تكون user 2) عدم وجود رسائل متتالية من نفس الـ role 3) عدم وجود رسائل فارغة
+    let apiMessages = messages.filter((m: any) => m.text && m.text.trim().length > 0);
+    
+    // إزالة رسائل الـ bot من البداية حتى نصل لأول رسالة user
+    while (apiMessages.length > 0 && apiMessages[0].sender === "bot") {
       apiMessages = apiMessages.slice(1);
     }
+
+    // دمج الرسائل المتتالية من نفس المرسل لتجنب خطأ 400 من Gemini
+    const mergedMessages: any[] = [];
+    for (const msg of apiMessages) {
+      if (mergedMessages.length > 0 && mergedMessages[mergedMessages.length - 1].sender === msg.sender) {
+        // دمج مع الرسالة السابقة من نفس المرسل
+        mergedMessages[mergedMessages.length - 1] = {
+          ...mergedMessages[mergedMessages.length - 1],
+          text: mergedMessages[mergedMessages.length - 1].text + "\n" + msg.text
+        };
+      } else {
+        mergedMessages.push({ ...msg });
+      }
+    }
+    apiMessages = mergedMessages;
 
     const leaderboardList = leaderboard && leaderboard.length > 0
       ? leaderboard.map((u: any, idx: number) => `${idx + 1}. ${u.displayName} (@${u.username}) - ${u.totalPoints} نقطة - ${u.country}`).join("\n")
@@ -298,13 +314,24 @@ ${leaderboardList}
 
     // ── 1. محاولة استدعاء Gemini API ──
     if (geminiKey) {
-      const geminiContents = apiMessages.map((m: any) => ({
+      let geminiContents = apiMessages.map((m: any) => ({
         role: m.sender === "user" ? "user" : "model",
         parts: [{ text: m.text }]
       }));
 
+      // ضمان أن أول رسالة هي من المستخدم (شرط Gemini الإلزامي)
+      while (geminiContents.length > 0 && geminiContents[0].role !== "user") {
+        geminiContents = geminiContents.slice(1);
+      }
+
+      // لو ما في رسائل، نضيف رسالة المستخدم الأخيرة يدوياً
+      if (geminiContents.length === 0) {
+        geminiContents = [{ role: "user", parts: [{ text: lastUserMessage }] }];
+      }
+
+      console.log("📤 عدد الرسائل المرسلة لـ Gemini:", geminiContents.length, "| أول role:", geminiContents[0]?.role);
+
       const modelsToTry = [
-        "gemini-2.5-flash",
         "gemini-2.0-flash",
         "gemini-1.5-flash",
         "gemini-1.5-flash-latest",
@@ -319,11 +346,15 @@ ${leaderboardList}
         console.log("🔄 جاري تجربة الموديل:", model);
 
         try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 15000);
+
           const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
+              signal: controller.signal,
               body: JSON.stringify({
                 systemInstruction: {
                   parts: [{ text: systemPrompt }]
@@ -335,6 +366,7 @@ ${leaderboardList}
             }
           );
 
+          clearTimeout(timeoutId);
           const responseData = await response.json();
 
           if (response.ok) {
@@ -343,17 +375,27 @@ ${leaderboardList}
             lastResponse = response;
             break;
           } else {
-            console.warn(`❌ فشل ${model}:`, responseData.error?.message);
+            const errMsg = responseData.error?.message || "خطأ غير معروف";
+            console.warn(`❌ فشل ${model}: ${errMsg}`);
             lastResponse = response;
             data = responseData;
 
-            if (responseData.error?.message?.includes("quota")) {
+            if (errMsg.includes("quota") || errMsg.includes("RESOURCE_EXHAUSTED")) {
               console.error("⚠️ الحصة انتهت! راجع حساب جوجل.");
-              break; // كسر الدوران لتفعيل الـ Fallback المحلي فوراً
+              break;
+            }
+            // لو خطأ 400 (بنية خاطئة) نكمل للموديل التالي
+            if (response.status === 400) {
+              console.warn(`⚠️ خطأ بنيوي 400 من ${model}, جاري تجربة الموديل التالي...`);
+              continue;
             }
           }
-        } catch (fetchErr) {
-          console.error(`💥 خطأ أثناء طلب الموديل ${model}:`, fetchErr);
+        } catch (fetchErr: any) {
+          if (fetchErr.name === 'AbortError') {
+            console.error(`⏱️ الموديل ${model} تجاوز المهلة الزمنية (15 ثانية)`);
+          } else {
+            console.error(`💥 خطأ أثناء طلب الموديل ${model}:`, fetchErr);
+          }
         }
       }
 
