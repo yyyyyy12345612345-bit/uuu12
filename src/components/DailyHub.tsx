@@ -10,7 +10,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { 
   CheckCircle2, RotateCcw, Target, Fingerprint, 
   ArrowUpRight, ChevronRight, ChevronLeft, 
-  Sun, Moon, Bed, BookOpen, Compass, MapPin, Search, Sparkles, Clock, Star
+  Sun, Moon, Bed, BookOpen, Compass, MapPin, Search, Clock, Star, Video
 } from "lucide-react";
 import { db, auth } from "@/lib/firebase";
 
@@ -306,10 +306,6 @@ export function DailyHub() {
       {/* Header Section */}
       <div className="relative z-10 flex flex-col md:flex-row items-center md:items-end justify-between gap-6 mb-10 animate-in fade-in duration-700">
           <div className="text-center md:text-right">
-              <div className="flex items-center justify-center md:justify-end gap-2 mb-2">
-
-                  <Sparkles className="w-4 h-4 text-primary" />
-              </div>
               <h2 className="text-3xl md:text-6xl font-black mb-1 tracking-tight">مرحباً، {userData?.displayName || "زائرنا الكريم"}</h2>
               <p className="text-foreground/40 font-bold text-base">السلام عليكم ورحمة الله وبركاته</p>
           </div>
@@ -386,7 +382,7 @@ export function DailyHub() {
                 <div className="md:col-span-2 space-y-6">
                     <div className="flex items-center justify-between px-4">
                         <div className="flex items-center gap-3">
-                            <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+                            <Target className="w-6 h-6 text-primary animate-pulse" />
                             <h3 className="text-2xl font-black">تحديات اليوم</h3>
                         </div>
                         <div className="bg-primary/10 px-4 py-1.5 rounded-full">
@@ -404,7 +400,7 @@ export function DailyHub() {
                                     'mushaf': { icon: BookOpen, color: 'text-primary', bg: 'bg-primary/10', label: 'قراءة' },
                                     'mushaf-full': { icon: BookOpen, color: 'text-amber-500', bg: 'bg-amber-500/10', label: 'المصحف' },
                                     'daily': { icon: Sun, color: 'text-emerald-500', bg: 'bg-emerald-500/10', label: 'أذكار' },
-                                    'video': { icon: Sparkles, color: 'text-indigo-500', bg: 'bg-indigo-500/10', label: 'فيديو' },
+                                    'video': { icon: Video, color: 'text-indigo-500', bg: 'bg-indigo-500/10', label: 'فيديو' },
                                     'surah': { icon: Clock, color: 'text-rose-500', bg: 'bg-rose-500/10', label: 'استماع' },
                                     'rank': { icon: Target, color: 'text-blue-500', bg: 'bg-blue-500/10', label: 'ترتيب' }
                                 };

@@ -5,7 +5,7 @@ import { useEditor } from "@/store/useEditor";
 import { useSurahData } from "@/hooks/useSurahData";
 import { getAudioUrl } from "@/lib/quranUtils";
 import { RECITERS } from "@/data/reciters";
-import { Play, Pause, Loader2, Sparkles, AlertCircle } from "lucide-react";
+import { Play, Pause, Loader2, BookOpen, AlertCircle } from "lucide-react";
 
 const isVideoUrl = (url: string) => {
   if (!url) return false;
@@ -339,7 +339,7 @@ export function VideoPreview() {
               {/* Surah Info Badge */}
               <div className="flex flex-col items-center gap-3">
                 <div className="px-5 py-2 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-xl flex items-center gap-3">
-                    <Sparkles className="w-3 h-3 text-primary animate-pulse" />
+                    <BookOpen className="w-3 h-3 text-primary animate-pulse" />
                     <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">{surahData?.name}</span>
                 </div>
                 {isPlaying && (

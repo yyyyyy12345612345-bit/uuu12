@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { 
   Clock, MapPin, Bell, BellOff, Volume2, Settings2, 
   RefreshCw, Map as MapIcon, Calendar, X, Globe,
-  ArrowRight, Play, Check, ChevronDown, Sparkles, Music, VolumeX
+  ArrowRight, Play, Check, ChevronDown, Music, VolumeX
 } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
 import { Capacitor } from '@capacitor/core';
@@ -199,7 +199,7 @@ export function PrayerTimes() {
                 {nextPrayer ? (
                     <>
                         <div className="flex items-center gap-3 mb-4 bg-primary/10 px-5 py-1.5 rounded-full border border-primary/20">
-                            <Sparkles className="w-3.5 h-3.5 text-primary" />
+                            <Clock className="w-3.5 h-3.5 text-primary animate-pulse" />
                             <span className="text-[10px] font-black text-primary uppercase tracking-widest">الصلاة القادمة: {nextPrayer.name}</span>
                         </div>
                         <h2 className="text-5xl md:text-9xl font-black tracking-widest text-foreground font-mono mb-6 drop-shadow-2xl">

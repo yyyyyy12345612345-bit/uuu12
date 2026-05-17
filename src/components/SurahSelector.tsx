@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import surahsData from "@/data/surahs.json";
 import { useEditor } from "@/store/useEditor";
-import { ChevronDown, Search, Lock, Crown, Sparkles, Hash } from "lucide-react";
+import { ChevronDown, Search, Lock, Crown, Hash } from "lucide-react";
 import { AyahSearchModal } from "./AyahSearchModal";
 import { useUserPlan } from "@/hooks/useUserPlan";
 
@@ -55,7 +55,7 @@ export function SurahSelector() {
         </div>
         {!isSearchLocked && (
             <div className="w-8 h-8 rounded-full bg-foreground/5 flex items-center justify-center text-primary/40 group-hover:text-primary transition-colors">
-                <Sparkles className="w-4 h-4 animate-pulse" />
+                <ChevronDown className="w-4 h-4 -rotate-90 animate-pulse" />
             </div>
         )}
       </button>

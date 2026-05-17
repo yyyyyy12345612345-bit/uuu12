@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Compass, MapPin, Navigation, Info, Locate, Search, ArrowUp, Sparkles } from "lucide-react";
+import { Compass, MapPin, Navigation, Info, Locate, Search, ArrowUp, Loader2 } from "lucide-react";
 
 interface QiblaCompassProps {
   qiblaAngle: number | null;
@@ -162,7 +162,7 @@ export function QiblaCompass({ qiblaAngle, onRequestLocation, isLoading, error }
             >
                 <div className="absolute inset-0 gold-shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="relative z-10 flex items-center gap-3">
-                    {isLoading ? <Sparkles className="w-6 h-6 animate-spin" /> : <Locate className="w-6 h-6" />}
+                    {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Locate className="w-6 h-6" />}
                     <span>تفعيل القبلة الآن</span>
                 </div>
             </button>

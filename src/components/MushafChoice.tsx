@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { BookOpen, ScrollText, Sparkles, History } from 'lucide-react';
+import { BookOpen, ScrollText, History } from 'lucide-react';
 
 export function MushafChoice() {
   return (
@@ -21,9 +21,7 @@ export function MushafChoice() {
         </div>
         
         <div className="flex items-center gap-2 mb-4">
-           <Sparkles className="w-5 h-5 text-primary" />
            <h3 className="text-2xl font-bold font-arabic text-foreground">اختر طريقة التلاوة</h3>
-           <Sparkles className="w-5 h-5 text-primary" />
         </div>
         <p className="text-foreground/50 font-arabic text-sm md:text-base mb-12 text-center max-w-sm font-bold leading-relaxed">
           صممنا لك خيارات متنوعة تتناسب مع رحلتك الإيمانية، اختر ما يريح قلبك اليوم.

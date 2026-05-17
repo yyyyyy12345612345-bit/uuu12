@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Star, ArrowUpRight, Play, Users, Sparkles } from "lucide-react";
+import { Star, ArrowUpRight, Play, Users } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
 
@@ -41,7 +41,6 @@ export function CommunityShowcase() {
              <div className="text-right flex-1">
                 <div className="flex items-center justify-end gap-3 mb-4">
                    <span className="bg-primary/20 text-primary text-[10px] font-black px-4 py-1.5 rounded-full border border-primary/20 uppercase tracking-[0.3em]">Community Spirit</span>
-                   <Sparkles className="w-6 h-6 text-primary" />
                 </div>
                 <h2 className="text-5xl md:text-6xl font-black mb-6 tracking-tight">معرض المبدعين</h2>
                 <p className="text-foreground/40 font-bold text-lg max-w-2xl ml-auto">استلهم من فيديوهات المجتمع وشاركنا إبداعك في نشر كتاب الله.</p>
