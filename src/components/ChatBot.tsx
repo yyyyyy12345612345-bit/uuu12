@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Bot, User, Sparkles, BrainCircuit, Cpu } from "lucide-react";
+import { X, Send, BotMessageSquare, MessageCircle, User, Wand2 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 
 export function ChatBot() {
@@ -13,7 +13,7 @@ export function ChatBot() {
   const [message, setMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [messages, setMessages] = useState([
-    { id: 1, text: "مرحباً بك في بُعد الذكاء الاصطناعي 🌟. أنا دليلك الشامل هنا، كيف يمكنني إثراء تجربتك اليوم؟", sender: "bot" }
+    { id: 1, text: "مرحباً بك! أنا مساعدك الذكي 🌟، كيف يمكنني إثراء تجربتك اليوم؟", sender: "bot" }
   ]);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -136,7 +136,7 @@ export function ChatBot() {
         {/* Main Button Body */}
         <div className="relative w-full h-full bg-gradient-to-br from-[#1a1a1a] to-[#000] border-2 border-[#d4af37]/50 rounded-full flex items-center justify-center overflow-hidden shadow-[0_0_30px_rgba(212,175,55,0.4)]">
           <div className="absolute inset-0 bg-gradient-to-tr from-[#d4af37]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-          <BrainCircuit className="w-7 h-7 text-[#d4af37] drop-shadow-[0_0_10px_rgba(212,175,55,0.8)]" />
+          <MessageCircle className="w-7 h-7 text-[#d4af37] drop-shadow-[0_0_10px_rgba(212,175,55,0.8)]" />
         </div>
 
         {/* Online Indicator */}
@@ -169,18 +169,18 @@ export function ChatBot() {
               <div className="flex items-center gap-4">
                 <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-[#d4af37]/20 to-transparent border border-[#d4af37]/30 flex items-center justify-center overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-tr from-[#d4af37]/10 to-transparent animate-pulse" />
-                  <Bot className="w-6 h-6 text-[#d4af37] relative z-10" />
+                  <BotMessageSquare className="w-6 h-6 text-[#d4af37] relative z-10" />
                 </div>
                 <div>
-                  <h3 className="font-black text-white text-base flex items-center gap-2">
-                    الذكاء القرآني <Sparkles className="w-4 h-4 text-[#d4af37]" />
+                  <h3 className="font-black text-white text-base flex items-center gap-2 font-sans">
+                    المساعد الذكي
                   </h3>
                   <div className="flex items-center gap-2 mt-1">
                      <span className="relative flex h-2 w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                      </span>
-                     <p className="text-[10px] text-emerald-400/80 uppercase tracking-widest font-bold font-mono">متصل بالشبكة العصبية</p>
+                     <p className="text-[10px] text-emerald-400/80 uppercase tracking-widest font-bold font-mono">متصل بالشبكة</p>
                   </div>
                 </div>
               </div>
@@ -193,7 +193,7 @@ export function ChatBot() {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-6 font-arabic relative z-10">
+            <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-6 font-sans relative z-10">
               {messages.map((msg) => (
                 <motion.div 
                   initial={{ opacity: 0, x: msg.sender === "user" ? 20 : -20 }}
@@ -203,7 +203,7 @@ export function ChatBot() {
                 >
                   <div className={`max-w-[85%] flex items-end gap-3 ${msg.sender === "user" ? "flex-row-reverse" : "flex-row"}`}>
                     <div className={`shrink-0 w-8 h-8 rounded-xl flex items-center justify-center shadow-lg ${msg.sender === "user" ? "bg-gradient-to-br from-white/10 to-white/5 border border-white/10" : "bg-gradient-to-br from-[#d4af37] to-[#8a6e1c] border border-[#d4af37]/50"}`}>
-                      {msg.sender === "user" ? <User className="w-4 h-4 text-white" /> : <Cpu className="w-4 h-4 text-black" />}
+                      {msg.sender === "user" ? <User className="w-4 h-4 text-white" /> : <Wand2 className="w-4 h-4 text-black" />}
                     </div>
                     
                     <div 
@@ -225,7 +225,7 @@ export function ChatBot() {
                 <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex justify-start">
                   <div className="max-w-[80%] flex items-end gap-3">
                     <div className="shrink-0 w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#8a6e1c] border border-[#d4af37]/50 flex items-center justify-center shadow-lg">
-                      <Cpu className="w-4 h-4 text-black" />
+                      <Wand2 className="w-4 h-4 text-black" />
                     </div>
                     <div className="p-4 rounded-3xl bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] rounded-tl-sm border border-[#d4af37]/30 flex items-center gap-2 shadow-2xl">
                       <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: 0 }} className="w-2 h-2 bg-[#d4af37] rounded-full shadow-[0_0_10px_rgba(212,175,55,0.8)]" />
