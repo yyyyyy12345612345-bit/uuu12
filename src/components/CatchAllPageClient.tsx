@@ -30,6 +30,7 @@ const MushafChoice = nextDynamic(() => import("@/components/MushafChoice").then(
 const SubscriptionModal = nextDynamic(() => import("@/components/SubscriptionModal").then(mod => mod.SubscriptionModal), { ssr: false });
 const CommunityShowcase = nextDynamic(() => import("@/components/CommunityShowcase").then(mod => mod.CommunityShowcase), { ssr: false });
 const PointsGuideModal = nextDynamic(() => import("@/components/PointsGuideModal").then(mod => mod.PointsGuideModal), { ssr: false });
+const ChatBot = nextDynamic(() => import("@/components/ChatBot").then(mod => mod.ChatBot), { ssr: false });
 
 export function CatchAllPageClient() {
   return (
@@ -274,6 +275,9 @@ function CatchAllContent() {
       />
       <ProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
       <PointsGuideModal isOpen={isPointsGuideOpen} onClose={() => setIsPointsGuideOpen(false)} />
+      
+      {/* Global AI ChatBot */}
+      <ChatBot />
     </div>
   );
 }
