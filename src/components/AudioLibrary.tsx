@@ -319,12 +319,12 @@ export function AudioLibrary() {
                               <button 
                                 key={s.id}
                                 onClick={() => handleSurahSelect(s)}
-                                className={`flex flex-col items-center gap-3 shrink-0 p-4 rounded-[2.5rem] border transition-all duration-500 group ${active ? 'bg-primary border-primary shadow-2xl shadow-primary/20 scale-110' : 'bg-white/5 border-white/5 opacity-60 hover:opacity-100 hover:bg-white/10'}`}
+                                className={`flex flex-col items-center justify-center gap-2 shrink-0 min-w-[75px] p-3 rounded-[1.8rem] border transition-all duration-300 group ${active ? 'bg-primary border-primary shadow-xl shadow-primary/20' : 'bg-white/5 border-white/5 opacity-60 hover:opacity-100 hover:bg-white/10'}`}
                               >
-                                  <div className={`w-14 h-14 rounded-full flex items-center justify-center font-black text-xs transition-all ${active ? 'bg-black/10 text-black' : 'bg-white/5 text-white group-hover:scale-110'}`}>
+                                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-xs transition-all ${active ? 'bg-black/10 text-black' : 'bg-white/5 text-white group-hover:bg-white/10'}`}>
                                       {s.id}
                                   </div>
-                                  <span className={`text-[10px] font-black font-['Amiri'] ${active ? 'text-black' : 'text-white'}`}>{s.name}</span>
+                                  <span className={`text-[10px] font-bold font-arabic whitespace-nowrap ${active ? 'text-black' : 'text-white'}`}>{s.name}</span>
                               </button>
                           );
                       })}
