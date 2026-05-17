@@ -115,7 +115,16 @@ export async function POST(req: Request) {
 
       if (!lastResponse?.ok) {
         console.error("Gemini Error:", data);
-        return NextResponse.json({ error: data?.error?.message || "Failed to fetch response from Gemini" }, { status: lastResponse?.status || 500 });
+        const errorMsg = data?.error?.message || "";
+        let arabicError = "فشل في الاتصال بالذكاء الاصطناعي.";
+        if (errorMsg.includes("quota")) {
+          arabicError = "عذراً، لقد نفدت باقة الاستخدام الخاصة بالمفتاح (الرصيد انتهى). يرجى مراجعة حسابك.";
+        } else if (errorMsg.includes("not found")) {
+          arabicError = "الموديل غير متاح في منطقتك أو المفتاح غير صالح.";
+        } else if (errorMsg) {
+          arabicError = `حدث خطأ: ${errorMsg}`;
+        }
+        return NextResponse.json({ error: arabicError }, { status: lastResponse?.status || 500 });
       }
 
       const botText = data.candidates?.[0]?.content?.parts?.[0]?.text || "عذراً، لم أتمكن من الرد.";
@@ -149,7 +158,7 @@ export async function POST(req: Request) {
 
       if (!response.ok) {
         console.error("OpenAI Error:", data);
-        return NextResponse.json({ error: data.error?.message || "Failed to fetch response from OpenAI" }, { status: response.status });
+        return NextResponse.json({ error: "فشل في الاتصال بخوادم OpenAI. تأكد من صحة المفتاح." }, { status: response.status });
       }
 
       return NextResponse.json({ text: data.choices[0].message.content });
@@ -157,6 +166,6 @@ export async function POST(req: Request) {
 
   } catch (error) {
     console.error("Chat API Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "عطل داخلي في الخادم. يرجى المحاولة لاحقاً." }, { status: 500 });
   }
 }
