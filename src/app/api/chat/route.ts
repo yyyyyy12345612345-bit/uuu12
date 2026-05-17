@@ -59,16 +59,19 @@ export async function POST(req: Request) {
 
     if (geminiKey) {
       // Use Gemini API
-      const geminiMessages = messages.map((m: any) => ({
-        role: m.sender === "user" ? "user" : "model",
-        parts: [{ text: m.text }]
-      }));
+      const geminiMessages = [
+        { role: "user", parts: [{ text: systemPrompt }] },
+        { role: "model", parts: [{ text: "فهمت ذلك جيداً، وسأقوم بالرد بناءً على هذه التعليمات كمساعد الذكي للتطبيق." }] },
+        ...messages.map((m: any) => ({
+          role: m.sender === "user" ? "user" : "model",
+          parts: [{ text: m.text }]
+        }))
+      ];
 
       const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemPrompt }] },
           contents: geminiMessages,
           generationConfig: { temperature: 0.7, maxOutputTokens: 500 }
         })
