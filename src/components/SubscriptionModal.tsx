@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Check, ShieldCheck, CreditCard, Send, Loader2, Globe, Phone, ExternalLink, Star, Crown, Sparkles, Zap } from "lucide-react";
+import { X, Check, ShieldCheck, CreditCard, Send, Loader2, Globe, Phone, ExternalLink, Star, Crown, Zap, Gift } from "lucide-react";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, addDoc, collection, serverTimestamp, query, where, getDocs, limit } from "firebase/firestore";
 import { useUserPlan } from "@/hooks/useUserPlan";
@@ -104,7 +104,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
 
   const PLANS = [
     { id: "free", name: "العضوية المجانية", price: 0, icon: Star, features: ["5 فيديوهات فقط", "علامة مائية", "خلفيات ثابتة"] },
-    { id: "trial", name: "تجربة مجانية 🎁", price: 0, icon: Sparkles, features: ["فيديوهات غير محدودة", "بدون علامة مائية", "خلفيات فيديو", "30 يوم"] },
+    { id: "trial", name: "تجربة مجانية 🎁", price: 0, icon: Gift, features: ["فيديوهات غير محدودة", "بدون علامة مائية", "خلفيات فيديو", "30 يوم"] },
     { id: "starter", name: "باقة الهواة", price: pricing.priceStarter, icon: Zap, features: ["50 فيديو شهرياً", "بدون علامة مائية", "خلفيات فيديو", "فتح ميزة البحث"] },
     { id: "premium", name: "عضوية التميز 👑", price: pricing.pricePremium, icon: Crown, features: ["غير محدود + 4K", "بدون علامة مائية", "أولوية الرندر", "قوالب حصرية"] },
   ];
@@ -163,7 +163,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
             {currentSelected && (
                 <div className="mt-10 p-8 rounded-[2rem] bg-white/5 border border-white/5 animate-in fade-in duration-700">
                     <div className="flex items-center gap-3 mb-6">
-                        <Sparkles className="w-4 h-4 text-primary" />
+                        <Crown className="w-4 h-4 text-primary" />
                         <h4 className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">مميزات الباقة</h4>
                     </div>
                     <div className="grid grid-cols-2 gap-4">

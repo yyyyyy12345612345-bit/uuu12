@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import {
    X, Camera, User, Phone, Calendar,
-   MapPin, Save, Loader2, CheckCircle, Image as ImageIcon, LogOut, Sparkles, ShieldCheck
+   MapPin, Save, Loader2, CheckCircle, Image as ImageIcon, LogOut, ShieldCheck
 } from "lucide-react";
 import { auth, db, storage } from "@/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";

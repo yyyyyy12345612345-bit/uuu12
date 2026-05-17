@@ -3,7 +3,7 @@
 import React from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Video, BookOpen, Timer, Headphones, Calendar, Trophy, Sparkles } from "lucide-react";
+import { Video, BookOpen, Timer, Headphones, Calendar, Trophy } from "lucide-react";
 
 export function Navigation() {
   const pathname = usePathname();
@@ -43,10 +43,6 @@ export function Navigation() {
               
               <div className={`relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-700 ${isActive ? 'bg-primary text-black shadow-[0_10px_20px_rgba(212,175,55,0.3)] rotate-[360deg]' : 'text-white'}`}>
                 <Icon className={`w-4 h-4 stroke-[2.5px] transition-transform duration-700 ${isActive ? 'scale-110' : 'group-hover/nav:scale-125 group-hover/nav:rotate-12'}`} />
-                
-                {isActive && (
-                  <Sparkles className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 text-black animate-spin-slow" />
-                )}
               </div>
 
               <span className={`text-[10px] font-bold tracking-tight transition-all duration-700 ${isActive ? 'text-primary' : 'text-white'}`}>

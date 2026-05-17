@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Search, ChevronLeft, ChevronRight, BookOpen, Share2, Copy, Sparkles, Star, Heart, Bookmark, ArrowLeft, LayoutDashboard } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, BookOpen, Share2, Copy, Star, Heart, Bookmark, ArrowLeft, LayoutDashboard } from "lucide-react";
 import { startThikrTimer, endThikrTimer } from "@/lib/points";
 
 interface Category {
@@ -114,9 +114,9 @@ export function AthkarLibrary() {
                 <div className="relative z-10 flex flex-col items-center text-center">
                     <h3 className="text-4xl font-black mb-4 drop-shadow-lg">{selectedCategory.TITLE}</h3>
                     <div className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs">
-                        <Sparkles className="w-4 h-4" />
+                        <Star className="w-4 h-4 fill-current" />
                         <span>حصن المسلم الشريف</span>
-                        <Sparkles className="w-4 h-4" />
+                        <Star className="w-4 h-4 fill-current" />
                     </div>
                 </div>
             </div>

@@ -3,8 +3,8 @@
 import React from "react";
 import { 
   X, Star, BookOpen, Headphones, Calendar, 
-  Fingerprint, Sparkles, Target, Trophy, 
-  Map as MapIcon, ChevronLeft, Award, Zap, Heart
+  Fingerprint, Target, Trophy, 
+  Map as MapIcon, ChevronLeft, Award, Zap, Heart, Image
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -145,7 +145,7 @@ export function PointsGuideModal({ isOpen, onClose }: PointsGuideModalProps) {
                     <Award className="w-24 h-24 text-primary" />
                  </div>
                  <div className="relative z-10">
-                    <Sparkles className="w-8 h-8 text-primary mx-auto mb-4 animate-pulse" />
+                    <Trophy className="w-8 h-8 text-primary mx-auto mb-4 animate-pulse" />
                     <h4 className="text-xl font-black text-white mb-2">لماذا نجمع النقاط؟</h4>
                     <p className="text-sm text-white/60 font-bold leading-relaxed max-w-md mx-auto">
                        النقاط هي وسيلة تحفيزية لتشجيعك على وردك اليومي. يتم استخدامها في ترتيب المتصدرين (Leaderboard) لإضفاء روح المنافسة الشريفة.
@@ -192,7 +192,7 @@ export function PointsGuideModal({ isOpen, onClose }: PointsGuideModalProps) {
                     {
                       title: "مكتبة الخلفيات المرئية (Pexels)",
                       desc: "مصدر الصور والفيديوهات الطبيعية والجمالية فائقة الدقة لتصميم خلفيات المقاطع.",
-                      icon: Sparkles,
+                      icon: Image,
                       color: "text-purple-500",
                       bg: "bg-purple-500/10"
                     },

@@ -5,7 +5,7 @@ import { RECITERS } from "@/data/reciters";
 import {
   Play, Pause, SkipBack, SkipForward, Search,
   Headphones, Repeat, Shuffle, ChevronDown, User,
-  Disc, X, Sparkles, Heart, Share2, ListMusic
+  Disc, X, Heart, Share2, ListMusic
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { setupMediaSession, setPlaybackState, updatePositionState } from "@/lib/mediaSession";
@@ -255,7 +255,7 @@ export function AudioLibrary() {
                       </div>
                       {user && (
                           <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#06402B] rounded-full border-2 border-black flex items-center justify-center">
-                              <Sparkles className="w-2.5 h-2.5 text-primary animate-pulse" />
+                              <Heart className="w-2.5 h-2.5 text-primary animate-pulse fill-current" />
                           </div>
                       )}
                   </div>
@@ -331,7 +331,7 @@ export function AudioLibrary() {
                       <div className="w-20 shrink-0" />
                       {filteredSurahs.length === 0 && (
                           <div className="w-full py-10 flex flex-col items-center justify-center text-white/20 gap-3">
-                               <Sparkles className="w-8 h-8 opacity-20" />
+                               <Search className="w-8 h-8 opacity-20" />
                                <span className="text-xs font-bold italic">لا توجد سور تطابق بحثك</span>
                           </div>
                       )}
