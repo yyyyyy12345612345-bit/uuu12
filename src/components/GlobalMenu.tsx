@@ -97,10 +97,12 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
             >
                 <X className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-3 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full shadow-[0_0_20px_rgba(212,175,55,0.15)]">
-               <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-               <span className="text-[10px] font-black text-primary uppercase tracking-widest">Sakinah Portal</span>
-            </div>
+            <button 
+                onClick={toggleTheme}
+                className="w-12 h-12 rounded-[1.5rem] bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:bg-primary/10 transition-all duration-500 active:scale-90 shadow-xl"
+            >
+                {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
           </div>
 
           {/* Premium Profile Section */}
@@ -210,13 +212,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
           )}
         </div>
 
-        {/* Footer Credits */}
         <div className="p-8 border-t border-white/5 relative z-10 bg-[#020202] text-center">
-            <div className="mb-4 flex items-center justify-center gap-3">
-                <div className="h-[1px] w-12 bg-white/10" />
-                <span className="text-[9px] font-black text-primary/60 uppercase tracking-[0.5em]">Global Edition v4.0</span>
-                <div className="h-[1px] w-12 bg-white/10" />
-            </div>
             <div className="flex items-center justify-center gap-2 text-white/40">
                 <Heart className="w-4 h-4 text-primary fill-primary animate-pulse" />
                 <span className="text-xs font-bold font-arabic">صنع بكل حب لكل مسلم</span>
