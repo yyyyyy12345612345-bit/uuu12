@@ -105,9 +105,10 @@ export function ChatBot() {
       ]);
     } catch (error: any) {
       console.error("Chat API error:", error);
+      const errorMessage = error.message || "حدث خطأ غير معروف";
       setMessages(prev => [
         ...prev,
-        { id: Date.now() + 1, text: "عذراً، حدث خطأ في الاتصال ⚠️. تأكد من إضافة مفتاح GEMINI_API_KEY أو OPENAI_API_KEY في ملف .env محلياً أو في Vercel.", sender: "bot" }
+        { id: Date.now() + 1, text: `عذراً، حدث خطأ: ${errorMessage} ⚠️. (تأكد من صحة المفتاح وإعدادات البيئة)`, sender: "bot" }
       ]);
     } finally {
       setIsTyping(false);
