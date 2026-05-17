@@ -21,6 +21,14 @@ export async function POST(req: Request) {
     // الحصول على آخر رسالة كتبها المستخدم
     const lastUserMessage = messages[messages.length - 1]?.text || "";
 
+    // ── تصفية الرسائل لتوافق شروط هياكل الـ APIs ──
+    // قانون Gemini و OpenAI للمحادثات التفاعلية: يجب أن تبدأ المحادثة برسالة من المستخدم (user) وليس الموديل (model).
+    // نقوم باستبعاد رسالة الترحيب الأولى التلقائية للذكاء الاصطناعي لتفادي خطأ الـ 400 البنائي.
+    let apiMessages = messages;
+    if (apiMessages.length > 0 && apiMessages[0].sender === "bot") {
+      apiMessages = apiMessages.slice(1);
+    }
+
     // ── نظام تعليمات النظام ──
     const systemPrompt = `أنت المساعد الذكي الخاص بتطبيق "الاستوديو القرآني الفائق" فقط.
 ممنوع تماماً الإجابة على أي سؤال خارج نطاق هذا التطبيق أو الإسلام والقرآن.
@@ -57,7 +65,7 @@ export async function POST(req: Request) {
 
     // ── 1. محاولة استدعاء Gemini API ──
     if (geminiKey) {
-      const geminiContents = messages.map((m: any) => ({
+      const geminiContents = apiMessages.map((m: any) => ({
         role: m.sender === "user" ? "user" : "model",
         parts: [{ text: m.text }]
       }));
@@ -79,7 +87,7 @@ export async function POST(req: Request) {
 
         try {
           const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${geminiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -135,7 +143,7 @@ export async function POST(req: Request) {
             model: "gpt-4o-mini",
             messages: [
               { role: "system", content: systemPrompt },
-              ...messages.map((m: any) => ({
+              ...apiMessages.map((m: any) => ({
                 role: m.sender === "user" ? "user" : "assistant",
                 content: m.text
               }))
