@@ -105,6 +105,10 @@ ${leaderboardList}
 - يمكنك الآن إنشاء خطط حفظ أو قراءة قرآني مخصصة بناءً على المدة والهدف الذي يحدده العميل باستخدام أداة (create_custom_quran_plan).
 - إذا قال لك العميل: "اعملي خطة لحفظ سورة الملك في 7 أيام" أو "عايز خطة قراءة البقرة في أسبوع"، قم باستدعاء الأداة (create_custom_quran_plan) فوراً وسيقوم النظام بتثبيتها وتفعيلها في لوحة تحكمه اليومية!
 
+توليد أسئلة ومسابقات دينية عامة تفاعلية للعميل (AI Islamic Trivia Quiz Generator):
+- يمكنك توليد أسئلة دينية تفاعلية شيقة ومثيرة للعميل مع أربعة خيارات (أ، ب، ج، د) وتحديد الخيار الصحيح والشرح الكامل والتعليمي له باستخدام أداة (generate_islamic_quiz).
+- إذا طلب العميل مسابقة، أو تحدي ديني، أو قال لك: "اسألني سؤال ديني" أو "عايز سؤال ديني"، قم باستدعاء الأداة (generate_islamic_quiz) فوراً، وسيقوم النظام بتنسيق السؤال وعرضه للعميل لتحديه وكسب النقاط!
+
 تعليمات:
 1. تحدث دائماً بالعربية بأسلوب راقي ومحترم.
 2. إذا سأل عن معلوماته، أجب من البيانات أعلاه.
@@ -169,6 +173,32 @@ ${leaderboardList}
               },
               required: ["planName", "durationDays", "dailyTarget", "targetPagesPerDay", "dayByDayBreakdown"]
             }
+          },
+          {
+            name: "generate_islamic_quiz",
+            description: "إنشاء أو توليد سؤال ديني عام تفاعلي للعميل مع خيارات متعددة (أ، ب، ج، د) وتحديد الإجابة الصحيحة والتفسير لزيادة الوعي الثقافي.",
+            parameters: {
+              type: "OBJECT",
+              properties: {
+                question: {
+                  type: "STRING",
+                  description: "السؤال الديني العام المثير للتحدي باللغة العربية"
+                },
+                options: {
+                  type: "STRING",
+                  description: "الخيارات الأربعة مفرقة بنزول سطر بالترتيب التالي: أ) ...\\nب) ...\\nج) ...\\nد) ..."
+                },
+                correctOption: {
+                  type: "STRING",
+                  description: "الحرف الصحيح فقط للخيار الفائز (أو ب أو ج أو د)"
+                },
+                explanation: {
+                  type: "STRING",
+                  description: "شرح وتعليم ديني غني جداً حول سبب صحة هذا الخيار مع ذكر الآيات أو الأحاديث أو السياق التاريخي لدعم التعلم"
+                }
+              },
+              required: ["question", "options", "correctOption", "explanation"]
+            }
           }
         ]
       }
@@ -232,6 +262,35 @@ ${leaderboardList}
               }
             },
             required: ["planName", "durationDays", "dailyTarget", "targetPagesPerDay", "dayByDayBreakdown"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "generate_islamic_quiz",
+          description: "إنشاء أو توليد سؤال ديني عام تفاعلي للعميل مع خيارات متعددة (أ، ب، ج، د) وتحديد الإجابة الصحيحة والتفسير.",
+          parameters: {
+            type: "object",
+            properties: {
+              question: {
+                type: "string",
+                description: "السؤال الديني العام المثير للتحدي باللغة العربية"
+              },
+              options: {
+                type: "string",
+                description: "الخيارات الأربعة مفرقة بنزول سطر بالترتيب التالي: أ) ...\\nب) ...\\nج) ...\\nد) ..."
+              },
+              correctOption: {
+                type: "string",
+                description: "الحرف الصحيح فقط للخيار الفائز (أو ب أو ج أو د)"
+              },
+              explanation: {
+                type: "string",
+                description: "شرح وتعليم ديني غني جداً حول سبب صحة هذا الخيار مع ذكر الآيات أو الأحاديث أو السياق التاريخي لدعم التعلم"
+              }
+            },
+            required: ["question", "options", "correctOption", "explanation"]
           }
         }
       }
@@ -306,6 +365,8 @@ ${leaderboardList}
         let updateArgs: any = null;
         let triggerCreatePlan = false;
         let createPlanArgs: any = null;
+        let triggerQuiz = false;
+        let quizArgs: any = null;
 
         for (const part of parts) {
           if (part.text) {
@@ -318,6 +379,10 @@ ${leaderboardList}
           if (part.functionCall && part.functionCall.name === "create_custom_quran_plan") {
             triggerCreatePlan = true;
             createPlanArgs = part.functionCall.args;
+          }
+          if (part.functionCall && part.functionCall.name === "generate_islamic_quiz") {
+            triggerQuiz = true;
+            quizArgs = part.functionCall.args;
           }
         }
 
@@ -339,6 +404,25 @@ ${leaderboardList}
           return NextResponse.json({
             text: replyText,
             createPlan: createPlanArgs
+          });
+        }
+
+        if (triggerQuiz && quizArgs) {
+          const replyText = `🤔✨ **تحدي الذكاء الديني المولد بالذكاء الاصطناعي (Gemini AI)!** إليك هذا السؤال الممتع:
+          
+**السؤال:** ${quizArgs.question}
+
+${quizArgs.options}
+
+اكتب لي خيارك الآن **(أ، ب، ج، د)** للإجابة وحصاد الحسنات والنقاط! 🏆`;
+
+          return NextResponse.json({
+            text: replyText,
+            quiz: {
+              questionId: Date.now(),
+              correctOption: quizArgs.correctOption,
+              explanation: quizArgs.explanation
+            }
           });
         }
 
@@ -400,6 +484,25 @@ ${leaderboardList}
                 createPlan: args
               });
             }
+            if (toolCall.function.name === "generate_islamic_quiz") {
+              const args = JSON.parse(toolCall.function.arguments);
+              const replyText = `🤔✨ **تحدي الذكاء الديني المولد بالذكاء الاصطناعي (OpenAI GPT)!** إليك هذا السؤال الممتع:
+              
+**السؤال:** ${args.question}
+
+${args.options}
+
+اكتب لي خيارك الآن **(أ، ب، ج، د)** للإجابة وحصاد الحسنات والنقاط! 🏆`;
+
+              return NextResponse.json({
+                text: replyText,
+                quiz: {
+                  questionId: Date.now(),
+                  correctOption: args.correctOption,
+                  explanation: args.explanation
+                }
+              });
+            }
           }
 
           if (message.content) {
@@ -416,7 +519,12 @@ ${leaderboardList}
     const mlClassification = classifyQueryWithML(lastUserMessage, userData);
     console.log(`🎯 تم تصنيف السؤال إلى قسم [${mlClassification.category}] بدرجة ثقة: ${mlClassification.score}`);
     
-    return NextResponse.json({ text: mlClassification.reply });
+    return NextResponse.json({ 
+      text: mlClassification.reply,
+      updateProfile: mlClassification.updateProfile,
+      createPlan: mlClassification.createPlan,
+      quiz: mlClassification.quiz
+    });
 
   } catch (error) {
     console.error("Chat API Error:", error);

@@ -37,6 +37,7 @@ export function ChatBot() {
   });
   const [dbUser, setDbUser] = useState<any>(null);
   const [leaderboardUsers, setLeaderboardUsers] = useState<any[]>([]);
+  const [activeQuiz, setActiveQuiz] = useState<{ questionId: number; correctOption: string; explanation: string } | null>(null);
 
   // جلب المتصدرين الأوائل لتزويد الذكاء الاصطناعي ببيانات لوحة الشرف
   useEffect(() => {
@@ -161,6 +162,64 @@ export function ChatBot() {
     const userText = message.trim();
     const newUserMsg = { id: Date.now(), text: userText, sender: "user" };
     
+    // Check if there is an active quiz we are waiting for an answer to
+    if (activeQuiz) {
+      const userAns = userText.trim().toLowerCase();
+      const normalizedAns = userAns
+        .replace(/أ/g, "أ")
+        .replace(/ا/g, "أ")
+        .replace(/ب/g, "ب")
+        .replace(/ج/g, "ج")
+        .replace(/د/g, "د")
+        .toLowerCase();
+
+      const correctOpt = activeQuiz.correctOption.toLowerCase();
+      const optionMap: Record<string, string> = {
+        "أ": "أ", "ا": "أ", "a": "أ",
+        "ب": "ب", "b": "ب",
+        "ج": "ج", "c": "ج",
+        "د": "د", "d": "د"
+      };
+
+      const userChoice = optionMap[normalizedAns] || normalizedAns;
+      const isCorrect = userChoice === correctOpt;
+
+      let replyText = "";
+      if (isCorrect) {
+        replyText = `🎉 **إجابة صحيحة بارك الله فيك!** 👏✨
+        
+**التفسير/الشرح:**
+${activeQuiz.explanation}
+
+🏆 حصلت على **+15 نقطة** مكافأة ذكاء ديني! استمر في التحدي وسؤال أسئلة أخرى!`;
+        
+        if (auth?.currentUser && db && dbUser) {
+          const currentPoints = dbUser.totalPoints || 0;
+          updateDoc(doc(db, "users", auth.currentUser.uid), {
+            totalPoints: currentPoints + 15
+          }).catch(e => console.error("Failed to reward quiz points:", e));
+        }
+      } else {
+        replyText = `❌ **إجابة خاطئة للأسف، حاول مرة أخرى!**
+        
+الخيار الصحيح كان: **(${activeQuiz.correctOption})**
+
+**التفسير/الشرح:**
+${activeQuiz.explanation}
+
+لا تحزن، يمكنك دائماً طلبي بسؤال ديني آخر وتحدي جديد! 💪✨`;
+      }
+
+      setMessages(prev => [
+        ...prev,
+        newUserMsg,
+        { id: Date.now() + 1, text: replyText, sender: "bot" }
+      ]);
+      setActiveQuiz(null);
+      setMessage("");
+      return;
+    }
+
     // Create the updated messages array to send to the API
     const updatedMessages = [...messages, newUserMsg];
     
@@ -192,6 +251,10 @@ export function ChatBot() {
         ...prev,
         { id: Date.now() + 1, text: data.text, sender: "bot" }
       ]);
+
+      if (data.quiz) {
+        setActiveQuiz(data.quiz);
+      }
 
       if (data.updateProfile && auth?.currentUser && db) {
         const updateFields: any = {};
@@ -237,13 +300,58 @@ export function ChatBot() {
     } catch (error: any) {
       console.warn("⚠️ API Call failed. Activating client-side Machine Learning Model Fallback...", error);
       
-      // تشغيل موديل الذكاء الاصطناعي المحلي فوراً في المتصفح لتجنب انقطاع الخدمة
       const mlClassification = classifyQueryWithML(userText, userData);
       
       setMessages(prev => [
         ...prev,
         { id: Date.now() + 1, text: mlClassification.reply, sender: "bot" }
       ]);
+
+      if (mlClassification.quiz) {
+        setActiveQuiz(mlClassification.quiz);
+      }
+
+      if (mlClassification.updateProfile && auth?.currentUser && db) {
+        const updateFields: any = {};
+        if (mlClassification.updateProfile.displayName) updateFields.displayName = mlClassification.updateProfile.displayName.trim();
+        if (mlClassification.updateProfile.country) {
+          updateFields.country = mlClassification.updateProfile.country;
+          updateFields.governorate = mlClassification.updateProfile.country;
+        }
+        if (mlClassification.updateProfile.phoneNumber) {
+          updateFields.phoneNumber = mlClassification.updateProfile.phoneNumber.trim();
+          updateFields.phone = mlClassification.updateProfile.phoneNumber.trim();
+        }
+
+        try {
+          await updateDoc(doc(db, "users", auth.currentUser.uid), updateFields);
+          console.log("👤 [ChatBot Fallback]: AI successfully updated profile in Firestore!", updateFields);
+        } catch (dbErr) {
+          console.error("❌ [ChatBot Fallback]: Failed to write AI profile update to Firestore:", dbErr);
+        }
+      }
+
+      if (mlClassification.createPlan && auth?.currentUser && db) {
+        const planData = {
+          activeQuranPlan: {
+            planName: mlClassification.createPlan.planName,
+            durationDays: Number(mlClassification.createPlan.durationDays) || 7,
+            dailyTarget: mlClassification.createPlan.dailyTarget,
+            targetPagesPerDay: Number(mlClassification.createPlan.targetPagesPerDay) || 1,
+            dayByDayBreakdown: Array.isArray(mlClassification.createPlan.dayByDayBreakdown) ? mlClassification.createPlan.dayByDayBreakdown : [],
+            currentDay: 1,
+            completedDays: [],
+            createdAt: new Date().toISOString()
+          }
+        };
+
+        try {
+          await updateDoc(doc(db, "users", auth.currentUser.uid), planData);
+          console.log("📖 [ChatBot Fallback]: AI successfully created and saved Custom Quran Plan in Firestore!", planData);
+        } catch (dbErr) {
+          console.error("❌ [ChatBot Fallback]: Failed to save custom Quran plan in Firestore:", dbErr);
+        }
+      }
     } finally {
       setIsTyping(false);
     }

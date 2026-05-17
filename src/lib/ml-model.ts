@@ -181,15 +181,241 @@ function getIDF(corpus: string[][]): Map<string, number> {
   return finalIdf;
 }
 
-// 4. تصنيف وحساب درجة التشابه الجيبي (Cosine Similarity Classifier)
+// 📚 بنك الأسئلة والمسابقات الدينية العامة التفاعلية (Islamic General Trivia Question Bank)
+export const ISLAMIC_QUIZ_QUESTIONS = [
+  {
+    id: 1,
+    question: "ما هي السورة التي تسمى عروس القرآن؟",
+    options: "أ) الرحمن\nب) يس\nج) الملك\nد) الواقعة",
+    correctOption: "أ",
+    explanation: "سورة الرحمن تسمى عروس القرآن لما فيها من جمال الأسلوب وعظيم نعم الله المذكورة فيها."
+  },
+  {
+    id: 2,
+    question: "كم عدد سور القرآن الكريم؟",
+    options: "أ) 112 سورة\nب) 114 سورة\nج) 116 سورة\nد) 110 سورة",
+    correctOption: "ب",
+    explanation: "القرآن الكريم يتكون من 114 سورة شريفة."
+  },
+  {
+    id: 3,
+    question: "من هو الصحابي الذي لُقب بأمين هذه الأمة؟",
+    options: "أ) أبو عبيدة بن الجراح\nب) عمر بن الخطاب\nج) خالد بن الوليد\nد) أبو بكر الصديق",
+    correctOption: "أ",
+    explanation: "أبو عبيدة بن الجراح رضي الله عنه هو أمين هذه الأمة كما سماه النبي ﷺ."
+  },
+  {
+    id: 4,
+    question: "ما هي أطول سورة في القرآن الكريم؟",
+    options: "أ) آل عمران\nب) البقرة\nج) النساء\nد) المائدة",
+    correctOption: "ب",
+    explanation: "سورة البقرة هي أطول سور القرآن الكريم بعدد 286 آية."
+  },
+  {
+    id: 5,
+    question: "كم عدد الأنبياء والرسل الذين ذُكروا في القرآن الكريم؟",
+    options: "أ) 20 نبي ورسول\nب) 25 نبي ورسول\nج) 30 نبي ورسول\nد) 15 نبي ورسول",
+    correctOption: "ب",
+    explanation: "ذكر الله تعالى في القرآن الكريم 25 نبياً ورسولاً بأسمائهم."
+  },
+  {
+    id: 6,
+    question: "من هو أول مؤذن في الإسلام؟",
+    options: "أ) بلال بن رباح\nب) عبد الله بن أم مكتوم\nج) سعد القرظ\nد) عمار بن ياسر",
+    correctOption: "أ",
+    explanation: "بلال بن رباح رضي الله عنه هو أول مؤذن صدح بالأذان في الإسلام."
+  },
+  {
+    id: 7,
+    question: "ما هي أقصر سورة في القرآن الكريم؟",
+    options: "أ) الإخلاص\nب) الكوثر\nج) النصر\nد) العصر",
+    correctOption: "ب",
+    explanation: "سورة الكوثر هي أقصر سورة وتتكون من 3 آيات."
+  },
+  {
+    id: 8,
+    question: "ما هي السورة التي تعدل ثلث القرآن الكريم؟",
+    options: "أ) الفاتحة\nب) الإخلاص\nج) الكافرون\nد) يس",
+    correctOption: "ب",
+    explanation: "سورة الإخلاص تعدل ثلث القرآن الكريم في الأجر والتوحيد."
+  },
+  {
+    id: 9,
+    question: "من هو أول من كتب بالقلم من الأنبياء؟",
+    options: "أ) آدم عليه السلام\nب) إدريس عليه السلام\nج) نوح عليه السلام\nد) إبراهيم عليه السلام",
+    correctOption: "ب",
+    explanation: "نبي الله إدريس عليه السلام هو أول من خط بالقلم."
+  },
+  {
+    id: 10,
+    question: "ما هي السورة التي لا تبدأ بالبسملة؟",
+    options: "أ) التوبة\nب) النمل\nج) يونس\nد) هود",
+    correctOption: "أ",
+    explanation: "سورة التوبة (براءة) هي السورة الوحيدة التي لا تبدأ بالبسملة."
+  }
+];
+
+// 4. تصنيف وحساب درجة التشابه الجيبي مع الفحص المباشر للأوامر والمسابقات (Cosine Similarity & Command Interceptor)
 export function classifyQueryWithML(
   queryText: string,
   userData: any
-): { reply: string; score: number; category: string } {
+): { 
+  reply: string; 
+  score: number; 
+  category: string; 
+  updateProfile?: any; 
+  createPlan?: any; 
+  quiz?: any;
+} {
+  const textClean = queryText.trim();
+  const userName = userData?.name || userData?.displayName || "أخي الكريم";
+  const userPoints = userData?.points || userData?.totalPoints || 0;
+  const userCountry = userData?.country || "غير محدد";
+  const userMinutes = userData?.stats?.audioMinutes || 0;
+
+  // 1. فحص أسئلة المسابقة الدينية (Islamic Quiz Request Interception)
+  const isQuizReq = /(?:سؤال|اسالني|مسابقه|اختبار|تحدي|مسابقات|اسئله|اختبرني)\s+(?:ديني|اسلامي|معلومات|ثقافي)|^(?:سؤال|اسالني|اختبرني|تحدي|مسابقه|اسئله دينية)$/i.test(textClean);
+  if (isQuizReq) {
+    const randomIndex = Math.floor(Math.random() * ISLAMIC_QUIZ_QUESTIONS.length);
+    const quiz = ISLAMIC_QUIZ_QUESTIONS[randomIndex];
+    return {
+      reply: `🤔✨ **تحدي الذكاء الديني!** إليك هذا السؤال الممتع:
+      
+**السؤال:** ${quiz.question}
+
+${quiz.options}
+
+اكتب لي خيارك الآن **(أ، ب، ج، د)** للإجابة وحصاد الحسنات والنقاط! 🏆`,
+      score: 1.0,
+      category: "مسابقة دينية",
+      quiz: {
+        questionId: quiz.id,
+        correctOption: quiz.correctOption,
+        explanation: quiz.explanation
+      }
+    };
+  }
+
+  // 2. فحص طلبات تغيير الاسم (Change Name Interception)
+  const changeNameMatch = textClean.match(/^(?:غير|عدل|تغيير|تعديل|تحديث)\s+(?:اسمي|الاسم|اسم)\s+(?:الى|لـ|ل|يكون)?\s*(.+)/i);
+  if (changeNameMatch) {
+    const newName = changeNameMatch[1].trim();
+    return {
+      reply: `👤✨ **تم تعديل اسمك بنجاح!**
+      
+لقد قمت بتغيير اسمك المسجل في النظام من **${userName}** إلى **${newName}**. تم الحفظ بنجاح في قاعدة البيانات وتحديث الملف الشخصي فوراً! 💾`,
+      score: 1.0,
+      category: "تعديل البيانات",
+      updateProfile: { displayName: newName }
+    };
+  }
+
+  // 3. فحص طلبات تغيير الدولة (Change Country Interception)
+  const changeCountryMatch = textClean.match(/^(?:غير|عدل|تغيير|تعديل|تحديث)\s+(?:بلد|دوله|الدوله|الدولة|البلد|محافظه|محافظتي)\s+(?:الى|لـ|ل|يكون)?\s*(.+)/i);
+  if (changeCountryMatch) {
+    const newCountry = changeCountryMatch[1].trim();
+    return {
+      reply: `🌍✨ **تم تعديل دولتك بنجاح!**
+      
+لقد قمت بتغيير بلدك المسجل في النظام من **${userCountry}** إلى **${newCountry}**. تم الحفظ بنجاح وتحديث كافة تفاصيل ملفك الشخصي فوراً! 💾`,
+      score: 1.0,
+      category: "تعديل البيانات",
+      updateProfile: { country: newCountry }
+    };
+  }
+
+  // 4. فحص طلبات تغيير الهاتف (Change Phone Interception)
+  const changePhoneMatch = textClean.match(/^(?:غير|عدل|تغيير|تعديل|تحديث)\s+(?:رقم|رقمي|تليفون|الهاتف|رقم الهاتف)\s+(?:الى|لـ|ل|يكون)?\s*([\d+\-\s]+)/i);
+  if (changePhoneMatch) {
+    const newPhone = changePhoneMatch[1].trim();
+    return {
+      reply: `📱✨ **تم تحديث رقم هاتفك بنجاح!**
+      
+لقد قمت بتحديث رقم هاتفك المسجل إلى **${newPhone}**. تم الحفظ بنجاح في ملفك الشخصي! 💾`,
+      score: 1.0,
+      category: "تعديل البيانات",
+      updateProfile: { phoneNumber: newPhone }
+    };
+  }
+
+  // 5. فحص الأسئلة الاستفسارية العامة عن تغيير البيانات
+  const askChangeName = /^(?:هل )?(?:تقدر|ممكن|تستطيع|عايز|عاوز)\s+(?:تغير|تعدل|تغيير|تعديل)\s+(?:اسمي|الاسم)/i.test(textClean);
+  if (askChangeName) {
+    return {
+      reply: `بالتأكيد! يمكنك تغيير اسمك بسهولة وبضغطة زر. 👤✏️
+      
+فقط اكتب لي في الرسالة القادمة:
+**"غير اسمي إلى [الاسم الجديد]"**
+وسأقوم بتحديثه لك في قاعدة البيانات وملفك الشخصي فوراً!`,
+      score: 1.0,
+      category: "استفسار تعديل"
+    };
+  }
+
+  const askChangeCountry = /^(?:هل )?(?:تقدر|ممكن|تستطيع|عايز|عاوز)\s+(?:تغير|تعدل|تغيير|تعديل)\s+(?:بلدي|دوله|دولة|البلد|الدولة|الدوله)/i.test(textClean);
+  if (askChangeCountry) {
+    return {
+      reply: `بالتأكيد! يمكنك تغيير بلدك أو دولتك بسهولة تامة. 🌍✏️
+      
+فقط اكتب لي في الرسالة القادمة:
+**"غير بلدي إلى [الدولة الجديدة]"**
+وسأقوم بتعديلها وحفظها في قاعدة البيانات فوراً!`,
+      score: 1.0,
+      category: "استفسار تعديل"
+    };
+  }
+
+  // 6. فحص الاستفسار عن رصيد النقاط (Points Check)
+  const isPointsCheck = /(?:نقط|نقطه|نقطة|رصيد|نقاطي|رصيدي).*(?:كام|كم|معي|معايا|معيايا)|(?:كام|كم|معي|معايا|معيايا).*(?:نقط|نقطه|نقطة|رصيد|نقاطي|رصيدي)/i.test(textClean);
+  if (isPointsCheck) {
+    return {
+      reply: `مرحباً بك يا ${userName}! 🏆
+      
+رصيدك الحالي في تطبيق الاستوديو القرآني هو: **${userPoints} نقطة**.
+
+💡 **كيف تجمع المزيد من النقاط للتنافس في لوحة الشرف؟**
+• 📖 [المصحف المكتوب بالتفسير](/mushaf-full): تحصل على **+5 نقاط** لكل صفحة تقرأها بالكامل.
+• 🎧 [المكتبة الصوتية لأكثر من 100 قارئ](/library): تمنحك **+1 نقطة** لكل 30 ثانية استماع، و **+10 نقاط** مكافأة لختم استماع سورة كاملة!
+• 📿 [السبحة الإلكترونية](/daily): تمنحك **+3 نقاط** مكافأة كل 99 تسبيحة.
+• 🌸 أذكار اليوميات: تمنحك **+1 نقطة** لكل ذكر في أذكار الصباح والمساء والنوم.`,
+      score: 1.0,
+      category: "النقاط والترتيب"
+    };
+  }
+
+  // 7. فحص الاستفسار عن الاسم (Name Check)
+  const isNameCheck = /اسمي.*(?:ايه|إيه|ما|شو|شنو|مين)|(?:ايه|إيه|ما|شو|شنو|مين).*اسمي/i.test(textClean);
+  if (isNameCheck) {
+    return {
+      reply: `أهلاً بك يا أخي الحبيب! 👤
+      
+اسمك المسجل حالياً في ملفك الشخصي بالتطبيق هو: **${userName}**.
+
+إذا كنت ترغب في تعديل اسمك في أي وقت، فقط اكتب لي: **"غير اسمي إلى [الاسم الجديد]"** وسأقوم بحفظه وتعديله لك فوراً! ✏️✨`,
+      score: 1.0,
+      category: "الاسم"
+    };
+  }
+
+  // 8. فحص الاستفسار عن الدولة (Country Check)
+  const isCountryCheck = /(?:بلد|دوله|دولتي|محافظتي|محافظه).*ايه|انا منين|بلدي ايه/i.test(textClean);
+  if (isCountryCheck) {
+    return {
+      reply: `أهلاً بك! 🌍
+      
+دولتك/بلدك المسجل حالياً في تطبيق الاستوديو القرآني هو: **${userCountry}**.
+
+إذا كنت ترغب في تعديل بلدك، اكتب لي ببساطة: **"غير بلدي إلى [الدولة الجديدة]"** وسأقوم بحفظها لك فوراً! ✏️✨`,
+      score: 1.0,
+      category: "الدولة"
+    };
+  }
+
+  // ── الفحص التقليدي (Cosine Similarity Fallback) ──
   const queryTokens = getTokens(queryText);
   if (queryTokens.length === 0) {
     return {
-      reply: `مرحباً بك يا ${userData?.name || "أخي الكريم"}! 🌙 أنا مساعدك الذكي الخاص بالاستوديو القرآني الفائق. اكتب أي سؤال وسأجيبك فوراً!`,
+      reply: `مرحباً بك يا ${userName}! 🌙 أنا مساعدك الذكي الخاص بالاستوديو القرآني الفائق. اكتب أي سؤال وسأجيبك فوراً!`,
       score: 1.0,
       category: "عام"
     };
@@ -255,12 +481,6 @@ export function classifyQueryWithML(
       bestMatchIdx = idx;
     }
   });
-
-  // و. جلب بيانات المستخدم لدمجها ديناميكياً في الرد المختار
-  const userName = userData?.name || userData?.displayName || "أخي الكريم";
-  const userPoints = userData?.points || 0;
-  const userCountry = userData?.country || "غير محدد";
-  const userMinutes = userData?.stats?.audioMinutes || 0;
 
   // ز. تحديد عتبة قبول النتيجة (Threshold) لضمان دقة التصنيف
   const SIMILARITY_THRESHOLD = 0.08; 
