@@ -9,6 +9,9 @@ export type BackgroundItem = {
 };
 
 const STATIC_CORE: BackgroundItem[] = [
+  // صورة المصحف الشريف الخلفية الأساسية
+  { type: "image", src: "/mushaf-bg.jpg.png", poster: "", tags: ["مصحف", "قرآن", "إسلامي", "طولي", "mushaf", "bg", "خلفية"] },
+  
   // الفيديوهات الطولية (Portrait Videos - 9:16)
   // الفيديوهات الطولية (Portrait Videos - 9:16)
   { type: "video", src: "https://player.vimeo.com/external/370331493.sd.mp4?s=338d351d291d392bbcd68e640c2834b68079a40c&profile_id=139&oauth2_token_id=57447761", poster: "", tags: ["فيديو", "بحر", "طولي"] },

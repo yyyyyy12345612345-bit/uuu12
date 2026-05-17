@@ -73,8 +73,9 @@ export default function RootLayout({
     <html
       lang="ar"
       dir="rtl"
-      className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
+      className="dark h-full antialiased"
       style={{ overflow: 'hidden', width: '100vw', height: '100dvh', backgroundColor: '#050505' }}
+      suppressHydrationWarning
     >
       <head>
         {/* Apply dark theme ASAP to prevent white flash (FOUC) */}
@@ -92,6 +93,7 @@ export default function RootLayout({
       <body 
         className="h-full bg-[#050505] text-foreground selection:bg-primary selection:text-primary-foreground"
         style={{ overflow: 'hidden', width: '100%', height: '100dvh', maxWidth: '100%', touchAction: 'pan-y', overscrollBehavior: 'none' }}
+        suppressHydrationWarning
       >
 
         <div className="absolute inset-0 pointer-events-none overflow-hidden w-full h-full" />
