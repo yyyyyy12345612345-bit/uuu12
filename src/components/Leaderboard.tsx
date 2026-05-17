@@ -31,11 +31,10 @@ import {
   where
 } from "firebase/firestore";
 
-const GOVERNORATES = [
-  "القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "الشرقية", "المنوفية", "القليوبية", "البحيرة", 
-  "الغربية", "بور سعيد", "دمياط", "الإسماعيلية", "السويس", "كفر الشيخ", "الفيوم", "بني سويف", 
-  "المنيا", "أسيوط", "سوهاج", "قنا", "أسوان", "الأقصر", "البحر الأحمر", "الوادي الجديد", 
-  "مطروح", "شمال سيناء", "جنوب سيناء"
+const COUNTRIES = [
+  "مصر", "السعودية", "الإمارات", "الكويت", "المغرب", "الجزائر", "تونس", "الأردن", "فلسطين",
+  "قطر", "عمان", "البحرين", "العراق", "سوريا", "لبنان", "اليمن", "ليبيا", "السودان",
+  "موريتانيا", "الصومال", "جيبوتي", "جزر القمر"
 ];
 
 interface LeaderboardProps {
@@ -177,7 +176,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
     username: "",
     displayName: "",
     phone: "",
-    governorate: GOVERNORATES[0]
+    governorate: COUNTRIES[0]
   });
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
@@ -225,7 +224,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
   };
 
   const sortedLeaderboard = leaderboardData
-    .filter((entry: any) => activeTab === "governorate" ? (userData && entry.governorate === userData.governorate) : true)
+    .filter((entry: any) => activeTab === "governorate" ? (userData && (entry.country || entry.governorate) === (userData.country || userData.governorate)) : true)
     .sort((a: any, b: any) => {
       if (activeTab === "quran") return (b.quranPoints || 0) - (a.quranPoints || 0);
       if (activeTab === "athkar") return (b.athkarPoints || 0) - (a.athkarPoints || 0);
@@ -411,7 +410,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                   <div className="flex flex-wrap items-center justify-center gap-2 p-2 bg-foreground/5 rounded-[2rem] border border-border">
                       {[
                           { id: "global", label: "العام" },
-                          { id: "governorate", label: "المحافظة" },
+                          { id: "governorate", label: "الدولة" },
                           { id: "quran", label: "القرآن" },
                           { id: "athkar", label: "الأذكار" },
                           { id: "listen", label: "الاستماع" }
@@ -535,13 +534,13 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
 
                       <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-3">
-                              <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] pr-4">المحافظة</label>
+                              <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] pr-4">الدولة</label>
                               <select 
                                 value={setupData.governorate}
                                 onChange={e => setSetupData({...setupData, governorate: e.target.value})}
                                 className="w-full bg-white/5 border border-white/10 rounded-3xl py-5 px-6 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-white font-black appearance-none"
                               >
-                                {GOVERNORATES.map(gov => <option key={gov} value={gov} className="bg-[#064E3B]">{gov}</option>)}
+                                {COUNTRIES.map(gov => <option key={gov} value={gov} className="bg-[#064E3B]">{gov}</option>)}
                               </select>
                           </div>
                           <div className="space-y-3">
