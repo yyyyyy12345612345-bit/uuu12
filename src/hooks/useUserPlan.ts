@@ -16,9 +16,14 @@ export function useUserPlan() {
         const unsubscribeDoc = onSnapshot(doc(db, "users", user.uid), (doc) => {
           if (doc.exists()) {
             const data = doc.data();
+            const totalPoints = data.totalPoints || 0;
+            // Automatically upgrade users with 10k+ points to premium for free!
+            const computedPlan = totalPoints >= 10000 ? "premium" : (data.plan || "free");
+            
             setUserPlan({
               ...data,
-              plan: data.plan || "free",
+              plan: computedPlan,
+              originalPlan: data.plan || "free",
               count: data.videoRendersCount || 0
             });
           }
@@ -37,6 +42,11 @@ export function useUserPlan() {
 
   const isFeatureLocked = (feature: "search" | "video_bg" | "unlimited_render") => {
     if (!userPlan) return true;
+    
+    // Bypass all locks for users with 10k+ points!
+    const totalPoints = userPlan.totalPoints || 0;
+    if (totalPoints >= 10000) return false;
+
     const plan = userPlan.plan;
 
     if (feature === "search") return plan === "free";

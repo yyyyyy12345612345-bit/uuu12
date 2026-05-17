@@ -40,9 +40,10 @@ export async function POST(req: Request) {
       : "1. يوسف أسامة (@youssef) - 5000 نقطة - مصر\n2. أحمد علي (@ahmed) - 4200 نقطة - السعودية\n3. عمر فاروق (@omar) - 3800 نقطة - الإمارات";
 
     // ── نظام تعليمات النظام ──
-    const systemPrompt = `أنت المساعد الذكي الخاص بتطبيق "الاستوديو القرآني الفائق" فقط.
-ممنوع تماماً الإجابة على أي سؤال خارج نطاق هذا التطبيق أو الإسلام والقرآن.
-إذا سألك المستخدم عن أي شيء خارج هذا النطاق، قل له: "عذراً، أنا مساعدك الخاص بالاستوديو القرآني فقط 🌙"
+    const systemPrompt = `أنت المساعد الذكي والمستشار الديني الخاص بالتطبيق.
+يرحب بك العميل لطلب الإجابة على كافة الأسئلة الإسلامية والدينية العامة، الفقهية، التاريخية، السيرة النبوية، والقرآنية بشكل غني ومفصل ودقيق وموثق.
+أجب عن كافة الأسئلة الدينية مثل: (كم سورة في القرآن، قصص الأنبياء، أركان الإسلام، السنن والفرائض، تفاسير الآيات، وغيرها من الثقافة الإسلامية الشاملة...).
+يُمنع تماماً الإجابة على أي أسئلة غير دينية أو غير إسلامية بالكلية (مثل العلوم الطبيعية والدنيوية البحتة الخارجة عن الدين، السياسة، البرمجة، إلخ)، وقل له بلطف: "عذراً يا أخي الكريم، أنا هنا لمساعدتك في كل ما يخص ديننا الحنيف وتطبيق القرآن الكريم فقط 🌙"
 
 معلومات عن مطور التطبيق:
 - الاسم: يوسف اسامه
@@ -100,6 +101,10 @@ ${leaderboardList}
 - لديك صلاحية كاملة لتحديث بيانات العميل (الاسم الكامل، الدولة، رقم الهاتف) مباشرةً عند طلبه ذلك باستخدام أداة (update_user_profile).
 - إذا قال لك العميل: "غير اسمي إلى أحمد" أو "عدل بلدي للسعودية" أو "حدث رقمي"، قم باستدعاء الأداة (update_user_profile) فوراً بالقيم المطلوبة وسيقوم النظام بحفظها تلقائياً في قاعدة البيانات وتحديث الواجهة في نفس اللحظة!
 
+إنشاء خطة ورد وتحدي قرآني مخصص (AI Custom Quest Planner):
+- يمكنك الآن إنشاء خطط حفظ أو قراءة قرآني مخصصة بناءً على المدة والهدف الذي يحدده العميل باستخدام أداة (create_custom_quran_plan).
+- إذا قال لك العميل: "اعملي خطة لحفظ سورة الملك في 7 أيام" أو "عايز خطة قراءة البقرة في أسبوع"، قم باستدعاء الأداة (create_custom_quran_plan) فوراً وسيقوم النظام بتثبيتها وتفعيلها في لوحة تحكمه اليومية!
+
 تعليمات:
 1. تحدث دائماً بالعربية بأسلوب راقي ومحترم.
 2. إذا سأل عن معلوماته، أجب من البيانات أعلاه.
@@ -131,6 +136,39 @@ ${leaderboardList}
                 }
               }
             }
+          },
+          {
+            name: "create_custom_quran_plan",
+            description: "إنشاء خطة ورد أو حفظ قرآني مخصص بناءً على المدة والهدف الذي يحدده العميل وتثبيته في لوحة تحدياته اليومية.",
+            parameters: {
+              type: "OBJECT",
+              properties: {
+                planName: {
+                  type: "STRING",
+                  description: "اسم الخطة باللغة العربية (مثال: حفظ سورة الملك في 7 أيام)"
+                },
+                durationDays: {
+                  type: "INTEGER",
+                  description: "مدة الخطة بالأيام كعدد صحيح"
+                },
+                dailyTarget: {
+                  type: "STRING",
+                  description: "الهدف اليومي باللغة العربية (مثال: صفحتين يومياً)"
+                },
+                targetPagesPerDay: {
+                  type: "INTEGER",
+                  description: "عدد الصفحات اليومية المطلوبة كعدد صحيح"
+                },
+                dayByDayBreakdown: {
+                  type: "ARRAY",
+                  items: {
+                    type: "STRING"
+                  },
+                  description: "تفصيل الخطة يوماً بيوم (مثال: ['اليوم 1: حفظ الآيات 1-5'، 'اليوم 2: حفظ الآيات 6-10'])"
+                }
+              },
+              required: ["planName", "durationDays", "dailyTarget", "targetPagesPerDay", "dayByDayBreakdown"]
+            }
           }
         ]
       }
@@ -158,6 +196,42 @@ ${leaderboardList}
                 description: "رقم الهاتف الجديد للمستخدم"
               }
             }
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "create_custom_quran_plan",
+          description: "إنشاء خطة ورد أو حفظ قرآني مخصص بناءً على المدة والهدف الذي يحدده العميل وتثبيته في لوحة تحدياته اليومية.",
+          parameters: {
+            type: "object",
+            properties: {
+              planName: {
+                type: "string",
+                description: "اسم الخطة باللغة العربية"
+              },
+              durationDays: {
+                type: "integer",
+                description: "مدة الخطة بالأيام"
+              },
+              dailyTarget: {
+                type: "string",
+                description: "الهدف اليومي باللغة العربية"
+              },
+              targetPagesPerDay: {
+                type: "integer",
+                description: "عدد الصفحات اليومية المطلوبة"
+              },
+              dayByDayBreakdown: {
+                type: "array",
+                items: {
+                  type: "string"
+                },
+                description: "تفصيل الخطة يوماً بيوم"
+              }
+            },
+            required: ["planName", "durationDays", "dailyTarget", "targetPagesPerDay", "dayByDayBreakdown"]
           }
         }
       }
@@ -230,6 +304,8 @@ ${leaderboardList}
         let botText = "";
         let triggerUpdate = false;
         let updateArgs: any = null;
+        let triggerCreatePlan = false;
+        let createPlanArgs: any = null;
 
         for (const part of parts) {
           if (part.text) {
@@ -238,6 +314,10 @@ ${leaderboardList}
           if (part.functionCall && part.functionCall.name === "update_user_profile") {
             triggerUpdate = true;
             updateArgs = part.functionCall.args;
+          }
+          if (part.functionCall && part.functionCall.name === "create_custom_quran_plan") {
+            triggerCreatePlan = true;
+            createPlanArgs = part.functionCall.args;
           }
         }
 
@@ -251,6 +331,14 @@ ${leaderboardList}
           return NextResponse.json({ 
             text: replyText,
             updateProfile: updateArgs
+          });
+        }
+
+        if (triggerCreatePlan && createPlanArgs) {
+          const replyText = botText || `لقد قمت بإنشاء خطتك القرآنية المخصصة وتثبيتها بنجاح! 📖\nالخطة: ${createPlanArgs.planName}\nالهدف: ${createPlanArgs.dailyTarget}`;
+          return NextResponse.json({
+            text: replyText,
+            createPlan: createPlanArgs
           });
         }
 
@@ -302,6 +390,14 @@ ${leaderboardList}
               return NextResponse.json({
                 text: replyText,
                 updateProfile: args
+              });
+            }
+            if (toolCall.function.name === "create_custom_quran_plan") {
+              const args = JSON.parse(toolCall.function.arguments);
+              const replyText = message.content || `لقد قمت بإنشاء خطتك القرآنية المخصصة وتثبيتها بنجاح! 📖\nالخطة: ${args.planName}\nالهدف: ${args.dailyTarget}`;
+              return NextResponse.json({
+                text: replyText,
+                createPlan: args
               });
             }
           }

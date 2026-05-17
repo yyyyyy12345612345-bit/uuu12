@@ -162,29 +162,54 @@ export function AuthGate({ children }: AuthGateProps) {
     if (!loginIdentifier || !loginPassword) return setError("يرجى ملء جميع الحقول");
     setIsLoggingIn(true);
     try {
-      let username = "";
       const trimmedId = loginIdentifier.trim();
-      const usernameQuery = query(collection(db, "users"), where("username", "==", trimmedId.toLowerCase()));
-      const usernameSnap = await getDocs(usernameQuery);
-      
-      if (!usernameSnap.empty) username = usernameSnap.docs[0].data().username;
-      else {
-        const phoneQuery = query(collection(db, "users"), where("phoneNumber", "==", trimmedId));
-        const phoneSnap = await getDocs(phoneQuery);
-        if (!phoneSnap.empty) username = phoneSnap.docs[0].data().username;
+      let email = "";
+
+      // 1. Check if the user entered a real email directly (with @ symbol, but not @quran.app)
+      if (trimmedId.includes("@") && !trimmedId.toLowerCase().endsWith("@quran.app")) {
+        // We can search if there is a username matching the part before @
+        const searchUsername = trimmedId.split("@")[0].toLowerCase();
+        const usernameQuery = query(collection(db, "users"), where("username", "==", searchUsername));
+        const usernameSnap = await getDocs(usernameQuery);
+        
+        if (!usernameSnap.empty) {
+          email = `${usernameSnap.docs[0].data().username}@quran.app`;
+        } else {
+          // If no custom username found, fall back to trying direct email login (e.g. standard email accounts like admin)
+          email = trimmedId;
+        }
+      } else {
+        // 2. Standard username/phone translation
+        let username = "";
+        const searchId = trimmedId.replace("@quran.app", "");
+        
+        const usernameQuery = query(collection(db, "users"), where("username", "==", searchId.toLowerCase()));
+        const usernameSnap = await getDocs(usernameQuery);
+        
+        if (!usernameSnap.empty) {
+          username = usernameSnap.docs[0].data().username;
+        } else {
+          const phoneQuery = query(collection(db, "users"), where("phoneNumber", "==", trimmedId));
+          const phoneSnap = await getDocs(phoneQuery);
+          if (!phoneSnap.empty) {
+            username = phoneSnap.docs[0].data().username;
+          }
+        }
+
+        if (username) {
+          email = `${username.toLowerCase()}@quran.app`;
+        } else {
+          email = trimmedId; // Fallback to raw input
+        }
       }
-      if (!username) {
-        setError("بيانات الدخول غير صحيحة");
-        setIsLoggingIn(false);
-        return;
-      }
+
       await signInWithEmailAndPassword(auth, email, loginPassword);
       // Sync password for recovery if missing
       if (auth.currentUser) {
          await setDoc(doc(db, "users", auth.currentUser.uid), { encP: btoa(loginPassword) }, { merge: true });
       }
     } catch (err: any) {
-      setError("كلمة المرور غير صحيحة أو الحساب غير موجود");
+      setError("بيانات الدخول غير صحيحة أو الحساب غير موجود");
       setIsLoggingIn(false);
     }
   };
