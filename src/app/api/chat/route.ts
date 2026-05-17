@@ -68,20 +68,54 @@ export async function POST(req: Request) {
         }))
       ];
 
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: geminiMessages,
-          generationConfig: { temperature: 0.7, maxOutputTokens: 500 }
-        })
-      });
+      const modelsToTry = [
+        "gemini-1.5-flash",
+        "gemini-2.0-flash",
+        "gemini-1.5-flash-latest",
+        "gemini-1.5-pro",
+        "gemini-pro"
+      ];
 
-      const data = await response.json();
+      let data: any = null;
+      let lastResponse: any = null;
+      let usedModel = "";
 
-      if (!response.ok) {
+      for (const model of modelsToTry) {
+        console.log("Trying model:", model);
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${geminiKey}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: geminiMessages,
+            generationConfig: { temperature: 0.7, maxOutputTokens: 500 }
+          })
+        });
+
+        const responseData = await response.json();
+        
+        // If successful, or if error is NOT a 'not found' model error, stop here
+        if (response.ok) {
+          console.log(`✅ Model ${model} succeeded!`);
+          lastResponse = response;
+          data = responseData;
+          usedModel = model;
+          break;
+        } else {
+          console.warn(`❌ Model ${model} failed with error:`, responseData.error?.message);
+          // If it's a quota error, we probably shouldn't continue trying other models, but for safety we continue
+          lastResponse = response;
+          data = responseData;
+          if (responseData.error?.message?.includes("quota")) {
+            console.error("⚠️ QUOTA EXCEEDED: Please check your Google account billing/limits.");
+            break;
+          }
+          continue;
+        }
+      }
+
+      if (!lastResponse?.ok) {
         console.error("Gemini Error:", data);
-        return NextResponse.json({ error: data.error?.message || "Failed to fetch response from Gemini" }, { status: response.status });
+        return NextResponse.json({ error: data?.error?.message || "Failed to fetch response from Gemini" }, { status: lastResponse?.status || 500 });
       }
 
       const botText = data.candidates?.[0]?.content?.parts?.[0]?.text || "عذراً، لم أتمكن من الرد.";
