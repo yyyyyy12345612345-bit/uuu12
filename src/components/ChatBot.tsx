@@ -107,7 +107,7 @@ export function ChatBot() {
       console.error("Chat API error:", error);
       setMessages(prev => [
         ...prev,
-        { id: Date.now() + 1, text: "عذراً، حدث خطأ في الاتصال بالشبكة العصبية ⚠️. تأكد من إضافة مفتاح OpenAI.", sender: "bot" }
+        { id: Date.now() + 1, text: "عذراً، حدث خطأ في الاتصال ⚠️. تأكد من إضافة مفتاح GEMINI_API_KEY أو OPENAI_API_KEY في ملف .env محلياً أو في Vercel.", sender: "bot" }
       ]);
     } finally {
       setIsTyping(false);
