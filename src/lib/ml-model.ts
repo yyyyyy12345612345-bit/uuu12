@@ -279,7 +279,7 @@ export function classifyQueryWithML(
     const randomIndex = Math.floor(Math.random() * ISLAMIC_QUIZ_QUESTIONS.length);
     const quiz = ISLAMIC_QUIZ_QUESTIONS[randomIndex];
     return {
-      reply: `🤔✨ **تحدي الذكاء الديني!** إليك هذا السؤال الممتع:
+      reply: `🤔✨ **تحدي المسابقة الدينية!** إليك هذا السؤال الممتع:
       
 **السؤال:** ${quiz.question}
 
