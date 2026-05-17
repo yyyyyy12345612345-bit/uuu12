@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { classifyQueryWithML } from "@/lib/ml-model";
+import fs from "fs";
+import path from "path";
 
 export async function POST(req: Request) {
   try {
@@ -349,26 +351,41 @@ ${leaderboardList}
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 15000);
 
+          const requestBody = {
+            systemInstruction: {
+              parts: [{ text: systemPrompt }]
+            },
+            contents: geminiContents,
+            tools: geminiTools,
+            generationConfig: { temperature: 0.7, maxOutputTokens: 600 }
+          };
+
           const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               signal: controller.signal,
-              body: JSON.stringify({
-                systemInstruction: {
-                  parts: [{ text: systemPrompt }]
-                },
-                contents: geminiContents,
-                tools: geminiTools,
-                generationConfig: { temperature: 0.7, maxOutputTokens: 600 }
-              })
+              body: JSON.stringify(requestBody)
             }
           );
 
-          clearTimeout(timeoutId);
+            clearTimeout(timeoutId);
           const responseData = await response.json();
-
+ 
+          // كتابة سجل تفصيلي جداً لمطور التطبيق
+          const logContent = `
+========================================
+[${new Date().toISOString()}] MODEL: ${model}
+URL: https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent
+STATUS: ${response.status}
+OK: ${response.ok}
+REQUEST PAYLOAD: ${JSON.stringify(requestBody, null, 2)}
+RESPONSE PAYLOAD: ${JSON.stringify(responseData, null, 2)}
+========================================
+`;
+          fs.appendFileSync(path.resolve(process.cwd(), "scratch-logs.txt"), logContent, "utf-8");
+ 
           if (response.ok) {
             console.log(`✅ نجح الموديل: ${model}`);
             data = responseData;
@@ -379,18 +396,25 @@ ${leaderboardList}
             console.warn(`❌ فشل ${model}: ${errMsg}`);
             lastResponse = response;
             data = responseData;
-
+ 
             if (errMsg.includes("quota") || errMsg.includes("RESOURCE_EXHAUSTED")) {
               console.error("⚠️ الحصة انتهت! راجع حساب جوجل.");
               break;
             }
-            // لو خطأ 400 (بنية خاطئة) نكمل للموديل التالي
             if (response.status === 400) {
               console.warn(`⚠️ خطأ بنيوي 400 من ${model}, جاري تجربة الموديل التالي...`);
               continue;
             }
           }
         } catch (fetchErr: any) {
+          const logContent = `
+========================================
+[${new Date().toISOString()}] MODEL: ${model}
+CRASH: ${fetchErr.message || fetchErr}
+STACK: ${fetchErr.stack || ""}
+========================================
+`;
+          fs.appendFileSync(path.resolve(process.cwd(), "scratch-logs.txt"), logContent, "utf-8");
           if (fetchErr.name === 'AbortError') {
             console.error(`⏱️ الموديل ${model} تجاوز المهلة الزمنية (15 ثانية)`);
           } else {
