@@ -384,7 +384,7 @@ REQUEST PAYLOAD: ${JSON.stringify(requestBody, null, 2)}
 RESPONSE PAYLOAD: ${JSON.stringify(responseData, null, 2)}
 ========================================
 `;
-          fs.appendFileSync(path.resolve(process.cwd(), "scratch-logs.txt"), logContent, "utf-8");
+          console.log(logContent);
  
           if (response.ok) {
             console.log(`✅ نجح الموديل: ${model}`);
@@ -414,7 +414,7 @@ CRASH: ${fetchErr.message || fetchErr}
 STACK: ${fetchErr.stack || ""}
 ========================================
 `;
-          fs.appendFileSync(path.resolve(process.cwd(), "scratch-logs.txt"), logContent, "utf-8");
+          console.log(logContent);
           if (fetchErr.name === 'AbortError') {
             console.error(`⏱️ الموديل ${model} تجاوز المهلة الزمنية (15 ثانية)`);
           } else {
@@ -474,7 +474,7 @@ STACK: ${fetchErr.stack || ""}
         }
 
         if (triggerQuiz && quizArgs) {
-          const replyText = `🤔✨ **تحدي الذكاء الديني المولد بالذكاء الاصطناعي (Gemini AI)!** إليك هذا السؤال الممتع:
+          const replyText = `🤔✨ **تحدي المسابقة الدينية المولد بالذكاء الاصطناعي (Gemini AI)!** إليك هذا السؤال الممتع:
           
 **السؤال:** ${quizArgs.question}
 
@@ -552,7 +552,7 @@ ${quizArgs.options}
             }
             if (toolCall.function.name === "generate_islamic_quiz") {
               const args = JSON.parse(toolCall.function.arguments);
-              const replyText = `🤔✨ **تحدي الذكاء الديني المولد بالذكاء الاصطناعي (OpenAI GPT)!** إليك هذا السؤال الممتع:
+              const replyText = `🤔✨ **تحدي المسابقة الدينية المولد بالذكاء الاصطناعي (OpenAI GPT)!** إليك هذا السؤال الممتع:
               
 **السؤال:** ${args.question}
 

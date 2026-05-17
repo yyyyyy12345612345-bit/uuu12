@@ -188,7 +188,7 @@ export function ChatBot() {
 **التفسير/الشرح:**
 ${activeQuiz.explanation}
 
-🏆 حصلت على **+15 نقطة** مكافأة ذكاء ديني! استمر في التحدي وسؤال أسئلة أخرى!`;
+🏆 حصلت على **+15 نقطة** مكافأة مسابقة دينية! استمر في التحدي وسؤال أسئلة أخرى!`;
           
           if (auth?.currentUser && db && dbUser) {
             const currentPoints = dbUser.totalPoints || 0;
