@@ -20,7 +20,17 @@ export function usePexelsBackgrounds(query: string, type: "images" | "videos" | 
 
     const fetchMedia = async () => {
       try {
-        const response = await fetch(`/api/pexels?query=${encodeURIComponent(query)}&per_page=40&type=${type}`);
+        const response = await fetch('/api/pexels', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: query,
+            per_page: 40,
+            type: type
+          })
+        });
         if (!response.ok) {
           const body = await response.json();
           throw new Error(body.error || "فشل تحميل الخلفيات");

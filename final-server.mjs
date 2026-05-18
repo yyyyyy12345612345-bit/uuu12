@@ -1,5 +1,5 @@
 /**
- * 🚀 FINAL STABLE SERVER — V5.0 (GAPLESS CINEMATIC)
+ * 🚀 FINAL STABLE SERVER — V 7 (GAPLESS CINEMATIC)
  * ===================================================
  * الجودة: سينمائية عبر Remotion (Chromium Rendering)
  * الصوت: بدون أي تقطيع (Gapless via filter_complex)
@@ -71,7 +71,7 @@ async function getAudioDuration(filePath) {
 // ═══════════════════════════════════════
 app.get("/", (req, res) => {
   res.json({
-    engine: "FINAL STABLE v5.0 — Remotion Cinematic (Gapless Audio)",
+    engine: "FINAL STABLE V 7 — Remotion Cinematic (Gapless Audio)",
     status: "ready",
   });
 });
@@ -93,7 +93,7 @@ app.get("/status/:jobId", (req, res) => {
 });
 
 // ═══════════════════════════════════════
-// 🎬 محرك الرندرة — v5.0
+// 🎬 محرك الرندرة — V 7
 // ═══════════════════════════════════════
 async function renderFinalStable(jobId, data) {
   const { verses, backgroundUrl } = data;
@@ -263,6 +263,6 @@ async function renderFinalStable(jobId, data) {
 // 🚀 Start
 // ═══════════════════════════════════════
 app.listen(7860, () => {
-  console.log("🚀 FINAL STABLE v5.0 — Remotion Cinematic (Gapless Audio) — READY ON :7860");
+  console.log("🚀 FINAL STABLE V 7 — Remotion Cinematic (Gapless Audio) — READY ON :7860");
   getBundle(); // Pre-warm
 });

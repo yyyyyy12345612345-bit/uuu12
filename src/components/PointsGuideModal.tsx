@@ -225,7 +225,7 @@ export function PointsGuideModal({ isOpen, onClose }: PointsGuideModalProps) {
 
             {/* Footer */}
             <div className="relative z-10 p-8 border-t border-white/10 bg-black/20 text-center">
-              <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">نظام النقاط العالمي v4.0 - سكينة</p>
+              <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">نظام النقاط العالمي V 7 - سكينة</p>
             </div>
           </motion.div>
         </div>

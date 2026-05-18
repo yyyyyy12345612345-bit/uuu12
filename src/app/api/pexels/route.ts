@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 
-export const dynamic = "force-dynamic";
-
 async function fetchPexelsImages(apiKey: string, query: string, perPage: number) {
   const response = await fetch(
     `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${perPage}&orientation=portrait`,
@@ -54,7 +52,7 @@ async function fetchPexelsVideos(apiKey: string, query: string, perPage: number)
   }).filter(Boolean) ?? [];
 }
 
-export async function GET(req: Request) {
+export async function POST(req: Request) {
   const apiKey = process.env.PEXELS_API_KEY?.trim();
   if (!apiKey) {
     // Return a subset of static items as fallback instead of 503
@@ -70,10 +68,10 @@ export async function GET(req: Request) {
   }
 
   try {
-    const url = new URL(req.url);
-    const query = url.searchParams.get("query") || "islamic nature";
-    const perPage = Number(url.searchParams.get("per_page") || "12");
-    const type = url.searchParams.get("type") || "both";
+    const body = await req.json().catch(() => ({}));
+    const query = body.query || "islamic nature";
+    const perPage = Number(body.per_page || "12");
+    const type = body.type || "both";
 
     const items = [] as Array<{ type: "image" | "video"; src: string; poster?: string }>;
 
