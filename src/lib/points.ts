@@ -9,7 +9,7 @@ import {
 } from "firebase/firestore";
 
 /**
- * Universal Points System v4.0 (Global & Reliable)
+ * Universal Points System V 7 (Global & Reliable)
  * Handles all point logic for Quran, Athkar, and Audio.
  */
 

@@ -1,5 +1,5 @@
 /**
- * 💎 HYPER RENDER v5.0 - CINEMATIC PIXEL-PERFECT ENGINE
+ * 💎 HYPER RENDER V 7 - CINEMATIC PIXEL-PERFECT ENGINE
  * ======================================================
  * ✅ الجودة: سينمائية (720x1280 — TikTok/Reels Ready)
  * ✅ الصوت: بدون أي تقطيع (Gapless — filter_complex)
@@ -227,7 +227,7 @@ async function generateVerseFrame(verse, outputPath, settings, frameOptions = {}
   await sharp(Buffer.from(svg)).png({ quality: 100, compressionLevel: 6 }).toFile(outputPath);
 }
 
-// ═══ محرك الرندرة v5.0 ═══
+// ═══ محرك الرندرة V 7 ═══
 async function renderCinematic(jobId, data) {
   const { verses, backgroundUrl, surahName, textColor = "#ffffff", fontSize = 50, fontWeight = 700, fontFamily = "Amiri", textPosition = "center" } = data;
 
@@ -359,7 +359,7 @@ async function renderCinematic(jobId, data) {
 app.use("/download", express.static(RENDERS_DIR));
 
 app.get("/", (_, res) => res.json({
-  engine: "HYPER RENDER v5.0 — Cinematic", status: "ready", version: "5.0.0",
+  engine: "HYPER RENDER V 7 — Cinematic", status: "ready", version: "7.0.0",
 }));
 
 app.post("/render", (req, res) => {
@@ -395,12 +395,12 @@ app.use((err, _req, res, _next) => {
 
 // ═══ Start ═══
 app.listen(7860, async () => {
-  console.log("💎 HYPER RENDER v5.0 — بدء التشغيل...");
+  console.log("💎 HYPER RENDER V 7 — بدء التشغيل...");
   try {
     await Promise.all([ensureFont("Amiri", 400), ensureFont("Amiri", 700)]);
     console.log("✅ الخطوط الأساسية جاهزة");
   } catch (e) {
     console.warn("⚠️ فشل تحميل الخطوط المسبق:", e.message);
   }
-  console.log("✅ HYPER RENDER v5.0 يعمل على المنفذ 7860");
+  console.log("✅ HYPER RENDER V 7 يعمل على المنفذ 7860");
 });
