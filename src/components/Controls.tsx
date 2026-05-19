@@ -505,6 +505,31 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                             ))}
                         </div>
                     </div>
+
+                    {/* Ayah Decoration */}
+                    <div className="space-y-6">
+                        <div className="flex justify-between items-center px-2">
+                            <span className="text-[10px] font-black text-foreground/20 uppercase tracking-[0.3em]">شكل رقم الآية</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-3">
+                            {[
+                                { id: "none", label: "بدون" },
+                                { id: "bracket1", label: "﴿ ١ ﴾" },
+                                { id: "bracket2", label: "﴾ ١ ﴿" },
+                                { id: "star", label: "✧ ١ ✧" },
+                                { id: "diamond", label: "✥ ١ ✥" },
+                                { id: "ornament", label: "۞ ١ ۞" },
+                            ].map((w) => (
+                                <button
+                                    key={w.id}
+                                    onClick={() => updateState({ ayahDecoration: w.id as any })}
+                                    className={`flex-1 py-3 rounded-xl border-2 text-[12px] font-black transition-all ${state.ayahDecoration === w.id ? 'border-primary bg-primary/10 text-white' : 'border-white/5 text-white/40'}`}
+                                >
+                                    {w.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
           )}

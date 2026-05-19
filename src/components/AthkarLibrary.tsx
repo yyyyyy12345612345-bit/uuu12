@@ -210,23 +210,6 @@ export function AthkarLibrary() {
             </button>
           ))}
 
-          {/* Full Hisn Al-Muslim Card */}
-          <div className="md:col-span-2 mt-8">
-              <div className="relative bg-[#0c0d10] rounded-[3rem] p-12 text-white border border-primary/30 overflow-hidden shadow-2xl group cursor-pointer hover:scale-[1.01] transition-transform">
-                  <div className="absolute inset-0 islamic-pattern opacity-10" />
-                  <div className="absolute right-0 bottom-0 p-12 opacity-5 translate-y-1/2 group-hover:translate-y-0 transition-transform">
-                      <Star className="w-64 h-64" />
-                  </div>
-                  <div className="relative z-10 max-w-lg text-right">
-                      <h3 className="text-4xl font-black mb-4">حصن المسلم كاملاً</h3>
-                      <p className="text-white/60 font-bold text-lg mb-8 leading-relaxed">استكشف أكثر من ٢٠٠ باب من الأذكار النبوية المختارة بعناية لحفظ المسلم في يومه وليله.</p>
-                      <button className="flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground rounded-2xl font-black hover:scale-105 active:scale-95 transition-all">
-                          <LayoutDashboard className="w-5 h-5" />
-                          <span>فتح الفهرس الكامل</span>
-                      </button>
-                  </div>
-              </div>
-          </div>
         </div>
       )}
     </div>

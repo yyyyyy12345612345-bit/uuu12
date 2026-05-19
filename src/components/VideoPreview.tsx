@@ -326,6 +326,24 @@ export function VideoPreview() {
           </div>
         )}
 
+        {/* Verse Number (Bottom) */}
+        {surahData && currentVerse && (
+          <div className="absolute bottom-[14%] left-0 right-0 flex justify-center z-30 pointer-events-none">
+            <span className="text-[22px] font-bold text-primary font-['Amiri'] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+              {(() => {
+                const dec = state.ayahDecoration || "bracket1";
+                if (dec === "none") return `${currentVerse.id}`;
+                if (dec === "bracket1") return `﴿ ${currentVerse.id} ﴾`;
+                if (dec === "bracket2") return `﴾ ${currentVerse.id} ﴿`;
+                if (dec === "star") return `✧ ${currentVerse.id} ✧`;
+                if (dec === "diamond") return `✥ ${currentVerse.id} ✥`;
+                if (dec === "ornament") return `۞ ${currentVerse.id} ۞`;
+                return `﴿ ${currentVerse.id} ﴾`;
+              })()}
+            </span>
+          </div>
+        )}
+
         {/* Content Layer */}
         <div 
           className="absolute inset-0 flex flex-col items-center px-10 text-center z-20 transition-all duration-1000 ease-out"

@@ -596,7 +596,7 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                 >
                                     <span className="font-['Amiri'] inline font-bold antialiased" style={{ fontSize: `${mushafFontSize}px` }}>
                                         {verse.text_uthmani_tajweed ? (
-                                            <span dangerouslySetInnerHTML={{ __html: verse.text_uthmani_tajweed }} />
+                                            <span dangerouslySetInnerHTML={{ __html: verse.text_uthmani_tajweed.replace(/\s*<span class="?end"?[^>]*>.*?<\/span>/gi, '') }} />
                                         ) : (
                                             verse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => {
                                                 const isAllah = word.text_uthmani?.includes('للَّ') || word.text_uthmani?.includes('اللَّ');
