@@ -91,17 +91,22 @@ export function AuthGate({ children }: AuthGateProps) {
   const [user, setUser] = useState<FirebaseUser | null | undefined>(undefined);
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [view, setView] = useState<"login" | "signupInfo" | "signupAvatar" | "forgotPassword" | "verifyOtp" | "resetPassword">("login");
+  const [view, setView] = useState<"login" | "signupInfo" | "signupAvatar" | "forgotPassword" | "verifyOtp" | "resetPassword" | "verifySignupOtp" | "selectAccount">("login");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   
+  // Multi-Account States
+  const [matchingAccounts, setMatchingAccounts] = useState<any[]>([]);
+  const [multiAccountAction, setMultiAccountAction] = useState<"login" | "forgotPassword">("login");
+
   // Login States
   const [loginIdentifier, setLoginIdentifier] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
-  // Forgot Password States
+  // Forgot Password & Signup Verification States
   const [resetPhone, setResetPhone] = useState("");
   const [resetOtp, setResetOtp] = useState("");
+  const [signupOtp, setSignupOtp] = useState("");
   const [generatedOtp, setGeneratedOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [resetUserId, setResetUserId] = useState("");
@@ -118,6 +123,7 @@ export function AuthGate({ children }: AuthGateProps) {
     avatar: AVATARS.male[0],
     country: "مصر"
   });
+  const [showWeakPasswordWarning, setShowWeakPasswordWarning] = useState(false);
 
   const [isSkipped, setIsSkipped] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
@@ -192,7 +198,15 @@ export function AuthGate({ children }: AuthGateProps) {
           const phoneQuery = query(collection(db, "users"), where("phoneNumber", "==", trimmedId));
           const phoneSnap = await getDocs(phoneQuery);
           if (!phoneSnap.empty) {
-            username = phoneSnap.docs[0].data().username;
+            if (phoneSnap.docs.length > 1) {
+              setMatchingAccounts(phoneSnap.docs.map(doc => doc.data()));
+              setMultiAccountAction("login");
+              setView("selectAccount");
+              setIsLoggingIn(false);
+              return;
+            } else {
+              username = phoneSnap.docs[0].data().username;
+            }
           }
         }
 
@@ -222,6 +236,18 @@ export function AuthGate({ children }: AuthGateProps) {
     if (formData.phone.trim().length < 10) return setError("يرجى إدخال رقم هاتف صحيح");
     if (formData.password.length < 6) return setError("كلمة المرور 6 أحرف على الأقل");
 
+    const hasUpperCase = /[A-Z]/.test(formData.password);
+    const hasLowerCase = /[a-z]/.test(formData.password);
+    const hasNumber = /[0-9]/.test(formData.password);
+    const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(formData.password);
+    const isPasswordStrong = hasUpperCase && hasLowerCase && hasNumber && hasSymbol;
+
+    if (!isPasswordStrong && !showWeakPasswordWarning) {
+      setError("كلمة المرور ضعيفة. يفضل احتوائها على حرف كبير وصغير ورقم ورمز. اضغط 'التالي' مجدداً للمتابعة على أي حال.");
+      setShowWeakPasswordWarning(true);
+      return;
+    }
+
     setIsLoggingIn(true);
     try {
       const qUser = query(collection(db, "users"), where("username", "==", formData.username.trim().toLowerCase()));
@@ -230,7 +256,35 @@ export function AuthGate({ children }: AuthGateProps) {
       
       const qPhone = query(collection(db, "users"), where("phoneNumber", "==", formData.phone.trim()));
       const snapPhone = await getDocs(qPhone);
-      if (!snapPhone.empty) { setError("رقم الهاتف مسجل مسبقاً"); setIsLoggingIn(false); return; }
+      
+      if (!snapPhone.empty) { 
+        // Phone is already registered, so we need to send an OTP
+        const otp = Math.floor(1000 + Math.random() * 9000).toString();
+        setGeneratedOtp(otp); 
+        
+        const apiResponse = await fetch("/api/send-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: formData.phone.trim(), otp })
+        });
+        
+        const apiData = await apiResponse.json();
+
+        if (apiData.success) {
+          if (apiData.mock) {
+            alert(`[وضع التجربة للمطورين]\nتم توليد كود التحقق: ${otp}`);
+          } else {
+            alert("رقم الهاتف مسجل مسبقاً. تم إرسال كود التحقق لإنشاء حساب إضافي ✅");
+          }
+          setView("verifySignupOtp"); 
+          setIsLoggingIn(false);
+          return;
+        } else {
+          setError(apiData.error || "فشل إرسال كود التحقق");
+          setIsLoggingIn(false);
+          return;
+        }
+      }
       
       setView("signupAvatar");
     } catch (err) {
@@ -238,6 +292,15 @@ export function AuthGate({ children }: AuthGateProps) {
     } finally {
       setIsLoggingIn(false);
     }
+  };
+
+  const handleVerifySignupOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (signupOtp !== generatedOtp) {
+      return setError("الكود غير صحيح، حاول مرة أخرى");
+    }
+    setView("signupAvatar"); 
   };
 
   const handleFinalSignup = async () => {
@@ -283,6 +346,14 @@ export function AuthGate({ children }: AuthGateProps) {
         return;
       }
 
+      if (phoneSnap.docs.length > 1) {
+        setMatchingAccounts(phoneSnap.docs.map(doc => doc.data()));
+        setMultiAccountAction("forgotPassword");
+        setView("selectAccount");
+        setIsLoggingIn(false);
+        return;
+      }
+
       const userData = phoneSnap.docs[0].data();
       setResetUserId(userData.uid);
       setResetUsername(userData.username);
@@ -320,6 +391,56 @@ export function AuthGate({ children }: AuthGateProps) {
       console.error("WhatsApp Send OTP Error Details:", err);
       setError(err.message || "حدث خطأ في النظام");
       setIsLoggingIn(false);
+    }
+  };
+
+  const handleSelectAccount = async (accountData: any) => {
+    setError("");
+    setIsLoggingIn(true);
+    if (multiAccountAction === "login") {
+      try {
+        const email = `${accountData.username}@quran.app`;
+        await signInWithEmailAndPassword(auth, email, loginPassword);
+        if (auth.currentUser) {
+           await setDoc(doc(db, "users", auth.currentUser.uid), { encP: btoa(loginPassword) }, { merge: true });
+        }
+      } catch (err) {
+        setError("كلمة المرور غير صحيحة لهذا الحساب");
+        setIsLoggingIn(false);
+      }
+    } else {
+      setResetUserId(accountData.uid);
+      setResetUsername(accountData.username);
+      setRecoveredPassword(accountData.encP ? atob(accountData.encP) : null);
+      
+      const otp = Math.floor(1000 + Math.random() * 9000).toString();
+      setGeneratedOtp(otp);
+
+      try {
+        const apiResponse = await fetch("/api/send-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: resetPhone.trim(), otp })
+        });
+        
+        const apiData = await apiResponse.json();
+
+        if (apiData.success) {
+          if (apiData.mock) {
+            alert(`[وضع التجربة للمطورين]\nتم توليد كود التحقق: ${otp}`);
+          } else {
+            alert("تم إرسال كود التحقق بنجاح إلى رقمك على واتساب ✅");
+          }
+          setIsLoggingIn(false);
+          setView("verifyOtp");
+        } else {
+          setError(apiData.error || "فشل إرسال رسالة الواتساب");
+          setIsLoggingIn(false);
+        }
+      } catch (err: any) {
+        setError(err.message || "حدث خطأ في النظام");
+        setIsLoggingIn(false);
+      }
     }
   };
 
@@ -506,6 +627,52 @@ export function AuthGate({ children }: AuthGateProps) {
             )}
 
             {/* ======================================= */}
+            {/* SELECT ACCOUNT VIEW */}
+            {/* ======================================= */}
+            {view === "selectAccount" && (
+              <motion.div 
+                key="selectAccount"
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 1.05, y: -10 }}
+                transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
+                className="flex flex-col items-center w-full"
+              >
+                <div className="text-center mb-6 w-full">
+                  <h2 className="text-3xl font-black text-white">اختر الحساب</h2>
+                  <p className="text-[#d4af37] text-xs mt-2 leading-relaxed">وجدنا أكثر من حساب مرتبط بهذا الرقم<br/>يرجى اختيار الحساب المطلوب</p>
+                </div>
+                
+                <div className="w-full space-y-3 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+                  {matchingAccounts.map((acc, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSelectAccount(acc)}
+                      className="w-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#d4af37]/50 rounded-2xl p-4 flex items-center justify-between transition-all group text-right"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-black overflow-hidden border border-white/10 group-hover:border-[#d4af37]/50 transition-colors">
+                          <img src={acc.photoURL || AVATARS.male[0]} alt="Avatar" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-bold text-white group-hover:text-[#d4af37] transition-colors">{acc.displayName}</span>
+                          <span className="text-[10px] text-white/40">@{acc.username}</span>
+                        </div>
+                      </div>
+                      <ArrowLeft className="w-4 h-4 text-white/20 group-hover:text-[#d4af37] group-hover:-translate-x-1 transition-all" />
+                    </button>
+                  ))}
+                </div>
+
+                {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-xs text-center font-bold bg-red-500/10 py-2 rounded-lg mt-4 w-full">{error}</motion.p>}
+                
+                <button type="button" onClick={() => { setView("login"); setError(""); }} className="w-full mt-6 text-xs font-bold text-white/30 hover:text-white transition-colors">
+                  إلغاء والعودة
+                </button>
+              </motion.div>
+            )}
+
+            {/* ======================================= */}
             {/* FORGOT PASSWORD VIEW */}
             {/* ======================================= */}
             {view === "forgotPassword" && (
@@ -569,6 +736,39 @@ export function AuthGate({ children }: AuthGateProps) {
                   
                   <button type="button" onClick={() => setView("forgotPassword")} className="w-full mt-2 text-xs font-bold text-white/30 hover:text-white transition-colors">
                     إعادة إرسال الرمز
+                  </button>
+                </form>
+              </motion.div>
+            )}
+
+            {/* ======================================= */}
+            {/* VERIFY SIGNUP OTP VIEW */}
+            {/* ======================================= */}
+            {view === "verifySignupOtp" && (
+              <motion.div 
+                key="verifySignupOtp"
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 1.05, y: -10 }}
+                transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
+                className="flex flex-col items-center"
+              >
+                <div className="text-center mb-6 w-full">
+                  <h2 className="text-3xl font-black text-white">تأكيد رقم الهاتف</h2>
+                  <p className="text-[#d4af37] text-xs mt-2">رقم الهاتف مسجل مسبقاً، أدخل الرمز<br/>المرسل إليك لإنشاء حساب إضافي</p>
+                </div>
+                
+                <form onSubmit={handleVerifySignupOtp} className="w-full space-y-4">
+                  <InputField icon={<KeyRound />} type="number" value={signupOtp} onChange={setSignupOtp} placeholder="----" dir="ltr" />
+                  
+                  {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-xs text-center font-bold bg-red-500/10 py-2 rounded-lg">{error}</motion.p>}
+                  
+                  <div className="pt-4">
+                    <InteractiveButton type="submit" text="تأكيد ومتابعة" />
+                  </div>
+                  
+                  <button type="button" onClick={() => setView("signupInfo")} className="w-full mt-2 text-xs font-bold text-white/30 hover:text-white transition-colors">
+                    العودة
                   </button>
                 </form>
               </motion.div>
@@ -643,7 +843,39 @@ export function AuthGate({ children }: AuthGateProps) {
                     <InputField icon={<Phone />} type="tel" value={formData.phone} onChange={(v) => setFormData({...formData, phone: v})} placeholder="رقم الهاتف" dir="ltr" />
                   </div>
                   
-                  <InputField icon={<KeyRound />} type="password" value={formData.password} onChange={(v) => setFormData({...formData, password: v})} placeholder="كلمة المرور" />
+                  <InputField icon={<KeyRound />} type="password" value={formData.password} onChange={(v) => {
+                    setFormData({...formData, password: v});
+                    setShowWeakPasswordWarning(false);
+                    if (error.includes("ضعيفة")) setError("");
+                  }} placeholder="كلمة المرور" />
+                  
+                  {/* Password Strength Indicator */}
+                  <div className="flex justify-between text-[10px] w-full px-1 pt-1">
+                    <span className={`flex items-center gap-1 transition-colors duration-300 ${/[A-Z]/.test(formData.password) ? 'text-green-400' : 'text-white/30'}`}>
+                      <div className={`w-3 h-3 rounded-full flex items-center justify-center transition-colors ${/[A-Z]/.test(formData.password) ? 'bg-green-400/20' : 'bg-white/10'}`}>
+                        {/[A-Z]/.test(formData.password) ? <Check className="w-2 h-2" /> : <div className="w-1 h-1 rounded-full bg-white/30" />}
+                      </div>
+                      حرف كبير
+                    </span>
+                    <span className={`flex items-center gap-1 transition-colors duration-300 ${/[a-z]/.test(formData.password) ? 'text-green-400' : 'text-white/30'}`}>
+                      <div className={`w-3 h-3 rounded-full flex items-center justify-center transition-colors ${/[a-z]/.test(formData.password) ? 'bg-green-400/20' : 'bg-white/10'}`}>
+                        {/[a-z]/.test(formData.password) ? <Check className="w-2 h-2" /> : <div className="w-1 h-1 rounded-full bg-white/30" />}
+                      </div>
+                      حرف صغير
+                    </span>
+                    <span className={`flex items-center gap-1 transition-colors duration-300 ${/[0-9]/.test(formData.password) ? 'text-green-400' : 'text-white/30'}`}>
+                      <div className={`w-3 h-3 rounded-full flex items-center justify-center transition-colors ${/[0-9]/.test(formData.password) ? 'bg-green-400/20' : 'bg-white/10'}`}>
+                        {/[0-9]/.test(formData.password) ? <Check className="w-2 h-2" /> : <div className="w-1 h-1 rounded-full bg-white/30" />}
+                      </div>
+                      رقم
+                    </span>
+                    <span className={`flex items-center gap-1 transition-colors duration-300 ${/[!@#$%^&*(),.?":{}|<>]/.test(formData.password) ? 'text-green-400' : 'text-white/30'}`}>
+                      <div className={`w-3 h-3 rounded-full flex items-center justify-center transition-colors ${/[!@#$%^&*(),.?":{}|<>]/.test(formData.password) ? 'bg-green-400/20' : 'bg-white/10'}`}>
+                        {/[!@#$%^&*(),.?":{}|<>]/.test(formData.password) ? <Check className="w-2 h-2" /> : <div className="w-1 h-1 rounded-full bg-white/30" />}
+                      </div>
+                      رمز
+                    </span>
+                  </div>
                   
                   <div className="relative z-50">
                     <CountrySelect value={formData.country} onChange={(val) => setFormData({...formData, country: val})} />

@@ -25,6 +25,7 @@ interface EditorState {
   instaHandle: string;
   particles: "none" | "snow" | "leaves" | "petals";
   mushafFontSize: number;
+  ayahDecoration: "none" | "bracket1" | "bracket2" | "star" | "diamond" | "ornament";
   bookmark?: { surahId: string; ayahId: number };
   activeSettingsPrayer: string | null;
   isHydrated: boolean;
@@ -60,6 +61,7 @@ const initialState: Omit<EditorState, 'isHydrated'> = {
   instaHandle: "",
   particles: "none",
   mushafFontSize: 22,
+  ayahDecoration: "bracket1",
   activeSettingsPrayer: null,
 };
 

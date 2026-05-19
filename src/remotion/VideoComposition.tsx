@@ -89,6 +89,7 @@ interface MainVideoProps {
   textPosition?: "top" | "center" | "bottom";
   textVerticalOffset?: number;
   userPlan?: string;
+  ayahDecoration?: string;
 }
 
 export const MainVideo: React.FC<MainVideoProps> = ({
@@ -105,6 +106,7 @@ export const MainVideo: React.FC<MainVideoProps> = ({
   textPosition = "center",
   textVerticalOffset = 0,
   userPlan = "free",
+  ayahDecoration = "bracket1",
 }) => {
   const { durationInFrames } = useVideoConfig();
   const resolvedBg = resolveMedia(backgroundUrl);
@@ -481,6 +483,7 @@ export const MainVideo: React.FC<MainVideoProps> = ({
                 textPosition={textPosition}
                 textVerticalOffset={textVerticalOffset}
                 totalVerseFrames={actualDuration}
+                ayahDecoration={ayahDecoration}
               />
             </Sequence>
           );
@@ -512,15 +515,15 @@ export const MainVideo: React.FC<MainVideoProps> = ({
   );
 };
 
-const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fontFamily, animation, textPosition, textVerticalOffset, totalVerseFrames }: {
+const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fontFamily, animation, textPosition, textVerticalOffset, totalVerseFrames, ayahDecoration }: {
   verse: Verse, surahName: string, textColor: string, fontSize: number, fontWeight: any,
-  fontFamily: string, animation: string, textPosition: string, textVerticalOffset: number, totalVerseFrames: number
+  fontFamily: string, animation: string, textPosition: string, textVerticalOffset: number, totalVerseFrames: number, ayahDecoration: string
 }) => {
   const frame = useCurrentFrame();
 
   // ═══ نظام كاريوكي: سطر واحد في كل لحظة ═══
   const words = (verse.text || "").split(/\s+/).filter(Boolean);
-  const WORDS_PER_LINE = Math.min(10, Math.max(6, Math.ceil(words.length / Math.ceil(words.length / 8))));
+  const WORDS_PER_LINE = Math.min(4, Math.max(2, Math.ceil(words.length / Math.ceil(words.length / 4))));
   const lines: string[] = [];
   for (let i = 0; i < words.length; i += WORDS_PER_LINE) {
     lines.push(words.slice(i, i + WORDS_PER_LINE).join(" "));
@@ -604,8 +607,8 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
 
   const justifyMap: Record<string, string> = { top: "flex-start", center: "center", bottom: "flex-end" };
   const paddingMap: Record<string, string> = {
-    top: "220px 40px 100px 40px",
-    center: "40px",
+    top: "260px 40px 100px 40px",
+    center: "160px 40px 40px 40px",
     bottom: "100px 40px 60px 40px"
   };
 
@@ -658,6 +661,7 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
 
   return (
     <div style={{
+      position: 'relative',
       width: '100%',
       height: '100%',
       boxSizing: 'border-box',
@@ -698,6 +702,36 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
           {verse.translation}
         </p>
       )}
+
+      {/* Verse Number (Bottom) */}
+      <div style={{
+        position: 'absolute',
+        bottom: '180px',
+        left: 0,
+        right: 0,
+        display: 'flex',
+        justifyContent: 'center',
+        pointerEvents: 'none'
+      }}>
+        <span style={{
+          color: '#FFD700',
+          fontSize: '45px',
+          fontWeight: 'bold',
+          fontFamily: `"${fontFamily}", serif`,
+          textShadow: '0 4px 15px rgba(0,0,0,0.8)'
+        }}>
+          {(() => {
+            const dec = ayahDecoration || "bracket1";
+            if (dec === "none") return `${verse.id}`;
+            if (dec === "bracket1") return `﴿ ${verse.id} ﴾`;
+            if (dec === "bracket2") return `﴾ ${verse.id} ﴿`;
+            if (dec === "star") return `✧ ${verse.id} ✧`;
+            if (dec === "diamond") return `✥ ${verse.id} ✥`;
+            if (dec === "ornament") return `۞ ${verse.id} ۞`;
+            return `﴿ ${verse.id} ﴾`;
+          })()}
+        </span>
+      </div>
     </div>
   );
 };

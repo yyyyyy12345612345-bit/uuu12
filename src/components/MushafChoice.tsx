@@ -68,22 +68,6 @@ export function MushafChoice() {
           </Link>
         </div>
 
-        {/* History Section from Stitch */}
-        <div className="w-full mt-12 p-6 rounded-[2rem] bg-primary/5 border border-primary/10 flex items-center justify-between group cursor-pointer hover:bg-primary/10 transition-all">
-           <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                 <History className="w-6 h-6 text-primary" />
-              </div>
-              <div className="text-right">
-                 <span className="block text-[10px] font-black text-primary uppercase tracking-widest mb-0.5">آخر القراءات</span>
-                 <h4 className="text-lg font-black text-foreground font-arabic">سورة البقرة</h4>
-              </div>
-           </div>
-           <div className="text-left">
-              <p className="text-[10px] font-bold text-foreground/40 font-arabic">آخر وصول: آية ١٤٢</p>
-              <p className="text-[9px] font-black text-primary/60 uppercase">منذ ساعتين</p>
-           </div>
-        </div>
       </div>
     </div>
   );

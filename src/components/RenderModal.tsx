@@ -96,6 +96,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           animation: state.animation || "fade",
           textPosition: state.textPosition || "center",
           userPlan: userPlan?.plan || "free",
+          ayahDecoration: state.ayahDecoration || "bracket1",
         }),
       });
 
@@ -430,7 +431,14 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     // 6. Verse Number (Bottom)
     ctx.fillStyle = "rgba(212,175,55,0.9)";
     ctx.font = "bold 45px Amiri";
-    ctx.fillText(`﴿ ${verse.id} ﴾`, canvas.width/2, canvas.height - 180);
+    let decoratedNum = `﴿ ${verse.id} ﴾`;
+    if (state.ayahDecoration === "none") decoratedNum = `${verse.id}`;
+    else if (state.ayahDecoration === "bracket1") decoratedNum = `﴿ ${verse.id} ﴾`;
+    else if (state.ayahDecoration === "bracket2") decoratedNum = `﴾ ${verse.id} ﴿`;
+    else if (state.ayahDecoration === "star") decoratedNum = `✧ ${verse.id} ✧`;
+    else if (state.ayahDecoration === "diamond") decoratedNum = `✥ ${verse.id} ✥`;
+    else if (state.ayahDecoration === "ornament") decoratedNum = `۞ ${verse.id} ۞`;
+    ctx.fillText(decoratedNum, canvas.width/2, canvas.height - 180);
 
     ctx.restore();
   };
