@@ -441,7 +441,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     <div className={`fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/90 backdrop-blur-2xl font-['Tajawal']`}>
       <canvas ref={canvasRef} style={{ position: 'fixed', left: '-10000px', top: 0 }} />
       
-      <div className="relative w-full max-w-xl bg-[#064E3B] border border-white/10 rounded-[3.5rem] p-10 flex flex-col items-center shadow-[0_40px_120px_rgba(0,0,0,0.6)] overflow-hidden">
+      <div className="relative w-full max-w-xl bg-[#0c0d10] border border-white/10 rounded-[3.5rem] p-10 flex flex-col items-center shadow-[0_40px_120px_rgba(0,0,0,0.6)] overflow-hidden">
         {/* Pattern */}
         <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
         

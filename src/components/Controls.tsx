@@ -317,11 +317,11 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                     </div>
                 </div>
 
-                {/* Filters */}
+                {/* Filters — 20+ فلتر سينمائي احترافي */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-4">
                         <div className="h-px flex-1 bg-foreground/10" />
-                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">مرشحات المشهد</span>
+                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">مرشحات المشهد (20+)</span>
                         <div className="h-px flex-1 bg-foreground/10" />
                     </div>
                     <div className="grid grid-cols-4 gap-3">
@@ -337,6 +337,19 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                             { id: "midnight", icon: "🌃", label: "ليل" },
                             { id: "oceanic", icon: "🌊", label: "محيط" },
                             { id: "saturated", icon: "🌈", label: "مشبع" },
+                            { id: "cinematic", icon: "🎬", label: "سينما" },
+                            { id: "golden", icon: "🌅", label: "ذهبي" },
+                            { id: "teal_orange", icon: "🎭", label: "هوليود" },
+                            { id: "noir", icon: "🕶️", label: "نوار" },
+                            { id: "dreamy", icon: "💫", label: "حالم" },
+                            { id: "neon", icon: "💜", label: "نيون" },
+                            { id: "pastel", icon: "🎨", label: "باستيل" },
+                            { id: "lut_autumn", icon: "🍂", label: "خريف" },
+                            { id: "lut_forest", icon: "🌲", label: "غابة" },
+                            { id: "high_contrast", icon: "⚡", label: "حاد" },
+                            { id: "faded", icon: "🌤️", label: "باهت" },
+                            { id: "vignette", icon: "🔲", label: "فنيات" },
+                            { id: "cross_process", icon: "🧪", label: "كيمياء" },
                         ].map((f) => (
                         <button
                             key={f.id}
@@ -350,11 +363,11 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                     </div>
                 </div>
 
-                {/* Overlays */}
+                {/* Overlays — 12 تأثير إضاءة */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-4">
                         <div className="h-px flex-1 bg-foreground/10" />
-                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">تأثيرات الإضاءة (Overlays)</span>
+                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">تأثيرات الإضاءة والجسيمات (12)</span>
                         <div className="h-px flex-1 bg-foreground/10" />
                     </div>
                     <div className="grid grid-cols-4 gap-3">
@@ -363,6 +376,14 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                             { id: "dust", icon: "✨", label: "غبار" },
                             { id: "rays", icon: "☀️", label: "أشعة" },
                             { id: "bokeh", icon: "🔮", label: "بوكيه" },
+                            { id: "snow", icon: "❄️", label: "ثلج" },
+                            { id: "rain", icon: "🌧️", label: "مطر" },
+                            { id: "fireflies", icon: "🪲", label: "يراعات" },
+                            { id: "smoke", icon: "💨", label: "دخان" },
+                            { id: "sparkle", icon: "⭐", label: "بريق" },
+                            { id: "film_grain", icon: "📽️", label: "حبيبات" },
+                            { id: "light_leak", icon: "🌟", label: "تسريب" },
+                            { id: "aurora", icon: "🌌", label: "شفق" },
                         ].map((o) => (
                         <button
                             key={o.id}
@@ -376,11 +397,11 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                     </div>
                 </div>
 
-                {/* Animations */}
+                {/* Animations — 16 أنيميشن احترافي */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-4">
                         <div className="h-px flex-1 bg-foreground/10" />
-                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">انتقالات النص (Animations)</span>
+                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">انتقالات النص (16 حركة)</span>
                         <div className="h-px flex-1 bg-foreground/10" />
                     </div>
                     <div className="grid grid-cols-4 gap-3">
@@ -393,6 +414,14 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                             { id: "flip", icon: "🔄", label: "قلب" },
                             { id: "bounce", icon: "🏀", label: "قفز" },
                             { id: "glitch", icon: "📺", label: "تشويش" },
+                            { id: "typewriter", icon: "⌨️", label: "طباعة" },
+                            { id: "wave", icon: "🌊", label: "موجة" },
+                            { id: "spiral", icon: "🌀", label: "لولب" },
+                            { id: "elastic", icon: "🪀", label: "مطاط" },
+                            { id: "swing", icon: "🎡", label: "أرجوحة" },
+                            { id: "cinematic", icon: "🎬", label: "سينمائي" },
+                            { id: "split", icon: "✂️", label: "انشقاق" },
+                            { id: "rotate", icon: "🔃", label: "دوران" },
                         ].map((a) => (
                         <button
                             key={a.id}

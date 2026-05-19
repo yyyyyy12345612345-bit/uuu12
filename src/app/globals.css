@@ -12,7 +12,7 @@
   --primary: 43 66% 45%; /* Sophisticated Gold */
   --primary-foreground: 220 30% 10%; /* Dark Charcoal for contrast on gold */
   
-  --secondary: 161 85% 14%; /* Emerald as secondary */
+  --secondary: 43 30% 12%; /* Deep Warm Slate/Bronze */
   --secondary-foreground: 0 0% 100%;
   
   --accent: 220 20% 90%;
@@ -36,7 +36,7 @@
   --primary: 43 66% 52%; /* Radiant Gold */
   --primary-foreground: 220 25% 4%;
   
-  --secondary: 161 85% 18%; /* Emerald Accent */
+  --secondary: 43 30% 15%; /* Deep Warm Slate/Bronze Accent */
   --secondary-foreground: 210 20% 98%;
   
   --accent: 215 25% 12%;
@@ -162,7 +162,7 @@ body {
 }
 
 .view-transition {
-  animation: viewEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: viewEnter 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   will-change: transform, opacity, filter;
 }
 
@@ -304,7 +304,7 @@ body {
 }
 
 .ambient-emerald-shadow {
-  box-shadow: 0 10px 30px -5px hsla(161, 85%, 14%, 0.08);
+  box-shadow: 0 10px 30px -5px hsla(43, 66%, 52%, 0.08);
 }
 
 
@@ -353,3 +353,50 @@ button:active, a:active {
 .animate-music-bar {
   animation: music-bar 0.8s ease-in-out infinite;
 }
+
+/* Tajweed Rules Styles (Uthmani Tajweed Quran) */
+tajweed {
+  display: inline;
+}
+
+/* 1. Madd (Elongations) - Crimson Red */
+tajweed.madda_normal,
+tajweed.madda_compulsory,
+tajweed.madda_obligatory,
+tajweed.madda_permissible,
+tajweed.madda_necessity {
+  color: #ea1919 !important;
+}
+
+/* 2. Ghunnah, Idgham, Ikhfa (Nasal sounds / Merging / Concealment) - Premium Green */
+tajweed.ghunnah,
+tajweed.idgham_with_ghunnah,
+tajweed.idgham_mutajanisayn,
+tajweed.idgham_mutaqaribayn,
+tajweed.idgham_mithlayn,
+tajweed.ikhfa,
+tajweed.ikhfa_syafawi {
+  color: #1b8a34 !important;
+}
+
+/* 3. Qalqalah (Echoing) - Premium Blue */
+tajweed.qalaqah,
+tajweed.qalaqah_sugra,
+tajweed.qalaqah_kubra {
+  color: #0b6cb3 !important;
+}
+
+/* 4. Iqlab (Conversion) - Violet/Pink */
+tajweed.iqlab {
+  color: #c71585 !important;
+}
+
+/* 5. Silent/Unpronounced letters (Hamzatul Wasl, Silent letters, Shamsiyah Lam) - Gray */
+tajweed.ham_wasl,
+tajweed.laam_shamsiyah,
+tajweed.silent,
+tajweed.idgham_without_ghunnah {
+  color: #a0a0a0 !important;
+  opacity: 0.65;
+}
+

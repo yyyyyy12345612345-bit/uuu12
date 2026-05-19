@@ -243,7 +243,7 @@ export function Mushaf() {
 
             {/* Reciter Picker Popover */}
             {showReciterPicker && (
-                <div className="absolute top-28 right-8 w-80 bg-[#064E3B]/98 backdrop-blur-2xl border border-white/10 rounded-[3rem] shadow-[0_30px_90px_rgba(0,0,0,0.5)] z-[1000] p-6 animate-in zoom-in-95 duration-300">
+                <div className="absolute top-28 right-8 w-80 bg-[#0c0d10]/98 backdrop-blur-2xl border border-white/10 rounded-[3rem] shadow-[0_30px_90px_rgba(0,0,0,0.5)] z-[1000] p-6 animate-in zoom-in-95 duration-300">
                     <p className="text-[10px] font-black text-primary uppercase tracking-widest text-center mb-6">اختر قارئ المصحف</p>
                     <div className="flex flex-col gap-2 max-h-[50vh] overflow-y-auto no-scrollbar">
                         {RECITERS.map(reciter => (

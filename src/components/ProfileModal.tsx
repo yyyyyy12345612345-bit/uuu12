@@ -140,7 +140,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       <div className={`fixed inset-0 z-[2000] bg-black/90 backdrop-blur-2xl overflow-y-auto font-['Tajawal'] py-10 px-4 flex justify-center items-start no-scrollbar`}>
          <div className="fixed inset-0" onClick={onClose} />
 
-         <div className="relative w-full max-w-2xl bg-[#0d1411] border border-white/5 rounded-[3.5rem] shadow-[0_50px_100px_rgba(0,0,0,0.6)] flex flex-col animate-in zoom-in-95 duration-700 overflow-hidden">
+         <div className="relative w-full max-w-2xl bg-[#0a0a0d] border border-white/5 rounded-[3.5rem] shadow-[0_50px_100px_rgba(0,0,0,0.6)] flex flex-col animate-in zoom-in-95 duration-700 overflow-hidden">
             <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
 
             <div className="p-8 border-b border-white/5 flex items-center justify-between bg-black/20 backdrop-blur-3xl sticky top-0 z-50">

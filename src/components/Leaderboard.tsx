@@ -418,7 +418,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                           <button 
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as any)}
-                            className={`px-6 py-2 rounded-2xl font-black text-xs transition-all ${activeTab === tab.id ? 'bg-primary text-[#064E3B] shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
+                            className={`px-6 py-2 rounded-2xl font-black text-xs transition-all ${activeTab === tab.id ? 'bg-primary text-black shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
                           >
                               {tab.label}
                           </button>
@@ -495,7 +495,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
       {showProfileSetup && (
         <div className="fixed inset-0 z-[3000] flex items-center justify-center p-4">
            <div className="absolute inset-0 bg-black/90 backdrop-blur-xl" />
-           <div className="relative w-full max-w-lg bg-[#064E3B] border border-primary/30 rounded-[3rem] shadow-[0_0_100px_rgba(212,175,55,0.2)] p-12 flex flex-col items-center animate-in zoom-in-95 duration-500 overflow-hidden">
+           <div className="relative w-full max-w-lg bg-[#0c0d10] border border-primary/30 rounded-[3rem] shadow-[0_0_100px_rgba(212,175,55,0.2)] p-12 flex flex-col items-center animate-in zoom-in-95 duration-500 overflow-hidden">
               <div className="absolute inset-0 islamic-pattern opacity-10" />
               
               <div className="relative z-10 w-full flex flex-col items-center">
@@ -540,7 +540,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                                 onChange={e => setSetupData({...setupData, governorate: e.target.value})}
                                 className="w-full bg-white/5 border border-white/10 rounded-3xl py-5 px-6 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-white font-black appearance-none"
                               >
-                                {COUNTRIES.map(gov => <option key={gov} value={gov} className="bg-[#064E3B]">{gov}</option>)}
+                                {COUNTRIES.map(gov => <option key={gov} value={gov} className="bg-[#0c0d10]">{gov}</option>)}
                               </select>
                           </div>
                           <div className="space-y-3">
@@ -558,7 +558,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
 
                       <button 
                         type="submit"
-                        className="w-full py-6 bg-primary text-[#064E3B] rounded-[2.5rem] font-black text-xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all mt-6"
+                        className="w-full py-6 bg-primary text-black rounded-[2.5rem] font-black text-xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all mt-6"
                       >
                           بدء المنافسة الآن
                       </button>

@@ -86,7 +86,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
         {/* Abstract Cinematic Background */}
         <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none mix-blend-overlay" />
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 blur-[150px] rounded-full -translate-y-1/2 translate-x-1/4 pointer-events-none animate-pulse" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-emerald-900/10 blur-[150px] rounded-full translate-y-1/3 -translate-x-1/3 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-primary/5 blur-[150px] rounded-full translate-y-1/3 -translate-x-1/3 pointer-events-none" />
 
         {/* Sidebar Header */}
         <div className="p-8 pb-6 relative z-10">
@@ -99,20 +99,20 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
             </button>
             <button 
                 onClick={toggleTheme}
-                className="w-12 h-12 rounded-[1.5rem] bg-foreground/5 border border-foreground/10 flex items-center justify-center text-foreground/40 hover:text-primary hover:bg-primary/10 transition-all duration-500 active:scale-90 shadow-xl"
+                className="w-12 h-12 rounded-[1.5rem] bg-foreground/5 border border-foreground/10 flex items-center justify-center text-foreground/40 hover:text-primary hover:bg-primary/10 transition-all duration-200 active:scale-90 shadow-xl"
             >
                 {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
           </div>
 
           {/* Premium Profile Section */}
-          <div className="relative p-6 rounded-[2.5rem] bg-foreground/[0.02] border border-foreground/5 overflow-hidden group hover:border-primary/30 transition-colors duration-500 shadow-2xl">
-            <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="relative p-6 rounded-[2.5rem] bg-foreground/[0.02] border border-foreground/5 overflow-hidden group hover:border-primary/30 transition-colors duration-200 shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
             
             {auth?.currentUser && userData ? (
               <div className="flex items-center gap-5 relative z-10">
                  <div className="relative shrink-0" onClick={onOpenProfile}>
-                    <div className="w-16 h-16 rounded-[1.5rem] border border-foreground/10 bg-card shadow-2xl overflow-hidden cursor-pointer group-hover:scale-105 group-hover:border-primary/50 transition-all duration-500">
+                    <div className="w-16 h-16 rounded-[1.5rem] border border-foreground/10 bg-card shadow-2xl overflow-hidden cursor-pointer group-hover:scale-105 group-hover:border-primary/50 transition-all duration-200">
                        <img 
                          src={userData.photoURL || "/logo/logo.png"} 
                          alt="Profile" 
