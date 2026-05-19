@@ -109,7 +109,7 @@ export function AthkarLibrary() {
                 <span>العودة للمكتبة</span>
             </button>
 
-            <div className="relative bg-[#064E3B] border border-primary/30 rounded-[3rem] p-10 text-white shadow-2xl overflow-hidden">
+            <div className="relative bg-[#0c0d10] border border-primary/30 rounded-[3rem] p-10 text-white shadow-2xl overflow-hidden">
                 <div className="absolute inset-0 islamic-pattern opacity-10" />
                 <div className="relative z-10 flex flex-col items-center text-center">
                     <h3 className="text-4xl font-black mb-4 drop-shadow-lg">{selectedCategory.TITLE}</h3>
@@ -147,7 +147,7 @@ export function AthkarLibrary() {
                         </p>
                         <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-10 border-t border-border/50 relative z-10">
                              <div className="flex items-center gap-4">
-                                <div className="w-20 h-20 rounded-[1.5rem] bg-[#064E3B] flex flex-col items-center justify-center text-white border-2 border-primary shadow-xl">
+                                <div className="w-20 h-20 rounded-[1.5rem] bg-[#0c0d10] flex flex-col items-center justify-center text-white border-2 border-primary shadow-xl">
                                     <span className="text-[8px] font-black uppercase opacity-60">تكرار</span>
                                     <span className="text-3xl font-black">{t.REPEAT || "١"}</span>
                                 </div>
@@ -212,7 +212,7 @@ export function AthkarLibrary() {
 
           {/* Full Hisn Al-Muslim Card */}
           <div className="md:col-span-2 mt-8">
-              <div className="relative bg-[#064E3B] rounded-[3rem] p-12 text-white border border-primary/30 overflow-hidden shadow-2xl group cursor-pointer hover:scale-[1.01] transition-transform">
+              <div className="relative bg-[#0c0d10] rounded-[3rem] p-12 text-white border border-primary/30 overflow-hidden shadow-2xl group cursor-pointer hover:scale-[1.01] transition-transform">
                   <div className="absolute inset-0 islamic-pattern opacity-10" />
                   <div className="absolute right-0 bottom-0 p-12 opacity-5 translate-y-1/2 group-hover:translate-y-0 transition-transform">
                       <Star className="w-64 h-64" />

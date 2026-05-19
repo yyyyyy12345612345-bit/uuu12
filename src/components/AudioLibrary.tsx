@@ -238,7 +238,7 @@ export function AudioLibrary() {
 
       {/* Atmospheric Background */}
       <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#06402B]/10 via-transparent to-transparent" />
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#0a0a0d]/10 via-transparent to-transparent" />
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 blur-[120px] rounded-full" />
           <div className="absolute inset-0 islamic-pattern opacity-[0.03]" />
       </div>
@@ -254,7 +254,7 @@ export function AudioLibrary() {
                           {user?.displayName?.[0] || <User className="w-5 h-5" />}
                       </div>
                       {user && (
-                          <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#06402B] rounded-full border-2 border-black flex items-center justify-center">
+                          <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#0a0a0d] rounded-full border-2 border-black flex items-center justify-center">
                               <Heart className="w-2.5 h-2.5 text-primary animate-pulse fill-current" />
                           </div>
                       )}

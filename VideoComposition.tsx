@@ -27,7 +27,7 @@ function resolveMedia(src?: string): string {
   return staticFile(src);
 }
 
-// ── فلاتر الخلفية السينمائية (24 فلتر) ──
+// ── فلاتر الخلفية ──
 const FILTER_MAP: Record<string, string> = {
   none: "none",
   vintage: "sepia(0.5) contrast(1.1) brightness(0.9)",
@@ -37,23 +37,10 @@ const FILTER_MAP: Record<string, string> = {
   dramatic: "contrast(1.4) brightness(0.7) saturate(1.2)",
   blur: "blur(20px) brightness(0.8)",
   invert: "invert(1) hue-rotate(180deg)",
-  midnight: "brightness(0.5) contrast(1.3) saturate(0.7) hue-rotate(20deg)",
-  oceanic: "hue-rotate(30deg) brightness(1.05) saturate(1.2) contrast(1.1)",
+  midnight: "brightness(0.6) contrast(1.2) saturate(0.8) hue-rotate(10deg)",
+  oceanic: "hue-rotate(15deg) brightness(1.1) saturate(1.2) contrast(1.05)",
   sepia: "sepia(1) contrast(0.9) brightness(1.1)",
-  saturated: "saturate(2.2) contrast(1.15)",
-  cinematic: "contrast(1.25) brightness(0.85) saturate(1.1) sepia(0.15)",
-  golden: "sepia(0.35) contrast(1.15) brightness(1.05) saturate(1.3) hue-rotate(-5deg)",
-  teal_orange: "contrast(1.2) saturate(1.25) hue-rotate(-15deg) sepia(0.1) brightness(0.9)",
-  noir: "grayscale(1) contrast(1.7) brightness(0.75)",
-  dreamy: "saturate(0.95) brightness(1.15) contrast(0.9) blur(1.5px)",
-  neon: "saturate(2) hue-rotate(60deg) brightness(1.25) contrast(1.1)",
-  pastel: "saturate(0.65) brightness(1.2) contrast(0.95)",
-  lut_autumn: "sepia(0.2) saturate(1.45) hue-rotate(-20deg) contrast(1.15) brightness(0.95)",
-  lut_forest: "hue-rotate(50deg) saturate(1.25) contrast(1.2) brightness(0.85)",
-  high_contrast: "contrast(1.5) saturate(1.35) brightness(1.1)",
-  faded: "contrast(0.8) brightness(1.15) saturate(0.65)",
-  vignette: "brightness(0.95) contrast(1.05)",
-  cross_process: "contrast(1.35) saturate(1.15) hue-rotate(10deg) sepia(0.12)"
+  saturated: "saturate(2.5) contrast(1.1)",
 };
 
 // ── الخطوط ──
@@ -84,8 +71,8 @@ interface MainVideoProps {
   fontWeight?: string | number;
   fontFamily?: string;
   filter?: string;
-  overlay?: string;
-  animation?: string;
+  overlay?: "none" | "dust" | "rays" | "bokeh";
+  animation?: "fade" | "scale" | "slide" | "blur" | "zoom" | "flip" | "bounce" | "glitch";
   textPosition?: "top" | "center" | "bottom";
   textVerticalOffset?: number;
   userPlan?: string;
@@ -107,6 +94,7 @@ export const MainVideo: React.FC<MainVideoProps> = ({
   userPlan = "free",
 }) => {
   const { durationInFrames } = useVideoConfig();
+  const frame = useCurrentFrame();
   const resolvedBg = resolveMedia(backgroundUrl);
   const cssFilter = FILTER_MAP[filter] || "none";
   const fontImport = FONT_IMPORTS[fontFamily] || FONT_IMPORTS["Amiri"];
@@ -133,62 +121,11 @@ export const MainVideo: React.FC<MainVideoProps> = ({
            50% { transform: translate(50px, -50px); opacity: 0.6; }
            100% { transform: translate(-50px, 50px); opacity: 0.3; }
         }
-
-        @keyframes snowMove {
-          0% { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 0; }
-          10% { opacity: 0.8; }
-          90% { opacity: 0.8; }
-          100% { transform: translateY(1100px) translateX(80px) rotate(360deg); opacity: 0; }
-        }
-
-        @keyframes rainMove {
-          0% { transform: translateY(-100px) translateX(0); opacity: 0.6; }
-          100% { transform: translateY(1200px) translateX(-100px); opacity: 0.6; }
-        }
-
-        @keyframes firefliesMove {
-          0% { transform: translate(0, 0) scale(0.8); opacity: 0.2; }
-          50% { transform: translate(80px, -80px) scale(1.2); opacity: 0.9; }
-          100% { transform: translate(-40px, -150px) scale(0.8); opacity: 0.2; }
-        }
-
-        @keyframes smokeMove {
-          0% { transform: translateY(200px) translateX(0) scale(1) rotate(0deg); opacity: 0; filter: blur(20px); }
-          30% { opacity: 0.25; filter: blur(35px); }
-          100% { transform: translateY(-1200px) translateX(200px) scale(3) rotate(90deg); opacity: 0; filter: blur(60px); }
-        }
-
-        @keyframes sparkleFade {
-          0%, 100% { transform: scale(0); opacity: 0; }
-          50% { transform: scale(1.2) rotate(45deg); opacity: 0.9; }
-        }
-
-        @keyframes grainAnimation {
-          0%, 100% { transform: translate(0, 0); }
-          10% { transform: translate(-1%, -1%); }
-          20% { transform: translate(-2%, 1%); }
-          30% { transform: translate(1%, -2%); }
-          40% { transform: translate(-1%, 3%); }
-          50% { transform: translate(-2%, 1%); }
-          60% { transform: translate(1%, 2%); }
-          75% { transform: translate(-2%, -2%); }
-          90% { transform: translate(2%, 1%); }
-        }
-
-        @keyframes lightLeakMove {
-          0%, 100% { transform: translate(-10%, -10%) scale(1); opacity: 0.15; }
-          50% { transform: translate(10%, 10%) scale(1.3); opacity: 0.45; }
-        }
-
-        @keyframes auroraMove {
-          0%, 100% { transform: skewY(-5deg) translateY(0); filter: hue-rotate(0deg); }
-          50% { transform: skewY(5deg) translateY(-20px); filter: hue-rotate(45deg); }
-        }
       `}</style>
 
       <AbsoluteFill style={{ backgroundColor: backgroundUrl ? 'black' : 'transparent' }} />
 
-      {/* ── الخلفية المفلترة ── */}
+      {/* ── الخلفية الفلترة ── */}
       {resolvedBg && (
         <AbsoluteFill style={{ filter: cssFilter }}>
           {isVideoUrl(backgroundUrl) ? (
@@ -208,16 +145,7 @@ export const MainVideo: React.FC<MainVideoProps> = ({
         </AbsoluteFill>
       )}
 
-      {/* Vignette Filter overlay */}
-      {filter === "vignette" && (
-        <AbsoluteFill style={{
-          pointerEvents: 'none',
-          boxShadow: 'inset 0 0 160px rgba(0,0,0,0.85)',
-          zIndex: 5
-        }} />
-      )}
-
-      {/* ── تأثير Overlays (12 تأثير احترافي) ── */}
+      {/* ── تأثير Overlays ── */}
       {overlay === "dust" && (
         <AbsoluteFill style={{ pointerEvents: 'none' }}>
           {[...Array(30)].map((_, i) => (
@@ -267,158 +195,6 @@ export const MainVideo: React.FC<MainVideoProps> = ({
               animationDelay: `-${Math.random() * 20}s`
             }} />
           ))}
-        </AbsoluteFill>
-      )}
-
-      {overlay === "rain" && (
-        <AbsoluteFill style={{ pointerEvents: 'none', overflow: 'hidden' }}>
-          {[...Array(60)].map((_, i) => (
-            <div key={i} style={{
-              position: 'absolute',
-              top: `${Math.random() * -20}%`,
-              left: `${Math.random() * 120}%`,
-              width: '1px',
-              height: `${Math.random() * 40 + 30}px`,
-              background: 'rgba(174,194,224,0.4)',
-              transform: 'rotate(15deg)',
-              animation: `rainMove ${Math.random() * 0.8 + 0.8}s linear infinite`,
-              animationDelay: `-${Math.random() * 2}s`
-            }} />
-          ))}
-        </AbsoluteFill>
-      )}
-
-      {overlay === "snow" && (
-        <AbsoluteFill style={{ pointerEvents: 'none', overflow: 'hidden' }}>
-          {[...Array(50)].map((_, i) => (
-            <div key={i} style={{
-              position: 'absolute',
-              top: '-20px',
-              left: `${Math.random() * 100}%`,
-              width: `${Math.random() * 6 + 2}px`,
-              height: `${Math.random() * 6 + 2}px`,
-              background: 'white',
-              borderRadius: '50%',
-              boxShadow: '0 0 5px white',
-              animation: `snowMove ${Math.random() * 8 + 8}s linear infinite`,
-              animationDelay: `-${Math.random() * 15}s`
-            }} />
-          ))}
-        </AbsoluteFill>
-      )}
-
-      {overlay === "fireflies" && (
-        <AbsoluteFill style={{ pointerEvents: 'none', overflow: 'hidden' }}>
-          {[...Array(25)].map((_, i) => (
-            <div key={i} style={{
-              position: 'absolute',
-              bottom: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              width: `${Math.random() * 5 + 3}px`,
-              height: `${Math.random() * 5 + 3}px`,
-              background: '#D4AF37',
-              borderRadius: '50%',
-              boxShadow: '0 0 15px #D4AF37, 0 0 30px #FFD700',
-              animation: `firefliesMove ${Math.random() * 12 + 10}s ease-in-out infinite`,
-              animationDelay: `-${Math.random() * 20}s`
-            }} />
-          ))}
-        </AbsoluteFill>
-      )}
-
-      {overlay === "smoke" && (
-        <AbsoluteFill style={{ pointerEvents: 'none', overflow: 'hidden' }}>
-          {[...Array(8)].map((_, i) => (
-            <div key={i} style={{
-              position: 'absolute',
-              bottom: '-150px',
-              left: `${Math.random() * 100}%`,
-              width: `${Math.random() * 300 + 200}px`,
-              height: `${Math.random() * 300 + 200}px`,
-              background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)',
-              borderRadius: '50%',
-              animation: `smokeMove ${Math.random() * 20 + 20}s ease-out infinite`,
-              animationDelay: `-${Math.random() * 25}s`
-            }} />
-          ))}
-        </AbsoluteFill>
-      )}
-
-      {overlay === "sparkle" && (
-        <AbsoluteFill style={{ pointerEvents: 'none', overflow: 'hidden' }}>
-          {[...Array(20)].map((_, i) => (
-            <div key={i} style={{
-              position: 'absolute',
-              top: `${Math.random() * 90}%`,
-              left: `${Math.random() * 90}%`,
-              width: '12px',
-              height: '12px',
-              background: '#FFD700',
-              clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
-              boxShadow: '0 0 10px #FFD700',
-              animation: `sparkleFade ${Math.random() * 3 + 2}s ease-in-out infinite`,
-              animationDelay: `-${Math.random() * 5}s`
-            }} />
-          ))}
-        </AbsoluteFill>
-      )}
-
-      {overlay === "film_grain" && (
-        <AbsoluteFill style={{ 
-          pointerEvents: 'none', 
-          overflow: 'hidden',
-          opacity: 0.12,
-          mixBlendMode: 'overlay'
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: '-50%',
-            left: '-50%',
-            width: '200%',
-            height: '200%',
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-            animation: 'grainAnimation 0.5s steps(1) infinite'
-          }} />
-        </AbsoluteFill>
-      )}
-
-      {overlay === "light_leak" && (
-        <AbsoluteFill style={{ 
-          pointerEvents: 'none', 
-          overflow: 'hidden',
-          mixBlendMode: 'screen'
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: '-20%',
-            left: '-20%',
-            width: '140%',
-            height: '140%',
-            background: 'radial-gradient(circle at 10% 20%, rgba(255, 99, 71, 0.4) 0%, rgba(255, 165, 0, 0.2) 40%, transparent 70%)',
-            filter: 'blur(60px)',
-            animation: 'lightLeakMove 12s ease-in-out infinite'
-          }} />
-        </AbsoluteFill>
-      )}
-
-      {overlay === "aurora" && (
-        <AbsoluteFill style={{ 
-          pointerEvents: 'none', 
-          overflow: 'hidden',
-          mixBlendMode: 'color-dodge',
-          opacity: 0.5
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: '-10%',
-            left: '-10%',
-            width: '120%',
-            height: '60%',
-            background: 'linear-gradient(90deg, rgba(0,255,136,0.3) 0%, rgba(0,136,255,0.3) 50%, rgba(200,0,255,0.3) 100%)',
-            filter: 'blur(80px)',
-            transformOrigin: 'top center',
-            animation: 'auroraMove 15s ease-in-out infinite'
-          }} />
         </AbsoluteFill>
       )}
 
@@ -530,7 +306,6 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
   const currentLineIndex = Math.min(Math.floor(frame / framesPerLine), numLines - 1);
   const currentLine = lines[currentLineIndex];
 
-  // انميشن fade لكل سطر جديد
   const lineLocalFrame = frame - (currentLineIndex * framesPerLine);
   const lineFadeIn = Math.min(12, Math.floor(framesPerLine * 0.15));
   const lineFadeOut = Math.min(8, Math.floor(framesPerLine * 0.1));
@@ -542,10 +317,8 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
   );
 
-  // Zoom/Scale effect
   const baseScale = interpolate(frame, [0, totalVerseFrames], [1, 1.03], { easing: Easing.out(Easing.quad) });
 
-  // انميشن الدخول والتحول حسب النوع (16 أنيميشن)
   let animationStyles: React.CSSProperties = {};
   const entranceY = interpolate(lineLocalFrame, [0, lineFadeIn], [40, 0], {
     extrapolateRight: 'clamp',
@@ -570,32 +343,6 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
   } else if (animation === "bounce") {
     const bounce = interpolate(lineLocalFrame, [0, lineFadeIn], [150, 0], { easing: Easing.out(Easing.bounce), extrapolateRight: 'clamp' });
     animationStyles.transform = `scale(${baseScale}) translateY(${bounce + textVerticalOffset}px)`;
-  } else if (animation === "glitch") {
-    const jitterX = Math.random() > 0.92 ? (Math.random() - 0.5) * 16 : 0;
-    const jitterY = Math.random() > 0.92 ? (Math.random() - 0.5) * 16 : 0;
-    animationStyles.transform = `scale(${baseScale}) translate(${jitterX}px, ${jitterY + textVerticalOffset}px)`;
-    if (Math.random() > 0.94) {
-      animationStyles.filter = `hue-rotate(${Math.random() * 360}deg) saturate(3)`;
-    }
-  } else if (animation === "elastic") {
-    const t = lineLocalFrame / lineFadeIn;
-    const elasticScale = 1 - Math.cos(t * Math.PI * 2.5) * Math.exp(-t * 2.5);
-    const s = lineLocalFrame < lineFadeIn ? Math.max(0, elasticScale) : 1;
-    animationStyles.transform = `scale(${baseScale * s}) translateY(${textVerticalOffset}px)`;
-  } else if (animation === "swing") {
-    const rot = Math.sin(lineLocalFrame / 8) * 8;
-    animationStyles.transform = `scale(${baseScale}) rotate(${rot}deg) translateY(${textVerticalOffset}px)`;
-  } else if (animation === "spiral") {
-    const rot = interpolate(lineLocalFrame, [0, lineFadeIn], [360, 0], { easing: Easing.out(Easing.quad), extrapolateRight: 'clamp' });
-    const s = interpolate(lineLocalFrame, [0, lineFadeIn], [0.1, 1], { extrapolateRight: 'clamp' });
-    animationStyles.transform = `scale(${baseScale * s}) rotate(${rot}deg) translateY(${textVerticalOffset}px)`;
-  } else if (animation === "cinematic") {
-    const track = interpolate(frame, [0, totalVerseFrames], [1, 10], { extrapolateRight: 'clamp' });
-    animationStyles.letterSpacing = `${track}px`;
-    animationStyles.transform = `scale(${baseScale}) translateY(${textVerticalOffset}px)`;
-  } else if (animation === "rotate") {
-    const rot = interpolate(lineLocalFrame, [0, lineFadeIn], [-180, 0], { easing: Easing.out(Easing.back(1.2)), extrapolateRight: 'clamp' });
-    animationStyles.transform = `scale(${baseScale}) rotate(${rot}deg) translateY(${textVerticalOffset}px)`;
   } else {
     animationStyles.transform = `scale(${baseScale}) translateY(${entranceY + textVerticalOffset}px)`;
   }
@@ -607,53 +354,6 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
     top: "220px 40px 100px 40px",
     center: "40px",
     bottom: "100px 40px 60px 40px"
-  };
-
-  const renderTextContent = () => {
-    if (animation === "wave") {
-      return (
-        <span style={{ display: 'inline-block' }}>
-          {currentLine.split("").map((char, charIdx) => {
-            const charOffset = Math.sin((lineLocalFrame / 6) + (charIdx * 0.4)) * 12;
-            return (
-              <span key={charIdx} style={{
-                display: 'inline-block',
-                transform: `translateY(${charOffset}px)`,
-                whiteSpace: char === " " ? "pre" : "normal"
-              }}>
-                {char}
-              </span>
-            );
-          })}
-        </span>
-      );
-    }
-
-    if (animation === "typewriter") {
-      const charIndex = Math.floor(interpolate(lineLocalFrame, [0, Math.min(framesPerLine - 10, 45)], [0, currentLine.length], { extrapolateRight: 'clamp' }));
-      return currentLine.slice(0, charIndex);
-    }
-
-    if (animation === "split") {
-      return (
-        <span style={{ display: 'inline-flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {currentLine.split(" ").map((word, wordIdx) => {
-            const dir = wordIdx % 2 === 0 ? -60 : 60;
-            const x = interpolate(lineLocalFrame, [0, lineFadeIn], [dir, 0], { easing: Easing.out(Easing.quad), extrapolateRight: 'clamp' });
-            return (
-              <span key={wordIdx} style={{
-                display: 'inline-block',
-                transform: `translateX(${x}px)`,
-              }}>
-                {word}
-              </span>
-            );
-          })}
-        </span>
-      );
-    }
-
-    return currentLine;
   };
 
   return (
@@ -672,14 +372,13 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
       textAlign: 'center',
       overflow: 'hidden'
     }}>
-
       <p style={{
         color: textColor, fontSize: `${fontSize * 1.5}px`, fontFamily: `"${fontFamily}", serif`,
         direction: 'rtl', textAlign: 'center', width: '100%', lineHeight: 2.4,
         textShadow: '0 20px 50px rgba(0,0,0,1)', margin: 0,
         fontWeight: fontWeight || 700
       }}>
-        {renderTextContent()}
+        {currentLine}
       </p>
 
       <div style={{
@@ -709,9 +408,10 @@ const AudioVisualizer = ({ color }: { color: string }) => {
   return (
     <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '100px' }}>
       {[...Array(bars)].map((_, i) => {
+        // Create a moving wave effect using multiple sine waves
         const wave1 = Math.sin(frame / 5 + i / 3);
         const wave2 = Math.sin(frame / 10 - i / 5);
-        const combined = (wave1 + wave2 + 2) / 4;
+        const combined = (wave1 + wave2 + 2) / 4; // Normalized 0-1
         
         const height = interpolate(combined, [0, 1], [10, 80]);
         const opacity = interpolate(combined, [0, 1], [0.3, 0.8]);

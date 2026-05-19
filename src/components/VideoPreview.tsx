@@ -209,7 +209,7 @@ export function VideoPreview() {
       {/* Premium Frame */}
       <div className="absolute inset-[-12px] rounded-[3.5rem] border-[1px] border-primary/20 bg-primary/5 pointer-events-none" />
       
-      <div className="absolute inset-0 bg-[#064E3B] rounded-[3rem] border-[8px] border-[#0A0A0A] shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden">
+      <div className="absolute inset-0 bg-[#0c0d10] rounded-[3rem] border-[8px] border-[#0A0A0A] shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden">
         
         {/* Background Media */}
         <div className="absolute inset-0 z-0">
@@ -235,7 +235,7 @@ export function VideoPreview() {
               />
             )
           ) : (
-            <div className="absolute inset-0 bg-[#064E3B] islamic-pattern opacity-10" />
+            <div className="absolute inset-0 bg-[#0c0d10] islamic-pattern opacity-10" />
           )}
         </div>
 
@@ -310,12 +310,28 @@ export function VideoPreview() {
            )}
         </div>
 
+        {/* Static Surah Header pinned to top */}
+        {surahData && (
+          <div className="absolute top-16 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 pointer-events-none">
+            <div className="px-5 py-2 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-xl flex items-center gap-3 shadow-lg">
+                <BookOpen className="w-3.5 h-3.5 text-primary animate-pulse" />
+                <span className="text-[11px] text-white/90 font-black uppercase tracking-widest">{surahData?.name}</span>
+            </div>
+            {isPlaying && (
+              <div className="flex items-center gap-1.5 bg-black/20 px-3 py-1 rounded-full border border-white/5 backdrop-blur-sm">
+                 <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                 <span className="text-[9px] text-primary font-black uppercase tracking-widest">آية {currentAyahIndex}</span>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Content Layer */}
         <div 
           className="absolute inset-0 flex flex-col items-center px-10 text-center z-20 transition-all duration-1000 ease-out"
           style={{ 
             justifyContent: state.textPosition === 'top' ? 'flex-start' : state.textPosition === 'bottom' ? 'flex-end' : 'center',
-            paddingTop: state.textPosition === 'top' ? '100px' : '60px',
+            paddingTop: state.textPosition === 'top' ? '180px' : '60px',
             paddingBottom: state.textPosition === 'bottom' ? '160px' : '60px',
             transform: `translateY(${state.textVerticalOffset / 2}px)` 
           }}
@@ -339,20 +355,6 @@ export function VideoPreview() {
                 'animate-in fade-in duration-1000'
               }`}
             >
-              {/* Surah Info Badge */}
-              <div className="flex flex-col items-center gap-3">
-                <div className="px-5 py-2 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-xl flex items-center gap-3">
-                    <BookOpen className="w-3 h-3 text-primary animate-pulse" />
-                    <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">{surahData?.name}</span>
-                </div>
-                {isPlaying && (
-                  <div className="flex items-center gap-1.5">
-                     <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                     <span className="text-[9px] text-primary font-black uppercase tracking-widest">آية {currentAyahIndex}</span>
-                  </div>
-                )}
-              </div>
-
               {/* Quranic Text */}
               <p
                 className={`font-['Amiri'] text-white leading-[1.8] text-center w-full break-words`}

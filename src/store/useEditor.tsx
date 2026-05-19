@@ -14,8 +14,8 @@ interface EditorState {
   fontWeight: number;
   fontFamily: string;
   filter: string;
-  overlay: "none" | "dust" | "rays" | "bokeh";
-  animation: "fade" | "scale" | "slide" | "blur" | "zoom" | "flip" | "bounce" | "glitch";
+  overlay: string;
+  animation: string;
   textPosition: "top" | "center" | "bottom";
   textVerticalOffset: number;
   showVisualizer: boolean;

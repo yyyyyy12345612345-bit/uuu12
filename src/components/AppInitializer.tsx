@@ -36,7 +36,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
       setShowSplash(false);
       sessionStorage.setItem("has_seen_splash", "true");
       checkFirstRun();
-    }, 1500); // Reduced to 1.5s for better feel
+    }, 400); // Reduced to 400ms for instant feel
     return () => clearTimeout(timer);
   }, []);
 

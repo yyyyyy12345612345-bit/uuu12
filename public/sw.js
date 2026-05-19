@@ -1,12 +1,16 @@
 const CACHE_NAME = 'quran-pwa-v7.0';
+const STATIC_CACHE_NAME = 'quran-static-assets-v1';
+const AUDIO_CACHE_NAME = 'quran-audio-v1';
+const FONT_CACHE_NAME = 'quran-fonts-v1';
+const API_CACHE_NAME = 'quran-api-v1';
+
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
   '/logo/logo.png',
-  '/data/surahs.json'
+  '/data/surahs.json',
+  '/mushaf-bg.jpg.png'
 ];
-
-const AUDIO_CACHE_NAME = 'quran-audio-v1';
 
 // ── Service Worker Lifecycle ─────────────────────────────────────────────
 self.addEventListener('install', (event) => {
@@ -21,7 +25,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) => {
       return Promise.all(
         keys
-          .filter(k => k !== CACHE_NAME && k !== AUDIO_CACHE_NAME)
+          .filter(k => k !== CACHE_NAME && k !== AUDIO_CACHE_NAME && k !== FONT_CACHE_NAME && k !== STATIC_CACHE_NAME && k !== API_CACHE_NAME)
           .map(k => caches.delete(k))
       );
     })
@@ -29,12 +33,15 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// ── Fetch Handler with Audio Caching ─────────────────────────────────────
+// ── Fetch Handler with Advanced Caching Strategies ────────────────────────
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Special handling for Audio files (.mp3) - Cache them when heard
+  // Skip non-GET requests
+  if (request.method !== 'GET') return;
+
+  // 1. Audio files (.mp3) - Cache on demand (Cache-First)
   if (url.pathname.endsWith('.mp3') || request.destination === 'audio') {
     event.respondWith(
       caches.open(AUDIO_CACHE_NAME).then((cache) => {
@@ -55,16 +62,98 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (request.mode === 'navigate') {
+  // 2. Google Fonts & Font files - Cache-First (highly static)
+  if (
+    url.hostname === 'fonts.googleapis.com' ||
+    url.hostname === 'fonts.gstatic.com' ||
+    request.destination === 'font' ||
+    url.pathname.endsWith('.woff') ||
+    url.pathname.endsWith('.woff2') ||
+    url.pathname.endsWith('.ttf')
+  ) {
     event.respondWith(
-      fetch(request).catch(() => caches.match(request))
+      caches.open(FONT_CACHE_NAME).then((cache) => {
+        return cache.match(request).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+
+          return fetch(request).then((networkResponse) => {
+            if (networkResponse.status === 200) {
+              cache.put(request, networkResponse.clone());
+            }
+            return networkResponse;
+          });
+        });
+      })
     );
     return;
   }
-  
+
+  // 3. Quran API request caching (api.quran.com) - Stale-While-Revalidate
+  if (url.hostname === 'api.quran.com' || url.hostname.includes('quran.com')) {
+    event.respondWith(
+      caches.open(API_CACHE_NAME).then((cache) => {
+        return cache.match(request).then((cachedResponse) => {
+          const fetchPromise = fetch(request).then((networkResponse) => {
+            if (networkResponse.status === 200) {
+              cache.put(request, networkResponse.clone());
+            }
+            return networkResponse;
+          }).catch(() => null);
+
+          return cachedResponse || fetchPromise;
+        });
+      })
+    );
+    return;
+  }
+
+  // 4. Next.js Static Chunks / Styles / Scripts - Stale-While-Revalidate
+  const isStaticChunk = url.pathname.includes('/_next/static/') || 
+                        url.pathname.endsWith('.js') || 
+                        url.pathname.endsWith('.css');
+
+  if (isStaticChunk && !url.pathname.includes('hot-update')) {
+    event.respondWith(
+      caches.open(STATIC_CACHE_NAME).then((cache) => {
+        return cache.match(request).then((cachedResponse) => {
+          const fetchPromise = fetch(request).then((networkResponse) => {
+            if (networkResponse.status === 200) {
+              cache.put(request, networkResponse.clone());
+            }
+            return networkResponse;
+          }).catch(() => null);
+
+          // Return cached response instantly if available, otherwise wait for network
+          return cachedResponse || fetchPromise;
+        });
+      })
+    );
+    return;
+  }
+
+  // 5. Navigation requests - Network-First, fallback to Cache
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request).catch(() => caches.match('/'))
+    );
+    return;
+  }
+
+  // 6. Default: Cache-First for static preloaded assets, otherwise Network-First
   event.respondWith(
     caches.match(request).then((response) => {
-      return response || fetch(request).catch(() => {
+      if (response) return response;
+
+      return fetch(request).then((networkResponse) => {
+        // Cache images dynamically
+        if (request.destination === 'image' && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(STATIC_CACHE_NAME).then((cache) => {
+            cache.put(request, responseToCache);
+          });
+        }
+        return networkResponse;
+      }).catch(() => {
         return new Response('Network error occurred', { status: 404, statusText: 'Network error' });
       });
     })

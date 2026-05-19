@@ -404,7 +404,7 @@ export function DailyHub() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
                 {/* AI Custom Quran Plan Widget */}
                 {userData?.activeQuranPlan && (
-                  <div className="md:col-span-2 bg-[#064E3B] border border-primary/30 rounded-[3rem] p-8 relative overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.4)] group">
+                  <div className="md:col-span-2 bg-[#0c0d10] border border-primary/30 rounded-[3rem] p-8 relative overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.4)] group">
                     <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
                       <Star className="w-24 h-24 text-primary animate-pulse" />
                     </div>

@@ -94,6 +94,42 @@ function CatchAllContent() {
     }
   }, [activeView, visited]);
 
+  // Preload all dynamic components in the background for instant navigation response
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // 1. Silent prefetch of webpack JS chunks
+      Promise.all([
+        import("@/components/SurahSelector"),
+        import("@/components/VideoPreview"),
+        import("@/components/Controls"),
+        import("@/components/RenderModal"),
+        import("@/components/Mushaf"),
+        import("@/components/PrayerTimes"),
+        import("@/components/AudioLibrary"),
+        import("@/components/DailyHub"),
+        import("@/components/Navigation"),
+        import("@/components/DigitalMushaf"),
+        import("@/components/GlobalMenu"),
+        import("@/components/Leaderboard"),
+        import("@/components/AuthGate"),
+        import("@/components/MushafChoice")
+      ]).then(() => {
+        // 2. Pre-mount components in the DOM in hidden divs for instant layout activation
+        setVisited(prev => ({
+          ...prev,
+          mushaf: true,
+          'mushaf-full': true,
+          'mushaf-choice': true,
+          daily: true,
+          library: true,
+          prayers: true,
+          video: true
+        }));
+      }).catch(err => console.log("Background preloading delayed:", err));
+    }, 2500); // 2.5s delay to keep critical start path 100% clear and fast
+    return () => clearTimeout(timer);
+  }, []);
+
   // Prevent any rendering until hydration is complete to stop Next.js 16 mismatch
   const [isClient, setIsClient] = useState(false);
   useEffect(() => {
@@ -141,60 +177,60 @@ function CatchAllContent() {
 
       <main className="flex-1 relative overflow-hidden bg-transparent">
         {visited.mushaf && (
-          <div key={`mushaf-${activeView === 'mushaf'}`} className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'mushaf' ? 'block view-transition' : 'hidden'}`}>
+          <div key="mushaf" className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'mushaf' ? 'block view-transition' : 'hidden'}`}>
             <Mushaf />
           </div>
         )}
         {visited['mushaf-full'] && (
-          <div key={`mushaf-full-${activeView === 'mushaf-full'}`} className={`h-full w-full pb-20 bg-transparent ${activeView === 'mushaf-full' ? 'block view-transition' : 'hidden'}`}>
+          <div key="mushaf-full" className={`h-full w-full pb-20 bg-transparent ${activeView === 'mushaf-full' ? 'block view-transition' : 'hidden'}`}>
             <DigitalMushaf />
           </div>
         )}
         {visited['mushaf-tafseer'] && (
-          <div key={`mushaf-tafseer-${activeView === 'mushaf-tafseer'}`} className={`h-full w-full pb-20 bg-transparent ${activeView === 'mushaf-tafseer' ? 'block view-transition' : 'hidden'}`}>
+          <div key="mushaf-tafseer" className={`h-full w-full pb-20 bg-transparent ${activeView === 'mushaf-tafseer' ? 'block view-transition' : 'hidden'}`}>
             <DigitalMushaf isTafseerMode={true} />
           </div>
         )}
         {visited['mushaf-choice'] && (
-          <div key={`mushaf-choice-${activeView === 'mushaf-choice'}`} className={`h-full w-full relative pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'mushaf-choice' ? 'block view-transition' : 'hidden'}`}>
+          <div key="mushaf-choice" className={`h-full w-full relative pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'mushaf-choice' ? 'block view-transition' : 'hidden'}`}>
             <MushafChoice />
             <CommunityShowcase />
           </div>
         )}
         {visited.daily && (
-          <div key={`daily-${activeView === 'daily'}`} className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'daily' ? 'block view-transition' : 'hidden'}`}>
+          <div key="daily" className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'daily' ? 'block view-transition' : 'hidden'}`}>
             <DailyHub />
           </div>
         )}
         {visited.library && (
-          <div key={`library-${activeView === 'library'}`} className={`h-full w-full pb-20 bg-transparent ${activeView === 'library' ? 'block view-transition' : 'hidden'}`}>
+          <div key="library" className={`h-full w-full pb-20 bg-transparent ${activeView === 'library' ? 'block view-transition' : 'hidden'}`}>
             <AudioLibrary />
           </div>
         )}
         {visited.prayers && (
-          <div key={`prayers-${activeView === 'prayers'}`} className={`h-full w-full pb-20 bg-transparent ${activeView === 'prayers' ? 'block view-transition' : 'hidden'}`}>
+          <div key="prayers" className={`h-full w-full pb-20 bg-transparent ${activeView === 'prayers' ? 'block view-transition' : 'hidden'}`}>
             <PrayerTimes />
           </div>
         )}
         {visited.rank && (
-          <div key={`rank-${activeView === 'rank'}`} className={`h-full w-full pb-20 bg-transparent ${activeView === 'rank' ? 'block view-transition' : 'hidden'}`}>
+          <div key="rank" className={`h-full w-full pb-20 bg-transparent ${activeView === 'rank' ? 'block view-transition' : 'hidden'}`}>
             <Leaderboard onEditProfile={() => setIsProfileOpen(true)} />
           </div>
         )}
         {visited.admin && (
-          <div key={`admin-${activeView === 'admin'}`} className={`h-full w-full pb-20 bg-transparent ${activeView === 'admin' ? 'block view-transition' : 'hidden'}`}>
+          <div key="admin" className={`h-full w-full pb-20 bg-transparent ${activeView === 'admin' ? 'block view-transition' : 'hidden'}`}>
             <AdminPanel />
           </div>
         )}
         {visited.showcase && (
-          <div key={`showcase-${activeView === 'showcase'}`} className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'showcase' ? 'block view-transition' : 'hidden'}`}>
+          <div key="showcase" className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'showcase' ? 'block view-transition' : 'hidden'}`}>
             <CommunityShowcase />
           </div>
         )}
         
         {visited.video && (
-          <div key={`video-${activeView === 'video'}`} className={`h-full w-full ${activeView === 'video' ? 'block view-transition' : 'hidden'}`}>
-             <div className="flex h-full w-full overflow-hidden bg-[#064E3B]">
+          <div key="video" className={`h-full w-full ${activeView === 'video' ? 'block view-transition' : 'hidden'}`}>
+             <div className="flex h-full w-full overflow-hidden bg-[#0c0d10]">
                 {/* Desktop Sidebar */}
                 <aside className="hidden lg:flex w-[400px] h-full border-r border-border flex-col p-8 overflow-y-auto no-scrollbar gap-10 pb-40 relative z-50 bg-background/50 backdrop-blur-3xl">
                    <div className="absolute inset-0 islamic-pattern opacity-[0.02] pointer-events-none" />
