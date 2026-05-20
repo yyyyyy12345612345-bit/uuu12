@@ -10,9 +10,11 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { 
   CheckCircle2, RotateCcw, Target, Fingerprint, 
   ArrowUpRight, ChevronRight, ChevronLeft, 
-  Sun, Moon, Bed, BookOpen, Compass, MapPin, Search, Clock, Star, Video
+  Sun, Moon, Bed, BookOpen, Compass, MapPin, Search, Clock, Star, Video, Crown
 } from "lucide-react";
 import { db, auth } from "@/lib/firebase";
+import { Capacitor } from '@capacitor/core';
+import { Geolocation } from '@capacitor/geolocation';
 
 export function DailyHub() {
   const [athkarProgress, setAthkarProgress] = useState<Record<string, number>>({});
@@ -299,26 +301,42 @@ export function DailyHub() {
     }
   };
 
-  const requestQibla = useCallback(() => {
+  const requestQibla = useCallback(async () => {
     setQibla(prev => ({ ...prev, loading: true, error: null }));
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          const meccaLat = 21.422487;
-          const meccaLng = 39.826206;
-          const phi1 = lat * Math.PI / 180;
-          const phi2 = meccaLat * Math.PI / 180;
-          const dlng = (meccaLng - lng) * Math.PI / 180;
-          const y = Math.sin(dlng) * Math.cos(phi2);
-          const x = Math.cos(phi1) * Math.sin(phi2) - Math.sin(phi1) * Math.cos(phi2) * Math.cos(dlng);
-          let bearing = Math.atan2(y, x) * 180 / Math.PI;
-          bearing = (bearing + 360) % 360;
-          setQibla(prev => ({ ...prev, angle: bearing, loading: false }));
-        },
-        () => setQibla(prev => ({ ...prev, loading: false, error: "فشل تحديد الموقع" }))
-      );
+    try {
+      let lat = 0;
+      let lng = 0;
+      if (Capacitor.isNativePlatform()) {
+        const perm = await Geolocation.checkPermissions();
+        if (perm.location !== 'granted') {
+          const req = await Geolocation.requestPermissions();
+          if (req.location !== 'granted') {
+            throw new Error("صلاحية الموقع غير مفعّلة");
+          }
+        }
+        const position = await Geolocation.getCurrentPosition();
+        lat = position.coords.latitude;
+        lng = position.coords.longitude;
+      } else {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+        lat = position.coords.latitude;
+        lng = position.coords.longitude;
+      }
+
+      const meccaLat = 21.422487;
+      const meccaLng = 39.826206;
+      const phi1 = lat * Math.PI / 180;
+      const phi2 = meccaLat * Math.PI / 180;
+      const dlng = (meccaLng - lng) * Math.PI / 180;
+      const y = Math.sin(dlng) * Math.cos(phi2);
+      const x = Math.cos(phi1) * Math.sin(phi2) - Math.sin(phi1) * Math.cos(phi2) * Math.cos(dlng);
+      let bearing = Math.atan2(y, x) * 180 / Math.PI;
+      bearing = (bearing + 360) % 360;
+      setQibla(prev => ({ ...prev, angle: bearing, loading: false }));
+    } catch (err: any) {
+      setQibla(prev => ({ ...prev, loading: false, error: err.message || "فشل تحديد الموقع" }));
     }
   }, []);
 
