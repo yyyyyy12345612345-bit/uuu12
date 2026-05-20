@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Capacitor } from '@capacitor/core';
 import { X, Download, Info, ShieldCheck, Bell, MapPin, CheckCircle2, ArrowRight } from 'lucide-react';
-import { requestNotificationPermission, schedulePrayerNotifications, loadSettings } from '@/lib/notifications';
+import { requestNotificationPermission, smartReschedule, loadSettings } from '@/lib/prayerNotifications';
 import { initializePushNotifications } from '@/lib/pushNotifications';
 import { Geolocation } from '@capacitor/geolocation';
 import { auth, db } from '@/lib/firebase';
@@ -110,16 +110,12 @@ export default function AppInitializer({ children }: { children: React.ReactNode
       initializePushNotifications();
     }
 
-    // 2. Initial Prayer Scheduling (from cache)
+    // 2. Initial Prayer Scheduling (smart sync)
     const syncPrayers = async () => {
       try {
-        const cachedTimes = localStorage.getItem("prayer_times_cache");
-        if (cachedTimes) {
-          const times = JSON.parse(cachedTimes);
-          const settings = loadSettings();
-          await schedulePrayerNotifications(times, settings);
-          console.log("[App] Background Adhan re-synced from cache.");
-        }
+        const settings = loadSettings();
+        await smartReschedule(settings, async () => null);
+        console.log("[App] Background Adhan checked/re-synced.");
       } catch (e) {
         console.error("[App] Initial prayer sync failed", e);
       }

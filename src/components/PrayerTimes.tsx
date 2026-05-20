@@ -8,14 +8,8 @@ import {
 } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
 import { Capacitor } from '@capacitor/core';
-import {
-  schedulePrayerNotifications,
-  sendTestNotification,
-  requestNotificationPermission,
-  checkForegroundPrayer,
-  type PrayerTimesData,
-  PRAYER_NAMES_AR,
-} from "@/lib/notifications";
+import { usePrayerNotifications } from "@/hooks/usePrayerNotifications";
+import { type PrayerTimesData, PRAYER_NAMES_AR } from "@/lib/prayerNotifications";
 
 interface PrayerSetting {
     athanEnabled: boolean;
@@ -46,27 +40,7 @@ export function PrayerTimes() {
   const activeSettingsPrayer = editorState.activeSettingsPrayer;
   const setActiveSettingsPrayer = (val: string | null) => updateEditor({ activeSettingsPrayer: val });
 
-  const [prayerSettings, setPrayerSettings] = useState<Record<string, PrayerSetting>>({
-    Fajr: { athanEnabled: true, notificationsEnabled: true, muezzinId: "haram", offset: 0 },
-    Dhuhr: { athanEnabled: true, notificationsEnabled: true, muezzinId: "haram", offset: 0 },
-    Asr: { athanEnabled: true, notificationsEnabled: true, muezzinId: "haram", offset: 0 },
-    Maghrib: { athanEnabled: true, notificationsEnabled: true, muezzinId: "haram", offset: 0 },
-    Isha: { athanEnabled: true, notificationsEnabled: true, muezzinId: "haram", offset: 0 }
-  });
-
-  const getNotifSettings = () => {
-    const result: Record<string, { enabled: boolean; soundEnabled: boolean; offset: number }> = {};
-    for (const key of ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']) {
-      const s = prayerSettings[key];
-      result[key] = { enabled: s?.notificationsEnabled ?? true, soundEnabled: s?.athanEnabled ?? true, offset: s?.offset ?? 0 };
-    }
-    return result;
-  };
-
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlayingTest, setIsPlayingTest] = useState(false);
-
-  const fetchTimes = async (city: string, country: string, lat?: number, lon?: number) => {
+  const fetchTimesApi = async (city: string, country: string, lat?: number, lon?: number): Promise<PrayerTimesData | null> => {
     setLoading(true);
     try {
       let url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=5`;
@@ -75,24 +49,45 @@ export function PrayerTimes() {
       const data = await res.json();
       if (data.code === 200) {
         setTimes(data.data.timings);
-        localStorage.setItem("prayer_times_cache", JSON.stringify(data.data.timings));
         localStorage.setItem("prayer_location_cache", `${city}، ${country}`);
         if (!lat) setLocationName(`${city}، ${country}`);
+        return data.data.timings;
       }
     } catch (err) {
       const cached = localStorage.getItem("prayer_times_cache");
-      if (cached) setTimes(JSON.parse(cached));
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        setTimes(parsed);
+        return parsed;
+      }
     } finally {
       setLoading(false);
     }
+    return null;
   };
+
+  const defaultFetch = async () => {
+    return await fetchTimesApi("Cairo", "Egypt");
+  };
+
+  const {
+    settings: prayerSettings,
+    updateSettings: setPrayerSettings,
+    nextPrayer,
+    sendTest
+  } = usePrayerNotifications(times, defaultFetch);
+
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlayingTest, setIsPlayingTest] = useState(false);
+
+
 
   const detectLocation = () => {
     if (!navigator.geolocation) return;
     setLoading(true);
     navigator.geolocation.getCurrentPosition(async (pos) => {
         const { latitude, longitude } = pos.coords;
-        await fetchTimes("", "", latitude, longitude);
+        await fetchTimesApi("", "", latitude, longitude);
         try {
           const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=ar`);
           const geoData = await geoRes.json();
@@ -104,41 +99,12 @@ export function PrayerTimes() {
     );
   };
 
-  useEffect(() => {
-    if (!times) return;
-    schedulePrayerNotifications(times, getNotifSettings());
-  }, [times, prayerSettings]);
-
-  useEffect(() => {
-    const cachedTimes = localStorage.getItem("prayer_times_cache");
     const cachedLoc = localStorage.getItem("prayer_location_cache");
-    if (cachedTimes) setTimes(JSON.parse(cachedTimes));
     if (cachedLoc) setLocationName(cachedLoc);
-    fetchTimes("Cairo", "Egypt");
+    fetchTimesApi("Cairo", "Egypt");
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-
-  const getNextPrayer = () => {
-    if (!times) return null;
-    const now = new Date();
-    const list = Object.entries(PRAYER_NAMES_AR).map(([id, name]) => {
-      const setting = prayerSettings[id];
-      const [h, m] = (times[id as keyof PrayerTimesData] as string).split(':').map(Number);
-      const d = new Date(now);
-      d.setHours(h, m + (setting?.offset || 0), 0, 0);
-      return { id, name, date: d };
-    });
-    let next = list.find(p => p.date > now);
-    if (!next) next = { ...list[0], date: new Date(list[0].date.getTime() + 24 * 60 * 60 * 1000) };
-    const diff = next.date.getTime() - now.getTime();
-    const hrs = Math.floor(diff / (1000 * 60 * 60));
-    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const secs = Math.floor((diff % (1000 * 60)) / 1000);
-    return { ...next, remaining: `${hrs}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}` };
-  };
-
-  const nextPrayer = getNextPrayer();
 
   const toggleTestAthan = () => {
     if (audioRef.current) {
@@ -156,9 +122,9 @@ export function PrayerTimes() {
   };
 
   return (
-    <div className="flex flex-col h-full p-4 md:p-10 pt-20 md:pt-14 overflow-y-auto no-scrollbar font-arabic relative animate-in fade-in duration-700 bg-transparent">
+    <div className="flex flex-col h-full p-4 md:p-10 pt-20 md:pt-14 overflow-y-auto overflow-x-hidden no-scrollbar font-arabic relative animate-in fade-in duration-700 bg-transparent">
       {/* Background */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/40 to-background" />
           <div className="absolute inset-0 mushaf-pattern opacity-[0.1] dark:opacity-[0.15]" />
           <div className="absolute -top-20 -left-20 w-[500px] h-[500px] bg-primary/5 blur-[150px] rounded-full animate-pulse" />
@@ -200,10 +166,10 @@ export function PrayerTimes() {
                     <>
                         <div className="flex items-center gap-3 mb-4 bg-primary/10 px-5 py-1.5 rounded-full border border-primary/20">
                             <Clock className="w-3.5 h-3.5 text-primary animate-pulse" />
-                            <span className="text-[10px] font-black text-primary uppercase tracking-widest">الصلاة القادمة: {nextPrayer.name}</span>
+                            <span className="text-[10px] font-black text-primary uppercase tracking-widest">الصلاة القادمة: {nextPrayer.nameAr}</span>
                         </div>
                         <h2 className="text-5xl md:text-9xl font-black tracking-widest text-foreground font-mono mb-6 drop-shadow-2xl">
-                            -{nextPrayer.remaining}
+                            -{nextPrayer.inLabel}
                         </h2>
                         <div className="flex items-center gap-2 text-foreground/40 font-bold text-sm">
                             <Calendar className="w-4 h-4" />
@@ -232,7 +198,7 @@ export function PrayerTimes() {
                         <span className={`text-sm font-black uppercase tracking-widest ${isNext ? 'text-black' : 'text-foreground/40'}`}>{name}</span>
                         <span className="text-3xl font-black font-mono">{time}</span>
                         <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isNext ? 'bg-white/10' : 'bg-foreground/5 group-hover:bg-primary/10'}`}>
-                            {prayerSettings[id]?.notificationsEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4 text-foreground/20" />}
+                            {prayerSettings[id]?.enabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4 text-foreground/20" />}
                         </div>
                     </div>
                 );
@@ -278,7 +244,6 @@ export function PrayerTimes() {
                                 const newSet = { ...prayerSettings };
                                 Object.keys(newSet).forEach(k => newSet[k].muezzinId = m.id);
                                 setPrayerSettings(newSet);
-                                localStorage.setItem("prayer_settings_v2", JSON.stringify(newSet));
                                 setShowAthanSettings(false);
                             }}
                             className={`w-full p-6 rounded-[2rem] border text-right flex items-center justify-between transition-all group ${
@@ -318,7 +283,7 @@ export function PrayerTimes() {
                           <input value={customCountry} onChange={(e) => setCustomCountry(e.target.value)} placeholder="مصر" className="w-full bg-foreground/5 border border-transparent rounded-[1.5rem] py-5 px-8 text-foreground outline-none focus:border-primary/40 transition-all font-black" />
                       </div>
                       <button 
-                        onClick={() => { fetchTimes(customCity, customCountry); setShowLocationPicker(false); }}
+                        onClick={() => { fetchTimesApi(customCity, customCountry); setShowLocationPicker(false); }}
                         className="w-full py-5 bg-primary text-primary-foreground rounded-[2rem] font-black text-xl shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all mt-4"
                       >
                           تحديث المنطقة

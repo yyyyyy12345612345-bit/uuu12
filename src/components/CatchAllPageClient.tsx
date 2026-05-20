@@ -3,7 +3,8 @@
 import React, { useState, useMemo, useEffect } from "react";
 import nextDynamic from "next/dynamic";
 import { useEditor } from "@/store/useEditor";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useInstantPathname, getViewFromPathname, navigateInstantly } from "@/lib/navigation";
 import { Settings, X, Download, Menu } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
@@ -44,7 +45,7 @@ export function CatchAllPageClient() {
 
 function CatchAllContent() {
   const { state } = useEditor();
-  const pathname = usePathname();
+  const pathname = useInstantPathname();
   const router = useRouter();
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isRenderOpen, setIsRenderOpen] = useState(false);
@@ -57,26 +58,7 @@ function CatchAllContent() {
 
   // Derived active view from pathname - the safest way in Next.js 15/16 Client Components
   const activeView = useMemo(() => {
-    if (!pathname || pathname === "/") return "mushaf-choice";
-    const segment = pathname.split('/').filter(Boolean)[0];
-    
-    // Alias mapping for cleaner URLs and quest compatibility
-    const mapping: Record<string, string> = {
-      'audio': 'library',
-      'mushaf-full': 'mushaf-full',
-      'mushaf-tafseer': 'mushaf-tafseer',
-      'digital': 'mushaf-full',
-      'daily': 'daily',
-      'video': 'video',
-      'rank': 'rank',
-      'leaderboard': 'rank',
-      'admin': 'admin',
-      'showcase': 'showcase',
-      'prayers': 'prayers',
-      'profile': 'mushaf-choice'
-    };
-
-    return mapping[segment] || segment || "mushaf-choice";
+    return getViewFromPathname(pathname);
   }, [pathname]);
 
   useEffect(() => {
@@ -324,7 +306,7 @@ function CatchAllContent() {
           setIsProfileOpen(false);
           const segment = pathname?.split('/').filter(Boolean)[0];
           if (segment === "profile") {
-            router.push("/");
+            navigateInstantly("/");
           }
         }} 
       />
