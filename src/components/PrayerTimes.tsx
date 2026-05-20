@@ -99,6 +99,7 @@ export function PrayerTimes() {
     );
   };
 
+  useEffect(() => {
     const cachedLoc = localStorage.getItem("prayer_location_cache");
     if (cachedLoc) setLocationName(cachedLoc);
     fetchTimesApi("Cairo", "Egypt");
