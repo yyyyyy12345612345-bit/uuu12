@@ -3,7 +3,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, BotMessageSquare, MessageCircle, User, Wand2 } from "lucide-react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useInstantPathname, navigateInstantly } from "@/lib/navigation";
 import { classifyQueryWithML } from "@/lib/ml-model";
 import { auth, db } from "@/lib/firebase";
 import { doc, onSnapshot, collection, query, orderBy, limit, getDocs, updateDoc } from "firebase/firestore";
@@ -11,7 +12,7 @@ import { onAuthStateChanged } from "firebase/auth";
 
 export function ChatBot() {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = useInstantPathname();
 
   // مسح الرسائل المخزنة مؤقتاً فقط في حالة إعادة تحميل الصفحة الكاملة (Hard Refresh/Restart)
   if (typeof window !== "undefined") {
@@ -138,7 +139,7 @@ export function ChatBot() {
           key={`link-${match.index}`}
           onClick={() => {
             setIsOpen(false);
-            router.push(linkUrl);
+            navigateInstantly(linkUrl);
           }}
           className="text-[#d4af37] font-bold mx-1 underline underline-offset-4 hover:text-white transition-colors"
         >

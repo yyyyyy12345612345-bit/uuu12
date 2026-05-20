@@ -6,10 +6,11 @@ import {
   Calendar, Headphones, Timer, Video, Share2, Heart, Smartphone, Trophy, ShieldCheck, Star,
   ChevronLeft, LayoutDashboard, Settings, Info, LogOut, Map as MapIcon
 } from "lucide-react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/ThemeProvider";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { useInstantPathname, navigateInstantly } from "@/lib/navigation";
 
 interface GlobalMenuProps {
   isOpen: boolean;
@@ -21,7 +22,7 @@ interface GlobalMenuProps {
 
 export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onOpenPointsGuide }: GlobalMenuProps) {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = useInstantPathname();
   const { theme, toggleTheme } = useTheme();
   const [userData, setUserData] = React.useState<any>(null);
 
@@ -36,7 +37,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
   if (!isOpen) return null;
 
   const navigate = (path: string) => {
-    router.push(path);
+    navigateInstantly(path);
     onClose();
   };
 
