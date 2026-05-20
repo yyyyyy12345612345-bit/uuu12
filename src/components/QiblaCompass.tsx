@@ -19,22 +19,34 @@ export function QiblaCompass({ qiblaAngle, onRequestLocation, isLoading, error }
 
   // Handle device orientation for real-time compass
   useEffect(() => {
-    const handleOrientation = (e: DeviceOrientationEvent) => {
-      // webkitCompassHeading is available on iOS
-      const heading = (e as any).webkitCompassHeading || e.alpha;
+    const handleOrientation = (e: any) => {
+      let heading = null;
+      if (e.webkitCompassHeading !== undefined) {
+        heading = e.webkitCompassHeading;
+      } else if (e.alpha !== null) {
+        // On Android, deviceorientationabsolute gives e.alpha absolute (0 at North, counter-clockwise)
+        heading = (360 - e.alpha) % 360;
+      }
       if (heading !== null) {
         setDeviceHeading(heading);
       }
     };
 
-    if (typeof window !== "undefined" && "DeviceOrientationEvent" in window) {
-      window.addEventListener("deviceorientation", handleOrientation, true);
-    } else {
-      setIsSupported(false);
+    if (typeof window !== "undefined") {
+      if ("ondeviceorientationabsolute" in window) {
+        window.addEventListener("deviceorientationabsolute", handleOrientation, true);
+      } else if ("DeviceOrientationEvent" in window) {
+        window.addEventListener("deviceorientation", handleOrientation, true);
+      } else {
+        setIsSupported(false);
+      }
     }
 
     return () => {
-      window.removeEventListener("deviceorientation", handleOrientation);
+      if (typeof window !== "undefined") {
+        window.removeEventListener("deviceorientationabsolute", handleOrientation);
+        window.removeEventListener("deviceorientation", handleOrientation);
+      }
     };
   }, []);
 
@@ -45,6 +57,21 @@ export function QiblaCompass({ qiblaAngle, onRequestLocation, isLoading, error }
         setLocationName("مكة المكرمة، السعودية");
     }
   }, [qiblaAngle]);
+
+  const handleActivate = async () => {
+    if (typeof window !== "undefined" && typeof (DeviceOrientationEvent as any).requestPermission === "function") {
+      try {
+        const response = await (DeviceOrientationEvent as any).requestPermission();
+        if (response !== "granted") {
+          alert("صلاحية الحساسات مطلوبة لعرض اتجاه البوصلة.");
+          return;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    onRequestLocation();
+  };
 
   const relativeQiblaAngle = qiblaAngle !== null ? (qiblaAngle - deviceHeading + 360) % 360 : 0;
   const isAligned = Math.abs(relativeQiblaAngle) < 5 || Math.abs(relativeQiblaAngle - 360) < 5;
@@ -156,7 +183,7 @@ export function QiblaCompass({ qiblaAngle, onRequestLocation, isLoading, error }
 
         {!qiblaAngle ? (
             <button 
-                onClick={onRequestLocation}
+                onClick={handleActivate}
                 disabled={isLoading}
                 className="group relative px-10 py-5 bg-secondary text-secondary-foreground rounded-[2rem] font-black text-lg overflow-hidden shadow-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
             >

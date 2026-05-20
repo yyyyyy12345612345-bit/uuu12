@@ -74,8 +74,16 @@ export function PrayerTimes() {
     settings: prayerSettings,
     updateSettings: setPrayerSettings,
     nextPrayer,
-    sendTest
+    sendTest,
+    diagnostics,
+    reschedule
   } = usePrayerNotifications(times, defaultFetch);
+
+  useEffect(() => {
+    if (times) {
+      reschedule();
+    }
+  }, [times, reschedule]);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlayingTest, setIsPlayingTest] = useState(false);
@@ -222,6 +230,63 @@ export function PrayerTimes() {
             </button>
         </div>
 
+        {/* Testing & Offsets Panel */}
+        <div className="bg-card border border-border p-8 rounded-[2.5rem] flex flex-col gap-6 shadow-xl relative overflow-hidden">
+            <div className="absolute inset-0 mushaf-pattern opacity-[0.02] pointer-events-none" />
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                <div className="flex items-center gap-6 text-right">
+                    <div className="w-16 h-16 rounded-[1.8rem] bg-primary/10 flex items-center justify-center text-primary">
+                        <Settings2 className="w-8 h-8" />
+                    </div>
+                    <div>
+                        <h4 className="text-xl font-black">اضبط وقت وجرب الأذان والإشعارات</h4>
+                        <p className="text-xs text-foreground/40 font-bold mt-1">تعديل مواقيت الصلاة يدويًا واختبار التنبيهات في الخلفية</p>
+                    </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+                    <button 
+                      onClick={async () => {
+                          const success = await sendTest();
+                          if (success) {
+                              alert("🚀 تم إرسال إشعار تجريبي! سيظهر خلال ثوانٍ معدودة.");
+                          } else {
+                              alert("❌ فشل إرسال الإشعار. يرجى التأكد من تفعيل صلاحيات الإشعارات.");
+                          }
+                      }} 
+                      className="px-6 py-4 bg-primary text-black font-black rounded-2xl text-sm hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/10 animate-pulse hover:animate-none"
+                    >
+                        تجربة الإشعارات 🔔
+                    </button>
+                    <button 
+                      onClick={() => setShowAthanSettings(true)} 
+                      className="px-6 py-4 bg-foreground/5 border border-border/50 hover:bg-foreground/10 text-foreground font-black rounded-2xl text-sm transition-all"
+                    >
+                        صوت الأذان العام 🕌
+                    </button>
+                </div>
+            </div>
+
+            {/* Diagnostics Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-border/40 pt-6 relative z-10 text-right">
+                <div className="bg-foreground/[0.02] border border-border/20 p-5 rounded-2xl flex flex-col gap-1">
+                    <span className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">حالة الإذن</span>
+                    <span className={`text-base font-black ${diagnostics?.permissionsGranted ? "text-green-500" : "text-amber-500"}`}>
+                        {diagnostics?.permissionsGranted ? "مسموح ومفعّل ✅" : "غير مفعّل ❌"}
+                    </span>
+                </div>
+                <div className="bg-foreground/[0.02] border border-border/20 p-5 rounded-2xl flex flex-col gap-1">
+                    <span className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">الإشعارات المجدولة</span>
+                    <span className="text-base font-black text-foreground">{diagnostics?.totalScheduledPending ?? 0} إشعار أذان مجدول</span>
+                </div>
+                <div className="bg-foreground/[0.02] border border-border/20 p-5 rounded-2xl flex flex-col gap-1">
+                    <span className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">آخر تحديث للجدولة</span>
+                    <span className="text-base font-black text-foreground/80 font-mono" style={{ direction: 'ltr' }}>
+                        {diagnostics?.lastScheduleDate || "غير معروف"}
+                    </span>
+                </div>
+            </div>
+        </div>
+
       </div>
 
       {/* Muezzin Selection Modal */}
@@ -289,6 +354,169 @@ export function PrayerTimes() {
                       >
                           تحديث المنطقة
                       </button>
+                  </div>
+              </div>
+          </div>
+      )}
+
+      {/* Individual Prayer Settings Modal */}
+      {activeSettingsPrayer && prayerSettings[activeSettingsPrayer] && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6">
+              <div className="absolute inset-0 bg-black/95 backdrop-blur-3xl" onClick={() => setActiveSettingsPrayer(null)} />
+              <div className="relative w-full max-w-2xl bg-card border border-border rounded-[3rem] p-8 md:p-12 shadow-2xl animate-in zoom-in-95 duration-500 overflow-y-auto max-h-[90vh] no-scrollbar">
+                  <button onClick={() => setActiveSettingsPrayer(null)} className="absolute top-8 left-8 text-foreground/20 hover:text-foreground"><X /></button>
+                  
+                  <div className="flex flex-col items-center mb-8 text-center">
+                      <div className="w-20 h-20 rounded-[2rem] bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
+                          <Settings2 className="w-10 h-10 text-primary animate-spin-slow" />
+                      </div>
+                      <h3 className="text-3xl font-black text-foreground">إعدادات صلاة {PRAYER_NAMES_AR[activeSettingsPrayer] || activeSettingsPrayer}</h3>
+                      <p className="text-foreground/40 font-bold mt-2">تخصيص صوت المؤذن والتنبيهات والوقت لهذا الأذان</p>
+                  </div>
+
+                  <div className="space-y-8 text-right">
+                      {/* Toggle: Enable Notification */}
+                      <div className="flex items-center justify-between p-6 bg-foreground/5 rounded-2xl border border-border/50">
+                          <div className="text-right">
+                              <h4 className="font-black text-lg text-foreground">تفعيل التنبيهات</h4>
+                              <p className="text-xs text-foreground/40 font-bold mt-1">تلقي إشعار عند دخول وقت الصلاة</p>
+                          </div>
+                          <button 
+                            onClick={() => {
+                                const current = prayerSettings[activeSettingsPrayer];
+                                setPrayerSettings({
+                                    ...prayerSettings,
+                                    [activeSettingsPrayer]: {
+                                        ...current,
+                                        enabled: !current.enabled
+                                    }
+                                });
+                            }}
+                            className={`w-14 h-8 rounded-full transition-all duration-300 relative ${prayerSettings[activeSettingsPrayer]?.enabled ? 'bg-primary' : 'bg-foreground/10'}`}
+                          >
+                              <div className={`w-6 h-6 rounded-full bg-card absolute top-1 transition-all ${prayerSettings[activeSettingsPrayer]?.enabled ? 'left-7' : 'left-1'}`} />
+                          </button>
+                      </div>
+
+                      {/* Toggle: Enable Sound */}
+                      <div className="flex items-center justify-between p-6 bg-foreground/5 rounded-2xl border border-border/50">
+                          <div className="text-right">
+                              <h4 className="font-black text-lg text-foreground">تشغيل صوت الأذان</h4>
+                              <p className="text-xs text-foreground/40 font-bold mt-1">عند التعطيل سيصلك إشعار صامت بدون صوت المؤذن</p>
+                          </div>
+                          <button 
+                            onClick={() => {
+                                const current = prayerSettings[activeSettingsPrayer];
+                                setPrayerSettings({
+                                    ...prayerSettings,
+                                    [activeSettingsPrayer]: {
+                                        ...current,
+                                        soundEnabled: !current.soundEnabled
+                                    }
+                                });
+                            }}
+                            className={`w-14 h-8 rounded-full transition-all duration-300 relative ${prayerSettings[activeSettingsPrayer]?.soundEnabled ? 'bg-primary' : 'bg-foreground/10'}`}
+                          >
+                              <div className={`w-6 h-6 rounded-full bg-card absolute top-1 transition-all ${prayerSettings[activeSettingsPrayer]?.soundEnabled ? 'left-7' : 'left-1'}`} />
+                          </button>
+                      </div>
+
+                      {/* Time Offset Adjustment */}
+                      <div className="p-6 bg-foreground/5 rounded-2xl border border-border/50 space-y-4">
+                          <div className="flex justify-between items-center">
+                              <span className="text-primary font-black text-lg font-mono" style={{ direction: 'ltr' }}>
+                                  {prayerSettings[activeSettingsPrayer]?.offset > 0 ? `+${prayerSettings[activeSettingsPrayer]?.offset}` : prayerSettings[activeSettingsPrayer]?.offset} دقيقة
+                              </span>
+                              <div className="text-right">
+                                  <h4 className="font-black text-lg text-foreground">ضبط فروق التوقيت</h4>
+                                  <p className="text-xs text-foreground/40 font-bold mt-1">تقديم أو تأخير وقت الأذان بعدد من الدقائق</p>
+                              </div>
+                          </div>
+                          <input 
+                            type="range" 
+                            min="-60" 
+                            max="60" 
+                            value={prayerSettings[activeSettingsPrayer]?.offset || 0}
+                            onChange={(e) => {
+                                const current = prayerSettings[activeSettingsPrayer];
+                                setPrayerSettings({
+                                    ...prayerSettings,
+                                    [activeSettingsPrayer]: {
+                                        ...current,
+                                        offset: parseInt(e.target.value, 10)
+                                    }
+                                });
+                            }}
+                            className="w-full accent-primary h-2 bg-foreground/10 rounded-lg appearance-none cursor-pointer"
+                          />
+                          <div className="flex justify-between text-[10px] text-foreground/30 font-bold">
+                              <span>+60 دقيقة</span>
+                              <span>0 (الافتراضي)</span>
+                              <span>-60 دقيقة</span>
+                          </div>
+                      </div>
+
+                      {/* Muezzin Selector for this prayer */}
+                      <div className="space-y-4">
+                          <h4 className="font-black text-lg text-foreground mr-2">صوت المؤذن المخصص لهذه الصلاة</h4>
+                          <div className="grid grid-cols-1 gap-3">
+                              {MUEZZINS.map(m => {
+                                  const currentMuezzin = prayerSettings[activeSettingsPrayer]?.muezzinId || 'haram';
+                                  const isSelected = currentMuezzin === m.id;
+                                  return (
+                                      <button 
+                                        key={m.id}
+                                        onClick={() => {
+                                            const current = prayerSettings[activeSettingsPrayer];
+                                            setPrayerSettings({
+                                                ...prayerSettings,
+                                                [activeSettingsPrayer]: {
+                                                    ...current,
+                                                    muezzinId: m.id
+                                                }
+                                            });
+                                        }}
+                                        className={`w-full p-5 rounded-[2rem] border text-right flex items-center justify-between transition-all group ${
+                                            isSelected ? 'bg-primary border-primary/40 text-black shadow-xl' : 'bg-foreground/5 border-transparent hover:border-primary/20'
+                                        }`}
+                                      >
+                                          <span className="text-base font-black">{m.name}</span>
+                                          <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isSelected ? 'bg-white/10 text-black' : 'bg-primary/10 text-primary'}`}>
+                                              {isSelected ? <Check className="w-5 h-5 stroke-[3px]" /> : <Music className="w-5 h-5" />}
+                                          </div>
+                                      </button>
+                                  );
+                              })}
+                          </div>
+                      </div>
+
+                      {/* Action buttons inside Modal */}
+                      <div className="flex gap-4 pt-6">
+                          <button 
+                            onClick={() => {
+                                const muezzinId = prayerSettings[activeSettingsPrayer]?.muezzinId || "haram";
+                                const muezzin = MUEZZINS.find(m => m.id === muezzinId) || MUEZZINS[0];
+                                if (audioRef.current) {
+                                    audioRef.current.src = muezzin.file;
+                                    audioRef.current.play();
+                                    alert(`🎵 جاري تشغيل أذان تجريبي بصوت: ${muezzin.name}`);
+                                }
+                            }}
+                            className="flex-1 py-4 bg-foreground/10 hover:bg-foreground/15 text-foreground rounded-[1.5rem] font-black text-sm transition-all"
+                          >
+                              تجربة الصوت 🔊
+                          </button>
+                          
+                          <button 
+                            onClick={() => {
+                                setActiveSettingsPrayer(null);
+                            }}
+                            className="flex-1 py-4 bg-primary text-black rounded-[1.5rem] font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/15 text-center"
+                          >
+                              حفظ وإغلاق
+                          </button>
+                      </div>
+
                   </div>
               </div>
           </div>
