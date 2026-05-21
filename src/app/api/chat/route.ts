@@ -28,8 +28,17 @@ export async function POST(req: Request) {
 
     // الحصول على آخر رسالة كتبها المستخدم
     const lastUserMessage = messages[messages.length - 1]?.text || "";
+    const conversationText = messages.map((m: any) => m.text).join(" ");
 
-    const isAllowedQuery = /(?:قرآن|سورة|آية|حديث|سيرة|فقه|تفسير|دعاء|أذكار|صلاة|أذان|مواقيت|قبلة|بوصلة|مصحف|كتاب الله|تلاوة|إسلام|مسجد|مشايخ|حفظ|الاستوديو|موقع|التطبيق|قسم|صفحة|نقاط|لوحة الشرف|مكتبة صوتية|فيديو|الملف الشخصي|اسم|مرحبا|سلام|أهلاً|هلا|كيف|ازيك|الوقت|مدينة|دولة|سفر|الهجرة|تحويل|تفسير|شرح)/i.test(lastUserMessage);
+    const allowedQueryRegex = /(?:قرآن|قران|سورة|آية|حديث|سيرة|فقه|تفسير|دعاء|أذكار|صلاة|أذان|مواقيت|قبلة|بوصلة|مصحف|كتاب الله|تلاوة|إسلام|مسجد|مشايخ|حفظ|استوديو|الاستوديو|موقع|التطبيق|قسم|صفحة|نقاط|لوحة الشرف|مكتبة صوتية|مكتبة|فيديو|فديو|الملف الشخصي|اسم|مرحبا|سلام|أهلاً|هلا|كيف|ازيك|الوقت|مدينة|دولة|سفر|هجرة|الهجرة|تحويل|شرح|طريقة|كيفية|خطوة|خطوه|اكمل|كمل|قولي|قول|ممكن|API|api|سيرفر|خادم|استضافة|openai|gemini|endpoint|env)\b/i;
+    const followUpRegex = /(?:طيب|تمام|حسناً|حسنا|قولي|قول|كمل|اكمل|بعدها|بعد\s+كده|بعدين|نفس|استمر|دلني|دليني|اشرح|وضح|خطوة|خطوه|طريقة|كيفية|ازاي|ماشي|ممكن|من فضلك|رجاءً|بص)/i;
+    const hasAllowedHistory = messages
+      .filter((m: any) => m.sender === "user")
+      .slice(-4)
+      .some((m: any) => allowedQueryRegex.test(m.text));
+
+    const isAllowedQuery = allowedQueryRegex.test(conversationText)
+      || (followUpRegex.test(lastUserMessage) && hasAllowedHistory);
 
     if (!isAllowedQuery) {
       return NextResponse.json({
@@ -69,6 +78,7 @@ export async function POST(req: Request) {
     const systemPrompt = `أنت المساعد الذكي والمستشار الديني الخاص بالتطبيق.
 يرحب بك العميل لطلب الإجابة على كافة الأسئلة الإسلامية والدينية العامة، الفقهية، التاريخية، السيرة النبوية، والقرآنية بشكل غني ومفصل ودقيق وموثق.
 أجب عن كافة الأسئلة الدينية مثل: (كم سورة في القرآن، قصص الأنبياء، أركان الإسلام، السنن والفرائض، تفاسير الآيات، وغيرها من الثقافة الإسلامية الشاملة...).
+يمكنك أيضاً الرد على الأسئلة التقنية التي تتعلق مباشرة بحالة عمل واجهة الدردشة وAPI الخاص بموقع التطبيق، إذا كان السؤال يخص التشغيل أو فعالية النظام.
 يُمنع تماماً الإجابة على أي أسئلة غير دينية أو غير إسلامية بالكلية (مثل العلوم الطبيعية والدنيوية البحتة الخارجة عن الدين، السياسة، البرمجة، إلخ)، وقل له بلطف: "عذراً يا أخي الكريم، أنا هنا لمساعدتك في كل ما يخص ديننا الحنيف وتطبيق القرآن الكريم فقط 🌙"
 
 معلومات عن مطور التطبيق:
@@ -590,7 +600,7 @@ ${args.options}
 
     // ── 3. الـ Fallback النهائي بذكاء الآلة المحلي (Machine Learning TF-IDF) ──
     console.log("🚀 تفعيل محرك الذكاء الاصطناعي وتعلم الآلة المحلي (ML Cosine Similarity)...");
-    const mlClassification = classifyQueryWithML(lastUserMessage, userData);
+    const mlClassification = classifyQueryWithML(conversationText, userData);
     console.log(`🎯 تم تصنيف السؤال إلى قسم [${mlClassification.category}] بدرجة ثقة: ${mlClassification.score}`);
     
     return NextResponse.json({ 
