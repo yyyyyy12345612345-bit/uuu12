@@ -40,7 +40,7 @@ export function cleanPrayerTime(raw: string): string {
 
 export function formatTimeDisplay(t: string): string {
   const c = cleanPrayerTime(t);
-  return c.length === 5 ? `${c}:00` : c;
+  return c.slice(0, 5);
 }
 
 function mapTimings(raw: Record<string, string>): PrayerTimesData {
@@ -55,7 +55,7 @@ function mapTimings(raw: Record<string, string>): PrayerTimesData {
 }
 
 function gregorianToKey(gregorianDate: string): string {
-  const [d, m, y] = gregorianDate.split('-');
+  const [d, m, y] = gregorianDate.split('-').map((part) => part.padStart(2, '0'));
   return `${y}-${m}-${d}`;
 }
 
