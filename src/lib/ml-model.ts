@@ -61,7 +61,7 @@ const TRAINING_CORPUS: MLDocument[] = [
   {
     id: "video",
     category: "استوديو الفيديوهات",
-    keywords: "فيديو فيديوهات تصميم مونتاج رندر تصدير استوديو صناعه ايات سور خلفيات تاثيرات تيك توك انستجرام يوتيوب انتاج مونتاج كتابه ترجمه صوت قراء حركيه تيكتوك ريلز reels tiktok",
+    keywords: "فيديو فيديوهات تصميم مونتاج رندر تصدير استوديو صناعه ايات سور خلفيات تاثيرات تيك توك انستجرام يوتيوب انتاج مونتاج كتابه ترجمه صوت قراء حركيه تيك توك ريلز reels tiktok طريقه طريقة كيفية كيفية عمل فديو فديو قران شرح عمل فيديو قرآن",
     getReply: (userName) => 
       `الاستوديو القرآني الاحترافي 🌟 هو ميزتنا الحصرية التي تتيح لك إنتاج فيديوهات قرآنية بجودة سينمائية لمشاركتها على TikTok وInstagram وYouTube! 🎥
 
@@ -129,17 +129,27 @@ const TRAINING_CORPUS: MLDocument[] = [
 // ══════════════════════════════════════════════════════════════════════════
 
 // 1. تنظيف وتفكيك النص وتحويله لمصفوفة كلمات دلالية (Tokenization & Stemming Simulation)
-function getTokens(text: string): string[] {
-  const normalized = text
+function normalizeArabicText(text: string): string {
+  return text
     .replace(/[أإآ]/g, "ا")
     .replace(/ة/g, "ه")
     .replace(/ى/g, "ي")
+    .replace(/ؤ/g, "و")
+    .replace(/ئ/g, "ي")
+    .replace(/ئه/g, "يه")
+    .replace(/ڤ/g, "ف")
+    .replace(/فديو/g, "فيديو")
     .replace(/[\u064B-\u065F]/g, "") // إزالة الحركات
+    .replace(/[.,!?()\[\]{}«»؛:،؟…"']/g, " ")
     .toLowerCase();
+}
+
+function getTokens(text: string): string[] {
+  const normalized = normalizeArabicText(text);
 
   // تقسيم النص لكلمات وتصفية الكلمات المهملة
   return normalized
-    .split(/[\s,.\-!?()]+/)
+    .split(/[\s\-]+/)
     .filter(word => word.length > 1 && !ARABIC_STOPWORDS.has(word));
 }
 
@@ -486,7 +496,7 @@ ${quiz.options}
   });
 
   // ز. تحديد عتبة قبول النتيجة (Threshold) لضمان دقة التصنيف
-  const SIMILARITY_THRESHOLD = 0.08; 
+  const SIMILARITY_THRESHOLD = 0.06; 
 
   if (bestMatchIdx !== -1 && highestSimilarity >= SIMILARITY_THRESHOLD) {
     const bestDoc = TRAINING_CORPUS[bestMatchIdx];
