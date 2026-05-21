@@ -199,7 +199,7 @@ let _isScheduling = false;
 export async function smartReschedule(
   settings: PrayerSettingsMap,
   fetchTimes: () => Promise<PrayerTimesData | null>,
-  options?: { forceRefresh?: boolean }
+  options?: { forceRefresh?: boolean; times?: PrayerTimesData | null }
 ): Promise<ScheduleResult> {
   if (_isScheduling) {
     return { scheduled: 0, source: 'none' };
@@ -215,16 +215,20 @@ export async function smartReschedule(
       return { scheduled: 0, source: 'none' };
     }
 
-    let timesToUse: PrayerTimesData | null = null;
-    let source: 'api' | 'cache' = 'api';
+    let timesToUse: PrayerTimesData | null = options?.times ?? null;
+    let source: 'api' | 'cache' = timesToUse ? 'cache' : 'api';
 
-    try {
-      timesToUse = await fetchTimes();
-      if (timesToUse) {
-        saveCachedTimes(timesToUse);
+    if (options?.forceRefresh || !timesToUse) {
+      try {
+        const fetched = await fetchTimes();
+        if (fetched) {
+          timesToUse = fetched;
+          saveCachedTimes(fetched);
+          source = 'api';
+        }
+      } catch (e) {
+        console.warn('[Notifications] Fetch failed, checking cache...');
       }
-    } catch (e) {
-      console.warn('[Notifications] Fetch failed, checking cache...');
     }
 
     if (!timesToUse) {
