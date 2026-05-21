@@ -182,14 +182,12 @@ export async function schedulePrayerNotifications(
       }
     }
 
-    // 4. Schedule all
-    // ✅ حفظ تاريخ آخر جدولة لتفادي إعادة جدولة غير ضرورية
-    localStorage.setItem('last_schedule_date', new Date().toDateString());
-    return notifications.length;
+    if (notifications.length > 0) {
       await LocalNotifications.schedule({ notifications });
       console.log(`[Notifications] Scheduled ${notifications.length} prayer notifications`);
     }
 
+    localStorage.setItem('last_schedule_date', new Date().toDateString());
     return notifications.length;
   } catch (e) {
     console.error('[Notifications] Scheduling failed:', e);

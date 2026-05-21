@@ -6,7 +6,6 @@ import {
   smartReschedule,
   initLifecycleListeners,
   checkForegroundPrayer,
-  getNextPrayer,
   requestNotificationPermission,
   getDiagnosticReport,
   cancelAllPrayerNotifications,
@@ -14,19 +13,26 @@ import {
   type PrayerTimesData,
   type PrayerSettingsMap,
   type ScheduleResult,
-  type NextPrayerInfo,
   type DiagnosticReport,
 } from '@/lib/prayerNotifications';
 
 interface UsePrayerNotificationsReturn {
   settings: PrayerSettingsMap;
-  updateSettings: (s: PrayerSettingsMap) => Promise<void>;
-  nextPrayer: NextPrayerInfo | null;
+  updateSettings: (s: PrayerSettingsMap, options?: { reschedule?: boolean }) => Promise<void>;
   scheduleResult: ScheduleResult | null;
   diagnostics: DiagnosticReport | null;
+  refreshDiagnostics: () => Promise<void>;
   reschedule: (force?: boolean) => Promise<void>;
   sendTest: () => Promise<boolean>;
   cancelAll: () => Promise<void>;
+}
+
+function debounce<T extends (...args: never[]) => void>(fn: T, ms: number) {
+  let t: ReturnType<typeof setTimeout> | null = null;
+  return (...args: Parameters<T>) => {
+    if (t) clearTimeout(t);
+    t = setTimeout(() => fn(...args), ms);
+  };
 }
 
 export function usePrayerNotifications(
@@ -34,81 +40,100 @@ export function usePrayerNotifications(
   fetchTimes: () => Promise<PrayerTimesData | null>
 ): UsePrayerNotificationsReturn {
   const [settings, setSettings] = useState<PrayerSettingsMap>(loadSettings);
-  const [nextPrayer, setNextPrayer] = useState<NextPrayerInfo | null>(null);
   const [scheduleResult, setScheduleResult] = useState<ScheduleResult | null>(null);
   const [diagnostics, setDiagnostics] = useState<DiagnosticReport | null>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
+  const timesRef = useRef(times);
+  const fetchTimesRef = useRef(fetchTimes);
+  const scheduledForTimesRef = useRef<string | null>(null);
 
   const settingsRef = useRef(settings);
   useEffect(() => {
     settingsRef.current = settings;
   }, [settings]);
 
-  // Init lifecycle listeners once
   useEffect(() => {
-    cleanupRef.current = initLifecycleListeners(settingsRef, fetchTimes);
-    return () => cleanupRef.current?.();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // First-time setup: request permission + schedule
-  useEffect(() => {
-    (async () => {
-      await requestNotificationPermission();
-      const result = await smartReschedule(settingsRef.current, fetchTimes);
-      setScheduleResult(result);
-    })();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Cache times whenever they arrive
-  useEffect(() => {
-    if (times) saveCachedTimes(times);
+    timesRef.current = times;
   }, [times]);
 
-  // Update next prayer countdown every second
   useEffect(() => {
-    if (!times) return;
-    const update = () => {
-      const next = getNextPrayer(times, settings);
-      setNextPrayer(next);
-    };
-    update();
-    const interval = setInterval(update, 1_000);
-    return () => clearInterval(interval);
-  }, [times, settings]);
+    fetchTimesRef.current = fetchTimes;
+  }, [fetchTimes]);
 
-  // Foreground prayer checker (every second)
+  const runReschedule = useCallback(async (force = false) => {
+    const result = await smartReschedule(settingsRef.current, () => fetchTimesRef.current(), {
+      forceRefresh: force,
+      times: force ? undefined : timesRef.current,
+    });
+    setScheduleResult(result);
+    return result;
+  }, []);
+
+  const debouncedReschedule = useRef(
+    debounce(() => {
+      void runReschedule(true);
+    }, 800)
+  ).current;
+
+  // Init lifecycle listeners once
+  useEffect(() => {
+    cleanupRef.current = initLifecycleListeners(settingsRef, () => fetchTimesRef.current());
+    return () => cleanupRef.current?.();
+  }, []);
+
+  // First-time: permission only (scheduling when times arrive)
+  useEffect(() => {
+    void requestNotificationPermission();
+  }, []);
+
+  // Cache times whenever they arrive; schedule once per day-key
   useEffect(() => {
     if (!times) return;
-    const interval = setInterval(() => {
-      checkForegroundPrayer(times, settings, (key) => {
-        // 🔔 Trigger your in-app adhan player here
-        console.log(`[Adhan] 🕌 ${key} — play adhan in app`);
-        // We trigger an event that PrayerTimes screen can listen to, 
-        // or just rely on the component using the hook to play it.
+    saveCachedTimes(times);
+    const dayKey = new Date().toDateString();
+    if (scheduledForTimesRef.current === dayKey) return;
+    scheduledForTimesRef.current = dayKey;
+    void runReschedule(false);
+  }, [times, runReschedule]);
+
+  // Foreground adhan: check once per minute at :00 only
+  useEffect(() => {
+    if (!times) return;
+    const tick = () => {
+      if (new Date().getSeconds() !== 0) return;
+      checkForegroundPrayer(times, settingsRef.current, (key) => {
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('adhan-play', { detail: { prayer: key } }));
         }
       });
-    }, 1_000);
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
   }, [times, settings]);
 
-  const updateSettings = useCallback(async (newSettings: PrayerSettingsMap) => {
-    setSettings(newSettings);
-    saveSettings(newSettings);
-    // Force reschedule with new settings
-    const result = await smartReschedule(newSettings, fetchTimes, { forceRefresh: true });
-    setScheduleResult(result);
-  }, [fetchTimes]);
+  const updateSettings = useCallback(
+    async (newSettings: PrayerSettingsMap, options?: { reschedule?: boolean }) => {
+      setSettings(newSettings);
+      saveSettings(newSettings);
+      settingsRef.current = newSettings;
+      if (options?.reschedule === false) return;
+      debouncedReschedule();
+    },
+    [debouncedReschedule]
+  );
 
-  const reschedule = useCallback(async (force = false) => {
-    const result = await smartReschedule(settingsRef.current, fetchTimes, { forceRefresh: force });
-    setScheduleResult(result);
-    if (times) {
-      const report = await getDiagnosticReport(settingsRef.current);
-      setDiagnostics(report);
-    }
-  }, [fetchTimes, times]);
+  const reschedule = useCallback(
+    async (force = false) => {
+      await runReschedule(force);
+    },
+    [runReschedule]
+  );
+
+  const refreshDiagnostics = useCallback(async () => {
+    const report = await getDiagnosticReport(settingsRef.current);
+    setDiagnostics(report);
+  }, []);
 
   const sendTest = useCallback(() => sendTestNotification(), []);
   const cancelAll = useCallback(() => cancelAllPrayerNotifications(), []);
@@ -116,9 +141,9 @@ export function usePrayerNotifications(
   return {
     settings,
     updateSettings,
-    nextPrayer,
     scheduleResult,
     diagnostics,
+    refreshDiagnostics,
     reschedule,
     sendTest,
     cancelAll,
