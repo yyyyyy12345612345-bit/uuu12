@@ -322,6 +322,17 @@ ${leaderboardList}
       }
     ];
 
+    // ── Local ML shortcut for direct known app queries before external calls ──
+    const localClassification = classifyQueryWithML(lastUserMessage, userData);
+    if (localClassification.score === 1.0 && localClassification.category !== "افتراضي") {
+      return NextResponse.json({
+        text: localClassification.reply,
+        updateProfile: localClassification.updateProfile,
+        createPlan: localClassification.createPlan,
+        quiz: localClassification.quiz
+      });
+    }
+
     // ── 1. محاولة استدعاء Gemini API ──
     if (geminiKey) {
       let geminiContents = apiMessages.map((m: any) => ({

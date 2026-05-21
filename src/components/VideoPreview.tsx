@@ -53,40 +53,20 @@ export function VideoPreview() {
   const animationFrameRef = useRef<number>();
 
   useEffect(() => {
-    if (!audioRef.current || !state.showVisualizer) return;
+    if (!audioRef.current || !state.showVisualizer || !audioContextRef.current) return;
     
-    let audioContext = audioContextRef.current;
     let analyser = analyserRef.current;
     let source = sourceNodeRef.current;
     
     try {
-      if (!audioContext) {
-        audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        audioContextRef.current = audioContext;
-      }
+      if (!analyser || !audioContextRef.current) return;
       
-      if (audioContext.state === 'suspended') {
-        audioContext.resume().catch(() => {});
-      }
- 
-      if (!analyser) {
-        analyser = audioContext.createAnalyser();
-        analyser.fftSize = 64;
-        analyserRef.current = analyser;
-      }
- 
       const audioEl = audioRef.current as any;
       if (audioEl.__sourceNode) {
         source = audioEl.__sourceNode;
         sourceNodeRef.current = source;
-      } else if (!source) {
-        source = audioContext.createMediaElementSource(audioEl);
-        audioEl.__sourceNode = source;
-        sourceNodeRef.current = source;
-        source.connect(analyser);
-        analyser.connect(audioContext.destination);
       }
- 
+      
       const bufferLength = analyser.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
  
@@ -103,7 +83,6 @@ export function VideoPreview() {
         for(let i = 0; i < bufferLength; i++) {
           const barHeight = (dataArray[i] / 255) * canvas.height;
           ctx.fillStyle = state.visualizerColor || '#D4AF37';
-          // Draw bars from center or bottom
           ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
           x += barWidth;
         }
@@ -113,7 +92,6 @@ export function VideoPreview() {
       draw();
       return () => {
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-        // Do not close the AudioContext here to avoid breaking the source node connection
       };
     } catch (e) { console.error("Visualizer error:", e); }
   }, [state.showVisualizer, state.visualizerColor]);
@@ -147,6 +125,35 @@ export function VideoPreview() {
     }
   }, [currentAyahIndex, isPlaying]);
 
+  const setupAudioVisualizer = async () => {
+    if (!audioRef.current || !state.showVisualizer) return;
+    try {
+      let audioContext = audioContextRef.current;
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioContextRef.current = audioContext;
+      }
+      if (audioContext.state === 'suspended') {
+        await audioContext.resume();
+      }
+      if (!analyserRef.current) {
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 64;
+        analyserRef.current = analyser;
+      }
+      const audioEl = audioRef.current as any;
+      if (!sourceNodeRef.current) {
+        const source = audioContext.createMediaElementSource(audioEl);
+        audioEl.__sourceNode = source;
+        sourceNodeRef.current = source;
+        source.connect(analyserRef.current!);
+        analyserRef.current!.connect(audioContext.destination);
+      }
+    } catch (error) {
+      console.error("Visualizer setup failed:", error);
+    }
+  };
+
   const togglePlay = async () => {
     if (!audioRef.current) return;
     if (isPlaying) {
@@ -155,7 +162,9 @@ export function VideoPreview() {
       setIsPlaying(false);
     } else {
       try {
-        // Resume AudioContext if it was suspended by the browser
+        if (state.showVisualizer) {
+          await setupAudioVisualizer();
+        }
         if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
           await audioContextRef.current.resume();
         }

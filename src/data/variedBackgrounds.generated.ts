@@ -30,7 +30,6 @@ export const VARIED_CATEGORIES_BACKGROUNDS = [
   // SNOW / ثلج / تلج (200 items approx)
   // ==========================================
   { type: "image" as const, src: "https://images.pexels.com/photos/624015/pexels-photo-624015.jpeg", poster: "", tags: ["ثلج", "snow", "winter", "شتاء", "طولي"] },
-  { type: "image" as const, src: "https://images.pexels.com/photos/143507/pexels-photo-143507.jpeg", poster: "", tags: ["ثلج", "snow", "ice", "جليد", "طولي"] },
   { type: "image" as const, src: "https://images.pexels.com/photos/547115/pexels-photo-547115.jpeg", poster: "", tags: ["ثلج", "snow", "winter", "شتاء", "طولي"] },
   { type: "image" as const, src: "https://images.pexels.com/photos/3639540/pexels-photo-3639540.jpeg", poster: "", tags: ["ثلج", "snow", "arctic", "قطب", "طولي"] },
   { type: "image" as const, src: "https://images.pexels.com/photos/10022730/pexels-photo-10022730.jpeg", poster: "", tags: ["ثلج", "snow", "arctic", "قطب", "طولي"] },
