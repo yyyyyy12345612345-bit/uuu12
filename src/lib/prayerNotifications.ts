@@ -1,5 +1,11 @@
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
+import {
+  type PrayerYearCalendar,
+  getTodayKey,
+  parsePrayerDateTime,
+  cleanPrayerTime,
+} from './prayerCalendar';
 
 // ── Types ────────────────────────────────────────────────────────────────
 
@@ -15,7 +21,6 @@ export interface PrayerTimesData {
 export interface PrayerNotifSetting {
   enabled: boolean;
   soundEnabled: boolean;
-  offset: number; // minutes
   muezzinId?: string;
 }
 
@@ -128,42 +133,41 @@ export async function cancelAllPrayerNotifications(): Promise<void> {
   }
 }
 
-async function doSchedule(times: PrayerTimesData, settings: PrayerSettingsMap): Promise<number> {
+async function doScheduleFromCalendar(
+  calendar: PrayerYearCalendar,
+  settings: PrayerSettingsMap
+): Promise<number> {
   if (!Capacitor.isNativePlatform()) return 0;
 
   try {
     const { LocalNotifications } = await import('@capacitor/local-notifications');
-    const notifications: any[] = [];
-    const now = new Date();
+    const notifications: Array<Record<string, unknown>> = [];
+    const now = Date.now();
+    let idSeq = 1;
 
-    // 7 days limit to stay under Android 64 notification limit (5 * 7 = 35)
-    for (let day = 0; day < 7; day++) {
+    const sortedDates = Object.keys(calendar.days).sort();
+
+    for (const dateKey of sortedDates) {
+      const timings = calendar.days[dateKey];
+      if (!timings) continue;
+
       for (let i = 0; i < PRAYER_KEYS.length; i++) {
         const key = PRAYER_KEYS[i];
         const setting = settings[key];
-
         if (!setting?.enabled) continue;
-        const timeStr = times[key as keyof PrayerTimesData];
+
+        const timeStr = timings[key as keyof PrayerTimesData];
         if (!timeStr) continue;
 
-        const [h, m] = timeStr.split(':').map(Number);
-        const scheduleDate = new Date(now);
-        scheduleDate.setDate(scheduleDate.getDate() + day);
-        scheduleDate.setHours(h, m, 0, 0); // Reset seconds and ms
-        
-        // Add offset safely
-        if (setting.offset) {
-          scheduleDate.setMinutes(scheduleDate.getMinutes() + setting.offset);
-        }
+        const scheduleDate = parsePrayerDateTime(dateKey, timeStr);
+        if (scheduleDate.getTime() <= now) continue;
 
-        if (scheduleDate <= now) continue;
-
-        const notificationId = (day * 10) + i + 1;
+        if (notifications.length >= 60) break;
 
         notifications.push({
-          id: notificationId,
+          id: idSeq++,
           title: `🕌 حان الآن موعد أذان ${PRAYER_NAMES_AR[key]}`,
-          body: 'حيّ على الصلاة.. حيّ على الفلاح',
+          body: `${dateKey} — ${cleanPrayerTime(timeStr)}`,
           schedule: {
             at: scheduleDate,
             allowWhileIdle: true,
@@ -171,19 +175,19 @@ async function doSchedule(times: PrayerTimesData, settings: PrayerSettingsMap): 
           },
           sound: setting.soundEnabled ? 'adhan' : undefined,
           channelId: CHANNEL_ID,
-          importance: 5,
           smallIcon: 'ic_notification',
           iconColor: '#c5a059',
           autoCancel: true,
         });
       }
+      if (notifications.length >= 60) break;
     }
 
     if (notifications.length > 0) {
       await cancelAllPrayerNotifications();
       await ensureChannel();
-      await LocalNotifications.schedule({ notifications });
-      console.log(`[Notifications] Scheduled ${notifications.length} notifications`);
+      await LocalNotifications.schedule({ notifications: notifications as never[] });
+      console.log(`[Notifications] Scheduled ${notifications.length} from calendar`);
       localStorage.setItem(LAST_SCHEDULE_DATE_KEY, new Date().toDateString());
     }
 
@@ -199,7 +203,7 @@ let _isScheduling = false;
 export async function smartReschedule(
   settings: PrayerSettingsMap,
   fetchTimes: () => Promise<PrayerTimesData | null>,
-  options?: { forceRefresh?: boolean; times?: PrayerTimesData | null }
+  options?: { forceRefresh?: boolean; times?: PrayerTimesData | null; calendar?: PrayerYearCalendar | null }
 ): Promise<ScheduleResult> {
   if (_isScheduling) {
     return { scheduled: 0, source: 'none' };
@@ -242,8 +246,20 @@ export async function smartReschedule(
       }
     }
 
+    if (options?.calendar) {
+      const scheduledCount = await doScheduleFromCalendar(options.calendar, settings);
+      return { scheduled: scheduledCount, source: 'cache' };
+    }
+
     if (timesToUse) {
-      const scheduledCount = await doSchedule(timesToUse, settings);
+      const today = getTodayKey();
+      const fallbackCal: PrayerYearCalendar = {
+        meta: { label: 'local' },
+        year: new Date().getFullYear(),
+        days: { [today]: timesToUse },
+        fetchedAt: Date.now(),
+      };
+      const scheduledCount = await doScheduleFromCalendar(fallbackCal, settings);
       return { scheduled: scheduledCount, source };
     }
 
@@ -307,11 +323,11 @@ export function initLifecycleListeners(
 
 export function getDefaultSettings(): PrayerSettingsMap {
   return {
-    Fajr: { enabled: true, soundEnabled: true, offset: 0, muezzinId: 'haram' },
-    Dhuhr: { enabled: true, soundEnabled: true, offset: 0, muezzinId: 'haram' },
-    Asr: { enabled: true, soundEnabled: true, offset: 0, muezzinId: 'haram' },
-    Maghrib: { enabled: true, soundEnabled: true, offset: 0, muezzinId: 'haram' },
-    Isha: { enabled: true, soundEnabled: true, offset: 0, muezzinId: 'haram' },
+    Fajr: { enabled: true, soundEnabled: true, muezzinId: 'haram' },
+    Dhuhr: { enabled: true, soundEnabled: true, muezzinId: 'haram' },
+    Asr: { enabled: true, soundEnabled: true, muezzinId: 'haram' },
+    Maghrib: { enabled: true, soundEnabled: true, muezzinId: 'haram' },
+    Isha: { enabled: true, soundEnabled: true, muezzinId: 'haram' },
   };
 }
 
@@ -323,7 +339,11 @@ export function loadSettings(): PrayerSettingsMap {
       if (parsed && typeof parsed === 'object') {
         const defaults = getDefaultSettings();
         return Object.fromEntries(
-          PRAYER_KEYS.map(key => [key, { ...defaults[key], ...(parsed[key] ?? {}) }])
+          PRAYER_KEYS.map(key => {
+            const merged = { ...defaults[key], ...(parsed[key] ?? {}) };
+            delete (merged as { offset?: number }).offset;
+            return [key, merged];
+          })
         ) as PrayerSettingsMap;
       }
     }
@@ -364,46 +384,37 @@ export function loadCachedTimes(): { times: PrayerTimesData; isStale: boolean } 
 const TRIGGERED_KEY = 'adhan:triggered:v1';
 
 export function checkForegroundPrayer(
-  times: PrayerTimesData,
+  calendar: PrayerYearCalendar,
   settings: PrayerSettingsMap,
   onPrayerTime: (prayerKey: string) => void
 ): void {
   const now = new Date();
-  const secondsNow = now.getSeconds();
-  if (secondsNow > 3) return; // quick exit: accepts :00, :01, :02, :03
+  if (now.getSeconds() > 2) return;
 
-  const today = now.toISOString().slice(0, 10);
+  const today = getTodayKey();
+  const timings = calendar.days[today];
+  if (!timings) return;
+
   let triggered: Record<string, string> = {};
   try {
     const raw = localStorage.getItem(TRIGGERED_KEY);
     triggered = raw ? JSON.parse(raw) : {};
-    // Clean up old days
-    Object.keys(triggered).forEach(k => {
+    Object.keys(triggered).forEach((k) => {
       if (!k.startsWith(today)) delete triggered[k];
     });
   } catch {}
 
   for (const key of PRAYER_KEYS) {
-    const setting = settings[key];
-    if (!setting?.enabled) continue;
-
-    const timeStr = times[key as keyof PrayerTimesData];
+    if (!settings[key]?.enabled) continue;
+    const timeStr = timings[key as keyof PrayerTimesData];
     if (!timeStr) continue;
 
-    const [h, m] = timeStr.split(':').map(Number);
-    const prayerDate = new Date(now);
-    prayerDate.setHours(h, m, 0, 0);
-    if (setting.offset) {
-      prayerDate.setMinutes(prayerDate.getMinutes() + setting.offset);
-    }
-
-    const prayerHHMM = `${String(prayerDate.getHours()).padStart(2, '0')}:${String(prayerDate.getMinutes()).padStart(2, '0')}`;
-    const nowHHMM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-    if (prayerHHMM !== nowHHMM) continue;
+    const prayerAt = parsePrayerDateTime(today, timeStr);
+    const diffSec = Math.abs(Math.floor((now.getTime() - prayerAt.getTime()) / 1000));
+    if (diffSec > 2) continue;
 
     const key2 = `${today}:${key}`;
-    if (triggered[key2]) continue; // Already triggered today
+    if (triggered[key2]) continue;
 
     triggered[key2] = now.toISOString();
     localStorage.setItem(TRIGGERED_KEY, JSON.stringify(triggered));
@@ -411,40 +422,28 @@ export function checkForegroundPrayer(
   }
 }
 
+/** @deprecated استخدم getNextPrayerFromCalendar من prayerCalendar */
 export function getNextPrayer(
   times: PrayerTimesData,
   settings: PrayerSettingsMap
 ): NextPrayerInfo | null {
   const now = new Date();
+  const today = getTodayKey();
+  const upcoming: { id: string; nameAr: string; date: Date }[] = [];
 
-  const prayersToday = PRAYER_KEYS
-    .filter(id => settings[id]?.enabled)
-    .map(id => {
-      const timeStr = times[id as keyof PrayerTimesData];
-      if (!timeStr) return null;
-      const [h, m] = timeStr.split(':').map(Number);
-      const d = new Date(now);
-      d.setHours(h, m, 0, 0);
-      if (settings[id]?.offset) {
-        d.setMinutes(d.getMinutes() + settings[id].offset);
-      }
-      return { id, nameAr: PRAYER_NAMES_AR[id], date: d };
-    })
-    .filter((p): p is { id: string; nameAr: string; date: Date } => p !== null);
-
-  if (prayersToday.length === 0) return null;
-
-  // Find first prayer that hasn't happened yet today
-  let next = prayersToday.find(p => p.date > now);
-
-  // If all prayers today have passed, calculate Fajr for tomorrow with its offset
-  if (!next) {
-    const fajr = prayersToday[0];
-    const tomorrow = new Date(fajr.date);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    next = { ...fajr, date: tomorrow };
+  for (const id of PRAYER_KEYS) {
+    if (!settings[id]?.enabled) continue;
+    const timeStr = times[id as keyof PrayerTimesData];
+    if (!timeStr) continue;
+    const at = parsePrayerDateTime(today, timeStr);
+    if (at.getTime() > now.getTime()) {
+      upcoming.push({ id, nameAr: PRAYER_NAMES_AR[id], date: at });
+    }
   }
 
+  if (upcoming.length === 0) return null;
+  upcoming.sort((a, b) => a.date.getTime() - b.date.getTime());
+  const next = upcoming[0];
   const diffMs = next.date.getTime() - now.getTime();
   const hrs = Math.floor(diffMs / 3600000);
   const mins = Math.floor((diffMs % 3600000) / 60000);
@@ -456,7 +455,7 @@ export function getNextPrayer(
     nameAr: next.nameAr,
     date: next.date,
     remainingMs: diffMs,
-    inLabel: `${hrs}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`,
+    inLabel: `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`,
   };
 }
 
