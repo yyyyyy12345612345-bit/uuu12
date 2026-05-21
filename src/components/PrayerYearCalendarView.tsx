@@ -47,8 +47,8 @@ export function PrayerYearCalendarView({ calendar }: Props) {
   const blanks = Array.from({ length: firstWeekday }, (_, i) => i);
 
   return (
-    <section className="bg-card/80 border border-border rounded-[2rem] p-5 md:p-8 shadow-lg">
-      <div className="flex items-center justify-between mb-6">
+    <section className="bg-slate-950/95 border border-white/10 rounded-[1.75rem] p-5 md:p-8 shadow-2xl shadow-black/20">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-2">
           <button type="button" onClick={prevMonth} className="w-10 h-10 rounded-xl bg-foreground/5 flex items-center justify-center hover:bg-primary/10">
             <ChevronRight className="w-5 h-5" />
@@ -67,15 +67,15 @@ export function PrayerYearCalendarView({ calendar }: Props) {
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 text-center mb-2">
-        {["أحد", "إثن", "ثلا", "أرب", "خمي", "جمع", "سبت"].map((d) => (
-          <span key={d} className="text-[10px] font-black text-foreground/30 py-1">{d}</span>
+      <div className="grid grid-cols-7 gap-1.5 text-center mb-3">
+        {['أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت'].map((d) => (
+          <span key={d} className="text-[10px] font-black text-foreground/40 py-1">{d}</span>
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-1.5 mb-6">
+      <div className="grid grid-cols-7 gap-2 mb-6 auto-rows-[70px]">
         {blanks.map((b) => (
-          <div key={`b-${b}`} className="aspect-square" />
+          <div key={`b-${b}`} className="rounded-3xl bg-foreground/5" />
         ))}
         {dayKeys.map((key) => {
           const dayNum = parseInt(key.split("-")[2], 10);
@@ -88,14 +88,14 @@ export function PrayerYearCalendarView({ calendar }: Props) {
               key={key}
               onClick={() => setSelectedDay(key)}
               disabled={!hasData}
-              className={`aspect-square rounded-xl text-sm font-black transition-all ${
+              className={`w-full h-full rounded-[1.8rem] text-sm font-black transition-all duration-200 flex items-center justify-center ${
                 !hasData
-                  ? "opacity-20 cursor-not-allowed"
+                  ? "bg-white/5 text-foreground/30 cursor-not-allowed"
                   : isSelected
-                    ? "bg-primary text-black scale-105 shadow-md"
+                    ? "bg-primary text-black shadow-lg shadow-primary/20"
                     : isToday
-                      ? "bg-primary/20 text-primary border border-primary/40"
-                      : "bg-foreground/5 hover:bg-primary/10 text-foreground"
+                      ? "bg-primary/15 text-primary border border-primary/30"
+                      : "bg-white/5 hover:bg-white/10 text-foreground"
               }`}
             >
               {dayNum}

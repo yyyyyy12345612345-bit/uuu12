@@ -23,11 +23,14 @@ export function PrayerSettingsSheet({ prayerId, draft, onChange, onClose, onSave
   const name = PRAYER_NAMES_AR[prayerId] || prayerId;
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center p-0 sm:p-6">
+    <div
+      className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center p-0 sm:p-6 pb-24 sm:pb-0"
+      style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 6rem)" }}
+    >
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} aria-hidden />
       <div
         role="dialog"
-        className="relative w-full sm:max-w-md bg-[#0c1210] border border-white/10 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300"
+        className="relative w-full sm:max-w-md bg-[#0c1210] border border-white/10 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl max-h-[calc(100vh-7rem)] overflow-y-auto animate-in slide-in-from-bottom duration-300"
       >
         <div className="h-1 w-12 bg-white/20 rounded-full mx-auto mt-3 sm:hidden" />
 

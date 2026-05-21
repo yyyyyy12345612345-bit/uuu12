@@ -50,13 +50,13 @@ function PrayerCountdown({
   return (
     <>
       <div className="flex items-center justify-center gap-2 mb-3 bg-primary/10 px-4 py-1.5 rounded-full border border-primary/20">
-        <Clock className="w-3.5 h-3.5 text-primary" />
-        <span className="text-[10px] font-black text-primary tracking-widest">القادمة: {next.nameAr}</span>
+        <Clock className="w-4 h-4 text-primary" />
+        <span className="text-[11px] font-black text-primary tracking-widest">القادمة: {next.nameAr}</span>
       </div>
-      <h2 className="text-4xl md:text-6xl font-black tracking-widest text-foreground font-mono mb-2" dir="ltr">
+      <h2 className="text-3xl md:text-4xl font-black tracking-widest text-foreground font-mono mb-2" dir="ltr">
         {next.inLabel}
       </h2>
-      <p className="text-xs text-foreground/40 font-bold font-mono" dir="ltr">
+      <p className="text-sm text-foreground/40 font-bold font-mono" dir="ltr">
         {next.date.toLocaleString("ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
       </p>
     </>
@@ -210,75 +210,83 @@ export function PrayerTimes() {
           type="button"
           key={id}
           onClick={() => setActiveSettingsPrayer(id)}
-          className={`p-5 md:p-6 rounded-2xl border transition-colors flex flex-col items-center gap-2 w-full ${
-            isNext ? "bg-primary border-primary text-black shadow-md" : "bg-card border-border hover:border-primary/30"
+          className={`p-4 md:p-5 rounded-[1.75rem] border transition-all duration-200 flex flex-col items-center gap-2 min-h-[140px] w-full ${
+            isNext
+              ? "bg-primary border-primary text-black shadow-lg shadow-primary/20"
+              : "bg-slate-950/90 border-white/10 hover:border-primary/40 hover:-translate-y-0.5"
           }`}
         >
-          <span className={`text-[10px] font-black uppercase tracking-widest ${isNext ? "text-black/60" : "text-foreground/40"}`}>
+          <span className={`text-[11px] font-black uppercase tracking-widest ${isNext ? "text-black/60" : "text-foreground/40"}`}>
             {name}
           </span>
-          <span className="text-2xl md:text-4xl font-black font-mono" dir="ltr">
+          <span className="text-xl md:text-3xl font-black font-mono" dir="ltr">
             {formatTimeDisplay(time)}
           </span>
           <span className={`text-[10px] font-bold ${isNext ? "text-black/50" : "text-foreground/25"}`}>إعدادات</span>
-          {enabled ? <Bell className="w-3.5 h-3.5" /> : <BellOff className="w-3.5 h-3.5 opacity-40" />}
+          {enabled ? <Bell className="w-3 h-3" /> : <BellOff className="w-3 h-3 opacity-40" />}
         </button>
       );
     });
   }, [times, nextPrayerId, prayerSettings, setActiveSettingsPrayer]);
 
   return (
-    <div className="flex flex-col h-full p-4 md:p-8 pt-20 md:pt-12 overflow-y-auto overflow-x-hidden no-scrollbar font-arabic relative">
+<div className="flex flex-col h-full p-4 md:p-6 pt-18 md:pt-12 overflow-y-auto overflow-x-hidden no-scrollbar font-arabic relative">
       <div className="absolute inset-0 z-0 pointer-events-none bg-gradient-to-b from-background via-background/95 to-background" />
 
       <div className="max-w-5xl mx-auto w-full flex flex-col gap-6 relative z-10">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 text-primary mb-1">
-              <MapPin className="w-4 h-4" />
-              <button type="button" onClick={() => setShowLocationPicker(true)} className="font-black text-sm hover:underline">
-                {locationLabel}
-              </button>
-              {isOfflineReady ? (
-                <span className="flex items-center gap-1 text-[10px] font-black text-green-600 bg-green-500/10 px-2 py-0.5 rounded-full">
-                  <WifiOff className="w-3 h-3" /> {dayCount} يوم محفوظ
+        <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-b from-slate-950/95 to-slate-900/95 p-6 shadow-2xl shadow-black/30">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(212,175,53,0.16),_transparent_25%)] opacity-90" />
+          <div className="relative grid gap-5 lg:grid-cols-[1.4fr_0.9fr] items-start">
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center gap-3 text-[11px] font-black uppercase tracking-[0.3em] text-primary">
+                <MapPin className="w-4 h-4" />
+                <span>{locationLabel}</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-[10px] text-white/75">
+                  {isOfflineReady ? <><WifiOff className="w-3 h-3" /> {dayCount} يوم محفوظ</> : <><Wifi className="w-3 h-3" /> يحتاج مزامنة</>}
                 </span>
-              ) : (
-                <span className="flex items-center gap-1 text-[10px] font-black text-amber-600 bg-amber-500/10 px-2 py-0.5 rounded-full">
-                  <Wifi className="w-3 h-3" /> يحتاج مزامنة
-                </span>
-              )}
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm text-foreground/50">الوقت الحالي</p>
+                <h1 className="text-5xl md:text-6xl font-black tracking-tight text-white" dir="ltr">{clockLabel}</h1>
+                <p className="max-w-2xl text-sm text-foreground/40 leading-6">
+                  مواقيت الصلاة محفوظة محليًا وتشتغل بدون إنترنت. اضغط على "موقعي" لتحديث الموقع بدقة أكبر.
+                </p>
+              </div>
             </div>
-            <h1 className="text-3xl md:text-5xl font-black font-mono text-foreground" dir="ltr">{clockLabel}</h1>
-            {syncMessage && <p className="text-xs text-foreground/40 font-bold mt-1">{syncMessage}</p>}
-          </div>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => calendar && syncCalendar(calendar.meta)}
-              disabled={loading}
-              className="p-3 rounded-xl bg-card border border-border hover:border-primary/30"
-              title="تحديث التقويم"
-            >
-              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <RefreshCw className="w-5 h-5" />}
-            </button>
-            <button type="button" onClick={detectLocation} className="p-3 rounded-xl bg-card border border-border" title="موقعي">
-              <MapPin className="w-5 h-5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowAthanSettings(true)}
-              className="px-4 py-3 rounded-xl bg-primary text-black font-black text-sm flex items-center gap-2"
-            >
-              <Music className="w-4 h-4" />
-              المؤذن
-            </button>
+            <div className="grid gap-3">
+              <button
+                type="button"
+                onClick={() => calendar && syncCalendar(calendar.meta)}
+                disabled={loading}
+                className="flex items-center justify-center gap-2 rounded-[1.75rem] border border-white/10 bg-white/5 px-4 py-3 text-sm font-black text-white transition hover:border-primary/30"
+                title="تحديث التقويم"
+              >
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <RefreshCw className="w-5 h-5" />}
+                تحديث المواقيت
+              </button>
+              <button
+                type="button"
+                onClick={detectLocation}
+                className="flex items-center justify-center gap-2 rounded-[1.75rem] border border-white/10 bg-white/5 px-4 py-3 text-sm font-black text-white transition hover:border-primary/30"
+                title="موقعي"
+              >
+                <MapPin className="w-4 h-4" />
+                موقعي
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowAthanSettings(true)}
+                className="flex items-center justify-center gap-2 rounded-[1.75rem] bg-primary px-4 py-3 text-sm font-black text-black shadow-lg shadow-primary/20"
+              >
+                <Music className="w-4 h-4" />
+                إعداد الأذان
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Countdown */}
-        <div className="bg-card/90 border border-border rounded-[2rem] p-8 md:p-10 text-center shadow-lg">
+        <div className="bg-slate-950/95 border border-white/10 rounded-[2rem] p-6 md:p-8 text-center shadow-2xl shadow-black/20">
           {calendar ? (
             <PrayerCountdown calendar={calendar} settings={prayerSettings} />
           ) : (
@@ -287,14 +295,14 @@ export function PrayerTimes() {
               <p className="text-sm font-bold text-foreground/40">تحميل جدول المواقيت...</p>
             </div>
           )}
-          <div className="flex items-center justify-center gap-2 text-foreground/40 font-bold text-sm mt-4">
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-foreground/60">
             <Calendar className="w-4 h-4" />
             <span>{new Date().toLocaleDateString("ar-EG", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</span>
           </div>
         </div>
 
         {/* Today prayers */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {prayerCards ?? <p className="col-span-full text-center text-foreground/40 py-6">جاري التحميل...</p>}
         </div>
 
