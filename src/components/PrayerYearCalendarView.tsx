@@ -116,7 +116,7 @@ export function PrayerYearCalendarView({ calendar }: Props) {
                 className="p-3 rounded-xl bg-foreground/[0.04] border border-border/40 text-center"
               >
                 <p className="text-[10px] font-black text-foreground/40 mb-1">{PRAYER_NAMES_AR[id]}</p>
-                <p className="text-base font-mono font-black text-primary" dir="ltr">
+                <p className="text-lg md:text-2xl font-mono font-black text-primary" dir="ltr">
                   {formatTimeDisplay(selectedTimings[id as keyof typeof selectedTimings])}
                 </p>
               </div>

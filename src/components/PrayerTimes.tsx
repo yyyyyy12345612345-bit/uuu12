@@ -217,10 +217,10 @@ export function PrayerTimes() {
           <span className={`text-[10px] font-black uppercase tracking-widest ${isNext ? "text-black/60" : "text-foreground/40"}`}>
             {name}
           </span>
-          <span className="text-xl md:text-2xl font-black font-mono" dir="ltr">
+          <span className="text-2xl md:text-4xl font-black font-mono" dir="ltr">
             {formatTimeDisplay(time)}
           </span>
-          <span className={`text-[9px] font-bold ${isNext ? "text-black/50" : "text-foreground/25"}`}>إعدادات</span>
+          <span className={`text-[10px] font-bold ${isNext ? "text-black/50" : "text-foreground/25"}`}>إعدادات</span>
           {enabled ? <Bell className="w-3.5 h-3.5" /> : <BellOff className="w-3.5 h-3.5 opacity-40" />}
         </button>
       );
