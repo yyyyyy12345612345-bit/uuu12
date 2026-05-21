@@ -61,10 +61,15 @@ function gregorianToKey(gregorianDate: string): string {
 
 function calendarUrl(meta: PrayerLocationMeta, year: number, month: number): string {
   const m = month + 1;
+  const params = new URLSearchParams({ year: String(year), month: String(m) });
   if (meta.latitude != null && meta.longitude != null) {
-    return `https://api.aladhan.com/v1/calendar/${year}/${m}?latitude=${meta.latitude}&longitude=${meta.longitude}&method=${METHOD}`;
+    params.set('latitude', String(meta.latitude));
+    params.set('longitude', String(meta.longitude));
+  } else {
+    params.set('city', meta.city || 'Cairo');
+    params.set('country', meta.country || 'Egypt');
   }
-  return `https://api.aladhan.com/v1/calendarByCity/${year}/${m}?city=${encodeURIComponent(meta.city || 'Cairo')}&country=${encodeURIComponent(meta.country || 'Egypt')}&method=${METHOD}`;
+  return `/api/prayer-calendar?${params.toString()}`;
 }
 
 async function fetchMonth(meta: PrayerLocationMeta, year: number, month: number): Promise<Record<string, PrayerTimesData>> {

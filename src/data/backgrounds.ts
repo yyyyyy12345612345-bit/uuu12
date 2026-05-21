@@ -12,13 +12,6 @@ const STATIC_CORE: BackgroundItem[] = [
   // صورة المصحف الشريف الخلفية الأساسية
   { type: "image", src: "/mushaf-bg.jpg.png", poster: "", tags: ["مصحف", "قرآن", "إسلامي", "طولي", "mushaf", "bg", "خلفية"] },
   
-  // الفيديوهات الطولية (Portrait Videos - 9:16)
-  // الفيديوهات الطولية (Portrait Videos - 9:16)
-  { type: "video", src: "https://player.vimeo.com/external/370331493.sd.mp4?s=338d351d291d392bbcd68e640c2834b68079a40c&profile_id=139&oauth2_token_id=57447761", poster: "", tags: ["فيديو", "بحر", "طولي"] },
-  { type: "video", src: "https://player.vimeo.com/external/403816152.sd.mp4?s=2541a79f582352219430154e1957e8f526369527&profile_id=139&oauth2_token_id=57447761", poster: "", tags: ["فيديو", "سماء", "طولي"] },
-  { type: "video", src: "https://player.vimeo.com/external/434045526.sd.mp4?s=c363030c29d0baad27329584285149495610a26e&profile_id=139&oauth2_token_id=57447761", poster: "", tags: ["فيديو", "شلال", "طولي"] },
-  { type: "video", src: "https://player.vimeo.com/external/510850877.sd.mp4?s=d865d6665e596522736998a3717a6590c50257e8&profile_id=139&oauth2_token_id=57447761", poster: "", tags: ["فيديو", "ثلج", "طولي"] },
-  { type: "video", src: "https://player.vimeo.com/external/459389137.sd.mp4?s=89606cc93362111f14406327a40b080b4352723c&profile_id=139&oauth2_token_id=57447761", poster: "", tags: ["فيديو", "نباتات", "طولي"] },
   
   // البحار والمحيطات (Sea/Ocean) - Portrait
   { type: "image", src: "https://images.pexels.com/photos/1624496/pexels-photo-1624496.jpeg", poster: "", tags: ["جبل", "سماء", "طبيعة", "طولي"] },
@@ -27,7 +20,6 @@ const STATIC_CORE: BackgroundItem[] = [
   { type: "image", src: "https://images.pexels.com/photos/2387873/pexels-photo-2387873.jpeg", poster: "", tags: ["طبيعة", "غابة", "نهر", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/3225517/pexels-photo-3225517.jpeg", poster: "", tags: ["طبيعة", "نبات", "أخضر", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/2559941/pexels-photo-2559941.jpeg", poster: "", tags: ["بحر", "محيط", "حوت", "طولي"] },
-  { type: "image", src: "https://images.pexels.com/photos/15286/pexels-photo.jpg", poster: "", tags: ["غابة", "ضباب", "شجر", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/3408744/pexels-photo-3408744.jpeg", poster: "", tags: ["قطب", "جليد", "شتاء", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/1670187/pexels-photo-1670187.jpeg", poster: "", tags: ["جبل", "ثلج", "شتاء", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/325185/pexels-photo-325185.jpeg", poster: "", tags: ["مدينة", "ليل", "أضواء", "طولي"] },
@@ -51,7 +43,6 @@ const STATIC_CORE: BackgroundItem[] = [
   { type: "image", src: "https://images.pexels.com/photos/772803/pexels-photo-772803.jpeg", poster: "", tags: ["حقل", "ورد", "طبيعة", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/247599/pexels-photo-247599.jpeg", poster: "", tags: ["نهر", "غابة", "طبيعة", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/624015/pexels-photo-624015.jpeg", poster: "", tags: ["قطب", "ثلج", "شتاء", "طولي"] },
-  { type: "image", src: "https://images.pexels.com/photos/143507/pexels-photo-143507.jpeg", poster: "", tags: ["جليد", "قطب", "شتاء", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/2365457/pexels-photo-2365457.jpeg", poster: "", tags: ["بطريق", "قطب", "حيوان", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/355241/pexels-photo-355241.jpeg", poster: "", tags: ["تزلج", "ثلج", "رياضة", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/547115/pexels-photo-547115.jpeg", poster: "", tags: ["ثلج", "أبيض", "شتاء", "طولي"] },
@@ -66,7 +57,6 @@ const STATIC_CORE: BackgroundItem[] = [
   { type: "image", src: "https://images.pexels.com/photos/998641/pexels-photo-998641.jpeg", poster: "", tags: ["نبات", "أخضر", "طبيعة", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/1146134/pexels-photo-1146134.jpeg", poster: "", tags: ["صحراء", "شمس", "حرارة", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/2832034/pexels-photo-2832034.jpeg", poster: "", tags: ["ليل", "نجوم", "تأمل", "طولي"] },
-  { type: "image", src: "https://images.pexels.com/photos/21395/pexels-photo-21395.jpeg", poster: "", tags: ["وادي", "صخر", "طبيعة", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/847402/pexels-photo-847402.jpeg", poster: "", tags: ["بحر", "شاطئ", "راحة", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/1295036/pexels-photo-1295036.jpeg", poster: "", tags: ["بحيرة", "قارب", "هدوء", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/3680219/pexels-photo-3680219.jpeg", poster: "", tags: ["غابة", "شمس", "نور", "طولي"] },
@@ -82,7 +72,6 @@ const STATIC_CORE: BackgroundItem[] = [
   { type: "image", src: "https://images.pexels.com/photos/355242/pexels-photo-355242.jpeg", poster: "", tags: ["شمس", "أفق", "بحر", "غروب", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/147411/italy-mountains-dawn-daybreak-147411.jpeg", poster: "", tags: ["جبال_الألب", "إيطاليا", "شروق", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/1433052/pexels-photo-1433052.jpeg", poster: "", tags: ["شلال", "منظر_خلاب", "ماء", "نقاء", "طولي"] },
-  { type: "image", src: "https://images.pexels.com/photos/15286/pexels-photo-15286.jpeg", poster: "", tags: ["غابة", "ضباب", "شجر", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg", poster: "", tags: ["كلب", "أليف", "لطيف", "طبيعة", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/1619317/pexels-photo-1619317.jpeg", poster: "", tags: ["جبال_صخرية", "عظمة", "طبيعة", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/247502/pexels-photo-247502.jpeg", poster: "", tags: ["شاطئ_منعزل", "استجمام", "بحر", "طولي"] },
@@ -100,11 +89,6 @@ const STATIC_CORE: BackgroundItem[] = [
   { type: "image", src: "https://images.pexels.com/photos/358457/pexels-photo-358457.jpeg", poster: "", tags: ["بحيرة", "جبل", "انعكاس", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/248159/pexels-photo-248159.jpeg", poster: "", tags: ["طبيعة", "أخضر", "حديقة", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/1563355/pexels-photo-1563355.jpeg", poster: "", tags: ["غابة", "أشجار", "شروق", "طولي"] },
-  { type: "image", src: "https://images.pexels.com/photos/15286/pexels-photo-15286.jpeg", poster: "", tags: ["غابة", "ضباب", "شجر", "طولي"] },
-  { type: "image", src: "https://images.pexels.com/photos/21395/pexels-photo-21395.jpeg", poster: "", tags: ["وادي", "صخر", "طبيعة", "طولي"] },
-  { type: "image", src: "https://images.pexels.com/photos/10022728/pexels-photo-10022728.jpeg", poster: "", tags: ["قطب", "جبل_جليدي", "أزرق", "طولي"] },
-  { type: "image", src: "https://images.pexels.com/photos/33545/pexels-photo-33545.jpeg", poster: "", tags: ["بحر", "جبال", "فيتنام", "طولي"] },
-  { type: "image", src: "https://images.pexels.com/photos/143507/pexels-photo-143507.jpeg", poster: "", tags: ["جليد", "قطب", "شتاء", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg", poster: "", tags: ["كلب", "أليف", "لطيف", "طبيعة"] },
   { type: "image", src: "https://images.pexels.com/photos/1619317/pexels-photo-1619317.jpeg", poster: "", tags: ["جبال_صخرية", "عظمة", "طبيعة"] },
   { type: "image", src: "https://images.pexels.com/photos/247502/pexels-photo-247502.jpeg", poster: "", tags: ["شاطئ_منعزل", "استجمام", "بحر"] },
