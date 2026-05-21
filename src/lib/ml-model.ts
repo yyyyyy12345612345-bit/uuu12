@@ -380,7 +380,28 @@ ${quiz.options}
     };
   }
 
-  // 2. فحص حالة API أو خادم المحادثة
+  // 2. فحص أسئلة صفحات الموقع والموقع نفسه مباشرة
+  const siteQueryMatch = /(?:موقع|صفحة|رابط|تحميل|اين|فين|كيف|ازاي|استوديو|video|library|prayers|mushaf|rank|profile|daily|tafsir|digital|مصحف|تفسير|أذكار|كتاب الله)/i.test(textClean);
+  if (siteQueryMatch) {
+    return {
+      reply: `يا ${userName}, الموقع هنا هو التطبيق القرآني الشامل. يمكنك الوصول إلى:
+• **المصحف والتفسير** عبر /mushaf-full
+• **التفسير المباشر** عبر /mushaf-tafseer
+• **المصحف الرقمي** عبر /digital
+• **مواقيت الصلاة والقبلة** عبر /prayers
+• **المكتبة الصوتية** عبر /library
+• **استوديو الفيديو** عبر /video
+• **الأذكار واليوميات** عبر /daily
+• **لوحة الشرف** عبر /rank
+• **الملف الشخصي** عبر /profile
+
+إذا كنت تريد معرفة كيفية استخدام أي صفحة، اكتب سؤال مثل: "إزاي أفتح صفحة الفيديو؟" أو "فين صفحة المصحف؟"`,
+      score: 1.0,
+      category: "موقع"
+    };
+  }
+
+  // 3. فحص حالة API أو خادم المحادثة
   const apiStatusMatch = /(?:api|سيرفر|خادم|استضافة|مفتاح|openai|gemini|endpoint|interface|واجهة\s+المحادثة|نظام\s+المحادثة)/i.test(textClean);
   if (apiStatusMatch) {
     return {
@@ -390,7 +411,7 @@ ${quiz.options}
     };
   }
 
-  // 3. فحص أسئلة المعلومات الدينية المباشرة (Direct Quran / Islamic QA)
+  // 4. فحص أسئلة المعلومات الدينية المباشرة (Direct Quran / Islamic QA)
   const quranFactMatch = /(?:كم|عدد|ما\s+هي|ما\s+هو|ايه|ما\s+معنى|ما\s+تفسير|تفسير|شرح)\s+(?:عدد\s+)?(?:سور|سورة|القرآن|القران|آية|اية|تفسير|شرح)/i.test(textClean);
   if (quranFactMatch) {
     if (/(?:كم|عدد)\s+(?:عدد\s+)?سور(?:\s+في\s+القرآن|\s+في\s+القران)?/i.test(textClean)) {

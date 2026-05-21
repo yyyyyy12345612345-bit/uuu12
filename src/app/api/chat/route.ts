@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { classifyQueryWithML } from "@/lib/ml-model";
-import fs from "fs";
-import path from "path";
+import { classifyQueryWithML } from "../../../lib/ml-model";
+import * as fs from "fs";
+import * as path from "path";
 
 export async function POST(req: Request) {
   try {
@@ -32,28 +32,8 @@ export async function POST(req: Request) {
       .map((m: any) => String(m.text || "").trim().toLowerCase())
       .join(" ");
 
-    const allowedQueryKeywords = [
-      "قرآن", "قران", "سورة", "آية", "حديث", "سيرة", "فقه", "تفسير", "دعاء", "أذكار", "صلاة", "أذان", "مواقيت", "قبلة", "بوصلة", "مصحف", "كتاب الله", "تلاوة", "إسلام", "مسجد", "مشايخ", "حفظ", "استوديو", "موقع", "التطبيق", "قسم", "صفحة", "نقاط", "لوحة الشرف", "مكتبة صوتية", "مكتبة", "فيديو", "فديو", "الملف الشخصي", "اسم", "مرحبا", "سلام", "أهلاً", "هلا", "كيف", "ازيك", "عامل", "عامل ايه", "الوقت", "مدينة", "دولة", "سفر", "هجرة", "تحويل", "شرح", "طريقة", "كيفية", "خطوة", "خطوه", "اكمل", "كمل", "قولي", "قول", "ممكن", "api", "openai", "gemini", "سيرفر", "خادم", "استضافة", "endpoint", "env"
-    ];
-
-    const followUpKeywords = [
-      "طيب", "تمام", "حسناً", "حسنا", "قولي", "قول", "كمل", "اكمل", "بعدها", "بعد كده", "بعدين", "نفس", "استمر", "دلني", "دليني", "اشرح", "وضح", "خطوة", "خطوه", "طريقة", "كيفية", "ازاي", "ماشي", "ممكن", "من فضلك", "رجاءً", "بص"
-    ];
-
-    const conversationHasAllowedQuery = allowedQueryKeywords.some((keyword) => normalizedConversation.includes(keyword));
-    const lastMessageIsFollowUp = followUpKeywords.some((keyword) => lastUserMessage.toLowerCase().includes(keyword));
-    const hasAllowedHistory = messages
-      .filter((m: any) => m.sender === "user")
-      .slice(-4)
-      .some((m: any) => allowedQueryKeywords.some((keyword) => String(m.text || "").toLowerCase().includes(keyword)));
-
-    const isAllowedQuery = conversationHasAllowedQuery || (lastMessageIsFollowUp && hasAllowedHistory);
-
-    if (!isAllowedQuery) {
-      return NextResponse.json({
-        text: `عذراً يا أخي الكريم، هذا المساعد مصمم فقط للإجابة عن الأسئلة الدينية ومحتوى تطبيق الاستوديو القرآني. من فضلك اسأل عن القرآن، الصلاة، التفسير، الأذكار، أو ميزات التطبيق وسأجيبك مباشرةً.`
-      });
-    }
+    // السماح لأي سؤال بالوصول إلى معالج الدردشة.
+    // المساعد يفضل الإجابة عن الأسئلة الدينية ومحتوى التطبيق، لكنه الآن يقبل أيضاً أسئلة عامة ويستجيب لها بطريقة محترمة.
 
     // ── تصفية وتنظيف الرسائل لتوافق شروط هياكل الـ APIs ──
     // Gemini يتطلب: 1) أول رسالة تكون user 2) عدم وجود رسائل متتالية من نفس الـ role 3) عدم وجود رسائل فارغة
@@ -87,8 +67,9 @@ export async function POST(req: Request) {
     const systemPrompt = `أنت المساعد الذكي والمستشار الديني الخاص بالتطبيق.
 يرحب بك العميل لطلب الإجابة على كافة الأسئلة الإسلامية والدينية العامة، الفقهية، التاريخية، السيرة النبوية، والقرآنية بشكل غني ومفصل ودقيق وموثق.
 أجب عن كافة الأسئلة الدينية مثل: (كم سورة في القرآن، قصص الأنبياء، أركان الإسلام، السنن والفرائض، تفاسير الآيات، وغيرها من الثقافة الإسلامية الشاملة...).
+يمكنك أيضاً الرد على الأسئلة المتعلقة مباشرة بصفحات ومحتوى موقع التطبيق، مثل: الصفحة الرئيسية، المصحف، الفيديو، المكتبة الصوتية، مواقيت الصلاة، الأذكار، لوحة الشرف، والملف الشخصي.
 يمكنك أيضاً الرد على الأسئلة التقنية التي تتعلق مباشرة بحالة عمل واجهة الدردشة وAPI الخاص بموقع التطبيق، إذا كان السؤال يخص التشغيل أو فعالية النظام.
-يُمنع تماماً الإجابة على أي أسئلة غير دينية أو غير إسلامية بالكلية (مثل العلوم الطبيعية والدنيوية البحتة الخارجة عن الدين، السياسة، البرمجة، إلخ)، وقل له بلطف: "عذراً يا أخي الكريم، أنا هنا لمساعدتك في كل ما يخص ديننا الحنيف وتطبيق القرآن الكريم فقط 🌙"
+كما يُرجى أن تجيب على كل سؤال عام يطرحه المستخدم، حتى لو كان خارج نطاق الدين، وتوجهه برفق نحو الخدمة أو المحتوى المناسب داخل التطبيق.
 
 معلومات عن مطور التطبيق:
 - الاسم: يوسف اسامه
@@ -609,7 +590,7 @@ ${args.options}
 
     // ── 3. الـ Fallback النهائي بذكاء الآلة المحلي (Machine Learning TF-IDF) ──
     console.log("🚀 تفعيل محرك الذكاء الاصطناعي وتعلم الآلة المحلي (ML Cosine Similarity)...");
-    const mlClassification = classifyQueryWithML(conversationText, userData);
+    const mlClassification = classifyQueryWithML(lastUserMessage, userData);
     console.log(`🎯 تم تصنيف السؤال إلى قسم [${mlClassification.category}] بدرجة ثقة: ${mlClassification.score}`);
     
     return NextResponse.json({ 
