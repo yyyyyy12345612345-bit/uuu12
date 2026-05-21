@@ -28,17 +28,26 @@ export async function POST(req: Request) {
 
     // الحصول على آخر رسالة كتبها المستخدم
     const lastUserMessage = messages[messages.length - 1]?.text || "";
-    const conversationText = messages.map((m: any) => m.text).join(" ");
+    const normalizedConversation = messages
+      .map((m: any) => String(m.text || "").trim().toLowerCase())
+      .join(" ");
 
-    const allowedQueryRegex = /(?:قرآن|قران|سورة|آية|حديث|سيرة|فقه|تفسير|دعاء|أذكار|صلاة|أذان|مواقيت|قبلة|بوصلة|مصحف|كتاب الله|تلاوة|إسلام|مسجد|مشايخ|حفظ|استوديو|الاستوديو|موقع|التطبيق|قسم|صفحة|نقاط|لوحة الشرف|مكتبة صوتية|مكتبة|فيديو|فديو|الملف الشخصي|اسم|مرحبا|سلام|أهلاً|هلا|كيف|ازيك|الوقت|مدينة|دولة|سفر|هجرة|الهجرة|تحويل|شرح|طريقة|كيفية|خطوة|خطوه|اكمل|كمل|قولي|قول|ممكن|API|api|سيرفر|خادم|استضافة|openai|gemini|endpoint|env)\b/i;
-    const followUpRegex = /(?:طيب|تمام|حسناً|حسنا|قولي|قول|كمل|اكمل|بعدها|بعد\s+كده|بعدين|نفس|استمر|دلني|دليني|اشرح|وضح|خطوة|خطوه|طريقة|كيفية|ازاي|ماشي|ممكن|من فضلك|رجاءً|بص)/i;
+    const allowedQueryKeywords = [
+      "قرآن", "قران", "سورة", "آية", "حديث", "سيرة", "فقه", "تفسير", "دعاء", "أذكار", "صلاة", "أذان", "مواقيت", "قبلة", "بوصلة", "مصحف", "كتاب الله", "تلاوة", "إسلام", "مسجد", "مشايخ", "حفظ", "استوديو", "موقع", "التطبيق", "قسم", "صفحة", "نقاط", "لوحة الشرف", "مكتبة صوتية", "مكتبة", "فيديو", "فديو", "الملف الشخصي", "اسم", "مرحبا", "سلام", "أهلاً", "هلا", "كيف", "ازيك", "عامل", "عامل ايه", "الوقت", "مدينة", "دولة", "سفر", "هجرة", "تحويل", "شرح", "طريقة", "كيفية", "خطوة", "خطوه", "اكمل", "كمل", "قولي", "قول", "ممكن", "api", "openai", "gemini", "سيرفر", "خادم", "استضافة", "endpoint", "env"
+    ];
+
+    const followUpKeywords = [
+      "طيب", "تمام", "حسناً", "حسنا", "قولي", "قول", "كمل", "اكمل", "بعدها", "بعد كده", "بعدين", "نفس", "استمر", "دلني", "دليني", "اشرح", "وضح", "خطوة", "خطوه", "طريقة", "كيفية", "ازاي", "ماشي", "ممكن", "من فضلك", "رجاءً", "بص"
+    ];
+
+    const conversationHasAllowedQuery = allowedQueryKeywords.some((keyword) => normalizedConversation.includes(keyword));
+    const lastMessageIsFollowUp = followUpKeywords.some((keyword) => lastUserMessage.toLowerCase().includes(keyword));
     const hasAllowedHistory = messages
       .filter((m: any) => m.sender === "user")
       .slice(-4)
-      .some((m: any) => allowedQueryRegex.test(m.text));
+      .some((m: any) => allowedQueryKeywords.some((keyword) => String(m.text || "").toLowerCase().includes(keyword)));
 
-    const isAllowedQuery = allowedQueryRegex.test(conversationText)
-      || (followUpRegex.test(lastUserMessage) && hasAllowedHistory);
+    const isAllowedQuery = conversationHasAllowedQuery || (lastMessageIsFollowUp && hasAllowedHistory);
 
     if (!isAllowedQuery) {
       return NextResponse.json({
