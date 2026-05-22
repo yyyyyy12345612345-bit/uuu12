@@ -31,12 +31,24 @@ export function usePexelsBackgrounds(query: string, type: "images" | "videos" | 
             type: type
           })
         });
-        if (!response.ok) {
-          const body = await response.json();
-          throw new Error(body.error || "فشل تحميل الخلفيات");
+
+        const contentType = response.headers.get('content-type') || '';
+        let data: any = null;
+
+        if (contentType.includes('application/json')) {
+          data = await response.json();
+        } else {
+          const text = await response.text();
+          if (!response.ok) {
+            throw new Error(text || "فشل تحميل الخلفيات");
+          }
+          throw new Error("خدمة الخلفيات لم تُرجع JSON صالحًا.");
         }
 
-        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data?.error || "فشل تحميل الخلفيات");
+        }
+
         if (!isMounted) return;
         setMedia(data.items ?? []);
       } catch (err) {

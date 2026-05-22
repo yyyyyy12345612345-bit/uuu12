@@ -74,6 +74,18 @@ function calendarUrl(meta: PrayerLocationMeta, year: number, month: number): str
 
 async function fetchMonth(meta: PrayerLocationMeta, year: number, month: number): Promise<Record<string, PrayerTimesData>> {
   const res = await fetch(calendarUrl(meta, year, month));
+  const contentType = res.headers.get('content-type') || '';
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Calendar API request failed ${res.status} ${res.statusText}: ${body.slice(0, 300)}`);
+  }
+
+  if (!contentType.includes('application/json')) {
+    const body = await res.text();
+    throw new Error(`Calendar API returned non-JSON content for ${year}-${month + 1}: ${body.slice(0, 300)}`);
+  }
+
   const json = await res.json();
   if (json.code !== 200 || !Array.isArray(json.data)) {
     throw new Error(`Calendar API failed for ${year}-${month + 1}`);
