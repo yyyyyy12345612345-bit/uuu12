@@ -220,6 +220,38 @@
             transition: 0.3s;
         }
 
+        .update-banner {
+            display: none;
+            margin-bottom: 30px;
+            padding: 25px 30px;
+            border-radius: 30px;
+            background: rgba(212, 175, 55, 0.12);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            text-align: right;
+            color: #fff;
+        }
+
+        .update-banner.visible {
+            display: block;
+        }
+
+        .update-banner strong {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .update-link {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 15px 28px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 900;
+        }
+
         .download-btn:hover {
             transform: translateY(-5px);
             box-shadow: 0 30px 70px rgba(191, 149, 63, 0.5);
@@ -368,6 +400,11 @@
         </section>
 
         <section class="download-section" id="download" data-aos="fade-up">
+            <div class="update-banner" id="update-banner">
+                <strong id="update-version">تحديث جديد متاح!</strong>
+                <p id="update-notes" style="opacity: 0.8; line-height: 1.7;"></p>
+                <a href="#download" class="update-link" id="update-link">عرض تفاصيل التحميل</a>
+            </div>
             <h3 style="font-size: 28px; font-weight: 900; margin-bottom: 10px;">تحميل التطبيق مباشرة</h3>
             <p style="margin-bottom: 50px; opacity: 0.5;">اضغط على الزر أدناه لبدء تحميل ملف الـ APK بأمان</p>
 
@@ -415,8 +452,50 @@
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script>
         AOS.init({ once: true });
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB8NHUTR6Uzqh1YZAoPXzRy8aMgle9x7gU",
+            authDomain: "yy10-ba274.firebaseapp.com",
+            projectId: "yy10-ba274",
+            storageBucket: "yy10-ba274.firebasestorage.app",
+            messagingSenderId: "194649785258",
+            appId: "1:194649785258:web:a4b07585298349ecf7a1d3",
+            measurementId: "G-L4SD78B7GH"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const updateBanner = document.getElementById('update-banner');
+        const updateVersion = document.getElementById('update-version');
+        const updateNotes = document.getElementById('update-notes');
+        const updateLink = document.getElementById('update-link');
+        const dlBtn = document.getElementById('dl-btn');
+
+        const fetchVersionInfo = async () => {
+            try {
+                const docRef = db.collection('settings').doc('version');
+                const snapshot = await docRef.get();
+                if (snapshot.exists) {
+                    const data = snapshot.data();
+                    if (data?.displayOnDownloadPage) {
+                        updateBanner.classList.add('visible');
+                        updateVersion.innerText = `إصدار ${data.version} متاح الآن`;
+                        updateNotes.innerText = data.releaseNotes || 'تحديث جديد متاح مع تحسينات وأمان أفضل.';
+                        updateLink.href = data.downloadUrl || dlBtn.href;
+                        dlBtn.href = data.downloadUrl || dlBtn.href;
+                    }
+                }
+            } catch (error) {
+                console.warn('Unable to load update info from Firestore:', error);
+            }
+        };
+
+        fetchVersionInfo();
 
         // Timer Logic
         let counter = 5;
