@@ -33,6 +33,7 @@ const CommunityShowcase = nextDynamic(() => import("@/components/CommunityShowca
 const PointsGuideModal = nextDynamic(() => import("@/components/PointsGuideModal").then(mod => mod.PointsGuideModal), { ssr: false });
 const ChatBot = nextDynamic(() => import("@/components/ChatBot").then(mod => mod.ChatBot), { ssr: false });
 const SettingsModal = nextDynamic(() => import("@/components/SettingsModal").then(mod => mod.SettingsModal), { ssr: false });
+const AppSettingsModal = nextDynamic(() => import("@/components/AppSettingsModal").then(mod => mod.AppSettingsModal), { ssr: false });
 
 export function CatchAllPageClient() {
   return (
@@ -56,6 +57,7 @@ function CatchAllContent() {
   const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
   const [isPointsGuideOpen, setIsPointsGuideOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isAppSettingsOpen, setIsAppSettingsOpen] = useState(false);
 
 
   // Derived active view from pathname - the safest way in Next.js 15/16 Client Components
@@ -323,6 +325,9 @@ function CatchAllContent() {
         onOpenSettings={() => {
           setIsSettingsOpen(true);
         }}
+        onOpenAppSettings={() => {
+          setIsAppSettingsOpen(true);
+        }}
       />
       <ProfileModal 
         isOpen={isProfileOpen} 
@@ -336,6 +341,7 @@ function CatchAllContent() {
       />
       <PointsGuideModal isOpen={isPointsGuideOpen} onClose={() => setIsPointsGuideOpen(false)} />
       <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <AppSettingsModal isOpen={isAppSettingsOpen} onClose={() => setIsAppSettingsOpen(false)} />
       
       {/* Global AI ChatBot */}
       <ChatBot />
