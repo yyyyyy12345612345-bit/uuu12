@@ -128,12 +128,19 @@ export function AdminPanel() {
   const [userPlanSelection, setUserPlanSelection] = useState<Record<string, string>>({});
   const [showBannedOnly, setShowBannedOnly] = useState(false);
   const [blockedUsers, setBlockedUsers] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<"stats" | "users" | "quests" | "subs" | "settings" | "showcase" | "performance" | "alerts" | "campaigns" | "reports" | "activity" | "content" | "support" | "flags" | "versions">("stats");
+  const [activeTab, setActiveTab] = useState<"stats" | "users" | "quests" | "subs" | "settings" | "showcase" | "performance" | "alerts" | "campaigns" | "reports" | "activity" | "content" | "support" | "flags" | "versions" | "push">("stats");
+
+  // Push notification state  
+  const [pushTitle, setPushTitle] = useState("");
+  const [pushBody, setPushBody] = useState("");
+  const [pushTarget, setPushTarget] = useState<"all" | "subscribers" | "free">("all");
+  const [isSendingPush, setIsSendingPush] = useState(false);
+  const [pushHistory, setPushHistory] = useState<any[]>([]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const tab = params.get('tab');
-    if (tab && ["stats", "users", "quests", "subs", "settings", "showcase", "performance", "alerts", "campaigns", "reports", "activity", "content", "support", "flags", "versions"].includes(tab)) {
+    if (tab && ["stats", "users", "quests", "subs", "settings", "showcase", "performance", "alerts", "campaigns", "reports", "activity", "content", "support", "flags", "versions", "push"].includes(tab)) {
       setActiveTab(tab as any);
     }
 
@@ -699,6 +706,54 @@ export function AdminPanel() {
     }
   };
 
+  const handleSendPushNotification = async () => {
+    if (!db || !pushTitle || !pushBody) {
+      alert('يرجى كتابة العنوان والرسالة أولاً');
+      return;
+    }
+    setIsSendingPush(true);
+    try {
+      // Save notification to Firestore for delivery via Cloud Function or manual distribution
+      const notifDoc = await addDoc(collection(db, 'admin_push_notifications'), {
+        title: pushTitle,
+        body: pushBody,
+        icon: pushIcon,
+        target: pushTarget,
+        sentAt: serverTimestamp(),
+        sentBy: auth?.currentUser?.email || 'admin',
+        status: 'pending'
+      });
+
+      // Log to admin activity
+      await addDoc(collection(db, 'admin_logs'), {
+        action: 'send_push',
+        details: `إشعار: "${pushTitle}" → ${pushTarget}`,
+        createdAt: serverTimestamp()
+      });
+
+      // Refresh history
+      const historySnap = await getDocs(query(collection(db, 'admin_push_notifications'), orderBy('sentAt', 'desc')));
+      setPushHistory(historySnap.docs.map(d => ({ id: d.id, ...d.data() })));
+
+      alert(`✅ تم إرسال الإشعار بنجاح! سيتم التوزيع عبر Firebase Cloud Messaging.`);
+      setPushTitle('');
+      setPushBody('');
+    } catch (e) {
+      console.error(e);
+      alert('فشل إرسال الإشعار. تأكد من إعداد Firebase Functions.');
+    } finally {
+      setIsSendingPush(false);
+    }
+  };
+
+  const fetchPushHistory = async () => {
+    if (!db) return;
+    try {
+      const historySnap = await getDocs(query(collection(db, 'admin_push_notifications'), orderBy('sentAt', 'desc')));
+      setPushHistory(historySnap.docs.slice(0, 20).map(d => ({ id: d.id, ...d.data() })));
+    } catch (e) { console.error(e); }
+  };
+
   const filteredUsers = useMemo(() => {
     return users
       .filter(u => {
@@ -808,6 +863,7 @@ export function AdminPanel() {
           <div className="flex gap-2 p-2">
             {[
               { id: 'stats', label: 'الإحصائيات', icon: TrendingUp },
+              { id: 'push', label: '🔔 الإشعارات', icon: Bell },
               { id: 'performance', label: 'الأداء', icon: Calendar },
               { id: 'reports', label: 'التقارير', icon: ArrowUpRight },
               { id: 'activity', label: 'النشاط', icon: MapPin },
@@ -902,6 +958,177 @@ export function AdminPanel() {
                 ))}
               </div>
             </div>
+          </div>
+        )}
+
+        {activeTab === 'push' && (
+          <div className="space-y-6">
+            {/* Stats Bar */}
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6 text-center">
+                <Bell className="mx-auto mb-3 h-7 w-7 text-violet-400" />
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">المشتركين</p>
+                <p className="mt-3 text-3xl font-black text-violet-400">{stats.pushSubscribers}</p>
+                <p className="text-[11px] text-slate-500 mt-1">لديهم FCM Token</p>
+              </div>
+              <div className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6 text-center">
+                <Users className="mx-auto mb-3 h-7 w-7 text-emerald-400" />
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">إجمالي المستخدمين</p>
+                <p className="mt-3 text-3xl font-black text-emerald-400">{stats.totalUsers}</p>
+                <p className="text-[11px] text-slate-500 mt-1">جميع الحسابات</p>
+              </div>
+              <div className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6 text-center">
+                <TrendingUp className="mx-auto mb-3 h-7 w-7 text-sky-400" />
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">نسبة الوصول</p>
+                <p className="mt-3 text-3xl font-black text-sky-400">
+                  {stats.totalUsers > 0 ? Math.round((stats.pushSubscribers / stats.totalUsers) * 100) : 0}%
+                </p>
+                <p className="text-[11px] text-slate-500 mt-1">من إجمالي المستخدمين</p>
+              </div>
+            </div>
+
+            {/* Compose Notification */}
+            <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+              <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-5">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={fetchPushHistory}
+                    className="rounded-3xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300 hover:bg-white/10 transition"
+                  >
+                    سجل الإشعارات
+                  </button>
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black text-right">إرسال إشعار فوري</h2>
+                  <p className="text-sm text-slate-400 text-right mt-1">ابعت إشعار لجميع المستخدمين أو فئة منهم</p>
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-5">
+                {/* Quick Templates */}
+                <div className="space-y-3 text-right">
+                  <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">قوالب سريعة</label>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { label: '📖 تذكير يومي', title: '📖 وقت القرآن', body: 'لم تقرأ القرآن اليوم بعد. ابدأ بسورة واحدة على الأقل 🌙' },
+                      { label: '🌿 سورة الكهف', title: '🌿 يوم الجمعة المبارك', body: 'لا تنسَ قراءة سورة الكهف اليوم! من قرأها أضاءت له نور بين الجمعتين 🤍' },
+                      { label: '✨ تحديث جديد', title: '✨ تحديث سكينة', body: 'ميزات جديدة رائعة متاحة الآن! اكتشفها الآن 🚀' },
+                      { label: '🎯 تحدي', title: '🎯 تحدي اليوم', body: 'اقرأ 10 آيات وافوز بـ 100 نقطة! هل أنت مستعد؟ 💪' },
+                    ].map(t => (
+                      <button
+                        key={t.label}
+                        onClick={() => { setPushTitle(t.title); setPushBody(t.body); }}
+                        className="rounded-2xl bg-white/5 px-4 py-2 text-sm font-bold text-slate-300 hover:bg-primary/10 hover:text-primary border border-white/5 transition"
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Title */}
+                <div className="space-y-2 text-right">
+                  <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">عنوان الإشعار</label>
+                  <input
+                    value={pushTitle}
+                    onChange={e => setPushTitle(e.target.value)}
+                    className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-right text-sm outline-none focus:border-primary/40"
+                    placeholder="مثال: 📖 وقت القرآن"
+                    maxLength={60}
+                  />
+                  <p className="text-xs text-slate-500 text-left">{pushTitle.length}/60</p>
+                </div>
+
+                {/* Body */}
+                <div className="space-y-2 text-right">
+                  <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">نص الرسالة</label>
+                  <textarea
+                    value={pushBody}
+                    onChange={e => setPushBody(e.target.value)}
+                    rows={4}
+                    className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-right text-sm outline-none resize-none focus:border-primary/40"
+                    placeholder="اكتب رسالتك هنا..."
+                    maxLength={200}
+                  />
+                  <p className="text-xs text-slate-500 text-left">{pushBody.length}/200</p>
+                </div>
+
+                {/* Target */}
+                <div className="space-y-2 text-right">
+                  <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">الفئة المستهدفة</label>
+                  <div className="flex gap-3">
+                    {[
+                      { id: 'all', label: 'الكل', count: stats.totalUsers },
+                      { id: 'subscribers', label: 'المشتركون فقط', count: stats.pushSubscribers },
+                      { id: 'free', label: 'المجانيون', count: stats.totalUsers - stats.pushSubscribers },
+                    ].map(t => (
+                      <button
+                        key={t.id}
+                        onClick={() => setPushTarget(t.id as any)}
+                        className={`flex-1 rounded-3xl p-4 text-center font-black text-sm transition border ${
+                          pushTarget === t.id
+                            ? 'bg-primary/10 border-primary/30 text-primary'
+                            : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
+                        }`}
+                      >
+                        <p>{t.label}</p>
+                        <p className="text-[11px] mt-1 opacity-60">{t.count} مستخدم</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Preview */}
+                {(pushTitle || pushBody) && (
+                  <div className="rounded-3xl border border-violet-500/20 bg-slate-950/90 p-5 text-right">
+                    <p className="text-[10px] font-black text-violet-400 uppercase tracking-widest mb-3">معاينة الإشعار</p>
+                    <div className="flex items-start gap-3">
+                      <img src="/logo/logo.png" className="w-10 h-10 rounded-xl" alt="" />
+                      <div>
+                        <p className="font-black text-white text-sm">{pushTitle || 'العنوان'}</p>
+                        <p className="text-slate-400 text-[11px] mt-1 leading-relaxed">{pushBody || 'الرسالة...'}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Send Button */}
+                <button
+                  onClick={handleSendPushNotification}
+                  disabled={isSendingPush || !pushTitle || !pushBody}
+                  className="w-full rounded-3xl bg-gradient-to-r from-violet-500 to-sky-500 px-5 py-5 text-white font-black text-base transition hover:scale-[1.01] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-xl shadow-violet-500/20"
+                >
+                  {isSendingPush ? (
+                    <><Loader2 className="w-5 h-5 animate-spin" /> جاري الإرسال...</>
+                  ) : (
+                    <><Bell className="w-5 h-5" /> إرسال الإشعار الآن</>  
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Push History */}
+            {pushHistory.length > 0 && (
+              <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8">
+                <h3 className="text-xl font-black mb-5">سجل الإشعارات المُرسلة</h3>
+                <div className="space-y-3">
+                  {pushHistory.map(p => (
+                    <div key={p.id} className="rounded-3xl border border-white/10 bg-slate-950/90 p-4 flex items-start justify-between gap-4">
+                      <div className="text-left">
+                        <span className={`text-[10px] font-black px-2 py-1 rounded-full ${
+                          p.status === 'pending' ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400'
+                        }`}>{p.status === 'pending' ? 'في الانتظار' : 'مُرسل'}</span>
+                        <p className="text-[10px] text-slate-500 mt-1">{p.target}</p>
+                      </div>
+                      <div className="flex-1 text-right">
+                        <p className="font-black text-sm">{p.title}</p>
+                        <p className="text-slate-400 text-[11px] mt-1">{p.body}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

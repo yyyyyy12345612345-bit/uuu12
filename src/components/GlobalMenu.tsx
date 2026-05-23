@@ -4,7 +4,7 @@ import React from "react";
 import { 
   X, MessageCircle, Moon, Sun, BookOpen, ScrollText, 
   Calendar, Headphones, Timer, Video, Share2, Heart, Smartphone, Trophy, ShieldCheck, Star,
-  ChevronLeft, LayoutDashboard, Settings, Info, LogOut, Map as MapIcon
+  ChevronLeft, LayoutDashboard, Settings, Info, LogOut, Map as MapIcon, Bell
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/ThemeProvider";
@@ -18,9 +18,10 @@ interface GlobalMenuProps {
   onOpenFeedback: () => void;
   onOpenProfile: () => void;
   onOpenPointsGuide: () => void;
+  onOpenSettings?: () => void;
 }
 
-export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onOpenPointsGuide }: GlobalMenuProps) {
+export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onOpenPointsGuide, onOpenSettings }: GlobalMenuProps) {
   const router = useRouter();
   const pathname = useInstantPathname();
   const { theme, toggleTheme } = useTheme();
@@ -67,6 +68,13 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
           window.open('https://quran1-mu.vercel.app/download/', '_blank');
         }},
         { id: "points-guide", label: "دليل النقاط", icon: MapIcon, onClick: onOpenPointsGuide },
+      ]
+    },
+    {
+      title: "الإعدادات",
+      items: [
+        { id: "settings", label: "إعدادات التطبيق", icon: Settings, onClick: () => { onOpenSettings?.(); onClose(); } },
+        { id: "notifications-settings", label: "إعدادات الإشعارات", icon: Bell, onClick: () => { onOpenSettings?.(); onClose(); } },
       ]
     }
   ];

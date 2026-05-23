@@ -218,7 +218,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           while (isRenderingRef.current && !item.audio.ended && (Date.now() - startTime) < (item.duration * 1000 + 1000)) {
             analyser.getByteFrequencyData(dataArray);
             const ayahProgress = item.audio.currentTime / item.duration;
-            renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, dataArray);
+            renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, dataArray, surahData?.name || "");
             const progress = Math.min(99, Math.round(((elapsed + item.audio.currentTime) / totalDuration) * 100));
             setProgressPct(progress);
             setMessage(`جاري التصميم: ${progress}%`);
@@ -231,7 +231,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           for (let s = 0; s < 5 * 30; s++) {
             if (!isRenderingRef.current) break;
             const ayahProgress = s / (5 * 30);
-            renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, null);
+            renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, null, surahData?.name || "");
             const progress = Math.min(99, Math.round(((elapsed + (s/30)) / totalDuration) * 100));
             setProgressPct(progress);
             await new Promise(r => setTimeout(r, 33));
@@ -268,7 +268,18 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     setDownloadUrl(null);
   };
 
-  const renderFrame = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, bg: HTMLImageElement | null, video: HTMLVideoElement | null, verse: any, state: any, userPlan: any, ayahProgress: number = 1, freqData: Uint8Array | null = null) => {
+  const renderFrame = (
+    ctx: CanvasRenderingContext2D, 
+    canvas: HTMLCanvasElement, 
+    bg: HTMLImageElement | null, 
+    video: HTMLVideoElement | null, 
+    verse: any, 
+    state: any, 
+    userPlan: any, 
+    ayahProgress: number = 1, 
+    freqData: Uint8Array | null = null,
+    surahName: string = ""
+  ) => {
     ctx.save();
     
     // 1. Background & Filter
@@ -299,7 +310,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     }
     ctx.filter = "none"; // Reset filter for overlays and text
 
-    // 2. Overlays (Dust, Rays, Bokeh)
+    // 2. Overlays (12 effects implemented in 2D Canvas)
     if (state.overlay === "dust") {
       ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
       for(let i=0; i<30; i++) {
@@ -307,16 +318,14 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         const y = ((i * 50 - Date.now()/50) % canvas.height + canvas.height) % canvas.height;
         ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI*2); ctx.fill();
       }
-    }
-    if (state.overlay === "rays") {
+    } else if (state.overlay === "rays") {
       const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
       grad.addColorStop(0, "rgba(212,175,55,0)");
       grad.addColorStop(0.5, "rgba(212,175,55,0.05)");
       grad.addColorStop(1, "rgba(212,175,55,0)");
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-    if (state.overlay === "bokeh") {
+    } else if (state.overlay === "bokeh") {
       for(let i=0; i<10; i++) {
         const x = (Math.cos(i * 500 + Date.now()/3000) * 0.4 + 0.5) * canvas.width;
         const y = (Math.sin(i * 800 + Date.now()/4000) * 0.4 + 0.5) * canvas.height;
@@ -327,6 +336,111 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         ctx.fillStyle = g;
         ctx.fillRect(x-rad, y-rad, rad*2, rad*2);
       }
+    } else if (state.overlay === "snow") {
+      ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+      for (let i = 0; i < 40; i++) {
+        const x = ((Math.sin(i * 500 + Date.now() / 2500) * 80) + (i * 30)) % canvas.width;
+        const y = ((i * 45 + Date.now() / 15) % (canvas.height + 40)) - 20;
+        const r = (i % 3) + 1.5;
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+      }
+    } else if (state.overlay === "rain") {
+      ctx.strokeStyle = "rgba(174, 194, 224, 0.35)";
+      ctx.lineWidth = 1.5;
+      for (let i = 0; i < 50; i++) {
+        const x = (i * 25 + Date.now() / 4) % (canvas.width + 100) - 50;
+        const y = (i * 35 + Date.now() / 1.5) % (canvas.height + 100) - 50;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x - 10, y + 35);
+        ctx.stroke();
+      }
+    } else if (state.overlay === "fireflies") {
+      for (let i = 0; i < 20; i++) {
+        const x = (Math.cos(i * 123 + Date.now() / 3000) * 0.45 + 0.5) * canvas.width;
+        const y = (Math.sin(i * 456 + Date.now() / 2500) * 0.45 + 0.5) * canvas.height;
+        const size = 3 + Math.sin(Date.now() / 1000 + i) * 1.5;
+        if (size > 0.5) {
+          ctx.save();
+          ctx.shadowColor = "#D4AF37";
+          ctx.shadowBlur = 10;
+          ctx.fillStyle = "rgba(212, 175, 55, 0.8)";
+          ctx.beginPath(); ctx.arc(x, y, size, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+        }
+      }
+    } else if (state.overlay === "smoke") {
+      for (let i = 0; i < 6; i++) {
+        const x = (Math.sin(i * 100 + Date.now() / 4000) * 0.35 + 0.5) * canvas.width;
+        const y = canvas.height - ((i * 250 + Date.now() / 20) % (canvas.height + 300));
+        const r = 120 + Math.sin(Date.now() / 3000 + i) * 40;
+        const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+        g.addColorStop(0, "rgba(255, 255, 255, 0.05)");
+        g.addColorStop(1, "rgba(255, 255, 255, 0)");
+        ctx.fillStyle = g;
+        ctx.fillRect(x - r, y - r, r * 2, r * 2);
+      }
+    } else if (state.overlay === "sparkle") {
+      for (let i = 0; i < 15; i++) {
+        const x = (Math.sin(i * 789) * 0.45 + 0.5) * canvas.width;
+        const y = (Math.cos(i * 456) * 0.45 + 0.5) * canvas.height;
+        const alpha = Math.max(0, Math.sin(Date.now() / 800 + i));
+        if (alpha > 0.1) {
+          ctx.save();
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = "#FFD700";
+          ctx.shadowColor = "#FFD700";
+          ctx.shadowBlur = 8;
+          ctx.beginPath();
+          ctx.moveTo(x, y - 10);
+          ctx.lineTo(x + 6, y);
+          ctx.lineTo(x, y + 10);
+          ctx.lineTo(x - 6, y);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+    } else if (state.overlay === "film_grain") {
+      ctx.fillStyle = "rgba(255, 255, 255, 0.035)";
+      for (let i = 0; i < 2000; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        ctx.fillRect(x, y, 1.5, 1.5);
+      }
+    } else if (state.overlay === "light_leak") {
+      const time = Date.now() / 5000;
+      const x = (Math.sin(time) * 0.2 + 0.1) * canvas.width;
+      const y = (Math.cos(time * 0.7) * 0.2 + 0.1) * canvas.height;
+      const r = canvas.width * 0.7;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, "rgba(255, 99, 71, 0.25)");
+      g.addColorStop(0.5, "rgba(255, 165, 0, 0.1)");
+      g.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.save();
+      ctx.globalCompositeOperation = "screen";
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.restore();
+    } else if (state.overlay === "aurora") {
+      ctx.save();
+      ctx.globalCompositeOperation = "screen";
+      ctx.globalAlpha = 0.25;
+      const grad = ctx.createLinearGradient(0, 0, canvas.width, 0);
+      grad.addColorStop(0, "rgba(0, 255, 136, 0.4)");
+      grad.addColorStop(0.5, "rgba(0, 136, 255, 0.4)");
+      grad.addColorStop(1, "rgba(200, 0, 255, 0.4)");
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      for (let x = 0; x <= canvas.width; x += 20) {
+        const y = Math.sin((x / 150) + (Date.now() / 1500)) * 40 + 80;
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(canvas.width, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
     }
 
     // 3. Dark Overlay & Vignette
@@ -382,6 +496,40 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         if (state.tiktokHandle) {
            ctx.fillText(`TikTok: @${state.tiktokHandle}`, canvas.width/2, yPos);
         }
+        ctx.restore();
+    }
+
+    // 4.7 Draw Surah Name Badge at the top
+    if (surahName) {
+        ctx.save();
+        ctx.textAlign = "center";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+        ctx.shadowBlur = 10;
+        
+        const text = `سورة ${surahName}`;
+        ctx.font = `800 28px "${state.fontFamily || 'Amiri'}", serif`;
+        const textWidth = ctx.measureText(text).width;
+        
+        const badgeW = textWidth + 60;
+        const badgeH = 54;
+        const badgeX = (canvas.width - badgeW) / 2;
+        const badgeY = 80;
+        
+        ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+        ctx.lineWidth = 2;
+        
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 27);
+        } else {
+          ctx.rect(badgeX, badgeY, badgeW, badgeH);
+        }
+        ctx.fill();
+        ctx.stroke();
+        
+        ctx.fillStyle = "#FFD700";
+        ctx.fillText(text, canvas.width / 2, badgeY + 36);
         ctx.restore();
     }
 

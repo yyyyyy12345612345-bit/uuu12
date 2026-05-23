@@ -15,7 +15,6 @@ export function Navigation() {
     { id: "rank", label: "الترتيب", icon: Trophy, path: "/rank" },
     { id: "library", label: "صوتيات", icon: Headphones, path: "/library" },
     { id: "prayers", label: "مواقيت", icon: Timer, path: "/prayers" },
-    { id: "security", label: "الأمن", icon: Shield, path: "/security" },
     { id: "video", label: "فيديو", icon: Video, path: "/video" },
   ];
 

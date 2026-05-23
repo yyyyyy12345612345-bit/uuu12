@@ -436,33 +436,6 @@ export const MainVideo: React.FC<MainVideoProps> = ({
          <AudioVisualizer color={textColor} />
       </AbsoluteFill>
 
-      {/* Static Surah Name Badge at the top */}
-      {surahName && (
-        <AbsoluteFill style={{
-          justifyContent: 'flex-start',
-          alignItems: 'center',
-          paddingTop: '80px',
-          pointerEvents: 'none',
-          zIndex: 30
-        }}>
-          <div style={{
-            padding: '10px 30px',
-            borderRadius: '25px',
-            backgroundColor: 'rgba(0,0,0,0.45)',
-            border: '1px solid rgba(255,255,255,0.15)',
-            color: '#FFD700',
-            fontSize: '32px',
-            fontWeight: 800,
-            textShadow: '0 0 20px rgba(255,215,0,0.4)',
-            fontFamily: `"${fontFamily}", serif`,
-            letterSpacing: '2px',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
-          }}>
-            سورة {surahName}
-          </div>
-        </AbsoluteFill>
-      )}
-
       <AbsoluteFill>
         {verses.map((verse, index) => {
           const startFrame = verse.startFrame ?? Math.floor(index * (durationInFrames / verses.length));
@@ -489,6 +462,33 @@ export const MainVideo: React.FC<MainVideoProps> = ({
           );
         })}
       </AbsoluteFill>
+
+      {/* Static Surah Name Badge at the top */}
+      {surahName && (
+        <AbsoluteFill style={{
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          paddingTop: '80px',
+          pointerEvents: 'none',
+          zIndex: 50
+        }}>
+          <div style={{
+            padding: '10px 30px',
+            borderRadius: '25px',
+            backgroundColor: 'rgba(0,0,0,0.45)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            color: '#FFD700',
+            fontSize: '32px',
+            fontWeight: 800,
+            textShadow: '0 0 20px rgba(255,215,0,0.4)',
+            fontFamily: `"${fontFamily}", serif`,
+            letterSpacing: '2px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+          }}>
+            سورة {surahName}
+          </div>
+        </AbsoluteFill>
+      )}
 
       {/* ── Watermarks for Free Users ── */}
       {userPlan === "free" && (

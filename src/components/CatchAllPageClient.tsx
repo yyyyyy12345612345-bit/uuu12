@@ -32,7 +32,7 @@ const SubscriptionModal = nextDynamic(() => import("@/components/SubscriptionMod
 const CommunityShowcase = nextDynamic(() => import("@/components/CommunityShowcase").then(mod => mod.CommunityShowcase), { ssr: false });
 const PointsGuideModal = nextDynamic(() => import("@/components/PointsGuideModal").then(mod => mod.PointsGuideModal), { ssr: false });
 const ChatBot = nextDynamic(() => import("@/components/ChatBot").then(mod => mod.ChatBot), { ssr: false });
-const SecurityPage = nextDynamic(() => import("@/components/SecurityPage").then(mod => mod.SecurityPage), { ssr: false });
+const SettingsModal = nextDynamic(() => import("@/components/SettingsModal").then(mod => mod.SettingsModal), { ssr: false });
 
 export function CatchAllPageClient() {
   return (
@@ -55,6 +55,7 @@ function CatchAllContent() {
   const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
   const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
   const [isPointsGuideOpen, setIsPointsGuideOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
 
   // Derived active view from pathname - the safest way in Next.js 15/16 Client Components
@@ -95,8 +96,7 @@ function CatchAllContent() {
         import("@/components/GlobalMenu"),
         import("@/components/Leaderboard"),
         import("@/components/AuthGate"),
-        import("@/components/MushafChoice"),
-        import("@/components/SecurityPage")
+        import("@/components/MushafChoice")
       ]).then(() => {
         // 2. Pre-mount components in the DOM in hidden divs for instant layout activation
         setVisited(prev => ({
@@ -107,8 +107,7 @@ function CatchAllContent() {
           daily: true,
           library: true,
           prayers: true,
-          video: true,
-          security: true
+          video: true
         }));
       }).catch(err => console.log("Background preloading delayed:", err));
     }, 2500); // 2.5s delay to keep critical start path 100% clear and fast
@@ -212,12 +211,6 @@ function CatchAllContent() {
             <CommunityShowcase />
           </div>
         )}
-        {visited.security && (
-          <div key="security" className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'security' ? 'block view-transition' : 'hidden'}`}>
-            <SecurityPage />
-          </div>
-        )}
-        
         {visited.video && (
           <div key="video" className={`h-full w-full ${activeView === 'video' ? 'block view-transition' : 'hidden'}`}>
              <div className="flex h-full w-full overflow-hidden bg-[#0c0d10]">
@@ -307,6 +300,9 @@ function CatchAllContent() {
           setIsMenuOpen(false);
           setIsPointsGuideOpen(true);
         }}
+        onOpenSettings={() => {
+          setIsSettingsOpen(true);
+        }}
       />
       <ProfileModal 
         isOpen={isProfileOpen} 
@@ -319,6 +315,7 @@ function CatchAllContent() {
         }} 
       />
       <PointsGuideModal isOpen={isPointsGuideOpen} onClose={() => setIsPointsGuideOpen(false)} />
+      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       
       {/* Global AI ChatBot */}
       <ChatBot />

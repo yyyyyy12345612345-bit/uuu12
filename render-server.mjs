@@ -174,27 +174,24 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
   const vLines = wrapText(verse.text || "", scaledFontSize, textW);
   const tLines = verse.translation ? wrapText(verse.translation, translationFontSize, textW) : [];
 
-  const BADGE_H = surahName ? 44 : 0;
-  const BADGE_GAP = surahName ? 24 : 0;
   const VERSE_H = vLines.length * lineH;
   const SEP_H = 48;
   const TRANS_H = tLines.length > 0 ? tLines.length * tLineH + 20 : 0;
   const ORNAMENT_H = 60;
-  const totalH = BADGE_H + BADGE_GAP + VERSE_H + SEP_H + TRANS_H + ORNAMENT_H;
+  const totalH = VERSE_H + SEP_H + TRANS_H + ORNAMENT_H;
 
   let startY;
-  if (textPosition === "top") startY = 100;
+  if (textPosition === "top") startY = 200;
   else if (textPosition === "bottom") startY = Math.max(80, HEIGHT - totalH - 120);
   else startY = Math.max(80, (HEIGHT - totalH) / 2);
-  startY = Math.max(60, Math.min(startY, HEIGHT - totalH - 60));
+  startY = Math.max(160, Math.min(startY, HEIGHT - totalH - 60));
 
   let curY = startY;
   const svgWeight = fontWeight >= 700 ? "bold" : fontWeight >= 500 ? "600" : "normal";
 
   const badgeSVG = surahName ? `
-    <rect x="${(WIDTH - 240) / 2}" y="${curY}" width="240" height="34" rx="17" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-    <text x="${centerX}" y="${curY + 23}" font-family="'${escapeXml(fontFamily)}', 'Amiri', serif" font-size="13" font-weight="600" fill="rgba(255,255,255,0.75)" text-anchor="middle" letter-spacing="0.8">${escapeXml(surahName)} · ${escapeXml(String(verse.id || ""))}</text>` : "";
-  if (surahName) curY += BADGE_H + BADGE_GAP;
+    <rect x="${(WIDTH - 240) / 2}" y="80" width="240" height="34" rx="17" fill="rgba(0,0,0,0.45)" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+    <text x="${centerX}" y="103" font-family="'${escapeXml(fontFamily)}', 'Amiri', serif" font-size="13" font-weight="600" fill="#FFD700" text-anchor="middle" letter-spacing="0.8">${escapeXml(surahName)} · ${escapeXml(String(verse.id || ""))}</text>` : "";
 
   const verseY = curY;
   const verseTSpans = vLines.map((line, i) => `<tspan x="${centerX}" dy="${i === 0 ? 0 : lineH}">${escapeXml(line)}</tspan>`).join("");
