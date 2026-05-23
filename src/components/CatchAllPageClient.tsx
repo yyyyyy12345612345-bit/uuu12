@@ -32,6 +32,7 @@ const SubscriptionModal = nextDynamic(() => import("@/components/SubscriptionMod
 const CommunityShowcase = nextDynamic(() => import("@/components/CommunityShowcase").then(mod => mod.CommunityShowcase), { ssr: false });
 const PointsGuideModal = nextDynamic(() => import("@/components/PointsGuideModal").then(mod => mod.PointsGuideModal), { ssr: false });
 const ChatBot = nextDynamic(() => import("@/components/ChatBot").then(mod => mod.ChatBot), { ssr: false });
+const SecurityPage = nextDynamic(() => import("@/components/SecurityPage").then(mod => mod.SecurityPage), { ssr: false });
 
 export function CatchAllPageClient() {
   return (
@@ -94,7 +95,8 @@ function CatchAllContent() {
         import("@/components/GlobalMenu"),
         import("@/components/Leaderboard"),
         import("@/components/AuthGate"),
-        import("@/components/MushafChoice")
+        import("@/components/MushafChoice"),
+        import("@/components/SecurityPage")
       ]).then(() => {
         // 2. Pre-mount components in the DOM in hidden divs for instant layout activation
         setVisited(prev => ({
@@ -105,7 +107,8 @@ function CatchAllContent() {
           daily: true,
           library: true,
           prayers: true,
-          video: true
+          video: true,
+          security: true
         }));
       }).catch(err => console.log("Background preloading delayed:", err));
     }, 2500); // 2.5s delay to keep critical start path 100% clear and fast
@@ -207,6 +210,11 @@ function CatchAllContent() {
         {visited.showcase && (
           <div key="showcase" className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'showcase' ? 'block view-transition' : 'hidden'}`}>
             <CommunityShowcase />
+          </div>
+        )}
+        {visited.security && (
+          <div key="security" className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'security' ? 'block view-transition' : 'hidden'}`}>
+            <SecurityPage />
           </div>
         )}
         

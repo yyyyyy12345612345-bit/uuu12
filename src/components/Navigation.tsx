@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Video, BookOpen, Timer, Headphones, Calendar, Trophy } from "lucide-react";
+import { Video, BookOpen, Timer, Headphones, Calendar, Trophy, Shield } from "lucide-react";
 import { useInstantPathname, navigateInstantly } from "@/lib/navigation";
 
 export function Navigation() {
@@ -15,6 +15,7 @@ export function Navigation() {
     { id: "rank", label: "الترتيب", icon: Trophy, path: "/rank" },
     { id: "library", label: "صوتيات", icon: Headphones, path: "/library" },
     { id: "prayers", label: "مواقيت", icon: Timer, path: "/prayers" },
+    { id: "security", label: "الأمن", icon: Shield, path: "/security" },
     { id: "video", label: "فيديو", icon: Video, path: "/video" },
   ];
 
