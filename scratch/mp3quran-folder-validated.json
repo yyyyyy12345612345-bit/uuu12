@@ -1,0 +1,3384 @@
+[
+  {
+    "id": "ajm",
+    "name": "أحمد بن علي العجمي",
+    "server": "server10.mp3quran.net",
+    "current_folder": "ajm",
+    "matches": [
+      [
+        "ajm",
+        "ok",
+        200,
+        1.0,
+        1.0,
+        0,
+        1.0
+      ],
+      [
+        "a_majed",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "Aamer",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "abkr",
+    "name": "إدريس أبكر",
+    "server": "server6.mp3quran.net",
+    "current_folder": "abkr",
+    "matches": [
+      [
+        "abkr",
+        "ok",
+        200,
+        1.0,
+        1.0,
+        0,
+        1.0
+      ],
+      [
+        "askr",
+        "ok",
+        200,
+        0.75,
+        0.75,
+        0,
+        0.75
+      ],
+      [
+        "akdr",
+        "ok",
+        200,
+        0.75,
+        0.75,
+        0,
+        0.75
+      ],
+      [
+        "rami",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "khan",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "bsfr",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "arkani",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "shakoor",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ],
+      [
+        "kurdi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "akdr",
+    "name": "إبراهيم الأخضر",
+    "server": "server6.mp3quran.net",
+    "current_folder": "akdr",
+    "matches": [
+      [
+        "akdr",
+        "ok",
+        200,
+        1.0,
+        1.0,
+        0,
+        1.0
+      ],
+      [
+        "askr",
+        "ok",
+        200,
+        0.75,
+        0.75,
+        0,
+        0.75
+      ],
+      [
+        "abkr",
+        "ok",
+        200,
+        0.75,
+        0.75,
+        0,
+        0.75
+      ],
+      [
+        "kurdi",
+        "ok",
+        200,
+        0.6,
+        0.6,
+        0,
+        0.6
+      ],
+      [
+        "rami",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "khan",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "arkani",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "shakoor",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ],
+      [
+        "hamad",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "jleel",
+    "name": "خالد الجليل",
+    "server": "server10.mp3quran.net",
+    "current_folder": "jleel",
+    "matches": [
+      [
+        "jleel",
+        "ok",
+        200,
+        1.0,
+        1.0,
+        0,
+        1.0
+      ]
+    ]
+  },
+  {
+    "id": "hazza",
+    "name": "هزاع البلوشي",
+    "server": "server11.mp3quran.net",
+    "current_folder": "hazza",
+    "matches": [
+      [
+        "hazza",
+        "ok",
+        200,
+        1.0,
+        1.0,
+        0,
+        1.0
+      ],
+      [
+        "a_ahmed",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "hawashi",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ],
+      [
+        "ahmad_nu",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ],
+      [
+        "whabi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "mohna",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "hatem",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "mansor",
+    "name": "منصور السالمي",
+    "server": "server14.mp3quran.net",
+    "current_folder": "mansor",
+    "matches": [
+      [
+        "mansor",
+        "ok",
+        200,
+        1.0,
+        1.0,
+        0,
+        1.0
+      ],
+      [
+        "alosfor",
+        "ok",
+        200,
+        0.5714285714285714,
+        0.5714285714285714,
+        0,
+        0.5714285714285714
+      ]
+    ]
+  },
+  {
+    "id": "balilah",
+    "name": "بندر بليلة",
+    "server": "server6.mp3quran.net",
+    "current_folder": "balilah",
+    "matches": [
+      [
+        "balilah",
+        "ok",
+        200,
+        1.0,
+        1.0,
+        0,
+        1.0
+      ],
+      [
+        "lahoni",
+        "ok",
+        200,
+        0.5714285714285714,
+        0.5714285714285714,
+        0,
+        0.5714285714285714
+      ],
+      [
+        "habdan",
+        "ok",
+        200,
+        0.5714285714285714,
+        0.5714285714285714,
+        0,
+        0.5714285714285714
+      ],
+      [
+        "thubti",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ],
+      [
+        "jamal",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ],
+      [
+        "hamad",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ],
+      [
+        "ghamdi",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ],
+      [
+        "earawi",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ],
+      [
+        "arkani",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ],
+      [
+        "aloosi",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ]
+    ]
+  },
+  {
+    "id": "albana",
+    "name": "البنا",
+    "server": "server8.mp3quran.net",
+    "current_folder": "bna",
+    "matches": [
+      [
+        "bna",
+        "ok",
+        200,
+        1.0,
+        0.5,
+        0,
+        1.0
+      ],
+      [
+        "buajan",
+        "ok",
+        200,
+        0.6666666666666666,
+        0.6666666666666666,
+        0,
+        0.5
+      ],
+      [
+        "ryan",
+        "ok",
+        200,
+        0.5,
+        0.3333333333333333,
+        0,
+        0.5
+      ],
+      [
+        "noah",
+        "ok",
+        200,
+        0.5,
+        0.3333333333333333,
+        0,
+        0.5
+      ],
+      [
+        "namh",
+        "ok",
+        200,
+        0.5,
+        0.3333333333333333,
+        0,
+        0.5
+      ],
+      [
+        "lhdan",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.4
+      ],
+      [
+        "hani",
+        "ok",
+        200,
+        0.5,
+        0.3333333333333333,
+        0,
+        0.5
+      ],
+      [
+        "gulan",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.4
+      ],
+      [
+        "a_klb",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "saber",
+        "ok",
+        200,
+        0.4,
+        0.3333333333333333,
+        0,
+        0.4
+      ],
+      [
+        "ayyub",
+        "ok",
+        200,
+        0.4,
+        0.3333333333333333,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "mohammad_rifaat",
+    "name": "محمد رفعت",
+    "server": "server14.mp3quran.net",
+    "current_folder": "mohammad_rifaat",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ]
+    ]
+  },
+  {
+    "id": "sayed_nakashibandi",
+    "name": "سيد النقشبندي",
+    "server": "server11.mp3quran.net",
+    "current_folder": "sayed_nakashibandi",
+    "matches": [
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ]
+    ]
+  },
+  {
+    "id": "waleed_shamsan",
+    "name": "الوليد الشمسان",
+    "server": "server11.mp3quran.net",
+    "current_folder": "waleed_shamsan",
+    "matches": [
+      [
+        "salman",
+        "ok",
+        200,
+        0.46153846153846156,
+        0.46153846153846156,
+        0,
+        0.46153846153846156
+      ],
+      [
+        "ahmad_nu",
+        "ok",
+        200,
+        0.46153846153846156,
+        0.46153846153846156,
+        0,
+        0.46153846153846156
+      ],
+      [
+        "a_ahmed",
+        "ok",
+        200,
+        0.46153846153846156,
+        0.46153846153846156,
+        0,
+        0.46153846153846156
+      ],
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.4090909090909091,
+        0.4090909090909091,
+        0,
+        0.4090909090909091
+      ]
+    ]
+  },
+  {
+    "id": "badr_turki",
+    "name": "بدر التركي",
+    "server": "server11.mp3quran.net",
+    "current_folder": "badr_turki",
+    "matches": [
+      [
+        "shatri",
+        "ok",
+        200,
+        0.4444444444444444,
+        0.4444444444444444,
+        0,
+        0.4444444444444444
+      ],
+      [
+        "kndri",
+        "ok",
+        200,
+        0.4444444444444444,
+        0.4444444444444444,
+        0,
+        0.4444444444444444
+      ]
+    ]
+  },
+  {
+    "id": "ali_abdullah_jaber",
+    "name": "علي عبد الله جابر",
+    "server": "server11.mp3quran.net",
+    "current_folder": "ali_abdullah_jaber",
+    "matches": [
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.4090909090909091,
+        0.4090909090909091,
+        0,
+        0.4090909090909091
+      ]
+    ]
+  },
+  {
+    "id": "ahmed_ibn_taleb_hameed",
+    "name": "أحمد ابن طالب حميد",
+    "server": "server11.mp3quran.net",
+    "current_folder": "ahmed_ibn_taleb_hameed",
+    "matches": [
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.45454545454545453,
+        0.45454545454545453,
+        0,
+        0.45454545454545453
+      ]
+    ]
+  },
+  {
+    "id": "islam_sobhi",
+    "name": "إسلام صبحي",
+    "server": "server11.mp3quran.net",
+    "current_folder": "islam_sobhi",
+    "matches": [
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.4090909090909091,
+        0.4090909090909091,
+        0,
+        0.4090909090909091
+      ],
+      [
+        "zilaie",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "whabi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "shatri",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "salman",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "mrifai",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "mohna",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "koshi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "hawashi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "bilal",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "abdurrahman_musaab",
+    "name": "عبد الرحمن مصعب",
+    "server": "server11.mp3quran.net",
+    "current_folder": "abdurrahman_musaab",
+    "matches": [
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "ahmad_nu",
+        "ok",
+        200,
+        0.4117647058823529,
+        0.4117647058823529,
+        0,
+        0.4117647058823529
+      ]
+    ]
+  },
+  {
+    "id": "mustafa_ismail",
+    "name": "مصطفى إسماعيل",
+    "server": "server10.mp3quran.net",
+    "current_folder": "mustafa_ismail",
+    "matches": [
+      [
+        "trabulsi",
+        "ok",
+        200,
+        0.46153846153846156,
+        0.46153846153846156,
+        0,
+        0.46153846153846156
+      ],
+      [
+        "IbrahemSadan",
+        "ok",
+        200,
+        0.46153846153846156,
+        0.46153846153846156,
+        0,
+        0.46153846153846156
+      ]
+    ]
+  },
+  {
+    "id": "ahmed_naeen",
+    "name": "أحمد نعينع",
+    "server": "server8.mp3quran.net",
+    "current_folder": "ahmed_naeen",
+    "matches": [
+      [
+        "majd_onazi",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "ahmad_huth",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "sami_hsn",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "namh",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "lhdan",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "kamel_yousef_albahtimi",
+    "name": "كامل يوسف البهتيمي",
+    "server": "server6.mp3quran.net",
+    "current_folder": "kamel_yousef_albahtimi",
+    "matches": [
+      [
+        "mohsin_harthi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "taha_alfashny",
+    "name": "طه الفشني",
+    "server": "server14.mp3quran.net",
+    "current_folder": "taha_alfashny",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.46153846153846156,
+        0.46153846153846156,
+        0,
+        0.46153846153846156
+      ]
+    ]
+  },
+  {
+    "id": "abu_alaneen_shaishaa",
+    "name": "أبو العنين شعيشع",
+    "server": "server14.mp3quran.net",
+    "current_folder": "abu_alaneen_shaishaa",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ]
+    ]
+  },
+  {
+    "id": "alhuthaify",
+    "name": "علي الحذيفي",
+    "server": "server11.mp3quran.net",
+    "current_folder": "alhuthaify",
+    "matches": [
+      [
+        "hawashi",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "shatri",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "ahmad_nu",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "alqasim",
+    "name": "عبد المحسن القاسم",
+    "server": "server11.mp3quran.net",
+    "current_folder": "alqasim",
+    "matches": [
+      [
+        "salman",
+        "ok",
+        200,
+        0.7142857142857143,
+        0.7142857142857143,
+        0,
+        0.7142857142857143
+      ],
+      [
+        "hawashi",
+        "ok",
+        200,
+        0.5714285714285714,
+        0.5714285714285714,
+        0,
+        0.5714285714285714
+      ],
+      [
+        "zilaie",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ],
+      [
+        "shatri",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ],
+      [
+        "qari",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ],
+      [
+        "mrifai",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ],
+      [
+        "bilal",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ],
+      [
+        "ahmad_nu",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ],
+      [
+        "a_ahmed",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ]
+    ]
+  },
+  {
+    "id": "ath_thubaity",
+    "name": "عبد الباري الثبيتي",
+    "server": "server8.mp3quran.net",
+    "current_folder": "ath_thubaity",
+    "matches": [
+      [
+        "ahmad_huth",
+        "ok",
+        200,
+        0.5454545454545454,
+        0.5454545454545454,
+        0,
+        0.5454545454545454
+      ],
+      [
+        "harthi",
+        "ok",
+        200,
+        0.45454545454545453,
+        0.45454545454545453,
+        0,
+        0.45454545454545453
+      ]
+    ]
+  },
+  {
+    "id": "adel_kalbani",
+    "name": "عادل كلباني",
+    "server": "server8.mp3quran.net",
+    "current_folder": "adel_kalbani",
+    "matches": [
+      [
+        "majd_onazi",
+        "ok",
+        200,
+        0.45454545454545453,
+        0.45454545454545453,
+        0,
+        0.45454545454545453
+      ]
+    ]
+  },
+  {
+    "id": "khalid_alqahtani",
+    "name": "خالد القحطاني",
+    "server": "server11.mp3quran.net",
+    "current_folder": "khalid_alqahtani",
+    "matches": [
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.45454545454545453,
+        0.45454545454545453,
+        0,
+        0.45454545454545453
+      ]
+    ]
+  },
+  {
+    "id": "salah_bukhatir",
+    "name": "صلاح بختير",
+    "server": "server6.mp3quran.net",
+    "current_folder": "salah_bukhatir",
+    "matches": [
+      [
+        "mohsin_harthi",
+        "ok",
+        200,
+        0.5384615384615384,
+        0.5384615384615384,
+        0,
+        0.5384615384615384
+      ],
+      [
+        "balilah",
+        "ok",
+        200,
+        0.46153846153846156,
+        0.46153846153846156,
+        0,
+        0.46153846153846156
+      ]
+    ]
+  },
+  {
+    "id": "salah_albudair",
+    "name": "صلاح البدير",
+    "server": "server6.mp3quran.net",
+    "current_folder": "salah_albudair",
+    "matches": [
+      [
+        "balilah",
+        "ok",
+        200,
+        0.5384615384615384,
+        0.5384615384615384,
+        0,
+        0.5384615384615384
+      ]
+    ]
+  },
+  {
+    "id": "abdulkarim_alhazmi",
+    "name": "عبد الكريم الحازمي",
+    "server": "server14.mp3quran.net",
+    "current_folder": "abdulkarim_alhazmi",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.4117647058823529,
+        0.4117647058823529,
+        0,
+        0.4117647058823529
+      ]
+    ]
+  },
+  {
+    "id": "ibrahim_aljibrin",
+    "name": "إبراهيم الجبرين",
+    "server": "server11.mp3quran.net",
+    "current_folder": "ibrahim_aljibrin",
+    "matches": [
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.5454545454545454,
+        0.5454545454545454,
+        0,
+        0.5454545454545454
+      ]
+    ]
+  },
+  {
+    "id": "ayman_suwaid",
+    "name": "أيمن سويد",
+    "server": "server8.mp3quran.net",
+    "current_folder": "ayman_suwaid",
+    "matches": [
+      [
+        "majd_onazi",
+        "ok",
+        200,
+        0.5454545454545454,
+        0.5454545454545454,
+        0,
+        0.5454545454545454
+      ],
+      [
+        "sami_hsn",
+        "ok",
+        200,
+        0.45454545454545453,
+        0.45454545454545453,
+        0,
+        0.45454545454545453
+      ],
+      [
+        "mustafa",
+        "ok",
+        200,
+        0.45454545454545453,
+        0.45454545454545453,
+        0,
+        0.45454545454545453
+      ],
+      [
+        "ahmad_huth",
+        "ok",
+        200,
+        0.45454545454545453,
+        0.45454545454545453,
+        0,
+        0.45454545454545453
+      ]
+    ]
+  },
+  {
+    "id": "nabil_rafat",
+    "name": "نبيل رفعت",
+    "server": "server14.mp3quran.net",
+    "current_folder": "nabil_rafat",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.46153846153846156,
+        0.46153846153846156,
+        0,
+        0.46153846153846156
+      ],
+      [
+        "refat",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "alosfor",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "yassin_pasha",
+    "name": "ياسين باشا",
+    "server": "server10.mp3quran.net",
+    "current_folder": "yassin_pasha",
+    "matches": [
+      [
+        "IbrahemSadan",
+        "ok",
+        200,
+        0.5833333333333334,
+        0.5833333333333334,
+        0,
+        0.5833333333333334
+      ]
+    ]
+  },
+  {
+    "id": "mohammed_mabrouk",
+    "name": "محمد مبروك",
+    "server": "server6.mp3quran.net",
+    "current_folder": "mohammed_mabrouk",
+    "matches": [
+      [
+        "shakoor",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "ahmed_pas",
+    "name": "أحمد باس",
+    "server": "server11.mp3quran.net",
+    "current_folder": "ahmed_pas",
+    "matches": [
+      [
+        "a_ahmed",
+        "ok",
+        200,
+        0.75,
+        0.75,
+        0,
+        0.75
+      ],
+      [
+        "ahmad_nu",
+        "ok",
+        200,
+        0.625,
+        0.625,
+        0,
+        0.625
+      ],
+      [
+        "salman",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "hawashi",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "hatem",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ]
+    ]
+  },
+  {
+    "id": "ahmed_soliman",
+    "name": "أحمد سليمان",
+    "server": "server7.mp3quran.net",
+    "current_folder": "ahmed_soliman",
+    "matches": [
+      [
+        "m_arkani",
+        "ok",
+        200,
+        0.4166666666666667,
+        0.4166666666666667,
+        0,
+        0.4166666666666667
+      ],
+      [
+        "dokali",
+        "ok",
+        200,
+        0.4166666666666667,
+        0.4166666666666667,
+        0,
+        0.4166666666666667
+      ]
+    ]
+  },
+  {
+    "id": "mohammed_fahad",
+    "name": "محمد فهد",
+    "server": "server8.mp3quran.net",
+    "current_folder": "mohammed_fahad",
+    "matches": [
+      [
+        "ahmad_huth",
+        "ok",
+        200,
+        0.46153846153846156,
+        0.46153846153846156,
+        0,
+        0.46153846153846156
+      ]
+    ]
+  },
+  {
+    "id": "mohammed_ghassan",
+    "name": "محمد غسان",
+    "server": "server14.mp3quran.net",
+    "current_folder": "mohammed_ghassan",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.6,
+        0.6,
+        0,
+        0.6
+      ]
+    ]
+  },
+  {
+    "id": "mohammed_ismail",
+    "name": "محمد إسماعيل",
+    "server": "server14.mp3quran.net",
+    "current_folder": "mohammed_ismail",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ]
+    ]
+  },
+  {
+    "id": "hamza_alhassan",
+    "name": "حمزة الحسن",
+    "server": "server11.mp3quran.net",
+    "current_folder": "hamza_alhassan",
+    "matches": [
+      [
+        "salman",
+        "ok",
+        200,
+        0.46153846153846156,
+        0.46153846153846156,
+        0,
+        0.46153846153846156
+      ],
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.45454545454545453,
+        0.45454545454545453,
+        0,
+        0.45454545454545453
+      ]
+    ]
+  },
+  {
+    "id": "abdulkareem_alshehri",
+    "name": "عبد الكريم الشهري",
+    "server": "server10.mp3quran.net",
+    "current_folder": "abdulkareem_alshehri",
+    "matches": [
+      [
+        "IbrahemSadan",
+        "ok",
+        200,
+        0.5789473684210527,
+        0.5789473684210527,
+        0,
+        0.5789473684210527
+      ],
+      [
+        "Abdullahk",
+        "ok",
+        200,
+        0.47368421052631576,
+        0.47368421052631576,
+        0,
+        0.47368421052631576
+      ]
+    ]
+  },
+  {
+    "id": "rashid_alhur",
+    "name": "راشد الحور",
+    "server": "server8.mp3quran.net",
+    "current_folder": "rashid_alhur",
+    "matches": [
+      [
+        "ahmad_huth",
+        "ok",
+        200,
+        0.5454545454545454,
+        0.5454545454545454,
+        0,
+        0.5454545454545454
+      ],
+      [
+        "harthi",
+        "ok",
+        200,
+        0.45454545454545453,
+        0.45454545454545453,
+        0,
+        0.45454545454545453
+      ]
+    ]
+  },
+  {
+    "id": "mohammed_alquraishi",
+    "name": "محمد القرشي",
+    "server": "server14.mp3quran.net",
+    "current_folder": "mohammed_alquraishi",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ]
+    ]
+  },
+  {
+    "id": "nadir_almaghribi",
+    "name": "نادر المغربي",
+    "server": "server8.mp3quran.net",
+    "current_folder": "nadir_almaghribi",
+    "matches": [
+      [
+        "majd_onazi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "mohamed_gaber",
+    "name": "محمد جابر",
+    "server": "server11.mp3quran.net",
+    "current_folder": "mohamed_gaber",
+    "matches": [
+      [
+        "a_ahmed",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "ahmad_nu",
+        "ok",
+        200,
+        0.4166666666666667,
+        0.4166666666666667,
+        0,
+        0.4166666666666667
+      ]
+    ]
+  },
+  {
+    "id": "fadhel_alqahtani",
+    "name": "فاضل القحطاني",
+    "server": "server10.mp3quran.net",
+    "current_folder": "fadhel_alqahtani",
+    "matches": [
+      [
+        "IbrahemSadan",
+        "ok",
+        200,
+        0.5333333333333333,
+        0.5333333333333333,
+        0,
+        0.5333333333333333
+      ],
+      [
+        "Abdullahk",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "abdullah_alshehri",
+    "name": "عبد الله الشهري",
+    "server": "server14.mp3quran.net",
+    "current_folder": "abdullah_alshehri",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ]
+    ]
+  },
+  {
+    "id": "mohamed_aldurai",
+    "name": "محمد الدوري",
+    "server": "server8.mp3quran.net",
+    "current_folder": "mohamed_aldurai",
+    "matches": [
+      [
+        "majd_onazi",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ],
+      [
+        "ahmad_huth",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ]
+    ]
+  },
+  {
+    "id": "mohammad_moneer",
+    "name": "محمد منير",
+    "server": "server10.mp3quran.net",
+    "current_folder": "mohammad_moneer",
+    "matches": [
+      [
+        "IbrahemSadan",
+        "ok",
+        200,
+        0.5714285714285714,
+        0.5714285714285714,
+        0,
+        0.5714285714285714
+      ],
+      [
+        "monshed",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ]
+    ]
+  },
+  {
+    "id": "rashid_alsharif",
+    "name": "راشد الشريف",
+    "server": "server11.mp3quran.net",
+    "current_folder": "rashid_alsharif",
+    "matches": [
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.5454545454545454,
+        0.5454545454545454,
+        0,
+        0.5454545454545454
+      ],
+      [
+        "hawashi",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ]
+    ]
+  },
+  {
+    "id": "amin_salman",
+    "name": "أمين سلمان",
+    "server": "server11.mp3quran.net",
+    "current_folder": "amin_salman",
+    "matches": [
+      [
+        "salman",
+        "ok",
+        200,
+        0.6,
+        0.6,
+        0,
+        0.6
+      ],
+      [
+        "hawashi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "ahmad_nu",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "ibrahim_zaid",
+    "name": "إبراهيم زايد",
+    "server": "server6.mp3quran.net",
+    "current_folder": "ibrahim_zaid",
+    "matches": [
+      [
+        "mohsin_harthi",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "hamad",
+        "ok",
+        200,
+        0.45454545454545453,
+        0.45454545454545453,
+        0,
+        0.45454545454545453
+      ],
+      [
+        "habdan",
+        "ok",
+        200,
+        0.45454545454545453,
+        0.45454545454545453,
+        0,
+        0.45454545454545453
+      ],
+      [
+        "ghamdi",
+        "ok",
+        200,
+        0.45454545454545453,
+        0.45454545454545453,
+        0,
+        0.45454545454545453
+      ],
+      [
+        "balilah",
+        "ok",
+        200,
+        0.45454545454545453,
+        0.45454545454545453,
+        0,
+        0.45454545454545453
+      ]
+    ]
+  },
+  {
+    "id": "abdullah_mahmoud",
+    "name": "عبد الله محمود",
+    "server": "server14.mp3quran.net",
+    "current_folder": "abdullah_mahmoud",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "sulaiman_alrajhi",
+    "name": "سليمان الراجحي",
+    "server": "server10.mp3quran.net",
+    "current_folder": "sulaiman_alrajhi",
+    "matches": [
+      [
+        "IbrahemSadan",
+        "ok",
+        200,
+        0.6,
+        0.6,
+        0,
+        0.6
+      ],
+      [
+        "trabulsi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "Abdullahk",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "mohammad_melhem",
+    "name": "محمد ملحم",
+    "server": "server11.mp3quran.net",
+    "current_folder": "mohammad_melhem",
+    "matches": [
+      [
+        "a_ahmed",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ]
+    ]
+  },
+  {
+    "id": "abdulrahman_almadani",
+    "name": "عبد الرحمن المدني",
+    "server": "server14.mp3quran.net",
+    "current_folder": "abdulrahman_almadani",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.42105263157894735,
+        0.42105263157894735,
+        0,
+        0.42105263157894735
+      ]
+    ]
+  },
+  {
+    "id": "mohammed_hasan",
+    "name": "محمد حسن",
+    "server": "server6.mp3quran.net",
+    "current_folder": "mohammed_hasan",
+    "matches": [
+      [
+        "mohsin_harthi",
+        "ok",
+        200,
+        0.5384615384615384,
+        0.5384615384615384,
+        0,
+        0.5384615384615384
+      ]
+    ]
+  },
+  {
+    "id": "salah_khalid",
+    "name": "صلاح خالد",
+    "server": "server11.mp3quran.net",
+    "current_folder": "salah_khalid",
+    "matches": [
+      [
+        "hawashi",
+        "ok",
+        200,
+        0.5454545454545454,
+        0.5454545454545454,
+        0,
+        0.5454545454545454
+      ],
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.4090909090909091,
+        0.4090909090909091,
+        0,
+        0.4090909090909091
+      ]
+    ]
+  },
+  {
+    "id": "hamad_alfarisi",
+    "name": "حمد الفارسي",
+    "server": "server10.mp3quran.net",
+    "current_folder": "hamad_alfarisi",
+    "matches": [
+      [
+        "IbrahemSadan",
+        "ok",
+        200,
+        0.6923076923076923,
+        0.6923076923076923,
+        0,
+        0.6923076923076923
+      ],
+      [
+        "rashad",
+        "ok",
+        200,
+        0.46153846153846156,
+        0.46153846153846156,
+        0,
+        0.46153846153846156
+      ]
+    ]
+  },
+  {
+    "id": "abdullah_alhamad",
+    "name": "عبد الله الحمّاد",
+    "server": "server14.mp3quran.net",
+    "current_folder": "abdullah_alhamad",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "ahmed_rifai",
+    "name": "أحمد الرفاعي",
+    "server": "server11.mp3quran.net",
+    "current_folder": "ahmed_rifai",
+    "matches": [
+      [
+        "mrifai",
+        "ok",
+        200,
+        0.6,
+        0.6,
+        0,
+        0.6
+      ],
+      [
+        "a_ahmed",
+        "ok",
+        200,
+        0.6,
+        0.6,
+        0,
+        0.6
+      ],
+      [
+        "ahmad_nu",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "zilaie",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "shatri",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "hawashi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "hatem",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "nasser_alharbi",
+    "name": "ناصر الحربي",
+    "server": "server14.mp3quran.net",
+    "current_folder": "nasser_alharbi",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.6923076923076923,
+        0.6923076923076923,
+        0,
+        0.6923076923076923
+      ]
+    ]
+  },
+  {
+    "id": "mohamed_mansour",
+    "name": "محمد منصور",
+    "server": "server8.mp3quran.net",
+    "current_folder": "mohamed_mansour",
+    "matches": [
+      [
+        "sahood",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ],
+      [
+        "majd_onazi",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ],
+      [
+        "ahmad_huth",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ]
+    ]
+  },
+  {
+    "id": "mohammad_ramadan",
+    "name": "محمد رمضان",
+    "server": "server11.mp3quran.net",
+    "current_folder": "mohammad_ramadan",
+    "matches": [
+      [
+        "ahmad_nu",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "taha_almadani",
+    "name": "طه المدني",
+    "server": "server14.mp3quran.net",
+    "current_folder": "taha_almadani",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.5384615384615384,
+        0.5384615384615384,
+        0,
+        0.5384615384615384
+      ]
+    ]
+  },
+  {
+    "id": "omar_tayeb",
+    "name": "عمر طيب",
+    "server": "server8.mp3quran.net",
+    "current_folder": "omar_tayeb",
+    "matches": [
+      [
+        "saber",
+        "ok",
+        200,
+        0.4444444444444444,
+        0.4444444444444444,
+        0,
+        0.4444444444444444
+      ],
+      [
+        "mustafa",
+        "ok",
+        200,
+        0.4444444444444444,
+        0.4444444444444444,
+        0,
+        0.4444444444444444
+      ],
+      [
+        "mtrod",
+        "ok",
+        200,
+        0.4444444444444444,
+        0.4444444444444444,
+        0,
+        0.4444444444444444
+      ],
+      [
+        "majd_onazi",
+        "ok",
+        200,
+        0.4444444444444444,
+        0.4444444444444444,
+        0,
+        0.4444444444444444
+      ],
+      [
+        "ahmad_huth",
+        "ok",
+        200,
+        0.4444444444444444,
+        0.4444444444444444,
+        0,
+        0.4444444444444444
+      ]
+    ]
+  },
+  {
+    "id": "mohammed_akram",
+    "name": "محمد أكرم",
+    "server": "server11.mp3quran.net",
+    "current_folder": "mohammed_akram",
+    "matches": [
+      [
+        "a_ahmed",
+        "ok",
+        200,
+        0.46153846153846156,
+        0.46153846153846156,
+        0,
+        0.46153846153846156
+      ]
+    ]
+  },
+  {
+    "id": "abdulaziz_ash_shabuni",
+    "name": "عبد العزيز الشابوني",
+    "server": "server14.mp3quran.net",
+    "current_folder": "abdulaziz_ash_shabuni",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.42105263157894735,
+        0.42105263157894735,
+        0,
+        0.42105263157894735
+      ]
+    ]
+  },
+  {
+    "id": "mohamed_bassam",
+    "name": "محمد بسام",
+    "server": "server11.mp3quran.net",
+    "current_folder": "mohamed_bassam",
+    "matches": [
+      [
+        "a_ahmed",
+        "ok",
+        200,
+        0.46153846153846156,
+        0.46153846153846156,
+        0,
+        0.46153846153846156
+      ],
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.4090909090909091,
+        0.4090909090909091,
+        0,
+        0.4090909090909091
+      ]
+    ]
+  },
+  {
+    "id": "saad_almohammedi",
+    "name": "سعد المحمودي",
+    "server": "server14.mp3quran.net",
+    "current_folder": "saad_almohammedi",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.5333333333333333,
+        0.5333333333333333,
+        0,
+        0.5333333333333333
+      ]
+    ]
+  },
+  {
+    "id": "mohammed_almuhandis",
+    "name": "محمد المهندس",
+    "server": "server10.mp3quran.net",
+    "current_folder": "mohammed_almuhandis",
+    "matches": [
+      [
+        "IbrahemSadan",
+        "ok",
+        200,
+        0.5555555555555556,
+        0.5555555555555556,
+        0,
+        0.5555555555555556
+      ]
+    ]
+  },
+  {
+    "id": "mohammed_saber",
+    "name": "محمد صابر",
+    "server": "server8.mp3quran.net",
+    "current_folder": "mohammed_saber",
+    "matches": [
+      [
+        "saber",
+        "ok",
+        200,
+        0.38461538461538464,
+        0.38461538461538464,
+        0,
+        0.38461538461538464
+      ]
+    ]
+  },
+  {
+    "id": "fahd_alqadi",
+    "name": "فهد القاضي",
+    "server": "server11.mp3quran.net",
+    "current_folder": "fahd_alqadi",
+    "matches": [
+      [
+        "hawashi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "ahmad_nu",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "a_ahmed",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "nasser_alqurashi",
+    "name": "ناصر القرشي",
+    "server": "server6.mp3quran.net",
+    "current_folder": "nasser_alqurashi",
+    "matches": [
+      [
+        "mohsin_harthi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "kanakeri",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "mohammed_alzahrani",
+    "name": "محمد الزهراني",
+    "server": "server14.mp3quran.net",
+    "current_folder": "mohammed_alzahrani",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.5294117647058824,
+        0.5294117647058824,
+        0,
+        0.5294117647058824
+      ]
+    ]
+  },
+  {
+    "id": "abdullah_almuhairi",
+    "name": "عبد الله المحيري",
+    "server": "server11.mp3quran.net",
+    "current_folder": "abdullah_almuhairi",
+    "matches": [
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.5454545454545454,
+        0.5454545454545454,
+        0,
+        0.5454545454545454
+      ]
+    ]
+  },
+  {
+    "id": "ahmed_alboghdadi",
+    "name": "أحمد البغدادي",
+    "server": "server6.mp3quran.net",
+    "current_folder": "ahmed_alboghdadi",
+    "matches": [
+      [
+        "mohsin_harthi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "ghamdi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "balilah",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "ali_alqarni",
+    "name": "علي القرني",
+    "server": "server8.mp3quran.net",
+    "current_folder": "ali_alqarni",
+    "matches": [
+      [
+        "majd_onazi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "m_qari",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "ahmed_alhameidi",
+    "name": "أحمد الحميدي",
+    "server": "server10.mp3quran.net",
+    "current_folder": "ahmed_alhameidi",
+    "matches": [
+      [
+        "IbrahemSadan",
+        "ok",
+        200,
+        0.5714285714285714,
+        0.5714285714285714,
+        0,
+        0.5714285714285714
+      ]
+    ]
+  },
+  {
+    "id": "mohammad_alhamami",
+    "name": "محمد الحمامي",
+    "server": "server11.mp3quran.net",
+    "current_folder": "mohammad_alhamami",
+    "matches": [
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.45454545454545453,
+        0.45454545454545453,
+        0,
+        0.45454545454545453
+      ]
+    ]
+  },
+  {
+    "id": "mohammed_alfaisal",
+    "name": "محمد الفيصل",
+    "server": "server14.mp3quran.net",
+    "current_folder": "mohammed_alfaisal",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ]
+    ]
+  },
+  {
+    "id": "yaser_almalki",
+    "name": "ياسر المالكي",
+    "server": "server6.mp3quran.net",
+    "current_folder": "yaser_almalki",
+    "matches": [
+      [
+        "kanakeri",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "mohsin_harthi",
+        "ok",
+        200,
+        0.4166666666666667,
+        0.4166666666666667,
+        0,
+        0.4166666666666667
+      ],
+      [
+        "earawi",
+        "ok",
+        200,
+        0.4166666666666667,
+        0.4166666666666667,
+        0,
+        0.4166666666666667
+      ],
+      [
+        "balilah",
+        "ok",
+        200,
+        0.4166666666666667,
+        0.4166666666666667,
+        0,
+        0.4166666666666667
+      ],
+      [
+        "arkani",
+        "ok",
+        200,
+        0.4166666666666667,
+        0.4166666666666667,
+        0,
+        0.4166666666666667
+      ]
+    ]
+  },
+  {
+    "id": "mohamed_alsaif",
+    "name": "محمد السيف",
+    "server": "server8.mp3quran.net",
+    "current_folder": "mohamed_alsaif",
+    "matches": [
+      [
+        "majd_onazi",
+        "ok",
+        200,
+        0.46153846153846156,
+        0.46153846153846156,
+        0,
+        0.46153846153846156
+      ]
+    ]
+  },
+  {
+    "id": "abdulrahman_alkhalidi",
+    "name": "عبد الرحمن الخالدي",
+    "server": "server10.mp3quran.net",
+    "current_folder": "abdulrahman_alkhalidi",
+    "matches": [
+      [
+        "IbrahemSadan",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "Abdullahk",
+        "ok",
+        200,
+        0.45,
+        0.45,
+        0,
+        0.45
+      ]
+    ]
+  },
+  {
+    "id": "ahmad_alsaeed",
+    "name": "أحمد السعيد",
+    "server": "server11.mp3quran.net",
+    "current_folder": "ahmad_alsaeed",
+    "matches": [
+      [
+        "a_ahmed",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "salman",
+        "ok",
+        200,
+        0.4166666666666667,
+        0.4166666666666667,
+        0,
+        0.4166666666666667
+      ],
+      [
+        "ahmad_nu",
+        "ok",
+        200,
+        0.4166666666666667,
+        0.4166666666666667,
+        0,
+        0.4166666666666667
+      ]
+    ]
+  },
+  {
+    "id": "sami_almutairi",
+    "name": "سامي المطيري",
+    "server": "server6.mp3quran.net",
+    "current_folder": "sami_almutairi",
+    "matches": [
+      [
+        "mohsin_harthi",
+        "ok",
+        200,
+        0.5384615384615384,
+        0.5384615384615384,
+        0,
+        0.5384615384615384
+      ]
+    ]
+  },
+  {
+    "id": "wakil_alharthy",
+    "name": "وكيل الحارثي",
+    "server": "server10.mp3quran.net",
+    "current_folder": "wakil_alharthy",
+    "matches": [
+      [
+        "IbrahemSadan",
+        "ok",
+        200,
+        0.46153846153846156,
+        0.46153846153846156,
+        0,
+        0.46153846153846156
+      ],
+      [
+        "Abdullahk",
+        "ok",
+        200,
+        0.46153846153846156,
+        0.46153846153846156,
+        0,
+        0.46153846153846156
+      ]
+    ]
+  },
+  {
+    "id": "mohammed_alsharqawi",
+    "name": "محمد الشرقاوي",
+    "server": "server11.mp3quran.net",
+    "current_folder": "mohammed_alsharqawi",
+    "matches": [
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.5909090909090909,
+        0.5909090909090909,
+        0,
+        0.5909090909090909
+      ]
+    ]
+  },
+  {
+    "id": "haytham_alsharif",
+    "name": "هيثم الشريف",
+    "server": "server14.mp3quran.net",
+    "current_folder": "haytham_alsharif",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.4666666666666667,
+        0.4666666666666667,
+        0,
+        0.4666666666666667
+      ]
+    ]
+  },
+  {
+    "id": "faisal_alwati",
+    "name": "فيصل الوطي",
+    "server": "server6.mp3quran.net",
+    "current_folder": "faisal_alwati",
+    "matches": [
+      [
+        "mohsin_harthi",
+        "ok",
+        200,
+        0.4166666666666667,
+        0.4166666666666667,
+        0,
+        0.4166666666666667
+      ],
+      [
+        "balilah",
+        "ok",
+        200,
+        0.4166666666666667,
+        0.4166666666666667,
+        0,
+        0.4166666666666667
+      ]
+    ]
+  },
+  {
+    "id": "mohammad_alsayed",
+    "name": "محمد السيد",
+    "server": "server10.mp3quran.net",
+    "current_folder": "mohammad_alsayed",
+    "matches": [
+      [
+        "IbrahemSadan",
+        "ok",
+        200,
+        0.5333333333333333,
+        0.5333333333333333,
+        0,
+        0.5333333333333333
+      ],
+      [
+        "monshed",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "mohammed_alsulaiman",
+    "name": "محمد السليمان",
+    "server": "server11.mp3quran.net",
+    "current_folder": "mohammed_alsulaiman",
+    "matches": [
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.45454545454545453,
+        0.45454545454545453,
+        0,
+        0.45454545454545453
+      ]
+    ]
+  },
+  {
+    "id": "taqi_alhaki",
+    "name": "تقي الحقي",
+    "server": "server14.mp3quran.net",
+    "current_folder": "taqi_alhaki",
+    "matches": [
+      [
+        "khalf",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "abdulrahman_ajar",
+    "name": "عبد الرحمن عجر",
+    "server": "server6.mp3quran.net",
+    "current_folder": "abdulrahman_ajar",
+    "matches": [
+      [
+        "habdan",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "noman_alsudais",
+    "name": "نعمان السديس",
+    "server": "server8.mp3quran.net",
+    "current_folder": "noman_alsudais",
+    "matches": [
+      [
+        "majd_onazi",
+        "ok",
+        200,
+        0.5384615384615384,
+        0.5384615384615384,
+        0,
+        0.5384615384615384
+      ],
+      [
+        "sami_hsn",
+        "ok",
+        200,
+        0.46153846153846156,
+        0.46153846153846156,
+        0,
+        0.46153846153846156
+      ]
+    ]
+  },
+  {
+    "id": "mohammed_aljubair",
+    "name": "محمد الجبير",
+    "server": "server10.mp3quran.net",
+    "current_folder": "mohammed_aljubair",
+    "matches": [
+      [
+        "IbrahemSadan",
+        "ok",
+        200,
+        0.625,
+        0.625,
+        0,
+        0.625
+      ],
+      [
+        "Abdullahk",
+        "ok",
+        200,
+        0.4375,
+        0.4375,
+        0,
+        0.4375
+      ]
+    ]
+  },
+  {
+    "id": "abdulrahman_alnasser",
+    "name": "عبد الرحمن الناصر",
+    "server": "server11.mp3quran.net",
+    "current_folder": "abdulrahman_alnasser",
+    "matches": [
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.5454545454545454,
+        0.5454545454545454,
+        0,
+        0.5454545454545454
+      ]
+    ]
+  },
+  {
+    "id": "mohamed_alqaisi",
+    "name": "محمد القيسي",
+    "server": "server6.mp3quran.net",
+    "current_folder": "mohamed_alqaisi",
+    "matches": [
+      [
+        "mohsin_harthi",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ]
+    ]
+  },
+  {
+    "id": "mohammed_alsalmi",
+    "name": "محمد السالمي",
+    "server": "server8.mp3quran.net",
+    "current_folder": "mohammed_alsalmi",
+    "matches": [
+      [
+        "majd_onazi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "akram_alraisi",
+    "name": "أكرم الرايسي",
+    "server": "server10.mp3quran.net",
+    "current_folder": "akram_alraisi",
+    "matches": [
+      [
+        "IbrahemSadan",
+        "ok",
+        200,
+        0.5833333333333334,
+        0.5833333333333334,
+        0,
+        0.5833333333333334
+      ],
+      [
+        "trabulsi",
+        "ok",
+        200,
+        0.4166666666666667,
+        0.4166666666666667,
+        0,
+        0.4166666666666667
+      ],
+      [
+        "trablsi",
+        "ok",
+        200,
+        0.4166666666666667,
+        0.4166666666666667,
+        0,
+        0.4166666666666667
+      ]
+    ]
+  },
+  {
+    "id": "mohammed_alrabeah",
+    "name": "محمد الربيع",
+    "server": "server11.mp3quran.net",
+    "current_folder": "mohammed_alrabeah",
+    "matches": [
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ]
+    ]
+  },
+  {
+    "id": "mohamed_alensani",
+    "name": "محمد الإنصاني",
+    "server": "server14.mp3quran.net",
+    "current_folder": "mohamed_alensani",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.6666666666666666,
+        0.6666666666666666,
+        0,
+        0.6666666666666666
+      ]
+    ]
+  },
+  {
+    "id": "abdulrahman_alkhatib",
+    "name": "عبد الرحمن الخطيب",
+    "server": "server6.mp3quran.net",
+    "current_folder": "abdulrahman_alkhatib",
+    "matches": [
+      [
+        "mohsin_harthi",
+        "ok",
+        200,
+        0.42105263157894735,
+        0.42105263157894735,
+        0,
+        0.42105263157894735
+      ]
+    ]
+  },
+  {
+    "id": "mohammed_aljawhar",
+    "name": "محمد الجوهرة",
+    "server": "server10.mp3quran.net",
+    "current_folder": "mohammed_aljawhar",
+    "matches": [
+      [
+        "IbrahemSadan",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ]
+    ]
+  },
+  {
+    "id": "mohamed_alshamri",
+    "name": "محمد الشمري",
+    "server": "server11.mp3quran.net",
+    "current_folder": "mohamed_alshamri",
+    "matches": [
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "hawashi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "a_ahmed",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "badr_alzahrani",
+    "name": "بدر الزهراني",
+    "server": "server14.mp3quran.net",
+    "current_folder": "badr_alzahrani",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.5384615384615384,
+        0.5384615384615384,
+        0,
+        0.5384615384615384
+      ]
+    ]
+  },
+  {
+    "id": "abdullah_aljohani",
+    "name": "عبد الله الجهني",
+    "server": "server6.mp3quran.net",
+    "current_folder": "abdullah_aljohani",
+    "matches": [
+      [
+        "balilah",
+        "ok",
+        200,
+        0.4375,
+        0.4375,
+        0,
+        0.4375
+      ]
+    ]
+  },
+  {
+    "id": "mohammed_albannai",
+    "name": "محمد البناني",
+    "server": "server8.mp3quran.net",
+    "current_folder": "mohammed_albannai",
+    "matches": [
+      [
+        "majd_onazi",
+        "ok",
+        200,
+        0.4375,
+        0.4375,
+        0,
+        0.4375
+      ]
+    ]
+  },
+  {
+    "id": "mohamed_alsalman",
+    "name": "محمد السلمان",
+    "server": "server10.mp3quran.net",
+    "current_folder": "mohamed_alsalman",
+    "matches": [
+      [
+        "IbrahemSadan",
+        "ok",
+        200,
+        0.6,
+        0.6,
+        0,
+        0.6
+      ],
+      [
+        "monshed",
+        "ok",
+        200,
+        0.4666666666666667,
+        0.4666666666666667,
+        0,
+        0.4666666666666667
+      ],
+      [
+        "Abdullahk",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "ibrahim_alsaleh",
+    "name": "إبراهيم الصالح",
+    "server": "server11.mp3quran.net",
+    "current_folder": "ibrahim_alsaleh",
+    "matches": [
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.5454545454545454,
+        0.5454545454545454,
+        0,
+        0.5454545454545454
+      ],
+      [
+        "hawashi",
+        "ok",
+        200,
+        0.42857142857142855,
+        0.42857142857142855,
+        0,
+        0.42857142857142855
+      ]
+    ]
+  },
+  {
+    "id": "muhammad_alfarsi",
+    "name": "محمد الفارسي",
+    "server": "server6.mp3quran.net",
+    "current_folder": "muhammad_alfarsi",
+    "matches": [
+      [
+        "mohsin_harthi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "mohamed_alahmadi",
+    "name": "محمد الأحمدي",
+    "server": "server8.mp3quran.net",
+    "current_folder": "mohamed_alahmadi",
+    "matches": [
+      [
+        "majd_onazi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "ahmad_huth",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "abdulaziz_alsharif",
+    "name": "عبد العزيز الشريف",
+    "server": "server10.mp3quran.net",
+    "current_folder": "abdulaziz_alsharif",
+    "matches": [
+      [
+        "IbrahemSadan",
+        "ok",
+        200,
+        0.5294117647058824,
+        0.5294117647058824,
+        0,
+        0.5294117647058824
+      ],
+      [
+        "Abdullahk",
+        "ok",
+        200,
+        0.47058823529411764,
+        0.47058823529411764,
+        0,
+        0.47058823529411764
+      ],
+      [
+        "trabulsi",
+        "ok",
+        200,
+        0.4117647058823529,
+        0.4117647058823529,
+        0,
+        0.4117647058823529
+      ]
+    ]
+  },
+  {
+    "id": "mohammad_alghamdi",
+    "name": "محمد الغامدي",
+    "server": "server11.mp3quran.net",
+    "current_folder": "mohammad_alghamdi",
+    "matches": [
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.45454545454545453,
+        0.45454545454545453,
+        0,
+        0.45454545454545453
+      ]
+    ]
+  },
+  {
+    "id": "yousef_alharbi",
+    "name": "يوسف الحربي",
+    "server": "server14.mp3quran.net",
+    "current_folder": "yousef_alharbi",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.46153846153846156,
+        0.46153846153846156,
+        0,
+        0.46153846153846156
+      ],
+      [
+        "alosfor",
+        "ok",
+        200,
+        0.46153846153846156,
+        0.46153846153846156,
+        0,
+        0.46153846153846156
+      ]
+    ]
+  },
+  {
+    "id": "omar_alsaud",
+    "name": "عمر السعود",
+    "server": "server6.mp3quran.net",
+    "current_folder": "omar_alsaud",
+    "matches": [
+      [
+        "mohsin_harthi",
+        "ok",
+        200,
+        0.4166666666666667,
+        0.4166666666666667,
+        0,
+        0.4166666666666667
+      ],
+      [
+        "shakoor",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "jamal",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "hamad",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ],
+      [
+        "aloosi",
+        "ok",
+        200,
+        0.4,
+        0.4,
+        0,
+        0.4
+      ]
+    ]
+  },
+  {
+    "id": "saleh_almalki",
+    "name": "صالح المالكي",
+    "server": "server10.mp3quran.net",
+    "current_folder": "saleh_almalki",
+    "matches": [
+      [
+        "IbrahemSadan",
+        "ok",
+        200,
+        0.6666666666666666,
+        0.6666666666666666,
+        0,
+        0.6666666666666666
+      ],
+      [
+        "Abdullahk",
+        "ok",
+        200,
+        0.5,
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        "sheimy",
+        "ok",
+        200,
+        0.4166666666666667,
+        0.4166666666666667,
+        0,
+        0.4166666666666667
+      ]
+    ]
+  },
+  {
+    "id": "abdullah_alhazmi2",
+    "name": "عبد الله الحازمي",
+    "server": "server11.mp3quran.net",
+    "current_folder": "abdullah_alhazmi2",
+    "matches": [
+      [
+        "mishaari_w_ibrahim_walk_si",
+        "ok",
+        200,
+        0.45454545454545453,
+        0.45454545454545453,
+        0,
+        0.45454545454545453
+      ]
+    ]
+  },
+  {
+    "id": "hassan_alshehri",
+    "name": "حسن الشهري",
+    "server": "server14.mp3quran.net",
+    "current_folder": "hassan_alshehri",
+    "matches": [
+      [
+        "nasser_almajed",
+        "ok",
+        200,
+        0.6428571428571429,
+        0.6428571428571429,
+        0,
+        0.6428571428571429
+      ]
+    ]
+  }
+]

@@ -1,0 +1,4946 @@
+[
+  {
+    "id": "abkr",
+    "name": "إدريس أبكر",
+    "best": [
+      {
+        "score": 0.4444444444444444,
+        "folder": "warsh",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "akdr",
+    "name": "إبراهيم الأخضر",
+    "best": [
+      {
+        "score": 0.4444444444444444,
+        "folder": "warsh",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "mansor",
+    "name": "منصور السالمي",
+    "best": [
+      {
+        "score": 0.48,
+        "folder": "Karim_Mansoori_40kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "translations",
+        "audio": false
+      },
+      {
+        "score": 0.43478260869565216,
+        "folder": "Ayman_Sowaid_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "quranpngs",
+        "audio": false
+      },
+      {
+        "score": 0.4,
+        "folder": "images_png",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "balilah",
+    "name": "بندر بليلة",
+    "best": [
+      {
+        "score": 0.5263157894736842,
+        "folder": "bismillah.mp3",
+        "audio": false
+      },
+      {
+        "score": 0.47619047619047616,
+        "folder": "audhubillah.mp3",
+        "audio": false
+      },
+      {
+        "score": 0.42857142857142855,
+        "folder": "English",
+        "audio": false
+      },
+      {
+        "score": 0.4,
+        "folder": "MultiLanguage",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "albana",
+    "name": "البنا",
+    "best": [
+      {
+        "score": 0.42105263157894735,
+        "folder": "MultiLanguage",
+        "audio": false
+      },
+      {
+        "score": 0.41379310344827586,
+        "folder": "mahmoud_ali_al_banna_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammad_rifaat",
+    "name": "محمد رفعت",
+    "best": [
+      {
+        "score": 0.5263157894736842,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5128205128205128,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47058823529411764,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47058823529411764,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Muhammad_Jibreel_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "sayed_nakashibandi",
+    "name": "سيد النقشبندي",
+    "best": [
+      {
+        "score": 0.4117647058823529,
+        "folder": "Sahl_Yassin_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "waleed_shamsan",
+    "name": "الوليد الشمسان",
+    "best": [
+      {
+        "score": 0.4444444444444444,
+        "folder": "warsh",
+        "audio": false
+      },
+      {
+        "score": 0.4117647058823529,
+        "folder": "Saood_ash-Shuraym_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Saood_ash-Shuraym_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "ali_abdullah_jaber",
+    "name": "علي عبد الله جابر",
+    "best": [
+      {
+        "score": 0.5555555555555556,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5555555555555556,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5405405405405406,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5333333333333333,
+        "folder": "Ali_Jaber_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5263157894736842,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "ahmed_ibn_taleb_hameed",
+    "name": "أحمد ابن طالب حميد",
+    "best": [
+      {
+        "score": 0.5454545454545454,
+        "folder": "ahmed_ibn_ali_al_ajamy_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4745762711864407,
+        "folder": "Ahmed_ibn_Ali_al-Ajamy_64kbps_QuranExplorer.Com",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "Ahmed_ibn_Ali_al-Ajamy_128kbps_ketaballah.net",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "islam_sobhi",
+    "name": "إسلام صبحي",
+    "best": [
+      {
+        "score": 0.45454545454545453,
+        "folder": "bismillah.mp3",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "abdurrahman_musaab",
+    "name": "عبد الرحمن مصعب",
+    "best": [
+      {
+        "score": 0.6511627906976745,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.6363636363636364,
+        "folder": "Abdurrahmaan_As-Sudais_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5405405405405406,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5405405405405406,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5263157894736842,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "ahmed_kasab",
+    "name": "أحمد كاسب",
+    "best": [
+      {
+        "score": 0.5185185185185185,
+        "folder": "Ahmed_Neana_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43478260869565216,
+        "folder": "Ghamadi_40kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41379310344827586,
+        "folder": "Ibrahim_Akhdar_64kbps",
+        "audio": false
+      },
+      {
+        "score": 0.41379310344827586,
+        "folder": "Ibrahim_Akhdar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "ahmed_ibn_ali_al_ajamy_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammad_ahmad_hassan",
+    "name": "محمد أحمد حسن",
+    "best": [
+      {
+        "score": 0.5581395348837209,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5454545454545454,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46153846153846156,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46153846153846156,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45,
+        "folder": "Muhammad_Ayyoub_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mustafa_ismail",
+    "name": "مصطفى إسماعيل",
+    "best": [
+      {
+        "score": 0.8125,
+        "folder": "Mustafa_Ismail_48kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Muhsin_Al_Qasim_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4117647058823529,
+        "folder": "Muhammad_Jibreel_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "timings_files",
+        "audio": false
+      },
+      {
+        "score": 0.4,
+        "folder": "bismillah.mp3",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "ahmed_naeen",
+    "name": "أحمد نعينع",
+    "best": [
+      {
+        "score": 0.5925925925925926,
+        "folder": "Ahmed_Neana_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "ahmed_ibn_ali_al_ajamy_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "kamel_yousef_albahtimi",
+    "name": "كامل يوسف البهتيمي",
+    "best": [
+      {
+        "score": 0.4,
+        "folder": "Muhsin_Al_Qasim_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "taha_alfashny",
+    "name": "طه الفشني",
+    "best": [
+      {
+        "score": 0.48,
+        "folder": "Alafasy_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46153846153846156,
+        "folder": "Alafasy_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41379310344827586,
+        "folder": "Sahl_Yassin_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Ali_Hajjaj_AlSuesy_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abu_alaneen_shaishaa",
+    "name": "أبو العنين شعيشع",
+    "best": [
+      {
+        "score": 0.5238095238095238,
+        "folder": "Abu_Bakr_Ash-Shaatree_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5116279069767442,
+        "folder": "Abu_Bakr_Ash-Shaatree_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46808510638297873,
+        "folder": "Abu%20Bakr%20Ash-Shaatree_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45454545454545453,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Abdurrahmaan_As-Sudais_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "alhuthaify",
+    "name": "علي الحذيفي",
+    "best": [
+      {
+        "score": 0.5833333333333334,
+        "folder": "Hudhaify_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5833333333333334,
+        "folder": "Hudhaify_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.56,
+        "folder": "Hudhaify_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43478260869565216,
+        "folder": "Alafasy_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4166666666666667,
+        "folder": "Alafasy_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "alqasim",
+    "name": "عبد المحسن القاسم",
+    "best": [
+      {
+        "score": 0.5185185185185185,
+        "folder": "Muhsin_Al_Qasim_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "translations",
+        "audio": false
+      },
+      {
+        "score": 0.4166666666666667,
+        "folder": "Sahl_Yassin_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Alafasy_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "ath_thubaity",
+    "name": "عبد الباري الثبيتي",
+    "best": [
+      {
+        "score": 0.4,
+        "folder": "audhubillah.mp3",
+        "audio": false
+      },
+      {
+        "score": 0.4,
+        "folder": "Hudhaify_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Hudhaify_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "adel_kalbani",
+    "name": "عادل كلباني",
+    "best": [
+      {
+        "score": 0.47058823529411764,
+        "folder": "mahmoud_ali_al_banna_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45161290322580644,
+        "folder": "Salah_Al_Budair_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "khalid_alqahtani",
+    "name": "خالد القحطاني",
+    "best": [
+      {
+        "score": 0.5714285714285714,
+        "folder": "Khaalid_Abdullaah_al-Qahtaanee_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Nasser_Alqatami_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "khalefa_al_tunaiji_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "mahmoud_ali_al_banna_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "ahmed_ibn_ali_al_ajamy_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "salah_bukhatir",
+    "name": "صلاح بختير",
+    "best": [
+      {
+        "score": 0.6060606060606061,
+        "folder": "Salah_Al_Budair_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5777777777777777,
+        "folder": "Salaah_AbdulRahman_Bukhatir_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "Abu_Bakr_Ash-Shaatree_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "Abu_Bakr_Ash-Shaatree_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "translations",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "salah_albudair",
+    "name": "صلاح البدير",
+    "best": [
+      {
+        "score": 0.7878787878787878,
+        "folder": "Salah_Al_Budair_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5333333333333333,
+        "folder": "Salaah_AbdulRahman_Bukhatir_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41025641025641024,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Abdurrahmaan_As-Sudais_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdulkarim_alhazmi",
+    "name": "عبد الكريم الحازمي",
+    "best": [
+      {
+        "score": 0.4489795918367347,
+        "folder": "Salaah_AbdulRahman_Bukhatir_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43902439024390244,
+        "folder": "Abdul_Basit_Murattal_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42857142857142855,
+        "folder": "Abdul_Basit_Murattal_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "Akram_AlAlaqimy_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4186046511627907,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "ibrahim_aljibrin",
+    "name": "إبراهيم الجبرين",
+    "best": [
+      {
+        "score": 0.5294117647058824,
+        "folder": "Ibrahim_Akhdar_64kbps",
+        "audio": false
+      },
+      {
+        "score": 0.5294117647058824,
+        "folder": "Ibrahim_Akhdar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "mahmoud_ali_al_banna_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "ayman_suwaid",
+    "name": "أيمن سويد",
+    "best": [
+      {
+        "score": 0.7142857142857143,
+        "folder": "Ayman_Sowaid_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45161290322580644,
+        "folder": "Husary_Mujawwad_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4375,
+        "folder": "Husary_128kbps_Mujawwad",
+        "audio": true
+      },
+      {
+        "score": 0.43478260869565216,
+        "folder": "translations",
+        "audio": false
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdullah_almatrouk",
+    "name": "عبد الله المطروق",
+    "best": [
+      {
+        "score": 0.7692307692307693,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.6486486486486487,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.6486486486486487,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.631578947368421,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5098039215686274,
+        "folder": "Khaalid_Abdullaah_al-Qahtaanee_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "nabil_rafat",
+    "name": "نبيل رفعت",
+    "best": [
+      {
+        "score": 0.5925925925925926,
+        "folder": "Nabil_Rifa3i_48kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43478260869565216,
+        "folder": "Alafasy_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4166666666666667,
+        "folder": "audhubillah.mp3",
+        "audio": false
+      },
+      {
+        "score": 0.4166666666666667,
+        "folder": "Alafasy_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Hani_Rifai_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "yassin_pasha",
+    "name": "ياسين باشا",
+    "best": [
+      {
+        "score": 0.5714285714285714,
+        "folder": "Sahl_Yassin_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "quranpngs",
+        "audio": false
+      },
+      {
+        "score": 0.4,
+        "folder": "Yaser_Salamah_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohamed_jassem",
+    "name": "محمد جاسم",
+    "best": [
+      {
+        "score": 0.47619047619047616,
+        "folder": ".htaccess",
+        "audio": false
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_mabrouk",
+    "name": "محمد مبروك",
+    "best": [
+      {
+        "score": 0.5714285714285714,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5714285714285714,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5555555555555556,
+        "folder": "Muhammad_Ayyoub_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5128205128205128,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Muhammad_Jibreel_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "ahmed_pas",
+    "name": "أحمد باس",
+    "best": [
+      {
+        "score": 0.56,
+        "folder": "Ahmed_Neana_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47619047619047616,
+        "folder": "Ghamadi_40kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Ibrahim_Akhdar_64kbps",
+        "audio": false
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Ibrahim_Akhdar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "ahmed_ibn_ali_al_ajamy_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "ahmed_soliman",
+    "name": "أحمد سليمان",
+    "best": [
+      {
+        "score": 0.4827586206896552,
+        "folder": "Ahmed_Neana_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "mahmoud_ali_al_banna_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "ahmed_ibn_ali_al_ajamy_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "MultiLanguage",
+        "audio": false
+      },
+      {
+        "score": 0.4,
+        "folder": "Ahmed_ibn_Ali_al-Ajamy_128kbps_ketaballah.net",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohamed_saeed",
+    "name": "محمد سعيد",
+    "best": [
+      {
+        "score": 0.42424242424242425,
+        "folder": "Muhammad_Jibreel_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4117647058823529,
+        "folder": "Muhammad_Jibreel_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Ghamadi_40kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": ".htaccess",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "mohammed_fahad",
+    "name": "محمد فهد",
+    "best": [
+      {
+        "score": 0.43243243243243246,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4117647058823529,
+        "folder": "Muhammad_Jibreel_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_ghassan",
+    "name": "محمد غسان",
+    "best": [
+      {
+        "score": 0.46153846153846156,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Ayyoub_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_ismail",
+    "name": "محمد إسماعيل",
+    "best": [
+      {
+        "score": 0.48484848484848486,
+        "folder": "Mustafa_Ismail_48kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Ghamadi_40kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4117647058823529,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4117647058823529,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "hamza_alhassan",
+    "name": "حمزة الحسن",
+    "best": [
+      {
+        "score": 0.43243243243243246,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41025641025641024,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41025641025641024,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "khalefa_al_tunaiji_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdulkareem_alshehri",
+    "name": "عبد الكريم الشهري",
+    "best": [
+      {
+        "score": 0.5333333333333333,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46511627906976744,
+        "folder": "Abdul_Basit_Murattal_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45454545454545453,
+        "folder": "Abdul_Basit_Murattal_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43902439024390244,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "Karim_Mansoori_40kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "rashid_alhur",
+    "name": "راشد الحور",
+    "best": [
+      {
+        "score": 0.4666666666666667,
+        "folder": "Ibrahim_Akhdar_64kbps",
+        "audio": false
+      },
+      {
+        "score": 0.4666666666666667,
+        "folder": "Ibrahim_Akhdar_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "saud_alfarisi",
+    "name": "سعود الفارسي",
+    "best": [
+      {
+        "score": 0.45161290322580644,
+        "folder": "Mustafa_Ismail_48kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4375,
+        "folder": "Salah_Al_Budair_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4375,
+        "folder": "Husary_Muallim_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41379310344827586,
+        "folder": "Nabil_Rifa3i_48kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "mahmoud_ali_al_banna_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdullah_albahili",
+    "name": "عبد الله البهيلي",
+    "best": [
+      {
+        "score": 0.5555555555555556,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5555555555555556,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5405405405405406,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5263157894736842,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Salah_Al_Budair_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_alquraishi",
+    "name": "محمد القرشي",
+    "best": [
+      {
+        "score": 0.5238095238095238,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5116279069767442,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47368421052631576,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47368421052631576,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47368421052631576,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "nadir_almaghribi",
+    "name": "نادر المغربي",
+    "best": [
+      {
+        "score": 0.47058823529411764,
+        "folder": "Yaser_Salamah_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47058823529411764,
+        "folder": "Ibrahim_Akhdar_64kbps",
+        "audio": false
+      },
+      {
+        "score": 0.47058823529411764,
+        "folder": "Ibrahim_Akhdar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Nasser_Alqatami_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohamed_gaber",
+    "name": "محمد جابر",
+    "best": [
+      {
+        "score": 0.4444444444444444,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4375,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4375,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Muhammad_Ayyoub_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "saleh_alorman",
+    "name": "صالح العرمان",
+    "best": [
+      {
+        "score": 0.45454545454545453,
+        "folder": "Salaah_AbdulRahman_Bukhatir_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4375,
+        "folder": "Salah_Al_Budair_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "fadhel_alqahtani",
+    "name": "فاضل القحطاني",
+    "best": [
+      {
+        "score": 0.5,
+        "folder": "Nasser_Alqatami_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4489795918367347,
+        "folder": "Khaalid_Abdullaah_al-Qahtaanee_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41379310344827586,
+        "folder": "audhubillah.mp3",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "muath_alqeeq",
+    "name": "معاذ القيق",
+    "best": [
+      {
+        "score": 0.4166666666666667,
+        "folder": "MultiLanguage",
+        "audio": false
+      },
+      {
+        "score": 0.4,
+        "folder": "QuranText",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "abdullah_alshehri",
+    "name": "عبد الله الشهري",
+    "best": [
+      {
+        "score": 0.6111111111111112,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.6111111111111112,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5945945945945946,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5263157894736842,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45,
+        "folder": "Abdul_Basit_Murattal_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohamed_aldurai",
+    "name": "محمد الدوري",
+    "best": [
+      {
+        "score": 0.47368421052631576,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47058823529411764,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46153846153846156,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "MaherAlMuaiqly128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammad_moneer",
+    "name": "محمد منير",
+    "best": [
+      {
+        "score": 0.5142857142857142,
+        "folder": "Muhammad_Jibreel_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Muhammad_Jibreel_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47058823529411764,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47058823529411764,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Muhammad_Ayyoub_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "rashid_alsharif",
+    "name": "راشد الشريف",
+    "best": [
+      {
+        "score": 0.42857142857142855,
+        "folder": "Hudhaify_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42857142857142855,
+        "folder": "Hudhaify_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Ibrahim_Akhdar_64kbps",
+        "audio": false
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Ibrahim_Akhdar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "Abu_Bakr_Ash-Shaatree_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "amin_salman",
+    "name": "أمين سلمان",
+    "best": [
+      {
+        "score": 0.45454545454545453,
+        "folder": "translations",
+        "audio": false
+      },
+      {
+        "score": 0.45454545454545453,
+        "folder": "timings_files",
+        "audio": false
+      },
+      {
+        "score": 0.4375,
+        "folder": "Minshawy_Mujawwad_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43478260869565216,
+        "folder": "MultiLanguage",
+        "audio": false
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Minshawy_Mujawwad_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "ibrahim_zaid",
+    "name": "إبراهيم زايد",
+    "best": [
+      {
+        "score": 0.6,
+        "folder": "Ibrahim_Akhdar_64kbps",
+        "audio": false
+      },
+      {
+        "score": 0.6,
+        "folder": "Ibrahim_Akhdar_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdullah_mahmoud",
+    "name": "عبد الله محمود",
+    "best": [
+      {
+        "score": 0.7027027027027027,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5142857142857142,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5142857142857142,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4878048780487805,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_yahya",
+    "name": "محمد يحيى",
+    "best": [
+      {
+        "score": 0.48484848484848486,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.48484848484848486,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47058823529411764,
+        "folder": "Muhammad_Ayyoub_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohamed_baraka",
+    "name": "محمد بركة",
+    "best": [
+      {
+        "score": 0.5405405405405406,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5263157894736842,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46153846153846156,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "sulaiman_alrajhi",
+    "name": "سليمان الراجحي",
+    "best": [
+      {
+        "score": 0.42857142857142855,
+        "folder": "MultiLanguage",
+        "audio": false
+      },
+      {
+        "score": 0.4117647058823529,
+        "folder": "Karim_Mansoori_40kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41025641025641024,
+        "folder": "Abdul_Basit_Murattal_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Muhsin_Al_Qasim_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Abdul_Basit_Murattal_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdullah_alsulayti",
+    "name": "عبد الله السليطي",
+    "best": [
+      {
+        "score": 0.5945945945945946,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5945945945945946,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5789473684210527,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5128205128205128,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5116279069767442,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_alzaidi",
+    "name": "محمد الزيدي",
+    "best": [
+      {
+        "score": 0.5128205128205128,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43902439024390244,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "khalefa_al_tunaiji_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42857142857142855,
+        "folder": "Ghamadi_40kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammad_melhem",
+    "name": "محمد ملحم",
+    "best": [
+      {
+        "score": 0.5142857142857142,
+        "folder": "Muhammad_Jibreel_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Muhammad_Jibreel_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47368421052631576,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46153846153846156,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdulrahman_almadani",
+    "name": "عبد الرحمن المدني",
+    "best": [
+      {
+        "score": 0.6222222222222222,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.6086956521739131,
+        "folder": "Abdurrahmaan_As-Sudais_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5098039215686274,
+        "folder": "Salaah_AbdulRahman_Bukhatir_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Abdullaah_3awwaad_Al-Juhaynee_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4878048780487805,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_mahdi",
+    "name": "محمد مهدي",
+    "best": [
+      {
+        "score": 0.46153846153846156,
+        "folder": "Ghamadi_40kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_hasan",
+    "name": "محمد حسن",
+    "best": [
+      {
+        "score": 0.4864864864864865,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.48484848484848486,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.48484848484848486,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47368421052631576,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47058823529411764,
+        "folder": "Muhammad_Ayyoub_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdullah_edded",
+    "name": "عبد الله الأدب",
+    "best": [
+      {
+        "score": 0.5142857142857142,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.48484848484848486,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.48484848484848486,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47058823529411764,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "audhubillah.mp3",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "abdullah_alqattan",
+    "name": "عبد الله القطّان",
+    "best": [
+      {
+        "score": 0.6,
+        "folder": "Khaalid_Abdullaah_al-Qahtaanee_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5555555555555556,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5555555555555556,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5405405405405406,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5263157894736842,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "salah_khalid",
+    "name": "صلاح خالد",
+    "best": [
+      {
+        "score": 0.5161290322580645,
+        "folder": "Salah_Al_Budair_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4186046511627907,
+        "folder": "Salaah_AbdulRahman_Bukhatir_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Yaser_Salamah_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "hamad_alfarisi",
+    "name": "حمد الفارسي",
+    "best": [
+      {
+        "score": 0.5384615384615384,
+        "folder": "Ghamadi_40kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5128205128205128,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4864864864864865,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47368421052631576,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47058823529411764,
+        "folder": "Akram_AlAlaqimy_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdullah_alhamad",
+    "name": "عبد الله الحمّاد",
+    "best": [
+      {
+        "score": 0.5945945945945946,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5714285714285714,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5714285714285714,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5555555555555556,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5306122448979592,
+        "folder": "Khaalid_Abdullaah_al-Qahtaanee_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohamed_algezawi",
+    "name": "محمد القزاوي",
+    "best": [
+      {
+        "score": 0.5128205128205128,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_hussain",
+    "name": "محمد حسين",
+    "best": [
+      {
+        "score": 0.45714285714285713,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Ayyoub_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43478260869565216,
+        "folder": ".htaccess",
+        "audio": false
+      },
+      {
+        "score": 0.4166666666666667,
+        "folder": "images_png",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "mohamed_almansour",
+    "name": "محمد المنصور",
+    "best": [
+      {
+        "score": 0.5,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4878048780487805,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "salman_alshareef",
+    "name": "سلمان الشريف",
+    "best": [
+      {
+        "score": 0.43902439024390244,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Salah_Al_Budair_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "ahmed_rifai",
+    "name": "أحمد الرفاعي",
+    "best": [
+      {
+        "score": 0.48,
+        "folder": "Hani_Rifai_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46153846153846156,
+        "folder": "Hani_Rifai_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "ahmed_ibn_ali_al_ajamy_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Nabil_Rifa3i_48kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Ahmed_Neana_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "nasser_alharbi",
+    "name": "ناصر الحربي",
+    "best": [
+      {
+        "score": 0.5882352941176471,
+        "folder": "Nasser_Alqatami_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5142857142857142,
+        "folder": "Yasser_Ad-Dussary_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Yaser_Salamah_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Salah_Al_Budair_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohamed_mansour",
+    "name": "محمد منصور",
+    "best": [
+      {
+        "score": 0.47058823529411764,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47058823529411764,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Muhammad_Ayyoub_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45161290322580644,
+        "folder": "Ahmed_Neana_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Karim_Mansoori_40kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammad_ramadan",
+    "name": "محمد رمضان",
+    "best": [
+      {
+        "score": 0.5641025641025641,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.55,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Jibreel_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohamed_elmaghraby",
+    "name": "محمد المغراوي",
+    "best": [
+      {
+        "score": 0.4878048780487805,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47619047619047616,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47058823529411764,
+        "folder": "Ahmed_Neana_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "taha_almadani",
+    "name": "طه المدني",
+    "best": [
+      {
+        "score": 0.48,
+        "folder": "Ghamadi_40kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4375,
+        "folder": "Salah_Al_Budair_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4375,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "MaherAlMuaiqly128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "omar_tayeb",
+    "name": "عمر طيب",
+    "best": [
+      {
+        "score": 0.42424242424242425,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41379310344827586,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4117647058823529,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Saood_ash-Shuraym_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "MaherAlMuaiqly128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_akram",
+    "name": "محمد أكرم",
+    "best": [
+      {
+        "score": 0.5128205128205128,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4864864864864865,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.48484848484848486,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.48484848484848486,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47368421052631576,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammad_said",
+    "name": "محمد سعيد",
+    "best": [
+      {
+        "score": 0.5,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4864864864864865,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.48484848484848486,
+        "folder": "Muhammad_Jibreel_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_newe",
+    "name": "محمد نوي",
+    "best": [
+      {
+        "score": 0.4444444444444444,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Muhammad_Jibreel_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41379310344827586,
+        "folder": "Ahmed_Neana_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4117647058823529,
+        "folder": "Muhammad_Jibreel_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mahmoud_ahmed",
+    "name": "محمود أحمد",
+    "best": [
+      {
+        "score": 0.45714285714285713,
+        "folder": "mahmoud_ali_al_banna_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "MultiLanguage",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "abdulaziz_ash_shabuni",
+    "name": "عبد العزيز الشابوني",
+    "best": [
+      {
+        "score": 0.5116279069767442,
+        "folder": "Abu_Bakr_Ash-Shaatree_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Abu_Bakr_Ash-Shaatree_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46153846153846156,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46153846153846156,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4583333333333333,
+        "folder": "Abu%20Bakr%20Ash-Shaatree_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "omar_alquraishi",
+    "name": "عمر القرشي",
+    "best": [
+      {
+        "score": 0.5294117647058824,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5142857142857142,
+        "folder": "MaherAlMuaiqly128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46153846153846156,
+        "folder": "translations",
+        "audio": false
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Nasser_Alqatami_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43478260869565216,
+        "folder": "quranpngs",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "mohamed_bassam",
+    "name": "محمد بسام",
+    "best": [
+      {
+        "score": 0.4864864864864865,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47619047619047616,
+        "folder": ".htaccess",
+        "audio": false
+      },
+      {
+        "score": 0.47368421052631576,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46153846153846156,
+        "folder": "Ghamadi_40kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_almuhandis",
+    "name": "محمد المهندس",
+    "best": [
+      {
+        "score": 0.5263157894736842,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5238095238095238,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5128205128205128,
+        "folder": "MaherAlMuaiqly128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5116279069767442,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47368421052631576,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mustafa_albalushi",
+    "name": "مصطفى البلوشي",
+    "best": [
+      {
+        "score": 0.6285714285714286,
+        "folder": "Mustafa_Ismail_48kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Salah_Al_Budair_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41025641025641024,
+        "folder": "mahmoud_ali_al_banna_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_saber",
+    "name": "محمد صابر",
+    "best": [
+      {
+        "score": 0.4864864864864865,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47368421052631576,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46153846153846156,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "fahd_alqadi",
+    "name": "فهد القاضي",
+    "best": [
+      {
+        "score": 0.4,
+        "folder": "Muhsin_Al_Qasim_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_alsharif",
+    "name": "محمد الشريف",
+    "best": [
+      {
+        "score": 0.5,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4878048780487805,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47619047619047616,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "nasser_alqurashi",
+    "name": "ناصر القرشي",
+    "best": [
+      {
+        "score": 0.6111111111111112,
+        "folder": "Nasser_Alqatami_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4864864864864865,
+        "folder": "Yasser_Ad-Dussary_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47058823529411764,
+        "folder": "Yaser_Salamah_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4166666666666667,
+        "folder": "quranpngs",
+        "audio": false
+      },
+      {
+        "score": 0.4,
+        "folder": "warsh",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "mohammed_alzahrani",
+    "name": "محمد الزهراني",
+    "best": [
+      {
+        "score": 0.5365853658536586,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5238095238095238,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46511627906976744,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "mahmoud_ali_al_banna_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_almansoori",
+    "name": "محمد المنصوري",
+    "best": [
+      {
+        "score": 0.5238095238095238,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5116279069767442,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4864864864864865,
+        "folder": "Karim_Mansoori_40kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45454545454545453,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdullah_almuhairi",
+    "name": "عبد الله المحيري",
+    "best": [
+      {
+        "score": 0.5945945945945946,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5945945945945946,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5789473684210527,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5405405405405406,
+        "folder": "Salah_Al_Budair_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5306122448979592,
+        "folder": "Salaah_AbdulRahman_Bukhatir_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "ahmed_alboghdadi",
+    "name": "أحمد البغدادي",
+    "best": [
+      {
+        "score": 0.45714285714285713,
+        "folder": "Salah_Al_Budair_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4375,
+        "folder": "Ahmed_Neana_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "mahmoud_ali_al_banna_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4117647058823529,
+        "folder": "Ibrahim_Akhdar_64kbps",
+        "audio": false
+      },
+      {
+        "score": 0.4117647058823529,
+        "folder": "Ibrahim_Akhdar_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohamed_alhaj",
+    "name": "محمد الحاج",
+    "best": [
+      {
+        "score": 0.5,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4864864864864865,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "ahmed_ibn_ali_al_ajamy_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41379310344827586,
+        "folder": "Ahmed_Neana_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "ali_alqarni",
+    "name": "علي القرني",
+    "best": [
+      {
+        "score": 0.42424242424242425,
+        "folder": "mahmoud_ali_al_banna_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4166666666666667,
+        "folder": "Ali_Jaber_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Salah_Al_Budair_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Muhsin_Al_Qasim_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "ahmed_alhameidi",
+    "name": "أحمد الحميدي",
+    "best": [
+      {
+        "score": 0.46153846153846156,
+        "folder": "ahmed_ibn_ali_al_ajamy_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45161290322580644,
+        "folder": "Ahmed_Neana_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4117647058823529,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Nasser_Alqatami_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "MaherAlMuaiqly128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammad_alhamami",
+    "name": "محمد الحمامي",
+    "best": [
+      {
+        "score": 0.6,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5853658536585366,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5238095238095238,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "hassan_mansour",
+    "name": "حسن منصور",
+    "best": [
+      {
+        "score": 0.4375,
+        "folder": "Yaser_Salamah_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4375,
+        "folder": "Karim_Mansoori_40kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Sahl_Yassin_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Ayman_Sowaid_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_alfaisal",
+    "name": "محمد الفيصل",
+    "best": [
+      {
+        "score": 0.55,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5365853658536586,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47619047619047616,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Mustafa_Ismail_48kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdullah_alkahtani",
+    "name": "عبد الله القحطاني",
+    "best": [
+      {
+        "score": 0.5882352941176471,
+        "folder": "Khaalid_Abdullaah_al-Qahtaanee_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5405405405405406,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5405405405405406,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5263157894736842,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5128205128205128,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "yaser_almalki",
+    "name": "ياسر المالكي",
+    "best": [
+      {
+        "score": 0.6451612903225806,
+        "folder": "Yaser_Salamah_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5625,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5454545454545454,
+        "folder": "MaherAlMuaiqly128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.48484848484848486,
+        "folder": "Nasser_Alqatami_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47058823529411764,
+        "folder": "Yasser_Ad-Dussary_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdulrahman_alhabeeb",
+    "name": "عبد الرحمن الحبيب",
+    "best": [
+      {
+        "score": 0.5777777777777777,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5769230769230769,
+        "folder": "Abdullaah_3awwaad_Al-Juhaynee_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5652173913043478,
+        "folder": "Abdurrahmaan_As-Sudais_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5490196078431373,
+        "folder": "Salaah_AbdulRahman_Bukhatir_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5128205128205128,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohamed_alsaif",
+    "name": "محمد السيف",
+    "best": [
+      {
+        "score": 0.4864864864864865,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47368421052631576,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdulrahman_alkhalidi",
+    "name": "عبد الرحمن الخالدي",
+    "best": [
+      {
+        "score": 0.5769230769230769,
+        "folder": "Salaah_AbdulRahman_Bukhatir_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5217391304347826,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5106382978723404,
+        "folder": "Abdurrahmaan_As-Sudais_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "ahmad_alsaeed",
+    "name": "أحمد السعيد",
+    "best": [
+      {
+        "score": 0.47368421052631576,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45161290322580644,
+        "folder": "Ibrahim_Akhdar_64kbps",
+        "audio": false
+      },
+      {
+        "score": 0.45161290322580644,
+        "folder": "Ibrahim_Akhdar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "mahmoud_ali_al_banna_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Ghamadi_40kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "majid_alqadi",
+    "name": "ماجد القاضي",
+    "best": [
+      {
+        "score": 0.45161290322580644,
+        "folder": "Muhsin_Al_Qasim_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "tariq_alzafiri",
+    "name": "طارق الظفيري",
+    "best": [
+      {
+        "score": 0.41379310344827586,
+        "folder": "aziz_alili_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "islam_alfahad",
+    "name": "إسلام الفهد",
+    "best": [
+      {
+        "score": 0.4375,
+        "folder": "Salah_Al_Budair_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4166666666666667,
+        "folder": "bismillah.mp3",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "sami_almutairi",
+    "name": "سامي المطيري",
+    "best": [
+      {
+        "score": 0.48484848484848486,
+        "folder": "Salah_Al_Budair_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41379310344827586,
+        "folder": "aziz_alili_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4117647058823529,
+        "folder": "MaherAlMuaiqly128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "bismillah.mp3",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "mohammad_rafat",
+    "name": "محمد رفعت",
+    "best": [
+      {
+        "score": 0.5405405405405406,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5263157894736842,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.48484848484848486,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.48484848484848486,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47058823529411764,
+        "folder": "Muhammad_Jibreel_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdulrahman_alabd",
+    "name": "عبد الرحمن العبد",
+    "best": [
+      {
+        "score": 0.6190476190476191,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.6046511627906976,
+        "folder": "Abdurrahmaan_As-Sudais_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5555555555555556,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5555555555555556,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5416666666666666,
+        "folder": "Salaah_AbdulRahman_Bukhatir_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "wakil_alharthy",
+    "name": "وكيل الحارثي",
+    "best": [
+      {
+        "score": 0.4117647058823529,
+        "folder": "Akram_AlAlaqimy_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_alsharqawi",
+    "name": "محمد الشرقاوي",
+    "best": [
+      {
+        "score": 0.5714285714285714,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5581395348837209,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45454545454545453,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4375,
+        "folder": "Menshawi_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4375,
+        "folder": "Menshawi_16kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdulaziz_alamer",
+    "name": "عبد العزيز العامر",
+    "best": [
+      {
+        "score": 0.4864864864864865,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46153846153846156,
+        "folder": "Abdul_Basit_Murattal_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45,
+        "folder": "Abdul_Basit_Murattal_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "haytham_alsharif",
+    "name": "هيثم الشريف",
+    "best": [
+      {
+        "score": 0.4375,
+        "folder": "Ayman_Sowaid_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Husary_Muallim_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "omar_alkhamis",
+    "name": "عمر الخميس",
+    "best": [
+      {
+        "score": 0.5,
+        "folder": "translations",
+        "audio": false
+      },
+      {
+        "score": 0.48484848484848486,
+        "folder": "Nasser_Alqatami_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4375,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "MaherAlMuaiqly128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Minshawy_Murattal_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "faisal_alwati",
+    "name": "فيصل الوطي",
+    "best": [
+      {
+        "score": 0.5,
+        "folder": "translations",
+        "audio": false
+      },
+      {
+        "score": 0.4375,
+        "folder": "Salah_Al_Budair_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42857142857142855,
+        "folder": "aziz_alili_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Nasser_Alqatami_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Akram_AlAlaqimy_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdullah_alkhuzayem",
+    "name": "عبد الله الخزيم",
+    "best": [
+      {
+        "score": 0.5263157894736842,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5263157894736842,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5128205128205128,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46153846153846156,
+        "folder": "Saood_ash-Shuraym_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "ibrahim_alhabashy",
+    "name": "إبراهيم الحبشي",
+    "best": [
+      {
+        "score": 0.6857142857142857,
+        "folder": "Ibrahim_Akhdar_64kbps",
+        "audio": false
+      },
+      {
+        "score": 0.6857142857142857,
+        "folder": "Ibrahim_Akhdar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46153846153846156,
+        "folder": "mahmoud_ali_al_banna_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "Akram_AlAlaqimy_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42857142857142855,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammad_alsayed",
+    "name": "محمد السيد",
+    "best": [
+      {
+        "score": 0.6153846153846154,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.6,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5142857142857142,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5142857142857142,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Muhammad_Jibreel_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_alsulaiman",
+    "name": "محمد السليمان",
+    "best": [
+      {
+        "score": 0.5714285714285714,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5581395348837209,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "hasan_alsayed",
+    "name": "حسن السيد",
+    "best": [
+      {
+        "score": 0.4,
+        "folder": "Ali_Hajjaj_AlSuesy_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": ".htaccess",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "taqi_alhaki",
+    "name": "تقي الحقي",
+    "best": [
+      {
+        "score": 0.41379310344827586,
+        "folder": "Mustafa_Ismail_48kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_almaani",
+    "name": "محمد الماني",
+    "best": [
+      {
+        "score": 0.5641025641025641,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.55,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "MaherAlMuaiqly128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43902439024390244,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdulrahman_ajar",
+    "name": "عبد الرحمن عجر",
+    "best": [
+      {
+        "score": 0.5853658536585366,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5714285714285714,
+        "folder": "Abdurrahmaan_As-Sudais_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5714285714285714,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5714285714285714,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5555555555555556,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_aljamal",
+    "name": "محمد الجمل",
+    "best": [
+      {
+        "score": 0.5641025641025641,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.55,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4878048780487805,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45,
+        "folder": "ahmed_ibn_ali_al_ajamy_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41509433962264153,
+        "folder": "Ahmed_ibn_Ali_al-Ajamy_128kbps_ketaballah.net",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "noman_alsudais",
+    "name": "نعمان السديس",
+    "best": [
+      {
+        "score": 0.5128205128205128,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Abdurrahmaan_As-Sudais_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.48484848484848486,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47058823529411764,
+        "folder": "MaherAlMuaiqly128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4666666666666667,
+        "folder": "Ayman_Sowaid_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_aljubair",
+    "name": "محمد الجبير",
+    "best": [
+      {
+        "score": 0.55,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5365853658536586,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4864864864864865,
+        "folder": "Muhammad_Ayyoub_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdulrahman_alnasser",
+    "name": "عبد الرحمن الناصر",
+    "best": [
+      {
+        "score": 0.6222222222222222,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.6086956521739131,
+        "folder": "Abdurrahmaan_As-Sudais_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5128205128205128,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5128205128205128,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5098039215686274,
+        "folder": "Salaah_AbdulRahman_Bukhatir_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammad_albanna",
+    "name": "محمد البنا",
+    "best": [
+      {
+        "score": 0.6666666666666666,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.65,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5263157894736842,
+        "folder": "mahmoud_ali_al_banna_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5142857142857142,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5142857142857142,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdullah_alsuhail",
+    "name": "عبد الله السهيل",
+    "best": [
+      {
+        "score": 0.6111111111111112,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.6111111111111112,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5945945945945946,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5306122448979592,
+        "folder": "Abdullaah_3awwaad_Al-Juhaynee_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5263157894736842,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "fahd_aljadani",
+    "name": "فهد الجدعاني",
+    "best": [
+      {
+        "score": 0.45714285714285713,
+        "folder": "mahmoud_ali_al_banna_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohamed_alqaisi",
+    "name": "محمد القيسي",
+    "best": [
+      {
+        "score": 0.5263157894736842,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5128205128205128,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47058823529411764,
+        "folder": "Muhsin_Al_Qasim_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47058823529411764,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Nasser_Alqatami_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdulaziz_alsuwaidi",
+    "name": "عبد العزيز السويدي",
+    "best": [
+      {
+        "score": 0.5116279069767442,
+        "folder": "Abdul_Basit_Mujawwad_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47619047619047616,
+        "folder": "Abdul_Basit_Murattal_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47368421052631576,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47368421052631576,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46511627906976744,
+        "folder": "Abdul_Basit_Murattal_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_alsalmi",
+    "name": "محمد السالمي",
+    "best": [
+      {
+        "score": 0.5128205128205128,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45,
+        "folder": "ahmed_ibn_ali_al_ajamy_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "akram_alraisi",
+    "name": "أكرم الرايسي",
+    "best": [
+      {
+        "score": 0.6060606060606061,
+        "folder": "Akram_AlAlaqimy_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45161290322580644,
+        "folder": "Karim_Mansoori_40kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4375,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4375,
+        "folder": "Husary_Muallim_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "MaherAlMuaiqly128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_alrabeah",
+    "name": "محمد الربيع",
+    "best": [
+      {
+        "score": 0.6,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5853658536585366,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47619047619047616,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "omar_alnasser",
+    "name": "عمر الناصر",
+    "best": [
+      {
+        "score": 0.4375,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "MaherAlMuaiqly128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4166666666666667,
+        "folder": "translations",
+        "audio": false
+      },
+      {
+        "score": 0.4,
+        "folder": "mahmoud_ali_al_banna_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Alafasy_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohamed_alensani",
+    "name": "محمد الإنصاني",
+    "best": [
+      {
+        "score": 0.46153846153846156,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43902439024390244,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4375,
+        "folder": "Ahmed_Neana_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41379310344827586,
+        "folder": "Menshawi_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdullah_alshrief",
+    "name": "عبد الله الشريف",
+    "best": [
+      {
+        "score": 0.6111111111111112,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.6111111111111112,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5945945945945946,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5263157894736842,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45,
+        "folder": "Abdul_Basit_Murattal_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdulrahman_alkhatib",
+    "name": "عبد الرحمن الخطيب",
+    "best": [
+      {
+        "score": 0.6666666666666666,
+        "folder": "Salaah_AbdulRahman_Bukhatir_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5777777777777777,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5652173913043478,
+        "folder": "Abdurrahmaan_As-Sudais_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5641025641025641,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5641025641025641,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_alsaleh",
+    "name": "محمد الصالح",
+    "best": [
+      {
+        "score": 0.5128205128205128,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Jibreel_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "yakub_alshamri",
+    "name": "يعقوب الشمري",
+    "best": [
+      {
+        "score": 0.4444444444444444,
+        "folder": "audhubillah.mp3",
+        "audio": false
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "Abu_Bakr_Ash-Shaatree_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "Abu_Bakr_Ash-Shaatree_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_aljawhar",
+    "name": "محمد الجوهرة",
+    "best": [
+      {
+        "score": 0.6,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5853658536585366,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47619047619047616,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "Minshawy_Mujawwad_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41025641025641024,
+        "folder": "Minshawy_Mujawwad_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohamed_alshamri",
+    "name": "محمد الشمري",
+    "best": [
+      {
+        "score": 0.46153846153846156,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41379310344827586,
+        "folder": "Menshawi_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41379310344827586,
+        "folder": "Menshawi_16kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "ahmed_ibn_ali_al_ajamy_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdulrahman_alsalama",
+    "name": "عبد الرحمن السلامة",
+    "best": [
+      {
+        "score": 0.5777777777777777,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5652173913043478,
+        "folder": "Abdurrahmaan_As-Sudais_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5128205128205128,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5128205128205128,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5098039215686274,
+        "folder": "Salaah_AbdulRahman_Bukhatir_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "badr_alzahrani",
+    "name": "بدر الزهراني",
+    "best": [
+      {
+        "score": 0.4117647058823529,
+        "folder": "Nasser_Alqatami_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4117647058823529,
+        "folder": "Akram_AlAlaqimy_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41025641025641024,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Abdurrahmaan_As-Sudais_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_alqarny",
+    "name": "محمد القرني",
+    "best": [
+      {
+        "score": 0.5641025641025641,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.55,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4878048780487805,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdullah_aljohani",
+    "name": "عبد الله الجهني",
+    "best": [
+      {
+        "score": 0.5714285714285714,
+        "folder": "Abdullaah_3awwaad_Al-Juhaynee_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5555555555555556,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5555555555555556,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5405405405405406,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5263157894736842,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "ahmed_almuhajir",
+    "name": "أحمد المهاجر",
+    "best": [
+      {
+        "score": 0.5294117647058824,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5142857142857142,
+        "folder": "MaherAlMuaiqly128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46153846153846156,
+        "folder": "ahmed_ibn_ali_al_ajamy_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45161290322580644,
+        "folder": "Ahmed_Neana_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Muhammad_Jibreel_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_albannai",
+    "name": "محمد البناني",
+    "best": [
+      {
+        "score": 0.6,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5853658536585366,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5128205128205128,
+        "folder": "mahmoud_ali_al_banna_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohamed_alsalman",
+    "name": "محمد السلمان",
+    "best": [
+      {
+        "score": 0.47368421052631576,
+        "folder": "mahmoud_ali_al_banna_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46153846153846156,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45,
+        "folder": "ahmed_ibn_ali_al_ajamy_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41509433962264153,
+        "folder": "Ahmed_ibn_Ali_al-Ajamy_128kbps_ketaballah.net",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "ibrahim_alsaleh",
+    "name": "إبراهيم الصالح",
+    "best": [
+      {
+        "score": 0.5454545454545454,
+        "folder": "Ibrahim_Akhdar_64kbps",
+        "audio": false
+      },
+      {
+        "score": 0.5454545454545454,
+        "folder": "Ibrahim_Akhdar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Akram_AlAlaqimy_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_alshehri",
+    "name": "محمد الشهري",
+    "best": [
+      {
+        "score": 0.5,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4878048780487805,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "Muhammad_Jibreel_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdullah_aldaqaq",
+    "name": "عبد الله الدقاق",
+    "best": [
+      {
+        "score": 0.5714285714285714,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5714285714285714,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5555555555555556,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5405405405405406,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4897959183673469,
+        "folder": "Khaalid_Abdullaah_al-Qahtaanee_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_alqattan",
+    "name": "محمد القطان",
+    "best": [
+      {
+        "score": 0.55,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5365853658536586,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "Nasser_Alqatami_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42857142857142855,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.41025641025641024,
+        "folder": "mahmoud_ali_al_banna_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "muhammad_alfarsi",
+    "name": "محمد الفارسي",
+    "best": [
+      {
+        "score": 0.6341463414634146,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5714285714285714,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5714285714285714,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5641025641025641,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5555555555555556,
+        "folder": "Muhammad_Jibreel_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "thamer_alshehri",
+    "name": "ثامر الشهري",
+    "best": [
+      {
+        "score": 0.42105263157894735,
+        "folder": "warsh",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "mohamed_alahmadi",
+    "name": "محمد الأحمدي",
+    "best": [
+      {
+        "score": 0.5128205128205128,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Jibreel_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "Muhammad_Jibreel_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdulaziz_alsharif",
+    "name": "عبد العزيز الشريف",
+    "best": [
+      {
+        "score": 0.5405405405405406,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5405405405405406,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5263157894736842,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4878048780487805,
+        "folder": "Abdul_Basit_Murattal_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47619047619047616,
+        "folder": "Abdul_Basit_Murattal_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammad_alghamdi",
+    "name": "محمد الغامدي",
+    "best": [
+      {
+        "score": 0.55,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5365853658536586,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5238095238095238,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4444444444444444,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "wali_alsharif",
+    "name": "ولي الشريف",
+    "best": [
+      {
+        "score": 0.47058823529411764,
+        "folder": "warsh",
+        "audio": false
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "English",
+        "audio": false
+      }
+    ]
+  },
+  {
+    "id": "yousef_alharbi",
+    "name": "يوسف الحربي",
+    "best": [
+      {
+        "score": 0.4375,
+        "folder": "Yaser_Salamah_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "Salah_Al_Budair_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4,
+        "folder": "Husary_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammad_almuhanna",
+    "name": "محمد المهنا",
+    "best": [
+      {
+        "score": 0.5853658536585366,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5714285714285714,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4864864864864865,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4864864864864865,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47368421052631576,
+        "folder": "Muhammad_Ayyoub_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "omar_alsaud",
+    "name": "عمر السعود",
+    "best": [
+      {
+        "score": 0.4,
+        "folder": "warsh",
+        "audio": false
+      },
+      {
+        "score": 0.4,
+        "folder": "tools",
+        "audio": false
+      },
+      {
+        "score": 0.4,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdullah_alfarraj",
+    "name": "عبد الله الفراج",
+    "best": [
+      {
+        "score": 0.6666666666666666,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.6666666666666666,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.6486486486486487,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5263157894736842,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.48,
+        "folder": "Khaalid_Abdullaah_al-Qahtaanee_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohamed_alsaeed",
+    "name": "محمد السعيد",
+    "best": [
+      {
+        "score": 0.5,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47368421052631576,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.46153846153846156,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4117647058823529,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4117647058823529,
+        "folder": "Muhammad_Ayyoub_32kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "saleh_almalki",
+    "name": "صالح المالكي",
+    "best": [
+      {
+        "score": 0.5,
+        "folder": "Salah_Al_Budair_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5,
+        "folder": "Maher_AlMuaiqly_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.48484848484848486,
+        "folder": "MaherAlMuaiqly128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45454545454545453,
+        "folder": "Salaah_AbdulRahman_Bukhatir_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45161290322580644,
+        "folder": "Yaser_Salamah_128kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdullah_alhazmi2",
+    "name": "عبد الله الحازمي",
+    "best": [
+      {
+        "score": 0.6111111111111112,
+        "folder": "Abdullah_Basfar_32kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5945945945945946,
+        "folder": "Abdullah_Basfar_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5555555555555556,
+        "folder": "Abdullah_Basfar_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5263157894736842,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.52,
+        "folder": "Khaalid_Abdullaah_al-Qahtaanee_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "mohammed_alqasim",
+    "name": "محمد القاسم",
+    "best": [
+      {
+        "score": 0.5641025641025641,
+        "folder": "Mohammad_al_Tablaway_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.55,
+        "folder": "Mohammad_al_Tablaway_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5142857142857142,
+        "folder": "Muhsin_Al_Qasim_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.4878048780487805,
+        "folder": "Muhammad_AbdulKareem_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.45714285714285713,
+        "folder": "Muhammad_Ayyoub_64kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "hassan_alshehri",
+    "name": "حسن الشهري",
+    "best": [
+      {
+        "score": 0.4117647058823529,
+        "folder": "Muhsin_Al_Qasim_192kbps",
+        "audio": true
+      }
+    ]
+  },
+  {
+    "id": "abdulrahim_alrasheed",
+    "name": "عبد الرحيم الرشيد",
+    "best": [
+      {
+        "score": 0.5365853658536586,
+        "folder": "Abdullah_Matroud_128kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5333333333333333,
+        "folder": "Abdurrahmaan_As-Sudais_64kbps",
+        "audio": true
+      },
+      {
+        "score": 0.5217391304347826,
+        "folder": "Abdurrahmaan_As-Sudais_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.49056603773584906,
+        "folder": "Khaalid_Abdullaah_al-Qahtaanee_192kbps",
+        "audio": true
+      },
+      {
+        "score": 0.47368421052631576,
+        "folder": "Ibrahim_Akhdar_64kbps",
+        "audio": false
+      }
+    ]
+  }
+]

@@ -1,0 +1,890 @@
+[
+  {
+    "id": "saud_alfarisi",
+    "name": "سعود الفارسي",
+    "mp3": [
+      {
+        "score": 0.6086956521739131,
+        "host": "server16.mp3quran.net",
+        "folder": "s_alquraishi",
+        "url": "https://server16.mp3quran.net/s_alquraishi/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5714285714285714,
+        "host": "server16.mp3quran.net",
+        "folder": "h_abudalal",
+        "url": "https://server16.mp3quran.net/h_abudalal/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5555555555555556,
+        "host": "server16.mp3quran.net",
+        "folder": "nufais",
+        "url": "https://server16.mp3quran.net/nufais/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5263157894736842,
+        "host": "server16.mp3quran.net",
+        "folder": "A-AlBadr",
+        "url": "https://server16.mp3quran.net/A-AlBadr/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5217391304347826,
+        "host": "server16.mp3quran.net",
+        "folder": "H-Aldaghriri",
+        "url": "https://server16.mp3quran.net/H-Aldaghriri/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5,
+        "host": "server10.mp3quran.net",
+        "folder": "trabulsi",
+        "url": "https://server10.mp3quran.net/trabulsi/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.5,
+        "host": "server11.mp3quran.net",
+        "folder": "saud",
+        "url": "https://server11.mp3quran.net/saud/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5,
+        "host": "server12.mp3quran.net",
+        "folder": "malaysia",
+        "url": "https://server12.mp3quran.net/malaysia/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "M_Alfaqih",
+        "url": "https://server16.mp3quran.net/M_Alfaqih/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alaskar",
+        "url": "https://server16.mp3quran.net/a_alaskar/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alemadi",
+        "url": "https://server16.mp3quran.net/a_alemadi/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alhazmi",
+        "url": "https://server16.mp3quran.net/a_alhazmi/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alqrafi",
+        "url": "https://server16.mp3quran.net/a_alqrafi/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "a_bukhari",
+        "url": "https://server16.mp3quran.net/a_bukhari/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.47619047619047616,
+        "host": "server16.mp3quran.net",
+        "folder": "a-almishal",
+        "url": "https://server16.mp3quran.net/a-almishal/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.47058823529411764,
+        "host": "server16.mp3quran.net",
+        "folder": "soufi",
+        "url": "https://server16.mp3quran.net/soufi/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.45454545454545453,
+        "host": "server16.mp3quran.net",
+        "folder": "M-AlZubaidi",
+        "url": "https://server16.mp3quran.net/M-AlZubaidi/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.45454545454545453,
+        "host": "server16.mp3quran.net",
+        "folder": "Y_ALaidroos",
+        "url": "https://server16.mp3quran.net/Y_ALaidroos/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server11.mp3quran.net",
+        "folder": "shatri",
+        "url": "https://server11.mp3quran.net/shatri/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server14.mp3quran.net",
+        "folder": "musali",
+        "url": "https://server14.mp3quran.net/musali/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server16.mp3quran.net",
+        "folder": "Ibrahim-Al-Shahri",
+        "url": "https://server16.mp3quran.net/Ibrahim-Al-Shahri/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server16.mp3quran.net",
+        "folder": "a_turki",
+        "url": "https://server16.mp3quran.net/a_turki/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server6.mp3quran.net",
+        "folder": "aloosi",
+        "url": "https://server6.mp3quran.net/aloosi/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server7.mp3quran.net",
+        "folder": "dokali",
+        "url": "https://server7.mp3quran.net/dokali/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server9.mp3quran.net",
+        "folder": "alzain",
+        "url": "https://server9.mp3quran.net/alzain/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.43478260869565216,
+        "host": "server16.mp3quran.net",
+        "folder": "a_maasaraawi",
+        "url": "https://server16.mp3quran.net/a_maasaraawi/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server10.mp3quran.net",
+        "folder": "trablsi",
+        "url": "https://server10.mp3quran.net/trablsi/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server11.mp3quran.net",
+        "folder": "alshaik",
+        "url": "https://server11.mp3quran.net/alshaik/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server12.mp3quran.net",
+        "folder": "salamah",
+        "url": "https://server12.mp3quran.net/salamah/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server14.mp3quran.net",
+        "folder": "alosfor",
+        "url": "https://server14.mp3quran.net/alosfor/001.mp3",
+        "status": 206
+      }
+    ],
+    "every": [
+      {
+        "score": 0.47619047619047616,
+        "folder": "data/warsh",
+        "url": "https://everyayah.com/data/data/warsh/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.43478260869565216,
+        "folder": "data/English",
+        "url": "https://everyayah.com/data/data/English/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.42857142857142855,
+        "folder": "data/translations",
+        "url": "https://everyayah.com/data/data/translations/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "data/Nabil_Rifa3i_48kbps",
+        "url": "https://everyayah.com/data/data/Nabil_Rifa3i_48kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.41379310344827586,
+        "folder": "data/Alafasy_64kbps",
+        "url": "https://everyayah.com/data/data/Alafasy_64kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.4,
+        "folder": "data/Alafasy_128kbps",
+        "url": "https://everyayah.com/data/data/Alafasy_128kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.4,
+        "folder": "data/Ali_Jaber_64kbps",
+        "url": "https://everyayah.com/data/data/Ali_Jaber_64kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.4,
+        "folder": "data/Hudhaify_32kbps",
+        "url": "https://everyayah.com/data/data/Hudhaify_32kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.4,
+        "folder": "data/Hudhaify_64kbps",
+        "url": "https://everyayah.com/data/data/Hudhaify_64kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.4,
+        "folder": "data/Karim_Mansoori_40kbps",
+        "url": "https://everyayah.com/data/data/Karim_Mansoori_40kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.4,
+        "folder": "data/Mustafa_Ismail_48kbps",
+        "url": "https://everyayah.com/data/data/Mustafa_Ismail_48kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.4,
+        "folder": "data/images_png",
+        "url": "https://everyayah.com/data/data/images_png/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.4,
+        "folder": "data/quranpngs",
+        "url": "https://everyayah.com/data/data/quranpngs/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.3888888888888889,
+        "folder": "data/Abdullah_Basfar_32kbps",
+        "url": "https://everyayah.com/data/data/Abdullah_Basfar_32kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.3888888888888889,
+        "folder": "data/Abdullah_Basfar_64kbps",
+        "url": "https://everyayah.com/data/data/Abdullah_Basfar_64kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.3888888888888889,
+        "folder": "data/Husary_Muallim_128kbps",
+        "url": "https://everyayah.com/data/data/Husary_Muallim_128kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.3888888888888889,
+        "folder": "data/Salah_Al_Budair_128kbps",
+        "url": "https://everyayah.com/data/data/Salah_Al_Budair_128kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.3870967741935484,
+        "folder": "data/Hani_Rifai_64kbps",
+        "url": "https://everyayah.com/data/data/Hani_Rifai_64kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.3870967741935484,
+        "folder": "data/Hudhaify_128kbps",
+        "url": "https://everyayah.com/data/data/Hudhaify_128kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.3870967741935484,
+        "folder": "data/Parhizgar_48kbps",
+        "url": "https://everyayah.com/data/data/Parhizgar_48kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.38095238095238093,
+        "folder": "data/tools",
+        "url": "https://everyayah.com/data/data/tools/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.3783783783783784,
+        "folder": "data/Abdullah_Basfar_192kbps",
+        "url": "https://everyayah.com/data/data/Abdullah_Basfar_192kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.375,
+        "folder": "data/Fares_Abbad_64kbps",
+        "url": "https://everyayah.com/data/data/Fares_Abbad_64kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.375,
+        "folder": "data/Hani_Rifai_192kbps",
+        "url": "https://everyayah.com/data/data/Hani_Rifai_192kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.3684210526315789,
+        "folder": "data/khalefa_al_tunaiji_64kbps",
+        "url": "https://everyayah.com/data/data/khalefa_al_tunaiji_64kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.358974358974359,
+        "folder": "data/mahmoud_ali_al_banna_32kbps",
+        "url": "https://everyayah.com/data/data/mahmoud_ali_al_banna_32kbps/001001.mp3",
+        "status": 404
+      }
+    ]
+  },
+  {
+    "id": "islam_alfahad",
+    "name": "إسلام الفهد",
+    "mp3": [
+      {
+        "score": 0.631578947368421,
+        "host": "server12.mp3quran.net",
+        "folder": "salamah",
+        "url": "https://server12.mp3quran.net/salamah/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.6,
+        "host": "server16.mp3quran.net",
+        "folder": "M_Alfaqih",
+        "url": "https://server16.mp3quran.net/M_Alfaqih/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5882352941176471,
+        "host": "server14.mp3quran.net",
+        "folder": "islam",
+        "url": "https://server14.mp3quran.net/islam/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5454545454545454,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alshahhat",
+        "url": "https://server16.mp3quran.net/a_alshahhat/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5263157894736842,
+        "host": "server16.mp3quran.net",
+        "folder": "A-AlBadr",
+        "url": "https://server16.mp3quran.net/A-AlBadr/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5185185185185185,
+        "host": "server16.mp3quran.net",
+        "folder": "Ibrahim-Al-Shahri",
+        "url": "https://server16.mp3quran.net/Ibrahim-Al-Shahri/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5,
+        "host": "server12.mp3quran.net",
+        "folder": "malaysia",
+        "url": "https://server12.mp3quran.net/malaysia/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alhazmi",
+        "url": "https://server16.mp3quran.net/a_alhazmi/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "saad",
+        "url": "https://server16.mp3quran.net/saad/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.48,
+        "host": "server16.mp3quran.net",
+        "folder": "mal-allah_jaber",
+        "url": "https://server16.mp3quran.net/mal-allah_jaber/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.47058823529411764,
+        "host": "server11.mp3quran.net",
+        "folder": "bilal",
+        "url": "https://server11.mp3quran.net/bilal/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.47058823529411764,
+        "host": "server12.mp3quran.net",
+        "folder": "ifrad",
+        "url": "https://server12.mp3quran.net/ifrad/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.47058823529411764,
+        "host": "server6.mp3quran.net",
+        "folder": "hamad",
+        "url": "https://server6.mp3quran.net/hamad/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.47058823529411764,
+        "host": "server6.mp3quran.net",
+        "folder": "jamal",
+        "url": "https://server6.mp3quran.net/jamal/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.45454545454545453,
+        "host": "server16.mp3quran.net",
+        "folder": "M-AlZubaidi",
+        "url": "https://server16.mp3quran.net/M-AlZubaidi/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.45454545454545453,
+        "host": "server16.mp3quran.net",
+        "folder": "i_sanankoua",
+        "url": "https://server16.mp3quran.net/i_sanankoua/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.45454545454545453,
+        "host": "server8.mp3quran.net",
+        "folder": "fahad_otibi",
+        "url": "https://server8.mp3quran.net/fahad_otibi/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server10.mp3quran.net",
+        "folder": "a_majed",
+        "url": "https://server10.mp3quran.net/a_majed/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server10.mp3quran.net",
+        "folder": "rashad",
+        "url": "https://server10.mp3quran.net/rashad/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server11.mp3quran.net",
+        "folder": "a_ahmed",
+        "url": "https://server11.mp3quran.net/a_ahmed/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server11.mp3quran.net",
+        "folder": "salman",
+        "url": "https://server11.mp3quran.net/salman/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server16.mp3quran.net",
+        "folder": "h_saleh",
+        "url": "https://server16.mp3quran.net/h_saleh/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server8.mp3quran.net",
+        "folder": "sahood",
+        "url": "https://server8.mp3quran.net/sahood/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.43478260869565216,
+        "host": "server16.mp3quran.net",
+        "folder": "a_maasaraawi",
+        "url": "https://server16.mp3quran.net/a_maasaraawi/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server11.mp3quran.net",
+        "folder": "ahmad_nu",
+        "url": "https://server11.mp3quran.net/ahmad_nu/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server11.mp3quran.net",
+        "folder": "alshaik",
+        "url": "https://server11.mp3quran.net/alshaik/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server14.mp3quran.net",
+        "folder": "shamsan",
+        "url": "https://server14.mp3quran.net/shamsan/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server16.mp3quran.net",
+        "folder": "K-Alzadi",
+        "url": "https://server16.mp3quran.net/K-Alzadi/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server6.mp3quran.net",
+        "folder": "balilah",
+        "url": "https://server6.mp3quran.net/balilah/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server8.mp3quran.net",
+        "folder": "mustafa",
+        "url": "https://server8.mp3quran.net/mustafa/001.mp3",
+        "status": 206
+      }
+    ],
+    "every": [
+      {
+        "score": 0.3888888888888889,
+        "folder": "data/Salah_Al_Budair_128kbps",
+        "url": "https://everyayah.com/data/data/Salah_Al_Budair_128kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.375,
+        "folder": "data/Fares_Abbad_64kbps",
+        "url": "https://everyayah.com/data/data/Fares_Abbad_64kbps/001001.mp3",
+        "status": 404
+      }
+    ]
+  },
+  {
+    "id": "noman_alsudais",
+    "name": "نعمان السديس",
+    "mp3": [
+      {
+        "score": 0.5263157894736842,
+        "host": "server16.mp3quran.net",
+        "folder": "nufais",
+        "url": "https://server16.mp3quran.net/nufais/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5217391304347826,
+        "host": "server16.mp3quran.net",
+        "folder": "M-AlZubaidi",
+        "url": "https://server16.mp3quran.net/M-AlZubaidi/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5,
+        "host": "server11.mp3quran.net",
+        "folder": "alshaik",
+        "url": "https://server11.mp3quran.net/alshaik/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "a_maasaraawi",
+        "url": "https://server16.mp3quran.net/a_maasaraawi/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "s_alquraishi",
+        "url": "https://server16.mp3quran.net/s_alquraishi/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.48,
+        "host": "server16.mp3quran.net",
+        "folder": "nourin_siddig",
+        "url": "https://server16.mp3quran.net/nourin_siddig/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.47619047619047616,
+        "host": "server12.mp3quran.net",
+        "folder": "malaysia",
+        "url": "https://server12.mp3quran.net/malaysia/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.47619047619047616,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alaskar",
+        "url": "https://server16.mp3quran.net/a_alaskar/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.47619047619047616,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alhazmi",
+        "url": "https://server16.mp3quran.net/a_alhazmi/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.47619047619047616,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alqrafi",
+        "url": "https://server16.mp3quran.net/a_alqrafi/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.45454545454545453,
+        "host": "server16.mp3quran.net",
+        "folder": "a-almishal",
+        "url": "https://server16.mp3quran.net/a-almishal/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.45454545454545453,
+        "host": "server8.mp3quran.net",
+        "folder": "majd_onazi",
+        "url": "https://server8.mp3quran.net/majd_onazi/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.45454545454545453,
+        "host": "server9.mp3quran.net",
+        "folder": "omar_warsh",
+        "url": "https://server9.mp3quran.net/omar_warsh/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server9.mp3quran.net",
+        "folder": "omran",
+        "url": "https://server9.mp3quran.net/omran/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.43478260869565216,
+        "host": "server16.mp3quran.net",
+        "folder": "Y_ALaidroos",
+        "url": "https://server16.mp3quran.net/Y_ALaidroos/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.43478260869565216,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alshahhat",
+        "url": "https://server16.mp3quran.net/a_alshahhat/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.43478260869565216,
+        "host": "server16.mp3quran.net",
+        "folder": "i_sanankoua",
+        "url": "https://server16.mp3quran.net/i_sanankoua/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.42857142857142855,
+        "host": "server16.mp3quran.net",
+        "folder": "Ibrahim-Al-Shahri",
+        "url": "https://server16.mp3quran.net/Ibrahim-Al-Shahri/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server14.mp3quran.net",
+        "folder": "mansor",
+        "url": "https://server14.mp3quran.net/mansor/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server14.mp3quran.net",
+        "folder": "musali",
+        "url": "https://server14.mp3quran.net/musali/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server6.mp3quran.net",
+        "folder": "aloosi",
+        "url": "https://server6.mp3quran.net/aloosi/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server7.mp3quran.net",
+        "folder": "dokali",
+        "url": "https://server7.mp3quran.net/dokali/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server9.mp3quran.net",
+        "folder": "alzain",
+        "url": "https://server9.mp3quran.net/alzain/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.4166666666666667,
+        "host": "server16.mp3quran.net",
+        "folder": "H-Aldaghriri",
+        "url": "https://server16.mp3quran.net/H-Aldaghriri/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.4166666666666667,
+        "host": "server16.mp3quran.net",
+        "folder": "kh_mohammadi",
+        "url": "https://server16.mp3quran.net/kh_mohammadi/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.4,
+        "host": "server10.mp3quran.net",
+        "folder": "trablsi",
+        "url": "https://server10.mp3quran.net/trablsi/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.4,
+        "host": "server11.mp3quran.net",
+        "folder": "ahmad_nu",
+        "url": "https://server11.mp3quran.net/ahmad_nu/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.4,
+        "host": "server11.mp3quran.net",
+        "folder": "hawashi",
+        "url": "https://server11.mp3quran.net/hawashi/001.mp3",
+        "status": 206
+      },
+      {
+        "score": 0.4,
+        "host": "server13.mp3quran.net",
+        "folder": "najashi",
+        "url": "https://server13.mp3quran.net/najashi/001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.4,
+        "host": "server14.mp3quran.net",
+        "folder": "najashi",
+        "url": "https://server14.mp3quran.net/najashi/001.mp3",
+        "status": 404
+      }
+    ],
+    "every": [
+      {
+        "score": 0.46511627906976744,
+        "folder": "data/Abdurrahmaan_As-Sudais_64kbps",
+        "url": "https://everyayah.com/data/data/Abdurrahmaan_As-Sudais_64kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.45454545454545453,
+        "folder": "data/Abdurrahmaan_As-Sudais_192kbps",
+        "url": "https://everyayah.com/data/data/Abdurrahmaan_As-Sudais_192kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.45161290322580644,
+        "folder": "data/Hudhaify_32kbps",
+        "url": "https://everyayah.com/data/data/Hudhaify_32kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.45161290322580644,
+        "folder": "data/Hudhaify_64kbps",
+        "url": "https://everyayah.com/data/data/Hudhaify_64kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.4375,
+        "folder": "data/Hudhaify_128kbps",
+        "url": "https://everyayah.com/data/data/Hudhaify_128kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "data/Maher_AlMuaiqly_64kbps",
+        "url": "https://everyayah.com/data/data/Maher_AlMuaiqly_64kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "data/Salah_Al_Budair_128kbps",
+        "url": "https://everyayah.com/data/data/Salah_Al_Budair_128kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "data/MaherAlMuaiqly128kbps",
+        "url": "https://everyayah.com/data/data/MaherAlMuaiqly128kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.4117647058823529,
+        "folder": "data/Ayman_Sowaid_64kbps",
+        "url": "https://everyayah.com/data/data/Ayman_Sowaid_64kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.3783783783783784,
+        "folder": "data/Muhsin_Al_Qasim_192kbps",
+        "url": "https://everyayah.com/data/data/Muhsin_Al_Qasim_192kbps/001001.mp3",
+        "status": 404
+      },
+      {
+        "score": 0.35,
+        "folder": "data/mahmoud_ali_al_banna_32kbps",
+        "url": "https://everyayah.com/data/data/mahmoud_ali_al_banna_32kbps/001001.mp3",
+        "status": 404
+      }
+    ]
+  }
+]
