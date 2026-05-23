@@ -19,7 +19,7 @@ interface SettingsModalProps {
   onClose: () => void;
 }
 
-type SettingsTab = "notifications" | "salawat" | "site";
+type SettingsTab = "notifications" | "salawat";
 
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [activeTab, setActiveTab] = useState<SettingsTab>("notifications");
@@ -131,11 +131,11 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </button>
           <div className="flex items-center gap-3">
             <div>
-              <h2 className="text-xl font-black text-foreground text-right">الإعدادات</h2>
-              <p className="text-[10px] text-foreground/30 uppercase tracking-widest text-right">Settings</p>
+              <h2 className="text-xl font-black text-foreground text-right">إعدادات الإشعارات</h2>
+              <p className="text-[10px] text-foreground/30 uppercase tracking-widest text-right">Notifications</p>
             </div>
             <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <Settings className="w-5 h-5 text-primary" />
+              <Bell className="w-5 h-5 text-primary" />
             </div>
           </div>
         </div>
@@ -146,7 +146,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             {[
               { id: "notifications" as SettingsTab, label: "الإشعارات", icon: Bell },
               { id: "salawat" as SettingsTab, label: "صلِّ على النبي", icon: Heart },
-              { id: "site" as SettingsTab, label: "الموقع", icon: Globe },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -425,61 +424,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             </>
           )}
 
-          {/* ── SITE SETTINGS TAB ── */}
-          {activeTab === "site" && (
-            <>
-              <div className="p-4 bg-foreground/[0.02] border border-foreground/5 rounded-2xl flex items-start gap-3 text-right">
-                <Info className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                <p className="text-sm text-foreground/60 leading-relaxed">
-                  إعدادات الموقع تشمل تفضيلاتك الشخصية للعرض والتصفح. المزيد من الخيارات ستُضاف قريباً.
-                </p>
-              </div>
 
-              <div className="p-5 bg-foreground/[0.02] border border-foreground/5 rounded-2xl space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-foreground/30 uppercase tracking-widest">الإصدار</span>
-                  <span className="text-sm font-black text-primary">V 7.0 Universal</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-foreground/30 uppercase tracking-widest">المنصة</span>
-                  <span className="text-sm font-black text-foreground/60">
-                    {typeof window !== "undefined" && window.matchMedia("(display-mode: standalone)").matches
-                      ? "PWA"
-                      : "متصفح"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <button
-                    onClick={() => window.dispatchEvent(new Event("check-for-updates"))}
-                    className="text-xs font-black text-primary/60 hover:text-primary transition-colors"
-                  >
-                    تحقق الآن ←
-                  </button>
-                  <span className="text-xs font-black text-foreground/30 uppercase tracking-widest">التحديثات</span>
-                </div>
-              </div>
-
-              <div className="p-5 bg-foreground/[0.02] border border-foreground/5 rounded-2xl">
-                <div className="flex items-center justify-between gap-3">
-                  <button
-                    onClick={() => window.open("https://quran1-mu.vercel.app/download/", "_blank")}
-                    className="px-4 py-2 bg-primary text-black rounded-xl font-black text-xs"
-                  >
-                    تحميل APK
-                  </button>
-                  <div className="flex items-center gap-3 text-right">
-                    <div>
-                      <p className="font-black text-foreground text-sm">تثبيت التطبيق</p>
-                      <p className="text-[11px] text-foreground/40">تجربة أفضل بدون متصفح</p>
-                    </div>
-                    <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                      <Smartphone className="w-4 h-4" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
         </div>
 
         {/* Footer */}

@@ -19,9 +19,10 @@ interface GlobalMenuProps {
   onOpenProfile: () => void;
   onOpenPointsGuide: () => void;
   onOpenSettings?: () => void;
+  onOpenAppSettings?: () => void;
 }
 
-export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onOpenPointsGuide, onOpenSettings }: GlobalMenuProps) {
+export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onOpenPointsGuide, onOpenSettings, onOpenAppSettings }: GlobalMenuProps) {
   const router = useRouter();
   const pathname = useInstantPathname();
   const { theme, toggleTheme } = useTheme();
@@ -73,7 +74,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
     {
       title: "الإعدادات",
       items: [
-        { id: "settings", label: "إعدادات التطبيق", icon: Settings, onClick: () => { onOpenSettings?.(); } },
+        { id: "settings", label: "إعدادات التطبيق", icon: Settings, onClick: () => { onOpenAppSettings?.(); } },
         { id: "notifications-settings", label: "إعدادات الإشعارات", icon: Bell, onClick: () => { onOpenSettings?.(); } },
       ]
     }
