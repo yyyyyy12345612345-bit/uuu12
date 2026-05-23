@@ -69,7 +69,9 @@ let salawatAudio: HTMLAudioElement | null = null;
 function playNotificationSound(): void {
   try {
     if (!notifAudio) {
-      notifAudio = new Audio('/audio/notification.mp3');
+      // Pre-load audio to ensure it's ready
+      notifAudio = new Audio('/audio/notification.mp3.mp3');
+      notifAudio.load();
       notifAudio.volume = 0.7;
     }
     notifAudio.currentTime = 0;

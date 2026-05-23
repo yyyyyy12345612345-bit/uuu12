@@ -78,6 +78,20 @@ function CatchAllContent() {
     }
   }, [activeView, visited]);
 
+  // Handle URL Hash for Menu State
+  useEffect(() => {
+    const handleHash = () => {
+      if (window.location.hash === '#menu') {
+        setIsMenuOpen(true);
+      } else {
+        setIsMenuOpen(false);
+      }
+    };
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
   // Preload all dynamic components in the background for instant navigation response
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -148,7 +162,10 @@ function CatchAllContent() {
             </button>
           )}
           <button 
-            onClick={() => setIsMenuOpen(true)}
+            onClick={() => {
+              window.location.hash = 'menu';
+              setIsMenuOpen(true);
+            }}
             className="flex items-center gap-2 bg-foreground/5 hover:bg-foreground/10 border border-border px-4 py-2 rounded-2xl transition-all text-foreground/40 hover:text-foreground group"
           >
             <Menu className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
@@ -287,7 +304,10 @@ function CatchAllContent() {
       <SubscriptionModal isOpen={isSubscriptionOpen} onClose={() => setIsSubscriptionOpen(false)} />
       <GlobalMenu 
         isOpen={isMenuOpen} 
-        onClose={() => setIsMenuOpen(false)} 
+        onClose={() => {
+          window.history.pushState('', document.title, window.location.pathname + window.location.search);
+          setIsMenuOpen(false);
+        }} 
         onOpenFeedback={() => {
           setIsMenuOpen(false);
           setIsFeedbackOpen(true);
