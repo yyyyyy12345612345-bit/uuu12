@@ -77,12 +77,28 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     }
   };
 
+  const normalizeVersion = (version: string) => {
+    return version
+      .toString()
+      .trim()
+      .replace(/^[^0-9]*/, "")
+      .replace(/[^0-9.]/g, "")
+      .split('.')
+      .slice(0, 3)
+      .map(Number)
+      .map((value) => Number.isFinite(value) ? value : 0)
+      .map((value) => Math.max(value, 0));
+  };
+
   const isNewerVersion = (serverVer: string, localVer: string) => {
-    const s = serverVer.split('.').map(Number);
-    const l = localVer.split('.').map(Number);
-    for (let i = 0; i < 3; i++) {
-      if (s[i] > l[i]) return true;
-      if (s[i] < l[i]) return false;
+    const s = normalizeVersion(serverVer);
+    const l = normalizeVersion(localVer);
+    const length = Math.max(s.length, l.length);
+    for (let i = 0; i < length; i++) {
+      const left = s[i] || 0;
+      const right = l[i] || 0;
+      if (left > right) return true;
+      if (left < right) return false;
     }
     return false;
   };
@@ -91,7 +107,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     try {
       const response = await fetch('/version.json?t=' + Date.now());
       const data = await response.json();
-      const LOCAL_VERSION = "V 7";
+      const LOCAL_VERSION = "7.0";
       
       if (isNewerVersion(data.version, LOCAL_VERSION)) {
         setUpdateInfo(data);
@@ -131,6 +147,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
     let unsubscribeSettings: (() => void) | null = null;
     let unsubscribeAuth: (() => void) | null = null;
+    let unsubscribeVersion: (() => void) | null = null;
 
     const setupListeners = () => {
       unsubscribeSettings = onSnapshot(doc(db, "settings", "global"), (snapshot) => {
@@ -153,6 +170,18 @@ export default function AppInitializer({ children }: { children: React.ReactNode
           initializePushNotifications();
         }
       });
+
+      unsubscribeVersion = onSnapshot(doc(db, "settings", "version"), (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          const remoteVersion = data?.version || "0.0";
+          const LOCAL_VERSION = "7.0";
+          if (isNewerVersion(remoteVersion, LOCAL_VERSION)) {
+            setUpdateInfo(data);
+            setShowUpdateModal(true);
+          }
+        }
+      });
     };
     setupListeners();
 
@@ -160,6 +189,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
       window.removeEventListener('check-for-updates', handleManualUpdate);
       if (unsubscribeSettings) unsubscribeSettings();
       if (unsubscribeAuth) unsubscribeAuth();
+      if (unsubscribeVersion) unsubscribeVersion();
     };
   }, []);
 
