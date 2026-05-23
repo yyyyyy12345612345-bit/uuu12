@@ -1,0 +1,1406 @@
+{
+  "working": [
+    [
+      "maher",
+      "ماهر المعيقلي",
+      "server12.mp3quran.net/maher",
+      "https://server12.mp3quran.net/maher/001.mp3",
+      200
+    ],
+    [
+      "sds",
+      "عبد الرحمن السديس",
+      "server11.mp3quran.net/sds",
+      "https://server11.mp3quran.net/sds/001.mp3",
+      200
+    ],
+    [
+      "shur",
+      "سعود الشريم",
+      "server7.mp3quran.net/shur",
+      "https://server7.mp3quran.net/shur/001.mp3",
+      200
+    ],
+    [
+      "afasy",
+      "مشاري العفاسي",
+      "server8.mp3quran.net/afs",
+      "https://server8.mp3quran.net/afs/001.mp3",
+      200
+    ],
+    [
+      "qtm",
+      "ناصر القطامي",
+      "server6.mp3quran.net/qtm",
+      "https://server6.mp3quran.net/qtm/001.mp3",
+      200
+    ],
+    [
+      "s_gmd",
+      "سعد الغامدي",
+      "server7.mp3quran.net/s_gmd",
+      "https://server7.mp3quran.net/s_gmd/001.mp3",
+      200
+    ],
+    [
+      "ajm",
+      "أحمد بن علي العجمي",
+      "server10.mp3quran.net/ajm",
+      "https://server10.mp3quran.net/ajm/001.mp3",
+      200
+    ],
+    [
+      "yasser",
+      "ياسر الدوسري",
+      "server11.mp3quran.net/yasser",
+      "https://server11.mp3quran.net/yasser/001.mp3",
+      200
+    ],
+    [
+      "abkr",
+      "إدريس أبكر",
+      "server6.mp3quran.net/abkr",
+      "https://server6.mp3quran.net/abkr/001.mp3",
+      200
+    ],
+    [
+      "basit",
+      "عبد الباسط عبد الصمد (مرتل)",
+      "server7.mp3quran.net/basit",
+      "https://server7.mp3quran.net/basit/001.mp3",
+      200
+    ],
+    [
+      "minsh",
+      "محمد صديق المنشاوي (مرتل)",
+      "server10.mp3quran.net/minsh",
+      "https://server10.mp3quran.net/minsh/001.mp3",
+      200
+    ],
+    [
+      "husr",
+      "محمود خليل الحصري",
+      "server13.mp3quran.net/husr",
+      "https://server13.mp3quran.net/husr/001.mp3",
+      200
+    ],
+    [
+      "ayyub",
+      "محمد أيوب",
+      "server8.mp3quran.net/ayyub",
+      "https://server8.mp3quran.net/ayyub/001.mp3",
+      200
+    ],
+    [
+      "jbrl",
+      "محمد جبريل",
+      "server8.mp3quran.net/jbrl",
+      "https://server8.mp3quran.net/jbrl/001.mp3",
+      200
+    ],
+    [
+      "akdr",
+      "إبراهيم الأخضر",
+      "server6.mp3quran.net/akdr",
+      "https://server6.mp3quran.net/akdr/001.mp3",
+      200
+    ],
+    [
+      "jleel",
+      "خالد الجليل",
+      "server10.mp3quran.net/jleel",
+      "https://server10.mp3quran.net/jleel/001.mp3",
+      200
+    ],
+    [
+      "hazza",
+      "هزاع البلوشي",
+      "server11.mp3quran.net/hazza",
+      "https://server11.mp3quran.net/hazza/001.mp3",
+      200
+    ],
+    [
+      "mansor",
+      "منصور السالمي",
+      "server14.mp3quran.net/mansor",
+      "https://server14.mp3quran.net/mansor/001.mp3",
+      200
+    ],
+    [
+      "balilah",
+      "بندر بليلة",
+      "server6.mp3quran.net/balilah",
+      "https://server6.mp3quran.net/balilah/001.mp3",
+      200
+    ],
+    [
+      "albana",
+      "البنا",
+      "server8.mp3quran.net/bna",
+      "https://server8.mp3quran.net/bna/001.mp3",
+      200
+    ]
+  ],
+  "failed": [
+    [
+      "juhani",
+      "عبد الله عواد الجهني",
+      "server13.mp3quran.net/juhani",
+      "https://server13.mp3quran.net/juhani/001.mp3",
+      404
+    ],
+    [
+      "husr_m",
+      "محمود خليل الحصري (مجود)",
+      "server13.mp3quran.net/husr_m",
+      "https://server13.mp3quran.net/husr_m/001.mp3",
+      404
+    ],
+    [
+      "shatree",
+      "أبو بكر الشاطري",
+      "server11.mp3quran.net/shatree",
+      "https://server11.mp3quran.net/shatree/001.mp3",
+      404
+    ],
+    [
+      "basfar",
+      "عبد الله بصفر",
+      "server6.mp3quran.net/basfar",
+      "https://server6.mp3quran.net/basfar/001.mp3",
+      404
+    ],
+    [
+      "mohammad_rifaat",
+      "محمد رفعت",
+      "server14.mp3quran.net/mohammad_rifaat",
+      "https://server14.mp3quran.net/mohammad_rifaat/001.mp3",
+      404
+    ],
+    [
+      "sayed_nakashibandi",
+      "سيد النقشبندي",
+      "server11.mp3quran.net/sayed_nakashibandi",
+      "https://server11.mp3quran.net/sayed_nakashibandi/001.mp3",
+      404
+    ],
+    [
+      "waleed_shamsan",
+      "الوليد الشمسان",
+      "server11.mp3quran.net/waleed_shamsan",
+      "https://server11.mp3quran.net/waleed_shamsan/001.mp3",
+      404
+    ],
+    [
+      "badr_turki",
+      "بدر التركي",
+      "server11.mp3quran.net/badr_turki",
+      "https://server11.mp3quran.net/badr_turki/001.mp3",
+      404
+    ],
+    [
+      "ali_abdullah_jaber",
+      "علي عبد الله جابر",
+      "server11.mp3quran.net/ali_abdullah_jaber",
+      "https://server11.mp3quran.net/ali_abdullah_jaber/001.mp3",
+      404
+    ],
+    [
+      "ahmed_ibn_taleb_hameed",
+      "أحمد ابن طالب حميد",
+      "server11.mp3quran.net/ahmed_ibn_taleb_hameed",
+      "https://server11.mp3quran.net/ahmed_ibn_taleb_hameed/001.mp3",
+      404
+    ],
+    [
+      "islam_sobhi",
+      "إسلام صبحي",
+      "server11.mp3quran.net/islam_sobhi",
+      "https://server11.mp3quran.net/islam_sobhi/001.mp3",
+      404
+    ],
+    [
+      "abdurrahman_musaab",
+      "عبد الرحمن مصعب",
+      "server11.mp3quran.net/abdurrahman_musaab",
+      "https://server11.mp3quran.net/abdurrahman_musaab/001.mp3",
+      404
+    ],
+    [
+      "ahmed_kasab",
+      "أحمد كاسب",
+      "server16.mp3quran.net/ahmed_kasab",
+      "https://server16.mp3quran.net/ahmed_kasab/001.mp3",
+      404
+    ],
+    [
+      "mohammad_ahmad_hassan",
+      "محمد أحمد حسن",
+      "server16.mp3quran.net/mohammad_ahmad_hassan",
+      "https://server16.mp3quran.net/mohammad_ahmad_hassan/001.mp3",
+      404
+    ],
+    [
+      "mustafa_ismail",
+      "مصطفى إسماعيل",
+      "server10.mp3quran.net/mustafa_ismail",
+      "https://server10.mp3quran.net/mustafa_ismail/001.mp3",
+      404
+    ],
+    [
+      "ahmed_naeen",
+      "أحمد نعينع",
+      "server8.mp3quran.net/ahmed_naeen",
+      "https://server8.mp3quran.net/ahmed_naeen/001.mp3",
+      404
+    ],
+    [
+      "kamel_yousef_albahtimi",
+      "كامل يوسف البهتيمي",
+      "server6.mp3quran.net/kamel_yousef_albahtimi",
+      "https://server6.mp3quran.net/kamel_yousef_albahtimi/001.mp3",
+      404
+    ],
+    [
+      "taha_alfashny",
+      "طه الفشني",
+      "server14.mp3quran.net/taha_alfashny",
+      "https://server14.mp3quran.net/taha_alfashny/001.mp3",
+      404
+    ],
+    [
+      "abu_alaneen_shaishaa",
+      "أبو العنين شعيشع",
+      "server14.mp3quran.net/abu_alaneen_shaishaa",
+      "https://server14.mp3quran.net/abu_alaneen_shaishaa/001.mp3",
+      404
+    ],
+    [
+      "alhuthaify",
+      "علي الحذيفي",
+      "server11.mp3quran.net/alhuthaify",
+      "https://server11.mp3quran.net/alhuthaify/001.mp3",
+      404
+    ],
+    [
+      "alqasim",
+      "عبد المحسن القاسم",
+      "server11.mp3quran.net/alqasim",
+      "https://server11.mp3quran.net/alqasim/001.mp3",
+      404
+    ],
+    [
+      "ath_thubaity",
+      "عبد الباري الثبيتي",
+      "server8.mp3quran.net/ath_thubaity",
+      "https://server8.mp3quran.net/ath_thubaity/001.mp3",
+      404
+    ],
+    [
+      "adel_kalbani",
+      "عادل كلباني",
+      "server8.mp3quran.net/adel_kalbani",
+      "https://server8.mp3quran.net/adel_kalbani/001.mp3",
+      404
+    ],
+    [
+      "khalid_alqahtani",
+      "خالد القحطاني",
+      "server11.mp3quran.net/khalid_alqahtani",
+      "https://server11.mp3quran.net/khalid_alqahtani/001.mp3",
+      404
+    ],
+    [
+      "salah_bukhatir",
+      "صلاح بختير",
+      "server6.mp3quran.net/salah_bukhatir",
+      "https://server6.mp3quran.net/salah_bukhatir/001.mp3",
+      404
+    ],
+    [
+      "salah_albudair",
+      "صلاح البدير",
+      "server6.mp3quran.net/salah_albudair",
+      "https://server6.mp3quran.net/salah_albudair/001.mp3",
+      404
+    ],
+    [
+      "abdulkarim_alhazmi",
+      "عبد الكريم الحازمي",
+      "server14.mp3quran.net/abdulkarim_alhazmi",
+      "https://server14.mp3quran.net/abdulkarim_alhazmi/001.mp3",
+      404
+    ],
+    [
+      "ibrahim_aljibrin",
+      "إبراهيم الجبرين",
+      "server11.mp3quran.net/ibrahim_aljibrin",
+      "https://server11.mp3quran.net/ibrahim_aljibrin/001.mp3",
+      404
+    ],
+    [
+      "ayman_suwaid",
+      "أيمن سويد",
+      "server8.mp3quran.net/ayman_suwaid",
+      "https://server8.mp3quran.net/ayman_suwaid/001.mp3",
+      404
+    ],
+    [
+      "abdullah_almatrouk",
+      "عبد الله المطروق",
+      "server13.mp3quran.net/abdullah_almatrouk",
+      "https://server13.mp3quran.net/abdullah_almatrouk/001.mp3",
+      404
+    ],
+    [
+      "nabil_rafat",
+      "نبيل رفعت",
+      "server14.mp3quran.net/nabil_rafat",
+      "https://server14.mp3quran.net/nabil_rafat/001.mp3",
+      404
+    ],
+    [
+      "yassin_pasha",
+      "ياسين باشا",
+      "server10.mp3quran.net/yassin_pasha",
+      "https://server10.mp3quran.net/yassin_pasha/001.mp3",
+      404
+    ],
+    [
+      "mohamed_jassem",
+      "محمد جاسم",
+      "server13.mp3quran.net/mohamed_jassem",
+      "https://server13.mp3quran.net/mohamed_jassem/001.mp3",
+      404
+    ],
+    [
+      "mohammed_mabrouk",
+      "محمد مبروك",
+      "server6.mp3quran.net/mohammed_mabrouk",
+      "https://server6.mp3quran.net/mohammed_mabrouk/001.mp3",
+      404
+    ],
+    [
+      "ahmed_pas",
+      "أحمد باس",
+      "server11.mp3quran.net/ahmed_pas",
+      "https://server11.mp3quran.net/ahmed_pas/001.mp3",
+      404
+    ],
+    [
+      "ahmed_soliman",
+      "أحمد سليمان",
+      "server7.mp3quran.net/ahmed_soliman",
+      "https://server7.mp3quran.net/ahmed_soliman/001.mp3",
+      404
+    ],
+    [
+      "mohamed_saeed",
+      "محمد سعيد",
+      "server13.mp3quran.net/mohamed_saeed",
+      "https://server13.mp3quran.net/mohamed_saeed/001.mp3",
+      404
+    ],
+    [
+      "mohammed_fahad",
+      "محمد فهد",
+      "server8.mp3quran.net/mohammed_fahad",
+      "https://server8.mp3quran.net/mohammed_fahad/001.mp3",
+      404
+    ],
+    [
+      "mohammed_ghassan",
+      "محمد غسان",
+      "server14.mp3quran.net/mohammed_ghassan",
+      "https://server14.mp3quran.net/mohammed_ghassan/001.mp3",
+      404
+    ],
+    [
+      "mohammed_ismail",
+      "محمد إسماعيل",
+      "server14.mp3quran.net/mohammed_ismail",
+      "https://server14.mp3quran.net/mohammed_ismail/001.mp3",
+      404
+    ],
+    [
+      "hamza_alhassan",
+      "حمزة الحسن",
+      "server11.mp3quran.net/hamza_alhassan",
+      "https://server11.mp3quran.net/hamza_alhassan/001.mp3",
+      404
+    ],
+    [
+      "abdulkareem_alshehri",
+      "عبد الكريم الشهري",
+      "server10.mp3quran.net/abdulkareem_alshehri",
+      "https://server10.mp3quran.net/abdulkareem_alshehri/001.mp3",
+      404
+    ],
+    [
+      "rashid_alhur",
+      "راشد الحور",
+      "server8.mp3quran.net/rashid_alhur",
+      "https://server8.mp3quran.net/rashid_alhur/001.mp3",
+      404
+    ],
+    [
+      "saud_alfarisi",
+      "سعود الفارسي",
+      "server7.mp3quran.net/saud_alfarisi",
+      "https://server7.mp3quran.net/saud_alfarisi/001.mp3",
+      404
+    ],
+    [
+      "abdullah_albahili",
+      "عبد الله البهيلي",
+      "server14.mp3quran.net/abdullah_albahili",
+      "https://server14.mp3quran.net/abdullah_albahili/001.mp3",
+      404
+    ],
+    [
+      "mohammed_alquraishi",
+      "محمد القرشي",
+      "server14.mp3quran.net/mohammed_alquraishi",
+      "https://server14.mp3quran.net/mohammed_alquraishi/001.mp3",
+      404
+    ],
+    [
+      "nadir_almaghribi",
+      "نادر المغربي",
+      "server8.mp3quran.net/nadir_almaghribi",
+      "https://server8.mp3quran.net/nadir_almaghribi/001.mp3",
+      404
+    ],
+    [
+      "mohamed_gaber",
+      "محمد جابر",
+      "server11.mp3quran.net/mohamed_gaber",
+      "https://server11.mp3quran.net/mohamed_gaber/001.mp3",
+      404
+    ],
+    [
+      "saleh_alorman",
+      "صالح العرمان",
+      "server13.mp3quran.net/saleh_alorman",
+      "https://server13.mp3quran.net/saleh_alorman/001.mp3",
+      404
+    ],
+    [
+      "fadhel_alqahtani",
+      "فاضل القحطاني",
+      "server10.mp3quran.net/fadhel_alqahtani",
+      "https://server10.mp3quran.net/fadhel_alqahtani/001.mp3",
+      404
+    ],
+    [
+      "muath_alqeeq",
+      "معاذ القيق",
+      "server7.mp3quran.net/muath_alqeeq",
+      "https://server7.mp3quran.net/muath_alqeeq/001.mp3",
+      404
+    ],
+    [
+      "abdullah_alshehri",
+      "عبد الله الشهري",
+      "server14.mp3quran.net/abdullah_alshehri",
+      "https://server14.mp3quran.net/abdullah_alshehri/001.mp3",
+      404
+    ],
+    [
+      "mohamed_aldurai",
+      "محمد الدوري",
+      "server8.mp3quran.net/mohamed_aldurai",
+      "https://server8.mp3quran.net/mohamed_aldurai/001.mp3",
+      404
+    ],
+    [
+      "mohammad_moneer",
+      "محمد منير",
+      "server10.mp3quran.net/mohammad_moneer",
+      "https://server10.mp3quran.net/mohammad_moneer/001.mp3",
+      404
+    ],
+    [
+      "rashid_alsharif",
+      "راشد الشريف",
+      "server11.mp3quran.net/rashid_alsharif",
+      "https://server11.mp3quran.net/rashid_alsharif/001.mp3",
+      404
+    ],
+    [
+      "amin_salman",
+      "أمين سلمان",
+      "server11.mp3quran.net/amin_salman",
+      "https://server11.mp3quran.net/amin_salman/001.mp3",
+      404
+    ],
+    [
+      "ibrahim_zaid",
+      "إبراهيم زايد",
+      "server6.mp3quran.net/ibrahim_zaid",
+      "https://server6.mp3quran.net/ibrahim_zaid/001.mp3",
+      404
+    ],
+    [
+      "abdullah_mahmoud",
+      "عبد الله محمود",
+      "server14.mp3quran.net/abdullah_mahmoud",
+      "https://server14.mp3quran.net/abdullah_mahmoud/001.mp3",
+      404
+    ],
+    [
+      "mohammed_yahya",
+      "محمد يحيى",
+      "server16.mp3quran.net/mohammed_yahya",
+      "https://server16.mp3quran.net/mohammed_yahya/001.mp3",
+      404
+    ],
+    [
+      "mohamed_baraka",
+      "محمد بركة",
+      "server13.mp3quran.net/mohamed_baraka",
+      "https://server13.mp3quran.net/mohamed_baraka/001.mp3",
+      404
+    ],
+    [
+      "sulaiman_alrajhi",
+      "سليمان الراجحي",
+      "server10.mp3quran.net/sulaiman_alrajhi",
+      "https://server10.mp3quran.net/sulaiman_alrajhi/001.mp3",
+      404
+    ],
+    [
+      "abdullah_alsulayti",
+      "عبد الله السليطي",
+      "server8.mp3quran.net/abdullah_alsulayti",
+      "https://server8.mp3quran.net/abdullah_alsulayti/001.mp3",
+      404
+    ],
+    [
+      "mohammed_alzaidi",
+      "محمد الزيدي",
+      "server7.mp3quran.net/mohammed_alzaidi",
+      "https://server7.mp3quran.net/mohammed_alzaidi/001.mp3",
+      404
+    ],
+    [
+      "mohammad_melhem",
+      "محمد ملحم",
+      "server11.mp3quran.net/mohammad_melhem",
+      "https://server11.mp3quran.net/mohammad_melhem/001.mp3",
+      404
+    ],
+    [
+      "abdulrahman_almadani",
+      "عبد الرحمن المدني",
+      "server14.mp3quran.net/abdulrahman_almadani",
+      "https://server14.mp3quran.net/abdulrahman_almadani/001.mp3",
+      404
+    ],
+    [
+      "mohammed_mahdi",
+      "محمد مهدي",
+      "server13.mp3quran.net/mohammed_mahdi",
+      "https://server13.mp3quran.net/mohammed_mahdi/001.mp3",
+      404
+    ],
+    [
+      "mohammed_hasan",
+      "محمد حسن",
+      "server6.mp3quran.net/mohammed_hasan",
+      "https://server6.mp3quran.net/mohammed_hasan/001.mp3",
+      404
+    ],
+    [
+      "abdullah_edded",
+      "عبد الله الأدب",
+      "server8.mp3quran.net/abdullah_edded",
+      "https://server8.mp3quran.net/abdullah_edded/001.mp3",
+      404
+    ],
+    [
+      "abdullah_alqattan",
+      "عبد الله القطّان",
+      "server7.mp3quran.net/abdullah_alqattan",
+      "https://server7.mp3quran.net/abdullah_alqattan/001.mp3",
+      404
+    ],
+    [
+      "salah_khalid",
+      "صلاح خالد",
+      "server11.mp3quran.net/salah_khalid",
+      "https://server11.mp3quran.net/salah_khalid/001.mp3",
+      404
+    ],
+    [
+      "hamad_alfarisi",
+      "حمد الفارسي",
+      "server10.mp3quran.net/hamad_alfarisi",
+      "https://server10.mp3quran.net/hamad_alfarisi/001.mp3",
+      404
+    ],
+    [
+      "abdullah_alhamad",
+      "عبد الله الحمّاد",
+      "server14.mp3quran.net/abdullah_alhamad",
+      "https://server14.mp3quran.net/abdullah_alhamad/001.mp3",
+      404
+    ],
+    [
+      "mohamed_algezawi",
+      "محمد القزاوي",
+      "server16.mp3quran.net/mohamed_algezawi",
+      "https://server16.mp3quran.net/mohamed_algezawi/001.mp3",
+      404
+    ],
+    [
+      "mohammed_hussain",
+      "محمد حسين",
+      "server13.mp3quran.net/mohammed_hussain",
+      "https://server13.mp3quran.net/mohammed_hussain/001.mp3",
+      404
+    ],
+    [
+      "mohamed_almansour",
+      "محمد المنصور",
+      "server8.mp3quran.net/mohamed_almansour",
+      "https://server8.mp3quran.net/mohamed_almansour/001.mp3",
+      404
+    ],
+    [
+      "salman_alshareef",
+      "سلمان الشريف",
+      "server7.mp3quran.net/salman_alshareef",
+      "https://server7.mp3quran.net/salman_alshareef/001.mp3",
+      404
+    ],
+    [
+      "ahmed_rifai",
+      "أحمد الرفاعي",
+      "server11.mp3quran.net/ahmed_rifai",
+      "https://server11.mp3quran.net/ahmed_rifai/001.mp3",
+      404
+    ],
+    [
+      "nasser_alharbi",
+      "ناصر الحربي",
+      "server14.mp3quran.net/nasser_alharbi",
+      "https://server14.mp3quran.net/nasser_alharbi/001.mp3",
+      404
+    ],
+    [
+      "mohamed_mansour",
+      "محمد منصور",
+      "server8.mp3quran.net/mohamed_mansour",
+      "https://server8.mp3quran.net/mohamed_mansour/001.mp3",
+      404
+    ],
+    [
+      "mohammad_ramadan",
+      "محمد رمضان",
+      "server11.mp3quran.net/mohammad_ramadan",
+      "https://server11.mp3quran.net/mohammad_ramadan/001.mp3",
+      404
+    ],
+    [
+      "mohamed_elmaghraby",
+      "محمد المغراوي",
+      "server16.mp3quran.net/mohamed_elmaghraby",
+      "https://server16.mp3quran.net/mohamed_elmaghraby/001.mp3",
+      404
+    ],
+    [
+      "taha_almadani",
+      "طه المدني",
+      "server14.mp3quran.net/taha_almadani",
+      "https://server14.mp3quran.net/taha_almadani/001.mp3",
+      404
+    ],
+    [
+      "omar_tayeb",
+      "عمر طيب",
+      "server8.mp3quran.net/omar_tayeb",
+      "https://server8.mp3quran.net/omar_tayeb/001.mp3",
+      404
+    ],
+    [
+      "mohammed_akram",
+      "محمد أكرم",
+      "server11.mp3quran.net/mohammed_akram",
+      "https://server11.mp3quran.net/mohammed_akram/001.mp3",
+      404
+    ],
+    [
+      "mohammad_said",
+      "محمد سعيد",
+      "server7.mp3quran.net/mohammad_said",
+      "https://server7.mp3quran.net/mohammad_said/001.mp3",
+      404
+    ],
+    [
+      "mohammed_newe",
+      "محمد نوي",
+      "server13.mp3quran.net/mohammed_newe",
+      "https://server13.mp3quran.net/mohammed_newe/001.mp3",
+      404
+    ],
+    [
+      "mahmoud_ahmed",
+      "محمود أحمد",
+      "server16.mp3quran.net/mahmoud_ahmed",
+      "https://server16.mp3quran.net/mahmoud_ahmed/001.mp3",
+      404
+    ],
+    [
+      "abdulaziz_ash_shabuni",
+      "عبد العزيز الشابوني",
+      "server14.mp3quran.net/abdulaziz_ash_shabuni",
+      "https://server14.mp3quran.net/abdulaziz_ash_shabuni/001.mp3",
+      404
+    ],
+    [
+      "omar_alquraishi",
+      "عمر القرشي",
+      "server8.mp3quran.net/omar_alquraishi",
+      "https://server8.mp3quran.net/omar_alquraishi/001.mp3",
+      404
+    ],
+    [
+      "mohamed_bassam",
+      "محمد بسام",
+      "server11.mp3quran.net/mohamed_bassam",
+      "https://server11.mp3quran.net/mohamed_bassam/001.mp3",
+      404
+    ],
+    [
+      "saad_almohammedi",
+      "سعد المحمودي",
+      "server14.mp3quran.net/saad_almohammedi",
+      "https://server14.mp3quran.net/saad_almohammedi/001.mp3",
+      404
+    ],
+    [
+      "mohammed_almuhandis",
+      "محمد المهندس",
+      "server10.mp3quran.net/mohammed_almuhandis",
+      "https://server10.mp3quran.net/mohammed_almuhandis/001.mp3",
+      404
+    ],
+    [
+      "mustafa_albalushi",
+      "مصطفى البلوشي",
+      "server7.mp3quran.net/mustafa_albalushi",
+      "https://server7.mp3quran.net/mustafa_albalushi/001.mp3",
+      404
+    ],
+    [
+      "mohammed_saber",
+      "محمد صابر",
+      "server8.mp3quran.net/mohammed_saber",
+      "https://server8.mp3quran.net/mohammed_saber/001.mp3",
+      404
+    ],
+    [
+      "fahd_alqadi",
+      "فهد القاضي",
+      "server11.mp3quran.net/fahd_alqadi",
+      "https://server11.mp3quran.net/fahd_alqadi/001.mp3",
+      404
+    ],
+    [
+      "mohammed_alsharif",
+      "محمد الشريف",
+      "server13.mp3quran.net/mohammed_alsharif",
+      "https://server13.mp3quran.net/mohammed_alsharif/001.mp3",
+      404
+    ],
+    [
+      "nasser_alqurashi",
+      "ناصر القرشي",
+      "server6.mp3quran.net/nasser_alqurashi",
+      "https://server6.mp3quran.net/nasser_alqurashi/001.mp3",
+      404
+    ],
+    [
+      "mohammed_alzahrani",
+      "محمد الزهراني",
+      "server14.mp3quran.net/mohammed_alzahrani",
+      "https://server14.mp3quran.net/mohammed_alzahrani/001.mp3",
+      404
+    ],
+    [
+      "mohammed_almansoori",
+      "محمد المنصوري",
+      "server8.mp3quran.net/mohammed_almansoori",
+      "https://server8.mp3quran.net/mohammed_almansoori/001.mp3",
+      404
+    ],
+    [
+      "abdullah_almuhairi",
+      "عبد الله المحيري",
+      "server11.mp3quran.net/abdullah_almuhairi",
+      "https://server11.mp3quran.net/abdullah_almuhairi/001.mp3",
+      404
+    ],
+    [
+      "ahmed_alboghdadi",
+      "أحمد البغدادي",
+      "server6.mp3quran.net/ahmed_alboghdadi",
+      "https://server6.mp3quran.net/ahmed_alboghdadi/001.mp3",
+      404
+    ],
+    [
+      "mohamed_alhaj",
+      "محمد الحاج",
+      "server7.mp3quran.net/mohamed_alhaj",
+      "https://server7.mp3quran.net/mohamed_alhaj/001.mp3",
+      404
+    ],
+    [
+      "ali_alqarni",
+      "علي القرني",
+      "server8.mp3quran.net/ali_alqarni",
+      "https://server8.mp3quran.net/ali_alqarni/001.mp3",
+      404
+    ],
+    [
+      "ahmed_alhameidi",
+      "أحمد الحميدي",
+      "server10.mp3quran.net/ahmed_alhameidi",
+      "https://server10.mp3quran.net/ahmed_alhameidi/001.mp3",
+      404
+    ],
+    [
+      "mohammad_alhamami",
+      "محمد الحمامي",
+      "server11.mp3quran.net/mohammad_alhamami",
+      "https://server11.mp3quran.net/mohammad_alhamami/001.mp3",
+      404
+    ],
+    [
+      "hassan_mansour",
+      "حسن منصور",
+      "server13.mp3quran.net/hassan_mansour",
+      "https://server13.mp3quran.net/hassan_mansour/001.mp3",
+      404
+    ],
+    [
+      "mohammed_alfaisal",
+      "محمد الفيصل",
+      "server14.mp3quran.net/mohammed_alfaisal",
+      "https://server14.mp3quran.net/mohammed_alfaisal/001.mp3",
+      404
+    ],
+    [
+      "abdullah_alkahtani",
+      "عبد الله القحطاني",
+      "server16.mp3quran.net/abdullah_alkahtani",
+      "https://server16.mp3quran.net/abdullah_alkahtani/001.mp3",
+      404
+    ],
+    [
+      "yaser_almalki",
+      "ياسر المالكي",
+      "server6.mp3quran.net/yaser_almalki",
+      "https://server6.mp3quran.net/yaser_almalki/001.mp3",
+      404
+    ],
+    [
+      "abdulrahman_alhabeeb",
+      "عبد الرحمن الحبيب",
+      "server7.mp3quran.net/abdulrahman_alhabeeb",
+      "https://server7.mp3quran.net/abdulrahman_alhabeeb/001.mp3",
+      404
+    ],
+    [
+      "mohamed_alsaif",
+      "محمد السيف",
+      "server8.mp3quran.net/mohamed_alsaif",
+      "https://server8.mp3quran.net/mohamed_alsaif/001.mp3",
+      404
+    ],
+    [
+      "abdulrahman_alkhalidi",
+      "عبد الرحمن الخالدي",
+      "server10.mp3quran.net/abdulrahman_alkhalidi",
+      "https://server10.mp3quran.net/abdulrahman_alkhalidi/001.mp3",
+      404
+    ],
+    [
+      "ahmad_alsaeed",
+      "أحمد السعيد",
+      "server11.mp3quran.net/ahmad_alsaeed",
+      "https://server11.mp3quran.net/ahmad_alsaeed/001.mp3",
+      404
+    ],
+    [
+      "majid_alqadi",
+      "ماجد القاضي",
+      "server13.mp3quran.net/majid_alqadi",
+      "https://server13.mp3quran.net/majid_alqadi/001.mp3",
+      404
+    ],
+    [
+      "tariq_alzafiri",
+      "طارق الظفيري",
+      "server14.mp3quran.net/tariq_alzafiri",
+      "https://server14.mp3quran.net/tariq_alzafiri/001.mp3",
+      404
+    ],
+    [
+      "islam_alfahad",
+      "إسلام الفهد",
+      "server16.mp3quran.net/islam_alfahad",
+      "https://server16.mp3quran.net/islam_alfahad/001.mp3",
+      404
+    ],
+    [
+      "sami_almutairi",
+      "سامي المطيري",
+      "server6.mp3quran.net/sami_almutairi",
+      "https://server6.mp3quran.net/sami_almutairi/001.mp3",
+      404
+    ],
+    [
+      "mohammad_rafat",
+      "محمد رفعت",
+      "server7.mp3quran.net/mohammad_rafat",
+      "https://server7.mp3quran.net/mohammad_rafat/001.mp3",
+      404
+    ],
+    [
+      "abdulrahman_alabd",
+      "عبد الرحمن العبد",
+      "server8.mp3quran.net/abdulrahman_alabd",
+      "https://server8.mp3quran.net/abdulrahman_alabd/001.mp3",
+      404
+    ],
+    [
+      "wakil_alharthy",
+      "وكيل الحارثي",
+      "server10.mp3quran.net/wakil_alharthy",
+      "https://server10.mp3quran.net/wakil_alharthy/001.mp3",
+      404
+    ],
+    [
+      "mohammed_alsharqawi",
+      "محمد الشرقاوي",
+      "server11.mp3quran.net/mohammed_alsharqawi",
+      "https://server11.mp3quran.net/mohammed_alsharqawi/001.mp3",
+      404
+    ],
+    [
+      "abdulaziz_alamer",
+      "عبد العزيز العامر",
+      "server13.mp3quran.net/abdulaziz_alamer",
+      "https://server13.mp3quran.net/abdulaziz_alamer/001.mp3",
+      404
+    ],
+    [
+      "haytham_alsharif",
+      "هيثم الشريف",
+      "server14.mp3quran.net/haytham_alsharif",
+      "https://server14.mp3quran.net/haytham_alsharif/001.mp3",
+      404
+    ],
+    [
+      "omar_alkhamis",
+      "عمر الخميس",
+      "server16.mp3quran.net/omar_alkhamis",
+      "https://server16.mp3quran.net/omar_alkhamis/001.mp3",
+      404
+    ],
+    [
+      "faisal_alwati",
+      "فيصل الوطي",
+      "server6.mp3quran.net/faisal_alwati",
+      "https://server6.mp3quran.net/faisal_alwati/001.mp3",
+      404
+    ],
+    [
+      "abdullah_alkhuzayem",
+      "عبد الله الخزيم",
+      "server7.mp3quran.net/abdullah_alkhuzayem",
+      "https://server7.mp3quran.net/abdullah_alkhuzayem/001.mp3",
+      404
+    ],
+    [
+      "ibrahim_alhabashy",
+      "إبراهيم الحبشي",
+      "server8.mp3quran.net/ibrahim_alhabashy",
+      "https://server8.mp3quran.net/ibrahim_alhabashy/001.mp3",
+      404
+    ],
+    [
+      "mohammad_alsayed",
+      "محمد السيد",
+      "server10.mp3quran.net/mohammad_alsayed",
+      "https://server10.mp3quran.net/mohammad_alsayed/001.mp3",
+      404
+    ],
+    [
+      "mohammed_alsulaiman",
+      "محمد السليمان",
+      "server11.mp3quran.net/mohammed_alsulaiman",
+      "https://server11.mp3quran.net/mohammed_alsulaiman/001.mp3",
+      404
+    ],
+    [
+      "hasan_alsayed",
+      "حسن السيد",
+      "server13.mp3quran.net/hasan_alsayed",
+      "https://server13.mp3quran.net/hasan_alsayed/001.mp3",
+      404
+    ],
+    [
+      "taqi_alhaki",
+      "تقي الحقي",
+      "server14.mp3quran.net/taqi_alhaki",
+      "https://server14.mp3quran.net/taqi_alhaki/001.mp3",
+      404
+    ],
+    [
+      "mohammed_almaani",
+      "محمد الماني",
+      "server16.mp3quran.net/mohammed_almaani",
+      "https://server16.mp3quran.net/mohammed_almaani/001.mp3",
+      404
+    ],
+    [
+      "abdulrahman_ajar",
+      "عبد الرحمن عجر",
+      "server6.mp3quran.net/abdulrahman_ajar",
+      "https://server6.mp3quran.net/abdulrahman_ajar/001.mp3",
+      404
+    ],
+    [
+      "mohammed_aljamal",
+      "محمد الجمل",
+      "server7.mp3quran.net/mohammed_aljamal",
+      "https://server7.mp3quran.net/mohammed_aljamal/001.mp3",
+      404
+    ],
+    [
+      "noman_alsudais",
+      "نعمان السديس",
+      "server8.mp3quran.net/noman_alsudais",
+      "https://server8.mp3quran.net/noman_alsudais/001.mp3",
+      404
+    ],
+    [
+      "mohammed_aljubair",
+      "محمد الجبير",
+      "server10.mp3quran.net/mohammed_aljubair",
+      "https://server10.mp3quran.net/mohammed_aljubair/001.mp3",
+      404
+    ],
+    [
+      "abdulrahman_alnasser",
+      "عبد الرحمن الناصر",
+      "server11.mp3quran.net/abdulrahman_alnasser",
+      "https://server11.mp3quran.net/abdulrahman_alnasser/001.mp3",
+      404
+    ],
+    [
+      "mohammad_albanna",
+      "محمد البنا",
+      "server13.mp3quran.net/mohammad_albanna",
+      "https://server13.mp3quran.net/mohammad_albanna/001.mp3",
+      404
+    ],
+    [
+      "abdullah_alsuhail",
+      "عبد الله السهيل",
+      "server14.mp3quran.net/abdullah_alsuhail",
+      "https://server14.mp3quran.net/abdullah_alsuhail/001.mp3",
+      404
+    ],
+    [
+      "fahd_aljadani",
+      "فهد الجدعاني",
+      "server16.mp3quran.net/fahd_aljadani",
+      "https://server16.mp3quran.net/fahd_aljadani/001.mp3",
+      404
+    ],
+    [
+      "mohamed_alqaisi",
+      "محمد القيسي",
+      "server6.mp3quran.net/mohamed_alqaisi",
+      "https://server6.mp3quran.net/mohamed_alqaisi/001.mp3",
+      404
+    ],
+    [
+      "abdulaziz_alsuwaidi",
+      "عبد العزيز السويدي",
+      "server7.mp3quran.net/abdulaziz_alsuwaidi",
+      "https://server7.mp3quran.net/abdulaziz_alsuwaidi/001.mp3",
+      404
+    ],
+    [
+      "mohammed_alsalmi",
+      "محمد السالمي",
+      "server8.mp3quran.net/mohammed_alsalmi",
+      "https://server8.mp3quran.net/mohammed_alsalmi/001.mp3",
+      404
+    ],
+    [
+      "akram_alraisi",
+      "أكرم الرايسي",
+      "server10.mp3quran.net/akram_alraisi",
+      "https://server10.mp3quran.net/akram_alraisi/001.mp3",
+      404
+    ],
+    [
+      "mohammed_alrabeah",
+      "محمد الربيع",
+      "server11.mp3quran.net/mohammed_alrabeah",
+      "https://server11.mp3quran.net/mohammed_alrabeah/001.mp3",
+      404
+    ],
+    [
+      "omar_alnasser",
+      "عمر الناصر",
+      "server13.mp3quran.net/omar_alnasser",
+      "https://server13.mp3quran.net/omar_alnasser/001.mp3",
+      404
+    ],
+    [
+      "mohamed_alensani",
+      "محمد الإنصاني",
+      "server14.mp3quran.net/mohamed_alensani",
+      "https://server14.mp3quran.net/mohamed_alensani/001.mp3",
+      404
+    ],
+    [
+      "abdullah_alshrief",
+      "عبد الله الشريف",
+      "server16.mp3quran.net/abdullah_alshrief",
+      "https://server16.mp3quran.net/abdullah_alshrief/001.mp3",
+      404
+    ],
+    [
+      "abdulrahman_alkhatib",
+      "عبد الرحمن الخطيب",
+      "server6.mp3quran.net/abdulrahman_alkhatib",
+      "https://server6.mp3quran.net/abdulrahman_alkhatib/001.mp3",
+      404
+    ],
+    [
+      "mohammed_alsaleh",
+      "محمد الصالح",
+      "server7.mp3quran.net/mohammed_alsaleh",
+      "https://server7.mp3quran.net/mohammed_alsaleh/001.mp3",
+      404
+    ],
+    [
+      "yakub_alshamri",
+      "يعقوب الشمري",
+      "server8.mp3quran.net/yakub_alshamri",
+      "https://server8.mp3quran.net/yakub_alshamri/001.mp3",
+      404
+    ],
+    [
+      "mohammed_aljawhar",
+      "محمد الجوهرة",
+      "server10.mp3quran.net/mohammed_aljawhar",
+      "https://server10.mp3quran.net/mohammed_aljawhar/001.mp3",
+      404
+    ],
+    [
+      "mohamed_alshamri",
+      "محمد الشمري",
+      "server11.mp3quran.net/mohamed_alshamri",
+      "https://server11.mp3quran.net/mohamed_alshamri/001.mp3",
+      404
+    ],
+    [
+      "abdulrahman_alsalama",
+      "عبد الرحمن السلامة",
+      "server13.mp3quran.net/abdulrahman_alsalama",
+      "https://server13.mp3quran.net/abdulrahman_alsalama/001.mp3",
+      404
+    ],
+    [
+      "badr_alzahrani",
+      "بدر الزهراني",
+      "server14.mp3quran.net/badr_alzahrani",
+      "https://server14.mp3quran.net/badr_alzahrani/001.mp3",
+      404
+    ],
+    [
+      "mohammed_alqarny",
+      "محمد القرني",
+      "server16.mp3quran.net/mohammed_alqarny",
+      "https://server16.mp3quran.net/mohammed_alqarny/001.mp3",
+      404
+    ],
+    [
+      "abdullah_aljohani",
+      "عبد الله الجهني",
+      "server6.mp3quran.net/abdullah_aljohani",
+      "https://server6.mp3quran.net/abdullah_aljohani/001.mp3",
+      404
+    ],
+    [
+      "ahmed_almuhajir",
+      "أحمد المهاجر",
+      "server7.mp3quran.net/ahmed_almuhajir",
+      "https://server7.mp3quran.net/ahmed_almuhajir/001.mp3",
+      404
+    ],
+    [
+      "mohammed_albannai",
+      "محمد البناني",
+      "server8.mp3quran.net/mohammed_albannai",
+      "https://server8.mp3quran.net/mohammed_albannai/001.mp3",
+      404
+    ],
+    [
+      "mohamed_alsalman",
+      "محمد السلمان",
+      "server10.mp3quran.net/mohamed_alsalman",
+      "https://server10.mp3quran.net/mohamed_alsalman/001.mp3",
+      404
+    ],
+    [
+      "ibrahim_alsaleh",
+      "إبراهيم الصالح",
+      "server11.mp3quran.net/ibrahim_alsaleh",
+      "https://server11.mp3quran.net/ibrahim_alsaleh/001.mp3",
+      404
+    ],
+    [
+      "mohammed_alshehri",
+      "محمد الشهري",
+      "server13.mp3quran.net/mohammed_alshehri",
+      "https://server13.mp3quran.net/mohammed_alshehri/001.mp3",
+      404
+    ],
+    [
+      "abdullah_aldaqaq",
+      "عبد الله الدقاق",
+      "server14.mp3quran.net/abdullah_aldaqaq",
+      "https://server14.mp3quran.net/abdullah_aldaqaq/001.mp3",
+      404
+    ],
+    [
+      "mohammed_alqattan",
+      "محمد القطان",
+      "server16.mp3quran.net/mohammed_alqattan",
+      "https://server16.mp3quran.net/mohammed_alqattan/001.mp3",
+      404
+    ],
+    [
+      "muhammad_alfarsi",
+      "محمد الفارسي",
+      "server6.mp3quran.net/muhammad_alfarsi",
+      "https://server6.mp3quran.net/muhammad_alfarsi/001.mp3",
+      404
+    ],
+    [
+      "thamer_alshehri",
+      "ثامر الشهري",
+      "server7.mp3quran.net/thamer_alshehri",
+      "https://server7.mp3quran.net/thamer_alshehri/001.mp3",
+      404
+    ],
+    [
+      "mohamed_alahmadi",
+      "محمد الأحمدي",
+      "server8.mp3quran.net/mohamed_alahmadi",
+      "https://server8.mp3quran.net/mohamed_alahmadi/001.mp3",
+      404
+    ],
+    [
+      "abdulaziz_alsharif",
+      "عبد العزيز الشريف",
+      "server10.mp3quran.net/abdulaziz_alsharif",
+      "https://server10.mp3quran.net/abdulaziz_alsharif/001.mp3",
+      404
+    ],
+    [
+      "mohammad_alghamdi",
+      "محمد الغامدي",
+      "server11.mp3quran.net/mohammad_alghamdi",
+      "https://server11.mp3quran.net/mohammad_alghamdi/001.mp3",
+      404
+    ],
+    [
+      "wali_alsharif",
+      "ولي الشريف",
+      "server13.mp3quran.net/wali_alsharif",
+      "https://server13.mp3quran.net/wali_alsharif/001.mp3",
+      404
+    ],
+    [
+      "yousef_alharbi",
+      "يوسف الحربي",
+      "server14.mp3quran.net/yousef_alharbi",
+      "https://server14.mp3quran.net/yousef_alharbi/001.mp3",
+      404
+    ],
+    [
+      "mohammad_almuhanna",
+      "محمد المهنا",
+      "server16.mp3quran.net/mohammad_almuhanna",
+      "https://server16.mp3quran.net/mohammad_almuhanna/001.mp3",
+      404
+    ],
+    [
+      "omar_alsaud",
+      "عمر السعود",
+      "server6.mp3quran.net/omar_alsaud",
+      "https://server6.mp3quran.net/omar_alsaud/001.mp3",
+      404
+    ],
+    [
+      "abdullah_alfarraj",
+      "عبد الله الفراج",
+      "server7.mp3quran.net/abdullah_alfarraj",
+      "https://server7.mp3quran.net/abdullah_alfarraj/001.mp3",
+      404
+    ],
+    [
+      "mohamed_alsaeed",
+      "محمد السعيد",
+      "server8.mp3quran.net/mohamed_alsaeed",
+      "https://server8.mp3quran.net/mohamed_alsaeed/001.mp3",
+      404
+    ],
+    [
+      "saleh_almalki",
+      "صالح المالكي",
+      "server10.mp3quran.net/saleh_almalki",
+      "https://server10.mp3quran.net/saleh_almalki/001.mp3",
+      404
+    ],
+    [
+      "abdullah_alhazmi2",
+      "عبد الله الحازمي",
+      "server11.mp3quran.net/abdullah_alhazmi2",
+      "https://server11.mp3quran.net/abdullah_alhazmi2/001.mp3",
+      404
+    ],
+    [
+      "mohammed_alqasim",
+      "محمد القاسم",
+      "server13.mp3quran.net/mohammed_alqasim",
+      "https://server13.mp3quran.net/mohammed_alqasim/001.mp3",
+      404
+    ],
+    [
+      "hassan_alshehri",
+      "حسن الشهري",
+      "server14.mp3quran.net/hassan_alshehri",
+      "https://server14.mp3quran.net/hassan_alshehri/001.mp3",
+      404
+    ],
+    [
+      "abdulrahim_alrasheed",
+      "عبد الرحيم الرشيد",
+      "server16.mp3quran.net/abdulrahim_alrasheed",
+      "https://server16.mp3quran.net/abdulrahim_alrasheed/001.mp3",
+      404
+    ]
+  ]
+}

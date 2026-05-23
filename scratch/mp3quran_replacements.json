@@ -1,0 +1,1775 @@
+[
+  {
+    "id": "maher",
+    "name": "ماهر المعيقلي",
+    "best_host": "server12.mp3quran.net",
+    "best_folder": "maher",
+    "best_score": 1.0,
+    "url": "https://server12.mp3quran.net/maher/001.mp3",
+    "current": "server12.mp3quran.net/maher"
+  },
+  {
+    "id": "sds",
+    "name": "عبد الرحمن السديس",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "sds",
+    "best_score": 1.0,
+    "url": "https://server11.mp3quran.net/sds/001.mp3",
+    "current": "server11.mp3quran.net/sds"
+  },
+  {
+    "id": "shur",
+    "name": "سعود الشريم",
+    "best_host": "server7.mp3quran.net",
+    "best_folder": "shur",
+    "best_score": 1.0,
+    "url": "https://server7.mp3quran.net/shur/001.mp3",
+    "current": "server7.mp3quran.net/shur"
+  },
+  {
+    "id": "juhani",
+    "name": "عبد الله عواد الجهني",
+    "best_host": "server8.mp3quran.net",
+    "best_folder": "hani",
+    "best_score": 0.8,
+    "url": "https://server8.mp3quran.net/hani/001.mp3",
+    "current": "server13.mp3quran.net/juhani"
+  },
+  {
+    "id": "afasy",
+    "name": "مشاري العفاسي",
+    "best_host": "server8.mp3quran.net",
+    "best_folder": "afs",
+    "best_score": 1.0,
+    "url": "https://server8.mp3quran.net/afs/001.mp3",
+    "current": "server8.mp3quran.net/afs"
+  },
+  {
+    "id": "qtm",
+    "name": "ناصر القطامي",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "qtm",
+    "best_score": 1.0,
+    "url": "https://server6.mp3quran.net/qtm/001.mp3",
+    "current": "server6.mp3quran.net/qtm"
+  },
+  {
+    "id": "s_gmd",
+    "name": "سعد الغامدي",
+    "best_host": "server7.mp3quran.net",
+    "best_folder": "s_gmd",
+    "best_score": 1.0,
+    "url": "https://server7.mp3quran.net/s_gmd/001.mp3",
+    "current": "server7.mp3quran.net/s_gmd"
+  },
+  {
+    "id": "ajm",
+    "name": "أحمد بن علي العجمي",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "ajm",
+    "best_score": 1.0,
+    "url": "https://server10.mp3quran.net/ajm/001.mp3",
+    "current": "server10.mp3quran.net/ajm"
+  },
+  {
+    "id": "yasser",
+    "name": "ياسر الدوسري",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "yasser",
+    "best_score": 1.0,
+    "url": "https://server11.mp3quran.net/yasser/001.mp3",
+    "current": "server11.mp3quran.net/yasser"
+  },
+  {
+    "id": "abkr",
+    "name": "إدريس أبكر",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "abkr",
+    "best_score": 1.0,
+    "url": "https://server6.mp3quran.net/abkr/001.mp3",
+    "current": "server6.mp3quran.net/abkr"
+  },
+  {
+    "id": "basit",
+    "name": "عبد الباسط عبد الصمد (مرتل)",
+    "best_host": "server7.mp3quran.net",
+    "best_folder": "basit",
+    "best_score": 1.0,
+    "url": "https://server7.mp3quran.net/basit/001.mp3",
+    "current": "server7.mp3quran.net/basit"
+  },
+  {
+    "id": "minsh",
+    "name": "محمد صديق المنشاوي (مرتل)",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "minsh",
+    "best_score": 1.0,
+    "url": "https://server10.mp3quran.net/minsh/001.mp3",
+    "current": "server10.mp3quran.net/minsh"
+  },
+  {
+    "id": "husr",
+    "name": "محمود خليل الحصري",
+    "best_host": "server13.mp3quran.net",
+    "best_folder": "husr",
+    "best_score": 1.0,
+    "url": "https://server13.mp3quran.net/husr/001.mp3",
+    "current": "server13.mp3quran.net/husr"
+  },
+  {
+    "id": "husr_m",
+    "name": "محمود خليل الحصري (مجود)",
+    "best_host": "server13.mp3quran.net",
+    "best_folder": "husr",
+    "best_score": 0.8888888888888888,
+    "url": "https://server13.mp3quran.net/husr/001.mp3",
+    "current": "server13.mp3quran.net/husr_m"
+  },
+  {
+    "id": "shatree",
+    "name": "أبو بكر الشاطري",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "shatri",
+    "best_score": 0.7692307692307693,
+    "url": "https://server11.mp3quran.net/shatri/001.mp3",
+    "current": "server11.mp3quran.net/shatree"
+  },
+  {
+    "id": "ayyub",
+    "name": "محمد أيوب",
+    "best_host": "server8.mp3quran.net",
+    "best_folder": "ayyub",
+    "best_score": 1.0,
+    "url": "https://server8.mp3quran.net/ayyub/001.mp3",
+    "current": "server8.mp3quran.net/ayyub"
+  },
+  {
+    "id": "jbrl",
+    "name": "محمد جبريل",
+    "best_host": "server8.mp3quran.net",
+    "best_folder": "jbrl",
+    "best_score": 1.0,
+    "url": "https://server8.mp3quran.net/jbrl/001.mp3",
+    "current": "server8.mp3quran.net/jbrl"
+  },
+  {
+    "id": "akdr",
+    "name": "إبراهيم الأخضر",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "akdr",
+    "best_score": 1.0,
+    "url": "https://server6.mp3quran.net/akdr/001.mp3",
+    "current": "server6.mp3quran.net/akdr"
+  },
+  {
+    "id": "jleel",
+    "name": "خالد الجليل",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "jleel",
+    "best_score": 1.0,
+    "url": "https://server10.mp3quran.net/jleel/001.mp3",
+    "current": "server10.mp3quran.net/jleel"
+  },
+  {
+    "id": "hazza",
+    "name": "هزاع البلوشي",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "hazza",
+    "best_score": 1.0,
+    "url": "https://server11.mp3quran.net/hazza/001.mp3",
+    "current": "server11.mp3quran.net/hazza"
+  },
+  {
+    "id": "mansor",
+    "name": "منصور السالمي",
+    "best_host": "server14.mp3quran.net",
+    "best_folder": "mansor",
+    "best_score": 1.0,
+    "url": "https://server14.mp3quran.net/mansor/001.mp3",
+    "current": "server14.mp3quran.net/mansor"
+  },
+  {
+    "id": "balilah",
+    "name": "بندر بليلة",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "balilah",
+    "best_score": 1.0,
+    "url": "https://server6.mp3quran.net/balilah/001.mp3",
+    "current": "server6.mp3quran.net/balilah"
+  },
+  {
+    "id": "albana",
+    "name": "البنا",
+    "best_host": "server8.mp3quran.net",
+    "best_folder": "bna",
+    "best_score": 1.0,
+    "url": "https://server8.mp3quran.net/bna/001.mp3",
+    "current": "server8.mp3quran.net/bna"
+  },
+  {
+    "id": "basfar",
+    "name": "عبد الله بصفر",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "bsfr",
+    "best_score": 0.8,
+    "url": "https://server6.mp3quran.net/bsfr/001.mp3",
+    "current": "server6.mp3quran.net/basfar"
+  },
+  {
+    "id": "mohammad_rifaat",
+    "name": "محمد رفعت",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "hamad",
+    "best_score": 0.5263157894736842,
+    "url": "https://server6.mp3quran.net/hamad/001.mp3",
+    "current": "server14.mp3quran.net/mohammad_rifaat"
+  },
+  {
+    "id": "sayed_nakashibandi",
+    "name": "سيد النقشبندي",
+    "best_host": "server12.mp3quran.net",
+    "best_folder": "salah_hashim_m",
+    "best_score": 0.4827586206896552,
+    "url": "https://server12.mp3quran.net/salah_hashim_m/001.mp3",
+    "current": "server11.mp3quran.net/sayed_nakashibandi"
+  },
+  {
+    "id": "waleed_shamsan",
+    "name": "الوليد الشمسان",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "waleed",
+    "best_score": 0.631578947368421,
+    "url": "https://server9.mp3quran.net/waleed/001.mp3",
+    "current": "server11.mp3quran.net/waleed_shamsan"
+  },
+  {
+    "id": "badr_turki",
+    "name": "بدر التركي",
+    "best_host": "server12.mp3quran.net",
+    "best_folder": "bari",
+    "best_score": 0.6153846153846154,
+    "url": "https://server12.mp3quran.net/bari/001.mp3",
+    "current": "server11.mp3quran.net/badr_turki"
+  },
+  {
+    "id": "ali_abdullah_jaber",
+    "name": "علي عبد الله جابر",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.6666666666666666,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server11.mp3quran.net/ali_abdullah_jaber"
+  },
+  {
+    "id": "ahmed_ibn_taleb_hameed",
+    "name": "أحمد ابن طالب حميد",
+    "best_host": "server8.mp3quran.net",
+    "best_folder": "ahmad_huth",
+    "best_score": 0.42857142857142855,
+    "url": "https://server8.mp3quran.net/ahmad_huth/001.mp3",
+    "current": "server11.mp3quran.net/ahmed_ibn_taleb_hameed"
+  },
+  {
+    "id": "islam_sobhi",
+    "name": "إسلام صبحي",
+    "best_host": "server12.mp3quran.net",
+    "best_folder": "salah_hashim_m",
+    "best_score": 0.5454545454545454,
+    "url": "https://server12.mp3quran.net/salah_hashim_m/001.mp3",
+    "current": "server11.mp3quran.net/islam_sobhi"
+  },
+  {
+    "id": "abdurrahman_musaab",
+    "name": "عبد الرحمن مصعب",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "ahmad_nu",
+    "best_score": 0.5,
+    "url": "https://server11.mp3quran.net/ahmad_nu/001.mp3",
+    "current": "server11.mp3quran.net/abdurrahman_musaab"
+  },
+  {
+    "id": "ahmed_kasab",
+    "name": "أحمد كاسب",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "a_ahmed",
+    "best_score": 0.625,
+    "url": "https://server11.mp3quran.net/a_ahmed/001.mp3",
+    "current": "server16.mp3quran.net/ahmed_kasab"
+  },
+  {
+    "id": "mohammad_ahmad_hassan",
+    "name": "محمد أحمد حسن",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "ahmad_nu",
+    "best_score": 0.46153846153846156,
+    "url": "https://server11.mp3quran.net/ahmad_nu/001.mp3",
+    "current": "server16.mp3quran.net/mohammad_ahmad_hassan"
+  },
+  {
+    "id": "mustafa_ismail",
+    "name": "مصطفى إسماعيل",
+    "best_host": "server8.mp3quran.net",
+    "best_folder": "mustafa",
+    "best_score": 0.7,
+    "url": "https://server8.mp3quran.net/mustafa/001.mp3",
+    "current": "server10.mp3quran.net/mustafa_ismail"
+  },
+  {
+    "id": "ahmed_naeen",
+    "name": "أحمد نعينع",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "a_ahmed",
+    "best_score": 0.625,
+    "url": "https://server11.mp3quran.net/a_ahmed/001.mp3",
+    "current": "server8.mp3quran.net/ahmed_naeen"
+  },
+  {
+    "id": "kamel_yousef_albahtimi",
+    "name": "كامل يوسف البهتيمي",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "yousef",
+    "best_score": 0.46153846153846156,
+    "url": "https://server9.mp3quran.net/yousef/001.mp3",
+    "current": "server6.mp3quran.net/kamel_yousef_albahtimi"
+  },
+  {
+    "id": "taha_alfashny",
+    "name": "طه الفشني",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "hawashi",
+    "best_score": 0.5263157894736842,
+    "url": "https://server11.mp3quran.net/hawashi/001.mp3",
+    "current": "server14.mp3quran.net/taha_alfashny"
+  },
+  {
+    "id": "abu_alaneen_shaishaa",
+    "name": "أبو العنين شعيشع",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "trabulsi",
+    "best_score": 0.46153846153846156,
+    "url": "https://server10.mp3quran.net/trabulsi/001.mp3",
+    "current": "server14.mp3quran.net/abu_alaneen_shaishaa"
+  },
+  {
+    "id": "alhuthaify",
+    "name": "علي الحذيفي",
+    "best_host": "server12.mp3quran.net",
+    "best_folder": "salah_hashim_m",
+    "best_score": 0.5454545454545454,
+    "url": "https://server12.mp3quran.net/salah_hashim_m/001.mp3",
+    "current": "server11.mp3quran.net/alhuthaify"
+  },
+  {
+    "id": "alqasim",
+    "name": "عبد المحسن القاسم",
+    "best_host": "server8.mp3quran.net",
+    "best_folder": "qasm",
+    "best_score": 0.7272727272727273,
+    "url": "https://server8.mp3quran.net/qasm/001.mp3",
+    "current": "server11.mp3quran.net/alqasim"
+  },
+  {
+    "id": "ath_thubaity",
+    "name": "عبد الباري الثبيتي",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "thubti",
+    "best_score": 0.5882352941176471,
+    "url": "https://server6.mp3quran.net/thubti/001.mp3",
+    "current": "server8.mp3quran.net/ath_thubaity"
+  },
+  {
+    "id": "adel_kalbani",
+    "name": "عادل كلباني",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "arkani",
+    "best_score": 0.5882352941176471,
+    "url": "https://server6.mp3quran.net/arkani/001.mp3",
+    "current": "server8.mp3quran.net/adel_kalbani"
+  },
+  {
+    "id": "khalid_alqahtani",
+    "name": "خالد القحطاني",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "balilah",
+    "best_score": 0.5454545454545454,
+    "url": "https://server6.mp3quran.net/balilah/001.mp3",
+    "current": "server11.mp3quran.net/khalid_alqahtani"
+  },
+  {
+    "id": "salah_bukhatir",
+    "name": "صلاح بختير",
+    "best_host": "server12.mp3quran.net",
+    "best_folder": "salah_hashim_m",
+    "best_score": 0.64,
+    "url": "https://server12.mp3quran.net/salah_hashim_m/001.mp3",
+    "current": "server6.mp3quran.net/salah_bukhatir"
+  },
+  {
+    "id": "salah_albudair",
+    "name": "صلاح البدير",
+    "best_host": "server12.mp3quran.net",
+    "best_folder": "salah_hashim_m",
+    "best_score": 0.56,
+    "url": "https://server12.mp3quran.net/salah_hashim_m/001.mp3",
+    "current": "server6.mp3quran.net/salah_albudair"
+  },
+  {
+    "id": "abdulkarim_alhazmi",
+    "name": "عبد الكريم الحازمي",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.56,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server14.mp3quran.net/abdulkarim_alhazmi"
+  },
+  {
+    "id": "ibrahim_aljibrin",
+    "name": "إبراهيم الجبرين",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "IbrahemSadan",
+    "best_score": 0.5925925925925926,
+    "url": "https://server10.mp3quran.net/IbrahemSadan/001.mp3",
+    "current": "server11.mp3quran.net/ibrahim_aljibrin"
+  },
+  {
+    "id": "ayman_suwaid",
+    "name": "أيمن سويد",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "ahmad_nu",
+    "best_score": 0.5555555555555556,
+    "url": "https://server11.mp3quran.net/ahmad_nu/001.mp3",
+    "current": "server8.mp3quran.net/ayman_suwaid"
+  },
+  {
+    "id": "abdullah_almatrouk",
+    "name": "عبد الله المطروق",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "Abdullahk",
+    "best_score": 0.6923076923076923,
+    "url": "https://server10.mp3quran.net/Abdullahk/001.mp3",
+    "current": "server13.mp3quran.net/abdullah_almatrouk"
+  },
+  {
+    "id": "nabil_rafat",
+    "name": "نبيل رفعت",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "nabil",
+    "best_score": 0.6666666666666666,
+    "url": "https://server9.mp3quran.net/nabil/001.mp3",
+    "current": "server14.mp3quran.net/nabil_rafat"
+  },
+  {
+    "id": "yassin_pasha",
+    "name": "ياسين باشا",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "minsh",
+    "best_score": 0.5,
+    "url": "https://server10.mp3quran.net/minsh/001.mp3",
+    "current": "server10.mp3quran.net/yassin_pasha"
+  },
+  {
+    "id": "mohamed_jassem",
+    "name": "محمد جاسم",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "monshed",
+    "best_score": 0.5,
+    "url": "https://server10.mp3quran.net/monshed/001.mp3",
+    "current": "server13.mp3quran.net/mohamed_jassem"
+  },
+  {
+    "id": "mohammed_mabrouk",
+    "name": "محمد مبروك",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "monshed",
+    "best_score": 0.45454545454545453,
+    "url": "https://server10.mp3quran.net/monshed/001.mp3",
+    "current": "server6.mp3quran.net/mohammed_mabrouk"
+  },
+  {
+    "id": "ahmed_pas",
+    "name": "أحمد باس",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "a_ahmed",
+    "best_score": 0.7142857142857143,
+    "url": "https://server11.mp3quran.net/a_ahmed/001.mp3",
+    "current": "server11.mp3quran.net/ahmed_pas"
+  },
+  {
+    "id": "ahmed_soliman",
+    "name": "أحمد سليمان",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "a_ahmed",
+    "best_score": 0.5555555555555556,
+    "url": "https://server11.mp3quran.net/a_ahmed/001.mp3",
+    "current": "server7.mp3quran.net/ahmed_soliman"
+  },
+  {
+    "id": "mohamed_saeed",
+    "name": "محمد سعيد",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "monshed",
+    "best_score": 0.5263157894736842,
+    "url": "https://server10.mp3quran.net/monshed/001.mp3",
+    "current": "server13.mp3quran.net/mohamed_saeed"
+  },
+  {
+    "id": "mohammed_fahad",
+    "name": "محمد فهد",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "hamad",
+    "best_score": 0.5555555555555556,
+    "url": "https://server6.mp3quran.net/hamad/001.mp3",
+    "current": "server8.mp3quran.net/mohammed_fahad"
+  },
+  {
+    "id": "mohammed_ghassan",
+    "name": "محمد غسان",
+    "best_host": "server16.mp3quran.net",
+    "best_folder": "hasan",
+    "best_score": 0.5,
+    "url": "https://server16.mp3quran.net/hasan/001.mp3",
+    "current": "server14.mp3quran.net/mohammed_ghassan"
+  },
+  {
+    "id": "mohammed_ismail",
+    "name": "محمد إسماعيل",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "ghamdi",
+    "best_score": 0.5,
+    "url": "https://server6.mp3quran.net/ghamdi/001.mp3",
+    "current": "server14.mp3quran.net/mohammed_ismail"
+  },
+  {
+    "id": "hamza_alhassan",
+    "name": "حمزة الحسن",
+    "best_host": "server16.mp3quran.net",
+    "best_folder": "hasan",
+    "best_score": 0.5555555555555556,
+    "url": "https://server16.mp3quran.net/hasan/001.mp3",
+    "current": "server11.mp3quran.net/hamza_alhassan"
+  },
+  {
+    "id": "abdulkareem_alshehri",
+    "name": "عبد الكريم الشهري",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.5185185185185185,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server10.mp3quran.net/abdulkareem_alshehri"
+  },
+  {
+    "id": "rashid_alhur",
+    "name": "راشد الحور",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "rashad",
+    "best_score": 0.5882352941176471,
+    "url": "https://server10.mp3quran.net/rashad/001.mp3",
+    "current": "server8.mp3quran.net/rashid_alhur"
+  },
+  {
+    "id": "abdullah_albahili",
+    "name": "عبد الله البهيلي",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.6666666666666666,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server14.mp3quran.net/abdullah_albahili"
+  },
+  {
+    "id": "mohammed_alquraishi",
+    "name": "محمد القرشي",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "qurashi",
+    "best_score": 0.56,
+    "url": "https://server9.mp3quran.net/qurashi/001.mp3",
+    "current": "server14.mp3quran.net/mohammed_alquraishi"
+  },
+  {
+    "id": "nadir_almaghribi",
+    "name": "نادر المغربي",
+    "best_host": "server14.mp3quran.net",
+    "best_folder": "nasser_almajed",
+    "best_score": 0.5,
+    "url": "https://server14.mp3quran.net/nasser_almajed/001.mp3",
+    "current": "server8.mp3quran.net/nadir_almaghribi"
+  },
+  {
+    "id": "mohamed_gaber",
+    "name": "محمد جابر",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "monshed",
+    "best_score": 0.5263157894736842,
+    "url": "https://server10.mp3quran.net/monshed/001.mp3",
+    "current": "server11.mp3quran.net/mohamed_gaber"
+  },
+  {
+    "id": "saleh_alorman",
+    "name": "صالح العرمان",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "salman",
+    "best_score": 0.6666666666666666,
+    "url": "https://server11.mp3quran.net/salman/001.mp3",
+    "current": "server13.mp3quran.net/saleh_alorman"
+  },
+  {
+    "id": "fadhel_alqahtani",
+    "name": "فاضل القحطاني",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "lahoni",
+    "best_score": 0.47619047619047616,
+    "url": "https://server6.mp3quran.net/lahoni/001.mp3",
+    "current": "server10.mp3quran.net/fadhel_alqahtani"
+  },
+  {
+    "id": "muath_alqeeq",
+    "name": "معاذ القيق",
+    "best_host": "server12.mp3quran.net",
+    "best_folder": "maher",
+    "best_score": 0.5,
+    "url": "https://server12.mp3quran.net/maher/001.mp3",
+    "current": "server7.mp3quran.net/muath_alqeeq"
+  },
+  {
+    "id": "abdullah_alshehri",
+    "name": "عبد الله الشهري",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.6666666666666666,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server14.mp3quran.net/abdullah_alshehri"
+  },
+  {
+    "id": "mohamed_aldurai",
+    "name": "محمد الدوري",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "ghamdi",
+    "best_score": 0.5,
+    "url": "https://server6.mp3quran.net/ghamdi/001.mp3",
+    "current": "server8.mp3quran.net/mohamed_aldurai"
+  },
+  {
+    "id": "mohammad_moneer",
+    "name": "محمد منير",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "hamad",
+    "best_score": 0.5263157894736842,
+    "url": "https://server6.mp3quran.net/hamad/001.mp3",
+    "current": "server10.mp3quran.net/mohammad_moneer"
+  },
+  {
+    "id": "rashid_alsharif",
+    "name": "راشد الشريف",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "rashad",
+    "best_score": 0.5,
+    "url": "https://server10.mp3quran.net/rashad/001.mp3",
+    "current": "server11.mp3quran.net/rashid_alsharif"
+  },
+  {
+    "id": "amin_salman",
+    "name": "أمين سلمان",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "salman",
+    "best_score": 0.75,
+    "url": "https://server11.mp3quran.net/salman/001.mp3",
+    "current": "server11.mp3quran.net/amin_salman"
+  },
+  {
+    "id": "ibrahim_zaid",
+    "name": "إبراهيم زايد",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "IbrahemSadan",
+    "best_score": 0.6956521739130435,
+    "url": "https://server10.mp3quran.net/IbrahemSadan/001.mp3",
+    "current": "server6.mp3quran.net/ibrahim_zaid"
+  },
+  {
+    "id": "abdullah_mahmoud",
+    "name": "عبد الله محمود",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.6956521739130435,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server14.mp3quran.net/abdullah_mahmoud"
+  },
+  {
+    "id": "mohammed_yahya",
+    "name": "محمد يحيى",
+    "best_host": "server12.mp3quran.net",
+    "best_folder": "yahya",
+    "best_score": 0.5555555555555556,
+    "url": "https://server12.mp3quran.net/yahya/001.mp3",
+    "current": "server16.mp3quran.net/mohammed_yahya"
+  },
+  {
+    "id": "mohamed_baraka",
+    "name": "محمد بركة",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "monshed",
+    "best_score": 0.5,
+    "url": "https://server10.mp3quran.net/monshed/001.mp3",
+    "current": "server13.mp3quran.net/mohamed_baraka"
+  },
+  {
+    "id": "sulaiman_alrajhi",
+    "name": "سليمان الراجحي",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "salman",
+    "best_score": 0.47619047619047616,
+    "url": "https://server11.mp3quran.net/salman/001.mp3",
+    "current": "server10.mp3quran.net/sulaiman_alrajhi"
+  },
+  {
+    "id": "abdullah_alsulayti",
+    "name": "عبد الله السليطي",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.64,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server8.mp3quran.net/abdullah_alsulayti"
+  },
+  {
+    "id": "mohammed_alzaidi",
+    "name": "محمد الزيدي",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "hamza",
+    "best_score": 0.5,
+    "url": "https://server9.mp3quran.net/hamza/001.mp3",
+    "current": "server7.mp3quran.net/mohammed_alzaidi"
+  },
+  {
+    "id": "mohammad_melhem",
+    "name": "محمد ملحم",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "hamad",
+    "best_score": 0.5263157894736842,
+    "url": "https://server6.mp3quran.net/hamad/001.mp3",
+    "current": "server11.mp3quran.net/mohammad_melhem"
+  },
+  {
+    "id": "abdulrahman_almadani",
+    "name": "عبد الرحمن المدني",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "IbrahemSadan",
+    "best_score": 0.5806451612903226,
+    "url": "https://server10.mp3quran.net/IbrahemSadan/001.mp3",
+    "current": "server14.mp3quran.net/abdulrahman_almadani"
+  },
+  {
+    "id": "mohammed_mahdi",
+    "name": "محمد مهدي",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "ghamdi",
+    "best_score": 0.5263157894736842,
+    "url": "https://server6.mp3quran.net/ghamdi/001.mp3",
+    "current": "server13.mp3quran.net/mohammed_mahdi"
+  },
+  {
+    "id": "mohammed_hasan",
+    "name": "محمد حسن",
+    "best_host": "server16.mp3quran.net",
+    "best_folder": "hasan",
+    "best_score": 0.5555555555555556,
+    "url": "https://server16.mp3quran.net/hasan/001.mp3",
+    "current": "server6.mp3quran.net/mohammed_hasan"
+  },
+  {
+    "id": "abdullah_edded",
+    "name": "عبد الله الأدب",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.7619047619047619,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server8.mp3quran.net/abdullah_edded"
+  },
+  {
+    "id": "abdullah_alqattan",
+    "name": "عبد الله القطّان",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.6666666666666666,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server7.mp3quran.net/abdullah_alqattan"
+  },
+  {
+    "id": "salah_khalid",
+    "name": "صلاح خالد",
+    "best_host": "server12.mp3quran.net",
+    "best_folder": "salah_hashim_m",
+    "best_score": 0.6956521739130435,
+    "url": "https://server12.mp3quran.net/salah_hashim_m/001.mp3",
+    "current": "server11.mp3quran.net/salah_khalid"
+  },
+  {
+    "id": "hamad_alfarisi",
+    "name": "حمد الفارسي",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "hamad",
+    "best_score": 0.5555555555555556,
+    "url": "https://server6.mp3quran.net/hamad/001.mp3",
+    "current": "server10.mp3quran.net/hamad_alfarisi"
+  },
+  {
+    "id": "abdullah_alhamad",
+    "name": "عبد الله الحمّاد",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.6956521739130435,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server14.mp3quran.net/abdullah_alhamad"
+  },
+  {
+    "id": "mohamed_algezawi",
+    "name": "محمد القزاوي",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "hamza",
+    "best_score": 0.5,
+    "url": "https://server9.mp3quran.net/hamza/001.mp3",
+    "current": "server16.mp3quran.net/mohamed_algezawi"
+  },
+  {
+    "id": "mohammed_hussain",
+    "name": "محمد حسين",
+    "best_host": "server16.mp3quran.net",
+    "best_folder": "hasan",
+    "best_score": 0.5,
+    "url": "https://server16.mp3quran.net/hasan/001.mp3",
+    "current": "server13.mp3quran.net/mohammed_hussain"
+  },
+  {
+    "id": "mohamed_almansour",
+    "name": "محمد المنصور",
+    "best_host": "server14.mp3quran.net",
+    "best_folder": "mansor",
+    "best_score": 0.5454545454545454,
+    "url": "https://server14.mp3quran.net/mansor/001.mp3",
+    "current": "server8.mp3quran.net/mohamed_almansour"
+  },
+  {
+    "id": "salman_alshareef",
+    "name": "سلمان الشريف",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "salman",
+    "best_score": 0.5714285714285714,
+    "url": "https://server11.mp3quran.net/salman/001.mp3",
+    "current": "server7.mp3quran.net/salman_alshareef"
+  },
+  {
+    "id": "ahmed_rifai",
+    "name": "أحمد الرفاعي",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "mrifai",
+    "best_score": 0.75,
+    "url": "https://server11.mp3quran.net/mrifai/001.mp3",
+    "current": "server11.mp3quran.net/ahmed_rifai"
+  },
+  {
+    "id": "nasser_alharbi",
+    "name": "ناصر الحربي",
+    "best_host": "server14.mp3quran.net",
+    "best_folder": "nasser_almajed",
+    "best_score": 0.6923076923076923,
+    "url": "https://server14.mp3quran.net/nasser_almajed/001.mp3",
+    "current": "server14.mp3quran.net/nasser_alharbi"
+  },
+  {
+    "id": "mohamed_mansour",
+    "name": "محمد منصور",
+    "best_host": "server14.mp3quran.net",
+    "best_folder": "mansor",
+    "best_score": 0.6,
+    "url": "https://server14.mp3quran.net/mansor/001.mp3",
+    "current": "server8.mp3quran.net/mohamed_mansour"
+  },
+  {
+    "id": "mohammad_ramadan",
+    "name": "محمد رمضان",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "IbrahemSadan",
+    "best_score": 0.5185185185185185,
+    "url": "https://server10.mp3quran.net/IbrahemSadan/001.mp3",
+    "current": "server11.mp3quran.net/mohammad_ramadan"
+  },
+  {
+    "id": "mohamed_elmaghraby",
+    "name": "محمد المغراوي",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "monshed",
+    "best_score": 0.4166666666666667,
+    "url": "https://server10.mp3quran.net/monshed/001.mp3",
+    "current": "server16.mp3quran.net/mohamed_elmaghraby"
+  },
+  {
+    "id": "taha_almadani",
+    "name": "طه المدني",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "ahmad_nu",
+    "best_score": 0.631578947368421,
+    "url": "https://server11.mp3quran.net/ahmad_nu/001.mp3",
+    "current": "server14.mp3quran.net/taha_almadani"
+  },
+  {
+    "id": "omar_tayeb",
+    "name": "عمر طيب",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "omar_warsh",
+    "best_score": 0.5555555555555556,
+    "url": "https://server9.mp3quran.net/omar_warsh/001.mp3",
+    "current": "server8.mp3quran.net/omar_tayeb"
+  },
+  {
+    "id": "mohammed_akram",
+    "name": "محمد أكرم",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "monshed",
+    "best_score": 0.5,
+    "url": "https://server10.mp3quran.net/monshed/001.mp3",
+    "current": "server11.mp3quran.net/mohammed_akram"
+  },
+  {
+    "id": "mohammad_said",
+    "name": "محمد سعيد",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "hamad",
+    "best_score": 0.5882352941176471,
+    "url": "https://server6.mp3quran.net/hamad/001.mp3",
+    "current": "server7.mp3quran.net/mohammad_said"
+  },
+  {
+    "id": "mohammed_newe",
+    "name": "محمد نوي",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "monshed",
+    "best_score": 0.5263157894736842,
+    "url": "https://server10.mp3quran.net/monshed/001.mp3",
+    "current": "server13.mp3quran.net/mohammed_newe"
+  },
+  {
+    "id": "mahmoud_ahmed",
+    "name": "محمود أحمد",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "a_ahmed",
+    "best_score": 0.6666666666666666,
+    "url": "https://server11.mp3quran.net/a_ahmed/001.mp3",
+    "current": "server16.mp3quran.net/mahmoud_ahmed"
+  },
+  {
+    "id": "abdulaziz_ash_shabuni",
+    "name": "عبد العزيز الشابوني",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.5185185185185185,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server14.mp3quran.net/abdulaziz_ash_shabuni"
+  },
+  {
+    "id": "omar_alquraishi",
+    "name": "عمر القرشي",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "omar_warsh",
+    "best_score": 0.6956521739130435,
+    "url": "https://server9.mp3quran.net/omar_warsh/001.mp3",
+    "current": "server8.mp3quran.net/omar_alquraishi"
+  },
+  {
+    "id": "mohamed_bassam",
+    "name": "محمد بسام",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "monshed",
+    "best_score": 0.5,
+    "url": "https://server10.mp3quran.net/monshed/001.mp3",
+    "current": "server11.mp3quran.net/mohamed_bassam"
+  },
+  {
+    "id": "saad_almohammedi",
+    "name": "سعد المحمودي",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "a_ahmed",
+    "best_score": 0.5714285714285714,
+    "url": "https://server11.mp3quran.net/a_ahmed/001.mp3",
+    "current": "server14.mp3quran.net/saad_almohammedi"
+  },
+  {
+    "id": "mohammed_almuhandis",
+    "name": "محمد المهندس",
+    "best_host": "server14.mp3quran.net",
+    "best_folder": "nasser_almajed",
+    "best_score": 0.45161290322580644,
+    "url": "https://server14.mp3quran.net/nasser_almajed/001.mp3",
+    "current": "server10.mp3quran.net/mohammed_almuhandis"
+  },
+  {
+    "id": "mustafa_albalushi",
+    "name": "مصطفى البلوشي",
+    "best_host": "server8.mp3quran.net",
+    "best_folder": "mustafa",
+    "best_score": 0.6086956521739131,
+    "url": "https://server8.mp3quran.net/mustafa/001.mp3",
+    "current": "server7.mp3quran.net/mustafa_albalushi"
+  },
+  {
+    "id": "mohammed_saber",
+    "name": "محمد صابر",
+    "best_host": "server8.mp3quran.net",
+    "best_folder": "saber",
+    "best_score": 0.5555555555555556,
+    "url": "https://server8.mp3quran.net/saber/001.mp3",
+    "current": "server8.mp3quran.net/mohammed_saber"
+  },
+  {
+    "id": "fahd_alqadi",
+    "name": "فهد القاضي",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "alzain",
+    "best_score": 0.5,
+    "url": "https://server9.mp3quran.net/alzain/001.mp3",
+    "current": "server11.mp3quran.net/fahd_alqadi"
+  },
+  {
+    "id": "mohammed_alsharif",
+    "name": "محمد الشريف",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "mohsin_harthi",
+    "best_score": 0.5714285714285714,
+    "url": "https://server6.mp3quran.net/mohsin_harthi/001.mp3",
+    "current": "server13.mp3quran.net/mohammed_alsharif"
+  },
+  {
+    "id": "nasser_alqurashi",
+    "name": "ناصر القرشي",
+    "best_host": "server14.mp3quran.net",
+    "best_folder": "nasser_almajed",
+    "best_score": 0.6428571428571429,
+    "url": "https://server14.mp3quran.net/nasser_almajed/001.mp3",
+    "current": "server6.mp3quran.net/nasser_alqurashi"
+  },
+  {
+    "id": "mohammed_alzahrani",
+    "name": "محمد الزهراني",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "zahrani",
+    "best_score": 0.5833333333333334,
+    "url": "https://server9.mp3quran.net/zahrani/001.mp3",
+    "current": "server14.mp3quran.net/mohammed_alzahrani"
+  },
+  {
+    "id": "mohammed_almansoori",
+    "name": "محمد المنصوري",
+    "best_host": "server14.mp3quran.net",
+    "best_folder": "mansor",
+    "best_score": 0.5,
+    "url": "https://server14.mp3quran.net/mansor/001.mp3",
+    "current": "server8.mp3quran.net/mohammed_almansoori"
+  },
+  {
+    "id": "abdullah_almuhairi",
+    "name": "عبد الله المحيري",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.64,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server11.mp3quran.net/abdullah_almuhairi"
+  },
+  {
+    "id": "ahmed_alboghdadi",
+    "name": "أحمد البغدادي",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "a_ahmed",
+    "best_score": 0.47619047619047616,
+    "url": "https://server11.mp3quran.net/a_ahmed/001.mp3",
+    "current": "server6.mp3quran.net/ahmed_alboghdadi"
+  },
+  {
+    "id": "mohamed_alhaj",
+    "name": "محمد الحاج",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "monshed",
+    "best_score": 0.5263157894736842,
+    "url": "https://server10.mp3quran.net/monshed/001.mp3",
+    "current": "server7.mp3quran.net/mohamed_alhaj"
+  },
+  {
+    "id": "ali_alqarni",
+    "name": "علي القرني",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "qari",
+    "best_score": 0.5714285714285714,
+    "url": "https://server11.mp3quran.net/qari/001.mp3",
+    "current": "server8.mp3quran.net/ali_alqarni"
+  },
+  {
+    "id": "ahmed_alhameidi",
+    "name": "أحمد الحميدي",
+    "best_host": "server8.mp3quran.net",
+    "best_folder": "dlami",
+    "best_score": 0.5263157894736842,
+    "url": "https://server8.mp3quran.net/dlami/001.mp3",
+    "current": "server10.mp3quran.net/ahmed_alhameidi"
+  },
+  {
+    "id": "mohammad_alhamami",
+    "name": "محمد الحمامي",
+    "best_host": "server8.mp3quran.net",
+    "best_folder": "dlami",
+    "best_score": 0.47619047619047616,
+    "url": "https://server8.mp3quran.net/dlami/001.mp3",
+    "current": "server11.mp3quran.net/mohammad_alhamami"
+  },
+  {
+    "id": "hassan_mansour",
+    "name": "حسن منصور",
+    "best_host": "server14.mp3quran.net",
+    "best_folder": "mansor",
+    "best_score": 0.631578947368421,
+    "url": "https://server14.mp3quran.net/mansor/001.mp3",
+    "current": "server13.mp3quran.net/hassan_mansour"
+  },
+  {
+    "id": "mohammed_alfaisal",
+    "name": "محمد الفيصل",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "ghamdi",
+    "best_score": 0.45454545454545453,
+    "url": "https://server6.mp3quran.net/ghamdi/001.mp3",
+    "current": "server14.mp3quran.net/mohammed_alfaisal"
+  },
+  {
+    "id": "abdullah_alkahtani",
+    "name": "عبد الله القحطاني",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "Abdullahk",
+    "best_score": 0.6923076923076923,
+    "url": "https://server10.mp3quran.net/Abdullahk/001.mp3",
+    "current": "server16.mp3quran.net/abdullah_alkahtani"
+  },
+  {
+    "id": "yaser_almalki",
+    "name": "ياسر المالكي",
+    "best_host": "server14.mp3quran.net",
+    "best_folder": "nasser_almajed",
+    "best_score": 0.64,
+    "url": "https://server14.mp3quran.net/nasser_almajed/001.mp3",
+    "current": "server6.mp3quran.net/yaser_almalki"
+  },
+  {
+    "id": "abdulrahman_alhabeeb",
+    "name": "عبد الرحمن الحبيب",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.5185185185185185,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server7.mp3quran.net/abdulrahman_alhabeeb"
+  },
+  {
+    "id": "mohamed_alsaif",
+    "name": "محمد السيف",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "ghamdi",
+    "best_score": 0.5263157894736842,
+    "url": "https://server6.mp3quran.net/ghamdi/001.mp3",
+    "current": "server8.mp3quran.net/mohamed_alsaif"
+  },
+  {
+    "id": "abdulrahman_alkhalidi",
+    "name": "عبد الرحمن الخالدي",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "Abdullahk",
+    "best_score": 0.5517241379310345,
+    "url": "https://server10.mp3quran.net/Abdullahk/001.mp3",
+    "current": "server10.mp3quran.net/abdulrahman_alkhalidi"
+  },
+  {
+    "id": "ahmad_alsaeed",
+    "name": "أحمد السعيد",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "a_majed",
+    "best_score": 0.5555555555555556,
+    "url": "https://server10.mp3quran.net/a_majed/001.mp3",
+    "current": "server11.mp3quran.net/ahmad_alsaeed"
+  },
+  {
+    "id": "majid_alqadi",
+    "name": "ماجد القاضي",
+    "best_host": "server8.mp3quran.net",
+    "best_folder": "m_qari",
+    "best_score": 0.5,
+    "url": "https://server8.mp3quran.net/m_qari/001.mp3",
+    "current": "server13.mp3quran.net/majid_alqadi"
+  },
+  {
+    "id": "tariq_alzafiri",
+    "name": "طارق الظفيري",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "alzain",
+    "best_score": 0.5263157894736842,
+    "url": "https://server9.mp3quran.net/alzain/001.mp3",
+    "current": "server14.mp3quran.net/tariq_alzafiri"
+  },
+  {
+    "id": "sami_almutairi",
+    "name": "سامي المطيري",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "salman",
+    "best_score": 0.5263157894736842,
+    "url": "https://server11.mp3quran.net/salman/001.mp3",
+    "current": "server6.mp3quran.net/sami_almutairi"
+  },
+  {
+    "id": "mohammad_rafat",
+    "name": "محمد رفعت",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "hamad",
+    "best_score": 0.5555555555555556,
+    "url": "https://server6.mp3quran.net/hamad/001.mp3",
+    "current": "server7.mp3quran.net/mohammad_rafat"
+  },
+  {
+    "id": "abdulrahman_alabd",
+    "name": "عبد الرحمن العبد",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.5833333333333334,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server8.mp3quran.net/abdulrahman_alabd"
+  },
+  {
+    "id": "wakil_alharthy",
+    "name": "وكيل الحارثي",
+    "best_host": "server8.mp3quran.net",
+    "best_folder": "harthi",
+    "best_score": 0.5263157894736842,
+    "url": "https://server8.mp3quran.net/harthi/001.mp3",
+    "current": "server10.mp3quran.net/wakil_alharthy"
+  },
+  {
+    "id": "mohammed_alsharqawi",
+    "name": "محمد الشرقاوي",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "mohsin_harthi",
+    "best_score": 0.5333333333333333,
+    "url": "https://server6.mp3quran.net/mohsin_harthi/001.mp3",
+    "current": "server11.mp3quran.net/mohammed_alsharqawi"
+  },
+  {
+    "id": "abdulaziz_alamer",
+    "name": "عبد العزيز العامر",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.6086956521739131,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server13.mp3quran.net/abdulaziz_alamer"
+  },
+  {
+    "id": "haytham_alsharif",
+    "name": "هيثم الشريف",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "hawashi",
+    "best_score": 0.5454545454545454,
+    "url": "https://server11.mp3quran.net/hawashi/001.mp3",
+    "current": "server14.mp3quran.net/haytham_alsharif"
+  },
+  {
+    "id": "omar_alkhamis",
+    "name": "عمر الخميس",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "omar_warsh",
+    "best_score": 0.5714285714285714,
+    "url": "https://server9.mp3quran.net/omar_warsh/001.mp3",
+    "current": "server16.mp3quran.net/omar_alkhamis"
+  },
+  {
+    "id": "faisal_alwati",
+    "name": "فيصل الوطي",
+    "best_host": "server12.mp3quran.net",
+    "best_folder": "salah_hashim_m",
+    "best_score": 0.5,
+    "url": "https://server12.mp3quran.net/salah_hashim_m/001.mp3",
+    "current": "server6.mp3quran.net/faisal_alwati"
+  },
+  {
+    "id": "abdullah_alkhuzayem",
+    "name": "عبد الله الخزيم",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "Abdullahk",
+    "best_score": 0.6666666666666666,
+    "url": "https://server10.mp3quran.net/Abdullahk/001.mp3",
+    "current": "server7.mp3quran.net/abdullah_alkhuzayem"
+  },
+  {
+    "id": "ibrahim_alhabashy",
+    "name": "إبراهيم الحبشي",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "IbrahemSadan",
+    "best_score": 0.5714285714285714,
+    "url": "https://server10.mp3quran.net/IbrahemSadan/001.mp3",
+    "current": "server8.mp3quran.net/ibrahim_alhabashy"
+  },
+  {
+    "id": "mohammad_alsayed",
+    "name": "محمد السيد",
+    "best_host": "server12.mp3quran.net",
+    "best_folder": "sayed",
+    "best_score": 0.5,
+    "url": "https://server12.mp3quran.net/sayed/001.mp3",
+    "current": "server10.mp3quran.net/mohammad_alsayed"
+  },
+  {
+    "id": "mohammed_alsulaiman",
+    "name": "محمد السليمان",
+    "best_host": "server16.mp3quran.net",
+    "best_folder": "hasan",
+    "best_score": 0.43478260869565216,
+    "url": "https://server16.mp3quran.net/hasan/001.mp3",
+    "current": "server11.mp3quran.net/mohammed_alsulaiman"
+  },
+  {
+    "id": "hasan_alsayed",
+    "name": "حسن السيد",
+    "best_host": "server12.mp3quran.net",
+    "best_folder": "sayed",
+    "best_score": 0.5882352941176471,
+    "url": "https://server12.mp3quran.net/sayed/001.mp3",
+    "current": "server13.mp3quran.net/hasan_alsayed"
+  },
+  {
+    "id": "taqi_alhaki",
+    "name": "تقي الحقي",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "alzain",
+    "best_score": 0.5,
+    "url": "https://server9.mp3quran.net/alzain/001.mp3",
+    "current": "server14.mp3quran.net/taqi_alhaki"
+  },
+  {
+    "id": "mohammed_almaani",
+    "name": "محمد الماني",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "salman",
+    "best_score": 0.47619047619047616,
+    "url": "https://server11.mp3quran.net/salman/001.mp3",
+    "current": "server16.mp3quran.net/mohammed_almaani"
+  },
+  {
+    "id": "abdulrahman_ajar",
+    "name": "عبد الرحمن عجر",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.6086956521739131,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server6.mp3quran.net/abdulrahman_ajar"
+  },
+  {
+    "id": "mohammed_aljamal",
+    "name": "محمد الجمل",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "jamal",
+    "best_score": 0.5,
+    "url": "https://server6.mp3quran.net/jamal/001.mp3",
+    "current": "server7.mp3quran.net/mohammed_aljamal"
+  },
+  {
+    "id": "mohammed_aljubair",
+    "name": "محمد الجبير",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "ghamdi",
+    "best_score": 0.45454545454545453,
+    "url": "https://server6.mp3quran.net/ghamdi/001.mp3",
+    "current": "server10.mp3quran.net/mohammed_aljubair"
+  },
+  {
+    "id": "abdulrahman_alnasser",
+    "name": "عبد الرحمن الناصر",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.5185185185185185,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server11.mp3quran.net/abdulrahman_alnasser"
+  },
+  {
+    "id": "mohammad_albanna",
+    "name": "محمد البنا",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "mohna",
+    "best_score": 0.5,
+    "url": "https://server11.mp3quran.net/mohna/001.mp3",
+    "current": "server13.mp3quran.net/mohammad_albanna"
+  },
+  {
+    "id": "abdullah_alsuhail",
+    "name": "عبد الله السهيل",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.6666666666666666,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server14.mp3quran.net/abdullah_alsuhail"
+  },
+  {
+    "id": "fahd_aljadani",
+    "name": "فهد الجدعاني",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "ahmad_nu",
+    "best_score": 0.5263157894736842,
+    "url": "https://server11.mp3quran.net/ahmad_nu/001.mp3",
+    "current": "server16.mp3quran.net/fahd_aljadani"
+  },
+  {
+    "id": "mohamed_alqaisi",
+    "name": "محمد القيسي",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "ghamdi",
+    "best_score": 0.5,
+    "url": "https://server6.mp3quran.net/ghamdi/001.mp3",
+    "current": "server6.mp3quran.net/mohamed_alqaisi"
+  },
+  {
+    "id": "abdulaziz_alsuwaidi",
+    "name": "عبد العزيز السويدي",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.46153846153846156,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server7.mp3quran.net/abdulaziz_alsuwaidi"
+  },
+  {
+    "id": "mohammed_alsalmi",
+    "name": "محمد السالمي",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "ghamdi",
+    "best_score": 0.47619047619047616,
+    "url": "https://server6.mp3quran.net/ghamdi/001.mp3",
+    "current": "server8.mp3quran.net/mohammed_alsalmi"
+  },
+  {
+    "id": "akram_alraisi",
+    "name": "أكرم الرايسي",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "trablsi",
+    "best_score": 0.5263157894736842,
+    "url": "https://server10.mp3quran.net/trablsi/001.mp3",
+    "current": "server10.mp3quran.net/akram_alraisi"
+  },
+  {
+    "id": "mohammed_alrabeah",
+    "name": "محمد الربيع",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "monshed",
+    "best_score": 0.43478260869565216,
+    "url": "https://server10.mp3quran.net/monshed/001.mp3",
+    "current": "server11.mp3quran.net/mohammed_alrabeah"
+  },
+  {
+    "id": "omar_alnasser",
+    "name": "عمر الناصر",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "omran",
+    "best_score": 0.5882352941176471,
+    "url": "https://server9.mp3quran.net/omran/001.mp3",
+    "current": "server13.mp3quran.net/omar_alnasser"
+  },
+  {
+    "id": "mohamed_alensani",
+    "name": "محمد الإنصاني",
+    "best_host": "server16.mp3quran.net",
+    "best_folder": "hasan",
+    "best_score": 0.5,
+    "url": "https://server16.mp3quran.net/hasan/001.mp3",
+    "current": "server14.mp3quran.net/mohamed_alensani"
+  },
+  {
+    "id": "abdullah_alshrief",
+    "name": "عبد الله الشريف",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.6666666666666666,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server16.mp3quran.net/abdullah_alshrief"
+  },
+  {
+    "id": "abdulrahman_alkhatib",
+    "name": "عبد الرحمن الخطيب",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "Abdullahk",
+    "best_score": 0.5714285714285714,
+    "url": "https://server10.mp3quran.net/Abdullahk/001.mp3",
+    "current": "server6.mp3quran.net/abdulrahman_alkhatib"
+  },
+  {
+    "id": "mohammed_alsaleh",
+    "name": "محمد الصالح",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "monshed",
+    "best_score": 0.45454545454545453,
+    "url": "https://server10.mp3quran.net/monshed/001.mp3",
+    "current": "server7.mp3quran.net/mohammed_alsaleh"
+  },
+  {
+    "id": "yakub_alshamri",
+    "name": "يعقوب الشمري",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "shatri",
+    "best_score": 0.5263157894736842,
+    "url": "https://server11.mp3quran.net/shatri/001.mp3",
+    "current": "server8.mp3quran.net/yakub_alshamri"
+  },
+  {
+    "id": "mohammed_aljawhar",
+    "name": "محمد الجوهرة",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "monshed",
+    "best_score": 0.43478260869565216,
+    "url": "https://server10.mp3quran.net/monshed/001.mp3",
+    "current": "server10.mp3quran.net/mohammed_aljawhar"
+  },
+  {
+    "id": "mohamed_alshamri",
+    "name": "محمد الشمري",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "mohsin_harthi",
+    "best_score": 0.5925925925925926,
+    "url": "https://server6.mp3quran.net/mohsin_harthi/001.mp3",
+    "current": "server11.mp3quran.net/mohamed_alshamri"
+  },
+  {
+    "id": "abdulrahman_alsalama",
+    "name": "عبد الرحمن السلامة",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.5185185185185185,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server13.mp3quran.net/abdulrahman_alsalama"
+  },
+  {
+    "id": "badr_alzahrani",
+    "name": "بدر الزهراني",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "zahrani",
+    "best_score": 0.7,
+    "url": "https://server9.mp3quran.net/zahrani/001.mp3",
+    "current": "server14.mp3quran.net/badr_alzahrani"
+  },
+  {
+    "id": "mohammed_alqarny",
+    "name": "محمد القرني",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "habdan",
+    "best_score": 0.47619047619047616,
+    "url": "https://server6.mp3quran.net/habdan/001.mp3",
+    "current": "server16.mp3quran.net/mohammed_alqarny"
+  },
+  {
+    "id": "abdullah_aljohani",
+    "name": "عبد الله الجهني",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.6666666666666666,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server6.mp3quran.net/abdullah_aljohani"
+  },
+  {
+    "id": "ahmed_almuhajir",
+    "name": "أحمد المهاجر",
+    "best_host": "server8.mp3quran.net",
+    "best_folder": "ahmad_huth",
+    "best_score": 0.5217391304347826,
+    "url": "https://server8.mp3quran.net/ahmad_huth/001.mp3",
+    "current": "server7.mp3quran.net/ahmed_almuhajir"
+  },
+  {
+    "id": "mohammed_albannai",
+    "name": "محمد البناني",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "mohna",
+    "best_score": 0.47619047619047616,
+    "url": "https://server11.mp3quran.net/mohna/001.mp3",
+    "current": "server8.mp3quran.net/mohammed_albannai"
+  },
+  {
+    "id": "mohamed_alsalman",
+    "name": "محمد السلمان",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "salman",
+    "best_score": 0.5714285714285714,
+    "url": "https://server11.mp3quran.net/salman/001.mp3",
+    "current": "server10.mp3quran.net/mohamed_alsalman"
+  },
+  {
+    "id": "ibrahim_alsaleh",
+    "name": "إبراهيم الصالح",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "IbrahemSadan",
+    "best_score": 0.6153846153846154,
+    "url": "https://server10.mp3quran.net/IbrahemSadan/001.mp3",
+    "current": "server11.mp3quran.net/ibrahim_alsaleh"
+  },
+  {
+    "id": "mohammed_alshehri",
+    "name": "محمد الشهري",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "hawashi",
+    "best_score": 0.5217391304347826,
+    "url": "https://server11.mp3quran.net/hawashi/001.mp3",
+    "current": "server13.mp3quran.net/mohammed_alshehri"
+  },
+  {
+    "id": "abdullah_aldaqaq",
+    "name": "عبد الله الدقاق",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.6956521739130435,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server14.mp3quran.net/abdullah_aldaqaq"
+  },
+  {
+    "id": "mohammed_alqattan",
+    "name": "محمد القطان",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "habdan",
+    "best_score": 0.45454545454545453,
+    "url": "https://server6.mp3quran.net/habdan/001.mp3",
+    "current": "server16.mp3quran.net/mohammed_alqattan"
+  },
+  {
+    "id": "muhammad_alfarsi",
+    "name": "محمد الفارسي",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "hamad",
+    "best_score": 0.5,
+    "url": "https://server6.mp3quran.net/hamad/001.mp3",
+    "current": "server6.mp3quran.net/muhammad_alfarsi"
+  },
+  {
+    "id": "thamer_alshehri",
+    "name": "ثامر الشهري",
+    "best_host": "server10.mp3quran.net",
+    "best_folder": "trablsi",
+    "best_score": 0.5714285714285714,
+    "url": "https://server10.mp3quran.net/trablsi/001.mp3",
+    "current": "server7.mp3quran.net/thamer_alshehri"
+  },
+  {
+    "id": "mohamed_alahmadi",
+    "name": "محمد الأحمدي",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "hamad",
+    "best_score": 0.5,
+    "url": "https://server6.mp3quran.net/hamad/001.mp3",
+    "current": "server8.mp3quran.net/mohamed_alahmadi"
+  },
+  {
+    "id": "abdulaziz_alsharif",
+    "name": "عبد العزيز الشريف",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.56,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server10.mp3quran.net/abdulaziz_alsharif"
+  },
+  {
+    "id": "mohammad_alghamdi",
+    "name": "محمد الغامدي",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "ghamdi",
+    "best_score": 0.5454545454545454,
+    "url": "https://server6.mp3quran.net/ghamdi/001.mp3",
+    "current": "server11.mp3quran.net/mohammad_alghamdi"
+  },
+  {
+    "id": "wali_alsharif",
+    "name": "ولي الشريف",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "shatri",
+    "best_score": 0.5555555555555556,
+    "url": "https://server11.mp3quran.net/shatri/001.mp3",
+    "current": "server13.mp3quran.net/wali_alsharif"
+  },
+  {
+    "id": "yousef_alharbi",
+    "name": "يوسف الحربي",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "yousef",
+    "best_score": 0.631578947368421,
+    "url": "https://server9.mp3quran.net/yousef/001.mp3",
+    "current": "server14.mp3quran.net/yousef_alharbi"
+  },
+  {
+    "id": "mohammad_almuhanna",
+    "name": "محمد المهنا",
+    "best_host": "server8.mp3quran.net",
+    "best_folder": "ahmad_huth",
+    "best_score": 0.46153846153846156,
+    "url": "https://server8.mp3quran.net/ahmad_huth/001.mp3",
+    "current": "server16.mp3quran.net/mohammad_almuhanna"
+  },
+  {
+    "id": "omar_alsaud",
+    "name": "عمر السعود",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "omar_warsh",
+    "best_score": 0.631578947368421,
+    "url": "https://server9.mp3quran.net/omar_warsh/001.mp3",
+    "current": "server6.mp3quran.net/omar_alsaud"
+  },
+  {
+    "id": "abdullah_alfarraj",
+    "name": "عبد الله الفراج",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.6666666666666666,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server7.mp3quran.net/abdullah_alfarraj"
+  },
+  {
+    "id": "mohamed_alsaeed",
+    "name": "محمد السعيد",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "waleed",
+    "best_score": 0.5,
+    "url": "https://server9.mp3quran.net/waleed/001.mp3",
+    "current": "server8.mp3quran.net/mohamed_alsaeed"
+  },
+  {
+    "id": "saleh_almalki",
+    "name": "صالح المالكي",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "salman",
+    "best_score": 0.5555555555555556,
+    "url": "https://server11.mp3quran.net/salman/001.mp3",
+    "current": "server10.mp3quran.net/saleh_almalki"
+  },
+  {
+    "id": "abdullah_alhazmi2",
+    "name": "عبد الله الحازمي",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.6666666666666666,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server11.mp3quran.net/abdullah_alhazmi2"
+  },
+  {
+    "id": "mohammed_alqasim",
+    "name": "محمد القاسم",
+    "best_host": "server6.mp3quran.net",
+    "best_folder": "ghamdi",
+    "best_score": 0.47619047619047616,
+    "url": "https://server6.mp3quran.net/ghamdi/001.mp3",
+    "current": "server13.mp3quran.net/mohammed_alqasim"
+  },
+  {
+    "id": "hassan_alshehri",
+    "name": "حسن الشهري",
+    "best_host": "server11.mp3quran.net",
+    "best_folder": "hawashi",
+    "best_score": 0.5714285714285714,
+    "url": "https://server11.mp3quran.net/hawashi/001.mp3",
+    "current": "server14.mp3quran.net/hassan_alshehri"
+  },
+  {
+    "id": "abdulrahim_alrasheed",
+    "name": "عبد الرحيم الرشيد",
+    "best_host": "server9.mp3quran.net",
+    "best_folder": "abdullah",
+    "best_score": 0.5185185185185185,
+    "url": "https://server9.mp3quran.net/abdullah/001.mp3",
+    "current": "server16.mp3quran.net/abdulrahim_alrasheed"
+  }
+]

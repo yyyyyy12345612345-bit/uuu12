@@ -1,0 +1,1087 @@
+[
+  {
+    "id": "saud_alfarisi",
+    "name": "سعود الفارسي",
+    "everyayah": [
+      {
+        "score": 0.47619047619047616,
+        "folder": "data/warsh"
+      },
+      {
+        "score": 0.43478260869565216,
+        "folder": "data/English"
+      },
+      {
+        "score": 0.42857142857142855,
+        "folder": "data/translations"
+      },
+      {
+        "score": 0.42424242424242425,
+        "folder": "data/Nabil_Rifa3i_48kbps"
+      },
+      {
+        "score": 0.41379310344827586,
+        "folder": "data/Alafasy_64kbps"
+      },
+      {
+        "score": 0.4,
+        "folder": "data/Alafasy_128kbps"
+      },
+      {
+        "score": 0.4,
+        "folder": "data/Ali_Jaber_64kbps"
+      },
+      {
+        "score": 0.4,
+        "folder": "data/Hudhaify_32kbps"
+      },
+      {
+        "score": 0.4,
+        "folder": "data/Hudhaify_64kbps"
+      },
+      {
+        "score": 0.4,
+        "folder": "data/Karim_Mansoori_40kbps"
+      },
+      {
+        "score": 0.4,
+        "folder": "data/Mustafa_Ismail_48kbps"
+      },
+      {
+        "score": 0.4,
+        "folder": "data/images_png"
+      },
+      {
+        "score": 0.4,
+        "folder": "data/quranpngs"
+      },
+      {
+        "score": 0.3888888888888889,
+        "folder": "data/Abdullah_Basfar_32kbps"
+      },
+      {
+        "score": 0.3888888888888889,
+        "folder": "data/Abdullah_Basfar_64kbps"
+      },
+      {
+        "score": 0.3888888888888889,
+        "folder": "data/Husary_Muallim_128kbps"
+      },
+      {
+        "score": 0.3888888888888889,
+        "folder": "data/Salah_Al_Budair_128kbps"
+      },
+      {
+        "score": 0.3870967741935484,
+        "folder": "data/Hani_Rifai_64kbps"
+      },
+      {
+        "score": 0.3870967741935484,
+        "folder": "data/Hudhaify_128kbps"
+      },
+      {
+        "score": 0.3870967741935484,
+        "folder": "data/Parhizgar_48kbps"
+      },
+      {
+        "score": 0.38095238095238093,
+        "folder": "data/tools"
+      },
+      {
+        "score": 0.3783783783783784,
+        "folder": "data/Abdullah_Basfar_192kbps"
+      },
+      {
+        "score": 0.375,
+        "folder": "data/Fares_Abbad_64kbps"
+      },
+      {
+        "score": 0.375,
+        "folder": "data/Hani_Rifai_192kbps"
+      },
+      {
+        "score": 0.3684210526315789,
+        "folder": "data/khalefa_al_tunaiji_64kbps"
+      },
+      {
+        "score": 0.358974358974359,
+        "folder": "data/mahmoud_ali_al_banna_32kbps"
+      }
+    ],
+    "mp3quran": [
+      {
+        "score": 0.6086956521739131,
+        "host": "server16.mp3quran.net",
+        "folder": "s_alquraishi"
+      },
+      {
+        "score": 0.5714285714285714,
+        "host": "server16.mp3quran.net",
+        "folder": "h_abudalal"
+      },
+      {
+        "score": 0.5555555555555556,
+        "host": "server16.mp3quran.net",
+        "folder": "nufais"
+      },
+      {
+        "score": 0.5263157894736842,
+        "host": "server16.mp3quran.net",
+        "folder": "A-AlBadr"
+      },
+      {
+        "score": 0.5217391304347826,
+        "host": "server16.mp3quran.net",
+        "folder": "H-Aldaghriri"
+      },
+      {
+        "score": 0.5,
+        "host": "server10.mp3quran.net",
+        "folder": "trabulsi"
+      },
+      {
+        "score": 0.5,
+        "host": "server11.mp3quran.net",
+        "folder": "saud"
+      },
+      {
+        "score": 0.5,
+        "host": "server12.mp3quran.net",
+        "folder": "malaysia"
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "M_Alfaqih"
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alaskar"
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alemadi"
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alhazmi"
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alqrafi"
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "a_bukhari"
+      },
+      {
+        "score": 0.47619047619047616,
+        "host": "server16.mp3quran.net",
+        "folder": "a-almishal"
+      },
+      {
+        "score": 0.47058823529411764,
+        "host": "server16.mp3quran.net",
+        "folder": "soufi"
+      },
+      {
+        "score": 0.45454545454545453,
+        "host": "server16.mp3quran.net",
+        "folder": "M-AlZubaidi"
+      },
+      {
+        "score": 0.45454545454545453,
+        "host": "server16.mp3quran.net",
+        "folder": "Y_ALaidroos"
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server11.mp3quran.net",
+        "folder": "shatri"
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server14.mp3quran.net",
+        "folder": "musali"
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server16.mp3quran.net",
+        "folder": "Ibrahim-Al-Shahri"
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server16.mp3quran.net",
+        "folder": "a_turki"
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server6.mp3quran.net",
+        "folder": "aloosi"
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server7.mp3quran.net",
+        "folder": "dokali"
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server9.mp3quran.net",
+        "folder": "alzain"
+      },
+      {
+        "score": 0.43478260869565216,
+        "host": "server16.mp3quran.net",
+        "folder": "a_maasaraawi"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server10.mp3quran.net",
+        "folder": "trablsi"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server11.mp3quran.net",
+        "folder": "alshaik"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server12.mp3quran.net",
+        "folder": "salamah"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server14.mp3quran.net",
+        "folder": "alosfor"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server16.mp3quran.net",
+        "folder": "K-Alzadi"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server16.mp3quran.net",
+        "folder": "s_sadeiq"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server8.mp3quran.net",
+        "folder": "mustafa"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server8.mp3quran.net",
+        "folder": "sami_hsn"
+      },
+      {
+        "score": 0.4166666666666667,
+        "host": "server12.mp3quran.net",
+        "folder": "salah_hashim_m"
+      },
+      {
+        "score": 0.4166666666666667,
+        "host": "server16.mp3quran.net",
+        "folder": "nourin_siddig"
+      },
+      {
+        "score": 0.4117647058823529,
+        "host": "server11.mp3quran.net",
+        "folder": "mishaari_w_ibrahim_walk_si"
+      },
+      {
+        "score": 0.4,
+        "host": "server11.mp3quran.net",
+        "folder": "sds"
+      },
+      {
+        "score": 0.4,
+        "host": "server16.mp3quran.net",
+        "folder": "A-Ghailan"
+      },
+      {
+        "score": 0.4,
+        "host": "server16.mp3quran.net",
+        "folder": "shamrani"
+      },
+      {
+        "score": 0.4,
+        "host": "server6.mp3quran.net",
+        "folder": "kanakeri"
+      },
+      {
+        "score": 0.4,
+        "host": "server8.mp3quran.net",
+        "folder": "sami_dosr"
+      },
+      {
+        "score": 0.4,
+        "host": "server9.mp3quran.net",
+        "folder": "zakariya"
+      },
+      {
+        "score": 0.38095238095238093,
+        "host": "server8.mp3quran.net",
+        "folder": "majd_onazi"
+      },
+      {
+        "score": 0.375,
+        "host": "server11.mp3quran.net",
+        "folder": "kafi"
+      },
+      {
+        "score": 0.375,
+        "host": "server11.mp3quran.net",
+        "folder": "qari"
+      },
+      {
+        "score": 0.375,
+        "host": "server12.mp3quran.net",
+        "folder": "bari"
+      },
+      {
+        "score": 0.375,
+        "host": "server16.mp3quran.net",
+        "folder": "saad"
+      },
+      {
+        "score": 0.375,
+        "host": "server6.mp3quran.net",
+        "folder": "akdr"
+      },
+      {
+        "score": 0.375,
+        "host": "server6.mp3quran.net",
+        "folder": "bsfr"
+      },
+      {
+        "score": 0.375,
+        "host": "server6.mp3quran.net",
+        "folder": "lafi"
+      },
+      {
+        "score": 0.375,
+        "host": "server6.mp3quran.net",
+        "folder": "s_bud"
+      },
+      {
+        "score": 0.375,
+        "host": "server7.mp3quran.net",
+        "folder": "shur"
+      },
+      {
+        "score": 0.36363636363636365,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alshahhat"
+      },
+      {
+        "score": 0.36363636363636365,
+        "host": "server16.mp3quran.net",
+        "folder": "i_sanankoua"
+      },
+      {
+        "score": 0.36363636363636365,
+        "host": "server8.mp3quran.net",
+        "folder": "fahad_otibi"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server10.mp3quran.net",
+        "folder": "Aamer"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server10.mp3quran.net",
+        "folder": "bader"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server11.mp3quran.net",
+        "folder": "kndri"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server12.mp3quran.net",
+        "folder": "sayed"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server14.mp3quran.net",
+        "folder": "khalf"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server14.mp3quran.net",
+        "folder": "swlim"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server16.mp3quran.net",
+        "folder": "a_abdl"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server16.mp3quran.net",
+        "folder": "m_akri"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server6.mp3quran.net",
+        "folder": "3siri"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server6.mp3quran.net",
+        "folder": "jamal"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server6.mp3quran.net",
+        "folder": "kurdi"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server7.mp3quran.net",
+        "folder": "basit"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server8.mp3quran.net",
+        "folder": "m_qari"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server8.mp3quran.net",
+        "folder": "saber"
+      }
+    ]
+  },
+  {
+    "id": "islam_alfahad",
+    "name": "إسلام الفهد",
+    "everyayah": [
+      {
+        "score": 0.3888888888888889,
+        "folder": "data/Salah_Al_Budair_128kbps"
+      },
+      {
+        "score": 0.375,
+        "folder": "data/Fares_Abbad_64kbps"
+      }
+    ],
+    "mp3quran": [
+      {
+        "score": 0.631578947368421,
+        "host": "server12.mp3quran.net",
+        "folder": "salamah"
+      },
+      {
+        "score": 0.6,
+        "host": "server16.mp3quran.net",
+        "folder": "M_Alfaqih"
+      },
+      {
+        "score": 0.5882352941176471,
+        "host": "server14.mp3quran.net",
+        "folder": "islam"
+      },
+      {
+        "score": 0.5454545454545454,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alshahhat"
+      },
+      {
+        "score": 0.5263157894736842,
+        "host": "server16.mp3quran.net",
+        "folder": "A-AlBadr"
+      },
+      {
+        "score": 0.5185185185185185,
+        "host": "server16.mp3quran.net",
+        "folder": "Ibrahim-Al-Shahri"
+      },
+      {
+        "score": 0.5,
+        "host": "server12.mp3quran.net",
+        "folder": "malaysia"
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alhazmi"
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "saad"
+      },
+      {
+        "score": 0.48,
+        "host": "server16.mp3quran.net",
+        "folder": "mal-allah_jaber"
+      },
+      {
+        "score": 0.47058823529411764,
+        "host": "server11.mp3quran.net",
+        "folder": "bilal"
+      },
+      {
+        "score": 0.47058823529411764,
+        "host": "server12.mp3quran.net",
+        "folder": "ifrad"
+      },
+      {
+        "score": 0.47058823529411764,
+        "host": "server6.mp3quran.net",
+        "folder": "hamad"
+      },
+      {
+        "score": 0.47058823529411764,
+        "host": "server6.mp3quran.net",
+        "folder": "jamal"
+      },
+      {
+        "score": 0.45454545454545453,
+        "host": "server16.mp3quran.net",
+        "folder": "M-AlZubaidi"
+      },
+      {
+        "score": 0.45454545454545453,
+        "host": "server16.mp3quran.net",
+        "folder": "i_sanankoua"
+      },
+      {
+        "score": 0.45454545454545453,
+        "host": "server8.mp3quran.net",
+        "folder": "fahad_otibi"
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server10.mp3quran.net",
+        "folder": "a_majed"
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server10.mp3quran.net",
+        "folder": "rashad"
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server11.mp3quran.net",
+        "folder": "a_ahmed"
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server11.mp3quran.net",
+        "folder": "salman"
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server16.mp3quran.net",
+        "folder": "h_saleh"
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server8.mp3quran.net",
+        "folder": "sahood"
+      },
+      {
+        "score": 0.43478260869565216,
+        "host": "server16.mp3quran.net",
+        "folder": "a_maasaraawi"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server11.mp3quran.net",
+        "folder": "ahmad_nu"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server11.mp3quran.net",
+        "folder": "alshaik"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server14.mp3quran.net",
+        "folder": "shamsan"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server16.mp3quran.net",
+        "folder": "K-Alzadi"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server6.mp3quran.net",
+        "folder": "balilah"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server8.mp3quran.net",
+        "folder": "mustafa"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server8.mp3quran.net",
+        "folder": "sami_hsn"
+      },
+      {
+        "score": 0.4166666666666667,
+        "host": "server10.mp3quran.net",
+        "folder": "IbrahemSadan"
+      },
+      {
+        "score": 0.4166666666666667,
+        "host": "server12.mp3quran.net",
+        "folder": "salah_hashim_m"
+      },
+      {
+        "score": 0.4,
+        "host": "server14.mp3quran.net",
+        "folder": "muftah_sultany"
+      },
+      {
+        "score": 0.4,
+        "host": "server14.mp3quran.net",
+        "folder": "nasser_almajed"
+      },
+      {
+        "score": 0.4,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alemadi"
+      },
+      {
+        "score": 0.4,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alqrafi"
+      },
+      {
+        "score": 0.4,
+        "host": "server16.mp3quran.net",
+        "folder": "shamrani"
+      },
+      {
+        "score": 0.4,
+        "host": "server8.mp3quran.net",
+        "folder": "sami_dosr"
+      },
+      {
+        "score": 0.38095238095238093,
+        "host": "server16.mp3quran.net",
+        "folder": "a-almishal"
+      },
+      {
+        "score": 0.38095238095238093,
+        "host": "server8.mp3quran.net",
+        "folder": "ahmad_huth"
+      },
+      {
+        "score": 0.38095238095238093,
+        "host": "server9.mp3quran.net",
+        "folder": "omar_warsh"
+      },
+      {
+        "score": 0.375,
+        "host": "server11.mp3quran.net",
+        "folder": "saud"
+      },
+      {
+        "score": 0.375,
+        "host": "server12.mp3quran.net",
+        "folder": "shah"
+      },
+      {
+        "score": 0.375,
+        "host": "server6.mp3quran.net",
+        "folder": "lafi"
+      },
+      {
+        "score": 0.375,
+        "host": "server7.mp3quran.net",
+        "folder": "s_gmd"
+      },
+      {
+        "score": 0.375,
+        "host": "server8.mp3quran.net",
+        "folder": "namh"
+      },
+      {
+        "score": 0.375,
+        "host": "server9.mp3quran.net",
+        "folder": "zaml"
+      },
+      {
+        "score": 0.36363636363636365,
+        "host": "server16.mp3quran.net",
+        "folder": "a_binhameed"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server10.mp3quran.net",
+        "folder": "minsh"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server11.mp3quran.net",
+        "folder": "mishaari_w_ibrahim_walk_si"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server12.mp3quran.net",
+        "folder": "maher"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server12.mp3quran.net",
+        "folder": "sayed"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server12.mp3quran.net",
+        "folder": "yahya"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server14.mp3quran.net",
+        "folder": "khalf"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server16.mp3quran.net",
+        "folder": "kamel"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server6.mp3quran.net",
+        "folder": "fateh"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server6.mp3quran.net",
+        "folder": "jaman"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server8.mp3quran.net",
+        "folder": "dlami"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server8.mp3quran.net",
+        "folder": "fawaz"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server8.mp3quran.net",
+        "folder": "ra3ad"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server9.mp3quran.net",
+        "folder": "hamza"
+      }
+    ]
+  },
+  {
+    "id": "noman_alsudais",
+    "name": "نعمان السديس",
+    "everyayah": [
+      {
+        "score": 0.46511627906976744,
+        "folder": "data/Abdurrahmaan_As-Sudais_64kbps"
+      },
+      {
+        "score": 0.45454545454545453,
+        "folder": "data/Abdurrahmaan_As-Sudais_192kbps"
+      },
+      {
+        "score": 0.45161290322580644,
+        "folder": "data/Hudhaify_32kbps"
+      },
+      {
+        "score": 0.45161290322580644,
+        "folder": "data/Hudhaify_64kbps"
+      },
+      {
+        "score": 0.4375,
+        "folder": "data/Hudhaify_128kbps"
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "data/Maher_AlMuaiqly_64kbps"
+      },
+      {
+        "score": 0.43243243243243246,
+        "folder": "data/Salah_Al_Budair_128kbps"
+      },
+      {
+        "score": 0.42105263157894735,
+        "folder": "data/MaherAlMuaiqly128kbps"
+      },
+      {
+        "score": 0.4117647058823529,
+        "folder": "data/Ayman_Sowaid_64kbps"
+      },
+      {
+        "score": 0.3783783783783784,
+        "folder": "data/Muhsin_Al_Qasim_192kbps"
+      },
+      {
+        "score": 0.35,
+        "folder": "data/mahmoud_ali_al_banna_32kbps"
+      }
+    ],
+    "mp3quran": [
+      {
+        "score": 0.5263157894736842,
+        "host": "server16.mp3quran.net",
+        "folder": "nufais"
+      },
+      {
+        "score": 0.5217391304347826,
+        "host": "server16.mp3quran.net",
+        "folder": "M-AlZubaidi"
+      },
+      {
+        "score": 0.5,
+        "host": "server11.mp3quran.net",
+        "folder": "alshaik"
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "a_maasaraawi"
+      },
+      {
+        "score": 0.5,
+        "host": "server16.mp3quran.net",
+        "folder": "s_alquraishi"
+      },
+      {
+        "score": 0.48,
+        "host": "server16.mp3quran.net",
+        "folder": "nourin_siddig"
+      },
+      {
+        "score": 0.47619047619047616,
+        "host": "server12.mp3quran.net",
+        "folder": "malaysia"
+      },
+      {
+        "score": 0.47619047619047616,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alaskar"
+      },
+      {
+        "score": 0.47619047619047616,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alhazmi"
+      },
+      {
+        "score": 0.47619047619047616,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alqrafi"
+      },
+      {
+        "score": 0.45454545454545453,
+        "host": "server16.mp3quran.net",
+        "folder": "a-almishal"
+      },
+      {
+        "score": 0.45454545454545453,
+        "host": "server8.mp3quran.net",
+        "folder": "majd_onazi"
+      },
+      {
+        "score": 0.45454545454545453,
+        "host": "server9.mp3quran.net",
+        "folder": "omar_warsh"
+      },
+      {
+        "score": 0.4444444444444444,
+        "host": "server9.mp3quran.net",
+        "folder": "omran"
+      },
+      {
+        "score": 0.43478260869565216,
+        "host": "server16.mp3quran.net",
+        "folder": "Y_ALaidroos"
+      },
+      {
+        "score": 0.43478260869565216,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alshahhat"
+      },
+      {
+        "score": 0.43478260869565216,
+        "host": "server16.mp3quran.net",
+        "folder": "i_sanankoua"
+      },
+      {
+        "score": 0.42857142857142855,
+        "host": "server16.mp3quran.net",
+        "folder": "Ibrahim-Al-Shahri"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server14.mp3quran.net",
+        "folder": "mansor"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server14.mp3quran.net",
+        "folder": "musali"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server6.mp3quran.net",
+        "folder": "aloosi"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server7.mp3quran.net",
+        "folder": "dokali"
+      },
+      {
+        "score": 0.42105263157894735,
+        "host": "server9.mp3quran.net",
+        "folder": "alzain"
+      },
+      {
+        "score": 0.4166666666666667,
+        "host": "server16.mp3quran.net",
+        "folder": "H-Aldaghriri"
+      },
+      {
+        "score": 0.4166666666666667,
+        "host": "server16.mp3quran.net",
+        "folder": "kh_mohammadi"
+      },
+      {
+        "score": 0.4,
+        "host": "server10.mp3quran.net",
+        "folder": "trablsi"
+      },
+      {
+        "score": 0.4,
+        "host": "server11.mp3quran.net",
+        "folder": "ahmad_nu"
+      },
+      {
+        "score": 0.4,
+        "host": "server11.mp3quran.net",
+        "folder": "hawashi"
+      },
+      {
+        "score": 0.4,
+        "host": "server13.mp3quran.net",
+        "folder": "najashi"
+      },
+      {
+        "score": 0.4,
+        "host": "server14.mp3quran.net",
+        "folder": "najashi"
+      },
+      {
+        "score": 0.4,
+        "host": "server16.mp3quran.net",
+        "folder": "A-AlBadr"
+      },
+      {
+        "score": 0.4,
+        "host": "server16.mp3quran.net",
+        "folder": "K-Alzadi"
+      },
+      {
+        "score": 0.4,
+        "host": "server16.mp3quran.net",
+        "folder": "a_swaiyd"
+      },
+      {
+        "score": 0.4,
+        "host": "server7.mp3quran.net",
+        "folder": "m_arkani"
+      },
+      {
+        "score": 0.38461538461538464,
+        "host": "server16.mp3quran.net",
+        "folder": "mal-allah_jaber"
+      },
+      {
+        "score": 0.38095238095238093,
+        "host": "server10.mp3quran.net",
+        "folder": "trabulsi"
+      },
+      {
+        "score": 0.38095238095238093,
+        "host": "server16.mp3quran.net",
+        "folder": "M_Alfaqih"
+      },
+      {
+        "score": 0.38095238095238093,
+        "host": "server16.mp3quran.net",
+        "folder": "a_alemadi"
+      },
+      {
+        "score": 0.38095238095238093,
+        "host": "server16.mp3quran.net",
+        "folder": "a_binaoun"
+      },
+      {
+        "score": 0.38095238095238093,
+        "host": "server16.mp3quran.net",
+        "folder": "shamrani"
+      },
+      {
+        "score": 0.38095238095238093,
+        "host": "server16.mp3quran.net",
+        "folder": "souilass"
+      },
+      {
+        "score": 0.38095238095238093,
+        "host": "server6.mp3quran.net",
+        "folder": "kanakeri"
+      },
+      {
+        "score": 0.375,
+        "host": "server11.mp3quran.net",
+        "folder": "sds"
+      },
+      {
+        "score": 0.36363636363636365,
+        "host": "server16.mp3quran.net",
+        "folder": "h_abudalal"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server11.mp3quran.net",
+        "folder": "saud"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server16.mp3quran.net",
+        "folder": "saad"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server6.mp3quran.net",
+        "folder": "s_bud"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server8.mp3quran.net",
+        "folder": "hani"
+      },
+      {
+        "score": 0.35294117647058826,
+        "host": "server8.mp3quran.net",
+        "folder": "noah"
+      }
+    ]
+  }
+]

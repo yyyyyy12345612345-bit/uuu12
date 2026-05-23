@@ -1,0 +1,1082 @@
+[
+  {
+    "id": "juhani",
+    "name": "عبد الله عواد الجهني",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/juhani/001.mp3"
+  },
+  {
+    "id": "husr_m",
+    "name": "محمود خليل الحصري (مجود)",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/husr_m/001.mp3"
+  },
+  {
+    "id": "shatree",
+    "name": "أبو بكر الشاطري",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/shatree/001.mp3"
+  },
+  {
+    "id": "basfar",
+    "name": "عبد الله بصفر",
+    "reason": "http_404",
+    "url": "https://server6.mp3quran.net/basfar/001.mp3"
+  },
+  {
+    "id": "mohammad_rifaat",
+    "name": "محمد رفعت",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/mohammad_rifaat/001.mp3"
+  },
+  {
+    "id": "sayed_nakashibandi",
+    "name": "سيد النقشبندي",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/sayed_nakashibandi/001.mp3"
+  },
+  {
+    "id": "waleed_shamsan",
+    "name": "الوليد الشمسان",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/waleed_shamsan/001.mp3"
+  },
+  {
+    "id": "badr_turki",
+    "name": "بدر التركي",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/badr_turki/001.mp3"
+  },
+  {
+    "id": "ali_abdullah_jaber",
+    "name": "علي عبد الله جابر",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/ali_abdullah_jaber/001.mp3"
+  },
+  {
+    "id": "ahmed_ibn_taleb_hameed",
+    "name": "أحمد ابن طالب حميد",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/ahmed_ibn_taleb_hameed/001.mp3"
+  },
+  {
+    "id": "islam_sobhi",
+    "name": "إسلام صبحي",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/islam_sobhi/001.mp3"
+  },
+  {
+    "id": "abdurrahman_musaab",
+    "name": "عبد الرحمن مصعب",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/abdurrahman_musaab/001.mp3"
+  },
+  {
+    "id": "ahmed_kasab",
+    "name": "أحمد كاسب",
+    "reason": "http_404",
+    "url": "https://server16.mp3quran.net/ahmed_kasab/001.mp3"
+  },
+  {
+    "id": "mohammad_ahmad_hassan",
+    "name": "محمد أحمد حسن",
+    "reason": "http_404",
+    "url": "https://server16.mp3quran.net/mohammad_ahmad_hassan/001.mp3"
+  },
+  {
+    "id": "mustafa_ismail",
+    "name": "مصطفى إسماعيل",
+    "reason": "http_404",
+    "url": "https://server10.mp3quran.net/mustafa_ismail/001.mp3"
+  },
+  {
+    "id": "ahmed_naeen",
+    "name": "أحمد نعينع",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/ahmed_naeen/001.mp3"
+  },
+  {
+    "id": "kamel_yousef_albahtimi",
+    "name": "كامل يوسف البهتيمي",
+    "reason": "http_404",
+    "url": "https://server6.mp3quran.net/kamel_yousef_albahtimi/001.mp3"
+  },
+  {
+    "id": "taha_alfashny",
+    "name": "طه الفشني",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/taha_alfashny/001.mp3"
+  },
+  {
+    "id": "abu_alaneen_shaishaa",
+    "name": "أبو العنين شعيشع",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/abu_alaneen_shaishaa/001.mp3"
+  },
+  {
+    "id": "alhuthaify",
+    "name": "علي الحذيفي",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/alhuthaify/001.mp3"
+  },
+  {
+    "id": "alqasim",
+    "name": "عبد المحسن القاسم",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/alqasim/001.mp3"
+  },
+  {
+    "id": "ath_thubaity",
+    "name": "عبد الباري الثبيتي",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/ath_thubaity/001.mp3"
+  },
+  {
+    "id": "adel_kalbani",
+    "name": "عادل كلباني",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/adel_kalbani/001.mp3"
+  },
+  {
+    "id": "khalid_alqahtani",
+    "name": "خالد القحطاني",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/khalid_alqahtani/001.mp3"
+  },
+  {
+    "id": "salah_bukhatir",
+    "name": "صلاح بختير",
+    "reason": "http_404",
+    "url": "https://server6.mp3quran.net/salah_bukhatir/001.mp3"
+  },
+  {
+    "id": "salah_albudair",
+    "name": "صلاح البدير",
+    "reason": "http_404",
+    "url": "https://server6.mp3quran.net/salah_albudair/001.mp3"
+  },
+  {
+    "id": "abdulkarim_alhazmi",
+    "name": "عبد الكريم الحازمي",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/abdulkarim_alhazmi/001.mp3"
+  },
+  {
+    "id": "ibrahim_aljibrin",
+    "name": "إبراهيم الجبرين",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/ibrahim_aljibrin/001.mp3"
+  },
+  {
+    "id": "ayman_suwaid",
+    "name": "أيمن سويد",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/ayman_suwaid/001.mp3"
+  },
+  {
+    "id": "abdullah_almatrouk",
+    "name": "عبد الله المطروق",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/abdullah_almatrouk/001.mp3"
+  },
+  {
+    "id": "nabil_rafat",
+    "name": "نبيل رفعت",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/nabil_rafat/001.mp3"
+  },
+  {
+    "id": "yassin_pasha",
+    "name": "ياسين باشا",
+    "reason": "http_404",
+    "url": "https://server10.mp3quran.net/yassin_pasha/001.mp3"
+  },
+  {
+    "id": "mohamed_jassem",
+    "name": "محمد جاسم",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/mohamed_jassem/001.mp3"
+  },
+  {
+    "id": "mohammed_mabrouk",
+    "name": "محمد مبروك",
+    "reason": "http_404",
+    "url": "https://server6.mp3quran.net/mohammed_mabrouk/001.mp3"
+  },
+  {
+    "id": "ahmed_pas",
+    "name": "أحمد باس",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/ahmed_pas/001.mp3"
+  },
+  {
+    "id": "ahmed_soliman",
+    "name": "أحمد سليمان",
+    "reason": "http_404",
+    "url": "https://server7.mp3quran.net/ahmed_soliman/001.mp3"
+  },
+  {
+    "id": "mohamed_saeed",
+    "name": "محمد سعيد",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/mohamed_saeed/001.mp3"
+  },
+  {
+    "id": "mohammed_fahad",
+    "name": "محمد فهد",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/mohammed_fahad/001.mp3"
+  },
+  {
+    "id": "mohammed_ghassan",
+    "name": "محمد غسان",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/mohammed_ghassan/001.mp3"
+  },
+  {
+    "id": "mohammed_ismail",
+    "name": "محمد إسماعيل",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/mohammed_ismail/001.mp3"
+  },
+  {
+    "id": "hamza_alhassan",
+    "name": "حمزة الحسن",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/hamza_alhassan/001.mp3"
+  },
+  {
+    "id": "abdulkareem_alshehri",
+    "name": "عبد الكريم الشهري",
+    "reason": "http_404",
+    "url": "https://server10.mp3quran.net/abdulkareem_alshehri/001.mp3"
+  },
+  {
+    "id": "rashid_alhur",
+    "name": "راشد الحور",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/rashid_alhur/001.mp3"
+  },
+  {
+    "id": "saud_alfarisi",
+    "name": "سعود الفارسي",
+    "reason": "http_404",
+    "url": "https://server7.mp3quran.net/saud_alfarisi/001.mp3"
+  },
+  {
+    "id": "abdullah_albahili",
+    "name": "عبد الله البهيلي",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/abdullah_albahili/001.mp3"
+  },
+  {
+    "id": "mohammed_alquraishi",
+    "name": "محمد القرشي",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/mohammed_alquraishi/001.mp3"
+  },
+  {
+    "id": "nadir_almaghribi",
+    "name": "نادر المغربي",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/nadir_almaghribi/001.mp3"
+  },
+  {
+    "id": "mohamed_gaber",
+    "name": "محمد جابر",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/mohamed_gaber/001.mp3"
+  },
+  {
+    "id": "saleh_alorman",
+    "name": "صالح العرمان",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/saleh_alorman/001.mp3"
+  },
+  {
+    "id": "fadhel_alqahtani",
+    "name": "فاضل القحطاني",
+    "reason": "http_404",
+    "url": "https://server10.mp3quran.net/fadhel_alqahtani/001.mp3"
+  },
+  {
+    "id": "muath_alqeeq",
+    "name": "معاذ القيق",
+    "reason": "http_404",
+    "url": "https://server7.mp3quran.net/muath_alqeeq/001.mp3"
+  },
+  {
+    "id": "abdullah_alshehri",
+    "name": "عبد الله الشهري",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/abdullah_alshehri/001.mp3"
+  },
+  {
+    "id": "mohamed_aldurai",
+    "name": "محمد الدوري",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/mohamed_aldurai/001.mp3"
+  },
+  {
+    "id": "mohammad_moneer",
+    "name": "محمد منير",
+    "reason": "http_404",
+    "url": "https://server10.mp3quran.net/mohammad_moneer/001.mp3"
+  },
+  {
+    "id": "rashid_alsharif",
+    "name": "راشد الشريف",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/rashid_alsharif/001.mp3"
+  },
+  {
+    "id": "amin_salman",
+    "name": "أمين سلمان",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/amin_salman/001.mp3"
+  },
+  {
+    "id": "ibrahim_zaid",
+    "name": "إبراهيم زايد",
+    "reason": "http_404",
+    "url": "https://server6.mp3quran.net/ibrahim_zaid/001.mp3"
+  },
+  {
+    "id": "abdullah_mahmoud",
+    "name": "عبد الله محمود",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/abdullah_mahmoud/001.mp3"
+  },
+  {
+    "id": "mohammed_yahya",
+    "name": "محمد يحيى",
+    "reason": "http_404",
+    "url": "https://server16.mp3quran.net/mohammed_yahya/001.mp3"
+  },
+  {
+    "id": "mohamed_baraka",
+    "name": "محمد بركة",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/mohamed_baraka/001.mp3"
+  },
+  {
+    "id": "sulaiman_alrajhi",
+    "name": "سليمان الراجحي",
+    "reason": "http_404",
+    "url": "https://server10.mp3quran.net/sulaiman_alrajhi/001.mp3"
+  },
+  {
+    "id": "abdullah_alsulayti",
+    "name": "عبد الله السليطي",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/abdullah_alsulayti/001.mp3"
+  },
+  {
+    "id": "mohammed_alzaidi",
+    "name": "محمد الزيدي",
+    "reason": "http_404",
+    "url": "https://server7.mp3quran.net/mohammed_alzaidi/001.mp3"
+  },
+  {
+    "id": "mohammad_melhem",
+    "name": "محمد ملحم",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/mohammad_melhem/001.mp3"
+  },
+  {
+    "id": "abdulrahman_almadani",
+    "name": "عبد الرحمن المدني",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/abdulrahman_almadani/001.mp3"
+  },
+  {
+    "id": "mohammed_mahdi",
+    "name": "محمد مهدي",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/mohammed_mahdi/001.mp3"
+  },
+  {
+    "id": "mohammed_hasan",
+    "name": "محمد حسن",
+    "reason": "http_404",
+    "url": "https://server6.mp3quran.net/mohammed_hasan/001.mp3"
+  },
+  {
+    "id": "abdullah_edded",
+    "name": "عبد الله الأدب",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/abdullah_edded/001.mp3"
+  },
+  {
+    "id": "abdullah_alqattan",
+    "name": "عبد الله القطّان",
+    "reason": "http_404",
+    "url": "https://server7.mp3quran.net/abdullah_alqattan/001.mp3"
+  },
+  {
+    "id": "salah_khalid",
+    "name": "صلاح خالد",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/salah_khalid/001.mp3"
+  },
+  {
+    "id": "hamad_alfarisi",
+    "name": "حمد الفارسي",
+    "reason": "http_404",
+    "url": "https://server10.mp3quran.net/hamad_alfarisi/001.mp3"
+  },
+  {
+    "id": "abdullah_alhamad",
+    "name": "عبد الله الحمّاد",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/abdullah_alhamad/001.mp3"
+  },
+  {
+    "id": "mohamed_algezawi",
+    "name": "محمد القزاوي",
+    "reason": "http_404",
+    "url": "https://server16.mp3quran.net/mohamed_algezawi/001.mp3"
+  },
+  {
+    "id": "mohammed_hussain",
+    "name": "محمد حسين",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/mohammed_hussain/001.mp3"
+  },
+  {
+    "id": "mohamed_almansour",
+    "name": "محمد المنصور",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/mohamed_almansour/001.mp3"
+  },
+  {
+    "id": "salman_alshareef",
+    "name": "سلمان الشريف",
+    "reason": "http_404",
+    "url": "https://server7.mp3quran.net/salman_alshareef/001.mp3"
+  },
+  {
+    "id": "ahmed_rifai",
+    "name": "أحمد الرفاعي",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/ahmed_rifai/001.mp3"
+  },
+  {
+    "id": "nasser_alharbi",
+    "name": "ناصر الحربي",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/nasser_alharbi/001.mp3"
+  },
+  {
+    "id": "mohamed_mansour",
+    "name": "محمد منصور",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/mohamed_mansour/001.mp3"
+  },
+  {
+    "id": "mohammad_ramadan",
+    "name": "محمد رمضان",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/mohammad_ramadan/001.mp3"
+  },
+  {
+    "id": "mohamed_elmaghraby",
+    "name": "محمد المغراوي",
+    "reason": "http_404",
+    "url": "https://server16.mp3quran.net/mohamed_elmaghraby/001.mp3"
+  },
+  {
+    "id": "taha_almadani",
+    "name": "طه المدني",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/taha_almadani/001.mp3"
+  },
+  {
+    "id": "omar_tayeb",
+    "name": "عمر طيب",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/omar_tayeb/001.mp3"
+  },
+  {
+    "id": "mohammed_akram",
+    "name": "محمد أكرم",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/mohammed_akram/001.mp3"
+  },
+  {
+    "id": "mohammad_said",
+    "name": "محمد سعيد",
+    "reason": "http_404",
+    "url": "https://server7.mp3quran.net/mohammad_said/001.mp3"
+  },
+  {
+    "id": "mohammed_newe",
+    "name": "محمد نوي",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/mohammed_newe/001.mp3"
+  },
+  {
+    "id": "mahmoud_ahmed",
+    "name": "محمود أحمد",
+    "reason": "http_404",
+    "url": "https://server16.mp3quran.net/mahmoud_ahmed/001.mp3"
+  },
+  {
+    "id": "abdulaziz_ash_shabuni",
+    "name": "عبد العزيز الشابوني",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/abdulaziz_ash_shabuni/001.mp3"
+  },
+  {
+    "id": "omar_alquraishi",
+    "name": "عمر القرشي",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/omar_alquraishi/001.mp3"
+  },
+  {
+    "id": "mohamed_bassam",
+    "name": "محمد بسام",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/mohamed_bassam/001.mp3"
+  },
+  {
+    "id": "saad_almohammedi",
+    "name": "سعد المحمودي",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/saad_almohammedi/001.mp3"
+  },
+  {
+    "id": "mohammed_almuhandis",
+    "name": "محمد المهندس",
+    "reason": "http_404",
+    "url": "https://server10.mp3quran.net/mohammed_almuhandis/001.mp3"
+  },
+  {
+    "id": "mustafa_albalushi",
+    "name": "مصطفى البلوشي",
+    "reason": "http_404",
+    "url": "https://server7.mp3quran.net/mustafa_albalushi/001.mp3"
+  },
+  {
+    "id": "mohammed_saber",
+    "name": "محمد صابر",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/mohammed_saber/001.mp3"
+  },
+  {
+    "id": "fahd_alqadi",
+    "name": "فهد القاضي",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/fahd_alqadi/001.mp3"
+  },
+  {
+    "id": "mohammed_alsharif",
+    "name": "محمد الشريف",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/mohammed_alsharif/001.mp3"
+  },
+  {
+    "id": "nasser_alqurashi",
+    "name": "ناصر القرشي",
+    "reason": "http_404",
+    "url": "https://server6.mp3quran.net/nasser_alqurashi/001.mp3"
+  },
+  {
+    "id": "mohammed_alzahrani",
+    "name": "محمد الزهراني",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/mohammed_alzahrani/001.mp3"
+  },
+  {
+    "id": "mohammed_almansoori",
+    "name": "محمد المنصوري",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/mohammed_almansoori/001.mp3"
+  },
+  {
+    "id": "abdullah_almuhairi",
+    "name": "عبد الله المحيري",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/abdullah_almuhairi/001.mp3"
+  },
+  {
+    "id": "ahmed_alboghdadi",
+    "name": "أحمد البغدادي",
+    "reason": "http_404",
+    "url": "https://server6.mp3quran.net/ahmed_alboghdadi/001.mp3"
+  },
+  {
+    "id": "mohamed_alhaj",
+    "name": "محمد الحاج",
+    "reason": "http_404",
+    "url": "https://server7.mp3quran.net/mohamed_alhaj/001.mp3"
+  },
+  {
+    "id": "ali_alqarni",
+    "name": "علي القرني",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/ali_alqarni/001.mp3"
+  },
+  {
+    "id": "ahmed_alhameidi",
+    "name": "أحمد الحميدي",
+    "reason": "http_404",
+    "url": "https://server10.mp3quran.net/ahmed_alhameidi/001.mp3"
+  },
+  {
+    "id": "mohammad_alhamami",
+    "name": "محمد الحمامي",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/mohammad_alhamami/001.mp3"
+  },
+  {
+    "id": "hassan_mansour",
+    "name": "حسن منصور",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/hassan_mansour/001.mp3"
+  },
+  {
+    "id": "mohammed_alfaisal",
+    "name": "محمد الفيصل",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/mohammed_alfaisal/001.mp3"
+  },
+  {
+    "id": "abdullah_alkahtani",
+    "name": "عبد الله القحطاني",
+    "reason": "http_404",
+    "url": "https://server16.mp3quran.net/abdullah_alkahtani/001.mp3"
+  },
+  {
+    "id": "yaser_almalki",
+    "name": "ياسر المالكي",
+    "reason": "http_404",
+    "url": "https://server6.mp3quran.net/yaser_almalki/001.mp3"
+  },
+  {
+    "id": "abdulrahman_alhabeeb",
+    "name": "عبد الرحمن الحبيب",
+    "reason": "http_404",
+    "url": "https://server7.mp3quran.net/abdulrahman_alhabeeb/001.mp3"
+  },
+  {
+    "id": "mohamed_alsaif",
+    "name": "محمد السيف",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/mohamed_alsaif/001.mp3"
+  },
+  {
+    "id": "abdulrahman_alkhalidi",
+    "name": "عبد الرحمن الخالدي",
+    "reason": "http_404",
+    "url": "https://server10.mp3quran.net/abdulrahman_alkhalidi/001.mp3"
+  },
+  {
+    "id": "ahmad_alsaeed",
+    "name": "أحمد السعيد",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/ahmad_alsaeed/001.mp3"
+  },
+  {
+    "id": "majid_alqadi",
+    "name": "ماجد القاضي",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/majid_alqadi/001.mp3"
+  },
+  {
+    "id": "tariq_alzafiri",
+    "name": "طارق الظفيري",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/tariq_alzafiri/001.mp3"
+  },
+  {
+    "id": "islam_alfahad",
+    "name": "إسلام الفهد",
+    "reason": "http_404",
+    "url": "https://server16.mp3quran.net/islam_alfahad/001.mp3"
+  },
+  {
+    "id": "sami_almutairi",
+    "name": "سامي المطيري",
+    "reason": "http_404",
+    "url": "https://server6.mp3quran.net/sami_almutairi/001.mp3"
+  },
+  {
+    "id": "mohammad_rafat",
+    "name": "محمد رفعت",
+    "reason": "http_404",
+    "url": "https://server7.mp3quran.net/mohammad_rafat/001.mp3"
+  },
+  {
+    "id": "abdulrahman_alabd",
+    "name": "عبد الرحمن العبد",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/abdulrahman_alabd/001.mp3"
+  },
+  {
+    "id": "wakil_alharthy",
+    "name": "وكيل الحارثي",
+    "reason": "http_404",
+    "url": "https://server10.mp3quran.net/wakil_alharthy/001.mp3"
+  },
+  {
+    "id": "mohammed_alsharqawi",
+    "name": "محمد الشرقاوي",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/mohammed_alsharqawi/001.mp3"
+  },
+  {
+    "id": "abdulaziz_alamer",
+    "name": "عبد العزيز العامر",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/abdulaziz_alamer/001.mp3"
+  },
+  {
+    "id": "haytham_alsharif",
+    "name": "هيثم الشريف",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/haytham_alsharif/001.mp3"
+  },
+  {
+    "id": "omar_alkhamis",
+    "name": "عمر الخميس",
+    "reason": "http_404",
+    "url": "https://server16.mp3quran.net/omar_alkhamis/001.mp3"
+  },
+  {
+    "id": "faisal_alwati",
+    "name": "فيصل الوطي",
+    "reason": "http_404",
+    "url": "https://server6.mp3quran.net/faisal_alwati/001.mp3"
+  },
+  {
+    "id": "abdullah_alkhuzayem",
+    "name": "عبد الله الخزيم",
+    "reason": "http_404",
+    "url": "https://server7.mp3quran.net/abdullah_alkhuzayem/001.mp3"
+  },
+  {
+    "id": "ibrahim_alhabashy",
+    "name": "إبراهيم الحبشي",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/ibrahim_alhabashy/001.mp3"
+  },
+  {
+    "id": "mohammad_alsayed",
+    "name": "محمد السيد",
+    "reason": "http_404",
+    "url": "https://server10.mp3quran.net/mohammad_alsayed/001.mp3"
+  },
+  {
+    "id": "mohammed_alsulaiman",
+    "name": "محمد السليمان",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/mohammed_alsulaiman/001.mp3"
+  },
+  {
+    "id": "hasan_alsayed",
+    "name": "حسن السيد",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/hasan_alsayed/001.mp3"
+  },
+  {
+    "id": "taqi_alhaki",
+    "name": "تقي الحقي",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/taqi_alhaki/001.mp3"
+  },
+  {
+    "id": "mohammed_almaani",
+    "name": "محمد الماني",
+    "reason": "http_404",
+    "url": "https://server16.mp3quran.net/mohammed_almaani/001.mp3"
+  },
+  {
+    "id": "abdulrahman_ajar",
+    "name": "عبد الرحمن عجر",
+    "reason": "http_404",
+    "url": "https://server6.mp3quran.net/abdulrahman_ajar/001.mp3"
+  },
+  {
+    "id": "mohammed_aljamal",
+    "name": "محمد الجمل",
+    "reason": "http_404",
+    "url": "https://server7.mp3quran.net/mohammed_aljamal/001.mp3"
+  },
+  {
+    "id": "noman_alsudais",
+    "name": "نعمان السديس",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/noman_alsudais/001.mp3"
+  },
+  {
+    "id": "mohammed_aljubair",
+    "name": "محمد الجبير",
+    "reason": "http_404",
+    "url": "https://server10.mp3quran.net/mohammed_aljubair/001.mp3"
+  },
+  {
+    "id": "abdulrahman_alnasser",
+    "name": "عبد الرحمن الناصر",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/abdulrahman_alnasser/001.mp3"
+  },
+  {
+    "id": "mohammad_albanna",
+    "name": "محمد البنا",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/mohammad_albanna/001.mp3"
+  },
+  {
+    "id": "abdullah_alsuhail",
+    "name": "عبد الله السهيل",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/abdullah_alsuhail/001.mp3"
+  },
+  {
+    "id": "fahd_aljadani",
+    "name": "فهد الجدعاني",
+    "reason": "http_404",
+    "url": "https://server16.mp3quran.net/fahd_aljadani/001.mp3"
+  },
+  {
+    "id": "mohamed_alqaisi",
+    "name": "محمد القيسي",
+    "reason": "http_404",
+    "url": "https://server6.mp3quran.net/mohamed_alqaisi/001.mp3"
+  },
+  {
+    "id": "abdulaziz_alsuwaidi",
+    "name": "عبد العزيز السويدي",
+    "reason": "http_404",
+    "url": "https://server7.mp3quran.net/abdulaziz_alsuwaidi/001.mp3"
+  },
+  {
+    "id": "mohammed_alsalmi",
+    "name": "محمد السالمي",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/mohammed_alsalmi/001.mp3"
+  },
+  {
+    "id": "akram_alraisi",
+    "name": "أكرم الرايسي",
+    "reason": "http_404",
+    "url": "https://server10.mp3quran.net/akram_alraisi/001.mp3"
+  },
+  {
+    "id": "mohammed_alrabeah",
+    "name": "محمد الربيع",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/mohammed_alrabeah/001.mp3"
+  },
+  {
+    "id": "omar_alnasser",
+    "name": "عمر الناصر",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/omar_alnasser/001.mp3"
+  },
+  {
+    "id": "mohamed_alensani",
+    "name": "محمد الإنصاني",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/mohamed_alensani/001.mp3"
+  },
+  {
+    "id": "abdullah_alshrief",
+    "name": "عبد الله الشريف",
+    "reason": "http_404",
+    "url": "https://server16.mp3quran.net/abdullah_alshrief/001.mp3"
+  },
+  {
+    "id": "abdulrahman_alkhatib",
+    "name": "عبد الرحمن الخطيب",
+    "reason": "http_404",
+    "url": "https://server6.mp3quran.net/abdulrahman_alkhatib/001.mp3"
+  },
+  {
+    "id": "mohammed_alsaleh",
+    "name": "محمد الصالح",
+    "reason": "http_404",
+    "url": "https://server7.mp3quran.net/mohammed_alsaleh/001.mp3"
+  },
+  {
+    "id": "yakub_alshamri",
+    "name": "يعقوب الشمري",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/yakub_alshamri/001.mp3"
+  },
+  {
+    "id": "mohammed_aljawhar",
+    "name": "محمد الجوهرة",
+    "reason": "http_404",
+    "url": "https://server10.mp3quran.net/mohammed_aljawhar/001.mp3"
+  },
+  {
+    "id": "mohamed_alshamri",
+    "name": "محمد الشمري",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/mohamed_alshamri/001.mp3"
+  },
+  {
+    "id": "abdulrahman_alsalama",
+    "name": "عبد الرحمن السلامة",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/abdulrahman_alsalama/001.mp3"
+  },
+  {
+    "id": "badr_alzahrani",
+    "name": "بدر الزهراني",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/badr_alzahrani/001.mp3"
+  },
+  {
+    "id": "mohammed_alqarny",
+    "name": "محمد القرني",
+    "reason": "http_404",
+    "url": "https://server16.mp3quran.net/mohammed_alqarny/001.mp3"
+  },
+  {
+    "id": "abdullah_aljohani",
+    "name": "عبد الله الجهني",
+    "reason": "http_404",
+    "url": "https://server6.mp3quran.net/abdullah_aljohani/001.mp3"
+  },
+  {
+    "id": "ahmed_almuhajir",
+    "name": "أحمد المهاجر",
+    "reason": "http_404",
+    "url": "https://server7.mp3quran.net/ahmed_almuhajir/001.mp3"
+  },
+  {
+    "id": "mohammed_albannai",
+    "name": "محمد البناني",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/mohammed_albannai/001.mp3"
+  },
+  {
+    "id": "mohamed_alsalman",
+    "name": "محمد السلمان",
+    "reason": "http_404",
+    "url": "https://server10.mp3quran.net/mohamed_alsalman/001.mp3"
+  },
+  {
+    "id": "ibrahim_alsaleh",
+    "name": "إبراهيم الصالح",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/ibrahim_alsaleh/001.mp3"
+  },
+  {
+    "id": "mohammed_alshehri",
+    "name": "محمد الشهري",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/mohammed_alshehri/001.mp3"
+  },
+  {
+    "id": "abdullah_aldaqaq",
+    "name": "عبد الله الدقاق",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/abdullah_aldaqaq/001.mp3"
+  },
+  {
+    "id": "mohammed_alqattan",
+    "name": "محمد القطان",
+    "reason": "http_404",
+    "url": "https://server16.mp3quran.net/mohammed_alqattan/001.mp3"
+  },
+  {
+    "id": "muhammad_alfarsi",
+    "name": "محمد الفارسي",
+    "reason": "http_404",
+    "url": "https://server6.mp3quran.net/muhammad_alfarsi/001.mp3"
+  },
+  {
+    "id": "thamer_alshehri",
+    "name": "ثامر الشهري",
+    "reason": "http_404",
+    "url": "https://server7.mp3quran.net/thamer_alshehri/001.mp3"
+  },
+  {
+    "id": "mohamed_alahmadi",
+    "name": "محمد الأحمدي",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/mohamed_alahmadi/001.mp3"
+  },
+  {
+    "id": "abdulaziz_alsharif",
+    "name": "عبد العزيز الشريف",
+    "reason": "http_404",
+    "url": "https://server10.mp3quran.net/abdulaziz_alsharif/001.mp3"
+  },
+  {
+    "id": "mohammad_alghamdi",
+    "name": "محمد الغامدي",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/mohammad_alghamdi/001.mp3"
+  },
+  {
+    "id": "wali_alsharif",
+    "name": "ولي الشريف",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/wali_alsharif/001.mp3"
+  },
+  {
+    "id": "yousef_alharbi",
+    "name": "يوسف الحربي",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/yousef_alharbi/001.mp3"
+  },
+  {
+    "id": "mohammad_almuhanna",
+    "name": "محمد المهنا",
+    "reason": "http_404",
+    "url": "https://server16.mp3quran.net/mohammad_almuhanna/001.mp3"
+  },
+  {
+    "id": "omar_alsaud",
+    "name": "عمر السعود",
+    "reason": "http_404",
+    "url": "https://server6.mp3quran.net/omar_alsaud/001.mp3"
+  },
+  {
+    "id": "abdullah_alfarraj",
+    "name": "عبد الله الفراج",
+    "reason": "http_404",
+    "url": "https://server7.mp3quran.net/abdullah_alfarraj/001.mp3"
+  },
+  {
+    "id": "mohamed_alsaeed",
+    "name": "محمد السعيد",
+    "reason": "http_404",
+    "url": "https://server8.mp3quran.net/mohamed_alsaeed/001.mp3"
+  },
+  {
+    "id": "saleh_almalki",
+    "name": "صالح المالكي",
+    "reason": "http_404",
+    "url": "https://server10.mp3quran.net/saleh_almalki/001.mp3"
+  },
+  {
+    "id": "abdullah_alhazmi2",
+    "name": "عبد الله الحازمي",
+    "reason": "http_404",
+    "url": "https://server11.mp3quran.net/abdullah_alhazmi2/001.mp3"
+  },
+  {
+    "id": "mohammed_alqasim",
+    "name": "محمد القاسم",
+    "reason": "http_404",
+    "url": "https://server13.mp3quran.net/mohammed_alqasim/001.mp3"
+  },
+  {
+    "id": "hassan_alshehri",
+    "name": "حسن الشهري",
+    "reason": "http_404",
+    "url": "https://server14.mp3quran.net/hassan_alshehri/001.mp3"
+  },
+  {
+    "id": "abdulrahim_alrasheed",
+    "name": "عبد الرحيم الرشيد",
+    "reason": "http_404",
+    "url": "https://server16.mp3quran.net/abdulrahim_alrasheed/001.mp3"
+  }
+]
