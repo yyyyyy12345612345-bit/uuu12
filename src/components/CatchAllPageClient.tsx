@@ -307,7 +307,7 @@ function CatchAllContent() {
       <GlobalMenu 
         isOpen={isMenuOpen} 
         onClose={() => {
-          window.history.pushState('', document.title, window.location.pathname + window.location.search);
+          window.history.pushState(null, '', window.location.pathname + window.location.search);
           setIsMenuOpen(false);
         }} 
         onOpenFeedback={() => {
