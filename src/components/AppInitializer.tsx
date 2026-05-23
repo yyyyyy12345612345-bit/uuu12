@@ -10,6 +10,8 @@ import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { registerPlugin } from '@capacitor/core';
+import { AppBanner } from '@/components/AppBanner';
+import { initSmartNotifications, cleanupSmartNotifications } from '@/lib/smartNotifications';
 
 // Custom Native Plugin for Battery Optimization
 
@@ -145,6 +147,9 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     const handleManualUpdate = () => checkForUpdates(true);
     window.addEventListener('check-for-updates', handleManualUpdate);
 
+    // 5. Initialize Smart Notifications (daily + Friday reminders)
+    setTimeout(() => initSmartNotifications(), 3000);
+
     let unsubscribeSettings: (() => void) | null = null;
     let unsubscribeAuth: (() => void) | null = null;
     let unsubscribeVersion: (() => void) | null = null;
@@ -187,6 +192,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
     return () => {
       window.removeEventListener('check-for-updates', handleManualUpdate);
+      cleanupSmartNotifications();
       if (unsubscribeSettings) unsubscribeSettings();
       if (unsubscribeAuth) unsubscribeAuth();
       if (unsubscribeVersion) unsubscribeVersion();
@@ -416,6 +422,9 @@ export default function AppInitializer({ children }: { children: React.ReactNode
       )}
 
       {children}
+
+      {/* Smart App Banner - Platform Aware */}
+      <AppBanner apkDownloadUrl="https://quran1-mu.vercel.app/download/" />
     </>
   );
 }

@@ -16,7 +16,7 @@ export function getViewFromPathname(path: string): string {
     'video': 'video',
     'rank': 'rank',
     'leaderboard': 'rank',
-    'security': 'security',
+    'security': 'mushaf-choice',
     'admin': 'admin',
     'showcase': 'showcase',
     'prayers': 'prayers',
