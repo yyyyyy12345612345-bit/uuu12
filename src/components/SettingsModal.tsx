@@ -57,7 +57,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
   const testNotificationSound = () => {
     setTestingSound(true);
-    const audio = new Audio("/audio/notification.mp3");
+    const audio = new Audio("/audio/notification.mp3.mp3");
     audio.volume = 0.7;
     audio.play().catch(() => {});
     setTimeout(() => setTestingSound(false), 2000);
@@ -324,9 +324,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     <div className="flex items-center gap-3 text-right">
                       <div>
                         <p className="font-black text-foreground text-sm">صوت الإشعار</p>
-                        <p className="text-[11px] text-foreground/40 mt-0.5">
-                          ضع الملف في: <code className="text-primary">public/audio/notification.mp3</code>
-                        </p>
                       </div>
                       <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                         <Volume2 className="w-4 h-4" />
@@ -343,16 +340,12 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             <>
               {/* Info */}
               <div className="p-5 bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 rounded-2xl text-right">
-                <div className="flex items-center justify-end gap-3 mb-3">
+                <div className="flex items-center justify-end gap-3">
                   <p className="font-black text-emerald-400">اللهم صلِّ على محمد ﷺ</p>
                   <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
                     <Heart className="w-5 h-5 text-emerald-400 fill-emerald-400/30" />
                   </div>
                 </div>
-                <p className="text-[11px] text-foreground/50 leading-relaxed">
-                  يُذكّرك التطبيق بالصلاة على النبي ﷺ بصوت مميز على فترات منتظمة تختارها أنت.
-                  يُشغَّل صوت من الملف: <code className="text-emerald-400">public/audio/salawat.mp3</code>
-                </p>
               </div>
 
               {/* Main toggle */}
@@ -427,19 +420,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   </p>
                 </div>
 
-                {/* File path instruction */}
-                <div className="p-4 bg-amber-500/5 border border-amber-500/10 rounded-2xl text-right">
-                  <p className="text-[10px] font-black text-amber-400/80 uppercase tracking-widest mb-2">
-                    📂 مكان ملف الصوت
-                  </p>
-                  <p className="text-xs text-foreground/50 leading-relaxed">
-                    ضع ملف الصوت في:
-                    <br />
-                    <code className="text-amber-400 font-mono">public/audio/salawat.mp3</code>
-                    <br />
-                    يمكن أن يكون تسجيل صوتي لـ "اللهم صلِّ على محمد" (3-5 ثواني)
-                  </p>
-                </div>
+
               </div>
             </>
           )}

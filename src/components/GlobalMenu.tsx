@@ -73,8 +73,8 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
     {
       title: "الإعدادات",
       items: [
-        { id: "settings", label: "إعدادات التطبيق", icon: Settings, onClick: () => { onOpenSettings?.(); onClose(); } },
-        { id: "notifications-settings", label: "إعدادات الإشعارات", icon: Bell, onClick: () => { onOpenSettings?.(); onClose(); } },
+        { id: "settings", label: "إعدادات التطبيق", icon: Settings, onClick: () => { onOpenSettings?.(); } },
+        { id: "notifications-settings", label: "إعدادات الإشعارات", icon: Bell, onClick: () => { onOpenSettings?.(); } },
       ]
     }
   ];
