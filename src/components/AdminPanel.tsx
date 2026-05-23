@@ -381,372 +381,443 @@ export function AdminPanel() {
       .sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0));
   }, [users, searchQuery]);
 
+  const topUsers = users.slice(0, 5);
+
   if (loading) return null;
 
   if (!isAdmin) return (
-    <div className="fixed inset-0 z-[500] flex items-center justify-center p-6 bg-background">
-       <form onSubmit={handleAdminLogin} className="w-full max-w-md space-y-6 text-right">
-          <h2 className="text-3xl font-black">لوحة الإدارة</h2>
-          <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-card border border-border p-4 rounded-2xl outline-none" placeholder="الإيميل" />
-          <input type="password" required value={password} onChange={e => setPassword(e.target.value)} className="w-full bg-card border border-border p-4 rounded-2xl outline-none" placeholder="كلمة المرور" />
-          <button type="submit" disabled={isLoggingIn} className="w-full py-4 bg-primary text-black rounded-2xl font-black">دخول</button>
+    <div className="fixed inset-0 z-[500] flex items-center justify-center p-6 bg-slate-950/95 backdrop-blur-xl">
+       <form onSubmit={handleAdminLogin} className="w-full max-w-md space-y-6 rounded-[2.5rem] border border-white/10 bg-slate-900/95 p-8 shadow-2xl text-right">
+          <div className="space-y-3">
+             <h2 className="text-4xl font-black tracking-tight">مرحبا بك في مركز التحكم</h2>
+             <p className="text-sm text-slate-400">سجل دخولك باستخدام حساب الإدارة للوصول إلى لوحة البيانات الكاملة وتجربة التحكم الاحترافية.</p>
+          </div>
+          <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-slate-950 border border-white/10 p-4 rounded-3xl outline-none text-right" placeholder="الإيميل" />
+          <input type="password" required value={password} onChange={e => setPassword(e.target.value)} className="w-full bg-slate-950 border border-white/10 p-4 rounded-3xl outline-none text-right" placeholder="كلمة المرور" />
+          <button type="submit" disabled={isLoggingIn} className="w-full py-4 bg-gradient-to-r from-sky-400 to-violet-500 text-black rounded-3xl font-black shadow-xl shadow-sky-500/20">دخول لوحة الإدارة</button>
+          {loginError && <p className="text-sm text-rose-400">{loginError}</p>}
        </form>
     </div>
   );
 
   return (
-    <div className="h-full w-full bg-background text-foreground font-arabic p-4 md:p-8 pt-6 pb-40 overflow-y-auto">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <div className="flex bg-card border border-border p-1.5 rounded-3xl w-full max-w-2xl mx-auto overflow-x-auto no-scrollbar">
+    <div className="h-full w-full bg-slate-950 text-white font-arabic p-4 md:p-8 pb-20 overflow-y-auto">
+      <div className="mx-auto max-w-7xl space-y-8">
+        <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="rounded-[2.5rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.35)] backdrop-blur-xl">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+              <div className="space-y-3">
+                <p className="text-sm text-slate-400 uppercase tracking-[0.22em]">لوحة الإدارة الرئيسية</p>
+                <h1 className="text-4xl font-black tracking-tight">مرحباً يوسف أسامة</h1>
+                <p className="max-w-2xl text-sm text-slate-400">تحكم في المستخدمين، الاشتراكات، المحتوى، والإعدادات من لوحة واحدة مصممة للتركيز على الأداء والبيانات الحقيقية.</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div className="rounded-3xl bg-slate-950/90 p-4 text-center border border-white/10">
+                  <p className="text-xs uppercase text-slate-400">الإجمالي</p>
+                  <p className="mt-3 text-3xl font-black text-primary">{stats.totalUsers || 0}</p>
+                  <p className="text-[11px] text-slate-500">مستخدم</p>
+                </div>
+                <div className="rounded-3xl bg-slate-950/90 p-4 text-center border border-white/10">
+                  <p className="text-xs uppercase text-slate-400">اليوم</p>
+                  <p className="mt-3 text-3xl font-black text-emerald-400">{stats.activeToday || 0}</p>
+                  <p className="text-[11px] text-slate-500">نشط الآن</p>
+                </div>
+                <div className="rounded-3xl bg-slate-950/90 p-4 text-center border border-white/10">
+                  <p className="text-xs uppercase text-slate-400">النقاط</p>
+                  <p className="mt-3 text-3xl font-black text-violet-400">{stats.totalPoints.toLocaleString()}</p>
+                  <p className="text-[11px] text-slate-500">كل الوقت</p>
+                </div>
+                <div className="rounded-3xl bg-slate-950/90 p-4 text-center border border-white/10">
+                  <p className="text-xs uppercase text-slate-400">الجلسات</p>
+                  <p className="mt-3 text-3xl font-black text-sky-400">{users.length || 0}</p>
+                  <p className="text-[11px] text-slate-500">عدد المستخدمين</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="rounded-[2.5rem] border border-white/10 bg-slate-900/80 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.25)]">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">التحكم السريع</p>
+                  <h2 className="text-2xl font-black">أبرز الإجراءات</h2>
+                </div>
+                <div className="rounded-3xl bg-white/5 px-4 py-3 text-sm text-slate-300">الوضع الحالي</div>
+              </div>
+              <div className="mt-6 grid gap-4">
+                <button onClick={() => setActiveTab('users')} className="w-full rounded-3xl bg-slate-950/90 border border-white/10 px-5 py-4 text-right font-black hover:bg-slate-900 transition">عرض جدول المستخدمين</button>
+                <button onClick={() => setActiveTab('subs')} className="w-full rounded-3xl bg-slate-950/90 border border-white/10 px-5 py-4 text-right font-black hover:bg-slate-900 transition">مراجعة الاشتراكات</button>
+                <button onClick={() => setActiveTab('quests')} className="w-full rounded-3xl bg-slate-950/90 border border-white/10 px-5 py-4 text-right font-black hover:bg-slate-900 transition">إدارة المهام</button>
+              </div>
+            </div>
+            <div className="rounded-[2.5rem] border border-white/10 bg-slate-900/80 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.25)]">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">أهم المستخدمين</p>
+              <div className="mt-4 space-y-3">
+                {topUsers.map((user, index) => (
+                  <div key={user.uid} className="flex items-center justify-between rounded-3xl border border-white/10 bg-slate-950/90 p-4">
+                    <div>
+                      <p className="font-black">{index + 1}. {user.displayName || 'مستخدم مجهول'}</p>
+                      <p className="text-xs text-slate-500">@{user.username || 'غير محدد'}</p>
+                    </div>
+                    <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-black text-primary">{user.totalPoints || 0}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div className="rounded-[3rem] border border-white/10 bg-slate-900/70 p-2 backdrop-blur-xl overflow-x-auto no-scrollbar">
+          <div className="flex gap-2 p-2">
             {[
-                { id: "stats", label: "الإحصائيات", icon: TrendingUp },
-                { id: "users", label: "المستخدمين", icon: Users },
-                { id: "subs", label: "الاشتراكات", icon: ShieldCheck },
-                { id: "showcase", label: "المعرض", icon: Star },
-                { id: "quests", label: "المهام", icon: Bell },
-                { id: "settings", label: "الإعدادات", icon: Phone }
-            ].map((t) => (
-                <button key={t.id} onClick={() => setActiveTab(t.id as any)} className={`flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-2xl transition-all whitespace-nowrap ${activeTab === t.id ? 'bg-primary text-black font-bold' : 'text-foreground/40'}`}>
-                    <t.icon className="w-4 h-4" />
-                    <span className="text-sm">{t.label}</span>
-                </button>
+              { id: 'stats', label: 'الإحصائيات', icon: TrendingUp },
+              { id: 'users', label: 'المستخدمين', icon: Users },
+              { id: 'subs', label: 'الاشتراكات', icon: ShieldCheck },
+              { id: 'showcase', label: 'المعرض', icon: Star },
+              { id: 'quests', label: 'المهام', icon: Bell },
+              { id: 'settings', label: 'الإعدادات', icon: Phone }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex min-w-[10rem] items-center justify-center gap-2 rounded-3xl px-5 py-4 text-sm font-bold transition ${activeTab === tab.id ? 'bg-gradient-to-r from-sky-400 to-violet-500 text-black shadow-xl shadow-sky-500/20' : 'bg-white/5 text-slate-300 hover:bg-white/10'}`}
+              >
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+              </button>
             ))}
+          </div>
         </div>
 
-        {activeTab === "stats" && (
-          <>
-            <div className="bg-card border border-border p-8 rounded-[3rem] flex items-center justify-between">
-               <h1 className="text-3xl font-black">مرحباً يوسف أسامة</h1>
-               <ShieldCheck className="w-16 h-16 text-primary" />
+        {activeTab === 'stats' && (
+          <div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
+            <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+              <div className="grid gap-6 md:grid-cols-3">
+                {[
+                  { label: 'المستخدمين', value: stats.totalUsers, icon: Users },
+                  { label: 'النشط اليوم', value: stats.activeToday, icon: UserCheck },
+                  { label: 'إجمالي النقاط', value: stats.totalPoints.toLocaleString(), icon: Trophy }
+                ].map((card) => (
+                  <div key={card.label} className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6 text-center">
+                    <card.icon className="mx-auto mb-4 h-8 w-8 text-primary" />
+                    <p className="text-sm text-slate-400 uppercase tracking-[0.2em]">{card.label}</p>
+                    <p className="mt-4 text-4xl font-black text-white">{card.value}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-8 grid gap-6 md:grid-cols-2">
+                <div className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6">
+                  <p className="text-sm text-slate-400 uppercase">تنبيه عام</p>
+                  <textarea
+                    value={announcement}
+                    onChange={e => setAnnouncement(e.target.value)}
+                    rows={4}
+                    className="mt-4 w-full resize-none rounded-3xl border border-white/10 bg-slate-900/90 p-4 text-right text-sm outline-none placeholder:text-slate-500"
+                    placeholder="اكتب نص التنبيه هنا"
+                  />
+                  <button
+                    onClick={handleSetAnnouncement}
+                    disabled={isSettingAnnouncement}
+                    className="mt-5 w-full rounded-3xl bg-gradient-to-r from-sky-400 to-violet-500 px-5 py-4 text-black font-black transition hover:scale-[1.01]"
+                  >
+                    {isSettingAnnouncement ? <Loader2 className="inline-block h-5 w-5 animate-spin" /> : 'تحديث الإعلان'}
+                  </button>
+                </div>
+                <div className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6">
+                  <p className="text-sm text-slate-400 uppercase">تبريد سريع</p>
+                  <p className="mt-4 text-sm text-slate-300">إعادة ضبط نقاط المتصدرين وتهيئة الجدول من جديد لجميع المستخدمين.</p>
+                  <button
+                    onClick={handleResetLeaderboard}
+                    disabled={isResetting}
+                    className="mt-6 w-full rounded-3xl bg-red-500 px-5 py-4 text-white font-black transition hover:shadow-lg hover:shadow-red-500/30"
+                  >
+                    {isResetting ? <Loader2 className="inline-block h-5 w-5 animate-spin" /> : 'تصفير نقاط المتصدرين'}
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-               {[
-                 { label: "المستخدمين", value: stats.totalUsers, icon: Users },
-                 { label: "نشط اليوم", value: stats.activeToday, icon: UserCheck },
-                 { label: "إجمالي النقاط", value: stats.totalPoints.toLocaleString(), icon: Trophy },
-               ].map((s, i) => (
-                 <div key={i} className="bg-card border border-border p-8 rounded-[2.5rem] flex flex-col items-center gap-3">
-                    <s.icon className="w-7 h-7 text-primary" />
-                    <p className="text-[10px] font-black uppercase tracking-widest">{s.label}</p>
-                    <p className="text-3xl font-black">{s.value}</p>
-                 </div>
-               ))}
-             </div>
-
-             {/* Global Announcement Banner Management */}
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-card border border-border p-8 rounded-[3rem] shadow-xl space-y-6">
-                    <div className="flex items-center justify-between">
-                        <h3 className="text-xl font-black flex items-center gap-3">شريط التنبيهات العلوي <Bell className="w-6 h-6 text-primary" /></h3>
-                    </div>
-                    <div className="flex flex-col gap-4">
-                        <input 
-                            value={announcement} 
-                            onChange={e => setAnnouncement(e.target.value)}
-                            className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 font-bold"
-                            placeholder="اكتب نص التنبيه هنا"
-                        />
-                        <button 
-                            onClick={handleSetAnnouncement}
-                            disabled={isSettingAnnouncement}
-                            className="w-full py-4 bg-primary text-black rounded-2xl font-black shadow-lg shadow-primary/20 hover:scale-105 transition-all flex items-center justify-center gap-2"
-                        >
-                            {isSettingAnnouncement ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                            تحديث الإعلان
-                        </button>
-                    </div>
+            <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-black">أفضل المستخدمين</h2>
+                  <p className="text-sm text-slate-400">أعلى 5 مستخدمين من حيث النقاط.</p>
                 </div>
-
-                <div className="bg-card border border-border p-8 rounded-[3rem] shadow-xl space-y-6">
-                    <div className="flex items-center justify-between">
-                        <h3 className="text-xl font-black flex items-center gap-3 text-red-500">تصفير النقاط <Trash2 className="w-6 h-6" /></h3>
+                <span className="rounded-full bg-white/5 px-4 py-2 text-sm text-slate-300">{topUsers.length} مستخدم</span>
+              </div>
+              <div className="mt-6 space-y-4">
+                {topUsers.map((user, index) => (
+                  <div key={user.uid} className="flex items-center justify-between rounded-3xl border border-white/10 bg-slate-950/90 p-4">
+                    <div>
+                      <p className="font-black">#{index + 1} {user.displayName || 'مستخدم مجهول'}</p>
+                      <p className="text-xs text-slate-500">@{user.username || 'غير محدد'}</p>
                     </div>
-                    <p className="text-xs text-foreground/40 font-bold">سيقوم هذا الإجراء بحذف جميع نقاط المستخدمين والبدء من جديد (Leaderboard Reset).</p>
-                    <button 
-                        onClick={handleResetLeaderboard}
-                        disabled={isResetting}
-                        className="w-full py-4 bg-red-500 text-white rounded-2xl font-black shadow-lg shadow-red-500/20 hover:scale-105 transition-all flex items-center justify-center gap-2"
-                    >
-                        {isResetting ? <Loader2 className="w-5 h-5 animate-spin" /> : <AlertTriangle className="w-5 h-5" />}
-                        تصفير نقاط جميع المستخدمين
-                    </button>
-                </div>
-             </div>
-          </>
-        )}
-
-        {activeTab === "showcase" && (
-          <div className="bg-card border border-border rounded-[3.5rem] shadow-2xl overflow-hidden">
-             <div className="p-8 border-b border-border flex items-center justify-between">
-                <h3 className="text-2xl font-black flex items-center gap-3">معرض المجتمع <Star className="w-6 h-6 text-primary" /></h3>
-                <button onClick={fetchShowcaseItems} className="p-4 bg-foreground/5 rounded-2xl">
-                    <RefreshCw className="w-5 h-5" />
-                </button>
-             </div>
-             <div className="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {showcaseItems.length === 0 ? (
-                  <div className="col-span-full p-20 text-center text-foreground/10 font-black text-3xl italic uppercase">Showcase is Empty</div>
-                ) : (
-                  showcaseItems.map(item => (
-                    <div key={item.id} className="bg-foreground/[0.02] border border-border rounded-[2.5rem] overflow-hidden group hover:border-primary/20 transition-all flex flex-col">
-                       <div className="aspect-video relative bg-black flex items-center justify-center p-4">
-                          <a href={item.videoUrl} target="_blank" rel="noreferrer" className="text-primary font-black hover:underline text-center">{item.surahName}</a>
-                       </div>
-                       <div className="p-6 flex items-center justify-between">
-                          <div className="flex flex-col">
-                             <span className="font-black text-sm">{item.userName}</span>
-                             <span className="text-[10px] text-foreground/30">{item.surahName}</span>
-                          </div>
-                          <button onClick={() => handleDeleteShowcaseItem(item.id)} className="p-3 bg-red-500/10 text-red-500 rounded-xl">
-                             <Trash2 className="w-4 h-4" />
-                          </button>
-                       </div>
-                    </div>
-                  ))
-                )}
-             </div>
+                    <span className="rounded-full bg-primary/10 px-4 py-2 text-sm font-black text-primary">{user.totalPoints || 0}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
-        {activeTab === "settings" && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="bg-card border border-border p-8 rounded-[3rem] shadow-lg space-y-8">
-                    <h3 className="text-xl font-bold flex items-center gap-3">إعدادات الدفع <Phone className="w-5 h-5 text-primary" /></h3>
-                    <div className="space-y-4">
-                        <div className="space-y-2 text-right">
-                            <label className="text-[10px] font-black text-foreground/30 uppercase mr-4">رقم فودافون كاش</label>
-                            <input 
-                                value={paymentSettings.vodafoneCash} 
-                                onChange={e => setPaymentSettings({...paymentSettings, vodafoneCash: e.target.value})}
-                                className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 font-bold"
-                                placeholder="010XXXXXXXX"
-                            />
-                        </div>
-                        <div className="space-y-2 text-right">
-                            <label className="text-[10px] font-black text-foreground/30 uppercase mr-4">يوزر انستا باي (Instapay ID)</label>
-                            <input 
-                                value={paymentSettings.instapay} 
-                                onChange={e => setPaymentSettings({...paymentSettings, instapay: e.target.value})}
-                                className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/40 font-bold"
-                                placeholder="username@instapay"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-card border border-border p-8 rounded-[3rem] shadow-lg space-y-8">
-                    <h3 className="text-xl font-bold flex items-center gap-3">إدارة الأسعار (ج.م) <Trophy className="w-5 h-5 text-primary" /></h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="space-y-2 text-right">
-                            <label className="text-[10px] font-black text-foreground/30 uppercase">خطة الهواة</label>
-                            <input 
-                                type="number"
-                                value={paymentSettings.priceStarter} 
-                                onChange={e => setPaymentSettings({...paymentSettings, priceStarter: parseInt(e.target.value)})}
-                                className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-4 text-center outline-none focus:border-primary/40 font-black text-xl"
-                            />
-                        </div>
-                        <div className="space-y-2 text-right">
-                            <label className="text-[10px] font-black text-foreground/30 uppercase">ادعم المشروع</label>
-                            <input 
-                                type="number"
-                                value={paymentSettings.priceSupporter} 
-                                onChange={e => setPaymentSettings({...paymentSettings, priceSupporter: parseInt(e.target.value)})}
-                                className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-4 text-center outline-none focus:border-primary/40 font-black text-xl"
-                            />
-                        </div>
-                        <div className="space-y-2 text-right">
-                            <label className="text-[10px] font-black text-foreground/30 uppercase">البريميوم</label>
-                            <input 
-                                type="number"
-                                value={paymentSettings.pricePremium} 
-                                onChange={e => setPaymentSettings({...paymentSettings, pricePremium: parseInt(e.target.value)})}
-                                className="w-full bg-foreground/5 border border-border rounded-2xl py-4 px-4 text-center outline-none focus:border-primary/40 font-black text-xl"
-                            />
-                        </div>
-                    </div>
-                    <button 
-                        onClick={handleSavePaymentSettings}
-                        disabled={isSavingSettings}
-                        className="w-full py-5 bg-primary text-black rounded-2xl font-black shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all"
-                    >
-                        {isSavingSettings ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : "حفظ جميع الإعدادات والأسعار"}
-                    </button>
-                </div>
+        {activeTab === 'showcase' && (
+          <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-6 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+            <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-6">
+              <div>
+                <h2 className="text-2xl font-black">معرض المجتمع</h2>
+                <p className="text-sm text-slate-400">تحكم في محتوى العرض، أضف أو احذف العناصر بسرعة.</p>
+              </div>
+              <button onClick={fetchShowcaseItems} className="rounded-3xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-slate-100 hover:bg-white/10 transition">تحديث العرض</button>
             </div>
-        )}
-
-        {activeTab === "subs" && (
-            <div className="bg-card border border-border rounded-[3rem] overflow-hidden">
-                <table className="w-full text-right">
-                    <thead>
-                        <tr className="bg-foreground/5 text-[10px] font-black uppercase border-b border-border">
-                            <th className="p-6">المستخدم</th>
-                            <th className="p-6">الخطة</th>
-                            <th className="p-6">المبلغ</th>
-                            <th className="p-6">رابط المنصة</th>
-                            <th className="p-6">الإجراء</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {subRequests.map(r => (
-                            <tr key={r.id} className="border-b border-border/50">
-                                <td className="p-6">
-                                    <div className="flex flex-col">
-                                       <span className="font-bold">{r.userName}</span>
-                                       <span className="text-[10px] text-foreground/40">{r.senderInfo}</span>
-                                    </div>
-                                 </td>
-                                 <td className="p-6">
-                                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold">{r.plan}</span>
-                                 </td>
-                                 <td className="p-6 font-black text-emerald-500">{r.amount || "---"} ج.م</td>
-                                 <td className="p-6">
-                                    {r.platformLink ? (
-                                       <a href={r.platformLink} target="_blank" rel="noreferrer" className="text-primary hover:underline text-[10px] font-bold">فتح الرابط</a>
-                                    ) : "---"}
-                                 </td>
-                                 <td className="p-6">
-                                    <div className="flex gap-2">
-                                        {r.status === 'pending' && (
-                                           <div className="flex flex-col gap-2">
-                                              <button onClick={() => handleActionSubscription(r.id, r.userId, r.plan, 'approve')} className="bg-emerald-500 text-black px-6 py-2.5 rounded-xl text-[10px] font-black w-full shadow-lg shadow-emerald-500/20 active:scale-95 transition-all">تفعيل الحساب</button>
-                                           </div>
-                                        )}
-                                        {r.status === 'approved' && (
-                                           <button onClick={() => handleAddToShowcase(r.platformLink, r.userName, r.surahName || "سورة")} className="bg-primary/20 text-primary px-4 py-2 rounded-xl text-[10px] font-black">إضافة للمعرض</button>
-                                        )}
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {showcaseItems.length === 0 ? (
+                <div className="col-span-full rounded-[2rem] border border-dashed border-white/10 bg-slate-950/90 p-16 text-center text-slate-500">لا يوجد عناصر في المعرض حالياً.</div>
+              ) : (
+                showcaseItems.map(item => (
+                  <div key={item.id} className="rounded-[2rem] border border-white/10 bg-slate-950/90 overflow-hidden shadow-lg shadow-black/20">
+                    <div className="aspect-video bg-black p-4 flex items-center justify-center">
+                      <a href={item.videoUrl} target="_blank" rel="noreferrer" className="text-primary font-black hover:underline">{item.surahName}</a>
+                    </div>
+                    <div className="p-5 flex items-center justify-between gap-4">
+                      <div>
+                        <p className="font-black">{item.userName}</p>
+                        <p className="text-xs text-slate-500">{item.surahName}</p>
+                      </div>
+                      <button onClick={() => handleDeleteShowcaseItem(item.id)} className="rounded-2xl bg-red-500/10 px-3 py-2 text-red-400 transition hover:bg-red-500/20">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
+          </div>
         )}
 
-        {activeTab === "quests" && (
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-card border border-border p-8 rounded-[3rem]">
-                 <h3 className="text-xl font-bold mb-6">إضافة مهمة</h3>
-                 <form onSubmit={handleAddQuest} className="space-y-4">
-                    <input value={questTitle} onChange={e => setQuestTitle(e.target.value)} className="w-full bg-foreground/5 p-4 rounded-2xl outline-none" placeholder="عنوان المهمة" />
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                       <div className="space-y-1">
-                          <label className="text-[10px] font-black text-foreground/30 mr-2 uppercase">نوع المهمة (Quest Type)</label>
-                          <select 
-                             value={questTarget} onChange={e => setQuestTarget(e.target.value)}
-                             className="w-full bg-foreground/5 border border-border rounded-xl p-3 text-right font-bold text-xs"
-                          >
-                             <option value="mushaf">📖 قراءة (الآية اليومية)</option>
-                             <option value="mushaf-full">📱 المصحف الرقمي الكامل</option>
-                             <option value="daily">📿 الأذكار والورد اليومي</option>
-                             <option value="video">🎬 استوديو تصميم الفيديو</option>
-                             <option value="surah">🎧 استماع لسورة معينة</option>
-                             <option value="rank">🏆 لوحة المتصدرين</option>
-                          </select>
-                       </div>
-                       <div className="space-y-1">
-                          <label className="text-[10px] font-black text-foreground/30 mr-2 uppercase">النقاط المكافئة</label>
-                          <input 
-                             type="number" value={questPoints} onChange={e => setQuestPoints(parseInt(e.target.value))}
-                             className="w-full bg-foreground/5 border border-border rounded-xl p-3 text-center font-black"
-                          />
-                       </div>
+        {activeTab === 'settings' && (
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+              <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+                <h2 className="text-2xl font-black">إعدادات الدفع</h2>
+                <Phone className="h-6 w-6 text-primary" />
+              </div>
+              <div className="mt-6 grid gap-5">
+                <div className="space-y-2 text-right">
+                  <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">رقم فودافون كاش</label>
+                  <input
+                    value={paymentSettings.vodafoneCash}
+                    onChange={e => setPaymentSettings({ ...paymentSettings, vodafoneCash: e.target.value })}
+                    className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-right text-sm outline-none focus:border-primary/40"
+                    placeholder="010XXXXXXXX"
+                  />
+                </div>
+                <div className="space-y-2 text-right">
+                  <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">يوزر إنستا باي</label>
+                  <input
+                    value={paymentSettings.instapay}
+                    onChange={e => setPaymentSettings({ ...paymentSettings, instapay: e.target.value })}
+                    className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-right text-sm outline-none focus:border-primary/40"
+                    placeholder="username@instapay"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+              <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+                <h2 className="text-2xl font-black">إدارة الأسعار</h2>
+                <Trophy className="h-6 w-6 text-primary" />
+              </div>
+              <div className="mt-6 grid gap-4 md:grid-cols-3">
+                <div className="space-y-2 text-right">
+                  <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">خطة الهواة</label>
+                  <input
+                    type="number"
+                    value={paymentSettings.priceStarter}
+                    onChange={e => setPaymentSettings({ ...paymentSettings, priceStarter: parseInt(e.target.value) })}
+                    className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-center text-sm outline-none focus:border-primary/40"
+                  />
+                </div>
+                <div className="space-y-2 text-right">
+                  <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">ادعم المشروع</label>
+                  <input
+                    type="number"
+                    value={paymentSettings.priceSupporter}
+                    onChange={e => setPaymentSettings({ ...paymentSettings, priceSupporter: parseInt(e.target.value) })}
+                    className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-center text-sm outline-none focus:border-primary/40"
+                  />
+                </div>
+                <div className="space-y-2 text-right">
+                  <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">البريميوم</label>
+                  <input
+                    type="number"
+                    value={paymentSettings.pricePremium}
+                    onChange={e => setPaymentSettings({ ...paymentSettings, pricePremium: parseInt(e.target.value) })}
+                    className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-center text-sm outline-none focus:border-primary/40"
+                  />
+                </div>
+              </div>
+              <button
+                onClick={handleSavePaymentSettings}
+                disabled={isSavingSettings}
+                className="mt-8 w-full rounded-3xl bg-gradient-to-r from-sky-400 to-violet-500 px-5 py-4 text-black font-black transition hover:shadow-xl hover:shadow-sky-500/20"
+              >
+                {isSavingSettings ? <Loader2 className="inline-block h-5 w-5 animate-spin" /> : 'حفظ الإعدادات'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'subs' && (
+          <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-6 shadow-[0_35px_120px_rgba(15,23,42,0.18)] overflow-x-auto">
+            <h2 className="text-2xl font-black">طلبات الاشتراك</h2>
+            <div className="mt-6 min-w-[900px]">
+              <table className="w-full text-right">
+                <thead>
+                  <tr className="text-[10px] uppercase tracking-[0.18em] text-slate-400 border-b border-white/10">
+                    <th className="p-5">المستخدم</th>
+                    <th className="p-5">الخطة</th>
+                    <th className="p-5">المبلغ</th>
+                    <th className="p-5">رابط المنصة</th>
+                    <th className="p-5">الإجراء</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/10">
+                  {subRequests.map(r => (
+                    <tr key={r.id} className="hover:bg-white/5 transition-colors">
+                      <td className="p-5">
+                        <div className="space-y-1 text-right">
+                          <p className="font-black">{r.userName}</p>
+                          <p className="text-xs text-slate-500">{r.senderInfo}</p>
+                        </div>
+                      </td>
+                      <td className="p-5">
+                        <span className="inline-flex rounded-full bg-primary/10 px-3 py-1 text-[11px] font-black text-primary">{r.plan}</span>
+                      </td>
+                      <td className="p-5 font-black text-emerald-400">{r.amount || '---'} ج.م</td>
+                      <td className="p-5">
+                        {r.platformLink ? (
+                          <a href={r.platformLink} target="_blank" rel="noreferrer" className="text-sky-400 hover:underline">فتح</a>
+                        ) : '---'}
+                      </td>
+                      <td className="p-5">
+                        <div className="flex flex-wrap gap-2 justify-end">
+                          {r.status === 'pending' ? (
+                            <button onClick={() => handleActionSubscription(r.id, r.userId, r.plan, 'approve')} className="rounded-3xl bg-emerald-500 px-4 py-2 text-[11px] font-black text-black transition hover:opacity-90">تفعيل</button>
+                          ) : (
+                            <button onClick={() => handleAddToShowcase(r.platformLink, r.userName, r.surahName || 'سورة')} className="rounded-3xl border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-black text-slate-100 transition hover:bg-white/10">إضافة معرض</button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'quests' && (
+          <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+              <h2 className="text-2xl font-black mb-6">إنشاء مهمة جديدة</h2>
+              <form onSubmit={handleAddQuest} className="space-y-5">
+                <input value={questTitle} onChange={e => setQuestTitle(e.target.value)} className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-right outline-none" placeholder="عنوان المهمة" />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <label className="text-xs uppercase tracking-[0.18em] text-slate-400">نوع المهمة</label>
+                    <select value={questTarget} onChange={e => setQuestTarget(e.target.value)} className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 outline-none text-right">
+                      <option value="mushaf">📖 قراءة (الآية اليومية)</option>
+                      <option value="mushaf-full">📱 المصحف الرقمي الكامل</option>
+                      <option value="daily">📿 الأذكار والورد اليومي</option>
+                      <option value="video">🎬 استوديو تصميم الفيديو</option>
+                      <option value="surah">🎧 استماع لسورة معينة</option>
+                      <option value="rank">🏆 لوحة المتصدرين</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs uppercase tracking-[0.18em] text-slate-400">النقاط</label>
+                    <input type="number" value={questPoints} onChange={e => setQuestPoints(parseInt(e.target.value))} className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-center outline-none" />
+                  </div>
+                </div>
+                {questTarget === 'surah' && (
+                  <div className="space-y-3 rounded-3xl border border-white/10 bg-slate-950/90 p-4">
+                    <label className="text-xs uppercase tracking-[0.18em] text-slate-400">رقم السورة</label>
+                    <div className="flex gap-3">
+                      <input type="number" min="1" max="114" value={questSurahId} onChange={e => setQuestSurahId(e.target.value)} className="w-28 rounded-3xl border border-white/10 bg-slate-900/80 p-4 text-center outline-none" />
+                      <div className="flex-1 rounded-3xl bg-slate-900/80 p-4">
+                        <span className="text-sm text-slate-400">{surahsData.find(s => s.id === parseInt(questSurahId))?.name ? `سورة ${surahsData.find(s => s.id === parseInt(questSurahId))?.name}` : 'رقم غير صحيح'}</span>
+                      </div>
                     </div>
-                    {questTarget === 'surah' && (
-                       <div className="space-y-1 animate-in slide-in-from-top-2">
-                          <label className="text-[10px] font-black text-foreground/30 mr-2 uppercase">رقم السورة (1-114)</label>
-                          <div className="flex gap-2">
-                             <input 
-                                type="number" min="1" max="114" value={questSurahId} onChange={e => setQuestSurahId(e.target.value)}
-                                className="w-24 bg-foreground/5 border border-border rounded-xl p-4 text-center font-black text-xl text-primary"
-                             />
-                             <div className="flex-1 bg-foreground/5 border border-border rounded-xl p-4 flex items-center justify-center">
-                                <span className="text-primary font-black text-lg">
-                                    {surahsData.find(s => s.id === parseInt(questSurahId))?.name 
-                                      ? `سورة ${surahsData.find(s => s.id === parseInt(questSurahId))?.name}` 
-                                      : "رقم غير صحيح"}
-                                </span>
-                             </div>
-                          </div>
-                       </div>
-                    )}
-                    <button type="submit" disabled={isAddingQuest} className="w-full py-5 bg-primary text-black rounded-2xl font-black shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
-                       {isAddingQuest ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "نشر المهمة للجميع ✅"}
-                    </button>
-                 </form>
-              </div>
-              <div className="bg-card border border-border p-8 rounded-[3rem] space-y-4">
-                 {activeQuests.map(q => (
-                    <div key={q.id} className="flex items-center justify-between p-4 bg-foreground/5 rounded-2xl">
-                       <p className="font-bold">{q.title}</p>
-                       <button onClick={() => handleDeleteQuest(q.id)} className="text-red-500"><Trash2 className="w-4 h-4" /></button>
+                  </div>
+                )}
+                <button type="submit" disabled={isAddingQuest} className="w-full rounded-3xl bg-gradient-to-r from-sky-400 to-violet-500 px-5 py-4 text-black font-black transition hover:shadow-xl hover:shadow-sky-500/30">
+                  {isAddingQuest ? <Loader2 className="inline-block h-5 w-5 animate-spin" /> : 'نشر المهمة'}
+                </button>
+              </form>
+            </div>
+            <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+              <h2 className="text-2xl font-black mb-6">المهام الحالية</h2>
+              <div className="space-y-4">
+                {activeQuests.map(q => (
+                  <div key={q.id} className="flex items-center justify-between rounded-3xl border border-white/10 bg-slate-950/90 p-4">
+                    <div>
+                      <p className="font-black">{q.title}</p>
+                      <p className="text-xs text-slate-500">{q.target}</p>
                     </div>
-                 ))}
+                    <button onClick={() => handleDeleteQuest(q.id)} className="rounded-3xl border border-red-500/20 px-4 py-2 text-red-400 transition hover:bg-red-500/10">حذف</button>
+                  </div>
+                ))}
               </div>
-           </div>
+            </div>
+          </div>
         )}
 
-        {activeTab === "users" && (
-           <div className="bg-card border border-border rounded-[3rem] overflow-hidden">
-              <div className="p-6 border-b border-border">
-                 <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-foreground/5 p-4 rounded-2xl outline-none" placeholder="ابحث عن مستخدم..." />
+        {activeTab === 'users' && (
+          <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-6 shadow-[0_35px_120px_rgba(15,23,42,0.18)] overflow-x-auto">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-2xl font-black">قائمة المستخدمين</h2>
+                <p className="text-sm text-slate-400">ابحث وتابع حالة المستخدمين بسرعة.</p>
               </div>
-              <div className="overflow-x-auto">
-                  <table className="w-full text-right">
-                     <thead>
-                        <tr className="bg-foreground/5 text-[10px] font-black uppercase border-b border-border text-foreground/40">
-                           <th className="p-6">المستخدم (الاسم واليوزر)</th>
-                           <th className="p-6">رقم الهاتف</th>
-                           <th className="p-6">الدولة</th>
-                           <th className="p-6">إجمالي النقاط</th>
-                           <th className="p-6">إدارة الحساب</th>
-                        </tr>
-                     </thead>
-                     <tbody className="divide-y divide-border">
-                        {filteredUsers.map(u => (
-                           <tr key={u.uid} className="hover:bg-foreground/5 transition-colors">
-                              <td className="p-6">
-                                 <div className="flex flex-col">
-                                    <span className="font-bold text-sm">{u.displayName || "بدون اسم"}</span>
-                                    <span className="text-[10px] text-primary font-mono">@{u.username || "no_username"}</span>
-                                 </div>
-                              </td>
-                              <td className="p-6">
-                                 <span className="font-mono text-xs text-foreground/60">{u.phoneNumber || "---"}</span>
-                              </td>
-                              <td className="p-6">
-                                 <span className="text-xs font-bold text-foreground/60">{u.governorate || "---"}</span>
-                              </td>
-                              <td className="p-6">
-                                 <div className="flex items-center gap-2">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                                    <span className="font-black text-primary">{u.totalPoints || 0}</span>
-                                 </div>
-                              </td>
-                              <td className="p-6">
-                                 <button 
-                                    onClick={() => handleBanUser(u.uid, u.isBanned)} 
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black transition-all ${
-                                       u.isBanned ? 'bg-emerald-500 text-black' : 'bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white'
-                                    }`}
-                                 >
-                                    {u.isBanned ? (
-                                       <><CheckCircle className="w-4 h-4" /> فك الحظر</>
-                                    ) : (
-                                       <><Ban className="w-4 h-4" /> حظر المستخدم</>
-                                    )}
-                                 </button>
-                              </td>
-                           </tr>
-                        ))}
-                     </tbody>
-                  </table>
-              </div>
-           </div>
+              <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-right outline-none" placeholder="ابحث عن مستخدم..." />
+            </div>
+            <div className="mt-6 min-w-[900px]">
+              <table className="w-full text-right">
+                <thead>
+                  <tr className="text-[10px] uppercase tracking-[0.18em] text-slate-400 border-b border-white/10">
+                    <th className="p-5">المستخدم</th>
+                    <th className="p-5">الهاتف</th>
+                    <th className="p-5">الدولة</th>
+                    <th className="p-5">النقاط</th>
+                    <th className="p-5">الحالة</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/10">
+                  {filteredUsers.map(u => (
+                    <tr key={u.uid} className="hover:bg-white/5 transition-colors">
+                      <td className="p-5">
+                        <div className="space-y-1 text-right">
+                          <p className="font-black">{u.displayName || 'بدون اسم'}</p>
+                          <p className="text-xs text-slate-500">@{u.username || 'no_username'}</p>
+                        </div>
+                      </td>
+                      <td className="p-5"><span className="text-xs text-slate-300">{u.phoneNumber || '---'}</span></td>
+                      <td className="p-5"><span className="text-xs text-slate-300">{u.governorate || '---'}</span></td>
+                      <td className="p-5">
+                        <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-2 text-sm font-black text-primary">{u.totalPoints || 0}</span>
+                      </td>
+                      <td className="p-5">
+                        <button onClick={() => handleBanUser(u.uid, u.isBanned)} className={`rounded-3xl px-4 py-2 text-[11px] font-black transition ${u.isBanned ? 'bg-emerald-500 text-black' : 'bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white'}`}>
+                          {u.isBanned ? <><CheckCircle className="inline h-4 w-4" /> فك الحظر</> : <><Ban className="inline h-4 w-4" /> حظر</>}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         )}
-
       </div>
     </div>
   );
