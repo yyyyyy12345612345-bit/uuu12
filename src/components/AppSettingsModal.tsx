@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { X, Settings, Info, Instagram } from "lucide-react";
+import { X, Settings, Info } from "lucide-react";
 
 interface AppSettingsModalProps {
   isOpen: boolean;
@@ -62,7 +62,11 @@ export function AppSettingsModal({ isOpen, onClose }: AppSettingsModalProps) {
             rel="noopener noreferrer"
             className="mt-4 flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-500/20 text-pink-500 rounded-xl hover:bg-pink-500/20 hover:scale-105 active:scale-95 transition-all font-black text-xs"
           >
-            <Instagram className="w-4 h-4" />
+            <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            </svg>
             تواصل معي على إنستقرام
           </a>
         </div>
