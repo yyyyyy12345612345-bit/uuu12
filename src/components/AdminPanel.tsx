@@ -51,11 +51,7 @@ export function AdminPanel() {
   const [announcement, setAnnouncement] = useState("");
   const [isSettingAnnouncement, setIsSettingAnnouncement] = useState(false);
   
-  // Push Notification State
-  const [pushTitle, setPushTitle] = useState("");
-  const [pushBody, setPushBody] = useState("");
-  const [isSendingPush, setIsSendingPush] = useState(false);
-  
+
   // Login Form State
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
