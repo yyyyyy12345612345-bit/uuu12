@@ -18,7 +18,7 @@ WORKDIR /app
 
 COPY --chown=user requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-RUN python -m playwright install --with-deps chromium firefox webkit
+RUN python -m playwright install chromium firefox webkit
 
 COPY --chown=user . .
 
