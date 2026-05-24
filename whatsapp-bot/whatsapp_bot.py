@@ -2,185 +2,201 @@ import asyncio
 import random
 import os
 from datetime import datetime
-from playwright.async_api import async_playwright
+from playwright.async_api import async_playwright, TimeoutError as PwTimeout
 
+# ── Extreme stealth script ──────────────────────────────────────────
+EXTREME_STEALTH = """
+// Remove webdriver
+Object.defineProperty(navigator, 'webdriver', { get: () => false });
 
-# ── Stealth script: tricks WhatsApp into thinking it's a real browser ──────
-STEALTH_SCRIPT = """
-// Override webdriver property
-Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+// Chrome
+window.chrome = { runtime: {}, loadTimes: () => {}, csi: () => {}, app: {} };
+navigator.plugins = { length: 5, item: () => null, namedItem: () => null, refresh: () => {} };
+navigator.mimeTypes = { length: 10 };
 
-// Override plugins
-Object.defineProperty(navigator, 'plugins', {
-  get: () => [1, 2, 3, 4, 5],
-});
-Object.defineProperty(navigator, 'mimeTypes', {
-  get: () => Array(10).fill({}),
-});
+// Languages
+Object.defineProperty(navigator, 'languages', { get: () => ['ar-SA', 'ar', 'en-US', 'en'] });
 
-// Override languages
-Object.defineProperty(navigator, 'languages', {
-  get: () => ['ar-SA', 'ar', 'en-US'],
-});
+// Permissions
+const origQuery = navigator.permissions.query.bind(navigator.permissions);
+navigator.permissions.query = (p) => p.name === 'notifications'
+  ? Promise.resolve({ state: 'prompt' }) : origQuery(p);
 
-// Override chrome object
-window.chrome = {
-  runtime: {},
-  loadTimes: function() {},
-  csi: function() {},
-  app: {},
-};
+// WebGL vendor
+WebGLRenderingContext.prototype.getParameter = (function(orig) {
+  return function(p) {
+    if (p === 37445) return 'Intel Inc.';
+    if (p === 37446) return 'Intel Iris OpenGL Engine';
+    return orig(p);
+  };
+})(WebGLRenderingContext.prototype.getParameter);
 
-// Override permissions
-const originalQuery = window.navigator.permissions.query;
-window.navigator.permissions.query = (params) => (
-  params.name === 'notifications' ?
-    Promise.resolve({ state: 'prompt', onchange: null }) :
-    originalQuery(params)
-);
-
-// Override webgl vendor
-const getParameter = WebGLRenderingContext.prototype.getParameter;
-WebGLRenderingContext.prototype.getParameter = function(param) {
-  if (param === 37445) return 'Intel Inc.';
-  if (param === 37446) return 'Intel Iris OpenGL Engine';
-  return getParameter(param);
-};
+// Navigator properties
+navigator.hardwareConcurrency = 8;
+navigator.deviceMemory = 8;
+navigator.maxTouchPoints = 0;
 """
 
 
 def generate_safe_message(otp_code: str, reason: str = "التحقق من الحساب") -> str:
     now = datetime.now()
-
     greetings = [
-        "السلام عليكم ورحمة الله وبركاته",
-        "السلام عليكم", "أهلاً بك", "مرحباً", "أهلاً وسهلاً",
-        "مرحباً صديقي", "تحية طيبة", "صباح الخير", "مساء الخير",
+        "السلام عليكم ورحمة الله وبركاته", "السلام عليكم",
+        "أهلاً بك", "مرحباً", "أهلاً وسهلاً",
     ]
-
-    all_emojis = [
-        "📖", "✨", "🌟", "🌸", "💫", "🌙", "⭐", "🕋", "🕌",
-        "🤲", "☀️", "🌺", "🍃", "💎", "🔷", "🌿", "💠", "🪷",
-    ]
-
+    emojis = ["📖", "✨", "🌟", "🌸", "💫", "🌙", "⭐", "🕋", "🕌", "🤲", "🍃", "💎"]
     otp_templates = [
         f"رمز التحقق: {otp_code}",
         f"كود التفعيل: {otp_code}",
         f"استخدم هذا الرقم: {otp_code}",
-        f"كود الدخول: {otp_code}",
-        f"رمز الأمان: {otp_code}",
         f"رقم التحقق: *{otp_code}*",
-        f"تفعيل الحساب - الرمز: {otp_code}",
     ]
-
     closings = [
         "⚠️ رمز لمرة واحدة، لا تشاركه.",
         "🔒 لا تشارك هذا الرمز مع أحد.",
         "⏳ صالح لمدة 5 دقائق.",
-        "📢 إشعار آلي من موقع القرآن.",
         "🙏 جزاك الله خيراً.",
     ]
-
-    style = random.randint(1, 4)
-    greeting = random.choice(greetings)
-    e1, e2 = random.sample(all_emojis, 2)
-    otp_line = random.choice(otp_templates)
-    closing = random.choice(closings)
-    ts = now.strftime("%I:%M:%S %p")
-
-    styles = [
-        f"{greeting} {e1}\n\n{otp_line}\n\n{closing}\n⏱️ {ts}",
-        f"{greeting}\n{otp_line} {e1}\n\n{closing}",
-        f"{e1} {greeting}\n{otp_line}\n{closing}",
-        f"{greeting}\n━━━\n{otp_line}\n━━━\n{closing}\n{e2}",
-    ]
-    return styles[style - 1]
+    g = random.choice(greetings)
+    e1, e2 = random.sample(emojis, 2)
+    o = random.choice(otp_templates)
+    c = random.choice(closings)
+    return f"{g} {e1}\n\n{o}\n\n{c}\n⏱️ {now.strftime('%I:%M:%S %p')} {e2}"
 
 
-async def send_whatsapp_otp(phone_number: str, otp_code: str, reason: str = "التحقق من الحساب") -> tuple[bool, str]:
-    if os.path.exists("qr_code.png"):
-        os.remove("qr_code.png")
+async def _try_capture_qr(browser_type: str, engine, phone_number: str, message: str) -> tuple[bool, str]:
+    """Try to capture QR using a specific browser engine."""
+    qr_path = "qr_code.png"
+    if os.path.exists(qr_path):
+        os.remove(qr_path)
 
-    await asyncio.sleep(random.randint(3, 10))
-    message = generate_safe_message(otp_code, reason)
-    viewport = random.choice([
-        {"width": 1920, "height": 1080},
-        {"width": 1366, "height": 768},
-        {"width": 1440, "height": 900},
-    ])
-    ua = random.choice([
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-    ])
+    viewport = {"width": 1280, "height": 800}
+    ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
 
-    async with async_playwright() as p:
-        context = await p.chromium.launch_persistent_context(
-            user_data_dir="./whatsapp_session",
-            headless=True,
-            viewport=viewport,
-            user_agent=ua,
-            locale="ar-SA",
-            timezone_id="Asia/Riyadh",
-            args=["--disable-blink-features=AutomationControlled"],
-        )
-        page = await context.new_page()
-        await page.mouse.move(random.randint(0, 500), random.randint(0, 500))
+    browser = None
+    context = None
+    page = None
 
-        # Inject stealth scripts before any navigation
-        await page.add_init_script(STEALTH_SCRIPT)
+    try:
+        if browser_type == "firefox":
+            browser = await engine.launch(headless=True)
+            context = await browser.new_context(
+                viewport=viewport, user_agent=ua, locale="ar-SA",
+                timezone_id="Asia/Riyadh",
+            )
+            page = await context.new_page()
+        else:
+            context = await engine.launch_persistent_context(
+                user_data_dir="./whatsapp_session",
+                headless=True,
+                viewport=viewport,
+                user_agent=ua,
+                locale="ar-SA",
+                timezone_id="Asia/Riyadh",
+                args=["--disable-blink-features=AutomationControlled"],
+            )
+            page = await context.new_page()
+            if browser_type == "chromium":
+                await context.add_init_script(EXTREME_STEALTH)
 
-        # Check if we have a session by looking for session files
+        # Check if we have a valid session
         has_session = False
         session_path = "./whatsapp_session"
         if os.path.exists(session_path):
-            for f in os.listdir(session_path):
-                if any(x in f.lower() for x in ["default", "session", "cookie", "localstorage"]):
-                    fpath = os.path.join(session_path, f)
-                    if os.path.isfile(fpath) and os.path.getsize(fpath) > 100:
+            for root, dirs, files in os.walk(session_path):
+                for f in files:
+                    fp = os.path.join(root, f)
+                    if os.path.isfile(fp) and os.path.getsize(fp) > 100:
                         has_session = True
                         break
 
         if has_session:
-            await page.goto(f"https://web.whatsapp.com/send?phone={phone_number}")
+            await page.goto(
+                f"https://web.whatsapp.com/send?phone={phone_number}",
+                wait_until="domcontentloaded", timeout=40000,
+            )
             try:
                 chat = await page.wait_for_selector("div[contenteditable='true']", timeout=30000)
                 await chat.click()
-                await asyncio.sleep(0.5)
-                # Type like human
+                await asyncio.sleep(0.3)
                 for char in message:
                     await page.keyboard.type(char)
-                    await asyncio.sleep(random.uniform(0.03, 0.12))
-                await asyncio.sleep(0.5)
+                    await asyncio.sleep(random.uniform(0.03, 0.1))
+                await asyncio.sleep(0.3)
                 await page.keyboard.press("Enter")
-                print(f"[Bot] ✅ أُرسل الكود ({reason}) إلى {phone_number}")
-                await context.close()
+                print(f"[Bot] ✅ أُرسل الكود إلى {phone_number}")
                 return True, ""
             except Exception as e:
-                print(f"[Bot] ❌ فشل الإرسال مع وجود جلسة: {e}")
-                await context.close()
+                print(f"[Bot] ❌ فشل الإرسال مع جلسة: {e}")
                 return False, str(e)
         else:
-            await page.goto("https://web.whatsapp.com")
+            await page.goto("https://web.whatsapp.com", wait_until="domcontentloaded", timeout=40000)
+            await asyncio.sleep(3)
+            await page.wait_for_load_state("networkidle")
+            await asyncio.sleep(2)
+
+            qr_found = False
             try:
-                await page.wait_for_selector("canvas", timeout=30000)
-                await asyncio.sleep(5)
-                await page.wait_for_load_state("networkidle")
-                await asyncio.sleep(2)
-                # Clip to center QR area
+                canvas = await page.wait_for_selector("canvas", timeout=25000)
+                if canvas:
+                    qr_found = True
+            except PwTimeout:
+                pass
+
+            if qr_found:
+                await asyncio.sleep(1)
                 w, h = viewport["width"], viewport["height"]
                 qr_s = min(w, h) // 3
-                await page.screenshot(path="qr_code.png", clip={
-                    "x": (w - qr_s) // 2, "y": (h - qr_s) // 2 - 30,
-                    "width": qr_s, "height": qr_s + 60,
+                await page.screenshot(path=qr_path, clip={
+                    "x": (w - qr_s) // 2, "y": (h - qr_s) // 2 - 20,
+                    "width": qr_s, "height": qr_s + 40,
                 })
-                print(f"[Bot] ✅ QR code captured")
-                await context.close()
+                size = os.path.getsize(qr_path) if os.path.exists(qr_path) else 0
+                print(f"[Bot] ✅ QR captured via {browser_type} ({size} bytes)")
                 return True, "qr_ready"
-            except Exception as e:
-                print(f"[Bot] ❌ QR failed: {e}")
-                try:
-                    await page.screenshot(path="qr_code.png")
-                except:
-                    pass
-                await context.close()
-                return False, str(e)
+            else:
+                await page.screenshot(path="debug.png")
+                body_text = await page.inner_text("body")
+                if "update" in body_text.lower() or "browser" in body_text.lower():
+                    print(f"[Bot] ⚠️ WhatsApp requested browser update on {browser_type}")
+                else:
+                    print(f"[Bot] ❌ No QR canvas found on {browser_type}")
+                return False, "no_qr_canvas"
+
+    except Exception as e:
+        print(f"[Bot] ❌ {browser_type} failed: {e}")
+        return False, str(e)
+    finally:
+        try:
+            await context.close()
+        except:
+            pass
+        try:
+            await browser.close()
+        except:
+            pass
+
+
+async def send_whatsapp_otp(phone_number: str, otp_code: str, reason: str = "التحقق من الحساب") -> tuple[bool, str]:
+    message = generate_safe_message(otp_code, reason)
+
+    async with async_playwright() as p:
+        # 1. Try Chromium first (most compatible)
+        if p.chromium:
+            ok, err = await _try_capture_qr("chromium", p.chromium, phone_number, message)
+            if ok:
+                return ok, err
+
+        # 2. Try Firefox (less detected)
+        if p.firefox:
+            ok, err = await _try_capture_qr("firefox", p.firefox, phone_number, message)
+            if ok:
+                return ok, err
+
+        # 3. Try WebKit (least detected)
+        if p.webkit:
+            ok, err = await _try_capture_qr("webkit", p.webkit, phone_number, message)
+            if ok:
+                return ok, err
+
+    return False, "all_browsers_failed"
