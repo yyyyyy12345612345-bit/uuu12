@@ -200,3 +200,20 @@ async def send_whatsapp_otp(phone_number: str, otp_code: str, reason: str = "ا�
                 return ok, err
 
     return False, "all_browsers_failed"
+
+
+async def generate_qr_only() -> bool:
+    """Just open WhatsApp Web and capture QR — no message sending."""
+    async with async_playwright() as p:
+        for browser_type in ["chromium", "firefox", "webkit"]:
+            engine = getattr(p, browser_type, None)
+            if not engine:
+                continue
+            try:
+                from whatsapp_bot import _try_capture_qr
+                ok, err = await _try_capture_qr(browser_type, engine, "", "")
+                if ok:
+                    return True
+            except Exception as e:
+                print(f"[QR] {browser_type} failed: {e}")
+    return False

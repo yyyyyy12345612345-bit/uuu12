@@ -3,7 +3,7 @@ from fastapi import FastAPI, BackgroundTasks
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from whatsapp_bot import send_whatsapp_otp
+from whatsapp_bot import send_whatsapp_otp, generate_qr_only
 
 app = FastAPI()
 
@@ -43,3 +43,12 @@ def show_qr():
     if os.path.exists("qr_code.png"):
         return FileResponse("qr_code.png")
     return HTMLResponse("<h3>لا يوجد QR حالياً. أرسل طلب كود لتوليد QR جديد.</h3>")
+
+
+@app.get("/generate-qr")
+def trigger_qr(background_tasks: BackgroundTasks):
+    """Generate a fresh QR code without sending any message."""
+    if os.path.exists("qr_code.png"):
+        os.remove("qr_code.png")
+    background_tasks.add_task(generate_qr_only)
+    return {"status": "generating_qr", "message": "جاري توليد QR، افتح /show-qr بعد 15 ثانية"}
