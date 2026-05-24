@@ -107,7 +107,6 @@ export function AuthGate({ children }: AuthGateProps) {
   const [resetPhone, setResetPhone] = useState("");
   const [resetOtp, setResetOtp] = useState("");
   const [signupOtp, setSignupOtp] = useState("");
-  const [generatedOtp, setGeneratedOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [resetUserId, setResetUserId] = useState("");
   const [resetUsername, setResetUsername] = useState("");
@@ -265,10 +264,6 @@ export function AuthGate({ children }: AuthGateProps) {
         const apiData = await apiResponse.json();
 
         if (apiData.success) {
-          setGeneratedOtp(apiData.otp);
-          if (apiData.mock) {
-            alert(`[وضع التطوير]\nتم توليد كود التحقق: ${apiData.otp}`);
-          }
           setView("verifySignupOtp");
           setIsLoggingIn(false);
           return;
@@ -287,13 +282,27 @@ export function AuthGate({ children }: AuthGateProps) {
     }
   };
 
-  const handleVerifySignupOtp = (e: React.FormEvent) => {
+  const handleVerifySignupOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (signupOtp !== generatedOtp) {
-      return setError("الكود غير صحيح، حاول مرة أخرى");
+    setIsLoggingIn(true);
+    try {
+      const res = await fetch("/api/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: formData.phone.trim(), code: signupOtp })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setView("signupAvatar");
+      } else {
+        setError(data.error || "الكود غير صحيح");
+      }
+    } catch {
+      setError("فشل التحقق من الكود");
+    } finally {
+      setIsLoggingIn(false);
     }
-    setView("signupAvatar"); 
   };
 
   const handleFinalSignup = async () => {
@@ -352,28 +361,16 @@ export function AuthGate({ children }: AuthGateProps) {
       setResetUsername(userData.username);
       setRecoveredPassword(userData.encP ? atob(userData.encP) : null);
       
-      // Generate 4 digit OTP
-      const otp = Math.floor(1000 + Math.random() * 9000).toString();
-      setGeneratedOtp(otp);
-      
-      // Store OTP only in local state to bypass Firestore write permission rules for unauthenticated users
-      setGeneratedOtp(otp);
-
-      // Call our API endpoint to send the WhatsApp message
+      // Call API to send OTP via WhatsApp
       const apiResponse = await fetch("/api/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: resetPhone.trim(), otp })
+        body: JSON.stringify({ phone: resetPhone.trim(), reason: "استعادة كلمة المرور" })
       });
       
       const apiData = await apiResponse.json();
 
       if (apiData.success) {
-        if (apiData.mock) {
-          alert(`[وضع التجربة للمطورين]\nتم توليد كود التحقق: ${otp}\n\nيرجى ربط حساب UltraMsg لإرسال رسائل حقيقية للمستخدمين.`);
-        } else {
-          alert("تم إرسال كود التحقق بنجاح إلى رقمك على واتساب ✅");
-        }
         setIsLoggingIn(false);
         setView("verifyOtp");
       } else {
@@ -405,25 +402,17 @@ export function AuthGate({ children }: AuthGateProps) {
       setResetUserId(accountData.uid);
       setResetUsername(accountData.username);
       setRecoveredPassword(accountData.encP ? atob(accountData.encP) : null);
-      
-      const otp = Math.floor(1000 + Math.random() * 9000).toString();
-      setGeneratedOtp(otp);
 
       try {
         const apiResponse = await fetch("/api/send-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone: resetPhone.trim(), otp })
+          body: JSON.stringify({ phone: resetPhone.trim(), reason: "استعادة كلمة المرور" })
         });
         
         const apiData = await apiResponse.json();
 
         if (apiData.success) {
-          if (apiData.mock) {
-            alert(`[وضع التجربة للمطورين]\nتم توليد كود التحقق: ${otp}`);
-          } else {
-            alert("تم إرسال كود التحقق بنجاح إلى رقمك على واتساب ✅");
-          }
           setIsLoggingIn(false);
           setView("verifyOtp");
         } else {
@@ -437,13 +426,27 @@ export function AuthGate({ children }: AuthGateProps) {
     }
   };
 
-  const handleVerifyOtp = (e: React.FormEvent) => {
+  const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (resetOtp !== generatedOtp) {
-      return setError("الكود غير صحيح، حاول مرة أخرى");
+    setIsLoggingIn(true);
+    try {
+      const res = await fetch("/api/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: resetPhone.trim(), code: resetOtp })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setView("resetPassword");
+      } else {
+        setError(data.error || "الكود غير صحيح");
+      }
+    } catch {
+      setError("فشل التحقق من الكود");
+    } finally {
+      setIsLoggingIn(false);
     }
-    setView("resetPassword"); // We reuse the view name but change its UI to show the recovered password
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
