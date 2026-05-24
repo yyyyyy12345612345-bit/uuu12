@@ -4,7 +4,7 @@ RUN apt-get update && apt-get install -y \
     wget ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-RUN useradd -m -u 1000 user
+RUN useradd -m -u 1001 user
 USER user
 ENV PATH="/home/user/.local/bin:$PATH"
 
