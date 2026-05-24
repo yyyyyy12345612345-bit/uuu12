@@ -1,7 +1,7 @@
 FROM node:20-slim
 
 RUN apt-get update && apt-get install -y \
-    wget ca-certificates \
+    wget ca-certificates git \
     && rm -rf /var/lib/apt/lists/*
 
 RUN useradd -m -u 1001 user
