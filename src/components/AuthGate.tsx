@@ -233,7 +233,6 @@ export function AuthGate({ children }: AuthGateProps) {
     setError("");
     if (formData.displayName.trim().length < 2) return setError("يرجى إدخال اسمك بشكل صحيح");
     if (formData.username.trim().length < 3) return setError("الاسم المميز يجب أن يكون 3 أحرف على الأقل");
-    if (formData.phone.trim().length < 10) return setError("يرجى إدخال رقم هاتف صحيح");
     if (formData.password.length < 6) return setError("كلمة المرور 6 أحرف على الأقل");
 
     const hasUpperCase = /[A-Z]/.test(formData.password);
@@ -253,30 +252,24 @@ export function AuthGate({ children }: AuthGateProps) {
       const qUser = query(collection(db, "users"), where("username", "==", formData.username.trim().toLowerCase()));
       const snapUser = await getDocs(qUser);
       if (!snapUser.empty) { setError("الاسم المميز محجوز"); setIsLoggingIn(false); return; }
-      
-      const qPhone = query(collection(db, "users"), where("phoneNumber", "==", formData.phone.trim()));
-      const snapPhone = await getDocs(qPhone);
-      
-      if (!snapPhone.empty) { 
-        // Phone is already registered, so we need to send an OTP
-        const otp = Math.floor(1000 + Math.random() * 9000).toString();
-        setGeneratedOtp(otp); 
-        
+
+      const hasPhone = formData.phone.trim().length >= 10;
+
+      if (hasPhone) {
         const apiResponse = await fetch("/api/send-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone: formData.phone.trim(), otp })
+          body: JSON.stringify({ phone: formData.phone.trim(), reason: "تأكيد رقم الهاتف للتسجيل" })
         });
-        
+
         const apiData = await apiResponse.json();
 
         if (apiData.success) {
+          setGeneratedOtp(apiData.otp);
           if (apiData.mock) {
-            alert(`[وضع التجربة للمطورين]\nتم توليد كود التحقق: ${otp}`);
-          } else {
-            alert("رقم الهاتف مسجل مسبقاً. تم إرسال كود التحقق لإنشاء حساب إضافي ✅");
+            alert(`[وضع التطوير]\nتم توليد كود التحقق: ${apiData.otp}`);
           }
-          setView("verifySignupOtp"); 
+          setView("verifySignupOtp");
           setIsLoggingIn(false);
           return;
         } else {
@@ -285,7 +278,7 @@ export function AuthGate({ children }: AuthGateProps) {
           return;
         }
       }
-      
+
       setView("signupAvatar");
     } catch (err) {
       setError("حدث خطأ أثناء الاتصال");
@@ -755,7 +748,7 @@ export function AuthGate({ children }: AuthGateProps) {
               >
                 <div className="text-center mb-6 w-full">
                   <h2 className="text-3xl font-black text-white">تأكيد رقم الهاتف</h2>
-                  <p className="text-[#d4af37] text-xs mt-2">رقم الهاتف مسجل مسبقاً، أدخل الرمز<br/>المرسل إليك لإنشاء حساب إضافي</p>
+                  <p className="text-[#d4af37] text-xs mt-2">أدخل الرمز المكون من 6 أرقام<br/>المرسل إلى رقمك عبر واتساب</p>
                 </div>
                 
                 <form onSubmit={handleVerifySignupOtp} className="w-full space-y-4">
@@ -888,8 +881,18 @@ export function AuthGate({ children }: AuthGateProps) {
 
                   {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-xs text-center font-bold bg-red-500/10 py-2 rounded-lg">{error}</motion.p>}
                   
-                  <div className="pt-4">
+                  <div className="pt-4 space-y-3">
                     <InteractiveButton type="submit" loading={isLoggingIn} text="التالي" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, phone: "" }));
+                        setView("signupAvatar");
+                      }}
+                      className="w-full py-4 rounded-2xl border border-dashed border-white/10 text-white/30 hover:text-white/60 hover:border-white/20 text-xs font-bold transition-all"
+                    >
+                      تخطي تسجيل رقم الهاتف مؤقتاً ↩️
+                    </button>
                   </div>
                   
                   <button type="button" onClick={() => setView("login")} className="w-full mt-2 text-xs font-bold text-white/30 hover:text-white transition-colors">

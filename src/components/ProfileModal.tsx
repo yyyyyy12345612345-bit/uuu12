@@ -206,6 +206,26 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                         </div>
                      )}
 
+                  {/* Phone alert */}
+                  {formData.phoneNumber.length < 10 && (
+                    <div className="bg-amber-500/10 border border-amber-500/30 rounded-[2rem] p-6 text-center space-y-4">
+                      <div className="flex items-center justify-center gap-3">
+                        <ShieldCheck className="w-6 h-6 text-amber-400" />
+                        <p className="text-amber-400 text-sm font-bold">حسابك غير مؤمن برقم هاتف!</p>
+                      </div>
+                      <p className="text-white/50 text-xs">يرجى ربط رقم هاتفك لتتمكن من استعادة حسابك في حال نسيت كلمة المرور</p>
+                      <div className="relative max-w-xs mx-auto">
+                        <input
+                          type="tel"
+                          value={formData.phoneNumber}
+                          onChange={e => setFormData({ ...formData, phoneNumber: e.target.value })}
+                          placeholder="9665xxxxxxxx"
+                          className="w-full bg-white/5 border border-amber-500/30 rounded-xl py-3 px-4 text-center text-white outline-none focus:border-amber-500 text-sm font-mono"
+                        />
+                      </div>
+                    </div>
+                  )}
+
                   <form onSubmit={handleSave} className="space-y-10">
                      {/* Avatar Selection */}
                      <div className="space-y-6">
