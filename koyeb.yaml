@@ -1,0 +1,23 @@
+name: quran-whatsapp-bot
+region: frankfurt
+services:
+  - name: bot
+    instance_type: nano
+    ports:
+      - port: 8080
+        protocol: http
+    env:
+      - key: PORT
+        value: "8080"
+    routes:
+      - path: /
+    git:
+      branch: main
+      repository: https://github.com/yyyyyy12345612345-bit/uuu12
+    build:
+      context: ./whatsapp-bot
+      dockerfile: ./whatsapp-bot/Dockerfile
+    health_checks:
+      - path: /
+        port: 8080
+        initial_delay_seconds: 30
