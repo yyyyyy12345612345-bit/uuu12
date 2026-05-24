@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   LogIn, Loader2, User, KeyRound, Eye, EyeOff, ShieldCheck, Compass, Check, ArrowLeft, Phone
 } from "lucide-react";
@@ -12,7 +12,7 @@ import {
   User as FirebaseUser
 } from "firebase/auth";
 import { doc, getDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
-import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface AuthGateProps {
   children: React.ReactNode;
@@ -60,32 +60,6 @@ const ARAB_COUNTRIES = [
   { name: "جزر القمر", flag: "🇰🇲" },
   { name: "أخرى", flag: "🌍" }
 ];
-
-// Helper to create a subtle 3D hover effect (safe and clean)
-function useTilt() {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  
-  const rotateX = useTransform(y, [-100, 100], [5, -5]);
-  const rotateY = useTransform(x, [-100, 100], [-5, 5]);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    x.set(e.clientX - centerX);
-    y.set(e.clientY - centerY);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  return { ref, rotateX, rotateY, handleMouseMove, handleMouseLeave };
-}
 
 export function AuthGate({ children }: AuthGateProps) {
   const [user, setUser] = useState<FirebaseUser | null | undefined>(undefined);
@@ -139,8 +113,6 @@ export function AuthGate({ children }: AuthGateProps) {
     window.addEventListener("show_auth_gate", handleShowAuth);
     return () => window.removeEventListener("show_auth_gate", handleShowAuth);
   }, []);
-
-  const tilt = useTilt();
 
   useEffect(() => {
     if (!auth) return;
@@ -488,78 +460,26 @@ export function AuthGate({ children }: AuthGateProps) {
 
   if (user === undefined) {
     return (
-      <div className="fixed inset-0 bg-[#050505] flex items-center justify-center z-[9999]">
-         <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }} className="w-16 h-16 rounded-full border-2 border-transparent border-t-[#d4af37] border-r-[#d4af37] shadow-[0_0_30px_#d4af37]" />
+      <div className="fixed inset-0 bg-[#0a0a0a] flex items-center justify-center z-[9999]">
+         <div className="w-10 h-10 rounded-full border-2 border-transparent border-t-[#d4af37] border-r-[#d4af37] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 font-arabic bg-[#050505] overflow-hidden">
-      {/* --- RICH GRAPHICS & ANIMATIONS BACKGROUND --- */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
-         {/* 1. Pulsing Core Glow */}
-         <motion.div 
-           animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.3, 0.15] }}
-           transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-           className="absolute w-[80vw] h-[80vw] max-w-[900px] max-h-[900px] bg-[radial-gradient(circle,rgba(212,175,55,0.25)_0%,rgba(0,0,0,1)_70%)] rounded-full blur-[80px]"
-         />
-         
-         {/* 2. Slow Spinning Islamic Geometric SVG */}
-         <motion.svg
-            className="absolute w-[150vw] md:w-[100vw] h-auto text-[#d4af37] opacity-[0.03]"
-            viewBox="0 0 100 100"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 150, repeat: Infinity, ease: "linear" }}
-          >
-            <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="0.1" />
-            <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="0.1" strokeDasharray="1,1" />
-            {Array.from({ length: 12 }).map((_, idx) => {
-              const rotation = idx * 30;
-              return (
-                <g key={idx} transform={`rotate(${rotation} 50 50)`}>
-                  <path d="M50 2 L58 40 L98 50 L58 60 L50 98 L42 60 L2 50 L42 40 Z" fill="none" stroke="currentColor" strokeWidth="0.15" />
-                  <path d="M50 15 L55 42 L85 50 L55 58 L50 85 L45 58 L15 50 L45 42 Z" fill="none" stroke="currentColor" strokeWidth="0.08" />
-                </g>
-              );
-            })}
-          </motion.svg>
-
-         {/* 3. Floating Dust Particles */}
-         {Array.from({ length: 20 }).map((_, i) => (
-           <motion.div
-             key={`dust-${i}`}
-             className="absolute w-1 h-1 bg-[#d4af37] rounded-full blur-[1px]"
-             initial={{ 
-               x: (Math.random() - 0.5) * window.innerWidth, 
-               y: (Math.random() - 0.5) * window.innerHeight,
-               opacity: Math.random() * 0.5 + 0.1
-             }}
-             animate={{ 
-               y: [null, (Math.random() - 0.5) * window.innerHeight - 100],
-               opacity: [null, 0.8, 0]
-             }}
-             transition={{ 
-               duration: Math.random() * 10 + 10, 
-               repeat: Infinity, 
-               ease: "linear" 
-             }}
-           />
-         ))}
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 font-arabic bg-[#0a0a0a] overflow-hidden">
+      {/* Clean subtle background glow */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <motion.div 
+          animate={{ opacity: [0.08, 0.15, 0.08] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(212,175,55,0.2)_0%,transparent_70%)] rounded-full"
+        />
       </div>
 
-      {/* --- MAIN INTERACTIVE CARD --- */}
-      <motion.div
-        ref={tilt.ref}
-        onMouseMove={tilt.handleMouseMove}
-        onMouseLeave={tilt.handleMouseLeave}
-        style={{ rotateX: tilt.rotateX, rotateY: tilt.rotateY, perspective: 1200 }}
-        className="relative w-full max-w-md z-10"
-      >
-        <div className="relative w-full rounded-[2.5rem] p-8 md:p-10 shadow-[0_30px_70px_rgba(0,0,0,0.9)] overflow-hidden bg-gradient-to-br from-[#121212]/90 to-[#0a0a0a]/95 backdrop-blur-3xl border border-white/[0.08]">
-          {/* Edge Glow effect */}
-          <div className="absolute inset-0 rounded-[2.5rem] pointer-events-none border border-[#d4af37]/10" />
-          
+      {/* --- MAIN CARD --- */}
+      <div className="relative w-full max-w-md z-10">
+        <div className="relative w-full rounded-3xl p-8 md:p-10 shadow-2xl bg-[#111] border border-white/[0.06]">
           <AnimatePresence mode="wait">
             {/* ======================================= */}
             {/* LOGIN VIEW */}
@@ -573,20 +493,11 @@ export function AuthGate({ children }: AuthGateProps) {
                 transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
                 className="flex flex-col items-center"
               >
-                {/* Animated Logo */}
-                <motion.div 
-                  animate={{ y: [-5, 5, -5] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                  className="w-28 h-28 mb-6 relative flex items-center justify-center group"
-                >
-                  <div className="absolute inset-0 bg-[#d4af37]/20 blur-2xl rounded-full group-hover:scale-110 transition-transform duration-700" />
-                  <motion.div 
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute inset-2 border border-dashed border-[#d4af37]/30 rounded-full"
-                  />
-                  <img src="/logo/logo.png" alt="Logo" className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(212,175,55,0.4)] mix-blend-lighten z-10 relative" />
-                </motion.div>
+                {/* Logo */}
+                <div className="w-24 h-24 mb-4 relative mx-auto">
+                  <div className="absolute inset-0 bg-[#d4af37]/15 blur-xl rounded-full" />
+                  <img src="/logo/logo.png" alt="Logo" className="w-full h-full object-contain relative" />
+                </div>
 
                 <div className="text-center space-y-2 w-full">
                   <h1 className="text-3xl font-black bg-gradient-to-r from-white via-[#ffe8a3] to-[#d4af37] bg-clip-text text-transparent">تسجيل الدخول</h1>
@@ -949,7 +860,7 @@ export function AuthGate({ children }: AuthGateProps) {
             )}
           </AnimatePresence>
         </div>
-      </motion.div>
+      </div>
 
       {/* Skip Button */}
       <div className="fixed bottom-6 w-full flex justify-center z-20">
@@ -965,14 +876,6 @@ export function AuthGate({ children }: AuthGateProps) {
         </button>
       </div>
 
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes shine {
-          100% { transform: translateX(200%); }
-        }
-        .animate-shine {
-          animation: shine 2s infinite cubic-bezier(0.4, 0, 0.2, 1);
-        }
-      `}} />
     </div>
   );
 }
@@ -983,8 +886,8 @@ export function AuthGate({ children }: AuthGateProps) {
 
 function InputField({ icon, type, value, onChange, placeholder, dir = "rtl", showEye = false, showPassword, setShowPassword }: any) {
   return (
-    <div className="relative group">
-      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#d4af37] transition-all [&>svg]:w-5 [&>svg]:h-5 group-focus-within:scale-110">
+    <div className="relative">
+      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 [&>svg]:w-5 [&>svg]:h-5">
         {icon}
       </div>
       <input
@@ -994,10 +897,10 @@ function InputField({ icon, type, value, onChange, placeholder, dir = "rtl", sho
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         dir={dir}
-        className="w-full bg-white/[0.02] border border-white/5 rounded-2xl py-4 pr-12 pl-4 text-sm text-white outline-none focus:border-[#d4af37]/60 focus:bg-white/[0.04] focus:shadow-[0_0_15px_rgba(212,175,55,0.1)] transition-all placeholder:text-white/20 font-bold"
+        className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pr-11 pl-4 text-sm text-white outline-none focus:border-[#d4af37]/50 transition-colors placeholder:text-white/25"
       />
       {showEye && (
-        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-[#d4af37] hover:scale-110 transition-all">
+        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors">
           {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
         </button>
       )}
@@ -1007,22 +910,16 @@ function InputField({ icon, type, value, onChange, placeholder, dir = "rtl", sho
 
 function InteractiveButton({ type, onClick, loading, text }: any) {
   return (
-    <motion.button
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+    <button
       type={type}
       onClick={onClick}
       disabled={loading}
-      className="relative w-full py-4.5 bg-gradient-to-r from-[#b38f24] via-[#f5d76e] to-[#b38f24] text-black rounded-2xl font-black text-lg overflow-hidden shadow-[0_10px_30px_rgba(212,175,55,0.25)] hover:shadow-[0_15px_40px_rgba(212,175,55,0.4)] transition-shadow group"
-      style={{ backgroundSize: '200% auto' }}
-      animate={{ backgroundPosition: ['0% center', '200% center'] }}
-      transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+      className="w-full py-4 bg-[#d4af37] text-black rounded-2xl font-black text-lg hover:bg-[#c49f2e] active:scale-[0.98] transition-all disabled:opacity-50"
     >
-      <div className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 -translate-x-full group-hover:animate-shine" />
-      <div className="relative flex items-center justify-center gap-2">
+      <div className="flex items-center justify-center gap-2">
         {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : text}
       </div>
-    </motion.button>
+    </button>
   );
 }
 
@@ -1034,44 +931,30 @@ function CountrySelect({ value, onChange }: { value: string, onChange: (val: str
     <div className="relative w-full">
       <div 
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full bg-white/[0.02] border ${isOpen ? 'border-[#d4af37]/60' : 'border-white/5'} rounded-2xl py-4 pr-12 pl-4 text-sm text-white outline-none hover:border-[#d4af37]/60 hover:bg-white/[0.04] transition-all cursor-pointer font-bold flex items-center justify-between group`}
+        className={`w-full bg-white/5 border ${isOpen ? 'border-[#d4af37]/50' : 'border-white/10'} rounded-xl py-3.5 pr-11 pl-4 text-sm text-white cursor-pointer flex items-center justify-between transition-colors`}
       >
-        <div className={`absolute right-4 top-1/2 -translate-y-1/2 transition-all ${isOpen ? 'text-[#d4af37]' : 'text-white/20 group-hover:text-[#d4af37]'}`}>
-          <Compass className="w-5 h-5" />
-        </div>
-        <span className="flex items-center gap-2 text-[#d4af37]">
-          <span>{selected.name}</span>
+        <span className="flex items-center gap-2">
           <span className="text-xl">{selected.flag}</span>
+          <span className="text-white/80">{selected.name}</span>
         </span>
-        <span className={`text-white/40 text-[10px] transition-transform ${isOpen ? 'rotate-180' : ''}`}>▼</span>
+        <span className={`text-white/30 text-xs transition-transform ${isOpen ? 'rotate-180' : ''}`}>▼</span>
       </div>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-xl border border-[#d4af37]/30 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.9)] max-h-56 overflow-y-auto no-scrollbar z-[999] p-2 flex flex-col gap-1"
-          >
-            {ARAB_COUNTRIES.map(country => (
-              <button
-                key={country.name}
-                type="button"
-                onClick={() => {
-                  onChange(country.name);
-                  setIsOpen(false);
-                }}
-                className={`w-full flex items-center justify-between p-3 rounded-xl transition-all ${value === country.name ? 'bg-gradient-to-r from-[#d4af37]/20 to-transparent text-[#d4af37] border border-[#d4af37]/20' : 'text-white hover:bg-white/5 hover:pr-4'}`}
-              >
-                <span className="font-bold text-sm">{country.name}</span>
-                <span className="text-lg">{country.flag}</span>
-              </button>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-xl max-h-48 overflow-y-auto z-[999]">
+          {ARAB_COUNTRIES.map(country => (
+            <button
+              key={country.name}
+              type="button"
+              onClick={() => { onChange(country.name); setIsOpen(false); }}
+              className={`w-full flex items-center justify-between p-3 text-sm transition-colors ${value === country.name ? 'text-[#d4af37] bg-[#d4af37]/10' : 'text-white/70 hover:bg-white/5'}`}
+            >
+              <span>{country.name}</span>
+              <span className="text-lg">{country.flag}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
