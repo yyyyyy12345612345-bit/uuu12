@@ -210,10 +210,11 @@ async def generate_qr_only() -> bool:
             if not engine:
                 continue
             try:
-                from whatsapp_bot import _try_capture_qr
                 ok, err = await _try_capture_qr(browser_type, engine, "", "")
                 if ok:
+                    print(f"[QR] ✅ QR captured with {browser_type}")
                     return True
+                print(f"[QR] ❌ {browser_type} failed: {err}")
             except Exception as e:
-                print(f"[QR] {browser_type} failed: {e}")
+                print(f"[QR] 💥 {browser_type} exception: {e}")
     return False

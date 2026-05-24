@@ -1,4 +1,5 @@
 import os
+import asyncio
 from fastapi import FastAPI, BackgroundTasks
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -46,9 +47,9 @@ def show_qr():
 
 
 @app.get("/generate-qr")
-def trigger_qr(background_tasks: BackgroundTasks):
+async def trigger_qr():
     """Generate a fresh QR code without sending any message."""
     if os.path.exists("qr_code.png"):
         os.remove("qr_code.png")
-    background_tasks.add_task(generate_qr_only)
-    return {"status": "generating_qr", "message": "جاري توليد QR، افتح /show-qr بعد 15 ثانية"}
+    asyncio.create_task(generate_qr_only())
+    return {"status": "generating_qr", "message": "جاري توليد QR، افتح /show-qr بعد 20 ثانية"}
