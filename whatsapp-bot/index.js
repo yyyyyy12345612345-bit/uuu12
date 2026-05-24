@@ -10,10 +10,25 @@ app.use(express.json());
 const SESSION_DIR = './baileys_session';
 const QR_FILE = './qr_code.png';
 let sock = null;
-let qrBuffer = null;
+let qrGenerated = false;
+
+// ── Clean session (force fresh QR) ──
+function cleanSession() {
+  if (fs.existsSync(SESSION_DIR)) {
+    fs.rmSync(SESSION_DIR, { recursive: true, force: true });
+    console.log('[Bot] 🧹 Session cleared for fresh QR');
+  }
+  if (fs.existsSync(QR_FILE)) fs.unlinkSync(QR_FILE);
+  qrGenerated = false;
+}
 
 // ── WhatsApp Connection ──
 async function startBot() {
+  if (fs.existsSync(SESSION_DIR)) {
+    // Session exists from previous run, try to use it
+    console.log('[Bot] 📁 Existing session found, attempting reuse...');
+  }
+
   const { state, saveCreds } = await useMultiFileAuthState(SESSION_DIR);
 
   sock = makeWASocket({
@@ -23,38 +38,47 @@ async function startBot() {
     browser: ['Chrome (Linux)', '', ''],
   });
 
-  // QR event
-  sock.ev.on('connection.update', async ({ connection, lastDisconnect, qr }) => {
-    if (qr) {
-      try {
-        const QR = require('qrcode-terminal');
-        QR.generate(qr, { small: true });
+  let qrTimer = null;
 
-        // Save QR as PNG using terminal HTML approach - actually use a proper QR lib
+  sock.ev.on('connection.update', async ({ connection, lastDisconnect, qr }) => {
+    if (qr && !qrGenerated) {
+      qrGenerated = true;
+      try {
         const QRCode = require('qrcode');
-        qrBuffer = await QRCode.toBuffer(qr, { width: 400, margin: 2 });
+        const qrBuffer = await QRCode.toBuffer(qr, { width: 400, margin: 2 });
         fs.writeFileSync(QR_FILE, qrBuffer);
-        console.log(`[Bot] ✅ QR generated (${qrBuffer.length} bytes)`);
+        console.log(`[Bot] ✅ QR saved (${qrBuffer.length} bytes)`);
       } catch (e) {
-        console.log('[Bot] QR generation error:', e.message);
+        console.log('[Bot] QR save error:', e.message);
       }
     }
 
     if (connection === 'open') {
       console.log('[Bot] ✅ WhatsApp connected!');
-      // Remove QR file once connected
-      if (fs.existsSync(QR_FILE)) fs.unlinkSync(QR_FILE);
+      qrGenerated = true;
+      if (fs.existsSync(QR_FILE)) {
+        fs.unlinkSync(QR_FILE);
+        console.log('[Bot] 🗑️ QR removed (logged in)');
+      }
     }
 
     if (connection === 'close') {
-      const reason = lastDisconnect?.error?.output?.statusCode;
-      console.log(`[Bot] ❌ Disconnected: ${reason}`);
-      if (reason === DisconnectReason.loggedOut) {
-        console.log('[Bot] 🔴 Logged out, clearing session...');
-        fs.rmSync(SESSION_DIR, { recursive: true, force: true });
+      const statusCode = lastDisconnect?.error?.output?.statusCode;
+      console.log(`[Bot] ❌ Disconnected: ${statusCode}`);
+
+      const isLoggedOut = statusCode === DisconnectReason.loggedOut
+        || statusCode === 401
+        || statusCode === 403
+        || statusCode === 405;
+
+      if (isLoggedOut) {
+        console.log('[Bot] 🔴 Invalid session, clearing for fresh QR...');
+        cleanSession();
       }
-      // Reconnect after 5s
-      setTimeout(startBot, 5000);
+
+      // Reconnect after delay
+      clearTimeout(qrTimer);
+      qrTimer = setTimeout(startBot, 3000);
     }
   });
 
@@ -79,14 +103,15 @@ app.get('/show-qr', (req, res) => {
   if (fs.existsSync(QR_FILE)) {
     res.sendFile(path.resolve(QR_FILE));
   } else {
-    res.send('<h3>لا يوجد QR حالياً. ارسل /generate-qr لتوليد جديد.</h3>');
+    res.send('<h3>لا يوجد QR حالياً. استخدم /generate-qr لتوليد جديد.</h3>');
   }
 });
 
 app.get('/generate-qr', (req, res) => {
-  // Force reconnection to generate new QR
+  cleanSession();
   if (sock) {
     sock.end(new Error('Manual QR regeneration'));
+    sock = null;
   }
   res.json({ status: 'generating_qr', message: 'جاري توليد QR، افتح /show-qr بعد 15 ثانية' });
 });
@@ -108,8 +133,8 @@ app.post('/send-otp', async (req, res) => {
 
 // ── Start ──
 const PORT = process.env.PORT || 7860;
-startBot().then(() => {
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[Bot] HTTP server on :${PORT}`);
-  });
+cleanSession(); // Start fresh
+startBot();
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`[Bot] HTTP server on :${PORT}`);
 });
