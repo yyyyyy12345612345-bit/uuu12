@@ -70,7 +70,7 @@ function playNotificationSound(): void {
   try {
     if (!notifAudio) {
       // Pre-load audio to ensure it's ready
-      notifAudio = new Audio('/audio/notification.mp3.mp3');
+      notifAudio = new Audio('/audio/notification.mp3');
       notifAudio.load();
       notifAudio.volume = 0.7;
     }

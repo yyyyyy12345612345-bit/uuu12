@@ -128,7 +128,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
       initializePushNotifications();
     }
 
-    // 2. Initial Prayer Scheduling (smart sync)
+    // 2. Initial Prayer Scheduling (smart sync) - delayed to ensure Firebase is ready
     const syncPrayers = async () => {
       try {
         const settings = loadSettings();
@@ -138,7 +138,8 @@ export default function AppInitializer({ children }: { children: React.ReactNode
         console.error("[App] Initial prayer sync failed", e);
       }
     };
-    syncPrayers();
+    // Delay sync to ensure Firebase initialization
+    setTimeout(syncPrayers, 2000);
 
     // 3. Check for updates on mount
     setTimeout(() => checkForUpdates(false), 5000);

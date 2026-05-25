@@ -146,16 +146,26 @@ export function AdminPanel() {
     const tab = params.get('tab');
     if (tab && NAV_ITEMS.some(n => n.id === tab)) setActiveTab(tab);
 
-    if (!auth) return;
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user && user.email === ADMIN_EMAIL) {
-        setIsAdmin(true);
-        // Only fetch stats on mount (other tabs lazy-load when activated)
-        fetchStats();
-      } else setIsAdmin(false);
+    // Guard: ensure Firebase auth is initialized
+    if (!auth || typeof auth === 'undefined') {
       setLoading(false);
-    });
-    return () => unsubscribe();
+      return;
+    }
+
+    try {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user && user.email === ADMIN_EMAIL) {
+          setIsAdmin(true);
+          // Only fetch stats on mount (other tabs lazy-load when activated)
+          fetchStats();
+        } else setIsAdmin(false);
+        setLoading(false);
+      });
+      return () => unsubscribe();
+    } catch (error) {
+      console.error("[AdminPanel] Auth error:", error);
+      setLoading(false);
+    }
   }, []);
 
   // Lazy load tab data: fire when activeTab changes
@@ -194,12 +204,17 @@ export function AdminPanel() {
 
   // Fetch announcement + content + feature flags + version early (lightweight single-doc reads)
   useEffect(() => {
-    if (!isAdmin) return;
-    fetchAnnouncement();
-    fetchContentSettings();
-    fetchFeatureFlags();
-    fetchVersionSettings();
-    fetchCampaignSettings();
+    if (!isAdmin || !db || typeof db === 'undefined') return;
+    
+    try {
+      fetchAnnouncement();
+      fetchContentSettings();
+      fetchFeatureFlags();
+      fetchVersionSettings();
+      fetchCampaignSettings();
+    } catch (error) {
+      console.error("[AdminPanel] Early fetch error:", error);
+    }
   }, [isAdmin]);
 
   useEffect(() => {
