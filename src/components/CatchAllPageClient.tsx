@@ -94,42 +94,6 @@ function CatchAllContent() {
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
 
-  // Preload all dynamic components in the background for instant navigation response
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      // 1. Silent prefetch of webpack JS chunks
-      Promise.all([
-        import("@/components/SurahSelector"),
-        import("@/components/VideoPreview"),
-        import("@/components/Controls"),
-        import("@/components/RenderModal"),
-        import("@/components/Mushaf"),
-        import("@/components/PrayerTimes"),
-        import("@/components/AudioLibrary"),
-        import("@/components/DailyHub"),
-        import("@/components/Navigation"),
-        import("@/components/DigitalMushaf"),
-        import("@/components/GlobalMenu"),
-        import("@/components/Leaderboard"),
-        import("@/components/AuthGate"),
-        import("@/components/MushafChoice")
-      ]).then(() => {
-        // 2. Pre-mount components in the DOM in hidden divs for instant layout activation
-        setVisited(prev => ({
-          ...prev,
-          mushaf: true,
-          'mushaf-full': true,
-          'mushaf-choice': true,
-          daily: true,
-          library: true,
-          prayers: true,
-          video: true
-        }));
-      }).catch(err => console.log("Background preloading delayed:", err));
-    }, 2500); // 2.5s delay to keep critical start path 100% clear and fast
-    return () => clearTimeout(timer);
-  }, []);
-
   // Prevent any rendering until hydration is complete to stop Next.js 16 mismatch
   const [isClient, setIsClient] = useState(false);
   useEffect(() => {
