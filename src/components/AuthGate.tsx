@@ -530,6 +530,9 @@ export function AuthGate({ children }: AuthGateProps) {
                       إنشاء حساب <ArrowLeft className="w-3 h-3" />
                     </button>
                   </div>
+                  <button type="button" onClick={() => { setIsSkipped(true); localStorage.setItem('auth_skipped', 'true'); }} className="w-full mt-4 text-[11px] font-bold text-white/15 hover:text-white/40 transition-colors border border-white/[0.04] rounded-2xl py-2.5">
+                    تخطي ←
+                  </button>
                 </form>
               </motion.div>
             )}
