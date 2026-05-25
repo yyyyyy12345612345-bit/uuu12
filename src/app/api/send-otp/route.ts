@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
-import { setOtp } from "../otp-store";
+import { createSignedToken } from "../otp-store";
+import crypto from "crypto";
 import nodemailer from "nodemailer";
+
+const SECRET = process.env.OTP_SECRET || "quran-app-otp-secret-key-2026";
 
 const GMAIL_USER = "yo1685081@gmail.com";
 const GMAIL_PASS = process.env.GMAIL_APP_PASSWORD;
@@ -10,6 +13,13 @@ function getTransporter() {
     service: "gmail",
     auth: { user: GMAIL_USER, pass: GMAIL_PASS },
   });
+}
+
+function generateCode(email: string): string {
+  const slot = Math.floor(Date.now() / 300000);
+  const hash = crypto.createHmac("sha256", SECRET).update(`${email.toLowerCase()}:${slot}`).digest("hex");
+  const num = parseInt(hash.slice(0, 8), 16) % 1000000;
+  return num.toString().padStart(6, "0");
 }
 
 export async function POST(request: Request) {
@@ -24,26 +34,29 @@ export async function POST(request: Request) {
     }
 
     const cleanEmail = email.trim().toLowerCase();
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    setOtp(cleanEmail, otpCode);
+    const otpCode = generateCode(cleanEmail);
+
+    const token = createSignedToken(cleanEmail, otpCode);
+    const origin = request.headers.get("origin") || "https://quran1-mu.vercel.app";
+    const verifyLink = `${origin}/api/verify-token?t=${encodeURIComponent(token)}`;
 
     await getTransporter().sendMail({
-      from: `"موقع القرآن الكريم" <${GMAIL_USER}>`,
+      from: `"القرآن الكريم" <${GMAIL_USER}>`,
       to: cleanEmail,
-      subject: "كود تفعيل حسابك - موقع القرآن الكريم",
+      subject: "كود التحقق",
       html: `
-        <div style="direction:rtl;text-align:center;font-family:sans-serif;padding:20px;border:1px solid #eee;border-radius:10px;max-width:500px;margin:auto;">
-          <h2 style="color:#2c3e50;">مرحباً بك في موقع القرآن الكريم</h2>
-          <p style="font-size:16px;color:#7f8c8d;">${reason || "كود التفعيل الخاص بك"}</p>
-          <div style="background-color:#f8f9fa;padding:15px;border-radius:5px;margin:20px 0;">
-            <h1 style="color:#2ecc71;letter-spacing:5px;margin:0;font-size:36px;">${otpCode}</h1>
-          </div>
-          <p style="font-size:14px;color:#95a5a6;">هذا الكود صالح للاستخدام لمرة واحدة فقط.</p>
+        <div style="direction:rtl;font-family:Tahoma,sans-serif;text-align:center;padding:20px;max-width:480px;margin:auto;">
+          <h2 style="color:#1a1a2e;">مرحباً بك</h2>
+          <p style="color:#666;">${reason || "كود التحقق الخاص بك"}</p>
+          <div style="background:#f4f4f4;padding:20px;border-radius:8px;margin:16px 0;font-size:36px;letter-spacing:6px;color:#22c55e;font-weight:bold;">${otpCode}</div>
+          <p style="color:#999;font-size:13px;">أو اضغط على الرابط للتحقق مباشرة:</p>
+          <a href="${verifyLink}" style="display:inline-block;background:#22c55e;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:bold;margin:8px 0;">تأكيد الحساب</a>
+          <p style="color:#aaa;font-size:12px;margin-top:16px;">هذا الكود صالح لاستخدام واحد فقط لمدة 5 دقائق.</p>
         </div>
       `,
     });
 
-    return NextResponse.json({ success: true, message: "تم إرسال الكود إلى بريدك الإلكتروني" });
+    return NextResponse.json({ success: true, message: "تم إرسال الكود إلى بريدك" });
   } catch (error: any) {
     console.error("[send-otp] Error:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

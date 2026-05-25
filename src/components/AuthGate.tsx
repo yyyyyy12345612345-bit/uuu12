@@ -103,6 +103,13 @@ export function AuthGate({ children }: AuthGateProps) {
   });
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const verified = params.get("verified");
+    if (verified) {
+      setFormData(prev => ({ ...prev, email: verified }));
+      setView("signupAvatar");
+      window.history.replaceState({}, "", "/");
+    }
     const handleShowAuth = () => {
       setIsSkipped(false);
       localStorage.removeItem('auth_skipped');

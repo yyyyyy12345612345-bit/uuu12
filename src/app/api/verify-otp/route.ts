@@ -1,9 +1,18 @@
 import { NextResponse } from "next/server";
-import { verifyOtp } from "../otp-store";
+import { verifyOtp, verifySignedToken } from "../otp-store";
 
 export async function POST(request: Request) {
   try {
-    const { email, code } = await request.json();
+    const { email, code, token } = await request.json();
+
+    if (token) {
+      const result = verifySignedToken(token);
+      if (result) {
+        return NextResponse.json({ success: true, message: "تم التحقق بنجاح", email: result.email });
+      }
+      return NextResponse.json({ success: false, error: "الرابط غير صحيح أو منتهي الصلاحية" }, { status: 400 });
+    }
+
     if (!email || !code) {
       return NextResponse.json({ success: false, error: "بيانات ناقصة" }, { status: 400 });
     }
