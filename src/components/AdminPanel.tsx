@@ -1326,44 +1326,161 @@ export function AdminPanel() {
 
           {/* ========== SUBS TAB ========== */}
           {activeTab === 'subs' && (
-            <div className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.02)] p-6 overflow-x-auto">
-              <h2 className="text-xl font-black mb-6">طلبات الاشتراك</h2>
-              <div className="min-w-[700px]">
-                <table className="w-full text-right">
-                  <thead>
-                    <tr className="text-[10px] uppercase tracking-[0.18em] text-white/30 border-b border-white/10">
-                      <th className="p-5">المستخدم</th>
-                      <th className="p-5">الخطة</th>
-                      <th className="p-5">المبلغ</th>
-                      <th className="p-5">الرابط</th>
-                      <th className="p-5">الإجراء</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/10">
-                    {subRequests.map(r => (
-                      <tr key={r.id} className="hover:bg-white/5 transition-colors">
-                        <td className="p-5">
-                          <div className="space-y-1 text-right">
-                            <p className="font-black">{r.userName}</p>
-                            <p className="text-xs text-white/30">{r.senderInfo}</p>
-                          </div>
-                        </td>
-                        <td className="p-5"><span className="inline-flex rounded-full bg-[#fbbf24]/10 px-3 py-1 text-[11px] font-black text-[#fbbf24]">{r.plan}</span></td>
-                        <td className="p-5 font-black text-emerald-400">{r.amount || '---'} ج.م</td>
-                        <td className="p-5">{r.platformLink ? <a href={r.platformLink} target="_blank" rel="noreferrer" className="text-sky-400 hover:underline">فتح</a> : '---'}</td>
-                        <td className="p-5">
-                          <div className="flex flex-wrap gap-2 justify-end">
-                            {r.status === 'pending' ? (
-                              <button onClick={() => handleActionSubscription(r.id, r.userId, r.plan, 'approve')} className="rounded-xl bg-emerald-500 px-4 py-2 text-[11px] font-black text-black transition hover:opacity-90">تفعيل</button>
-                            ) : (
-                              <button onClick={() => handleAddToShowcase(r.platformLink, r.userName, r.surahName || 'سورة')} className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-black text-white/60 transition hover:bg-white/10">إضافة معرض</button>
-                            )}
-                          </div>
-                        </td>
+            <div className="space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+              {/* Section 1: Pending Requests */}
+              <div className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.02)] p-6 overflow-x-auto">
+                <div className="mb-6 flex items-center justify-between">
+                  <h2 className="text-xl font-black">طلبات الاشتراك المعلقة</h2>
+                  <span className="rounded-lg bg-amber-500/10 px-3 py-1 text-xs font-black text-amber-500">
+                    {subRequests.filter(r => r.status === 'pending').length} طلب معلق
+                  </span>
+                </div>
+                <div className="min-w-[900px]">
+                  <table className="w-full text-right">
+                    <thead>
+                      <tr className="text-[10px] uppercase tracking-[0.18em] text-white/30 border-b border-white/10">
+                        <th className="p-4">المستخدم</th>
+                        <th className="p-4">الخطة</th>
+                        <th className="p-4">طريقة التحويل</th>
+                        <th className="p-4">المحول منه</th>
+                        <th className="p-4">المبلغ</th>
+                        <th className="p-4">الرابط</th>
+                        <th className="p-4">تاريخ الطلب</th>
+                        <th className="p-4 text-left">الإجراء</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-white/10">
+                      {subRequests.filter(r => r.status === 'pending').length === 0 ? (
+                        <tr>
+                          <td colSpan={8} className="p-10 text-center text-sm text-white/20 font-bold">لا توجد طلبات اشتراك معلقة حالياً</td>
+                        </tr>
+                      ) : (
+                        subRequests.filter(r => r.status === 'pending').map(r => (
+                          <tr key={r.id} className="hover:bg-white/5 transition-colors">
+                            <td className="p-4">
+                              <div className="space-y-1 text-right">
+                                <p className="font-black text-sm">{r.userName || 'مستخدم'}</p>
+                                <p className="text-[11px] text-white/40">البريد: {r.userEmail || '---'}</p>
+                                <p className="text-[11px] text-white/40">الهاتف: {r.userPhone || '---'}</p>
+                              </div>
+                            </td>
+                            <td className="p-4">
+                              <span className="inline-flex rounded-full bg-[#fbbf24]/10 px-2.5 py-1 text-[11px] font-black text-[#fbbf24]">
+                                {r.plan}
+                              </span>
+                            </td>
+                            <td className="p-4 text-xs font-bold text-white/60">
+                              {r.paymentMethod || '---'}
+                            </td>
+                            <td className="p-4 text-xs font-mono text-white/60">
+                              {r.senderInfo || '---'}
+                            </td>
+                            <td className="p-4 font-black text-emerald-400 text-sm">
+                              {r.amount || '---'} ج.م
+                            </td>
+                            <td className="p-4">
+                              {r.platformLink ? (
+                                <a href={r.platformLink} target="_blank" rel="noreferrer" className="text-sky-400 hover:underline text-xs">
+                                  فتح الرابط
+                                </a>
+                              ) : (
+                                '---'
+                              )}
+                            </td>
+                            <td className="p-4 text-xs text-white/30">
+                              {r.createdAt ? new Date(r.createdAt.toDate ? r.createdAt.toDate() : r.createdAt).toLocaleString("ar-EG") : '---'}
+                            </td>
+                            <td className="p-4 text-left">
+                              <div className="flex gap-2 justify-end">
+                                <button
+                                  onClick={() => handleActionSubscription(r.id, r.userId, r.plan, 'approve')}
+                                  className="rounded-xl bg-emerald-500 px-3 py-2 text-[11px] font-black text-black transition hover:opacity-90"
+                                >
+                                  تفعيل
+                                </button>
+                                <button
+                                  onClick={() => handleActionSubscription(r.id, r.userId, r.plan, 'reject')}
+                                  className="rounded-xl bg-red-500/10 border border-red-500/20 px-3 py-2 text-[11px] font-black text-red-400 transition hover:bg-red-500 hover:text-white"
+                                >
+                                  رفض
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Section 2: Active Subscriptions */}
+              <div className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.02)] p-6 overflow-x-auto">
+                <div className="mb-6 flex items-center justify-between">
+                  <h2 className="text-xl font-black">المشتركون المفعلون حالياً</h2>
+                  <span className="rounded-lg bg-emerald-500/10 px-3 py-1 text-xs font-black text-emerald-400">
+                    {users.filter(u => u.plan && u.plan !== 'free' && u.subscriptionActive).length} مشترك نشط
+                  </span>
+                </div>
+                <div className="min-w-[900px]">
+                  <table className="w-full text-right">
+                    <thead>
+                      <tr className="text-[10px] uppercase tracking-[0.18em] text-white/30 border-b border-white/10">
+                        <th className="p-4">المشترك</th>
+                        <th className="p-4">الهاتف</th>
+                        <th className="p-4">البريد الإلكتروني</th>
+                        <th className="p-4">الباقة</th>
+                        <th className="p-4">بداية الاشتراك</th>
+                        <th className="p-4">انتهاء الاشتراك</th>
+                        <th className="p-4 text-left">الإجراء</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/10">
+                      {users.filter(u => u.plan && u.plan !== 'free' && u.subscriptionActive).length === 0 ? (
+                        <tr>
+                          <td colSpan={7} className="p-10 text-center text-sm text-white/20 font-bold">لا يوجد مشتركون نشطون حالياً</td>
+                        </tr>
+                      ) : (
+                        users.filter(u => u.plan && u.plan !== 'free' && u.subscriptionActive).map(u => (
+                          <tr key={u.uid} className="hover:bg-white/5 transition-colors">
+                            <td className="p-4">
+                              <div className="space-y-1 text-right">
+                                <p className="font-black text-sm">{u.displayName || 'مستخدم'}</p>
+                                <p className="text-[11px] text-white/40">@{u.username || '---'}</p>
+                              </div>
+                            </td>
+                            <td className="p-4 text-xs font-mono text-white/60">
+                              {u.phoneNumber || u.phone || '---'}
+                            </td>
+                            <td className="p-4 text-xs text-white/60">
+                              {u.email || '---'}
+                            </td>
+                            <td className="p-4">
+                              <span className="inline-flex rounded-full bg-emerald-500/15 px-2.5 py-1 text-[11px] font-black text-emerald-300">
+                                {u.plan}
+                              </span>
+                            </td>
+                            <td className="p-4 text-xs text-white/40">
+                              {u.subscriptionDate ? new Date(u.subscriptionDate.toDate ? u.subscriptionDate.toDate() : u.subscriptionDate).toLocaleDateString("ar-EG") : '---'}
+                            </td>
+                            <td className="p-4 text-xs text-white/40">
+                              {u.subscriptionExpiry ? new Date(u.subscriptionExpiry.toDate ? u.subscriptionExpiry.toDate() : u.subscriptionExpiry).toLocaleDateString("ar-EG") : '---'}
+                            </td>
+                            <td className="p-4 text-left">
+                              <button
+                                onClick={() => handleCancelSubscription(u.uid)}
+                                disabled={isUpdatingSubscription}
+                                className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-2 text-[11px] font-black text-red-400 transition hover:bg-red-500 hover:text-white disabled:opacity-40"
+                              >
+                                إلغاء الاشتراك
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}

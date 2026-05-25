@@ -6,7 +6,7 @@ import { X, Send, BotMessageSquare, MessageCircle, User, Wand2 } from "lucide-re
 import { useRouter } from "next/navigation";
 import { useInstantPathname, navigateInstantly } from "@/lib/navigation";
 import { classifyQueryWithML } from "@/lib/ml-model";
-import { auth, db } from "@/lib/firebase";
+import { auth, db, initFirebase } from "@/lib/firebase";
 import { doc, onSnapshot, collection, query, orderBy, limit, getDocs, updateDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -42,8 +42,10 @@ export function ChatBot() {
 
   // جلب المتصدرين الأوائل لتزويد الذكاء الاصطناعي ببيانات لوحة الشرف
   useEffect(() => {
-    if (!db) return;
+    let isMounted = true;
     const fetchTopLeaderboard = async () => {
+      await initFirebase();
+      if (!isMounted) return;
       try {
         const qLeaderboard = query(collection(db, "users"), orderBy("totalPoints", "desc"), limit(5));
         const snapshot = await getDocs(qLeaderboard);
@@ -62,6 +64,9 @@ export function ChatBot() {
       }
     };
     fetchTopLeaderboard();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // حفظ الرسائل مؤقتاً عند أي تغيير
@@ -75,20 +80,33 @@ export function ChatBot() {
   }, [pathname]);
 
   useEffect(() => {
-    if (!auth || !db) return;
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        const unsubscribeDoc = onSnapshot(doc(db, "users", user.uid), (docSnap) => {
-          if (docSnap.exists()) {
-            setDbUser(docSnap.data());
-          }
-        });
-        return () => unsubscribeDoc();
-      } else {
-        setDbUser(null);
-      }
-    });
-    return () => unsubscribeAuth();
+    let isMounted = true;
+    let unsubscribeAuth: (() => void) | null = null;
+    let unsubscribeDoc: (() => void) | null = null;
+
+    const setupAuth = async () => {
+      await initFirebase();
+      if (!isMounted) return;
+
+      unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          unsubscribeDoc = onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+            if (docSnap.exists()) {
+              setDbUser(docSnap.data());
+            }
+          });
+        } else {
+          setDbUser(null);
+        }
+      });
+    };
+    setupAuth();
+
+    return () => {
+      isMounted = false;
+      if (unsubscribeAuth) unsubscribeAuth();
+      if (unsubscribeDoc) unsubscribeDoc();
+    };
   }, []);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
