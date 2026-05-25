@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { 
-  LogIn, Loader2, User, KeyRound, Eye, EyeOff, ShieldCheck, Check, ArrowLeft, Phone, Sparkles
+  LogIn, Loader2, User, KeyRound, Eye, EyeOff, ShieldCheck, Check, ArrowLeft, Phone, Sparkles, AlertTriangle, Wrench
 } from "lucide-react";
 import { auth, db } from "@/lib/firebase";
 import {
@@ -11,7 +12,7 @@ import {
   onAuthStateChanged,
   User as FirebaseUser
 } from "firebase/auth";
-import { doc, getDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, query, where, getDocs, addDoc } from "firebase/firestore";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface AuthGateProps {
@@ -102,6 +103,17 @@ export function AuthGate({ children }: AuthGateProps) {
     }
     return false;
   });
+
+  const pathname = usePathname();
+  const [maintenance, setMaintenance] = useState<{ enabled: boolean; message: string; reason: string; duration: string } | null>(null);
+
+  useEffect(() => {
+    if (!db) return;
+    getDoc(doc(db, "admin", "config")).then(s => {
+      if (s.exists()) setMaintenance(s.data().maintenance || { enabled: false, message: "", reason: "", duration: "" });
+      else setMaintenance({ enabled: false, message: "", reason: "", duration: "" });
+    }).catch(() => setMaintenance({ enabled: false, message: "", reason: "", duration: "" }));
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -233,6 +245,15 @@ export function AuthGate({ children }: AuthGateProps) {
           } else {
             setEmailVerified(false);
             setView("verifySignupOtp");
+            // تسجيل إرسال الإيميل للإحصائيات
+            try {
+              const today = new Date().toISOString().split('T')[0];
+              addDoc(collection(db, "emailLogs"), {
+                email: formData.email.trim().toLowerCase(),
+                sentAt: new Date().toISOString(),
+                date: today
+              });
+            } catch (_) {}
           }
           setIsLoggingIn(false);
           return;
@@ -402,6 +423,36 @@ export function AuthGate({ children }: AuthGateProps) {
       setIsLoggingIn(false);
     }
   };
+
+  if (maintenance?.enabled && !pathname?.includes("admin")) {
+    return (
+      <div className="fixed inset-0 bg-gradient-to-br from-[#0b0f1a] via-[#0f0a1a] to-[#0a0f0f] flex items-center justify-center p-6 z-[9999]">
+        <div className="max-w-md w-full text-center">
+          <div className="w-24 h-24 mx-auto bg-amber-500/10 rounded-[2.5rem] flex items-center justify-center border border-amber-500/20 mb-8">
+            <Wrench className="w-12 h-12 text-amber-400" />
+          </div>
+          <h1 className="text-3xl font-black text-white mb-3">وضع الصيانة</h1>
+          <p className="text-amber-400 font-bold text-lg mb-6">
+            {maintenance.reason || "نعمل على تحسين التطبيق"}
+          </p>
+          {maintenance.message && (
+            <p className="text-white/50 font-bold mb-6 leading-relaxed">{maintenance.message}</p>
+          )}
+          {maintenance.duration && (
+            <p className="text-white/30 text-sm font-bold">
+              المدة المتوقعة: {maintenance.duration}
+            </p>
+          )}
+          <a
+            href="/admin"
+            className="inline-block mt-8 px-6 py-3 bg-white/5 text-white/40 rounded-2xl border border-white/10 text-xs font-bold hover:bg-white/10 transition"
+          >
+            دخول الإدارة
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   if (isSkipped || (user && hasProfile === true)) {
     return <>{children}</>;
