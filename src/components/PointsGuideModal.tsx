@@ -4,7 +4,7 @@ import React from "react";
 import { 
   X, Star, BookOpen, Headphones, Calendar, 
   Fingerprint, Target, Trophy, 
-  Map as MapIcon, ChevronLeft, Award, Zap, Heart, Image
+  Map as MapIcon, ChevronLeft, Award, Zap, Heart, Image, ExternalLink
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -173,51 +173,66 @@ export function PointsGuideModal({ isOpen, onClose }: PointsGuideModalProps) {
                       desc: "مصدر النص القرآني الموثق، مع التفاسير المتنوعة والترجمات لتسهيل الفهم والتدبر.",
                       icon: BookOpen,
                       color: "text-amber-500",
-                      bg: "bg-amber-500/10"
+                      bg: "bg-amber-500/10",
+                      url: "https://quran.com"
                     },
                     {
                       title: "المكتبة الصوتية (EveryAyah)",
                       desc: "مصدر التلاوات الصوتية العطرة للآيات بأصوات مشاهير القراء بجودة عالية.",
                       icon: Headphones,
                       color: "text-blue-500",
-                      bg: "bg-blue-500/10"
+                      bg: "bg-blue-500/10",
+                      url: "https://everyayah.com"
                     },
                     {
                       title: "أوقات الصلاة والقبلة (AlAdhan)",
                       desc: "الخدمة الذكية لحساب مواقيت الصلاة بدقة وتحديد اتجاه القبلة حسب موقعك الجغرافي.",
                       icon: MapIcon,
                       color: "text-emerald-500",
-                      bg: "bg-emerald-500/10"
+                      bg: "bg-emerald-500/10",
+                      url: "https://aladhan.com"
                     },
                     {
                       title: "مكتبة الخلفيات المرئية (Pexels)",
                       desc: "مصدر الصور والفيديوهات الطبيعية والجمالية فائقة الدقة لتصميم خلفيات المقاطع.",
                       icon: Image,
                       color: "text-purple-500",
-                      bg: "bg-purple-500/10"
+                      bg: "bg-purple-500/10",
+                      url: "https://pexels.com"
                     },
                     {
                       title: "محرك المونتاج (Remotion Engine)",
                       desc: "التقنية المستخدمة لدمج الصوت مع النص وتوليد مقاطع الفيديو الإسلامية الاحترافية.",
                       icon: Zap,
                       color: "text-yellow-500",
-                      bg: "bg-yellow-500/10"
+                      bg: "bg-yellow-500/10",
+                      url: "https://remotion.dev"
                     }
                   ].map((service, index) => (
-                    <div 
+                    <a 
                       key={index}
-                      className="bg-white/[0.03] border border-white/5 rounded-3xl p-5 hover:bg-white/[0.06] transition-all group flex flex-col justify-between"
+                      href={service.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-white/[0.03] border border-white/5 rounded-3xl p-5 hover:bg-white/[0.06] hover:border-primary/20 hover:scale-[1.01] transition-all group flex flex-col justify-between"
                     >
                       <div>
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className={`w-8 h-8 rounded-xl ${service.bg} ${service.color} flex items-center justify-center shrink-0`}>
-                            <service.icon className="w-4 h-4" />
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded-xl ${service.bg} ${service.color} flex items-center justify-center shrink-0`}>
+                              <service.icon className="w-4 h-4" />
+                            </div>
+                            <h4 className="text-xs font-black text-white group-hover:text-primary transition-colors">{service.title}</h4>
                           </div>
-                          <h4 className="text-xs font-black text-white group-hover:text-primary transition-colors">{service.title}</h4>
+                          <ExternalLink className="w-3.5 h-3.5 text-white/20 group-hover:text-primary transition-colors" />
                         </div>
                         <p className="text-[10px] font-bold text-white/40 leading-relaxed">{service.desc}</p>
+                        <div className="mt-4 flex items-center gap-1 text-[9px] font-black text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span>زيارة الموقع الرسمي</span>
+                          <ChevronLeft className="w-3 h-3" />
+                        </div>
                       </div>
-                    </div>
+                    </a>
                   ))}
                 </div>
               </div>

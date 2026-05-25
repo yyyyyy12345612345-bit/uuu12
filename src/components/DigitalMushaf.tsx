@@ -306,7 +306,6 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
                                   </div>
                                   <div>
                                       <h4 className="text-2xl font-black text-white group-hover:text-primary transition-colors">سورة {s.name}</h4>
-                                      <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">{s.transliteration}</p>
                                   </div>
                               </div>
                               <div className="text-left">
@@ -519,22 +518,22 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
             </div>
 
             {/* Page Header */}
-            <div className="relative h-20 flex items-center justify-between px-16 z-20 mt-8 font-sans font-bold text-amber-900 pointer-events-none">
-                {/* Left: Surah Name */}
+            <div className="relative h-20 flex items-center justify-between px-16 z-20 mt-8 font-arabic font-bold text-amber-900 pointer-events-none" dir="rtl">
+                {/* Right: Surah Name */}
                 <div className="flex items-center gap-2 bg-[#fdfcf0] border border-[#d4af37]/60 rounded-full px-5 py-1.5 shadow-sm">
-                    <span className="text-[12px] uppercase tracking-wide">{sId}. {surahTranslit}</span>
+                    <span className="text-sm font-bold">سورة {surahInfo?.name}</span>
                 </div>
                 
                 {/* Center: Page Number Pill */}
-                <div className="flex items-center justify-center bg-[#fdfcf0] border-2 border-[#d4af37] rounded-full px-8 py-1 shadow-md relative min-w-[75px]">
+                <div className="flex items-center justify-center bg-[#fdfcf0] border-2 border-[#d4af37] rounded-full px-8 py-1 shadow-md relative min-w-[75px]" dir="ltr">
                     <span className="text-xl font-black text-black leading-none">{pageNum}</span>
                     <div className="absolute -left-1 w-2 h-2 rounded-full bg-[#1b8a34]" />
                     <div className="absolute -right-1 w-2 h-2 rounded-full bg-[#1b8a34]" />
                 </div>
 
-                {/* Right: Juz Number */}
+                {/* Left: Juz Number */}
                 <div className="flex items-center gap-2 bg-[#fdfcf0] border border-[#d4af37]/60 rounded-full px-5 py-1.5 shadow-sm">
-                    <span className="text-[12px] uppercase tracking-wider">Juz {juzNumber}</span>
+                    <span className="text-sm font-bold">الجزء {toArabicNumerals(juzNumber)}</span>
                 </div>
             </div>
 

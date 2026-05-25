@@ -372,7 +372,7 @@ export function AudioLibrary() {
                               <div className="w-full h-full rounded-full border border-white/5 flex flex-col items-center justify-center text-center p-8 lg:p-12">
                                   <Disc className={`w-12 h-12 lg:w-20 lg:h-20 text-primary/30 mb-4 lg:mb-6 ${isPlaying ? 'animate-spin-slow' : ''}`} />
                                   <span className="text-[10px] lg:text-base font-bold text-white/70 mb-2">{selectedReciter.name}</span>
-                                  <span className="text-[8px] lg:text-xs font-black text-primary uppercase tracking-[0.4em] px-5 py-2 bg-primary/10 rounded-full">Premium Audio</span>
+                                  <span className="text-[10px] lg:text-xs font-black text-primary px-5 py-2 bg-primary/10 rounded-full font-arabic">صوت عالي الجودة</span>
                               </div>
                           </motion.div>
                           
@@ -403,9 +403,7 @@ export function AudioLibrary() {
                           <span className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mb-2">يتم تشغيله الآن</span>
                           <h2 className="text-3xl lg:text-5xl font-black font-['Amiri'] leading-tight mb-2">سورة {currentSurah.name}</h2>
                           <div className="flex items-center gap-4 text-white/40">
-                               <span className="text-sm font-bold uppercase tracking-widest">{currentSurah.transliteration}</span>
-                               <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
-                               <span className="text-sm font-bold uppercase tracking-widest">{currentSurah.total_verses} Verses</span>
+                               <span className="text-sm font-bold font-arabic">عدد الآيات: {currentSurah.total_verses}</span>
                           </div>
                       </div>
 
