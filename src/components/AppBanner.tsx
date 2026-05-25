@@ -27,35 +27,47 @@ export function AppBanner({ apkDownloadUrl = "https://quran1-mu.vercel.app/downl
 
     // Capture beforeinstallprompt for Android/Chrome PWA
     const handler = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setIsPWAInstallable(true);
+      try {
+        console.log("[AppBanner] beforeinstallprompt event fired", { eventType: e.type });
+        e.preventDefault();
+        setDeferredPrompt(e);
+        setIsPWAInstallable(true);
+        console.log("[AppBanner] beforeinstallprompt stored successfully");
+      } catch (error) {
+        console.error("[AppBanner] Error handling beforeinstallprompt:", error);
+      }
     };
     window.addEventListener("beforeinstallprompt", handler as any);
+    console.log("[AppBanner] Registered beforeinstallprompt listener");
 
     const init = async () => {
-      const p = getPlatform();
+      try {
+        const p = getPlatform();
+        console.log("[AppBanner] Platform detected:", p);
 
-      // Emulator/desktop - show nothing
-      if (p === "emulator" || p === "browser") return;
+        // Emulator/desktop - show nothing
+        if (p === "emulator" || p === "browser") return;
 
-      // Already installed as PWA - show nothing
-      if (p === "pwa") return;
+        // Already installed as PWA - show nothing
+        if (p === "pwa") return;
 
-      if (p === "android") {
-        if (getBannerDismissed("apk")) return;
-        // Check if APK is already installed
-        const installed = await isApkInstalled();
-        if (installed) return;
-        setPlatform("android");
-        setTimeout(() => setVisible(true), 2000); // show after 2s
-      }
+        if (p === "android") {
+          if (getBannerDismissed("apk")) return;
+          // Check if APK is already installed
+          const installed = await isApkInstalled();
+          if (installed) return;
+          setPlatform("android");
+          setTimeout(() => setVisible(true), 2000); // show after 2s
+        }
 
-      if (p === "ios") {
-        if (getBannerDismissed("pwa")) return;
-        // iOS Safari - show PWA install guide
-        setPlatform("ios");
-        setTimeout(() => setVisible(true), 2000);
+        if (p === "ios") {
+          if (getBannerDismissed("pwa")) return;
+          // iOS Safari - show PWA install guide
+          setPlatform("ios");
+          setTimeout(() => setVisible(true), 2000);
+        }
+      } catch (error) {
+        console.error("[AppBanner] Init error:", error);
       }
     };
 
@@ -73,18 +85,30 @@ export function AppBanner({ apkDownloadUrl = "https://quran1-mu.vercel.app/downl
   const handleAndroidAction = async () => {
     // If PWA install prompt is available (Android Chrome), use it
     if (deferredPrompt) {
-      setInstalling(true);
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === "accepted") {
-        localStorage.setItem("sakina_apk_installed", "true");
-        setVisible(false);
+      try {
+        setInstalling(true);
+        console.log("[AppBanner] Calling prompt() on deferred prompt");
+        await deferredPrompt.prompt();
+        console.log("[AppBanner] prompt() completed successfully");
+        
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log("[AppBanner] User outcome:", outcome);
+        
+        if (outcome === "accepted") {
+          localStorage.setItem("sakina_apk_installed", "true");
+          setVisible(false);
+        }
+        setInstalling(false);
+        setDeferredPrompt(null);
+        return;
+      } catch (error) {
+        console.error("[AppBanner] Error calling prompt():", error);
+        setInstalling(false);
+        setDeferredPrompt(null);
       }
-      setInstalling(false);
-      setDeferredPrompt(null);
-      return;
     }
     // Otherwise open APK download page
+    console.log("[AppBanner] No deferred prompt, opening download URL");
     window.open(apkDownloadUrl, "_blank");
   };
 

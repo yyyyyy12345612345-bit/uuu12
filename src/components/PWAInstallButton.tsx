@@ -24,22 +24,33 @@ export function PWAInstallButton() {
     setIsIOS(ios);
 
     const handler = (e: any) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      console.log("PWA install prompt deferred");
+      try {
+        console.log("[PWAInstallButton] beforeinstallprompt event fired", { eventType: e.type });
+        e.preventDefault();
+        setDeferredPrompt(e);
+        console.log("[PWAInstallButton] beforeinstallprompt stored successfully");
+      } catch (error) {
+        console.error("[PWAInstallButton] Error handling beforeinstallprompt:", error);
+      }
     };
 
     const installedHandler = () => {
-      setIsInstalled(true);
-      setDeferredPrompt(null);
-      console.log("PWA was installed");
-      // Analytics: تتبع التثبيت الفعلي والنهائي
-      // @ts-ignore
-      window.gtag?.('event', 'app_installed_final_success');
+      try {
+        console.log("[PWAInstallButton] appinstalled event fired");
+        setIsInstalled(true);
+        setDeferredPrompt(null);
+        console.log("PWA was installed");
+        // Analytics: تتبع التثبيت الفعلي والنهائي
+        // @ts-ignore
+        window.gtag?.('event', 'app_installed_final_success');
+      } catch (error) {
+        console.error("[PWAInstallButton] Error in installedHandler:", error);
+      }
     };
 
     window.addEventListener("beforeinstallprompt", handler);
     window.addEventListener("appinstalled", installedHandler);
+    console.log("[PWAInstallButton] Registered beforeinstallprompt and appinstalled listeners");
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handler);
@@ -48,30 +59,40 @@ export function PWAInstallButton() {
   }, []);
 
   const handleInstallClick = async () => {
-    // Analytics: تتبع الضغط على زر التثبيت
-    // @ts-ignore
-    window.gtag?.('event', 'pwa_install_button_click', {
-      'is_ios': isIOS,
-      'is_standalone': isStandalone
-    });
-
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      
-      // Analytics: تتبع نتيجة قرار المستخدم
+    try {
+      // Analytics: تتبع الضغط على زر التثبيت
       // @ts-ignore
-      window.gtag?.('event', 'pwa_prompt_result', { 'outcome': outcome });
+      window.gtag?.('event', 'pwa_install_button_click', {
+        'is_ios': isIOS,
+        'is_standalone': isStandalone
+      });
 
-      if (outcome === "accepted") {
-        setIsInstalled(true);
+      if (deferredPrompt) {
+        console.log("[PWAInstallButton] Calling prompt() on deferred prompt");
+        await deferredPrompt.prompt();
+        console.log("[PWAInstallButton] prompt() completed successfully");
+        
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log("[PWAInstallButton] User outcome:", outcome);
+        
+        // Analytics: تتبع نتيجة قرار المستخدم
+        // @ts-ignore
+        window.gtag?.('event', 'pwa_prompt_result', { 'outcome': outcome });
+
+        if (outcome === "accepted") {
+          setIsInstalled(true);
+        }
+        setDeferredPrompt(null);
+      } else {
+        console.log("[PWAInstallButton] No deferred prompt, showing manual instructions");
+        setShowInstructions(true);
+        // Analytics: تتبع ظهور تعليمات التثبيت اليدوية
+        // @ts-ignore
+        window.gtag?.('event', 'pwa_instructions_view', { 'device_type': isIOS ? 'iOS' : 'Android/Desktop' });
       }
-      setDeferredPrompt(null);
-    } else {
+    } catch (error) {
+      console.error("[PWAInstallButton] Error in handleInstallClick:", error);
       setShowInstructions(true);
-      // Analytics: تتبع ظهور تعليمات التثبيت اليدوية
-      // @ts-ignore
-      window.gtag?.('event', 'pwa_instructions_view', { 'device_type': isIOS ? 'iOS' : 'Android/Desktop' });
     }
   };
 
