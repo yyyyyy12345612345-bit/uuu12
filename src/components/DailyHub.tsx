@@ -34,9 +34,10 @@ export function DailyHub() {
   const [qibla, setQibla] = useState<{
     heading: number | null;
     angle: number | null;
+    distance: number | null;
     error: string | null;
     loading: boolean;
-  }>({ heading: null, angle: null, error: null, loading: false });
+  }>({ heading: null, angle: null, distance: null, error: null, loading: false });
   const [scrollState, setScrollState] = useState({ left: false, right: false });
   const [activeTab, setActiveTab] = useState<"dashboard" | "sibha" | "morning" | "evening" | "sleep" | "library" | "qibla">("dashboard");
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -334,7 +335,19 @@ export function DailyHub() {
       const x = Math.cos(phi1) * Math.sin(phi2) - Math.sin(phi1) * Math.cos(phi2) * Math.cos(dlng);
       let bearing = Math.atan2(y, x) * 180 / Math.PI;
       bearing = (bearing + 360) % 360;
-      setQibla(prev => ({ ...prev, angle: bearing, loading: false }));
+
+      // Calculate exact distance using Haversine formula
+      const R = 6371; // Earth radius in km
+      const dLat = (meccaLat - lat) * Math.PI / 180;
+      const dLon = (meccaLng - lng) * Math.PI / 180;
+      const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(phi1) * Math.cos(phi2) * 
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      const distanceKm = Math.round(R * c);
+
+      setQibla(prev => ({ ...prev, angle: bearing, distance: distanceKm, loading: false }));
     } catch (err: any) {
       setQibla(prev => ({ ...prev, loading: false, error: err.message || "فشل تحديد الموقع" }));
     }
@@ -682,6 +695,7 @@ export function DailyHub() {
 
                     <QiblaCompass 
                         qiblaAngle={qibla.angle}
+                        distance={qibla.distance}
                         onRequestLocation={requestQibla}
                         isLoading={qibla.loading}
                         error={qibla.error}
