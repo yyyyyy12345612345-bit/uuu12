@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { db, auth } from "@/lib/firebase";
+import { db, auth, initFirebase } from "@/lib/firebase";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -10,34 +10,42 @@ export function useUserPlan() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // Use onSnapshot for real-time updates when admin approves
-        const unsubscribeDoc = onSnapshot(doc(db, "users", user.uid), (doc) => {
-          if (doc.exists()) {
-            const data = doc.data();
-            const totalPoints = data.totalPoints || 0;
-            // Automatically upgrade users with 10k+ points to premium for free!
-            const computedPlan = totalPoints >= 10000 ? "premium" : (data.plan || "free");
-            
-            setUserPlan({
-              ...data,
-              plan: computedPlan,
-              originalPlan: data.plan || "free",
-              count: data.videoRendersCount || 0
-            });
-          }
+    let unsubscribeAuth: (() => void) | null = null;
+    let unsubscribeDoc: (() => void) | null = null;
+
+    const setup = async () => {
+      await initFirebase();
+      unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          // Use onSnapshot for real-time updates when admin approves
+          unsubscribeDoc = onSnapshot(doc(db, "users", user.uid), (doc) => {
+            if (doc.exists()) {
+              const data = doc.data();
+              const totalPoints = data.totalPoints || 0;
+              // Automatically upgrade users with 10k+ points to premium for free!
+              const computedPlan = totalPoints >= 10000 ? "premium" : (data.plan || "free");
+              
+              setUserPlan({
+                ...data,
+                plan: computedPlan,
+                originalPlan: data.plan || "free",
+                count: data.videoRendersCount || 0
+              });
+            }
+            setLoading(false);
+          });
+        } else {
+          setUserPlan(null);
           setLoading(false);
-        });
+        }
+      });
+    };
+    setup();
 
-        return () => unsubscribeDoc();
-      } else {
-        setUserPlan(null);
-        setLoading(false);
-      }
-    });
-
-    return () => unsubscribeAuth();
+    return () => {
+      if (unsubscribeAuth) unsubscribeAuth();
+      if (unsubscribeDoc) unsubscribeDoc();
+    };
   }, []);
 
   const isFeatureLocked = (feature: "search" | "video_bg" | "unlimited_render") => {
