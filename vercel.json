@@ -5,6 +5,11 @@
   "github": {
     "silent": false
   },
+  "build": {
+    "env": {
+      "TURBOPACK": "0"
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",

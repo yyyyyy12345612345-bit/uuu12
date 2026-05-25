@@ -5,9 +5,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  turbopack: {
-    root: __dirname,
-  },
   output: process.env.CAPACITOR_BUILD === 'true' ? 'export' : undefined,
   trailingSlash: true,
   typescript: {
