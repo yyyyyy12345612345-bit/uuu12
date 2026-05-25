@@ -153,11 +153,37 @@ export function AdminPanel() {
     }
 
     try {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user && user.email === ADMIN_EMAIL) {
           setIsAdmin(true);
           // Only fetch stats on mount (other tabs lazy-load when activated)
-          fetchStats();
+          try {
+            if (!db) {
+              setLoading(false);
+              return;
+            }
+            const snapshot = await getDocs(collection(db, "users"));
+            const usersData = snapshot.docs.map(d => ({ uid: d.id, ...d.data() }));
+            setTotalUserCount(snapshot.size);
+            const totalPoints = usersData.reduce((acc, curr: any) => acc + (curr.totalPoints || 0), 0);
+            const today = new Date().toISOString().split('T')[0];
+            const activeTodayCount = usersData.filter((u: any) => {
+              if (!u.lastActive) return false;
+              const lastActiveStr = typeof u.lastActive === 'string' ? u.lastActive : (u.lastActive.toDate ? u.lastActive.toDate().toISOString() : String(u.lastActive));
+              return lastActiveStr.startsWith(today);
+            }).length;
+            const govCounts: any = {}; 
+            usersData.forEach((u: any) => { if (u.governorate) govCounts[u.governorate] = (govCounts[u.governorate] || 0) + 1; });
+            const govKeys = Object.keys(govCounts);
+            const topGov = govKeys.length > 0 ? govKeys.reduce((a, b) => govCounts[a] > govCounts[b] ? a : b) : "لا توجد بيانات";
+            const pushSubscribers = usersData.filter((u: any) => u.fcmToken).length;
+            setStats({ totalUsers: snapshot.size, topGovernorate: topGov, totalPoints, activeToday: activeTodayCount, pushSubscribers });
+            const sortedUsers = usersData.sort((a: any, b: any) => (b.totalPoints || 0) - (a.totalPoints || 0));
+            setUsers(sortedUsers.slice(0, 200));
+            setBlockedUsers(sortedUsers.filter((u: any) => u.isBanned).slice(0, 200));
+          } catch (statsError) {
+            console.error("[AdminPanel] Stats fetch error:", statsError);
+          }
         } else setIsAdmin(false);
         setLoading(false);
       });
