@@ -13,22 +13,22 @@ import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 const ADMIN_EMAIL = "youssefosama@gmail.com";
 
 const NAV_ITEMS = [
-  { id: 'stats', label: 'الإحصائيات', icon: LayoutDashboard },
-  { id: 'push', label: 'الإشعارات', icon: BellRing },
-  { id: 'performance', label: 'الأداء', icon: Activity },
-  { id: 'users', label: 'المستخدمين', icon: UserCircle },
-  { id: 'subs', label: 'الاشتراكات', icon: CreditCard },
-  { id: 'quests', label: 'المهام', icon: Swords },
-  { id: 'settings', label: 'الإعدادات', icon: Settings },
-  { id: 'showcase', label: 'المعرض', icon: GalleryHorizontalEnd },
-  { id: 'reports', label: 'التقارير', icon: BarChart3 },
-  { id: 'activity', label: 'النشاط', icon: History },
-  { id: 'support', label: 'الدعم', icon: HeadphonesIcon },
-  { id: 'campaigns', label: 'الحملات', icon: Megaphone },
-  { id: 'alerts', label: 'التنبيهات', icon: AlertCircle },
-  { id: 'content', label: 'المحتوى', icon: BookOpen },
-  { id: 'flags', label: 'التجارب', icon: FlaskConical },
-  { id: 'versions', label: 'الإصدار', icon: Package },
+  { id: 'stats', label: 'الإحصائيات', icon: Icon.LayoutDashboard },
+  { id: 'push', label: 'الإشعارات', icon: Icon.BellRing },
+  { id: 'performance', label: 'الأداء', icon: Icon.Activity },
+  { id: 'users', label: 'المستخدمين', icon: Icon.UserCircle },
+  { id: 'subs', label: 'الاشتراكات', icon: Icon.CreditCard },
+  { id: 'quests', label: 'المهام', icon: Icon.Swords },
+  { id: 'settings', label: 'الإعدادات', icon: Icon.Settings },
+  { id: 'showcase', label: 'المعرض', icon: Icon.GalleryHorizontalEnd },
+  { id: 'reports', label: 'التقارير', icon: Icon.BarChart3 },
+  { id: 'activity', label: 'النشاط', icon: Icon.History },
+  { id: 'support', label: 'الدعم', icon: Icon.HeadphonesIcon },
+  { id: 'campaigns', label: 'الحملات', icon: Icon.Megaphone },
+  { id: 'alerts', label: 'التنبيهات', icon: Icon.AlertCircle },
+  { id: 'content', label: 'المحتوى', icon: Icon.BookOpen },
+  { id: 'flags', label: 'التجارب', icon: Icon.FlaskConical },
+  { id: 'versions', label: 'الإصدار', icon: Icon.Package },
 ];
 
 interface DailyStats {
@@ -1211,7 +1211,7 @@ export function AdminPanel() {
               <div className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.02)] p-6">
                 <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
                   <h2 className="text-xl font-black">إعدادات الدفع</h2>
-                  <Phone className="h-6 w-6 text-[#fbbf24]" />
+                  <Icon.Phone className="h-6 w-6 text-[#fbbf24]" />
                 </div>
                 <div className="mt-6 grid gap-5">
                   <div className="space-y-2 text-right">
