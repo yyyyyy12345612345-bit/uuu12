@@ -1,12 +1,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
-import { 
-  getFirestore, 
-  initializeFirestore, 
-  persistentLocalCache, 
-  persistentMultipleTabManager 
-} from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 // هذه البيانات يجب ملؤها من Firebase Console الخاص بك
@@ -25,10 +20,7 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const analytics = typeof window !== "undefined" ? getAnalytics(app) : null;
 const auth = getAuth(app);
 
-// Initialize Firestore with modern persistent cache
-const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
-});
+const db = getFirestore(app);
 
 const storage = getStorage(app);
 
