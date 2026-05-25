@@ -2,28 +2,18 @@ import {
   type PrayerTimesData,
   type PrayerSettingsMap,
   type NextPrayerInfo,
+  type PrayerLocationMeta,
+  type PrayerYearCalendar,
   PRAYER_KEYS,
   PRAYER_NAMES_AR,
-} from './prayerNotifications';
+} from './prayerShared';
+
+// Re-export for backward compatibility
+export type { PrayerLocationMeta, PrayerYearCalendar } from './prayerShared';
 
 const CALENDAR_KEY = 'prayer_year_calendar_v1';
 const LOCATION_META_KEY = 'prayer_location_meta_v1';
 const METHOD = 5;
-
-export interface PrayerLocationMeta {
-  city?: string;
-  country?: string;
-  latitude?: number;
-  longitude?: number;
-  label: string;
-}
-
-export interface PrayerYearCalendar {
-  meta: PrayerLocationMeta;
-  year: number;
-  days: Record<string, PrayerTimesData>;
-  fetchedAt: number;
-}
 
 /** يزيل "(EET)" ويُرجع HH:MM أو HH:MM:SS */
 export function cleanPrayerTime(raw: string): string {
