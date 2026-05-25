@@ -1,36 +1,38 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
+import nextDynamic from "next/dynamic";
 import { useEditor } from "@/store/useEditor";
 import { useRouter } from "next/navigation";
 import { useInstantPathname, getViewFromPathname, navigateInstantly } from "@/lib/navigation";
 import { Settings, X, Download, Menu } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { SurahSelector } from "@/components/SurahSelector";
-import { VideoPreview } from "@/components/VideoPreview";
-import { Controls } from "@/components/Controls";
-import { RenderModal } from "@/components/RenderModal";
-import { Mushaf } from "@/components/Mushaf";
-import { PrayerTimes } from "@/components/PrayerTimes";
-import { AudioLibrary } from "@/components/AudioLibrary";
-import { DailyHub } from "@/components/DailyHub";
-import { Navigation } from "@/components/Navigation";
-import { DigitalMushaf } from "@/components/DigitalMushaf";
-import { FeedbackModal } from "@/components/FeedbackModal";
-import { PWAInstallButton } from "@/components/PWAInstallButton";
-import { GlobalMenu } from "@/components/GlobalMenu";
-import { Leaderboard } from "@/components/Leaderboard";
-import { AdminPanel } from "@/components/AdminPanel";
-import { ProfileModal } from "@/components/ProfileModal";
-import { AuthGate } from "@/components/AuthGate";
-import { MushafChoice } from "@/components/MushafChoice";
-import { SubscriptionModal } from "@/components/SubscriptionModal";
-import { CommunityShowcase } from "@/components/CommunityShowcase";
-import { PointsGuideModal } from "@/components/PointsGuideModal";
-import { ChatBot } from "@/components/ChatBot";
-import { SettingsModal } from "@/components/SettingsModal";
-import { AppSettingsModal } from "@/components/AppSettingsModal";
+
+// Lazy-loaded components
+const SurahSelector = nextDynamic(() => import("@/components/SurahSelector").then(mod => mod.SurahSelector), { ssr: false });
+const VideoPreview = nextDynamic(() => import("@/components/VideoPreview").then(mod => mod.VideoPreview), { ssr: false });
+const Controls = nextDynamic(() => import("@/components/Controls").then(mod => mod.Controls), { ssr: false });
+const RenderModal = nextDynamic(() => import("@/components/RenderModal").then(mod => mod.RenderModal), { ssr: false });
+const Mushaf = nextDynamic(() => import("@/components/Mushaf").then(mod => mod.Mushaf), { ssr: false });
+const PrayerTimes = nextDynamic(() => import("@/components/PrayerTimes").then(mod => mod.PrayerTimes), { ssr: false });
+const AudioLibrary = nextDynamic(() => import("@/components/AudioLibrary").then(mod => mod.AudioLibrary), { ssr: false });
+const DailyHub = nextDynamic(() => import("@/components/DailyHub").then(mod => mod.DailyHub), { ssr: false });
+const Navigation = nextDynamic(() => import("@/components/Navigation").then(mod => mod.Navigation), { ssr: false });
+const DigitalMushaf = nextDynamic(() => import("@/components/DigitalMushaf").then(mod => mod.DigitalMushaf), { ssr: false });
+const FeedbackModal = nextDynamic(() => import("@/components/FeedbackModal").then(mod => mod.FeedbackModal), { ssr: false });
+const PWAInstallButton = nextDynamic(() => import("@/components/PWAInstallButton").then(mod => mod.PWAInstallButton), { ssr: false });
+const GlobalMenu = nextDynamic(() => import("@/components/GlobalMenu").then(mod => mod.GlobalMenu), { ssr: false });
+const Leaderboard = nextDynamic(() => import("@/components/Leaderboard").then(mod => mod.Leaderboard), { ssr: false });
+const ProfileModal = nextDynamic(() => import("@/components/ProfileModal").then(mod => mod.ProfileModal), { ssr: false });
+const AuthGate = nextDynamic(() => import("@/components/AuthGate").then(mod => mod.AuthGate), { ssr: false });
+const MushafChoice = nextDynamic(() => import("@/components/MushafChoice").then(mod => mod.MushafChoice), { ssr: false });
+const SubscriptionModal = nextDynamic(() => import("@/components/SubscriptionModal").then(mod => mod.SubscriptionModal), { ssr: false });
+const CommunityShowcase = nextDynamic(() => import("@/components/CommunityShowcase").then(mod => mod.CommunityShowcase), { ssr: false });
+const PointsGuideModal = nextDynamic(() => import("@/components/PointsGuideModal").then(mod => mod.PointsGuideModal), { ssr: false });
+const ChatBot = nextDynamic(() => import("@/components/ChatBot").then(mod => mod.ChatBot), { ssr: false });
+const SettingsModal = nextDynamic(() => import("@/components/SettingsModal").then(mod => mod.SettingsModal), { ssr: false });
+const AppSettingsModal = nextDynamic(() => import("@/components/AppSettingsModal").then(mod => mod.AppSettingsModal), { ssr: false });
 
 // Error Boundary for CatchAll
 class CatchAllErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error?: Error }> {
@@ -225,11 +227,6 @@ function CatchAllContent() {
         {visited.rank && (
           <div key="rank" className={`h-full w-full pb-20 bg-transparent ${activeView === 'rank' ? 'block view-transition' : 'hidden'}`}>
             <Leaderboard onEditProfile={() => setIsProfileOpen(true)} />
-          </div>
-        )}
-        {visited.admin && (
-          <div key="admin" className={`h-full w-full pb-20 bg-transparent ${activeView === 'admin' ? 'block view-transition' : 'hidden'}`}>
-            <AdminPanel />
           </div>
         )}
         {visited.showcase && (
