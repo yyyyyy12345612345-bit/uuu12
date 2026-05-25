@@ -1,8 +1,6 @@
 import React from "react";
 import { CatchAllPageClient } from "@/components/CatchAllPageClient";
 
-export const dynamic = 'force-static';
-
 export async function generateStaticParams() {
   return [
     { slug: [] },
@@ -14,7 +12,6 @@ export async function generateStaticParams() {
     { slug: ['prayers'] },
     { slug: ['video'] },
     { slug: ['rank'] },
-    { slug: ['admin'] },
     { slug: ['profile'] },
   ];
 }
