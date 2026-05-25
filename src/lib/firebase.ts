@@ -15,20 +15,39 @@ const firebaseConfig = {
   measurementId: "G-L4SD78B7GH"
 };
 
-// Initialize Firebase
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-const analytics = typeof window !== "undefined" ? getAnalytics(app) : null;
-const auth = getAuth(app);
+// Initialize Firebase safely
+let app;
+let auth;
+let db;
+let storage;
+let analytics = null;
 
-const db = getFirestore(app);
-
-const storage = getStorage(app);
+try {
+  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+  auth = getAuth(app);
+  db = getFirestore(app);
+  storage = getStorage(app);
+  
+  if (typeof window !== "undefined") {
+    try {
+      analytics = getAnalytics(app);
+    } catch (e) {
+      console.warn("[Firebase] Analytics not available:", e);
+    }
+  }
+} catch (error) {
+  console.error("[Firebase] Initialization error:", error);
+}
 
 export { app, auth, db, analytics, storage };
 
 export const logAppEvent = (eventName: string, params?: object) => {
   if (analytics) {
-    logEvent(analytics, eventName, params);
-    console.log(`[Firebase Log]: ${eventName}`, params);
+    try {
+      logEvent(analytics, eventName, params);
+      console.log(`[Firebase Log]: ${eventName}`, params);
+    } catch (e) {
+      console.warn("[Firebase] Event logging failed:", e);
+    }
   }
 };

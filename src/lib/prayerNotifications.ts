@@ -272,12 +272,14 @@ export async function smartReschedule(
 // ── Lifecycle & Background ───────────────────────────────────────────────
 
 let _isInitialized = false;
+let _hasEverInitialized = false;
 
 export function initLifecycleListeners(
   settingsRef: { current: PrayerSettingsMap } | (() => PrayerSettingsMap),
   fetchTimes: () => Promise<PrayerTimesData | null>
 ): () => void {
-  if (_isInitialized) return () => {};
+  if (_hasEverInitialized) return () => {};
+  _hasEverInitialized = true;
   _isInitialized = true;
 
   const getSettings = () => {
@@ -312,6 +314,7 @@ export function initLifecycleListeners(
 
   return () => {
     _isInitialized = false;
+    // Note: _hasEverInitialized stays true to prevent double initialization
     if (listener) {
       listener.then(l => l.remove());
     }
