@@ -1,61 +1,32 @@
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
 import {
-  type PrayerYearCalendar,
   getTodayKey,
   parsePrayerDateTime,
   cleanPrayerTime,
 } from './prayerCalendar';
+import {
+  type PrayerYearCalendar,
+  type PrayerTimesData,
+  type PrayerNotifSetting,
+  type PrayerSettingsMap,
+  type ScheduleResult,
+  type NextPrayerInfo,
+  type DiagnosticReport,
+  PRAYER_KEYS,
+  PRAYER_NAMES_AR,
+} from './prayerShared';
 
-// ── Types ────────────────────────────────────────────────────────────────
-
-export interface PrayerTimesData {
-  Fajr: string;
-  Sunrise: string;
-  Dhuhr: string;
-  Asr: string;
-  Maghrib: string;
-  Isha: string;
-}
-
-export interface PrayerNotifSetting {
-  enabled: boolean;
-  soundEnabled: boolean;
-  muezzinId?: string;
-}
-
-export type PrayerSettingsMap = Record<string, PrayerNotifSetting>;
-
-export interface ScheduleResult {
-  scheduled: number;
-  source: 'api' | 'cache' | 'none';
-}
-
-export interface NextPrayerInfo {
-  id: string;
-  nameEn: string;
-  nameAr: string;
-  date: Date;
-  remainingMs: number;
-  inLabel: string;
-}
-
-export interface DiagnosticReport {
-  lastScheduleDate: string | null;
-  totalScheduledPending: number;
-  permissionsGranted: boolean;
-  channelsCreated: boolean;
-}
-
-export const PRAYER_KEYS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
-
-export const PRAYER_NAMES_AR: Record<string, string> = {
-  Fajr: 'الفجر',
-  Dhuhr: 'الظهر',
-  Asr: 'العصر',
-  Maghrib: 'المغرب',
-  Isha: 'العشاء',
-};
+// Re-export for backward compatibility
+export type {
+  PrayerTimesData,
+  PrayerNotifSetting,
+  PrayerSettingsMap,
+  ScheduleResult,
+  NextPrayerInfo,
+  DiagnosticReport,
+} from './prayerShared';
+export { PRAYER_KEYS, PRAYER_NAMES_AR } from './prayerShared';
 
 const CHANNEL_ID = 'prayer_notifications_v5';
 const SETTINGS_KEY = 'prayer_notif_settings_v4';
