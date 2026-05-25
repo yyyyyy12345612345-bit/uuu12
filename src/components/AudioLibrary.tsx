@@ -5,7 +5,7 @@ import { RECITERS } from "@/data/reciters";
 import {
   Play, Pause, SkipBack, SkipForward, Search,
   Headphones, Repeat, Shuffle, ChevronDown, User,
-  Disc, X, Heart, Share2, ListMusic
+  Disc, X, Heart, Share2, ListMusic, Volume2, Volume1, VolumeX
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { setupMediaSession, setPlaybackState, updatePositionState } from "@/lib/mediaSession";
@@ -61,10 +61,34 @@ export function AudioLibrary() {
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [recentlyPlayed, setRecentlyPlayed] = useState<number[]>([]);
+  const [volume, setVolume] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedVolume = localStorage.getItem("audio_player_volume");
+      return savedVolume !== null ? parseFloat(savedVolume) : 1;
+    }
+    return 1;
+  });
+  const [isMuted, setIsMuted] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedMute = localStorage.getItem("audio_player_muted");
+      return savedMute === "true";
+    }
+    return false;
+  });
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const lastAwardedTime = useRef<number>(0);
   const horizontalListRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.volume = volume;
+      audio.muted = isMuted;
+    }
+    localStorage.setItem("audio_player_volume", volume.toString());
+    localStorage.setItem("audio_player_muted", isMuted.toString());
+  }, [volume, isMuted, currentSurah, selectedReciter]);
 
   // Auth & Persistence
   useEffect(() => {
@@ -262,7 +286,6 @@ export function AudioLibrary() {
                   <div className="flex flex-col">
                       <div className="flex items-center gap-2">
                           <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">مكتبتك الصوتية</span>
-                          {user && <span className="text-[8px] font-black text-primary uppercase bg-primary/10 px-2 py-0.5 rounded-full shadow-lg shadow-primary/5">Sync Active</span>}
                       </div>
                       <span className="text-lg font-black truncate max-w-[200px]">{user?.displayName || "ضيف الرحمن"}</span>
                   </div>
@@ -277,10 +300,6 @@ export function AudioLibrary() {
                    >
                        <Share2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
                    </a>
-                   <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/5 rounded-2xl border border-white/5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Divine Studio V 7</span>
-                   </div>
               </div>
           </div>
 
@@ -291,7 +310,6 @@ export function AudioLibrary() {
                   <div className="flex items-center justify-between px-2">
                       <div className="flex flex-col">
                            <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-1">اختر السورة</span>
-                           <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">{filteredSurahs.length} SURAHS AVAILABLE</span>
                       </div>
                       <div className="flex items-center gap-3">
                           <button 
@@ -392,7 +410,7 @@ export function AudioLibrary() {
                       </div>
 
                       {/* Progress */}
-                      <div className="w-full space-y-5 mb-10">
+                      <div className="w-full space-y-5 mb-6">
                           <div className="flex justify-between items-end px-1">
                               <div className="flex flex-col">
                                   <span className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">الوقت المنقضي</span>
@@ -403,9 +421,9 @@ export function AudioLibrary() {
                                   <span className="text-lg font-bold tabular-nums text-white/90">{fmt(duration)}</span>
                               </div>
                           </div>
-                          <div className="relative h-2.5 w-full bg-white/5 rounded-full overflow-hidden group cursor-pointer border border-white/5">
+                          <div className="relative h-2.5 w-full bg-white/5 rounded-full overflow-hidden group cursor-pointer border border-white/5" dir="ltr">
                               <div 
-                                className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-primary/80 to-primary/40 transition-all duration-300"
+                                className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-primary/80 to-primary/40"
                                 style={{ width: `${progress}%` }}
                               />
                               <input 
@@ -416,6 +434,51 @@ export function AudioLibrary() {
                                 }}
                                 className="absolute inset-0 w-full opacity-0 cursor-pointer z-10"
                               />
+                          </div>
+                      </div>
+
+                      {/* Volume & Audio Controls */}
+                      <div className="flex items-center justify-between mb-8 px-1">
+                          <div className="flex items-center gap-2">
+                              {/* Left slot can be empty or have another control */}
+                          </div>
+                          
+                          {/* Volume Control Pill */}
+                          <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/5 hover:bg-white/10 transition-colors">
+                              <button 
+                                onClick={() => setIsMuted(!isMuted)} 
+                                className="text-white/60 hover:text-primary transition-colors flex items-center justify-center"
+                                title={isMuted ? "إلغاء الكتم" : "كتم الصوت"}
+                              >
+                                  {isMuted || volume === 0 ? (
+                                    <VolumeX className="w-5 h-5 text-red-400" />
+                                  ) : volume < 0.4 ? (
+                                    <Volume1 className="w-5 h-5" />
+                                  ) : (
+                                    <Volume2 className="w-5 h-5 text-primary" />
+                                  )}
+                              </button>
+                              <div className="relative w-24 h-1.5 bg-white/10 rounded-full overflow-hidden group cursor-pointer" dir="ltr">
+                                  <div 
+                                    className="absolute inset-y-0 left-0 bg-primary"
+                                    style={{ width: `${isMuted ? 0 : volume * 100}%` }}
+                                  />
+                                  <input 
+                                    type="range" min="0" max="1" step="0.01" 
+                                    value={isMuted ? 0 : volume}
+                                    onChange={(e) => {
+                                        const val = parseFloat(e.target.value);
+                                        setVolume(val);
+                                        if (val > 0 && isMuted) {
+                                            setIsMuted(false);
+                                        }
+                                    }}
+                                    className="absolute inset-0 w-full opacity-0 cursor-pointer z-10"
+                                  />
+                              </div>
+                              <span className="text-[10px] font-bold text-white/50 w-7 text-left font-mono tabular-nums">
+                                  {Math.round((isMuted ? 0 : volume) * 100)}%
+                              </span>
                           </div>
                       </div>
 

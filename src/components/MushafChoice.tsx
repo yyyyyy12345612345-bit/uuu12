@@ -14,7 +14,6 @@ export function MushafChoice() {
         <div className="flex items-center justify-center gap-3 mb-6">
            <div className="w-12 h-1 bg-primary/30 rounded-full" />
            <div className="flex flex-col items-center">
-              <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-1">Sakinah</span>
               <h2 className="text-4xl md:text-5xl font-black font-arabic text-foreground text-center tracking-tight">سـكـيـنـة</h2>
            </div>
            <div className="w-12 h-1 bg-primary/30 rounded-full" />
