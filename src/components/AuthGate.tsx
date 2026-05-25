@@ -78,7 +78,7 @@ export function AuthGate({ children }: AuthGateProps) {
   const [loginPassword, setLoginPassword] = useState("");
 
   // Forgot Password & Signup Verification States
-  const [resetPhone, setResetPhone] = useState("");
+  const [resetEmail, setResetEmail] = useState("");
   const [resetOtp, setResetOtp] = useState("");
   const [signupOtp, setSignupOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -90,6 +90,7 @@ export function AuthGate({ children }: AuthGateProps) {
   const [formData, setFormData] = useState({
     username: "",
     displayName: "",
+    email: "",
     phone: "",
     password: "",
     gender: "male" as "male" | "female",
@@ -224,13 +225,13 @@ export function AuthGate({ children }: AuthGateProps) {
       const snapUser = await getDocs(qUser);
       if (!snapUser.empty) { setError("الاسم المميز محجوز"); setIsLoggingIn(false); return; }
 
-      const hasPhone = formData.phone.trim().length >= 10;
+      const hasEmail = formData.email.trim().includes("@");
 
-      if (hasPhone) {
+      if (hasEmail) {
         const apiResponse = await fetch("/api/send-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone: formData.phone.trim(), reason: "تأكيد رقم الهاتف للتسجيل" })
+          body: JSON.stringify({ email: formData.email.trim(), reason: "تأكيد البريد الإلكتروني للتسجيل" })
         });
 
         const apiData = await apiResponse.json();
@@ -262,7 +263,7 @@ export function AuthGate({ children }: AuthGateProps) {
       const res = await fetch("/api/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: formData.phone.trim(), code: signupOtp })
+        body: JSON.stringify({ email: formData.email.trim(), code: signupOtp })
       });
       const data = await res.json();
       if (data.success) {
@@ -286,6 +287,7 @@ export function AuthGate({ children }: AuthGateProps) {
         uid: res.user.uid,
         username: formData.username.trim().toLowerCase(),
         displayName: formData.displayName.trim(),
+        email: formData.email.trim(),
         phoneNumber: formData.phone.trim(),
         gender: formData.gender,
         country: formData.country,
@@ -304,40 +306,39 @@ export function AuthGate({ children }: AuthGateProps) {
   };
 
   // --- FORGOT PASSWORD FLOW ---
-  const handleSendWhatsAppOtp = async (e: React.FormEvent) => {
+  const handleSendEmailOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (resetPhone.trim().length < 10) return setError("يرجى إدخال رقم هاتف صحيح");
+    if (!resetEmail.trim().includes("@")) return setError("يرجى إدخال بريد إلكتروني صحيح");
     
     setIsLoggingIn(true);
     try {
-      const phoneQuery = query(collection(db, "users"), where("phoneNumber", "==", resetPhone.trim()));
-      const phoneSnap = await getDocs(phoneQuery);
+      const emailQuery = query(collection(db, "users"), where("email", "==", resetEmail.trim().toLowerCase()));
+      const emailSnap = await getDocs(emailQuery);
       
-      if (phoneSnap.empty) {
-        setError("رقم الهاتف هذا غير مسجل لدينا");
+      if (emailSnap.empty) {
+        setError("البريد الإلكتروني هذا غير مسجل لدينا");
         setIsLoggingIn(false);
         return;
       }
 
-      if (phoneSnap.docs.length > 1) {
-        setMatchingAccounts(phoneSnap.docs.map(doc => doc.data()));
+      if (emailSnap.docs.length > 1) {
+        setMatchingAccounts(emailSnap.docs.map(doc => doc.data()));
         setMultiAccountAction("forgotPassword");
         setView("selectAccount");
         setIsLoggingIn(false);
         return;
       }
 
-      const userData = phoneSnap.docs[0].data();
+      const userData = emailSnap.docs[0].data();
       setResetUserId(userData.uid);
       setResetUsername(userData.username);
       setRecoveredPassword(userData.encP ? atob(userData.encP) : null);
       
-      // Call API to send OTP via WhatsApp
       const apiResponse = await fetch("/api/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: resetPhone.trim(), reason: "استعادة كلمة المرور" })
+        body: JSON.stringify({ email: resetEmail.trim(), reason: "استعادة كلمة المرور" })
       });
       
       const apiData = await apiResponse.json();
@@ -346,11 +347,11 @@ export function AuthGate({ children }: AuthGateProps) {
         setIsLoggingIn(false);
         setView("verifyOtp");
       } else {
-        setError(apiData.error || "فشل إرسال رسالة الواتساب");
+        setError(apiData.error || "فشل إرسال البريد الإلكتروني");
         setIsLoggingIn(false);
       }
     } catch (err: any) {
-      console.error("WhatsApp Send OTP Error Details:", err);
+      console.error("Email Send OTP Error Details:", err);
       setError(err.message || "حدث خطأ في النظام");
       setIsLoggingIn(false);
     }
@@ -379,7 +380,7 @@ export function AuthGate({ children }: AuthGateProps) {
         const apiResponse = await fetch("/api/send-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone: resetPhone.trim(), reason: "استعادة كلمة المرور" })
+          body: JSON.stringify({ email: resetEmail.trim(), reason: "استعادة كلمة المرور" })
         });
         
         const apiData = await apiResponse.json();
@@ -388,7 +389,7 @@ export function AuthGate({ children }: AuthGateProps) {
           setIsLoggingIn(false);
           setView("verifyOtp");
         } else {
-          setError(apiData.error || "فشل إرسال رسالة الواتساب");
+          setError(apiData.error || "فشل إرسال البريد الإلكتروني");
           setIsLoggingIn(false);
         }
       } catch (err: any) {
@@ -406,7 +407,7 @@ export function AuthGate({ children }: AuthGateProps) {
       const res = await fetch("/api/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: resetPhone.trim(), code: resetOtp })
+        body: JSON.stringify({ email: resetEmail.trim().toLowerCase(), code: resetOtp })
       });
       const data = await res.json();
       if (data.success) {
@@ -600,16 +601,16 @@ export function AuthGate({ children }: AuthGateProps) {
                     <ShieldCheck className="w-7 h-7 text-[#fbbf24]" />
                   </div>
                   <h2 className="text-2xl font-black text-white/90">استعادة الحساب</h2>
-                  <p className="text-white/30 text-xs mt-1.5 leading-relaxed">أدخل رقم هاتفك المسجل وسنرسل رمز التحقق عبر واتساب</p>
+                  <p className="text-white/30 text-xs mt-1.5 leading-relaxed">أدخل بريدك الإلكتروني المسجل وسنرسل رمز التحقق</p>
                 </div>
                 
-                <form onSubmit={handleSendWhatsAppOtp} className="w-full space-y-3.5">
-                  <InputField icon={<Phone />} type="tel" value={resetPhone} onChange={setResetPhone} placeholder="رقم الهاتف (010XXXXXXX)" dir="ltr" />
+                <form onSubmit={handleSendEmailOtp} className="w-full space-y-3.5">
+                  <InputField icon={<Phone />} type="email" value={resetEmail} onChange={setResetEmail} placeholder="البريد الإلكتروني" dir="ltr" />
                   
                   {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-xs text-center font-bold bg-red-500/10 py-2.5 rounded-2xl border border-red-500/15">{error}</motion.p>}
                   
                   <div className="pt-3">
-                    <InteractiveButton type="submit" loading={isLoggingIn} text="إرسال الكود عبر واتساب" />
+                    <InteractiveButton type="submit" loading={isLoggingIn} text="إرسال الكود عبر البريد الإلكتروني" />
                   </div>
                   
                   <button type="button" onClick={() => setView("login")} className="w-full mt-1 text-xs font-bold text-white/25 hover:text-white/60 transition-colors">
@@ -636,7 +637,7 @@ export function AuthGate({ children }: AuthGateProps) {
                     <ShieldCheck className="w-6 h-6 text-[#fbbf24]" />
                   </div>
                   <h2 className="text-2xl font-black text-white/90">رمز التحقق</h2>
-                  <p className="text-[#fbbf24]/60 text-xs mt-1.5">أدخل الرمز المكون من 4 أرقام المرسل إلى رقمك</p>
+                  <p className="text-[#fbbf24]/60 text-xs mt-1.5">أدخل الرمز المكون من 6 أرقام المرسل إلى بريدك</p>
                 </div>
                 
                 <form onSubmit={handleVerifyOtp} className="w-full space-y-3.5">
@@ -668,8 +669,8 @@ export function AuthGate({ children }: AuthGateProps) {
                   <div className="w-12 h-12 mx-auto bg-gradient-to-br from-[#fbbf24]/15 to-transparent rounded-2xl flex items-center justify-center mb-4 border border-[#fbbf24]/20">
                     <ShieldCheck className="w-6 h-6 text-[#fbbf24]" />
                   </div>
-                  <h2 className="text-2xl font-black text-white/90">تأكيد رقم الهاتف</h2>
-                  <p className="text-[#fbbf24]/60 text-xs mt-1.5">أدخل الرمز المكون من 6 أرقام المرسل إلى رقمك</p>
+                  <h2 className="text-2xl font-black text-white/90">تأكيد البريد الإلكتروني</h2>
+                  <p className="text-[#fbbf24]/60 text-xs mt-1.5">أدخل الرمز المكون من 6 أرقام المرسل إلى بريدك</p>
                 </div>
                 
                 <form onSubmit={handleVerifySignupOtp} className="w-full space-y-3.5">
@@ -744,8 +745,8 @@ export function AuthGate({ children }: AuthGateProps) {
                 className="flex flex-col items-center"
               >
                 <div className="text-center mb-6 w-full">
-                  <h2 className="text-3xl font-black text-white">تأكيد رقم الهاتف</h2>
-                  <p className="text-[#d4af37] text-xs mt-2">أدخل الرمز المكون من 6 أرقام<br/>المرسل إلى رقمك عبر واتساب</p>
+                  <h2 className="text-3xl font-black text-white">تأكيد البريد الإلكتروني</h2>
+                  <p className="text-[#d4af37] text-xs mt-2">أدخل الرمز المكون من 6 أرقام<br/>المرسل إلى بريدك الإلكتروني</p>
                 </div>
                 
                 <form onSubmit={handleVerifySignupOtp} className="w-full space-y-4">
@@ -833,7 +834,7 @@ export function AuthGate({ children }: AuthGateProps) {
                   
                   <div className="grid grid-cols-2 gap-2.5">
                     <InputField icon={<User />} type="text" value={formData.username} onChange={(v) => setFormData({...formData, username: v.toLowerCase().replace(/[^a-z0-9_]/g, '')})} placeholder="youssef_1" dir="ltr" />
-                    <InputField icon={<Phone />} type="tel" value={formData.phone} onChange={(v) => setFormData({...formData, phone: v})} placeholder="رقم الهاتف" dir="ltr" />
+                    <InputField icon={<Phone />} type="email" value={formData.email} onChange={(v) => setFormData({...formData, email: v})} placeholder="البريد الإلكتروني" dir="ltr" />
                   </div>
                   
                   <InputField icon={<KeyRound />} type="password" value={formData.password} onChange={(v) => {
@@ -886,12 +887,12 @@ export function AuthGate({ children }: AuthGateProps) {
                     <button
                       type="button"
                       onClick={() => {
-                        setFormData(prev => ({ ...prev, phone: "" }));
+                        setFormData(prev => ({ ...prev, email: "" }));
                         setView("signupAvatar");
                       }}
                       className="w-full py-3.5 rounded-2xl border border-dashed border-white/10 text-white/25 hover:text-white/50 hover:border-white/20 text-xs font-bold transition-all"
                     >
-                      تخطي تسجيل رقم الهاتف مؤقتاً
+                      تخطي تسجيل البريد الإلكتروني مؤقتاً
                     </button>
                   </div>
                   

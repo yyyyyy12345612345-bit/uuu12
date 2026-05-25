@@ -1,74 +1,51 @@
 import { NextResponse } from "next/server";
 import { setOtp } from "../otp-store";
+import nodemailer from "nodemailer";
 
-const WHATSAPP_BOT_URL = process.env.WHATSAPP_BOT_URL || "https://Yousseef213-ISAOIAS.hf.space";
-const ULTRAMSG_INSTANCE = process.env.NEXT_PUBLIC_ULTRAMSG_INSTANCE || "";
-const ULTRAMSG_TOKEN = process.env.NEXT_PUBLIC_ULTRAMSG_TOKEN || "";
+const GMAIL_USER = "yo1685081@gmail.com";
+const GMAIL_PASS = process.env.GMAIL_APP_PASSWORD;
+
+function getTransporter() {
+  return nodemailer.createTransport({
+    service: "gmail",
+    auth: { user: GMAIL_USER, pass: GMAIL_PASS },
+  });
+}
 
 export async function POST(request: Request) {
   try {
-    const { phone, reason } = await request.json();
-    if (!phone) {
-      return NextResponse.json({ success: false, error: "بيانات ناقصة" }, { status: 400 });
+    const { email, reason } = await request.json();
+    if (!email) {
+      return NextResponse.json({ success: false, error: "البريد الإلكتروني مطلوب" }, { status: 400 });
+    }
+    if (!GMAIL_PASS) {
+      console.error("[send-otp] GMAIL_APP_PASSWORD not set");
+      return NextResponse.json({ success: false, error: "Gmail غير مهيأ" }, { status: 500 });
     }
 
-    let clean = phone.trim().replace(/[^0-9]/g, "");
-    if (clean.startsWith("05")) clean = "966" + clean.slice(1);
-    else if (clean.startsWith("5")) clean = "966" + clean;
-    else if (!clean.startsWith("966")) clean = "966" + clean;
-
+    const cleanEmail = email.trim().toLowerCase();
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    setOtp(phone.trim(), otpCode);
+    setOtp(cleanEmail, otpCode);
 
-    // 1) Try WhatsApp bot on HF Space
-    try {
-      const botRes = await fetch(`${WHATSAPP_BOT_URL}/send-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phone_number: clean,
-          otp_code: otpCode,
-          reason: reason || "التحقق من الحساب",
-        }),
-        signal: AbortSignal.timeout(10000),
-      });
-      if (botRes.ok) {
-        return NextResponse.json({ success: true, message: "تم إرسال الكود عبر البوت" });
-      }
-      const botData = await botRes.json().catch(() => ({}));
-      console.log("[send-otp] Bot response:", botData);
-    } catch (e) {
-      console.log("[send-otp] Bot error:", e);
-    }
+    await getTransporter().sendMail({
+      from: `"موقع القرآن الكريم" <${GMAIL_USER}>`,
+      to: cleanEmail,
+      subject: "كود تفعيل حسابك - موقع القرآن الكريم",
+      html: `
+        <div style="direction:rtl;text-align:center;font-family:sans-serif;padding:20px;border:1px solid #eee;border-radius:10px;max-width:500px;margin:auto;">
+          <h2 style="color:#2c3e50;">مرحباً بك في موقع القرآن الكريم</h2>
+          <p style="font-size:16px;color:#7f8c8d;">${reason || "كود التفعيل الخاص بك"}</p>
+          <div style="background-color:#f8f9fa;padding:15px;border-radius:5px;margin:20px 0;">
+            <h1 style="color:#2ecc71;letter-spacing:5px;margin:0;font-size:36px;">${otpCode}</h1>
+          </div>
+          <p style="font-size:14px;color:#95a5a6;">هذا الكود صالح للاستخدام لمرة واحدة فقط.</p>
+        </div>
+      `,
+    });
 
-    // 2) Fallback to UltraMsg
-    if (ULTRAMSG_INSTANCE && ULTRAMSG_TOKEN) {
-      try {
-        const res = await fetch(`https://api.ultramsg.com/${ULTRAMSG_INSTANCE}/messages/chat`, {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({
-            token: ULTRAMSG_TOKEN,
-            to: clean,
-            body: `رمز التحقق: *${otpCode}*\n${reason || "التحقق من الحساب"}\n\nرمز لمرة واحدة - لا تشاركه.`,
-          }),
-        });
-
-        const data = await res.json();
-        if (data.sent === "true" || data.success) {
-          return NextResponse.json({ success: true, message: "تم إرسال الكود" });
-        }
-        console.log("[send-otp] UltraMsg response:", data);
-      } catch (e) {
-        console.log("[send-otp] UltraMsg error:", e);
-      }
-    }
-
-    return NextResponse.json({
-      success: false,
-      error: "تعذر إرسال الرسالة. تأكد من أن البوت مسجل الدخول في واتساب."
-    }, { status: 500 });
+    return NextResponse.json({ success: true, message: "تم إرسال الكود إلى بريدك الإلكتروني" });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: "خطأ داخلي" }, { status: 500 });
+    console.error("[send-otp] Error:", error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

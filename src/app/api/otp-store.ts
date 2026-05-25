@@ -1,25 +1,21 @@
-// Shared OTP store for server-side verification
-// Uses a global Map that persists across requests within the same instance
-
 const otpStore = new Map<string, { code: string; expiresAt: number }>();
 
-export function setOtp(phone: string, code: string) {
-  otpStore.set(phone, { code, expiresAt: Date.now() + 5 * 60 * 1000 });
+export function setOtp(key: string, code: string) {
+  otpStore.set(key, { code, expiresAt: Date.now() + 5 * 60 * 1000 });
 }
 
-export function verifyOtp(phone: string, code: string): boolean {
-  const entry = otpStore.get(phone);
+export function verifyOtp(key: string, code: string): boolean {
+  const entry = otpStore.get(key);
   if (!entry) return false;
   if (entry.expiresAt < Date.now()) {
-    otpStore.delete(phone);
+    otpStore.delete(key);
     return false;
   }
   if (entry.code !== code) return false;
-  otpStore.delete(phone);
+  otpStore.delete(key);
   return true;
 }
 
-// Clean expired entries periodically
 setInterval(() => {
   const now = Date.now();
   for (const [key, val] of otpStore) {
