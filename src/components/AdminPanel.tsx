@@ -18,7 +18,6 @@ import {
   writeBatch,
   query,
   orderBy,
-  where,
   addDoc,
   serverTimestamp,
   deleteDoc,
@@ -133,8 +132,6 @@ export function AdminPanel() {
   const [pushTarget, setPushTarget] = useState<"all" | "subscribers" | "free">("all");
   const [isSendingPush, setIsSendingPush] = useState(false);
   const [pushHistory, setPushHistory] = useState<any[]>([]);
-  const [maintenanceMode, setMaintenanceMode] = useState({ enabled: false, message: "", reason: "", duration: "" });
-  const [dailyStats, setDailyStats] = useState({ emailCount: 0, regCount: 0 });
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -160,8 +157,6 @@ export function AdminPanel() {
         fetchAlerts();
         fetchSupportTickets();
         fetchActivityLog();
-        fetchMaintenance();
-        fetchDailyStats();
       } else {
         setIsAdmin(false);
       }
@@ -410,42 +405,6 @@ export function AdminPanel() {
       const q = query(collection(db, "admin_logs"), orderBy("createdAt", "desc"));
       const snapshot = await getDocs(q);
       setActivityLog(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
-    } catch (e) { console.error(e); }
-  };
-
-  const fetchMaintenance = async () => {
-    if (!db) return;
-    try {
-      const cfg = await getDoc(doc(db, "admin", "config"));
-      if (cfg.exists()) {
-        const m = cfg.data().maintenance || {};
-        setMaintenanceMode(m);
-      }
-    } catch (e) { console.error(e); }
-  };
-
-  const handleSaveMaintenance = async () => {
-    if (!db) return;
-    try {
-      await setDoc(doc(db, "admin", "config"), { maintenance: maintenanceMode }, { merge: true });
-      alert("تم حفظ وضع الصيانة!");
-    } catch (e) { console.error(e); }
-  };
-
-  const fetchDailyStats = async () => {
-    if (!db) return;
-    try {
-      const today = new Date().toISOString().split('T')[0];
-      const usersSnap = await getDocs(collection(db, "users"));
-      const regToday = usersSnap.docs.filter(d => {
-        const data = d.data();
-        if (!data.createdAt) return false;
-        const c = typeof data.createdAt === 'string' ? data.createdAt : data.createdAt.toDate instanceof Function ? data.createdAt.toDate().toISOString() : String(data.createdAt);
-        return c.startsWith(today);
-      }).length;
-      const emailQuery = query(collection(db, "emailLogs"), where("date", "==", today));
-      const emailSnap = await getDocs(emailQuery);
-      setDailyStats({ emailCount: emailSnap.size, regCount: regToday });
     } catch (e) { console.error(e); }
   };
 
@@ -944,18 +903,6 @@ export function AdminPanel() {
                   </div>
                 ))}
               </div>
-              <div className="grid gap-6 md:grid-cols-2 mt-6">
-                <div className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6 text-center">
-                  <Mail className="mx-auto mb-4 h-8 w-8 text-sky-400" />
-                  <p className="text-sm text-slate-400 uppercase tracking-[0.2em]">إيميلات اليوم</p>
-                  <p className="mt-4 text-4xl font-black text-sky-400">{dailyStats.emailCount}</p>
-                </div>
-                <div className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6 text-center">
-                  <UserCheck className="mx-auto mb-4 h-8 w-8 text-emerald-400" />
-                  <p className="text-sm text-slate-400 uppercase tracking-[0.2em]">تسجيلات اليوم</p>
-                  <p className="mt-4 text-4xl font-black text-emerald-400">{dailyStats.regCount}</p>
-                </div>
-              </div>
               <div className="mt-8 grid gap-6 md:grid-cols-2">
                 <div className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6">
                   <p className="text-sm text-slate-400 uppercase">تنبيه عام</p>
@@ -1006,6 +953,584 @@ export function AdminPanel() {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'push' && (
+          <div className="space-y-6">
+            {/* Stats Bar */}
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6 text-center">
+                <Bell className="mx-auto mb-3 h-7 w-7 text-violet-400" />
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">المشتركين</p>
+                <p className="mt-3 text-3xl font-black text-violet-400">{stats.pushSubscribers}</p>
+                <p className="text-[11px] text-slate-500 mt-1">لديهم FCM Token</p>
+              </div>
+              <div className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6 text-center">
+                <Users className="mx-auto mb-3 h-7 w-7 text-emerald-400" />
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">إجمالي المستخدمين</p>
+                <p className="mt-3 text-3xl font-black text-emerald-400">{stats.totalUsers}</p>
+                <p className="text-[11px] text-slate-500 mt-1">جميع الحسابات</p>
+              </div>
+              <div className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6 text-center">
+                <TrendingUp className="mx-auto mb-3 h-7 w-7 text-sky-400" />
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">نسبة الوصول</p>
+                <p className="mt-3 text-3xl font-black text-sky-400">
+                  {stats.totalUsers > 0 ? Math.round((stats.pushSubscribers / stats.totalUsers) * 100) : 0}%
+                </p>
+                <p className="text-[11px] text-slate-500 mt-1">من إجمالي المستخدمين</p>
+              </div>
+            </div>
+
+            {/* Compose Notification */}
+            <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+              <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-5">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={fetchPushHistory}
+                    className="rounded-3xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300 hover:bg-white/10 transition"
+                  >
+                    سجل الإشعارات
+                  </button>
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black text-right">إرسال إشعار فوري</h2>
+                  <p className="text-sm text-slate-400 text-right mt-1">ابعت إشعار لجميع المستخدمين أو فئة منهم</p>
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-5">
+                {/* Quick Templates */}
+                <div className="space-y-3 text-right">
+                  <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">قوالب سريعة</label>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { label: '📖 تذكير يومي', title: '📖 وقت القرآن', body: 'لم تقرأ القرآن اليوم بعد. ابدأ بسورة واحدة على الأقل 🌙' },
+                      { label: '🌿 سورة الكهف', title: '🌿 يوم الجمعة المبارك', body: 'لا تنسَ قراءة سورة الكهف اليوم! من قرأها أضاءت له نور بين الجمعتين 🤍' },
+                      { label: '✨ تحديث جديد', title: '✨ تحديث سكينة', body: 'ميزات جديدة رائعة متاحة الآن! اكتشفها الآن 🚀' },
+                      { label: '🎯 تحدي', title: '🎯 تحدي اليوم', body: 'اقرأ 10 آيات وافوز بـ 100 نقطة! هل أنت مستعد؟ 💪' },
+                    ].map(t => (
+                      <button
+                        key={t.label}
+                        onClick={() => { setPushTitle(t.title); setPushBody(t.body); }}
+                        className="rounded-2xl bg-white/5 px-4 py-2 text-sm font-bold text-slate-300 hover:bg-primary/10 hover:text-primary border border-white/5 transition"
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Title */}
+                <div className="space-y-2 text-right">
+                  <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">عنوان الإشعار</label>
+                  <input
+                    value={pushTitle}
+                    onChange={e => setPushTitle(e.target.value)}
+                    className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-right text-sm outline-none focus:border-primary/40"
+                    placeholder="مثال: 📖 وقت القرآن"
+                    maxLength={60}
+                  />
+                  <p className="text-xs text-slate-500 text-left">{pushTitle.length}/60</p>
+                </div>
+
+                {/* Body */}
+                <div className="space-y-2 text-right">
+                  <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">نص الرسالة</label>
+                  <textarea
+                    value={pushBody}
+                    onChange={e => setPushBody(e.target.value)}
+                    rows={4}
+                    className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-right text-sm outline-none resize-none focus:border-primary/40"
+                    placeholder="اكتب رسالتك هنا..."
+                    maxLength={200}
+                  />
+                  <p className="text-xs text-slate-500 text-left">{pushBody.length}/200</p>
+                </div>
+
+                {/* Target */}
+                <div className="space-y-2 text-right">
+                  <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">الفئة المستهدفة</label>
+                  <div className="flex gap-3">
+                    {[
+                      { id: 'all', label: 'الكل', count: stats.totalUsers },
+                      { id: 'subscribers', label: 'المشتركون فقط', count: stats.pushSubscribers },
+                      { id: 'free', label: 'المجانيون', count: stats.totalUsers - stats.pushSubscribers },
+                    ].map(t => (
+                      <button
+                        key={t.id}
+                        onClick={() => setPushTarget(t.id as any)}
+                        className={`flex-1 rounded-3xl p-4 text-center font-black text-sm transition border ${
+                          pushTarget === t.id
+                            ? 'bg-primary/10 border-primary/30 text-primary'
+                            : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
+                        }`}
+                      >
+                        <p>{t.label}</p>
+                        <p className="text-[11px] mt-1 opacity-60">{t.count} مستخدم</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Preview */}
+                {(pushTitle || pushBody) && (
+                  <div className="rounded-3xl border border-violet-500/20 bg-slate-950/90 p-5 text-right">
+                    <p className="text-[10px] font-black text-violet-400 uppercase tracking-widest mb-3">معاينة الإشعار</p>
+                    <div className="flex items-start gap-3">
+                      <img src="/logo/logo.png" className="w-10 h-10 rounded-xl" alt="" />
+                      <div>
+                        <p className="font-black text-white text-sm">{pushTitle || 'العنوان'}</p>
+                        <p className="text-slate-400 text-[11px] mt-1 leading-relaxed">{pushBody || 'الرسالة...'}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Send Button */}
+                <button
+                  onClick={handleSendPushNotification}
+                  disabled={isSendingPush || !pushTitle || !pushBody}
+                  className="w-full rounded-3xl bg-gradient-to-r from-violet-500 to-sky-500 px-5 py-5 text-white font-black text-base transition hover:scale-[1.01] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-xl shadow-violet-500/20"
+                >
+                  {isSendingPush ? (
+                    <><Loader2 className="w-5 h-5 animate-spin" /> جاري الإرسال...</>
+                  ) : (
+                    <><Bell className="w-5 h-5" /> إرسال الإشعار الآن</>  
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Push History */}
+            {pushHistory.length > 0 && (
+              <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8">
+                <h3 className="text-xl font-black mb-5">سجل الإشعارات المُرسلة</h3>
+                <div className="space-y-3">
+                  {pushHistory.map(p => (
+                    <div key={p.id} className="rounded-3xl border border-white/10 bg-slate-950/90 p-4 flex items-start justify-between gap-4">
+                      <div className="text-left">
+                        <span className={`text-[10px] font-black px-2 py-1 rounded-full ${
+                          p.status === 'pending' ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400'
+                        }`}>{p.status === 'pending' ? 'في الانتظار' : 'مُرسل'}</span>
+                        <p className="text-[10px] text-slate-500 mt-1">{p.target}</p>
+                      </div>
+                      <div className="flex-1 text-right">
+                        <p className="font-black text-sm">{p.title}</p>
+                        <p className="text-slate-400 text-[11px] mt-1">{p.body}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'performance' && (
+          <div className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-4">
+              {[
+                { label: 'نشاط اليوم', value: performanceMetrics.dailyActive, color: 'text-emerald-400' },
+                { label: 'متوسط الجلسة', value: `${performanceMetrics.avgSessionMinutes} د`, color: 'text-sky-400' },
+                { label: 'معدل التحويل', value: `${performanceMetrics.conversionRate}%`, color: 'text-violet-400' },
+                { label: 'تنبيهات لم تُعالج', value: performanceMetrics.alertCount, color: 'text-rose-400' }
+              ].map((card) => (
+                <div key={card.label} className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6 text-center">
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{card.label}</p>
+                  <p className={`mt-4 text-4xl font-black ${card.color}`}>{card.value}</p>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+              <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+                <div>
+                  <h2 className="text-2xl font-black">لوحة أداء النظام</h2>
+                  <p className="text-sm text-slate-400">مراقبة سريعة لمعدل الاستخدام والتحويلات.</p>
+                </div>
+                <button onClick={fetchPerformanceMetrics} className="rounded-3xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-100 hover:bg-white/10">تحديث الأداء</button>
+              </div>
+              <div className="mt-6 grid gap-4 md:grid-cols-2">
+                <div className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6">
+                  <p className="text-sm text-slate-400">أهم الفرص لتحسين التحويل</p>
+                  <p className="mt-4 text-lg font-black text-white">زيادة الاشتراكات إلى الفرق الرئيسي خلال 7 أيام.</p>
+                </div>
+                <div className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6">
+                  <p className="text-sm text-slate-400">آخر تنبيه أداء</p>
+                  <p className="mt-4 text-lg font-black text-white">جاري تتبع أداء الحملة الترويجية الحالية.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'reports' && (
+          <div className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-3">
+              {[
+                { label: 'مبيعات اليوم', value: reports.revenueToday, note: 'ج.م' },
+                { label: 'أسبوعياً', value: reports.revenueWeek, note: 'ج.م' },
+                { label: 'شهرياً', value: reports.revenueMonth, note: 'ج.م' }
+              ].map((item) => (
+                <div key={item.label} className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6 text-center">
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{item.label}</p>
+                  <p className="mt-4 text-4xl font-black text-white">{item.value.toLocaleString()}</p>
+                  <p className="text-sm text-slate-500">{item.note}</p>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+              <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+                <div>
+                  <h2 className="text-2xl font-black">تقرير المبيعات</h2>
+                  <p className="text-sm text-slate-400">ملخص الإيرادات والخطة الأكثر طلبًا.</p>
+                </div>
+                <span className="rounded-full bg-white/5 px-4 py-2 text-sm text-slate-300">الخطة الأفضل: {reports.topPlan}</span>
+              </div>
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6">
+                  <p className="text-sm text-slate-400">مجموع الطلبات</p>
+                  <p className="mt-4 text-3xl font-black text-white">{subRequests.length}</p>
+                </div>
+                <div className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6">
+                  <p className="text-sm text-slate-400">أعلى خطة بناءً على الطلبات</p>
+                  <p className="mt-4 text-3xl font-black text-primary">{reports.topPlan || 'لا يوجد'}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'activity' && (
+          <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+            <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+              <div>
+                <h2 className="text-2xl font-black">سجل النشاط الإداري</h2>
+                <p className="text-sm text-slate-400">تتبع التغييرات والإجراءات في لوحة الإدارة.</p>
+              </div>
+              <button onClick={fetchActivityLog} className="rounded-3xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-100 hover:bg-white/10">تحديث السجل</button>
+            </div>
+            <div className="mt-6 space-y-3">
+              {activityLog.length === 0 ? (
+                <div className="rounded-[2rem] border border-dashed border-white/10 bg-slate-950/90 p-8 text-center text-slate-500">لا يوجد نشاط حديث.</div>
+              ) : (
+                activityLog.map(log => (
+                  <div key={log.id} className="rounded-3xl border border-white/10 bg-slate-950/90 p-4">
+                    <p className="font-black">{log.action || 'حدث إداري'}</p>
+                    <p className="text-xs text-slate-500">{new Date(log.createdAt?.toDate ? log.createdAt.toDate() : log.createdAt || Date.now()).toLocaleString()}</p>
+                    <p className="mt-2 text-sm text-slate-300">{log.details || 'لا يوجد تفاصيل إضافية.'}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'support' && (
+          <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-6 shadow-[0_35px_120px_rgba(15,23,42,0.18)] overflow-x-auto">
+            <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-6">
+              <div>
+                <h2 className="text-2xl font-black">طلبات الدعم</h2>
+                <p className="text-sm text-slate-400">تابع شكاوى المستخدمين وحلها بسرعة.</p>
+              </div>
+              <button onClick={fetchSupportTickets} className="rounded-3xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-100 hover:bg-white/10">تحديث الطلبات</button>
+            </div>
+            <div className="mt-6 min-w-[900px]">
+              <table className="w-full text-right">
+                <thead>
+                  <tr className="text-[10px] uppercase tracking-[0.18em] text-slate-400 border-b border-white/10">
+                    <th className="p-4">المستخدم</th>
+                    <th className="p-4">الموضوع</th>
+                    <th className="p-4">الحالة</th>
+                    <th className="p-4">الإجراء</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/10">
+                  {supportTickets.map(ticket => (
+                    <tr key={ticket.id} className="hover:bg-white/5 transition-colors">
+                      <td className="p-4 text-sm">{ticket.userName || 'مستخدم مجهول'}</td>
+                      <td className="p-4 text-sm">{ticket.subject || 'بدون موضوع'}</td>
+                      <td className="p-4 text-sm"><span className="rounded-full bg-white/5 px-3 py-1 text-xs font-black text-slate-200">{ticket.status || 'جديد'}</span></td>
+                      <td className="p-4 flex flex-wrap gap-2 justify-end">
+                        <button onClick={() => handleUpdateTicketStatus(ticket.id, 'in_progress')} className="rounded-3xl bg-sky-500 px-3 py-2 text-[11px] font-black text-black">قيد المعالجة</button>
+                        <button onClick={() => handleUpdateTicketStatus(ticket.id, 'resolved')} className="rounded-3xl bg-emerald-500 px-3 py-2 text-[11px] font-black text-black">تم الحل</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'campaigns' && (
+          <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+            <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+              <div>
+                <h2 className="text-2xl font-black">إدارة الحملات</h2>
+                <p className="text-sm text-slate-400">قم بتشغيل الحملات الترويجية أو إيقافها وتعديل الخصومات.</p>
+              </div>
+              <button onClick={handleSaveCampaignSettings} className="rounded-3xl bg-gradient-to-r from-sky-400 to-violet-500 px-4 py-2 text-sm font-black text-black">حفظ الحملة</button>
+            </div>
+            <div className="mt-6 grid gap-5 md:grid-cols-2">
+              <div className="space-y-3 text-right">
+                <label className="text-xs uppercase tracking-[0.18em] text-slate-400">اسم الحملة</label>
+                <input value={campaignSettings.label} onChange={e => setCampaignSettings({ ...campaignSettings, label: e.target.value })} className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-right outline-none" />
+              </div>
+              <div className="space-y-3 text-right">
+                <label className="text-xs uppercase tracking-[0.18em] text-slate-400">رابط الحملة</label>
+                <input value={campaignSettings.link} onChange={e => setCampaignSettings({ ...campaignSettings, link: e.target.value })} className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-right outline-none" />
+              </div>
+              <div className="space-y-3 text-right">
+                <label className="text-xs uppercase tracking-[0.18em] text-slate-400">نسبة الخصم</label>
+                <input type="number" value={campaignSettings.discountRate} onChange={e => setCampaignSettings({ ...campaignSettings, discountRate: parseInt(e.target.value) })} className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-center outline-none" />
+              </div>
+              <div className="space-y-3 text-right">
+                <label className="text-xs uppercase tracking-[0.18em] text-slate-400">مكافأة الإحالة</label>
+                <input type="number" value={campaignSettings.referralBonus} onChange={e => setCampaignSettings({ ...campaignSettings, referralBonus: parseInt(e.target.value) })} className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-center outline-none" />
+              </div>
+              <div className="col-span-full flex items-center gap-3">
+                <label className="inline-flex items-center gap-3 rounded-3xl bg-slate-950/90 px-4 py-4 border border-white/10">
+                  <input type="checkbox" checked={campaignSettings.active} onChange={e => setCampaignSettings({ ...campaignSettings, active: e.target.checked })} className="h-4 w-4 accent-primary" />
+                  <span className="text-sm text-slate-300">الحملة مفعلة</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'alerts' && (
+          <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+            <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+              <div>
+                <h2 className="text-2xl font-black">تنبيهات النظام</h2>
+                <p className="text-sm text-slate-400">معاينة تنبيهات الحالة السريعة وتقارير التحذير.</p>
+              </div>
+              <button onClick={fetchAlerts} className="rounded-3xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-100 hover:bg-white/10">تحديث</button>
+            </div>
+            <div className="mt-6 space-y-4">
+              {alerts.length === 0 ? (
+                <div className="rounded-[2rem] border border-dashed border-white/10 bg-slate-950/90 p-10 text-center text-slate-500">لا توجد تنبيهات حالياً.</div>
+              ) : (
+                alerts.map((alert, index) => (
+                  <div key={index} className="rounded-3xl border border-white/10 bg-slate-950/90 p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="font-black">{alert.title || 'تنبيه نظام'}</p>
+                        <p className="text-xs text-slate-500 mt-1">{new Date(alert.createdAt?.toDate ? alert.createdAt.toDate() : alert.createdAt || Date.now()).toLocaleString()}</p>
+                      </div>
+                      <button onClick={() => handleAcknowledgeAlert(index)} className="rounded-3xl bg-emerald-500 px-4 py-2 text-[11px] font-black text-black">تمت القراءة</button>
+                    </div>
+                    <p className="mt-4 text-sm text-slate-300">{alert.message || 'لا توجد رسالة.'}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'content' && (
+          <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+            <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+              <div>
+                <h2 className="text-2xl font-black">إدارة المحتوى</h2>
+                <p className="text-sm text-slate-400">تحكم في المحتوى المميز داخل التطبيق والواجهة الرئيسية.</p>
+              </div>
+              <button onClick={handleSaveContentSettings} className="rounded-3xl bg-gradient-to-r from-sky-400 to-violet-500 px-4 py-2 text-sm font-black text-black">حفظ المحتوى</button>
+            </div>
+            <div className="mt-6 grid gap-5 md:grid-cols-3">
+              <div className="space-y-3 text-right">
+                <label className="text-xs uppercase tracking-[0.18em] text-slate-400">السورة المميزة</label>
+                <input value={contentSettings.featuredSurah} onChange={e => setContentSettings({ ...contentSettings, featuredSurah: e.target.value })} className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-right outline-none" />
+              </div>
+              <div className="space-y-3 text-right">
+                <label className="text-xs uppercase tracking-[0.18em] text-slate-400">النص المميز</label>
+                <input value={contentSettings.featuredText} onChange={e => setContentSettings({ ...contentSettings, featuredText: e.target.value })} className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-right outline-none" />
+              </div>
+              <div className="space-y-3 text-right">
+                <label className="text-xs uppercase tracking-[0.18em] text-slate-400">عنوان الأخبار</label>
+                <input value={contentSettings.newsHeadline} onChange={e => setContentSettings({ ...contentSettings, newsHeadline: e.target.value })} className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-right outline-none" />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'flags' && (
+          <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+            <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+              <div>
+                <h2 className="text-2xl font-black">إعدادات التجارب</h2>
+                <p className="text-sm text-slate-400">تفعيل أو تعطيل خصائص جديدة لتجربتها قبل تشغيلها للجميع.</p>
+              </div>
+              <button onClick={handleSaveFeatureFlags} className="rounded-3xl bg-gradient-to-r from-sky-400 to-violet-500 px-4 py-2 text-sm font-black text-black">حفظ التجارب</button>
+            </div>
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {Object.entries(featureFlags).map(([key, value]) => (
+                <label key={key} className="inline-flex items-center justify-between rounded-3xl border border-white/10 bg-slate-950/90 p-5 text-sm text-slate-200">
+                  <span className="font-black uppercase tracking-[0.12em]">{key.replace(/([A-Z])/g, ' $1')}</span>
+                  <input type="checkbox" checked={Boolean(value)} onChange={e => setFeatureFlags({ ...featureFlags, [key]: e.target.checked })} className="h-4 w-4 accent-primary" />
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'versions' && (
+          <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+            <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+              <div>
+                <h2 className="text-2xl font-black">إدارة الإصدارات</h2>
+                <p className="text-sm text-slate-400">سجل الإصدار الأخير وأرسل إشعار تحديث جديد للتطبيق.</p>
+              </div>
+              <button onClick={handleSaveVersionSettings} disabled={isSavingVersion} className="rounded-3xl bg-gradient-to-r from-sky-400 to-violet-500 px-4 py-2 text-sm font-black text-black">
+                {isSavingVersion ? 'حفظ...' : 'نشر التحديث'}
+              </button>
+            </div>
+            <div className="mt-6 grid gap-5 lg:grid-cols-2">
+              <div className="space-y-3 text-right">
+                <label className="text-xs uppercase tracking-[0.18em] text-slate-400">رقم الإصدار</label>
+                <input value={versionSettings.version} onChange={e => setVersionSettings({ ...versionSettings, version: e.target.value })} className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-right outline-none" />
+              </div>
+              <div className="space-y-3 text-right">
+                <label className="text-xs uppercase tracking-[0.18em] text-slate-400">رابط التحميل</label>
+                <input value={versionSettings.downloadUrl} onChange={e => setVersionSettings({ ...versionSettings, downloadUrl: e.target.value })} className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-right outline-none" />
+              </div>
+              <div className="space-y-3 text-right lg:col-span-2">
+                <label className="text-xs uppercase tracking-[0.18em] text-slate-400">ملاحظات التحديث</label>
+                <textarea value={versionSettings.releaseNotes} onChange={e => setVersionSettings({ ...versionSettings, releaseNotes: e.target.value })} rows={5} className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-right outline-none" placeholder="اكتب ملاحظات الإصدار هنا" />
+              </div>
+              <label className="inline-flex items-center justify-between rounded-3xl border border-white/10 bg-slate-950/90 p-5 text-sm text-slate-200">
+                <span className="font-black uppercase tracking-[0.12em]">تحديث إجباري</span>
+                <input type="checkbox" checked={versionSettings.mandatoryUpdate} onChange={e => setVersionSettings({ ...versionSettings, mandatoryUpdate: e.target.checked })} className="h-4 w-4 accent-primary" />
+              </label>
+              <label className="inline-flex items-center justify-between rounded-3xl border border-white/10 bg-slate-950/90 p-5 text-sm text-slate-200">
+                <span className="font-black uppercase tracking-[0.12em]">إظهار على صفحة التحميل</span>
+                <input type="checkbox" checked={versionSettings.displayOnDownloadPage} onChange={e => setVersionSettings({ ...versionSettings, displayOnDownloadPage: e.target.checked })} className="h-4 w-4 accent-primary" />
+              </label>
+            </div>
+            {versionHistory.length > 0 && (
+              <div className="mt-8 rounded-[2rem] border border-white/10 bg-slate-950/90 p-6">
+                <h3 className="text-xl font-black mb-4">سجل الإصدارات</h3>
+                <div className="space-y-3">
+                  {versionHistory.map((item, index) => (
+                    <div key={`${item.version}-${index}`} className="rounded-3xl border border-white/10 bg-slate-900/70 p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="font-black">{item.version}</p>
+                        <span className="text-[11px] text-slate-400">{item.mandatoryUpdate ? 'إجباري' : 'اختياري'}</span>
+                      </div>
+                      <p className="text-sm text-slate-400 mt-3">{item.releaseNotes}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'showcase' && (
+          <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-6 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+            <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-6">
+              <div>
+                <h2 className="text-2xl font-black">معرض المجتمع</h2>
+                <p className="text-sm text-slate-400">تحكم في محتوى العرض، أضف أو احذف العناصر بسرعة.</p>
+              </div>
+              <button onClick={fetchShowcaseItems} className="rounded-3xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-slate-100 hover:bg-white/10 transition">تحديث العرض</button>
+            </div>
+            <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {showcaseItems.length === 0 ? (
+                <div className="col-span-full rounded-[2rem] border border-dashed border-white/10 bg-slate-950/90 p-16 text-center text-slate-500">لا يوجد عناصر في المعرض حالياً.</div>
+              ) : (
+                showcaseItems.map(item => (
+                  <div key={item.id} className="rounded-[2rem] border border-white/10 bg-slate-950/90 overflow-hidden shadow-lg shadow-black/20">
+                    <div className="aspect-video bg-black p-4 flex items-center justify-center">
+                      <a href={item.videoUrl} target="_blank" rel="noreferrer" className="text-primary font-black hover:underline">{item.surahName}</a>
+                    </div>
+                    <div className="p-5 flex items-center justify-between gap-4">
+                      <div>
+                        <p className="font-black">{item.userName}</p>
+                        <p className="text-xs text-slate-500">{item.surahName}</p>
+                      </div>
+                      <button onClick={() => handleDeleteShowcaseItem(item.id)} className="rounded-2xl bg-red-500/10 px-3 py-2 text-red-400 transition hover:bg-red-500/20">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+              <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+                <h2 className="text-2xl font-black">إعدادات الدفع</h2>
+                <Phone className="h-6 w-6 text-primary" />
+              </div>
+              <div className="mt-6 grid gap-5">
+                <div className="space-y-2 text-right">
+                  <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">رقم فودافون كاش</label>
+                  <input
+                    value={paymentSettings.vodafoneCash}
+                    onChange={e => setPaymentSettings({ ...paymentSettings, vodafoneCash: e.target.value })}
+                    className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-right text-sm outline-none focus:border-primary/40"
+                    placeholder="010XXXXXXXX"
+                  />
+                </div>
+                <div className="space-y-2 text-right">
+                  <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">يوزر إنستا باي</label>
+                  <input
+                    value={paymentSettings.instapay}
+                    onChange={e => setPaymentSettings({ ...paymentSettings, instapay: e.target.value })}
+                    className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-right text-sm outline-none focus:border-primary/40"
+                    placeholder="username@instapay"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
+              <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+                <h2 className="text-2xl font-black">إدارة الأسعار</h2>
+                <Trophy className="h-6 w-6 text-primary" />
+              </div>
+              <div className="mt-6 grid gap-4 md:grid-cols-3">
+                <div className="space-y-2 text-right">
+                  <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">خطة الهواة</label>
+                  <input
+                    type="number"
+                    value={paymentSettings.priceStarter}
+                    onChange={e => setPaymentSettings({ ...paymentSettings, priceStarter: parseInt(e.target.value) })}
+                    className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-center text-sm outline-none focus:border-primary/40"
+                  />
+                </div>
+                <div className="space-y-2 text-right">
+                  <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">ادعم المشروع</label>
+                  <input
+                    type="number"
+                    value={paymentSettings.priceSupporter}
+                    onChange={e => setPaymentSettings({ ...paymentSettings, priceSupporter: parseInt(e.target.value) })}
+                    className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-center text-sm outline-none focus:border-primary/40"
+                  />
+                </div>
+                <div className="space-y-2 text-right">
+                  <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">البريميوم</label>
+                  <input
+                    type="number"
+                    value={paymentSettings.pricePremium}
+                    onChange={e => setPaymentSettings({ ...paymentSettings, pricePremium: parseInt(e.target.value) })}
+                    className="w-full rounded-3xl border border-white/10 bg-slate-950/90 p-4 text-center text-sm outline-none focus:border-primary/40"
+                  />
+                </div>
+              </div>
+              <button
+                onClick={handleSavePaymentSettings}
+                disabled={isSavingSettings}
+                className="mt-8 w-full rounded-3xl bg-gradient-to-r from-sky-400 to-violet-500 px-5 py-4 text-black font-black transition hover:shadow-xl hover:shadow-sky-500/20"
+              >
+                {isSavingSettings ? <Loader2 className="inline-block h-5 w-5 animate-spin" /> : 'حفظ الإعدادات'}
+              </button>
             </div>
             {/** Maintenance Mode */}
             <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
