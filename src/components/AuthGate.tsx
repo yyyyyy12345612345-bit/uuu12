@@ -81,6 +81,7 @@ export function AuthGate({ children }: AuthGateProps) {
   const [resetUserId, setResetUserId] = useState("");
   const [resetUsername, setResetUsername] = useState("");
   const [recoveredPassword, setRecoveredPassword] = useState<string | null>(null);
+  const [emailVerified, setEmailVerified] = useState(false);
 
   // Signup States
   const [formData, setFormData] = useState({
@@ -104,9 +105,10 @@ export function AuthGate({ children }: AuthGateProps) {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const verified = params.get("verified");
-    if (verified) {
-      setFormData(prev => ({ ...prev, email: verified }));
+    const verifiedEmail = params.get("verified");
+    if (verifiedEmail) {
+      setFormData(prev => ({ ...prev, email: verifiedEmail }));
+      setEmailVerified(true);
       setView("signupAvatar");
       window.history.replaceState({}, "", "/");
     }
@@ -219,13 +221,19 @@ export function AuthGate({ children }: AuthGateProps) {
         const apiResponse = await fetch("/api/send-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: formData.email.trim(), reason: "تأكيد البريد الإلكتروني للتسجيل" })
+          body: JSON.stringify({ email: formData.email.trim(), reason: "تأكيد البريد الإلكتروني للتسجيل", type: "signup" })
         });
 
         const apiData = await apiResponse.json();
 
         if (apiData.success) {
-          setView("verifySignupOtp");
+          if (apiData.emailSent === false) {
+            setEmailVerified(false);
+            setView("signupAvatar");
+          } else {
+            setEmailVerified(false);
+            setView("verifySignupOtp");
+          }
           setIsLoggingIn(false);
           return;
         } else {
@@ -255,6 +263,7 @@ export function AuthGate({ children }: AuthGateProps) {
       });
       const data = await res.json();
       if (data.success) {
+        setEmailVerified(true);
         setView("signupAvatar");
       } else {
         setError(data.error || "الكود غير صحيح");
@@ -276,6 +285,7 @@ export function AuthGate({ children }: AuthGateProps) {
         username: formData.username.trim().toLowerCase(),
         displayName: formData.displayName.trim(),
         email: formData.email.trim(),
+        emailVerified: emailVerified,
         phoneNumber: formData.phone.trim(),
         gender: formData.gender,
         country: formData.country,
