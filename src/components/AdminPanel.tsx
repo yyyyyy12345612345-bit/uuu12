@@ -125,6 +125,7 @@ export function AdminPanel() {
   const [isSavingCampaigns, setIsSavingCampaigns] = useState(false);
   const [isSavingFlags, setIsSavingFlags] = useState(false);
   const [isSavingContent, setIsSavingContent] = useState(false);
+  const [isSavingMaintenance, setIsSavingMaintenance] = useState(false);
   const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false);
   const [userPlanSelection, setUserPlanSelection] = useState<Record<string, string>>({});
   const [showBannedOnly, setShowBannedOnly] = useState(false);
@@ -291,10 +292,16 @@ export function AdminPanel() {
 
   const handleSaveMaintenance = async () => {
     if (!db) return;
+    setIsSavingMaintenance(true);
     try {
       await setDoc(doc(db, "admin", "config"), { maintenance: maintenanceMode }, { merge: true });
       alert("✅ تم حفظ وضع الصيانة بنجاح!");
-    } catch (e) { console.error(e); alert("فشل الحفظ"); }
+    } catch (e) {
+      console.error(e);
+      alert("فشل الحفظ: يرجى التحقق من الاتصال بالإنترنت أو إيقاف مانع الإعلانات.");
+    } finally {
+      setIsSavingMaintenance(false);
+    }
   };
 
   const fetchAnnouncement = async () => {
@@ -1316,9 +1323,12 @@ export function AdminPanel() {
                     <label className={LABEL}>المدة المتوقعة</label>
                     <input value={maintenanceMode.duration} onChange={e => setMaintenanceMode({ ...maintenanceMode, duration: e.target.value })} className={INPUT_CLASS} placeholder="مثال: ساعتين" />
                   </div>
-                  <button onClick={handleSaveMaintenance} className="mt-2 w-full rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 px-5 py-4 text-black font-black transition hover:shadow-xl hover:shadow-amber-500/20">
-                    حفظ وضع الصيانة
+                  <button onClick={handleSaveMaintenance} disabled={isSavingMaintenance} className="mt-2 w-full rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 px-5 py-4 text-black font-black transition hover:shadow-xl hover:shadow-amber-500/20 disabled:opacity-50">
+                    {isSavingMaintenance ? <Loader2 className="inline-block h-5 w-5 animate-spin" /> : 'حفظ وضع الصيانة'}
                   </button>
+                  <p className="text-[11px] text-amber-500/80 font-bold leading-relaxed text-right mt-2">
+                    ⚠️ ملحوظة: إذا كنت تستخدم مانع إعلانات (AdBlocker) أو متصفح Brave مع تشغيل الدروع، فقد يتم حظر الاتصال بقاعدة البيانات (ERR_BLOCKED_BY_CLIENT) ولا يتم حفظ التغييرات. يرجى تعطيل مانع الإعلانات في هذا الموقع لضمان عمل لوحة التحكم بشكل سليم.
+                  </p>
                 </div>
               </div>
             </div>
