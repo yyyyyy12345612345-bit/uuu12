@@ -12,7 +12,7 @@ import {
   onAuthStateChanged,
   User as FirebaseUser
 } from "firebase/auth";
-import { doc, getDoc, setDoc, collection, query, where, getDocs, addDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, query, where, getDocs, addDoc, onSnapshot } from "firebase/firestore";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface AuthGateProps {
@@ -109,23 +109,39 @@ export function AuthGate({ children }: AuthGateProps) {
 
   useEffect(() => {
     let isMounted = true;
-    const fetchMaintenance = async () => {
+    let unsubscribe: (() => void) | null = null;
+
+    const setupMaintenanceListener = async () => {
       await initFirebase();
-      if (!isMounted) return;
+      if (!isMounted || !db) return;
+
       try {
-        const s = await getDoc(doc(db, "admin", "config"));
-        if (s.exists()) {
-          setMaintenance(s.data().maintenance || { enabled: false, message: "", reason: "", duration: "" });
-        } else {
+        unsubscribe = onSnapshot(doc(db, "admin", "config"), (snapshot) => {
+          if (!isMounted) return;
+          if (snapshot.exists()) {
+            setMaintenance(snapshot.data().maintenance || { enabled: false, message: "", reason: "", duration: "" });
+          } else {
+            setMaintenance({ enabled: false, message: "", reason: "", duration: "" });
+          }
+        }, (error) => {
+          console.error("Maintenance listener error:", error);
+          if (isMounted) {
+            setMaintenance({ enabled: false, message: "", reason: "", duration: "" });
+          }
+        });
+      } catch (e) {
+        console.error("Failed to setup maintenance listener:", e);
+        if (isMounted) {
           setMaintenance({ enabled: false, message: "", reason: "", duration: "" });
         }
-      } catch (e) {
-        setMaintenance({ enabled: false, message: "", reason: "", duration: "" });
       }
     };
-    fetchMaintenance();
+
+    setupMaintenanceListener();
+
     return () => {
       isMounted = false;
+      if (unsubscribe) unsubscribe();
     };
   }, []);
 
