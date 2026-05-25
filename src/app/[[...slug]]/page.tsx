@@ -12,6 +12,7 @@ export async function generateStaticParams() {
     { slug: ['prayers'] },
     { slug: ['video'] },
     { slug: ['rank'] },
+    { slug: ['admin'] },
     { slug: ['profile'] },
   ];
 }
