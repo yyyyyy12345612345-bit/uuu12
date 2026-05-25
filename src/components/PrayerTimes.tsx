@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
-  Clock, MapPin, Bell, BellOff, Volume2, Settings2,
-  RefreshCw, Globe, Calendar, X, Music, Wifi, WifiOff, Loader2,
+  Clock, MapPin, Bell, BellOff, Settings2,
+  RefreshCw, Calendar, X, Music, Wifi, WifiOff, Loader2,
 } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
 import { usePrayerNotifications } from "@/hooks/usePrayerNotifications";
 import { PrayerSettingsSheet, MUEZZINS } from "@/components/PrayerSettingsSheet";
 import { PrayerYearCalendarView } from "@/components/PrayerYearCalendarView";
+import { Capacitor } from "@capacitor/core";
+import { Geolocation } from "@capacitor/geolocation";
 import {
   type PrayerTimesData,
   type PrayerSettingsMap,
@@ -25,7 +27,6 @@ import {
   getTodayTimes,
   getNextPrayerFromCalendar,
   formatTimeDisplay,
-  getTodayKey,
 } from "@/lib/prayerCalendar";
 
 function PrayerCountdown({
@@ -36,6 +37,7 @@ function PrayerCountdown({
   settings: PrayerSettingsMap;
 }) {
   const [next, setNext] = useState<NextPrayerInfo | null>(null);
+
   useEffect(() => {
     const tick = () => setNext(getNextPrayerFromCalendar(calendar, settings));
     tick();
@@ -44,22 +46,26 @@ function PrayerCountdown({
   }, [calendar, settings]);
 
   if (!next) {
-    return <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto" />;
+    return (
+      <div className="py-6 flex flex-col items-center justify-center">
+        <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+      </div>
+    );
   }
 
   return (
-    <>
-      <div className="flex items-center justify-center gap-2 mb-3 bg-primary/10 px-4 py-1.5 rounded-full border border-primary/20">
-        <Clock className="w-4 h-4 text-primary" />
-        <span className="text-[11px] font-black text-primary tracking-widest">القادمة: {next.nameAr}</span>
+    <div className="flex flex-col items-center justify-center text-center">
+      <div className="flex items-center justify-center gap-2 mb-3 bg-amber-500/10 px-4 py-1.5 rounded-full border border-amber-500/20">
+        <Clock className="w-4 h-4 text-amber-400" />
+        <span className="text-xs font-black text-amber-400">الصلاة القادمة: {next.nameAr}</span>
       </div>
-      <h2 className="text-3xl md:text-4xl font-black tracking-widest text-foreground font-mono mb-2" dir="ltr">
+      <h2 className="text-4xl md:text-5xl font-black tracking-widest text-white font-mono mb-2 drop-shadow-[0_0_15px_rgba(251,191,36,0.1)]" dir="ltr">
         {next.inLabel}
       </h2>
-      <p className="text-sm text-foreground/40 font-bold font-mono" dir="ltr">
-        {next.date.toLocaleString("ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+      <p className="text-xs text-white/40 font-bold font-mono" dir="ltr">
+        أذان {next.nameAr} في تمام الساعة {next.date.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" })}
       </p>
-    </>
+    </div>
   );
 }
 
@@ -72,6 +78,7 @@ export function PrayerTimes() {
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [showAthanSettings, setShowAthanSettings] = useState(false);
   const [showDiagnostics, setShowDiagnostics] = useState(false);
+  const [showDevSettings, setShowDevSettings] = useState(false);
 
   const [customCity, setCustomCity] = useState("Cairo");
   const [customCountry, setCustomCountry] = useState("Egypt");
@@ -150,7 +157,7 @@ export function PrayerTimes() {
       if (n?.id) setNextPrayerId(n.id);
     };
     tick();
-    const id = setInterval(tick, 30_000);
+    const id = setInterval(tick, 10000);
     return () => clearInterval(id);
   }, [calendar, prayerSettings]);
 
@@ -174,30 +181,69 @@ export function PrayerTimes() {
     setDraftPrayerSetting({ ...prayerSettings[activeSettingsPrayer] });
   }, [activeSettingsPrayer, prayerSettings]);
 
-  const detectLocation = () => {
-    if (!navigator.geolocation) return;
+  const detectLocation = async () => {
     setLoading(true);
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const { latitude, longitude } = pos.coords;
-        let label = "موقعي الحالي";
-        try {
-          const geoRes = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=ar`
-          );
-          const geoData = await geoRes.json();
-          const name = geoData.address?.city || geoData.address?.town || geoData.address?.state || "موقعي";
-          label = `${name}، ${geoData.address?.country || ""}`;
-        } catch { /* ignore */ }
-        await syncCalendar({ latitude, longitude, label });
-      },
-      () => setLoading(false)
-    );
+    setSyncMessage("جاري تحديد موقعك...");
+    try {
+      let latitude = 0;
+      let longitude = 0;
+
+      if (Capacitor.isNativePlatform()) {
+        const permStatus = await Geolocation.checkPermissions();
+        let finalPerm = permStatus.location;
+        if (finalPerm !== 'granted') {
+          const requestStatus = await Geolocation.requestPermissions();
+          finalPerm = requestStatus.location;
+        }
+        if (finalPerm !== 'granted') {
+          throw new Error("صلاحية الموقع مطلوبة لتحديد مواقيت الصلاة بدقة.");
+        }
+        const pos = await Geolocation.getCurrentPosition();
+        latitude = pos.coords.latitude;
+        longitude = pos.coords.longitude;
+      } else {
+        if (!navigator.geolocation) {
+          throw new Error("متصفحك لا يدعم تحديد الموقع الجغرافي.");
+        }
+        const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+        latitude = pos.coords.latitude;
+        longitude = pos.coords.longitude;
+      }
+
+      let label = "موقعي الحالي";
+      try {
+        const geoRes = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=ar`
+        );
+        const geoData = await geoRes.json();
+        if (geoData && geoData.address) {
+          const name = geoData.address.city || geoData.address.town || geoData.address.village || geoData.address.state || "موقعي";
+          label = `${name}، ${geoData.address.country || ""}`;
+        }
+      } catch (err) {
+        console.warn("Reverse geocode failed", err);
+      }
+
+      await syncCalendar({ latitude, longitude, label });
+      setSyncMessage(`تم تحديث المواقيت لـ: ${label}`);
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "فشل تحديد الموقع");
+      setSyncMessage("فشل تحديد الموقع");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const locationLabel = calendar?.meta.label || "القاهرة، مصر";
   const dayCount = calendar ? Object.keys(calendar.days).length : 0;
   const isOfflineReady = dayCount > 300;
+
+  const CARD_BG = "bg-[#0b0f19]/80 backdrop-blur-xl border border-white/[0.06] rounded-[2.5rem] p-6 shadow-2xl relative overflow-hidden group";
+  const LABEL = "text-[10px] font-black text-[#d4af37] uppercase tracking-[0.2em]";
+  const INPUT_CLASS = "w-full bg-white/[0.04] border border-white/[0.06] rounded-xl p-3.5 text-sm text-white outline-none placeholder:text-white/20 text-right focus:border-[#fbbf24]/40 transition";
 
   const prayerCards = useMemo(() => {
     if (!times) return null;
@@ -205,204 +251,259 @@ export function PrayerTimes() {
       const isNext = nextPrayerId === id;
       const time = times[id as keyof PrayerTimesData];
       const enabled = prayerSettings[id]?.enabled;
+      
       return (
         <button
           type="button"
           key={id}
           onClick={() => setActiveSettingsPrayer(id)}
-          className={`p-4 md:p-5 rounded-[1.75rem] border transition-all duration-200 flex flex-col items-center gap-2 min-h-[140px] w-full ${
+          className={`p-4 md:p-5 rounded-[2rem] border transition-all duration-300 flex flex-col items-center gap-2 min-h-[145px] w-full text-center relative overflow-hidden group ${
             isNext
-              ? "bg-primary border-primary text-black shadow-lg shadow-primary/20"
-              : "bg-slate-950/90 border-white/10 hover:border-primary/40 hover:-translate-y-0.5"
+              ? "bg-gradient-to-br from-amber-400 to-orange-500 border-amber-500 text-black shadow-lg shadow-amber-500/20 scale-105 z-10"
+              : "bg-[#0c0f19]/60 border-white/[0.05] hover:border-amber-500/30 hover:-translate-y-1 text-white"
           }`}
         >
-          <span className={`text-[11px] font-black uppercase tracking-widest ${isNext ? "text-black/60" : "text-foreground/40"}`}>
+          {isNext && (
+            <span className="absolute -inset-1 rounded-full border border-amber-500 animate-pulse opacity-20" />
+          )}
+          <span className={`text-[10px] font-black uppercase tracking-widest ${isNext ? "text-black/60" : "text-white/30"}`}>
             {name}
           </span>
-          <span className="text-xl md:text-3xl font-black font-mono" dir="ltr">
+          <span className="text-2xl md:text-3xl font-black font-mono tracking-tight" dir="ltr">
             {formatTimeDisplay(time)}
           </span>
-          <span className={`text-[10px] font-bold ${isNext ? "text-black/50" : "text-foreground/25"}`}>إعدادات</span>
-          {enabled ? <Bell className="w-3 h-3" /> : <BellOff className="w-3 h-3 opacity-40" />}
+          <div className="flex items-center gap-1.5 mt-2">
+            <span className={`text-[9px] font-bold ${isNext ? "text-black/40" : "text-white/20"}`}>خيارات التنبيه</span>
+            {enabled ? (
+              <Bell className={`w-3.5 h-3.5 ${isNext ? "text-black" : "text-amber-400 animate-swing"}`} />
+            ) : (
+              <BellOff className={`w-3.5 h-3.5 opacity-40 ${isNext ? "text-black/40" : "text-white/30"}`} />
+            )}
+          </div>
         </button>
       );
     });
   }, [times, nextPrayerId, prayerSettings, setActiveSettingsPrayer]);
 
   return (
-<div className="flex flex-col h-full p-4 md:p-6 pt-18 md:pt-12 overflow-y-auto overflow-x-hidden no-scrollbar font-arabic relative">
-      <div className="absolute inset-0 z-0 pointer-events-none bg-gradient-to-b from-background via-background/95 to-background" />
+    <div className="flex flex-col h-full p-4 md:p-6 pt-18 md:pt-12 overflow-y-auto overflow-x-hidden no-scrollbar font-arabic relative">
+      <div className="absolute inset-0 z-0 pointer-events-none bg-gradient-to-b from-[#0b0f1a] via-[#0b0f1a]/95 to-[#0b0f1a]" />
 
-      <div className="max-w-5xl mx-auto w-full flex flex-col gap-6 relative z-10">
-        <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-b from-slate-950/95 to-slate-900/95 p-6 shadow-2xl shadow-black/30">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(212,175,53,0.16),_transparent_25%)] opacity-90" />
-          <div className="relative grid gap-5 lg:grid-cols-[1.4fr_0.9fr] items-start">
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-3 text-[11px] font-black uppercase tracking-[0.3em] text-primary">
+      <div className="max-w-4xl mx-auto w-full flex flex-col gap-6 relative z-10">
+        
+        {/* Top Info Card */}
+        <div className={CARD_BG}>
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(245,158,11,0.06),_transparent_40%)] opacity-90" />
+          <div className="relative grid gap-5 lg:grid-cols-[1.3fr_0.7fr] items-center">
+            <div className="space-y-3.5 text-right lg:text-right">
+              <div className="flex flex-wrap items-center gap-3 justify-start lg:justify-start text-xs font-black uppercase tracking-[0.2em] text-amber-500">
                 <MapPin className="w-4 h-4" />
-                <span>{locationLabel}</span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-[10px] text-white/75">
-                  {isOfflineReady ? <><WifiOff className="w-3 h-3" /> {dayCount} يوم محفوظ</> : <><Wifi className="w-3 h-3" /> يحتاج مزامنة</>}
+                <span className="text-white/90 font-bold">{locationLabel}</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.04] border border-white/10 px-3.5 py-1 text-[10px] text-white/70">
+                  {isOfflineReady ? (
+                    <><WifiOff className="w-3.5 h-3.5 text-emerald-400" /> {dayCount} يوم محفوظ</>
+                  ) : (
+                    <><Wifi className="w-3.5 h-3.5 text-amber-400 animate-pulse" /> يحتاج مزامنة</>
+                  )}
                 </span>
               </div>
-              <div className="space-y-2">
-                <p className="text-sm text-foreground/50">الوقت الحالي</p>
-                <h1 className="text-5xl md:text-6xl font-black tracking-tight text-white" dir="ltr">{clockLabel}</h1>
-                <p className="max-w-2xl text-sm text-foreground/40 leading-6">
+              <div className="space-y-1.5">
+                <p className="text-xs text-white/30 font-bold">الوقت الحالي</p>
+                <h1 className="text-5xl md:text-6xl font-black tracking-tight text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.03)] font-mono" dir="ltr">
+                  {clockLabel}
+                </h1>
+                <p className="text-xs text-white/40 leading-relaxed font-bold">
                   مواقيت الصلاة محفوظة محليًا وتشتغل بدون إنترنت. اضغط على "موقعي" لتحديث الموقع بدقة أكبر.
                 </p>
               </div>
             </div>
-            <div className="grid gap-3">
+            
+            <div className="grid gap-2.5">
               <button
                 type="button"
                 onClick={() => calendar && syncCalendar(calendar.meta)}
                 disabled={loading}
-                className="flex items-center justify-center gap-2 rounded-[1.75rem] border border-white/10 bg-white/5 px-4 py-3 text-sm font-black text-white transition hover:border-primary/30"
+                className="flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-xs font-black text-white hover:bg-white/10 hover:border-amber-500/30 transition-all disabled:opacity-50"
                 title="تحديث التقويم"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <RefreshCw className="w-5 h-5" />}
+                {loading ? <Loader2 className="w-4 h-4 animate-spin text-amber-500" /> : <RefreshCw className="w-4 h-4" />}
                 تحديث المواقيت
               </button>
               <button
                 type="button"
                 onClick={detectLocation}
-                className="flex items-center justify-center gap-2 rounded-[1.75rem] border border-white/10 bg-white/5 px-4 py-3 text-sm font-black text-white transition hover:border-primary/30"
+                disabled={loading}
+                className="flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-xs font-black text-white hover:bg-white/10 hover:border-amber-500/30 transition-all disabled:opacity-50"
                 title="موقعي"
               >
-                <MapPin className="w-4 h-4" />
-                موقعي
+                <MapPin className="w-4 h-4 text-amber-400" />
+                تحديد موقعي (GPS)
               </button>
               <button
                 type="button"
                 onClick={() => setShowAthanSettings(true)}
-                className="flex items-center justify-center gap-2 rounded-[1.75rem] bg-primary px-4 py-3 text-sm font-black text-black shadow-lg shadow-primary/20"
+                className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 px-4 py-3.5 text-xs font-black text-black shadow-lg shadow-amber-500/10 hover:brightness-110 active:scale-98 transition-all"
               >
                 <Music className="w-4 h-4" />
-                إعداد الأذان
+                إعداد الأذان الموحد
               </button>
             </div>
           </div>
+          {syncMessage && (
+            <div className="mt-4 border-t border-white/[0.04] pt-3 text-center">
+              <span className="text-[11px] font-bold text-amber-500/80 bg-amber-500/5 px-4 py-1.5 rounded-full border border-amber-500/10 inline-block animate-premium-in">
+                {syncMessage}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Countdown */}
-        <div className="bg-slate-950/95 border border-white/10 rounded-[2rem] p-6 md:p-8 text-center shadow-2xl shadow-black/20">
+        <div className="bg-[#0b0f19]/80 border border-white/[0.06] rounded-[2.5rem] p-6 md:p-8 text-center shadow-2xl relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.01] to-transparent pointer-events-none" />
           {calendar ? (
             <PrayerCountdown calendar={calendar} settings={prayerSettings} />
           ) : (
             <div className="py-6 flex flex-col items-center gap-3">
-              <Loader2 className="w-8 h-8 text-primary animate-spin" />
-              <p className="text-sm font-bold text-foreground/40">تحميل جدول المواقيت...</p>
+              <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+              <p className="text-xs font-bold text-white/40">جاري تحميل جدول المواقيت...</p>
             </div>
           )}
-          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-foreground/60">
-            <Calendar className="w-4 h-4" />
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-white/50">
+            <Calendar className="w-3.5 h-3.5 text-amber-400" />
             <span>{new Date().toLocaleDateString("ar-EG", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</span>
           </div>
         </div>
 
         {/* Today prayers */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-          {prayerCards ?? <p className="col-span-full text-center text-foreground/40 py-6">جاري التحميل...</p>}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {prayerCards ?? <p className="col-span-full text-center text-white/30 py-6">جاري التحميل...</p>}
         </div>
-
-        {/* Test + diagnostics */}
-        <div className="flex flex-wrap gap-2 justify-center">
-          <button
-            type="button"
-            onClick={async () => {
-              const ok = await sendTest();
-              alert(ok ? "تم إرسال إشعار تجريبي" : "فعّل الإشعارات");
-            }}
-            className="px-5 py-2.5 rounded-xl bg-primary text-black font-black text-sm"
-          >
-            تجربة إشعار
-          </button>
-          <button
-            type="button"
-            onClick={async () => {
-              setShowDiagnostics((v) => !v);
-              if (!showDiagnostics) await refreshDiagnostics();
-            }}
-            className="px-5 py-2.5 rounded-xl bg-card border border-border font-black text-sm"
-          >
-            حالة النظام
-          </button>
-          <button type="button" onClick={() => void reschedule(true)} className="px-5 py-2.5 rounded-xl bg-card border border-border font-black text-sm">
-            إعادة جدولة
-          </button>
-        </div>
-        {showDiagnostics && diagnostics && (
-          <p className="text-center text-xs font-bold text-foreground/50">
-            إذن: {diagnostics.permissionsGranted ? "نعم" : "لا"} — مجدول: {diagnostics.totalScheduledPending}
-          </p>
-        )}
 
         {/* Year calendar */}
         {calendar && <PrayerYearCalendarView calendar={calendar} />}
-      </div>
 
-      {showAthanSettings && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70" onClick={() => setShowAthanSettings(false)} />
-          <div className="relative w-full max-w-md bg-[#0c1210] border border-white/10 rounded-[2rem] p-6 max-h-[80vh] overflow-y-auto">
-            <button type="button" onClick={() => setShowAthanSettings(false)} className="absolute top-4 left-4 text-white/40"><X /></button>
-            <h3 className="text-xl font-black text-white text-right mb-4">المؤذن لكل الصلوات</h3>
-            {MUEZZINS.map((m) => (
+        {/* Collapsible Advanced Settings (Developer/Diagnostics) */}
+        <div className="mt-6 border-t border-white/5 pt-6 flex flex-col items-center">
+          <button 
+            type="button" 
+            onClick={() => setShowDevSettings(!showDevSettings)}
+            className="text-[10px] font-black text-white/30 hover:text-white/60 transition flex items-center gap-2"
+          >
+            <Settings2 className="w-3.5 h-3.5" />
+            <span>{showDevSettings ? "إخفاء خيارات المطورين" : "عرض خيارات المطورين والتنبيهات"}</span>
+          </button>
+          
+          {showDevSettings && (
+            <div className="mt-4 flex flex-wrap gap-2 justify-center animate-premium-in">
               <button
                 type="button"
-                key={m.id}
-                onClick={() => {
-                  const newSet: PrayerSettingsMap = { ...prayerSettings };
-                  Object.keys(newSet).forEach((k) => {
-                    newSet[k] = { ...newSet[k], muezzinId: m.id };
-                  });
-                  void setPrayerSettings(newSet);
-                  setShowAthanSettings(false);
+                onClick={async () => {
+                  const ok = await sendTest();
+                  alert(ok ? "تم إرسال إشعار تجريبي بنجاح!" : "يرجى تفعيل صلاحية الإشعارات أولاً.");
                 }}
-                className={`w-full p-4 rounded-xl mb-2 text-right font-black ${
-                  prayerSettings.Fajr?.muezzinId === m.id ? "bg-primary text-black" : "bg-white/5 text-white"
-                }`}
+                className="px-4 py-2 text-[11px] font-black rounded-xl bg-amber-500 text-black transition hover:brightness-110 shadow-lg shadow-amber-500/5"
               >
-                {m.name}
+                إرسال إشعار تجريبي
               </button>
-            ))}
+              <button
+                type="button"
+                onClick={async () => {
+                  setShowDiagnostics((v) => !v);
+                  if (!showDiagnostics) await refreshDiagnostics();
+                }}
+                className="px-4 py-2 text-[11px] font-black rounded-xl bg-white/5 border border-white/10 text-white transition hover:bg-white/10"
+              >
+                فحص حالة النظام
+              </button>
+              <button 
+                type="button" 
+                onClick={() => void reschedule(true)} 
+                className="px-4 py-2 text-[11px] font-black rounded-xl bg-white/5 border border-white/10 text-white transition hover:bg-white/10"
+              >
+                إعادة جدولة الأذان
+              </button>
+            </div>
+          )}
+          {showDiagnostics && diagnostics && (
+            <p className="mt-3 text-center text-[10px] font-bold text-white/40 leading-relaxed">
+              صلاحية النظام: {diagnostics.permissionsGranted ? "مفعّلة" : "غير مفعّلة"} — التنبيهات المجدولة في الانتظار: {diagnostics.totalScheduledPending}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Adhan settings dialog */}
+      {showAthanSettings && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="absolute inset-0" onClick={() => setShowAthanSettings(false)} />
+          <div className="relative w-full max-w-sm bg-[#0c0f19] border border-white/10 rounded-[2.5rem] p-6 max-h-[80vh] overflow-y-auto shadow-2xl text-right animate-in zoom-in-95 duration-300">
+            <button type="button" onClick={() => setShowAthanSettings(false)} className="absolute top-5 left-5 text-white/40 hover:text-white transition"><X className="w-5 h-5" /></button>
+            <h3 className="text-lg font-black text-white mb-4 pr-1">المؤذن الافتراضي لكل الصلوات</h3>
+            <div className="space-y-2 mt-4">
+              {MUEZZINS.map((m) => (
+                <button
+                  type="button"
+                  key={m.id}
+                  onClick={() => {
+                    const newSet: PrayerSettingsMap = { ...prayerSettings };
+                    Object.keys(newSet).forEach((k) => {
+                      newSet[k] = { ...newSet[k], muezzinId: m.id };
+                    });
+                    void setPrayerSettings(newSet);
+                    setShowAthanSettings(false);
+                  }}
+                  className={`w-full p-4 rounded-xl text-right font-black text-xs transition-all flex items-center justify-between ${
+                    prayerSettings.Fajr?.muezzinId === m.id 
+                      ? "bg-gradient-to-r from-amber-400 to-orange-500 text-black" 
+                      : "bg-white/5 text-white/80 hover:bg-white/10"
+                  }`}
+                >
+                  <span>{m.name}</span>
+                  <span className="text-[10px] opacity-60 font-bold">{m.muezzinName}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
+      {/* Location Picker Dialog */}
       {showLocationPicker && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70" onClick={() => setShowLocationPicker(false)} />
-          <div className="relative w-full max-w-md bg-card border border-border rounded-[2rem] p-6">
-            <h3 className="text-xl font-black text-right mb-4">تغيير المنطقة</h3>
-            <p className="text-xs text-foreground/40 font-bold text-right mb-4">سيُحمَّل تقويم السنة كاملاً ويُحفظ للعمل بدون إنترنت</p>
-            <input
-              value={customCity}
-              onChange={(e) => setCustomCity(e.target.value)}
-              placeholder="المدينة"
-              className="w-full mb-3 p-4 rounded-xl bg-foreground/5 font-black"
-            />
-            <input
-              value={customCountry}
-              onChange={(e) => setCustomCountry(e.target.value)}
-              placeholder="الدولة"
-              className="w-full mb-4 p-4 rounded-xl bg-foreground/5 font-black"
-            />
-            <button
-              type="button"
-              onClick={() => {
-                void syncCalendar({
-                  city: customCity,
-                  country: customCountry,
-                  label: `${customCity}، ${customCountry}`,
-                });
-                setShowLocationPicker(false);
-              }}
-              className="w-full py-4 bg-primary text-black rounded-xl font-black"
-            >
-              تحميل وحفظ التقويم
-            </button>
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="absolute inset-0" onClick={() => setShowLocationPicker(false)} />
+          <div className="relative w-full max-w-sm bg-[#0c0f19] border border-white/10 rounded-[2.5rem] p-6 shadow-2xl text-right animate-in zoom-in-95 duration-300">
+            <button type="button" onClick={() => setShowLocationPicker(false)} className="absolute top-5 left-5 text-white/40 hover:text-white transition"><X className="w-5 h-5" /></button>
+            <h3 className="text-lg font-black text-white mb-1">تغيير المنطقة يدوياً</h3>
+            <p className="text-[11px] text-white/40 font-bold mb-4">سيُحمَّل تقويم السنة كاملاً ويُحفظ للعمل بدون إنترنت</p>
+            <div className="space-y-3">
+              <input
+                value={customCity}
+                onChange={(e) => setCustomCity(e.target.value)}
+                placeholder="المدينة (مثال: Banha)"
+                className={INPUT_CLASS}
+              />
+              <input
+                value={customCountry}
+                onChange={(e) => setCustomCountry(e.target.value)}
+                placeholder="الدولة (مثال: Egypt)"
+                className={INPUT_CLASS}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  void syncCalendar({
+                    city: customCity,
+                    country: customCountry,
+                    label: `${customCity}، ${customCountry}`,
+                  });
+                  setShowLocationPicker(false);
+                }}
+                className="w-full py-4 bg-gradient-to-r from-amber-400 to-orange-500 text-black rounded-xl font-black text-sm shadow-lg shadow-amber-500/10 hover:brightness-110 transition-all"
+              >
+                تحميل وحفظ التقويم
+              </button>
+            </div>
           </div>
         </div>
       )}
