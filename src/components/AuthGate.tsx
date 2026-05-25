@@ -424,7 +424,10 @@ export function AuthGate({ children }: AuthGateProps) {
     }
   };
 
-  if (maintenance?.enabled && !pathname?.includes("admin")) {
+  // Bypass AuthGate entirely when user navigates to /admin
+  const isAdminRoute = pathname?.includes("admin");
+
+  if (maintenance?.enabled && !isAdminRoute) {
     return (
       <div className="fixed inset-0 bg-gradient-to-br from-[#0b0f1a] via-[#0f0a1a] to-[#0a0f0f] flex items-center justify-center p-6 z-[9999]">
         <div className="max-w-md w-full text-center">
@@ -454,7 +457,7 @@ export function AuthGate({ children }: AuthGateProps) {
     );
   }
 
-  if (isSkipped || (user && hasProfile === true)) {
+  if (isAdminRoute || isSkipped || (user && hasProfile === true)) {
     return <>{children}</>;
   }
 
