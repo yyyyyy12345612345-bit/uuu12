@@ -35,12 +35,58 @@ const ChatBot = nextDynamic(() => import("@/components/ChatBot").then(mod => mod
 const SettingsModal = nextDynamic(() => import("@/components/SettingsModal").then(mod => mod.SettingsModal), { ssr: false });
 const AppSettingsModal = nextDynamic(() => import("@/components/AppSettingsModal").then(mod => mod.AppSettingsModal), { ssr: false });
 
+// Error Boundary for CatchAll
+class CatchAllErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error?: Error }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    console.error("[CatchAllErrorBoundary] Error caught:", error);
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("[CatchAllErrorBoundary] Component stack:", errorInfo.componentStack);
+    console.error("[CatchAllErrorBoundary] Full error:", error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="fixed inset-0 bg-background flex items-center justify-center z-[9999] p-4">
+          <div className="max-w-md w-full text-center">
+            <div className="w-16 h-16 mx-auto bg-red-500/10 rounded-full flex items-center justify-center border border-red-500/20 mb-6">
+              <span className="text-3xl">⚠️</span>
+            </div>
+            <h1 className="text-2xl font-black text-white mb-3">خطأ في التحميل</h1>
+            <p className="text-white/50 font-bold text-sm mb-6">
+              {this.state.error?.message || "حدث خطأ أثناء تحميل الصفحة"}
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-3 bg-primary text-black rounded-xl font-black text-sm hover:brightness-110 transition"
+            >
+              إعادة التحميل
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 export function CatchAllPageClient() {
   return (
     <React.Suspense fallback={<LoadingShell />}>
-      <AuthGate>
-        <CatchAllContent />
-      </AuthGate>
+      <CatchAllErrorBoundary>
+        <AuthGate>
+          <CatchAllContent />
+        </AuthGate>
+      </CatchAllErrorBoundary>
     </React.Suspense>
   );
 }
