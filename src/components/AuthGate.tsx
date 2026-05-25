@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { 
   LogIn, Loader2, User, KeyRound, Eye, EyeOff, ShieldCheck, Check, ArrowLeft, Phone, Sparkles, AlertTriangle, Wrench
 } from "lucide-react";
-import { auth, db } from "@/lib/firebase";
+import { auth, db, initFirebase } from "@/lib/firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -108,11 +108,25 @@ export function AuthGate({ children }: AuthGateProps) {
   const [maintenance, setMaintenance] = useState<{ enabled: boolean; message: string; reason: string; duration: string } | null>(null);
 
   useEffect(() => {
-    if (!db) return;
-    getDoc(doc(db, "admin", "config")).then(s => {
-      if (s.exists()) setMaintenance(s.data().maintenance || { enabled: false, message: "", reason: "", duration: "" });
-      else setMaintenance({ enabled: false, message: "", reason: "", duration: "" });
-    }).catch(() => setMaintenance({ enabled: false, message: "", reason: "", duration: "" }));
+    let isMounted = true;
+    const fetchMaintenance = async () => {
+      await initFirebase();
+      if (!isMounted) return;
+      try {
+        const s = await getDoc(doc(db, "admin", "config"));
+        if (s.exists()) {
+          setMaintenance(s.data().maintenance || { enabled: false, message: "", reason: "", duration: "" });
+        } else {
+          setMaintenance({ enabled: false, message: "", reason: "", duration: "" });
+        }
+      } catch (e) {
+        setMaintenance({ enabled: false, message: "", reason: "", duration: "" });
+      }
+    };
+    fetchMaintenance();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -133,22 +147,34 @@ export function AuthGate({ children }: AuthGateProps) {
   }, []);
 
   useEffect(() => {
-    if (!auth) return;
-    const unsubscribe = onAuthStateChanged(auth, async (u) => {
-      if (u && db) {
-        try {
-          const userDoc = await getDoc(doc(db, "users", u.uid));
-          if (userDoc.exists()) setHasProfile(true);
-          else setHasProfile(false);
-        } catch (e) {
-          setHasProfile(true); 
+    let isMounted = true;
+    let unsubscribe: (() => void) | null = null;
+
+    const setupAuth = async () => {
+      await initFirebase();
+      if (!isMounted) return;
+
+      unsubscribe = onAuthStateChanged(auth, async (u) => {
+        if (u && db) {
+          try {
+            const userDoc = await getDoc(doc(db, "users", u.uid));
+            if (userDoc.exists()) setHasProfile(true);
+            else setHasProfile(false);
+          } catch (e) {
+            setHasProfile(true); 
+          }
+        } else {
+          setHasProfile(null);
         }
-      } else {
-        setHasProfile(null);
-      }
-      setUser(u);
-    });
-    return () => unsubscribe();
+        setUser(u);
+      });
+    };
+    setupAuth();
+
+    return () => {
+      isMounted = false;
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {

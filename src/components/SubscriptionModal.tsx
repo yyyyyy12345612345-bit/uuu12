@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { X, Check, ShieldCheck, CreditCard, Send, Loader2, Globe, Phone, ExternalLink, Star, Crown, Zap, Gift } from "lucide-react";
-import { db, auth } from "@/lib/firebase";
+import { db, auth, initFirebase } from "@/lib/firebase";
 import { doc, getDoc, addDoc, collection, serverTimestamp, query, where, getDocs, limit } from "firebase/firestore";
 import { useUserPlan } from "@/hooks/useUserPlan";
 
@@ -28,6 +28,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
   const { userPlan: currentPlanData } = useUserPlan();
   const [isPending, setIsPending] = useState(false);
 
+  const [payMethod, setPayMethod] = useState<"vodafone" | "instapay">("vodafone");
   const [formData, setFormData] = useState({
     platformLink: "",
     senderInfo: "",
@@ -79,14 +80,30 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
     }
     setLoading(true);
     try {
+      await initFirebase();
+      let userProfileEmail = user.email || "";
+      let userProfilePhone = "";
+      try {
+        const userSnap = await getDoc(doc(db, "users", user.uid));
+        if (userSnap.exists()) {
+          const uData = userSnap.data();
+          userProfileEmail = uData.email || user.email || "";
+          userProfilePhone = uData.phoneNumber || uData.phone || "";
+        }
+      } catch (e) {
+        console.error("Error fetching user profile for subscription request:", e);
+      }
+
       await addDoc(collection(db, "subscription_requests"), {
         userId: user.uid,
         userName: user.displayName || "مستخدم",
+        userEmail: userProfileEmail,
+        userPhone: userProfilePhone,
         plan: selectedPlan,
         platformLink: formData.platformLink,
         senderInfo: formData.senderInfo,
-        amount: formData.amount,
-        paymentMethod: formData.senderInfo.includes("@") ? "Instapay" : "Vodafone Cash",
+        amount: Number(formData.amount) || currentSelected?.price || 0,
+        paymentMethod: payMethod === "vodafone" ? "Vodafone Cash" : "Instapay",
         status: "pending",
         createdAt: serverTimestamp()
       });
@@ -254,42 +271,78 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                     )}
                 </div>
             ) : (
-                <form onSubmit={handleSubmitRequest} className="animate-in fade-in slide-in-from-right-8 duration-700 space-y-8">
+                <form onSubmit={handleSubmitRequest} className="animate-in fade-in slide-in-from-right-8 duration-700 space-y-6">
                     <div className="flex items-center justify-between">
                         <button type="button" onClick={() => setActiveTab("plans")} className="text-xs font-black text-primary uppercase tracking-widest hover:underline">العودة للخيارات</button>
                         <h3 className="text-2xl font-black text-white">إثبات الدفع</h3>
                     </div>
 
-                    <div className="space-y-6">
-                        <div className="space-y-3">
-                            <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] px-4 block">رابط منصتك (للدعم التقني)</label>
-                            <input 
-                                value={formData.platformLink}
-                                onChange={e => setFormData({...formData, platformLink: e.target.value})}
-                                className="w-full bg-white/5 border-2 border-white/5 rounded-2xl py-5 px-8 text-right outline-none focus:border-primary/50 transition-all font-bold text-white shadow-xl"
-                                placeholder="https://tiktok.com/@..."
-                            />
+                    {/* Method Choice Selection */}
+                    <div className="space-y-3 text-right">
+                        <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] px-4 block">اختر طريقة التحويل</label>
+                        <div className="grid grid-cols-2 gap-3">
+                            <button
+                                type="button"
+                                onClick={() => { setPayMethod("vodafone"); setFormData({ ...formData, senderInfo: "" }); }}
+                                className={`py-4 rounded-2xl border-2 transition-all font-black text-sm ${payMethod === "vodafone" ? "border-primary bg-primary/10 text-primary" : "border-white/5 bg-white/5 text-white/40 hover:bg-white/10"}`}
+                            >
+                                📱 فودافون كاش
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => { setPayMethod("instapay"); setFormData({ ...formData, senderInfo: "" }); }}
+                                className={`py-4 rounded-2xl border-2 transition-all font-black text-sm ${payMethod === "instapay" ? "border-primary bg-primary/10 text-primary" : "border-white/5 bg-white/5 text-white/40 hover:bg-white/10"}`}
+                            >
+                                💳 Instapay
+                            </button>
                         </div>
+                    </div>
 
-                        <div className="space-y-3">
-                            <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] px-4 block">بيانات المحول</label>
+                    {/* Dynamic Payment info card */}
+                    <div className="p-6 rounded-[2rem] bg-white/[0.03] border border-white/10 text-right space-y-2">
+                        <span className="text-[10px] text-primary font-black uppercase tracking-[0.3em] block">بيانات التحويل المطلوبة</span>
+                        <p className="text-sm font-bold text-white/80">
+                            يرجى تحويل مبلغ <span className="text-primary font-black">{currentSelected?.price} ج.م</span> إلى:
+                        </p>
+                        {payMethod === "vodafone" ? (
+                            <p className="text-xl font-black text-white tracking-[0.1em]">{pricing.vodafoneCash || "01000000000"}</p>
+                        ) : (
+                            <p className="text-lg font-black text-white">{pricing.instapay || "id@instapay"}</p>
+                        )}
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="space-y-2 text-right">
+                            <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] px-4 block">
+                                {payMethod === "vodafone" ? "رقم الهاتف المحول منه" : "اسم الحساب أو عنوان Instapay المحول منه"}
+                            </label>
                             <input 
                                 required
                                 value={formData.senderInfo}
                                 onChange={e => setFormData({...formData, senderInfo: e.target.value})}
-                                className="w-full bg-white/5 border-2 border-white/5 rounded-2xl py-5 px-8 text-right outline-none focus:border-primary/50 transition-all font-bold text-white shadow-xl"
-                                placeholder="010XXXXXXXX / username@instapay"
+                                className="w-full bg-white/5 border-2 border-white/5 rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/50 transition-all font-bold text-white shadow-xl text-sm"
+                                placeholder={payMethod === "vodafone" ? "010XXXXXXXX" : "username@instapay"}
                             />
                         </div>
 
-                        <div className="space-y-3">
-                            <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] px-4 block">المبلغ المحول</label>
+                        <div className="space-y-2 text-right">
+                            <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] px-4 block">رابط منصتك (للدعم التقني)</label>
+                            <input 
+                                value={formData.platformLink}
+                                onChange={e => setFormData({...formData, platformLink: e.target.value})}
+                                className="w-full bg-white/5 border-2 border-white/5 rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/50 transition-all font-bold text-white shadow-xl text-sm"
+                                placeholder="https://tiktok.com/@..."
+                            />
+                        </div>
+
+                        <div className="space-y-2 text-right">
+                            <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] px-4 block">المبلغ الفعلي المحول</label>
                             <input 
                                 required
                                 type="number"
                                 value={formData.amount}
                                 onChange={e => setFormData({...formData, amount: e.target.value})}
-                                className="w-full bg-white/5 border-2 border-white/5 rounded-2xl py-5 px-8 text-right outline-none focus:border-primary/50 transition-all font-black text-white shadow-xl"
+                                className="w-full bg-white/5 border-2 border-white/5 rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/50 transition-all font-black text-white shadow-xl text-sm"
                                 placeholder={currentSelected?.price.toString()}
                             />
                         </div>
@@ -298,9 +351,9 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                     <button 
                         type="submit" 
                         disabled={loading}
-                        className="w-full py-6 bg-primary text-black rounded-[2.5rem] font-black text-lg shadow-2xl hover:scale-[1.03] active:scale-95 transition-all flex items-center justify-center gap-4"
+                        className="w-full py-5 bg-primary text-black rounded-[2rem] font-black text-base shadow-2xl hover:scale-[1.03] active:scale-95 transition-all flex items-center justify-center gap-4"
                     >
-                        {loading ? <Loader2 className="w-7 h-7 animate-spin" /> : <Send className="w-6 h-6" />}
+                        {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Send className="w-5 h-5" />}
                         إرسال طلب التفعيل
                     </button>
                 </form>
