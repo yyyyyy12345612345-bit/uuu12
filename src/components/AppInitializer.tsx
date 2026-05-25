@@ -6,7 +6,7 @@ import { X, Download, Info, ShieldCheck, Bell, MapPin, CheckCircle2, ArrowRight 
 import { requestNotificationPermission, smartReschedule, loadSettings } from '@/lib/prayerNotifications';
 import { initializePushNotifications } from '@/lib/pushNotifications';
 import { Geolocation } from '@capacitor/geolocation';
-import { auth, db } from '@/lib/firebase';
+import { auth, db, initFirebase } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { registerPlugin } from '@capacitor/core';
@@ -151,11 +151,15 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     // 5. Initialize Smart Notifications (daily + Friday reminders)
     setTimeout(() => initSmartNotifications(), 3000);
 
+    let isMounted = true;
     let unsubscribeSettings: (() => void) | null = null;
     let unsubscribeAuth: (() => void) | null = null;
     let unsubscribeVersion: (() => void) | null = null;
 
-    const setupListeners = () => {
+    const setupListeners = async () => {
+      await initFirebase();
+      if (!isMounted) return;
+
       unsubscribeSettings = onSnapshot(doc(db, "settings", "global"), (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.data();
@@ -192,6 +196,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     setupListeners();
 
     return () => {
+      isMounted = false;
       window.removeEventListener('check-for-updates', handleManualUpdate);
       cleanupSmartNotifications();
       if (unsubscribeSettings) unsubscribeSettings();

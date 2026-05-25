@@ -5,7 +5,6 @@
   "github": {
     "silent": false
   },
-  "buildCommand": "next build --webpack",
   "headers": [
     {
       "source": "/(.*)",
