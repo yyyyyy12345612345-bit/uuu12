@@ -21,7 +21,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateInfo, setUpdateInfo] = useState<any>(null);
   const [showPermissionModal, setShowPermissionModal] = useState(false);
-  const [globalAnnouncement, setGlobalAnnouncement] = useState<string | null>(null);
+  const [globalAlert, setGlobalAlert] = useState<{ id: string; title: string; message: string } | null>(null);
   const [mandatoryAnnouncement, setMandatoryAnnouncement] = useState<string | null>(null);
   const [announcementTimer, setAnnouncementTimer] = useState<number>(0);
 
@@ -155,10 +155,11 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     let unsubscribeSettings: (() => void) | null = null;
     let unsubscribeAuth: (() => void) | null = null;
     let unsubscribeVersion: (() => void) | null = null;
+    let unsubscribeAlerts: (() => void) | null = null;
 
     const setupListeners = async () => {
       await initFirebase();
-      if (!isMounted) return;
+      if (!isMounted || !db) return;
 
       unsubscribeSettings = onSnapshot(doc(db, "settings", "global"), (snapshot) => {
         if (snapshot.exists()) {
@@ -169,8 +170,36 @@ export default function AppInitializer({ children }: { children: React.ReactNode
             setAnnouncementTimer(data.mandatoryDuration || 60);
           } else {
             setMandatoryAnnouncement(null);
-            setGlobalAnnouncement(null);
           }
+        }
+      });
+
+      unsubscribeAlerts = onSnapshot(doc(db, "settings", "alerts"), (snapshot) => {
+        if (snapshot.exists()) {
+          const items = snapshot.data().items || [];
+          const active = items.find((alert: any) => {
+            if (!alert.active) return false;
+            const createdTime = new Date(alert.createdAt?.toDate ? alert.createdAt.toDate() : alert.createdAt).getTime();
+            const durationMs = (alert.durationHours || 24) * 60 * 60 * 1000;
+            return (Date.now() - createdTime) < durationMs;
+          });
+
+          if (active) {
+            try {
+              const closed = JSON.parse(sessionStorage.getItem("closed_alerts") || "[]");
+              if (!closed.includes(active.id)) {
+                setGlobalAlert(active);
+              } else {
+                setGlobalAlert(null);
+              }
+            } catch {
+              setGlobalAlert(active);
+            }
+          } else {
+            setGlobalAlert(null);
+          }
+        } else {
+          setGlobalAlert(null);
         }
       });
 
@@ -200,6 +229,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
       window.removeEventListener('check-for-updates', handleManualUpdate);
       cleanupSmartNotifications();
       if (unsubscribeSettings) unsubscribeSettings();
+      if (unsubscribeAlerts) unsubscribeAlerts();
       if (unsubscribeAuth) unsubscribeAuth();
       if (unsubscribeVersion) unsubscribeVersion();
     };
@@ -327,29 +357,38 @@ export default function AppInitializer({ children }: { children: React.ReactNode
       )}
 
       {/* Global Announcement Banner */}
-      {globalAnnouncement && (
+      {globalAlert && (
         <div className="fixed top-0 left-0 right-0 z-[4000] p-4 animate-in slide-in-from-top duration-700">
-           <div className="max-w-xl mx-auto bg-[#0a0a0a]/90 backdrop-blur-xl border border-primary/30 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden relative group">
+           <div className="max-w-xl mx-auto bg-[#0a0a0a]/95 backdrop-blur-xl border border-amber-500/30 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.6)] overflow-hidden relative group">
               <div className="flex items-center gap-4 px-6 py-4">
                  {/* Icon */}
                  <div className="relative shrink-0">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                       <Bell className="w-5 h-5 text-primary group-hover:animate-swing" />
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+                       <Bell className="w-5 h-5 text-amber-400 group-hover:animate-swing" />
                     </div>
                  </div>
 
                  {/* Message Content */}
-                 <div className="flex-1 text-center min-w-0">
-                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-0.5 opacity-60">إشعار جديد</p>
-                    <p className="text-sm font-bold text-white font-arabic leading-relaxed truncate">
-                       {globalAnnouncement}
+                 <div className="flex-1 text-right min-w-0">
+                    <p className="text-[10px] font-black text-amber-400 uppercase tracking-[0.2em] mb-0.5 opacity-65">{globalAlert.title || "تنبيه جديد"}</p>
+                    <p className="text-sm font-bold text-white font-arabic leading-relaxed whitespace-pre-line">
+                       {globalAlert.message}
                     </p>
                  </div>
 
                  {/* Close Button */}
                  <div className="shrink-0 flex items-center gap-2">
                     <button 
-                      onClick={() => setGlobalAnnouncement(null)}
+                      onClick={() => {
+                        try {
+                          const closed = JSON.parse(sessionStorage.getItem("closed_alerts") || "[]");
+                          closed.push(globalAlert.id);
+                          sessionStorage.setItem("closed_alerts", JSON.stringify(closed));
+                        } catch (err) {
+                          console.error(err);
+                        }
+                        setGlobalAlert(null);
+                      }}
                       className="p-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-white/60 hover:text-white transition-all border border-white/10"
                     >
                       <X className="w-4 h-4" />

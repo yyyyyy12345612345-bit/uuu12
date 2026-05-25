@@ -79,6 +79,10 @@ export function AdminPanel() {
   const [activeQuests, setActiveQuests] = useState<any[]>([]);
   const [announcement, setAnnouncement] = useState("");
   const [isSettingAnnouncement, setIsSettingAnnouncement] = useState(false);
+  const [newAlertTitle, setNewAlertTitle] = useState("");
+  const [newAlertMessage, setNewAlertMessage] = useState("");
+  const [newAlertDuration, setNewAlertDuration] = useState(24);
+  const [isAddingAlert, setIsAddingAlert] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -393,6 +397,70 @@ export function AdminPanel() {
   const handleAcknowledgeAlert = async (index: number) => {
     const updatedAlerts = [...alerts]; updatedAlerts[index] = { ...updatedAlerts[index], acknowledged: true }; setAlerts(updatedAlerts);
     if (!db) return; try { await setDoc(doc(db, "settings", "alerts"), { items: updatedAlerts }, { merge: true }); } catch (e) { console.error(e); }
+  };
+
+  const handleCreateAlert = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!db || !newAlertTitle.trim() || !newAlertMessage.trim()) {
+      alert("يرجى ملء جميع الحقول");
+      return;
+    }
+    setIsAddingAlert(true);
+    try {
+      const newAlertItem = {
+        id: Date.now().toString(),
+        title: newAlertTitle.trim(),
+        message: newAlertMessage.trim(),
+        createdAt: new Date().toISOString(),
+        active: true,
+        acknowledged: false,
+        durationHours: Number(newAlertDuration) || 24,
+      };
+      
+      const updatedAlerts = [newAlertItem, ...alerts];
+      await setDoc(doc(db, "settings", "alerts"), { items: updatedAlerts }, { merge: true });
+      setAlerts(updatedAlerts);
+      setNewAlertTitle("");
+      setNewAlertMessage("");
+      alert("✅ تم نشر التنبيه بنجاح!");
+    } catch (e) {
+      console.error(e);
+      alert("فشل نشر التنبيه: يرجى التحقق من الاتصال أو إيقاف مانع الإعلانات.");
+    } finally {
+      setIsAddingAlert(false);
+    }
+  };
+
+  const handleToggleAlertActive = async (index: number, newActive: boolean) => {
+    if (!db) return;
+    const updatedAlerts = [...alerts];
+    updatedAlerts[index] = { 
+      ...updatedAlerts[index], 
+      active: newActive,
+      ...(newActive ? { createdAt: new Date().toISOString(), acknowledged: false } : {})
+    };
+    
+    setAlerts(updatedAlerts);
+    try {
+      await setDoc(doc(db, "settings", "alerts"), { items: updatedAlerts }, { merge: true });
+      alert(newActive ? "✅ تم تجديد التنبيه للعمل مجدداً!" : "تم إيقاف التنبيه.");
+    } catch (e) {
+      console.error(e);
+      alert("فشل تعديل حالة التنبيه");
+    }
+  };
+
+  const handleDeleteAlert = async (index: number) => {
+    if (!db || !window.confirm("هل أنت متأكد من حذف هذا التنبيه نهائياً؟")) return;
+    const updatedAlerts = alerts.filter((_, idx) => idx !== index);
+    setAlerts(updatedAlerts);
+    try {
+      await setDoc(doc(db, "settings", "alerts"), { items: updatedAlerts }, { merge: true });
+      alert("✅ تم حذف التنبيه بنجاح.");
+    } catch (e) {
+      console.error(e);
+      alert("فشل حذف التنبيه");
+    }
   };
 
   const fetchSupportTickets = async () => {
@@ -1093,31 +1161,137 @@ export function AdminPanel() {
 
           {/* ========== ALERTS TAB ========== */}
           {activeTab === 'alerts' && (
-            <div className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.02)] p-6">
-              <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
-                <div>
-                  <h2 className="text-xl font-black">تنبيهات النظام</h2>
-                  <p className="text-sm text-white/30">معاينة التنبيهات وتقارير التحذير.</p>
-                </div>
-                <button onClick={fetchAlerts} className={BTN_GHOST}>تحديث</button>
-              </div>
-              <div className="mt-6 space-y-4">
-                {alerts.length === 0 ? (
-                  <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.02] p-10 text-center text-white/30">لا توجد تنبيهات حالياً.</div>
-                ) : (
-                  alerts.map((alert, index) => (
-                    <div key={index} className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <p className="font-black">{alert.title || 'تنبيه نظام'}</p>
-                          <p className="text-xs text-white/30 mt-1">{new Date(alert.createdAt?.toDate ? alert.createdAt.toDate() : alert.createdAt || Date.now()).toLocaleString()}</p>
-                        </div>
-                        <button onClick={() => handleAcknowledgeAlert(index)} className="rounded-xl bg-emerald-500 px-4 py-2 text-[11px] font-black text-black">تمت القراءة</button>
-                      </div>
-                      <p className="mt-4 text-sm text-white/60">{alert.message || 'لا توجد رسالة.'}</p>
+            <div className="space-y-6">
+              {/* Form to Create New Alert */}
+              <div className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.02)] p-6 text-right">
+                <h3 className="text-lg font-black text-white mb-4">إنشاء تنبيه نظام جديد للجمهور</h3>
+                <form onSubmit={handleCreateAlert} className="space-y-4">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <label className={LABEL}>عنوان التنبيه</label>
+                      <input 
+                        type="text" 
+                        required 
+                        value={newAlertTitle} 
+                        onChange={e => setNewAlertTitle(e.target.value)} 
+                        className={INPUT_CLASS} 
+                        placeholder="مثال: تنبيه هام، تحديث جديد، صيانة..." 
+                      />
                     </div>
-                  ))
-                )}
+                    <div className="space-y-2">
+                      <label className={LABEL}>مدة التنبيه (بالساعات)</label>
+                      <input 
+                        type="number" 
+                        min="1" 
+                        max="720" 
+                        required 
+                        value={newAlertDuration} 
+                        onChange={e => setNewAlertDuration(parseInt(e.target.value) || 24)} 
+                        className={INPUT_CLASS} 
+                        placeholder="مثال: 24" 
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className={LABEL}>نص الرسالة</label>
+                    <textarea 
+                      required 
+                      value={newAlertMessage} 
+                      onChange={e => setNewAlertMessage(e.target.value)} 
+                      rows={3} 
+                      className={INPUT_CLASS} 
+                      placeholder="اكتب تفاصيل التنبيه التي ستظهر للمستخدمين داخل التطبيق..." 
+                    />
+                  </div>
+                  <button 
+                    type="submit" 
+                    disabled={isAddingAlert} 
+                    className="rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 px-6 py-3.5 text-black font-black transition hover:shadow-xl hover:shadow-amber-500/20 text-sm disabled:opacity-50"
+                  >
+                    {isAddingAlert ? <Loader2 className="inline-block h-4 w-4 animate-spin" /> : 'نشر التنبيه العام'}
+                  </button>
+                </form>
+              </div>
+
+              {/* Alerts List */}
+              <div className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.02)] p-6">
+                <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+                  <div>
+                    <h2 className="text-xl font-black">أرشيف التنبيهات المنشورة</h2>
+                    <p className="text-sm text-white/30">معاينة، تجديد، أو إيقاف التنبيهات للجمهور.</p>
+                  </div>
+                  <button onClick={fetchAlerts} className={BTN_GHOST}>تحديث</button>
+                </div>
+                <div className="mt-6 space-y-4">
+                  {alerts.length === 0 ? (
+                    <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.02] p-10 text-center text-white/30">لا توجد تنبيهات حالياً.</div>
+                  ) : (
+                    alerts.map((alert, index) => {
+                      const createdTime = new Date(alert.createdAt?.toDate ? alert.createdAt.toDate() : alert.createdAt || Date.now()).getTime();
+                      const durationMs = (alert.durationHours || 24) * 60 * 60 * 1000;
+                      const expiryTime = createdTime + durationMs;
+                      const isExpired = !alert.active || (Date.now() > expiryTime);
+                      
+                      const timeLeftMs = expiryTime - Date.now();
+                      const timeLeftHours = Math.max(0, Math.floor(timeLeftMs / (1000 * 60 * 60)));
+                      const timeLeftMins = Math.max(0, Math.floor((timeLeftMs % (1000 * 60 * 60)) / (1000 * 60)));
+
+                      return (
+                        <div key={alert.id || index} className={`rounded-xl border border-white/10 bg-white/[0.02] p-5 transition-all ${!isExpired ? 'border-amber-500/20 bg-amber-500/[0.01]' : 'opacity-70'}`}>
+                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-right sm:text-left">
+                            {/* Alert Details */}
+                            <div className="order-2 sm:order-1 flex-1 space-y-1 text-right">
+                              <div className="flex flex-wrap items-center gap-2 justify-start sm:justify-end">
+                                {!isExpired ? (
+                                  <span className="rounded-lg bg-emerald-500/10 px-2.5 py-1 text-xs font-black text-emerald-500">نشط حالياً</span>
+                                ) : (
+                                  <span className="rounded-lg bg-white/10 px-2.5 py-1 text-xs font-black text-white/40">منتهي أو موقوف</span>
+                                )}
+                                <span className="text-xs text-white/40 font-bold bg-white/5 px-2.5 py-1 rounded-lg">المدة: {alert.durationHours || 24} ساعة</span>
+                                <h4 className="font-black text-white text-base mr-auto">{alert.title || 'تنبيه نظام'}</h4>
+                              </div>
+                              
+                              <p className="text-xs text-white/30 mt-1">تاريخ النشر: {new Date(createdTime).toLocaleString('ar-EG')}</p>
+                              
+                              {!isExpired && (
+                                <p className="text-xs text-amber-400 font-bold">المتبقي: {timeLeftHours} ساعة و {timeLeftMins} دقيقة</p>
+                              )}
+                            </div>
+                            
+                            {/* Action Buttons */}
+                            <div className="order-1 sm:order-2 flex items-center gap-2 justify-end">
+                              {!isExpired ? (
+                                <button 
+                                  onClick={() => handleToggleAlertActive(index, false)} 
+                                  className="rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 px-3.5 py-2 text-[11px] font-black text-rose-400 transition"
+                                >
+                                  إيقاف / إلغاء
+                                </button>
+                              ) : (
+                                <button 
+                                  onClick={() => handleToggleAlertActive(index, true)} 
+                                  className="rounded-xl bg-amber-500 px-3.5 py-2 text-[11px] font-black text-black transition hover:brightness-110 shadow-lg shadow-amber-500/10"
+                                >
+                                  تجديد (تفعيل 24 ساعة)
+                                </button>
+                              )}
+                              
+                              <button 
+                                onClick={() => handleDeleteAlert(index)} 
+                                className="rounded-xl bg-white/5 hover:bg-white/10 text-white/40 border border-white/10 p-2 transition"
+                                title="حذف نهائياً"
+                              >
+                                <Trash2 className="w-4.5 h-4.5" />
+                              </button>
+                            </div>
+                          </div>
+                          
+                          <p className="mt-4 text-sm text-white/60 text-right whitespace-pre-line leading-relaxed">{alert.message || 'لا توجد رسالة.'}</p>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
               </div>
             </div>
           )}
