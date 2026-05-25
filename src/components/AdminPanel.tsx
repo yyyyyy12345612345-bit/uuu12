@@ -773,185 +773,202 @@ export function AdminPanel() {
   if (loading) return null;
 
   if (!isAdmin) return (
-    <div className="fixed inset-0 z-[500] flex items-center justify-center p-6 bg-slate-950/95 backdrop-blur-xl">
-       <form onSubmit={handleAdminLogin} className="w-full max-w-md space-y-6 rounded-[2.5rem] border border-white/10 bg-slate-900/95 p-8 shadow-2xl text-right">
-          <div className="space-y-3">
-             <h2 className="text-4xl font-black tracking-tight">مرحبا بك في مركز التحكم</h2>
-             <p className="text-sm text-slate-400">سجل دخولك باستخدام حساب الإدارة للوصول إلى لوحة البيانات الكاملة وتجربة التحكم الاحترافية.</p>
-          </div>
-          <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-slate-950 border border-white/10 p-4 rounded-3xl outline-none text-right" placeholder="الإيميل" />
-          <input type="password" required value={password} onChange={e => setPassword(e.target.value)} className="w-full bg-slate-950 border border-white/10 p-4 rounded-3xl outline-none text-right" placeholder="كلمة المرور" />
-          <button type="submit" disabled={isLoggingIn} className="w-full py-4 bg-gradient-to-r from-sky-400 to-violet-500 text-black rounded-3xl font-black shadow-xl shadow-sky-500/20">دخول لوحة الإدارة</button>
-          {loginError && <p className="text-sm text-rose-400">{loginError}</p>}
-       </form>
+    <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-gradient-to-br from-[#0b0f1a] via-[#0f0a1a] to-[#0a0f0f]">
+      {/* Decorative glow */}
+      <div className="absolute top-1/4 -left-1/4 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(245,158,11,0.06)_0%,transparent_70%)] rounded-full pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-1/4 w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(20,184,166,0.04)_0%,transparent_70%)] rounded-full pointer-events-none" />
+      <form onSubmit={handleAdminLogin} className="relative w-full max-w-sm space-y-5 rounded-3xl border border-white/[0.06] bg-[rgba(255,255,255,0.02)] backdrop-blur-2xl p-8 shadow-2xl text-center">
+        <div className="w-16 h-16 mx-auto rounded-2xl bg-[#fbbf24]/10 flex items-center justify-center border border-[#fbbf24]/20">
+          <ShieldCheck className="w-8 h-8 text-[#fbbf24]" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-2xl font-black text-white/90">مركز التحكم</h2>
+          <p className="text-xs text-white/30 font-bold">سجل دخول بحساب الإدارة</p>
+        </div>
+        <div className="space-y-3 text-right">
+          <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-white/5 border border-white/10 p-3.5 rounded-2xl outline-none text-sm text-white placeholder:text-white/20 text-right" placeholder="البريد الإلكتروني" />
+          <input type="password" required value={password} onChange={e => setPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 p-3.5 rounded-2xl outline-none text-sm text-white placeholder:text-white/20 text-right" placeholder="كلمة المرور" />
+        </div>
+        <button type="submit" disabled={isLoggingIn} className="w-full py-3.5 bg-[#fbbf24] text-black rounded-2xl font-black text-sm hover:brightness-110 transition shadow-lg shadow-[#fbbf24]/20 disabled:opacity-50">
+          {isLoggingIn ? <Loader2 className="inline-block w-5 h-5 animate-spin" /> : 'دخول'}
+        </button>
+        {loginError && <p className="text-xs text-red-400 font-bold">{loginError}</p>}
+      </form>
     </div>
   );
 
+  const navItems = [
+    { id: 'stats', label: 'الإحصائيات', icon: TrendingUp },
+    { id: 'push', label: 'الإشعارات', icon: Bell },
+    { id: 'performance', label: 'الأداء', icon: Calendar },
+    { id: 'users', label: 'المستخدمين', icon: Users },
+    { id: 'subs', label: 'الاشتراكات', icon: ShieldCheck },
+    { id: 'quests', label: 'المهام', icon: Trophy },
+    { id: 'settings', label: 'الإعدادات', icon: Phone },
+    { id: 'showcase', label: 'المعرض', icon: Star },
+    { id: 'reports', label: 'التقارير', icon: ArrowUpRight },
+    { id: 'activity', label: 'النشاط', icon: MapPin },
+    { id: 'support', label: 'الدعم', icon: Mail },
+    { id: 'campaigns', label: 'الحملات', icon: TrendingUp },
+    { id: 'alerts', label: 'التنبيهات', icon: Bell },
+    { id: 'content', label: 'المحتوى', icon: ImageIcon },
+    { id: 'flags', label: 'التجارب', icon: PlusCircle },
+    { id: 'versions', label: 'الإصدار', icon: Info },
+  ];
+
   return (
-    <div className="h-full w-full bg-slate-950 text-white font-arabic p-4 md:p-8 pb-20 overflow-y-auto">
-      <div className="mx-auto max-w-7xl space-y-8">
-        <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <div className="rounded-[2.5rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.35)] backdrop-blur-xl">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-              <div className="space-y-3">
-                <p className="text-sm text-slate-400 uppercase tracking-[0.22em]">لوحة الإدارة الرئيسية</p>
-                <h1 className="text-4xl font-black tracking-tight">مرحباً يوسف أسامة</h1>
-                <p className="max-w-2xl text-sm text-slate-400">تحكم في المستخدمين، الاشتراكات، المحتوى، والإعدادات من لوحة واحدة مصممة للتركيز على الأداء والبيانات الحقيقية.</p>
-              </div>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <div className="rounded-3xl bg-slate-950/90 p-4 text-center border border-white/10">
-                  <p className="text-xs uppercase text-slate-400">الإجمالي</p>
-                  <p className="mt-3 text-3xl font-black text-primary">{stats.totalUsers || 0}</p>
-                  <p className="text-[11px] text-slate-500">مستخدم</p>
-                </div>
-                <div className="rounded-3xl bg-slate-950/90 p-4 text-center border border-white/10">
-                  <p className="text-xs uppercase text-slate-400">اليوم</p>
-                  <p className="mt-3 text-3xl font-black text-emerald-400">{stats.activeToday || 0}</p>
-                  <p className="text-[11px] text-slate-500">نشط الآن</p>
-                </div>
-                <div className="rounded-3xl bg-slate-950/90 p-4 text-center border border-white/10">
-                  <p className="text-xs uppercase text-slate-400">النقاط</p>
-                  <p className="mt-3 text-3xl font-black text-violet-400">{stats.totalPoints.toLocaleString()}</p>
-                  <p className="text-[11px] text-slate-500">كل الوقت</p>
-                </div>
-                <div className="rounded-3xl bg-slate-950/90 p-4 text-center border border-white/10">
-                  <p className="text-xs uppercase text-slate-400">الجلسات</p>
-                  <p className="mt-3 text-3xl font-black text-sky-400">{users.length || 0}</p>
-                  <p className="text-[11px] text-slate-500">عدد المستخدمين</p>
-                </div>
-              </div>
+    <div className="h-full w-full bg-[#0b0f1a] text-white font-arabic flex">
+      {/* Sidebar */}
+      <aside className="hidden lg:flex flex-col w-56 shrink-0 border-l border-white/[0.06] bg-[#0a0d16] overflow-y-auto no-scrollbar">
+        <div className="p-5 border-b border-white/[0.06]">
+          <div className="flex items-center gap-3">
+            <img src="/logo/logo.png" className="w-8 h-8 rounded-lg" alt="" />
+            <div>
+              <p className="text-sm font-black text-white/90">التحكم</p>
+              <p className="text-[9px] text-white/20 font-bold uppercase tracking-widest">Admin Panel</p>
             </div>
           </div>
-
-          <div className="space-y-6">
-            <div className="rounded-[2.5rem] border border-white/10 bg-slate-900/80 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.25)]">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">التحكم السريع</p>
-                  <h2 className="text-2xl font-black">أبرز الإجراءات</h2>
-                </div>
-                <div className="rounded-3xl bg-white/5 px-4 py-3 text-sm text-slate-300">الوضع الحالي</div>
-              </div>
-              <div className="mt-6 grid gap-4">
-                <button onClick={() => setActiveTab('users')} className="w-full rounded-3xl bg-slate-950/90 border border-white/10 px-5 py-4 text-right font-black hover:bg-slate-900 transition">عرض جدول المستخدمين</button>
-                <button onClick={() => setActiveTab('subs')} className="w-full rounded-3xl bg-slate-950/90 border border-white/10 px-5 py-4 text-right font-black hover:bg-slate-900 transition">مراجعة الاشتراكات</button>
-                <button onClick={() => setActiveTab('quests')} className="w-full rounded-3xl bg-slate-950/90 border border-white/10 px-5 py-4 text-right font-black hover:bg-slate-900 transition">إدارة المهام</button>
-              </div>
+        </div>
+        <nav className="flex-1 p-3 space-y-1">
+          {navItems.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                activeTab === tab.id
+                  ? 'bg-[#fbbf24]/10 text-[#fbbf24] border border-[#fbbf24]/20'
+                  : 'text-white/30 hover:text-white/60 hover:bg-white/[0.03] border border-transparent'
+              }`}
+            >
+              <tab.icon className="w-4 h-4 shrink-0" />
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+        <div className="p-4 border-t border-white/[0.06]">
+          <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white/[0.03]">
+            <div className="w-7 h-7 rounded-lg bg-[#fbbf24]/10 flex items-center justify-center text-[#fbbf24] text-xs font-black">
+              {stats.totalUsers}
             </div>
-            <div className="rounded-[2.5rem] border border-white/10 bg-slate-900/80 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.25)]">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">أهم المستخدمين</p>
-              <div className="mt-4 space-y-3">
-                {topUsers.map((user, index) => (
-                  <div key={user.uid} className="flex items-center justify-between rounded-3xl border border-white/10 bg-slate-950/90 p-4">
-                    <div>
-                      <p className="font-black">{index + 1}. {user.displayName || 'مستخدم مجهول'}</p>
-                      <p className="text-xs text-slate-500">@{user.username || 'غير محدد'}</p>
-                    </div>
-                    <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-black text-primary">{user.totalPoints || 0}</span>
-                  </div>
-                ))}
-              </div>
+            <div>
+              <p className="text-[10px] font-bold text-white/30">الإجمالي</p>
+              <p className="text-xs font-black text-white/70">مستخدم</p>
             </div>
           </div>
-        </section>
+        </div>
+      </aside>
 
-        <div className="rounded-[3rem] border border-white/10 bg-slate-900/70 p-2 backdrop-blur-xl overflow-x-auto no-scrollbar">
-          <div className="flex gap-2 p-2">
-            {[
-              { id: 'stats', label: 'الإحصائيات', icon: TrendingUp },
-              { id: 'push', label: '🔔 الإشعارات', icon: Bell },
-              { id: 'performance', label: 'الأداء', icon: Calendar },
-              { id: 'reports', label: 'التقارير', icon: ArrowUpRight },
-              { id: 'activity', label: 'النشاط', icon: MapPin },
-              { id: 'support', label: 'الدعم', icon: Mail },
-              { id: 'campaigns', label: 'الحملات', icon: Trophy },
-              { id: 'alerts', label: 'التنبيهات', icon: Bell },
-              { id: 'content', label: 'المحتوى', icon: ImageIcon },
-              { id: 'flags', label: 'التجارب', icon: PlusCircle },
-              { id: 'versions', label: 'الإصدار', icon: Info },
-              { id: 'users', label: 'المستخدمين', icon: Users },
-              { id: 'subs', label: 'الاشتراكات', icon: ShieldCheck },
-              { id: 'showcase', label: 'المعرض', icon: Star },
-              { id: 'quests', label: 'المهام', icon: Bell },
-              { id: 'settings', label: 'الإعدادات', icon: Phone }
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex min-w-[10rem] items-center justify-center gap-2 rounded-3xl px-5 py-4 text-sm font-bold transition ${activeTab === tab.id ? 'bg-gradient-to-r from-sky-400 to-violet-500 text-black shadow-xl shadow-sky-500/20' : 'bg-white/5 text-slate-300 hover:bg-white/10'}`}
-              >
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
-              </button>
-            ))}
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto no-scrollbar">
+        {/* Mobile header */}
+        <div className="lg:hidden sticky top-0 z-30 bg-[#0b0f1a]/95 backdrop-blur-xl border-b border-white/[0.06] p-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <img src="/logo/logo.png" className="w-7 h-7 rounded-lg" alt="" />
+              <span className="text-sm font-black">التحكم</span>
+            </div>
+            <div className="flex gap-1 overflow-x-auto no-scrollbar">
+              {navItems.slice(0, 5).map(tab => (
+                <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} className={`px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap ${activeTab === tab.id ? 'bg-[#fbbf24]/10 text-[#fbbf24]' : 'text-white/30'}`}>
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
+        <div className="p-4 md:p-6 pb-24 space-y-6 max-w-6xl mx-auto">
+
         {activeTab === 'stats' && (
-          <div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
-            <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
-              <div className="grid gap-6 md:grid-cols-3">
-                {[
-                  { label: 'المستخدمين', value: stats.totalUsers, icon: Users },
-                  { label: 'النشط اليوم', value: stats.activeToday, icon: UserCheck },
-                  { label: 'إجمالي النقاط', value: stats.totalPoints.toLocaleString(), icon: Trophy }
-                ].map((card) => (
-                  <div key={card.label} className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6 text-center">
-                    <card.icon className="mx-auto mb-4 h-8 w-8 text-primary" />
-                    <p className="text-sm text-slate-400 uppercase tracking-[0.2em]">{card.label}</p>
-                    <p className="mt-4 text-4xl font-black text-white">{card.value}</p>
-                  </div>
-                ))}
+          <div className="space-y-6">
+            {/* Welcome Header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl lg:text-3xl font-black text-white/90">لوحة البيانات</h1>
+                <p className="text-sm text-white/30 font-bold mt-1">نظرة عامة على أداء التطبيق</p>
               </div>
-              <div className="mt-8 grid gap-6 md:grid-cols-2">
-                <div className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6">
-                  <p className="text-sm text-slate-400 uppercase">تنبيه عام</p>
-                  <textarea
-                    value={announcement}
-                    onChange={e => setAnnouncement(e.target.value)}
-                    rows={4}
-                    className="mt-4 w-full resize-none rounded-3xl border border-white/10 bg-slate-900/90 p-4 text-right text-sm outline-none placeholder:text-slate-500"
-                    placeholder="اكتب نص التنبيه هنا"
-                  />
-                  <button
-                    onClick={handleSetAnnouncement}
-                    disabled={isSettingAnnouncement}
-                    className="mt-5 w-full rounded-3xl bg-gradient-to-r from-sky-400 to-violet-500 px-5 py-4 text-black font-black transition hover:scale-[1.01]"
-                  >
-                    {isSettingAnnouncement ? <Loader2 className="inline-block h-5 w-5 animate-spin" /> : 'تحديث الإعلان'}
-                  </button>
-                </div>
-                <div className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6">
-                  <p className="text-sm text-slate-400 uppercase">تبريد سريع</p>
-                  <p className="mt-4 text-sm text-slate-300">إعادة ضبط نقاط المتصدرين وتهيئة الجدول من جديد لجميع المستخدمين.</p>
-                  <button
-                    onClick={handleResetLeaderboard}
-                    disabled={isResetting}
-                    className="mt-6 w-full rounded-3xl bg-red-500 px-5 py-4 text-white font-black transition hover:shadow-lg hover:shadow-red-500/30"
-                  >
-                    {isResetting ? <Loader2 className="inline-block h-5 w-5 animate-spin" /> : 'تصفير نقاط المتصدرين'}
-                  </button>
-                </div>
+              <div className="flex items-center gap-2 text-xs text-white/30">
+                <RefreshCw className="w-3 h-3" />
+                اليوم {new Date().toLocaleDateString("ar-EG")}
               </div>
             </div>
-            <div className="rounded-[3rem] border border-white/10 bg-slate-900/80 p-8 shadow-[0_35px_120px_rgba(15,23,42,0.18)]">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-2xl font-black">أفضل المستخدمين</h2>
-                  <p className="text-sm text-slate-400">أعلى 5 مستخدمين من حيث النقاط.</p>
+
+            {/* Stat Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {[
+                { label: 'إجمالي المستخدمين', value: stats.totalUsers, icon: Users, color: 'text-[#fbbf24]' },
+                { label: 'نشط اليوم', value: stats.activeToday, icon: UserCheck, color: 'text-emerald-400' },
+                { label: 'إيميلات اليوم', value: dailyStats.emailCount, icon: Mail, color: 'text-sky-400' },
+                { label: 'تسجيلات اليوم', value: dailyStats.regCount, icon: TrendingUp, color: 'text-violet-400' },
+              ].map(card => (
+                <div key={card.label} className="rounded-2xl border border-white/[0.06] bg-[rgba(255,255,255,0.02)] p-5 text-center hover:border-white/[0.12] transition">
+                  <card.icon className={`mx-auto mb-3 w-6 h-6 ${card.color}`} />
+                  <p className="text-2xl font-black text-white">{card.value.toLocaleString()}</p>
+                  <p className="text-[11px] text-white/30 font-bold mt-1">{card.label}</p>
                 </div>
-                <span className="rounded-full bg-white/5 px-4 py-2 text-sm text-slate-300">{topUsers.length} مستخدم</span>
-              </div>
-              <div className="mt-6 space-y-4">
-                {topUsers.map((user, index) => (
-                  <div key={user.uid} className="flex items-center justify-between rounded-3xl border border-white/10 bg-slate-950/90 p-4">
-                    <div>
-                      <p className="font-black">#{index + 1} {user.displayName || 'مستخدم مجهول'}</p>
-                      <p className="text-xs text-slate-500">@{user.username || 'غير محدد'}</p>
-                    </div>
-                    <span className="rounded-full bg-primary/10 px-4 py-2 text-sm font-black text-primary">{user.totalPoints || 0}</span>
+              ))}
+            </div>
+
+            <div className="grid lg:grid-cols-[1.5fr_1fr] gap-6">
+              {/* Actions */}
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-white/[0.06] bg-[rgba(255,255,255,0.02)] p-5">
+                  <p className="text-sm font-black text-white/70 mb-4">إجراءات سريعة</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button onClick={() => setActiveTab('users')} className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.06] text-sm font-bold text-white/60 hover:bg-white/[0.08] hover:text-white/90 transition text-right">
+                      👥 المستخدمين
+                    </button>
+                    <button onClick={() => setActiveTab('subs')} className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.06] text-sm font-bold text-white/60 hover:bg-white/[0.08] hover:text-white/90 transition text-right">
+                      📦 الاشتراكات
+                    </button>
+                    <button onClick={() => setActiveTab('push')} className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.06] text-sm font-bold text-white/60 hover:bg-white/[0.08] hover:text-white/90 transition text-right">
+                      🔔 إشعارات
+                    </button>
+                    <button onClick={() => setActiveTab('quests')} className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.06] text-sm font-bold text-white/60 hover:bg-white/[0.08] hover:text-white/90 transition text-right">
+                      🏆 المهام
+                    </button>
                   </div>
-                ))}
+                </div>
+
+                {/* Announcement */}
+                <div className="rounded-2xl border border-white/[0.06] bg-[rgba(255,255,255,0.02)] p-5">
+                  <p className="text-sm font-black text-white/70 mb-3">إعلان عام</p>
+                  <textarea value={announcement} onChange={e => setAnnouncement(e.target.value)} rows={3} className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl p-3 text-sm text-white outline-none resize-none placeholder:text-white/20 text-right" placeholder="اكتب نص الإعلان..." />
+                  <button onClick={handleSetAnnouncement} disabled={isSettingAnnouncement} className="mt-3 w-full py-2.5 bg-[#fbbf24] text-black rounded-xl font-black text-sm hover:brightness-110 transition disabled:opacity-50">
+                    {isSettingAnnouncement ? <Loader2 className="inline-block w-4 h-4 animate-spin" /> : 'نشر الإعلان'}
+                  </button>
+                </div>
+
+                {/* Reset */}
+                <div className="rounded-2xl border border-red-500/10 bg-red-500/[0.03] p-5">
+                  <p className="text-sm font-black text-red-400/70 mb-2">⚠️ تصفير المتصدرين</p>
+                  <p className="text-xs text-white/30 mb-3">إعادة ضبط جميع نقاط المستخدمين إلى الصفر</p>
+                  <button onClick={handleResetLeaderboard} disabled={isResetting} className="px-5 py-2 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs font-bold hover:bg-red-500/20 transition">
+                    {isResetting ? 'جاري...' : 'تصفير الآن'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Top Users */}
+              <div className="rounded-2xl border border-white/[0.06] bg-[rgba(255,255,255,0.02)] p-5">
+                <p className="text-sm font-black text-white/70 mb-4">🏅 أفضل المستخدمين</p>
+                <div className="space-y-2">
+                  {topUsers.map((user, index) => (
+                    <div key={user.uid} className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.04]">
+                      <div className="flex items-center gap-3">
+                        <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-black ${index === 0 ? 'bg-[#fbbf24]/20 text-[#fbbf24]' : index === 1 ? 'bg-white/10 text-white/50' : 'bg-white/5 text-white/30'}`}>
+                          {index + 1}
+                        </span>
+                        <div>
+                          <p className="text-sm font-black text-white/80">{user.displayName || 'مستخدم'}</p>
+                          <p className="text-[10px] text-white/30">@{user.username || '---'}</p>
+                        </div>
+                      </div>
+                      <span className="text-sm font-black text-[#fbbf24]">{user.totalPoints || 0}</span>
+                    </div>
+                  ))}
+                  {topUsers.length === 0 && <p className="text-sm text-white/20 text-center py-6">لا يوجد مستخدمين بعد</p>}
+                </div>
               </div>
             </div>
           </div>
@@ -1747,6 +1764,7 @@ export function AdminPanel() {
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );
