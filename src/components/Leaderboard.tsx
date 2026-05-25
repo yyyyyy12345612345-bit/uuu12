@@ -37,6 +37,18 @@ const COUNTRIES = [
   "موريتانيا", "الصومال", "جيبوتي", "جزر القمر"
 ];
 
+const getCleanCountry = (entry: any) => {
+  const country = entry.country || entry.governorate;
+  if (!country) return "مصر";
+  if (
+    country.toLowerCase() === entry.username?.toLowerCase() ||
+    /^[A-Za-z0-9_@.-]+$/.test(country)
+  ) {
+    return "مصر";
+  }
+  return country;
+};
+
 interface LeaderboardProps {
   onEditProfile?: () => void;
 }
@@ -452,11 +464,10 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                                               <span className="font-black text-lg md:text-xl text-foreground truncate">{entry.displayName || entry.username}</span>
                                               {index < 3 && <Trophy className="w-4 h-4 text-primary" />}
                                           </div>
-                                          <div className="flex items-center gap-3">
-                                              <span className="text-[10px] font-bold text-foreground/30 uppercase tracking-widest">@{entry.username}</span>
+                                          <div className="flex items-center gap-2 mt-1">
                                               <div className="flex items-center gap-1 text-[10px] text-primary font-black bg-primary/10 px-2 py-0.5 rounded-lg">
                                                   <MapPin className="w-2.5 h-2.5" />
-                                                  <span>{entry.governorate}</span>
+                                                  <span>{getCleanCountry(entry)}</span>
                                               </div>
                                           </div>
                                       </div>

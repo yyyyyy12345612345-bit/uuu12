@@ -198,7 +198,6 @@ export function Mushaf() {
                                         </div>
                                         <div>
                                             <h3 className="text-2xl font-bold font-arabic group-hover:text-primary transition-colors">سورة {surah.name}</h3>
-                                            <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">{surah.transliteration}</p>
                                         </div>
                                     </button>
                                 ))}
