@@ -1,15 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import {
-  ShieldCheck, Users, Trophy, Trash2,
-  RefreshCw, AlertTriangle, TrendingUp, CheckCircle, Ban,
-  Mail, Phone, UserCheck, Loader2, Bell,
-  LayoutDashboard, BellRing, Activity, UserCircle, CreditCard, Swords,
-  Settings, GalleryHorizontalEnd, BarChart3, History, HeadphonesIcon,
-  Megaphone, AlertCircle, BookOpen, FlaskConical, Package,
-  Menu as MenuIcon, X
-} from "lucide-react";
+import * as Icon from "lucide-react";
 import surahsData from "@/data/surahs.json";
 import { auth, db } from "@/lib/firebase";
 import {
@@ -574,7 +566,7 @@ export function AdminPanel() {
         <div className="absolute bottom-1/4 -right-1/4 w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(20,184,166,0.04)_0%,transparent_70%)] rounded-full pointer-events-none" />
         <form onSubmit={handleAdminLogin} className="relative w-full max-w-sm space-y-5 rounded-3xl border border-white/[0.06] bg-[rgba(255,255,255,0.02)] backdrop-blur-2xl p-8 shadow-2xl text-center">
           <div className="w-16 h-16 mx-auto rounded-2xl bg-[#fbbf24]/10 flex items-center justify-center border border-[#fbbf24]/20">
-            <ShieldCheck className="w-8 h-8 text-[#fbbf24]" />
+            <Icon.ShieldCheck className="w-8 h-8 text-[#fbbf24]" />
           </div>
           <div className="space-y-2">
             <h2 className="text-2xl font-black text-white/90">مركز التحكم</h2>
@@ -585,7 +577,7 @@ export function AdminPanel() {
             <input type="password" required value={password} onChange={e => setPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 p-3.5 rounded-2xl outline-none text-sm text-white placeholder:text-white/20 text-right" placeholder="كلمة المرور" />
           </div>
           <button type="submit" disabled={isLoggingIn} className="w-full py-3.5 bg-[#fbbf24] text-black rounded-2xl font-black text-sm hover:brightness-110 transition shadow-lg shadow-[#fbbf24]/20 disabled:opacity-50">
-            {isLoggingIn ? <Loader2 className="inline-block w-5 h-5 animate-spin" /> : 'دخول'}
+            {isLoggingIn ? <Icon.Loader2 className="inline-block w-5 h-5 animate-spin" /> : 'دخول'}
           </button>
           {loginError && <p className="text-xs text-red-400 font-bold">{loginError}</p>}
         </form>
@@ -650,7 +642,7 @@ export function AdminPanel() {
         <div className="lg:hidden sticky top-0 z-30 bg-[#0b0f1a]/95 backdrop-blur-xl border-b border-white/[0.06] p-3">
           <div className="flex items-center justify-between">
             <button onClick={() => setSidebarOpen(true)} className="text-white/40 hover:text-white/70">
-              <MenuIcon className="w-6 h-6" />
+              <Icon.MenuIcon className="w-6 h-6" />
             </button>
             <div className="flex items-center gap-2">
               <img src="/logo/logo.png" className="w-7 h-7 rounded-lg" alt="" />
@@ -671,7 +663,7 @@ export function AdminPanel() {
           {/* Tab loading indicator */}
           {tabLoading === activeTab && (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 animate-spin text-[#fbbf24]" />
+              <Icon.Loader2 className="w-6 h-6 animate-spin text-[#fbbf24]" />
               <span className="mr-3 text-sm text-white/40 font-bold">جاري تحميل البيانات...</span>
             </div>
           )}
@@ -684,17 +676,17 @@ export function AdminPanel() {
                   <p className="text-sm text-white/30 font-bold mt-1">نظرة عامة على أداء التطبيق</p>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-white/30">
-                  <RefreshCw className="w-3 h-3" />
+                  <Icon.RefreshCw className="w-3 h-3" />
                   {new Date().toLocaleDateString("ar-EG")}
                 </div>
               </div>
 
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 {[
-                  { label: 'إجمالي المستخدمين', value: stats.totalUsers, icon: Users, color: 'text-[#fbbf24]' },
-                  { label: 'نشط اليوم', value: stats.activeToday, icon: UserCheck, color: 'text-emerald-400' },
-                  { label: 'إيميلات اليوم', value: dailyStats.emailCount, icon: Mail, color: 'text-sky-400' },
-                  { label: 'تسجيلات اليوم', value: dailyStats.regCount, icon: TrendingUp, color: 'text-violet-400' },
+                  { label: 'إجمالي المستخدمين', value: stats.totalUsers, icon: Icon.Users, color: 'text-[#fbbf24]' },
+                  { label: 'نشط اليوم', value: stats.activeToday, icon: Icon.UserCheck, color: 'text-emerald-400' },
+                  { label: 'إيميلات اليوم', value: dailyStats.emailCount, icon: Icon.Mail, color: 'text-sky-400' },
+                  { label: 'تسجيلات اليوم', value: dailyStats.regCount, icon: Icon.TrendingUp, color: 'text-violet-400' },
                 ].map(card => (
                   <div key={card.label} className={STAT_CARD_CLASS}>
                     <card.icon className={`mx-auto mb-3 w-6 h-6 ${card.color}`} />
@@ -726,7 +718,7 @@ export function AdminPanel() {
                     <p className="text-sm font-black text-white/70 mb-3">إعلان عام</p>
                     <textarea value={announcement} onChange={e => setAnnouncement(e.target.value)} rows={3} className={INPUT_CLASS} placeholder="اكتب نص الإعلان..." />
                     <button onClick={handleSetAnnouncement} disabled={isSettingAnnouncement} className={`${BTN_GOLD} mt-3`}>
-                      {isSettingAnnouncement ? <Loader2 className="inline-block w-4 h-4 animate-spin" /> : 'نشر الإعلان'}
+                      {isSettingAnnouncement ? <Icon.Loader2 className="inline-block w-4 h-4 animate-spin" /> : 'نشر الإعلان'}
                     </button>
                   </div>
 
@@ -766,9 +758,9 @@ export function AdminPanel() {
             <div className="space-y-6">
               <div className="grid gap-4 md:grid-cols-3">
                 {[
-                  { icon: Bell, label: 'المشتركين', value: stats.pushSubscribers, note: 'لديهم FCM Token', color: 'text-violet-400' },
-                  { icon: Users, label: 'إجمالي المستخدمين', value: stats.totalUsers, note: 'جميع الحسابات', color: 'text-emerald-400' },
-                  { icon: TrendingUp, label: 'نسبة الوصول', value: stats.totalUsers > 0 ? `${Math.round((stats.pushSubscribers / stats.totalUsers) * 100)}%` : '0%', note: 'من إجمالي المستخدمين', color: 'text-sky-400' },
+                  { icon: Icon.Bell, label: 'المشتركين', value: stats.pushSubscribers, note: 'لديهم FCM Token', color: 'text-violet-400' },
+                  { icon: Icon.Users, label: 'إجمالي المستخدمين', value: stats.totalUsers, note: 'جميع الحسابات', color: 'text-emerald-400' },
+                  { icon: Icon.TrendingUp, label: 'نسبة الوصول', value: stats.totalUsers > 0 ? `${Math.round((stats.pushSubscribers / stats.totalUsers) * 100)}%` : '0%', note: 'من إجمالي المستخدمين', color: 'text-sky-400' },
                 ].map(item => (
                   <div key={item.label} className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.02)] p-6 text-center">
                     <item.icon className={`mx-auto mb-3 h-7 w-7 ${item.color}`} />
@@ -841,7 +833,7 @@ export function AdminPanel() {
                     </div>
                   )}
                   <button onClick={handleSendPushNotification} disabled={isSendingPush || !pushTitle || !pushBody} className="w-full rounded-2xl bg-gradient-to-r from-violet-500 to-sky-500 px-5 py-5 text-white font-black text-base transition hover:scale-[1.01] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-xl shadow-violet-500/20">
-                    {isSendingPush ? <><Loader2 className="w-5 h-5 animate-spin" /> جاري الإرسال...</> : <><Bell className="w-5 h-5" /> إرسال الإشعار الآن</>}
+                    {isSendingPush ? <><Icon.Loader2 className="w-5 h-5 animate-spin" /> جاري الإرسال...</> : <><Icon.Bell className="w-5 h-5" /> إرسال الإشعار الآن</>}
                   </button>
                 </div>
               </div>
@@ -1202,7 +1194,7 @@ export function AdminPanel() {
                           <p className="text-xs text-white/30">{item.surahName}</p>
                         </div>
                         <button onClick={() => handleDeleteShowcaseItem(item.id)} className="rounded-xl bg-red-500/10 px-3 py-2 text-red-400 transition hover:bg-red-500/20">
-                          <Trash2 className="h-4 w-4" />
+                          <Icon.Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                     </div>
@@ -1236,7 +1228,7 @@ export function AdminPanel() {
               <div className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.02)] p-6">
                 <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
                   <h2 className="text-xl font-black">إدارة الأسعار</h2>
-                  <Trophy className="h-6 w-6 text-[#fbbf24]" />
+                  <Icon.Trophy className="h-6 w-6 text-[#fbbf24]" />
                 </div>
                 <div className="mt-6 grid gap-4 md:grid-cols-3">
                   <div className="space-y-2 text-right">
@@ -1253,14 +1245,14 @@ export function AdminPanel() {
                   </div>
                 </div>
                 <button onClick={handleSavePaymentSettings} disabled={isSavingSettings} className="mt-8 w-full rounded-2xl bg-gradient-to-r from-sky-400 to-violet-500 px-5 py-4 text-black font-black transition hover:shadow-xl hover:shadow-sky-500/20">
-                  {isSavingSettings ? <Loader2 className="inline-block h-5 w-5 animate-spin" /> : 'حفظ الإعدادات'}
+                  {isSavingSettings ? <Icon.Loader2 className="inline-block h-5 w-5 animate-spin" /> : 'حفظ الإعدادات'}
                 </button>
               </div>
               {/* Maintenance Mode */}
               <div className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.02)] p-6">
                 <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
                   <h2 className="text-xl font-black">وضع الصيانة</h2>
-                  <AlertTriangle className="h-6 w-6 text-amber-400" />
+                  <Icon.AlertTriangle className="h-6 w-6 text-amber-400" />
                 </div>
                 <div className="mt-6 grid gap-5">
                   <label className="inline-flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.02] p-5 text-sm text-white/60">
@@ -1367,7 +1359,7 @@ export function AdminPanel() {
                     </div>
                   )}
                   <button type="submit" disabled={isAddingQuest} className={BTN_GRADIENT}>
-                    {isAddingQuest ? <Loader2 className="inline-block h-5 w-5 animate-spin" /> : 'نشر المهمة'}
+                    {isAddingQuest ? <Icon.Loader2 className="inline-block h-5 w-5 animate-spin" /> : 'نشر المهمة'}
                   </button>
                 </form>
               </div>
@@ -1440,7 +1432,7 @@ export function AdminPanel() {
                         <td className="p-5 space-y-2 text-right">
                           <div className="flex flex-wrap gap-2 justify-end">
                             <button onClick={() => handleBanUser(u.uid, u.isBanned)} className={`rounded-xl px-4 py-2 text-[11px] font-black transition ${u.isBanned ? 'bg-emerald-500 text-black' : 'bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white'}`}>
-                              {u.isBanned ? <><CheckCircle className="inline h-4 w-4" /> فك الحظر</> : <><Ban className="inline h-4 w-4" /> حظر</>}
+                              {u.isBanned ? <><Icon.CheckCircle className="inline h-4 w-4" /> فك الحظر</> : <><Icon.Ban className="inline h-4 w-4" /> حظر</>}
                             </button>
                             {u.subscriptionActive ? (
                               <button onClick={() => handleCancelSubscription(u.uid)} disabled={isUpdatingSubscription} className="rounded-xl bg-white/5 px-4 py-2 text-[11px] font-black text-white/60 transition hover:bg-white/10">إلغاء</button>
