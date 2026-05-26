@@ -539,7 +539,7 @@ export function PrayerTimes() {
           <div className="absolute inset-0" onClick={() => setShowAthanSettings(false)} />
           <div className="relative w-full max-w-sm rounded-[2.5rem] border border-white/10 p-6 max-h-[80vh] overflow-y-auto shadow-2xl"
             style={{ background: "#0a0c15" }}>
-            <button onClick={() => setShowAthanSettings(false)} className="absolute top-5 left-5 text-white/30 hover:text-white transition">
+            <button onClick={() => setShowAthanSettings(false)} className="absolute top-7 left-6 text-white/30 hover:text-white transition">
               <X className="w-5 h-5" />
             </button>
             <h3 className="text-lg font-black text-white mb-5 text-right">اختر المؤذن</h3>
@@ -577,7 +577,7 @@ export function PrayerTimes() {
           <div className="absolute inset-0" onClick={() => setShowLocationPicker(false)} />
           <div className="relative w-full max-w-sm rounded-[2.5rem] border border-white/10 p-6 shadow-2xl"
             style={{ background: "#0a0c15" }}>
-            <button onClick={() => setShowLocationPicker(false)} className="absolute top-5 left-5 text-white/30 hover:text-white transition">
+            <button onClick={() => setShowLocationPicker(false)} className="absolute top-7 left-6 text-white/30 hover:text-white transition">
               <X className="w-5 h-5" />
             </button>
             <h3 className="text-lg font-black text-white mb-1 text-right">تغيير المنطقة يدوياً</h3>

@@ -86,12 +86,12 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
     <div className="fixed inset-0 z-[2000] flex justify-end font-arabic">
       {/* Premium Dark/Light Glass Backdrop */}
       <div 
-        className="absolute inset-0 bg-background/80 backdrop-blur-xl animate-in fade-in duration-500" 
+        className="absolute inset-0 bg-black/60 backdrop-blur-[6px] animate-in fade-in duration-300" 
         onClick={onClose} 
       />
       
       {/* Sidebar Content */}
-      <div className="relative w-full max-w-[420px] h-full bg-background text-foreground shadow-[-30px_0_100px_rgba(0,0,0,0.2)] dark:shadow-[-30px_0_100px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden animate-in slide-in-from-right duration-500 border-l border-foreground/5">
+      <div className="relative w-full max-w-[420px] h-full bg-background text-foreground shadow-[-30px_0_100px_rgba(0,0,0,0.3)] dark:shadow-[-30px_0_100px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden animate-in slide-in-from-right duration-300 ease-out border-l border-foreground/5 rounded-l-[2rem] md:rounded-l-[2.5rem]">
         
         {/* Abstract Cinematic Background */}
         <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none mix-blend-overlay" />
@@ -99,8 +99,8 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-primary/5 blur-[150px] rounded-full translate-y-1/3 -translate-x-1/3 pointer-events-none" />
 
         {/* Sidebar Header */}
-        <div className="p-8 pb-6 relative z-10">
-          <div className="flex items-center justify-between mb-10">
+        <div className="p-6 pb-4 relative z-10">
+          <div className="flex items-center justify-between mb-6">
             <button 
                 onClick={onClose}
                 className="w-12 h-12 rounded-[1.5rem] bg-foreground/5 border border-foreground/10 flex items-center justify-center text-foreground/40 hover:text-foreground hover:bg-foreground/10 hover:rotate-90 transition-all duration-500 active:scale-90 shadow-xl"
@@ -115,114 +115,133 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
             </button>
           </div>
 
-          {/* Premium Profile Section */}
-          <div className="relative p-6 rounded-[2.5rem] bg-foreground/[0.02] border border-foreground/5 overflow-hidden group hover:border-primary/30 transition-colors duration-200 shadow-2xl">
-            <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-            
+          {/* Premium Profile & Points Section */}
+          <div className="relative p-1 bg-transparent transition-all duration-300">
             {auth?.currentUser && userData ? (
-              <div className="flex items-center gap-5 relative z-10">
-                 <div className="relative shrink-0" onClick={onOpenProfile}>
-                    <div className="w-16 h-16 rounded-[1.5rem] border border-foreground/10 bg-card shadow-2xl overflow-hidden cursor-pointer group-hover:scale-105 group-hover:border-primary/50 transition-all duration-200">
-                       <img 
-                         src={userData.photoURL || "/logo/logo.png"} 
-                         alt="Profile" 
-                         className="w-full h-full object-cover" 
-                       />
+              <div className="space-y-2.5">
+                {/* Profile Card Button */}
+                <button
+                  onClick={onOpenProfile}
+                  className="w-full flex items-center justify-between p-3 px-4 rounded-[1.5rem] bg-foreground/[0.03] border border-foreground/5 hover:border-primary/30 hover:bg-foreground/[0.05] transition-all duration-300 group text-right shadow-lg cursor-pointer"
+                >
+                  <div className="flex items-center gap-3 flex-row-reverse">
+                    <div className="relative shrink-0">
+                      <div className="w-11 h-11 rounded-xl border border-foreground/10 bg-card overflow-hidden group-hover:scale-105 transition-transform duration-300">
+                        <img 
+                          src={userData.photoURL || "/logo/logo.png"} 
+                          alt="Profile" 
+                          className="w-full h-full object-cover" 
+                        />
+                      </div>
                     </div>
-                    <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary rounded-xl flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/30 border-2 border-background">
-                       <Trophy className="w-4 h-4" />
+                    <div className="flex flex-col justify-center">
+                      <h3 className="text-sm font-black text-foreground/90 group-hover:text-primary transition-colors">{userData.displayName || userData.username}</h3>
+                      <p className="text-[10px] text-foreground/40 font-bold">تعديل الملف الشخصي</p>
                     </div>
-                 </div>
-                 
-                 <div className="flex-1 text-right overflow-hidden flex flex-col justify-center">
-                    <h3 className="text-xl font-black truncate text-foreground/90 mb-1">{userData.displayName || userData.username}</h3>
-                    <div className="flex items-center justify-end gap-3">
-                      <span className="text-xs font-black text-primary uppercase tracking-widest bg-primary/10 px-3 py-1 rounded-full">{userData.totalPoints || 0} نقطة</span>
-                      <button onClick={onOpenProfile} className="text-[10px] font-black text-foreground/30 hover:text-foreground transition-colors uppercase tracking-widest">تعديل</button>
+                  </div>
+                  <ChevronLeft className="w-4 h-4 text-foreground/30 group-hover:text-primary group-hover:-translate-x-1 transition-all" />
+                </button>
+
+                {/* Separate Premium Points Card */}
+                <button
+                  onClick={onOpenPointsGuide}
+                  className="w-full p-3.5 px-4 rounded-[1.5rem] bg-gradient-to-l from-primary/10 via-primary/5 to-transparent border border-primary/20 flex items-center justify-between group hover:border-primary/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.15)] transition-all duration-300 text-right cursor-pointer"
+                >
+                  <div className="flex items-center gap-3 flex-row-reverse">
+                    <div className="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center text-primary shadow-inner group-hover:scale-110 transition-transform duration-300">
+                      <Trophy className="w-4.5 h-4.5" />
                     </div>
-                 </div>
+                    <div>
+                      <p className="text-[10px] font-black text-primary/70 uppercase tracking-wider">رصيد النقاط</p>
+                      <p className="text-base font-black text-white">{userData.totalPoints || 0} نقطة</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 text-[10px] font-black text-primary/80 group-hover:text-white transition-colors">
+                    <span>دليل النقاط</span>
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                  </div>
+                </button>
               </div>
             ) : (
-              <div className="flex items-center gap-5 relative z-10">
-                  <div className="w-16 h-16 rounded-[1.5rem] bg-foreground/5 border border-foreground/10 flex items-center justify-center p-3 shadow-inner">
-                    <img src="/logo/logo.png" alt="Logo" className="w-full h-full object-contain opacity-80" />
-                  </div>
-                  <div className="text-right">
-                    <h3 className="text-2xl font-black text-foreground/90">سكينة</h3>
-                    <p className="text-[10px] text-primary font-black uppercase tracking-[0.3em] mt-1">تطبيق القرآن الكريم</p>
-                  </div>
+              <div className="flex items-center gap-4 p-3 px-4 rounded-[1.5rem] bg-foreground/[0.03] border border-foreground/5">
+                <div className="w-11 h-11 rounded-xl bg-foreground/5 border border-foreground/10 flex items-center justify-center p-2 shadow-inner">
+                  <img src="/logo/logo.png" alt="Logo" className="w-full h-full object-contain opacity-80" />
+                </div>
+                <div className="text-right">
+                  <h3 className="text-base font-black text-foreground/90">سكينة</h3>
+                  <p className="text-[9px] text-primary font-black uppercase tracking-[0.25em] mt-0.5">تطبيق القرآن الكريم</p>
+                </div>
               </div>
             )}
           </div>
         </div>
 
         {/* Menu Items */}
-        <div className="flex-1 overflow-y-auto no-scrollbar p-8 pt-2 space-y-12 relative z-10">
+        <div className="flex-1 overflow-y-auto no-scrollbar p-6 pt-2 space-y-8 relative z-10 animate-in fade-in duration-300 delay-75">
           {menuGroups.map((group, idx) => (
-             <div key={idx} className="space-y-5 animate-in slide-in-from-right fade-in" style={{ animationDelay: `${idx * 100}ms`, animationFillMode: 'both' }}>
-                 <div className="flex items-center gap-4">
-                    <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-foreground/5" />
-                    <h4 className="text-[10px] font-black text-foreground/30 tracking-[0.4em] uppercase">{group.title}</h4>
-                 </div>
-                 <div className="space-y-3">
-                    {group.items.map((item: any, itemIdx: number) => {
-                       const isActive = pathname === item.path;
-                       return (
-                           <button
-                             key={item.id}
-                             onClick={() => {
-                               if (item.onClick) item.onClick();
-                               else if (item.url) window.open(item.url, '_blank');
-                               else if (item.path) navigate(item.path);
-                             }}
-                             className={`relative w-full group flex items-center justify-between p-5 rounded-[2rem] transition-all duration-300 border overflow-hidden animate-in fade-in slide-in-from-right-4 ${
-                               isActive 
-                                 ? 'bg-primary/10 border-primary/30 shadow-[0_0_30px_rgba(212,175,55,0.15)] scale-[1.02]' 
-                                 : 'bg-foreground/[0.02] border-foreground/[0.05] hover:bg-foreground/[0.06] hover:border-foreground/10'
-                             }`}
-                             style={{ animationDelay: `${(idx * 100) + (itemIdx * 50)}ms`, animationFillMode: 'both' }}
-                           >
+             <div key={idx} className="space-y-3.5">
+                  <div className="flex items-center justify-between gap-3 flex-row-reverse">
+                     <h4 className="text-[10px] font-black text-primary/60 tracking-[0.15em] uppercase">{group.title}</h4>
+                     <div className="h-[1px] flex-1 bg-gradient-to-l from-foreground/10 to-transparent" />
+                  </div>
+                  <div className="space-y-2">
+                     {group.items.map((item: any) => {
+                        const isActive = pathname === item.path;
+                        return (
+                            <button
+                              key={item.id}
+                              onClick={() => {
+                                if (item.onClick) item.onClick();
+                                else if (item.url) window.open(item.url, '_blank');
+                                else if (item.path) navigate(item.path);
+                              }}
+                              className={`relative w-full group flex items-center justify-between p-3.5 px-4 rounded-2xl transition-all duration-200 border overflow-hidden ${
+                                isActive 
+                                  ? 'bg-primary/10 border-primary/20 shadow-[0_0_20px_rgba(212,175,55,0.1)] scale-[1.01]' 
+                                  : 'bg-foreground/[0.02] border-foreground/[0.04] hover:bg-foreground/[0.04] hover:border-primary/20'
+                              }`}
+                            >
                               {isActive && (
                                  <div className="absolute inset-0 bg-gradient-to-l from-primary/20 via-transparent to-transparent opacity-50" />
                               )}
                               {isActive && (
                                  <div className="absolute right-0 top-1/2 -translate-y-1/2 h-1/2 w-1.5 bg-primary rounded-l-full shadow-[0_0_15px_rgba(212,175,55,1)]" />
                               )}
-                              <div className="flex items-center gap-5 relative z-10 w-full justify-end flex-row-reverse">
-                                 <div className={`w-12 h-12 rounded-[1.2rem] flex items-center justify-center transition-all duration-500 shadow-inner shrink-0 ${
-                                   isActive ? 'bg-primary shadow-primary/40 text-primary-foreground scale-110' : 'bg-foreground/10 text-foreground/40 group-hover:text-primary group-hover:bg-primary/10'
+                              <div className="flex items-center gap-4 relative z-10 w-full justify-end flex-row-reverse">
+                                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 shadow-inner shrink-0 ${
+                                   isActive ? 'bg-primary shadow-primary/30 text-primary-foreground scale-105' : 'bg-foreground/5 text-foreground/40 group-hover:text-primary group-hover:bg-primary/10'
                                  }`}>
-                                    <item.icon className={`w-5 h-5 ${isActive ? 'fill-primary-foreground/10' : ''}`} />
+                                    <item.icon className="w-[18px] h-[18px]" />
                                  </div>
-                                 <span className={`text-lg font-black truncate text-right ${isActive ? 'text-primary' : 'text-foreground/80 group-hover:text-foreground'}`}>{item.label}</span>
+                                 <span className={`text-base font-black truncate text-right ${isActive ? 'text-primary' : 'text-foreground/80 group-hover:text-foreground'}`}>{item.label}</span>
                               </div>
-                              <ChevronLeft className={`w-5 h-5 transition-transform duration-500 relative z-10 ${isActive ? 'text-primary -translate-x-2 opacity-100' : 'text-foreground/10 group-hover:-translate-x-1 group-hover:text-foreground/40 opacity-0 group-hover:opacity-100'}`} />
-                           </button>
-                       );
-                    })}
-                 </div>
+                              <ChevronLeft className={`w-4 h-4 transition-transform duration-300 relative z-10 ${isActive ? 'text-primary -translate-x-1 opacity-100' : 'text-foreground/10 group-hover:-translate-x-0.5 group-hover:text-foreground/40 opacity-0 group-hover:opacity-100'}`} />
+                            </button>
+                        );
+                     })}
+                  </div>
              </div>
           ))}
 
           {isAdmin && (
-            <div className="pt-8 animate-in slide-in-from-right fade-in" style={{ animationDelay: '500ms', animationFillMode: 'both' }}>
+            <div className="pt-4">
                <button
                   onClick={() => { onClose(); navigate('/admin'); }}
-                  className="w-full flex items-center justify-between p-6 rounded-[2rem] bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-500/20 hover:shadow-[0_0_30px_rgba(239,68,68,0.2)] transition-all duration-300 group"
+                  className="w-full flex items-center justify-between p-3.5 px-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/15 hover:border-red-500/30 transition-all duration-200 group text-right"
                >
                   <div className="flex items-center gap-4 flex-row-reverse">
-                     <div className="w-12 h-12 rounded-[1.2rem] bg-red-500/20 flex items-center justify-center">
-                         <ShieldCheck className="w-6 h-6" />
+                     <div className="w-9 h-9 rounded-xl bg-red-500/20 flex items-center justify-center shrink-0">
+                          <ShieldCheck className="w-5 h-5" />
                      </div>
-                     <span className="text-xl font-black">لوحة الإدارة الحصرية</span>
+                     <span className="text-base font-black">لوحة الإدارة الحصرية</span>
                   </div>
-                  <ChevronLeft className="w-5 h-5 opacity-40 group-hover:-translate-x-1 group-hover:opacity-100 transition-all" />
+                  <ChevronLeft className="w-4 h-4 opacity-40 group-hover:-translate-x-1 group-hover:opacity-100 transition-all" />
                </button>
             </div>
           )}
         </div>
 
-        <div className="p-8 border-t border-foreground/5 relative z-10 bg-card text-center">
+        <div className="p-6 border-t border-foreground/5 relative z-10 bg-card text-center">
             <div className="flex items-center justify-center gap-2 text-foreground/40">
                 <Heart className="w-4 h-4 text-primary fill-primary animate-pulse" />
                 <span className="text-xs font-bold font-arabic">صنع بكل حب لكل مسلم</span>
