@@ -169,10 +169,14 @@ export function MushafChoice() {
           // ── Timeline master ──
           const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
 
+          // Fade in the outer container
+          tl.to(containerRef.current, { opacity: 1, duration: 0.3 });
+
           // Background fade-in
           tl.fromTo(bgRef.current,
             { opacity: 0 },
-            { opacity: 1, duration: 0.8 }
+            { opacity: 1, duration: 0.8 },
+            "<"
           );
 
           // Ambient orbs float in
