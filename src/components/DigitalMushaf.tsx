@@ -207,45 +207,36 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
       <audio ref={audioRef} onEnded={handleAudioEnd} onError={handleAudioEnd} />
 
       {/* Premium Header */}
-      <header className="h-24 md:h-28 shrink-0 bg-transparent px-6 md:px-12 flex items-center justify-between z-[100] shadow-2xl">
-          <div className="flex items-center gap-4">
+      <header className="h-14 md:h-16 shrink-0 bg-transparent px-4 md:px-8 flex items-center justify-between z-[100] shadow-2xl">
+          <div className="flex items-center gap-2">
               <button 
                 onClick={() => setIsIndexOpen(true)}
-                className="w-14 h-14 rounded-2xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-primary transition-all active:scale-90 border border-white/5"
+                className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-primary transition-all active:scale-90 border border-white/5"
               >
-                  <Menu className="w-7 h-7" />
+                  <Menu className="w-4 h-4" />
               </button>
-              <div className="hidden md:flex flex-col text-right">
-                  <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">الفهرس الشامل</span>
-                  <span className="text-sm font-bold text-white">البحث في السور</span>
-              </div>
           </div>
 
           <div className="flex flex-col items-center">
-              <h1 className="font-['Amiri'] text-3xl md:text-5xl font-black text-white drop-shadow-2xl">
+              <h1 className="font-['Amiri'] text-lg md:text-2xl font-black text-white drop-shadow-2xl">
                 {isTafseerMode ? 'مصحف التفسير' : 'المصحف الشريف'}
               </h1>
-              <div className="flex items-center gap-3 mt-1">
-                  <div className="h-[1px] w-8 bg-primary/40" />
-                  <Star className="w-2 h-2 text-primary fill-primary" />
-
-                  <Star className="w-2 h-2 text-primary fill-primary" />
-                  <div className="h-[1px] w-8 bg-primary/40" />
+              <div className="flex items-center gap-2">
+                  <div className="h-[1px] w-5 bg-primary/40" />
+                  <Star className="w-1.5 h-1.5 text-primary fill-primary" />
+                  <Star className="w-1.5 h-1.5 text-primary fill-primary" />
+                  <div className="h-[1px] w-5 bg-primary/40" />
               </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
               <button 
                 onClick={() => setShowReciterPicker(!showReciterPicker)}
-                className="w-14 h-14 rounded-2xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all border border-white/5 relative"
+                className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all border border-white/5 relative"
               >
-                  <User className="w-6 h-6" />
-                  {showReciterPicker && <div className="absolute top-2 right-2 w-3 h-3 bg-primary rounded-full shadow-[0_0_10px_rgba(212,175,55,0.5)]" />}
+                  <User className="w-4 h-4" />
+                  {showReciterPicker && <div className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full" />}
               </button>
-              <div className="hidden lg:flex flex-col items-end">
-                  <span className="text-[9px] font-black text-white/30 uppercase tracking-widest">القارئ الحالي</span>
-                  <span className="text-xs font-bold text-primary">{RECITERS.find(r => r.id === state.reciterId)?.name}</span>
-              </div>
           </div>
       </header>
 
@@ -346,21 +337,21 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
       </main>
 
       {/* Floating Action Bar */}
-      <footer className="fixed bottom-28 left-1/2 -translate-x-1/2 bg-[#0c0d10]/90 backdrop-blur-3xl border border-white/10 rounded-[2rem] px-6 py-3 flex items-center gap-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[100]">
-          <div className="flex items-center gap-2">
+      <footer className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-[#0c0d10]/90 backdrop-blur-3xl border border-white/10 rounded-2xl px-4 py-2 flex items-center gap-3 shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-[100]">
+          <div className="flex items-center gap-1.5">
               <button 
                 onClick={() => updateState({ mushafFontSize: Math.max(16, state.mushafFontSize - 2) })}
-                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-white flex items-center justify-center font-black transition-all text-xs"
+                className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-white flex items-center justify-center font-black transition-all text-[10px]"
               >A-</button>
               <button 
                 onClick={() => updateState({ mushafFontSize: Math.min(60, state.mushafFontSize + 2) })}
-                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-white flex items-center justify-center font-black transition-all text-xs"
+                className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-white flex items-center justify-center font-black transition-all text-[10px]"
               >A+</button>
           </div>
 
-          <div className="w-px h-8 bg-white/10" />
+          <div className="w-px h-6 bg-white/10" />
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
               <button 
                 disabled={isLoading}
                 onClick={() => { 
@@ -371,12 +362,12 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
                         fetchPageBatch(target, true);
                     }
                 }}
-                className={`w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ChevronRight className="w-5 h-5" />}
+                  {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <ChevronRight className="w-4 h-4" />}
               </button>
-              <div className="text-center min-w-[100px]">
-                  <p className="text-[10px] font-black text-primary font-arabic mb-0.5">
+              <div className="text-center min-w-[72px]">
+                  <p className="text-[9px] font-black text-primary font-arabic leading-none">
                     {(() => {
                       const vKey = pages[0]?.verses[0]?.verse_key || pages[pages.length-1]?.verses[0]?.verse_key;
                       if (!vKey) return "سورة ...";
@@ -384,7 +375,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
                       return `سورة ${surahsData.find(s => s.id === sId)?.name || ""}`;
                     })()}
                   </p>
-                  <p className="text-xs font-bold text-white/40 leading-none">صفحة {pages[0]?.page || currentPage || ".."}</p>
+                  <p className="text-[9px] font-bold text-white/40 leading-none mt-0.5">ص {pages[0]?.page || currentPage || ".."}</p>
               </div>
               <button 
                 disabled={isLoading}
@@ -396,13 +387,13 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
                         fetchPageBatch(target, true);
                     }
                 }}
-                className={`w-10 h-10 rounded-xl bg-primary text-black hover:scale-110 flex items-center justify-center transition-all shadow-[0_0_20px_rgba(212,175,55,0.3)] ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`w-7 h-7 rounded-lg bg-primary text-black hover:scale-110 flex items-center justify-center transition-all shadow-[0_0_12px_rgba(212,175,55,0.3)] ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ChevronLeft className="w-5 h-5" />}
+                  {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <ChevronLeft className="w-4 h-4" />}
               </button>
           </div>
 
-          <div className="w-px h-8 bg-white/10" />
+          <div className="w-px h-6 bg-white/10" />
 
           <button 
             onClick={() => {
@@ -414,20 +405,20 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
                     playVerse(0, 0);
                 }
             }}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-xl ${isPlayingPage ? 'bg-red-500 text-white' : 'bg-primary text-black hover:scale-110'}`}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md ${isPlayingPage ? 'bg-red-500 text-white' : 'bg-primary text-black hover:scale-110'}`}
           >
-              {isPlayingPage ? <X className="w-6 h-6" /> : <Play className="w-6 h-6 fill-current" />}
+              {isPlayingPage ? <X className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
           </button>
       </footer>
 
       {/* Tafsir Drawer */}
       {currentPlayingVerse && (
-          <div className="fixed bottom-40 left-1/2 -translate-x-1/2 w-[90%] max-w-xl z-[90] animate-in slide-in-from-bottom-10 duration-700">
-              <div className="bg-white/95 backdrop-blur-3xl border-4 border-primary rounded-[3rem] p-8 shadow-[0_40px_100px_rgba(0,0,0,0.4)] relative group">
-                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-primary text-black px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest shadow-xl">
+          <div className="fixed bottom-32 left-1/2 -translate-x-1/2 w-[88%] max-w-lg z-[90] animate-in slide-in-from-bottom-10 duration-700">
+              <div className="bg-white/95 backdrop-blur-3xl border-2 border-primary rounded-2xl p-4 shadow-[0_20px_60px_rgba(0,0,0,0.4)] relative">
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-primary text-black px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
                       تفسير ميسر
                   </div>
-                  <p className="text-xl md:text-2xl text-[#0c0d10] font-arabic font-bold text-center leading-relaxed">
+                  <p className="text-sm md:text-base text-[#0c0d10] font-arabic font-bold text-center leading-relaxed pt-1">
                       {pages[currentPlayingVerse.pageIndex].verses[currentPlayingVerse.verseIndex].translations?.[0]?.text.replace(/<[^>]*>?/gm, '') || "جاري جلب التفسير..."}
                   </p>
                   <button 
@@ -436,10 +427,10 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
                         const [sId] = verse.verse_key.split(':');
                         setSelectedVerseForDetail({ verseKey: verse.verse_key, surahName: surahsData.find(s => s.id === parseInt(sId))?.name || "" });
                     }}
-                    className="mt-6 w-full flex items-center justify-center gap-3 text-[#0c0d10]/40 hover:text-primary transition-colors text-xs font-black uppercase tracking-[0.2em]"
+                    className="mt-3 w-full flex items-center justify-center gap-2 text-[#0c0d10]/40 hover:text-primary transition-colors text-[10px] font-black uppercase tracking-[0.15em]"
                   >
                       عرض التفاصيل الكاملة
-                      <ChevronLeft className="w-4 h-4" />
+                      <ChevronLeft className="w-3 h-3" />
                   </button>
               </div>
           </div>
