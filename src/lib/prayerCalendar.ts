@@ -11,8 +11,8 @@ import {
 // Re-export for backward compatibility
 export type { PrayerLocationMeta, PrayerYearCalendar } from './prayerShared';
 
-const CALENDAR_KEY = 'prayer_year_calendar_v1';
-const LOCATION_META_KEY = 'prayer_location_meta_v1';
+const CALENDAR_KEY = 'prayer_year_calendar_v21';
+const LOCATION_META_KEY = 'prayer_location_meta_v21';
 const METHOD = 5;
 
 /** يزيل "(EET)" ويُرجع HH:MM أو HH:MM:SS */

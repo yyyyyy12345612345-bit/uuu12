@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quran-pwa-v7.0';
+const CACHE_NAME = 'quran-pwa-v21';
 const STATIC_CACHE_NAME = 'quran-static-assets-v1';
 const AUDIO_CACHE_NAME = 'quran-audio-v1';
 const FONT_CACHE_NAME = 'quran-fonts-v1';
