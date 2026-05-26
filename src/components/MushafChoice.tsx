@@ -1,118 +1,497 @@
-import React from 'react';
+"use client";
+
+import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { BookOpen, Scroll, Compass, Sparkles, ChevronLeft } from 'lucide-react';
+
+// GSAP - ensure you've run: npm install gsap
+let gsap: any;
+let ScrollTrigger: any;
+
+const MODES = [
+  {
+    href: "/mushaf",
+    title: "آية بآية",
+    titleEn: "Verse by Verse",
+    desc: "تجربة تلاوة مركزة تتيح لك الاستماع لكل آية على حدة مع عرض التفسير والترجمة الفورية.",
+    tag: "Focus Mode",
+    color: "#d4af37",
+    glow: "rgba(212,175,55,0.35)",
+    dimGlow: "rgba(212,175,55,0.08)",
+    gradient: "linear-gradient(135deg, #1a1300 0%, #0c0e18 60%, #050810 100%)",
+    borderGrad: "linear-gradient(135deg, rgba(212,175,55,0.6), rgba(212,175,55,0.05))",
+    num: "01",
+    svg: (
+      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+        {/* Book with highlighted verse */}
+        <rect x="10" y="15" width="28" height="50" rx="3" fill="rgba(212,175,55,0.12)" stroke="rgba(212,175,55,0.4)" strokeWidth="1.5"/>
+        <rect x="42" y="15" width="28" height="50" rx="3" fill="rgba(212,175,55,0.12)" stroke="rgba(212,175,55,0.4)" strokeWidth="1.5"/>
+        <rect x="14" y="20" width="20" height="2" rx="1" fill="rgba(212,175,55,0.3)"/>
+        <rect x="14" y="25" width="16" height="2" rx="1" fill="rgba(212,175,55,0.2)"/>
+        {/* Highlighted active line */}
+        <rect x="14" y="31" width="20" height="3" rx="1.5" fill="rgba(212,175,55,0.8)"/>
+        <rect x="14" y="37" width="14" height="2" rx="1" fill="rgba(212,175,55,0.2)"/>
+        <rect x="14" y="42" width="18" height="2" rx="1" fill="rgba(212,175,55,0.2)"/>
+        {/* Audio wave right page */}
+        <rect x="46" y="35" width="3" height="10" rx="1.5" fill="rgba(212,175,55,0.6)"/>
+        <rect x="52" y="29" width="3" height="22" rx="1.5" fill="rgba(212,175,55,0.9)"/>
+        <rect x="58" y="33" width="3" height="14" rx="1.5" fill="rgba(212,175,55,0.6)"/>
+        <rect x="64" y="37" width="3" height="6" rx="1.5" fill="rgba(212,175,55,0.4)"/>
+      </svg>
+    )
+  },
+  {
+    href: "/mushaf-full",
+    title: "المصحف الرقمي",
+    titleEn: "Digital Mushaf",
+    desc: "تصفح المصحف بالرسم العثماني التقليدي كما في النسخ الورقية مع إمكانية التنقل السريع بين الصفحات.",
+    tag: "Classic View",
+    color: "#7dd3fc",
+    glow: "rgba(125,211,252,0.35)",
+    dimGlow: "rgba(125,211,252,0.07)",
+    gradient: "linear-gradient(135deg, #001320 0%, #050e1a 60%, #050810 100%)",
+    borderGrad: "linear-gradient(135deg, rgba(125,211,252,0.5), rgba(125,211,252,0.05))",
+    num: "02",
+    svg: (
+      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+        {/* Open traditional mushaf */}
+        <path d="M40 18 L12 25 L12 68 L40 62 L68 68 L68 25 Z" fill="rgba(125,211,252,0.06)" stroke="rgba(125,211,252,0.3)" strokeWidth="1.2"/>
+        <line x1="40" y1="18" x2="40" y2="62" stroke="rgba(125,211,252,0.5)" strokeWidth="2"/>
+        {/* Arabic script lines left page */}
+        <rect x="16" y="30" width="18" height="1.5" rx="0.75" fill="rgba(125,211,252,0.5)"/>
+        <rect x="16" y="35" width="21" height="1.5" rx="0.75" fill="rgba(125,211,252,0.35)"/>
+        <rect x="16" y="40" width="15" height="1.5" rx="0.75" fill="rgba(125,211,252,0.35)"/>
+        <rect x="16" y="45" width="20" height="1.5" rx="0.75" fill="rgba(125,211,252,0.35)"/>
+        <rect x="16" y="50" width="17" height="1.5" rx="0.75" fill="rgba(125,211,252,0.25)"/>
+        <rect x="16" y="55" width="22" height="1.5" rx="0.75" fill="rgba(125,211,252,0.25)"/>
+        {/* Arabic script lines right page */}
+        <rect x="46" y="30" width="18" height="1.5" rx="0.75" fill="rgba(125,211,252,0.5)"/>
+        <rect x="46" y="35" width="21" height="1.5" rx="0.75" fill="rgba(125,211,252,0.35)"/>
+        <rect x="46" y="40" width="15" height="1.5" rx="0.75" fill="rgba(125,211,252,0.35)"/>
+        <rect x="46" y="45" width="20" height="1.5" rx="0.75" fill="rgba(125,211,252,0.35)"/>
+        <rect x="46" y="50" width="17" height="1.5" rx="0.75" fill="rgba(125,211,252,0.25)"/>
+        <rect x="46" y="55" width="22" height="1.5" rx="0.75" fill="rgba(125,211,252,0.25)"/>
+        {/* Corner ornaments */}
+        <circle cx="24" cy="25" r="2" fill="none" stroke="rgba(125,211,252,0.4)" strokeWidth="1"/>
+        <circle cx="56" cy="25" r="2" fill="none" stroke="rgba(125,211,252,0.4)" strokeWidth="1"/>
+      </svg>
+    )
+  },
+  {
+    href: "/mushaf-tafseer",
+    title: "مصحف بالتفسير",
+    titleEn: "Tafseer Mode",
+    desc: "القراءة المعمقة مع عرض التفسير الميسر بجانب كل صفحة، مثالي لطلبة العلم والباحثين.",
+    tag: "Deep Study",
+    color: "#86efac",
+    glow: "rgba(134,239,172,0.3)",
+    dimGlow: "rgba(134,239,172,0.07)",
+    gradient: "linear-gradient(135deg, #001306 0%, #050e0a 60%, #050810 100%)",
+    borderGrad: "linear-gradient(135deg, rgba(134,239,172,0.5), rgba(134,239,172,0.05))",
+    num: "03",
+    svg: (
+      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+        {/* Split view: Quran + Tafseer */}
+        <rect x="8" y="14" width="28" height="52" rx="4" fill="rgba(134,239,172,0.07)" stroke="rgba(134,239,172,0.35)" strokeWidth="1.2"/>
+        <rect x="44" y="20" width="30" height="44" rx="3" fill="rgba(134,239,172,0.04)" stroke="rgba(134,239,172,0.2)" strokeWidth="1"/>
+        {/* Verse text lines (larger - Arabic) */}
+        <rect x="12" y="22" width="20" height="2" rx="1" fill="rgba(134,239,172,0.7)"/>
+        <rect x="12" y="28" width="22" height="2" rx="1" fill="rgba(134,239,172,0.5)"/>
+        <rect x="12" y="34" width="18" height="2" rx="1" fill="rgba(134,239,172,0.5)"/>
+        <rect x="12" y="40" width="20" height="2" rx="1" fill="rgba(134,239,172,0.5)"/>
+        <rect x="12" y="46" width="16" height="2" rx="1" fill="rgba(134,239,172,0.3)"/>
+        <rect x="12" y="52" width="22" height="2" rx="1" fill="rgba(134,239,172,0.3)"/>
+        {/* Tafseer lines (smaller) */}
+        <rect x="48" y="26" width="22" height="1.2" rx="0.6" fill="rgba(134,239,172,0.35)"/>
+        <rect x="48" y="30" width="18" height="1.2" rx="0.6" fill="rgba(134,239,172,0.3)"/>
+        <rect x="48" y="34" width="24" height="1.2" rx="0.6" fill="rgba(134,239,172,0.3)"/>
+        <rect x="48" y="38" width="16" height="1.2" rx="0.6" fill="rgba(134,239,172,0.25)"/>
+        <rect x="48" y="42" width="22" height="1.2" rx="0.6" fill="rgba(134,239,172,0.25)"/>
+        <rect x="48" y="46" width="20" height="1.2" rx="0.6" fill="rgba(134,239,172,0.2)"/>
+        <rect x="48" y="50" width="24" height="1.2" rx="0.6" fill="rgba(134,239,172,0.2)"/>
+        {/* Connector line */}
+        <line x1="38" y1="28" x2="44" y2="28" stroke="rgba(134,239,172,0.3)" strokeWidth="1" strokeDasharray="2,2"/>
+        {/* Magnifier / study icon */}
+        <circle cx="63" cy="57" r="5" stroke="rgba(134,239,172,0.5)" strokeWidth="1.5" fill="none"/>
+        <line x1="67" y1="61" x2="71" y2="65" stroke="rgba(134,239,172,0.5)" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    )
+  }
+];
+
+// Floating particle component
+function FloatingParticles({ color }: { color: string }) {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(12)].map((_, i) => (
+        <div
+          key={i}
+          className="mc-particle absolute rounded-full opacity-0"
+          style={{
+            width: `${Math.random() * 4 + 2}px`,
+            height: `${Math.random() * 4 + 2}px`,
+            background: color,
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 export function MushafChoice() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const badgeRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const cardsRef = useRef<HTMLDivElement[]>([]);
+  const bgRef = useRef<HTMLDivElement>(null);
+  const orb1Ref = useRef<HTMLDivElement>(null);
+  const orb2Ref = useRef<HTMLDivElement>(null);
+  const orb3Ref = useRef<HTMLDivElement>(null);
+  const starsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let ctx: any;
+    let mounted = true;
+
+    const initGSAP = async () => {
+      try {
+        const gsapModule = await import('gsap');
+        gsap = gsapModule.gsap || gsapModule.default;
+        const STModule = await import('gsap/ScrollTrigger');
+        ScrollTrigger = STModule.ScrollTrigger;
+        gsap.registerPlugin(ScrollTrigger);
+
+        if (!mounted || !containerRef.current) return;
+
+        ctx = gsap.context(() => {
+          // ── Timeline master ──
+          const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
+
+          // Background fade-in
+          tl.fromTo(bgRef.current,
+            { opacity: 0 },
+            { opacity: 1, duration: 0.8 }
+          );
+
+          // Ambient orbs float in
+          if (orb1Ref.current) {
+            gsap.to(orb1Ref.current, {
+              y: -30, x: 20,
+              duration: 8, repeat: -1, yoyo: true,
+              ease: 'sine.inOut'
+            });
+          }
+          if (orb2Ref.current) {
+            gsap.to(orb2Ref.current, {
+              y: 25, x: -15,
+              duration: 10, repeat: -1, yoyo: true,
+              ease: 'sine.inOut', delay: 2
+            });
+          }
+          if (orb3Ref.current) {
+            gsap.to(orb3Ref.current, {
+              y: -20, x: 10,
+              duration: 7, repeat: -1, yoyo: true,
+              ease: 'sine.inOut', delay: 1
+            });
+          }
+
+          // Particles floating animation
+          const particles = document.querySelectorAll('.mc-particle');
+          particles.forEach((p) => {
+            gsap.to(p, {
+              opacity: Math.random() * 0.6 + 0.1,
+              y: -(Math.random() * 60 + 30),
+              x: (Math.random() - 0.5) * 40,
+              duration: Math.random() * 4 + 3,
+              repeat: -1, yoyo: true,
+              ease: 'sine.inOut',
+              delay: Math.random() * 3
+            });
+          });
+
+          // Badge entrance
+          tl.fromTo(badgeRef.current,
+            { opacity: 0, y: -20, scale: 0.8 },
+            { opacity: 1, y: 0, scale: 1, duration: 0.7 },
+            0.3
+          );
+
+          // Title dramatic entrance
+          tl.fromTo(titleRef.current,
+            { opacity: 0, y: 40, filter: 'blur(12px)' },
+            { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1 },
+            0.5
+          );
+
+          // Subtitle
+          tl.fromTo(subtitleRef.current,
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.8 },
+            0.8
+          );
+
+          // Cards staggered entrance
+          cardsRef.current.forEach((card, i) => {
+            if (!card) return;
+            tl.fromTo(card,
+              { opacity: 0, y: 60, scale: 0.95, rotateX: 5 },
+              { opacity: 1, y: 0, scale: 1, rotateX: 0, duration: 0.9 },
+              0.9 + i * 0.15
+            );
+          });
+
+          // Continuous subtle title pulse
+          gsap.to(titleRef.current, {
+            textShadow: '0 0 40px rgba(212,175,55,0.6)',
+            duration: 2,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut',
+            delay: 2
+          });
+
+        }, containerRef);
+
+      } catch (e) {
+        // GSAP not installed yet — fallback CSS animations used
+        console.warn('GSAP not found. Run: npm install gsap');
+        if (containerRef.current) {
+          containerRef.current.style.opacity = '1';
+        }
+      }
+    };
+
+    initGSAP();
+
+    return () => {
+      mounted = false;
+      if (ctx) ctx.revert();
+    };
+  }, []);
+
+  const handleCardHover = async (index: number, entering: boolean) => {
+    const card = cardsRef.current[index];
+    if (!card || !gsap) return;
+    const mode = MODES[index];
+    const iconEl = card.querySelector('.mc-icon-container');
+    const numEl = card.querySelector('.mc-num');
+    const arrowEl = card.querySelector('.mc-arrow');
+    const glowEl = card.querySelector('.mc-glow');
+
+    if (entering) {
+      gsap.to(card, {
+        scale: 1.015,
+        boxShadow: `0 0 60px ${mode.glow}, 0 20px 50px rgba(0,0,0,0.5)`,
+        borderColor: mode.color + '80',
+        duration: 0.4, ease: 'power2.out'
+      });
+      if (iconEl) gsap.to(iconEl, { scale: 1.1, rotate: 5, duration: 0.5, ease: 'back.out(2)' });
+      if (numEl) gsap.to(numEl, { color: mode.color, scale: 1.1, duration: 0.3 });
+      if (arrowEl) gsap.to(arrowEl, { x: -6, opacity: 1, duration: 0.4, ease: 'power2.out' });
+      if (glowEl) gsap.to(glowEl, { opacity: 1, duration: 0.5 });
+    } else {
+      gsap.to(card, {
+        scale: 1,
+        boxShadow: `0 0 0px rgba(0,0,0,0), 0 8px 30px rgba(0,0,0,0.3)`,
+        borderColor: 'rgba(255,255,255,0.06)',
+        duration: 0.4, ease: 'power2.out'
+      });
+      if (iconEl) gsap.to(iconEl, { scale: 1, rotate: 0, duration: 0.4, ease: 'power2.out' });
+      if (numEl) gsap.to(numEl, { color: 'rgba(255,255,255,0.1)', scale: 1, duration: 0.3 });
+      if (arrowEl) gsap.to(arrowEl, { x: 0, opacity: 0.4, duration: 0.3 });
+      if (glowEl) gsap.to(glowEl, { opacity: 0, duration: 0.4 });
+    }
+  };
+
   return (
-    <div className="relative w-full min-h-full flex flex-col items-center justify-center p-6 pb-32 overflow-hidden bg-transparent">
-      {/* ─── Premium Ambient Backgrounds ─── */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#05060d]/95 via-background/40 to-[#05060d]" />
-        {/* Soft, pulsating golden-emerald blur orbs */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[350px] h-[350px] bg-primary/10 blur-[130px] rounded-full animate-pulse duration-[6000ms]" />
-        <div className="absolute bottom-1/3 left-1/3 w-[300px] h-[300px] bg-emerald-500/5 blur-[120px] rounded-full animate-pulse duration-[8000ms]" />
-        {/* Islamic pattern overlay */}
-        <div className="absolute inset-0 islamic-pattern opacity-[0.04] mix-blend-overlay" />
+    <div
+      ref={containerRef}
+      style={{ opacity: 0 }}
+      className="relative w-full h-full overflow-y-auto no-scrollbar pb-24 flex flex-col items-center"
+    >
+      {/* ── Animated Background ── */}
+      <div ref={bgRef} className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[#04050d]" />
+        {/* Star field */}
+        <div ref={starsRef} className="absolute inset-0" style={{
+          background: 'radial-gradient(ellipse at 20% 20%, rgba(212,175,55,0.04) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(125,211,252,0.03) 0%, transparent 50%)'
+        }}/>
+        {/* Ambient orbs */}
+        <div ref={orb1Ref} className="absolute top-1/4 right-1/4 w-96 h-96 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%)', filter: 'blur(40px)' }}/>
+        <div ref={orb2Ref} className="absolute bottom-1/3 left-1/4 w-80 h-80 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(125,211,252,0.05) 0%, transparent 70%)', filter: 'blur(50px)' }}/>
+        <div ref={orb3Ref} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(134,239,172,0.03) 0%, transparent 60%)', filter: 'blur(60px)' }}/>
+        {/* Grid lines */}
+        <div className="absolute inset-0 opacity-[0.025]" style={{
+          backgroundImage: 'linear-gradient(rgba(212,175,55,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(212,175,55,0.5) 1px, transparent 1px)',
+          backgroundSize: '80px 80px'
+        }}/>
       </div>
 
-      <div className="relative z-10 w-full max-w-xl flex flex-col items-center py-8">
-        
-        {/* ─── Top Spiritual Badge ─── */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-6 animate-in fade-in slide-in-from-top-4 duration-1000">
-          <Sparkles className="w-3.5 h-3.5 text-primary fill-primary animate-pulse" />
-          <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] font-arabic">رحلتك الإيمانية اليوم</span>
+      {/* ── Floating particles (gold) ── */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="mc-particle absolute rounded-full"
+            style={{
+              width: `${Math.random() * 3 + 1.5}px`,
+              height: `${Math.random() * 3 + 1.5}px`,
+              background: i % 3 === 0 ? '#d4af37' : i % 3 === 1 ? '#7dd3fc' : '#86efac',
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              opacity: 0
+            }}
+          />
+        ))}
+      </div>
+
+      {/* ── Main Content ── */}
+      <div className="relative z-10 w-full max-w-2xl px-5 pt-12 flex flex-col items-center gap-6">
+
+        {/* ── Badge ── */}
+        <div ref={badgeRef} className="flex items-center gap-2.5 px-5 py-2 rounded-full border"
+          style={{ background: 'rgba(212,175,55,0.07)', borderColor: 'rgba(212,175,55,0.2)' }}>
+          {/* Geometric Islamic star icon */}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z"
+              fill="#d4af37" opacity="0.9"/>
+          </svg>
+          <span className="text-[10px] font-black text-amber-400/80 tracking-[0.25em] uppercase font-arabic">
+            رحلتك الإيمانية
+          </span>
+          <div className="w-1.5 h-1.5 rounded-full bg-amber-400/60 animate-pulse"/>
         </div>
 
-        {/* ─── Sakeenah Title ─── */}
-        <div className="flex items-center justify-center gap-4 mb-4 animate-in fade-in duration-1000 delay-100">
-          <div className="w-8 h-[2px] bg-gradient-to-r from-transparent to-primary/40 rounded-full" />
-          <h2 className="text-4xl md:text-5xl font-black font-arabic bg-gradient-to-r from-white via-amber-200 to-white bg-clip-text text-transparent drop-shadow-lg tracking-wide">
-            سَـكِـيـنَـة
-          </h2>
-          <div className="w-8 h-[2px] bg-gradient-to-l from-transparent to-primary/40 rounded-full" />
+        {/* ── Title ── */}
+        <div ref={titleRef} className="text-center">
+          <h1 className="text-[42px] md:text-[56px] font-black font-arabic leading-none tracking-tight"
+            style={{
+              background: 'linear-gradient(180deg, #ffffff 20%, #d4af37 60%, #a08020 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              textShadow: 'none',
+              filter: 'drop-shadow(0 0 20px rgba(212,175,55,0.3))'
+            }}>
+            اختر طريقة التلاوة
+          </h1>
+          {/* Underline ornament */}
+          <div className="flex items-center justify-center gap-3 mt-3">
+            <div className="h-px w-16" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.6))' }}/>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(212,175,55,0.5)">
+              <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z"/>
+            </svg>
+            <div className="h-px w-16" style={{ background: 'linear-gradient(90deg, rgba(212,175,55,0.6), transparent)' }}/>
+          </div>
         </div>
-        
-        {/* ─── Description Header ─── */}
-        <h3 className="text-xl md:text-2xl font-black font-arabic text-white mb-2 tracking-wide text-center animate-in fade-in duration-1000 delay-200">
-          اختر طريقة التلاوة
-        </h3>
-        <p className="text-white/45 font-arabic text-xs md:text-sm mb-10 text-center max-w-sm font-bold leading-relaxed animate-in fade-in duration-1000 delay-300">
-          صممنا لك خيارات متنوعة تتناسب مع رغبتك اليوم، اختر ما يريح قلبك ويزيد من تدبرك للقرآن الكريم.
+
+        {/* ── Subtitle ── */}
+        <p ref={subtitleRef} className="text-center font-arabic text-sm font-bold leading-loose max-w-sm"
+          style={{ color: 'rgba(255,255,255,0.38)' }}>
+          صمّمنا لك ثلاثة أوضاع متكاملة لرحلتك مع القرآن الكريم
         </p>
-        
-        {/* ─── Reading Modes Selection Cards ─── */}
-        <div className="flex flex-col gap-5 w-full">
-          {[
-            {
-              href: "/mushaf",
-              title: "آية بآية",
-              desc: "تجربة تلاوة مركزة تتيح لك الاستماع لكل آية على حدة مع عرض التفسير والترجمة الفورية.",
-              badge: "التلاوة المركزة",
-              icon: <BookOpen className="w-7 h-7 text-primary group-hover:text-black group-hover:scale-110 transition-all duration-500" />,
-              delayClass: "delay-400",
-              glowColor: "group-hover:shadow-[0_0_30px_rgba(212,175,55,0.12)]",
-              borderColor: "group-hover:border-primary/40"
-            },
-            {
-              href: "/mushaf-full",
-              title: "المصحف الرقمي",
-              desc: "تصفح المصحف بالرسم العثماني التقليدي كما في النسخ الورقية، مع إمكانية التنقل السريع بين الصفحات.",
-              badge: "الرسم العثماني",
-              icon: <Scroll className="w-7 h-7 text-primary group-hover:text-black group-hover:scale-110 transition-all duration-500" />,
-              delayClass: "delay-500",
-              glowColor: "group-hover:shadow-[0_0_30px_rgba(212,175,55,0.12)]",
-              borderColor: "group-hover:border-primary/40"
-            },
-            {
-              href: "/mushaf-tafseer",
-              title: "مصحف بالتفسير",
-              desc: "القراءة المعمقة مع عرض التفسير الميسر بجانب كل صفحة، مثالي لطلبة العلم والباحثين عن التدبر واليقين.",
-              badge: "التدبر والمعرفة",
-              icon: <Compass className="w-7 h-7 text-primary group-hover:text-black group-hover:scale-110 transition-all duration-500" />,
-              delayClass: "delay-600",
-              glowColor: "group-hover:shadow-[0_0_30px_rgba(212,175,55,0.12)]",
-              borderColor: "group-hover:border-primary/40"
-            }
-          ].map((mode) => (
-            <Link 
+
+        {/* ── Cards ── */}
+        <div className="w-full flex flex-col gap-4 mt-2">
+          {MODES.map((mode, i) => (
+            <Link
               key={mode.href}
-              href={mode.href} 
-              className={`flex items-center gap-5 p-6 md:p-7 bg-[#0c0e18]/60 backdrop-blur-xl border border-white/[0.04] rounded-[2.5rem] transition-all duration-500 group hover:-translate-y-1 active:scale-[0.98] shadow-lg relative overflow-hidden ${mode.glowColor} ${mode.borderColor} animate-in fade-in slide-in-from-bottom-6 duration-1000 ${mode.delayClass}`}
+              href={mode.href}
+              ref={(el) => { if (el) cardsRef.current[i] = el as any; }}
+              onMouseEnter={() => handleCardHover(i, true)}
+              onMouseLeave={() => handleCardHover(i, false)}
+              className="block relative rounded-3xl overflow-hidden"
+              style={{
+                background: mode.gradient,
+                border: '1px solid rgba(255,255,255,0.06)',
+                boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
+                opacity: 0
+              }}
             >
-              {/* Card glowing gradient aura on hover */}
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/[0.02] to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-              
-              {/* Right subtle golden highlight bar */}
-              <div className="absolute right-0 top-0 bottom-0 w-[3px] bg-primary scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-center rounded-r-full" />
+              {/* Glow overlay (shown on hover) */}
+              <div className="mc-glow absolute inset-0 pointer-events-none rounded-3xl" style={{
+                background: `radial-gradient(ellipse at 30% 50%, ${mode.dimGlow} 0%, transparent 70%)`,
+                opacity: 0
+              }}/>
 
-              {/* Premium Icon Badge */}
-              <div className="w-14 h-14 md:w-16 md:h-16 rounded-[1.25rem] bg-gradient-to-br from-primary/10 to-yellow-600/[0.02] border border-primary/20 flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-black transition-all duration-500 shadow-inner shrink-0 relative overflow-hidden">
-                {/* Embedded decorative concentric ring */}
-                <div className="absolute inset-1.5 border border-dashed border-primary/20 group-hover:border-black/20 rounded-[0.9rem] animate-spin duration-[15000ms] pointer-events-none" />
-                {mode.icon}
-              </div>
+              {/* Top highlight line */}
+              <div className="absolute top-0 left-8 right-8 h-px" style={{
+                background: `linear-gradient(90deg, transparent, ${mode.color}40, transparent)`
+              }}/>
 
-              {/* Content area */}
-              <div className="text-right flex-1 min-w-0 z-10">
-                <div className="flex items-center gap-2.5 mb-1.5">
-                  <h3 className="text-xl md:text-2xl font-black font-arabic text-white group-hover:text-primary transition-colors duration-300">
-                    {mode.title}
-                  </h3>
-                  <span className="text-[9px] font-black text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-lg">
-                    {mode.badge}
-                  </span>
+              <div className="relative flex items-center gap-5 p-5 md:p-6">
+                {/* Number */}
+                <div className="mc-num absolute top-4 right-5 text-[11px] font-black font-mono"
+                  style={{ color: 'rgba(255,255,255,0.1)', letterSpacing: '0.1em' }}>
+                  {mode.num}
                 </div>
-                <p className="text-[11px] md:text-xs font-arabic text-white/40 group-hover:text-white/60 transition-colors duration-500 font-bold leading-relaxed">
-                  {mode.desc}
-                </p>
+
+                {/* Icon container */}
+                <div className="mc-icon-container shrink-0 w-20 h-20 rounded-2xl relative overflow-hidden"
+                  style={{
+                    background: `linear-gradient(135deg, ${mode.color}15, ${mode.color}05)`,
+                    border: `1px solid ${mode.color}25`
+                  }}>
+                  {/* Corner dots */}
+                  <div className="absolute top-2 right-2 w-1 h-1 rounded-full" style={{ background: mode.color, opacity: 0.4 }}/>
+                  <div className="absolute bottom-2 left-2 w-1 h-1 rounded-full" style={{ background: mode.color, opacity: 0.4 }}/>
+                  {/* SVG icon */}
+                  <div className="w-full h-full p-2">{mode.svg}</div>
+                </div>
+
+                {/* Text content */}
+                <div className="flex-1 text-right min-w-0 pt-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-black font-arabic text-xl md:text-2xl text-white leading-none">
+                      {mode.title}
+                    </h3>
+                    <span className="text-[9px] font-black px-2 py-0.5 rounded-full border"
+                      style={{
+                        color: mode.color,
+                        borderColor: mode.color + '35',
+                        background: mode.color + '12',
+                        letterSpacing: '0.05em'
+                      }}>
+                      {mode.tag}
+                    </span>
+                  </div>
+                  <p className="text-[11px] md:text-xs font-arabic font-bold leading-relaxed"
+                    style={{ color: 'rgba(255,255,255,0.38)' }}>
+                    {mode.desc}
+                  </p>
+                </div>
+
+                {/* Arrow indicator */}
+                <div className="mc-arrow shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
+                  style={{ background: mode.color + '15', opacity: 0.4 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={mode.color} strokeWidth="2.5" strokeLinecap="round">
+                    <path d="M15 18l-6-6 6-6"/>
+                  </svg>
+                </div>
               </div>
 
-              {/* Click Proceed Indicator (arrow) */}
-              <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 group-hover:text-primary group-hover:border-primary/30 group-hover:bg-primary/5 transition-all duration-500 shrink-0">
-                <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-300" />
-              </div>
+              {/* Bottom accent line */}
+              <div className="absolute bottom-0 right-0 w-1/3 h-px" style={{
+                background: `linear-gradient(90deg, transparent, ${mode.color}50)`
+              }}/>
             </Link>
           ))}
+        </div>
+
+        {/* ── Footer Verse ── */}
+        <div className="mt-4 text-center">
+          <p className="font-arabic text-xs" style={{ color: 'rgba(212,175,55,0.3)', lineHeight: 2 }}>
+            ﴿ إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ ﴾
+          </p>
+          <p className="text-[10px] font-arabic" style={{ color: 'rgba(255,255,255,0.15)' }}>
+            الإسراء: ٩
+          </p>
         </div>
 
       </div>
