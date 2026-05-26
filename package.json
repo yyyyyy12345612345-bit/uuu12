@@ -5,11 +5,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:app": "set CAPACITOR_BUILD=true&& next build",
-    "cap:sync": "set CAPACITOR_BUILD=true&& next build && npx cap sync",
+    "build:app": "node build-wrapper.js",
+    "cap:sync": "node build-wrapper.js && npx cap sync",
     "start": "next start",
     "lint": "next lint",
-    "final-build": "node update-assets.js && set CAPACITOR_BUILD=true&& next build && npx cap sync android && cd android && set JAVA_HOME=C:\\Users\\youse\\OneDrive\\Desktop\\my1\\jbr&& gradlew.bat assembleDebug"
+    "final-build": "node update-assets.js && node build-wrapper.js && npx cap sync android && cd android && set JAVA_HOME=C:\\Users\\youse\\OneDrive\\Desktop\\my1\\jbr&& gradlew.bat assembleDebug"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.1",

@@ -255,21 +255,21 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
     <div className="w-full h-full font-arabic overflow-y-auto no-scrollbar pb-32">
       
       {/* Premium Header Backdrop */}
-      <div className="relative bg-transparent pt-16 pb-28 md:pt-24 md:pb-36 px-6 overflow-hidden">
+      <div className="relative bg-transparent pt-8 pb-16 md:pt-10 md:pb-20 px-6 overflow-hidden">
           <div className="absolute inset-0 islamic-pattern opacity-10" />
-          <div className="absolute top-0 left-0 w-96 h-96 bg-primary/20 blur-[150px] rounded-full -translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute top-0 left-0 w-64 h-64 bg-primary/20 blur-[100px] rounded-full -translate-x-1/2 -translate-y-1/2" />
           
-          <div className="max-w-4xl mx-auto relative z-10 flex flex-col items-center text-center gap-6">
-              <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-primary mb-2">
-                  <Trophy className="w-8 h-8 animate-bounce" />
+          <div className="max-w-4xl mx-auto relative z-10 flex flex-col items-center text-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-primary">
+                  <Trophy className="w-6 h-6 animate-bounce" />
               </div>
-              <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-2xl">لوحة الشرف</h1>
-              <p className="text-white/60 font-bold text-lg md:text-xl max-w-xl">سابقوا إلى مغفرة من ربكم وجنة عرضها السموات والأرض</p>
+              <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-2xl">لوحة الشرف</h1>
+              <p className="text-white/60 font-bold text-sm md:text-base max-w-xl">سابقوا إلى مغفرة من ربكم وجنة عرضها السموات والأرض</p>
           </div>
       </div>
 
       {/* Main Content Overlay */}
-      <div className="max-w-5xl mx-auto w-full px-6 -mt-16 md:-mt-20 relative z-20 space-y-12">
+      <div className="max-w-5xl mx-auto w-full px-6 -mt-8 md:-mt-10 relative z-20 space-y-10">
           
           {/* User Status Card */}
           {user && userData ? (
