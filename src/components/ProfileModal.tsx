@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { auth, db, storage } from "@/lib/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 interface ProfileModalProps {
@@ -96,7 +96,21 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
          const s = await getDoc(doc(db, "users", auth.currentUser.uid));
          if (s.exists()) {
             const data = s.data();
-            setUserStats(data);
+            
+            // Fetch completed surahs subcollection count
+            let completedSurahsCount = 0;
+            try {
+               const completedSurahsSnap = await getDocs(collection(db, "users", auth.currentUser.uid, "completed_surahs"));
+               completedSurahsCount = completedSurahsSnap.size;
+            } catch (e) {
+               console.error("Error fetching completed surahs:", e);
+            }
+
+            setUserStats({
+               ...data,
+               completedSurahsCount
+            });
+            
             setFormData({
                displayName: data.displayName || "",
                username: data.username || "",
@@ -199,7 +213,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                  <PlayCircle className="w-5 h-5" />
                               </div>
                               <div>
-                                 <span className="block text-2xl font-black text-white">{userStats.completedSurahs?.length || 0}</span>
+                                 <span className="block text-2xl font-black text-white">{userStats.completedSurahsCount || 0}</span>
                                  <span className="text-[10px] text-white/40 uppercase tracking-widest font-black mt-1 block">سور مكتملة</span>
                               </div>
                            </div>

@@ -112,6 +112,13 @@ export async function addPoints(type: string, amount: number = 1): Promise<Point
         updateData[fieldMap[type]] = increment(finalPointsToAdd);
       }
 
+      // Track statistics for user profile
+      if (type === "quran") {
+        updateData.readAyahs = increment(1);
+      } else if (type === "listen") {
+        updateData.audioSeconds = increment(finalPointsToAdd * 30);
+      }
+
       await updateDoc(userRef, updateData);
       
       await setDoc(dailyRef, {

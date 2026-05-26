@@ -38,7 +38,7 @@ export function PrayerSettingsSheet({ prayerId, draft, onChange, onClose, onSave
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-5 left-5 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:text-white"
+            className="absolute top-7 left-6 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:text-white"
             aria-label="إغلاق"
           >
             <X className="w-5 h-5" />
