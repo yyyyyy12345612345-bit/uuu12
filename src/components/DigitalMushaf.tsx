@@ -272,43 +272,43 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
       {isIndexOpen && (
           <div className="absolute inset-0 z-[2000] flex animate-in fade-in duration-300">
               <div className="absolute inset-0 bg-[#0c0d10]/60 backdrop-blur-md" onClick={() => setIsIndexOpen(false)} />
-              <div className="relative w-full max-w-lg bg-[#0c0d10] border-l border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col p-6 md:p-8 animate-in slide-in-from-left duration-500 overflow-hidden">
-                  <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-2xl font-black text-white">فهرس السور</h3>
-                      <button onClick={() => setIsIndexOpen(false)} className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-white hover:bg-primary hover:text-black transition-all">
-                          <X className="w-5 h-5" />
+              <div className="relative w-full max-w-sm bg-[#0c0d10] border-l border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col p-4 md:p-6 animate-in slide-in-from-left duration-500 overflow-hidden">
+                  <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-black text-white">فهرس السور</h3>
+                      <button onClick={() => setIsIndexOpen(false)} className="w-8 h-8 bg-white/5 rounded-lg flex items-center justify-center text-white hover:bg-primary hover:text-black transition-all">
+                          <X className="w-4 h-4" />
                       </button>
                   </div>
 
-                  <div className="relative mb-6 group">
-                      <Search className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-all w-5 h-5" />
+                  <div className="relative mb-4 group">
+                      <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-all w-4 h-4" />
                       <input 
                         value={searchQuery} 
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="ابحث عن السورة..."
-                        className="w-full bg-white/5 border border-white/10 rounded-3xl py-5 pr-16 pl-8 text-white text-lg outline-none focus:border-primary/50 transition-all text-right font-arabic"
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pr-12 pl-6 text-white text-sm outline-none focus:border-primary/50 transition-all text-right font-arabic"
                       />
                   </div>
 
-                  <div className="flex-1 overflow-y-auto no-scrollbar space-y-4">
+                  <div className="flex-1 overflow-y-auto no-scrollbar space-y-2">
                       {filteredSurahs.map(s => (
                           <button 
                             key={s.id} 
                             onClick={() => { setPages([]); fetchPageBatch(SURAH_START_PAGES[s.id] || 1, true); setIsIndexOpen(false); }}
-                            className="w-full p-6 rounded-[2.5rem] bg-white/5 border border-white/5 hover:border-primary/30 hover:bg-primary/[0.08] transition-all group flex items-center justify-between text-right"
+                            className="w-full p-3.5 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 hover:bg-primary/[0.08] transition-all group flex items-center justify-between text-right"
                           >
-                              <div className="flex items-center gap-6">
-                                  <div className="w-14 h-14 rounded-2xl bg-[#0c0d10] border border-primary/20 flex items-center justify-center text-primary font-bold relative overflow-hidden">
+                              <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-xl bg-[#0c0d10] border border-primary/20 flex items-center justify-center text-primary text-xs font-bold relative overflow-hidden">
                                       <div className="absolute inset-0 bg-primary opacity-0 group-hover:opacity-10 transition-opacity" />
                                       {s.id}
                                   </div>
                                   <div>
-                                      <h4 className="text-2xl font-black text-white group-hover:text-primary transition-colors">سورة {s.name}</h4>
+                                      <h4 className="text-sm font-black text-white group-hover:text-primary transition-colors">سورة {s.name}</h4>
                                   </div>
                               </div>
                               <div className="text-left">
-                                  <p className="text-sm font-black text-primary">{s.total_verses} آية</p>
-                                  <p className="text-[10px] font-bold text-white/20">{s.type === 'meccan' ? 'مكية' : 'مدنية'}</p>
+                                  <p className="text-xs font-black text-primary">{s.total_verses} آية</p>
+                                  <p className="text-[9px] font-bold text-white/20">{s.type === 'meccan' ? 'مكية' : 'مدنية'}</p>
                               </div>
                           </button>
                       ))}

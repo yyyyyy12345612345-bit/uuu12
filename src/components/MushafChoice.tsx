@@ -7,114 +7,68 @@ import Link from 'next/link';
 let gsap: any;
 let ScrollTrigger: any;
 
+const MushafIcon = ({ color }: { color: string }) => (
+  <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+    {/* Open Mushaf - left page */}
+    <path d="M40 20 Q26 18 12 22 L12 62 Q26 58 40 60 Z"
+      fill={`${color}10`} stroke={color} strokeWidth="1.2" strokeOpacity="0.45"/>
+    {/* Open Mushaf - right page */}
+    <path d="M40 20 Q54 18 68 22 L68 62 Q54 58 40 60 Z"
+      fill={`${color}10`} stroke={color} strokeWidth="1.2" strokeOpacity="0.45"/>
+    {/* Spine */}
+    <line x1="40" y1="20" x2="40" y2="60" stroke={color} strokeWidth="2" strokeOpacity="0.6"/>
+    {/* Left page lines */}
+    <rect x="16" y="30" width="18" height="1.4" rx="0.7" fill={color} fillOpacity="0.55"/>
+    <rect x="16" y="35" width="20" height="1.4" rx="0.7" fill={color} fillOpacity="0.4"/>
+    <rect x="16" y="40" width="14" height="1.4" rx="0.7" fill={color} fillOpacity="0.4"/>
+    <rect x="16" y="45" width="19" height="1.4" rx="0.7" fill={color} fillOpacity="0.3"/>
+    <rect x="16" y="50" width="16" height="1.4" rx="0.7" fill={color} fillOpacity="0.25"/>
+    {/* Right page lines */}
+    <rect x="46" y="30" width="18" height="1.4" rx="0.7" fill={color} fillOpacity="0.55"/>
+    <rect x="46" y="35" width="20" height="1.4" rx="0.7" fill={color} fillOpacity="0.4"/>
+    <rect x="46" y="40" width="14" height="1.4" rx="0.7" fill={color} fillOpacity="0.4"/>
+    <rect x="46" y="45" width="19" height="1.4" rx="0.7" fill={color} fillOpacity="0.3"/>
+    <rect x="46" y="50" width="16" height="1.4" rx="0.7" fill={color} fillOpacity="0.25"/>
+    {/* Top ornament dots */}
+    <circle cx="24" cy="25" r="1.5" fill={color} fillOpacity="0.5"/>
+    <circle cx="40" cy="22" r="1.5" fill={color} fillOpacity="0.7"/>
+    <circle cx="56" cy="25" r="1.5" fill={color} fillOpacity="0.5"/>
+  </svg>
+);
+
 const MODES = [
   {
     href: "/mushaf",
     title: "آية بآية",
-    titleEn: "Verse by Verse",
     desc: "تجربة تلاوة مركزة تتيح لك الاستماع لكل آية على حدة مع عرض التفسير والترجمة الفورية.",
-    tag: "Focus Mode",
     color: "#d4af37",
     glow: "rgba(212,175,55,0.35)",
     dimGlow: "rgba(212,175,55,0.08)",
     gradient: "linear-gradient(135deg, #1a1300 0%, #0c0e18 60%, #050810 100%)",
     borderGrad: "linear-gradient(135deg, rgba(212,175,55,0.6), rgba(212,175,55,0.05))",
     num: "01",
-    svg: (
-      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-        {/* Book with highlighted verse */}
-        <rect x="10" y="15" width="28" height="50" rx="3" fill="rgba(212,175,55,0.12)" stroke="rgba(212,175,55,0.4)" strokeWidth="1.5"/>
-        <rect x="42" y="15" width="28" height="50" rx="3" fill="rgba(212,175,55,0.12)" stroke="rgba(212,175,55,0.4)" strokeWidth="1.5"/>
-        <rect x="14" y="20" width="20" height="2" rx="1" fill="rgba(212,175,55,0.3)"/>
-        <rect x="14" y="25" width="16" height="2" rx="1" fill="rgba(212,175,55,0.2)"/>
-        {/* Highlighted active line */}
-        <rect x="14" y="31" width="20" height="3" rx="1.5" fill="rgba(212,175,55,0.8)"/>
-        <rect x="14" y="37" width="14" height="2" rx="1" fill="rgba(212,175,55,0.2)"/>
-        <rect x="14" y="42" width="18" height="2" rx="1" fill="rgba(212,175,55,0.2)"/>
-        {/* Audio wave right page */}
-        <rect x="46" y="35" width="3" height="10" rx="1.5" fill="rgba(212,175,55,0.6)"/>
-        <rect x="52" y="29" width="3" height="22" rx="1.5" fill="rgba(212,175,55,0.9)"/>
-        <rect x="58" y="33" width="3" height="14" rx="1.5" fill="rgba(212,175,55,0.6)"/>
-        <rect x="64" y="37" width="3" height="6" rx="1.5" fill="rgba(212,175,55,0.4)"/>
-      </svg>
-    )
   },
   {
     href: "/mushaf-full",
     title: "المصحف الرقمي",
-    titleEn: "Digital Mushaf",
     desc: "تصفح المصحف بالرسم العثماني التقليدي كما في النسخ الورقية مع إمكانية التنقل السريع بين الصفحات.",
-    tag: "Classic View",
     color: "#7dd3fc",
     glow: "rgba(125,211,252,0.35)",
     dimGlow: "rgba(125,211,252,0.07)",
     gradient: "linear-gradient(135deg, #001320 0%, #050e1a 60%, #050810 100%)",
     borderGrad: "linear-gradient(135deg, rgba(125,211,252,0.5), rgba(125,211,252,0.05))",
     num: "02",
-    svg: (
-      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-        {/* Open traditional mushaf */}
-        <path d="M40 18 L12 25 L12 68 L40 62 L68 68 L68 25 Z" fill="rgba(125,211,252,0.06)" stroke="rgba(125,211,252,0.3)" strokeWidth="1.2"/>
-        <line x1="40" y1="18" x2="40" y2="62" stroke="rgba(125,211,252,0.5)" strokeWidth="2"/>
-        {/* Arabic script lines left page */}
-        <rect x="16" y="30" width="18" height="1.5" rx="0.75" fill="rgba(125,211,252,0.5)"/>
-        <rect x="16" y="35" width="21" height="1.5" rx="0.75" fill="rgba(125,211,252,0.35)"/>
-        <rect x="16" y="40" width="15" height="1.5" rx="0.75" fill="rgba(125,211,252,0.35)"/>
-        <rect x="16" y="45" width="20" height="1.5" rx="0.75" fill="rgba(125,211,252,0.35)"/>
-        <rect x="16" y="50" width="17" height="1.5" rx="0.75" fill="rgba(125,211,252,0.25)"/>
-        <rect x="16" y="55" width="22" height="1.5" rx="0.75" fill="rgba(125,211,252,0.25)"/>
-        {/* Arabic script lines right page */}
-        <rect x="46" y="30" width="18" height="1.5" rx="0.75" fill="rgba(125,211,252,0.5)"/>
-        <rect x="46" y="35" width="21" height="1.5" rx="0.75" fill="rgba(125,211,252,0.35)"/>
-        <rect x="46" y="40" width="15" height="1.5" rx="0.75" fill="rgba(125,211,252,0.35)"/>
-        <rect x="46" y="45" width="20" height="1.5" rx="0.75" fill="rgba(125,211,252,0.35)"/>
-        <rect x="46" y="50" width="17" height="1.5" rx="0.75" fill="rgba(125,211,252,0.25)"/>
-        <rect x="46" y="55" width="22" height="1.5" rx="0.75" fill="rgba(125,211,252,0.25)"/>
-        {/* Corner ornaments */}
-        <circle cx="24" cy="25" r="2" fill="none" stroke="rgba(125,211,252,0.4)" strokeWidth="1"/>
-        <circle cx="56" cy="25" r="2" fill="none" stroke="rgba(125,211,252,0.4)" strokeWidth="1"/>
-      </svg>
-    )
   },
   {
     href: "/mushaf-tafseer",
     title: "مصحف بالتفسير",
-    titleEn: "Tafseer Mode",
     desc: "القراءة المعمقة مع عرض التفسير الميسر بجانب كل صفحة، مثالي لطلبة العلم والباحثين.",
-    tag: "Deep Study",
     color: "#86efac",
     glow: "rgba(134,239,172,0.3)",
     dimGlow: "rgba(134,239,172,0.07)",
     gradient: "linear-gradient(135deg, #001306 0%, #050e0a 60%, #050810 100%)",
     borderGrad: "linear-gradient(135deg, rgba(134,239,172,0.5), rgba(134,239,172,0.05))",
     num: "03",
-    svg: (
-      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-        {/* Split view: Quran + Tafseer */}
-        <rect x="8" y="14" width="28" height="52" rx="4" fill="rgba(134,239,172,0.07)" stroke="rgba(134,239,172,0.35)" strokeWidth="1.2"/>
-        <rect x="44" y="20" width="30" height="44" rx="3" fill="rgba(134,239,172,0.04)" stroke="rgba(134,239,172,0.2)" strokeWidth="1"/>
-        {/* Verse text lines (larger - Arabic) */}
-        <rect x="12" y="22" width="20" height="2" rx="1" fill="rgba(134,239,172,0.7)"/>
-        <rect x="12" y="28" width="22" height="2" rx="1" fill="rgba(134,239,172,0.5)"/>
-        <rect x="12" y="34" width="18" height="2" rx="1" fill="rgba(134,239,172,0.5)"/>
-        <rect x="12" y="40" width="20" height="2" rx="1" fill="rgba(134,239,172,0.5)"/>
-        <rect x="12" y="46" width="16" height="2" rx="1" fill="rgba(134,239,172,0.3)"/>
-        <rect x="12" y="52" width="22" height="2" rx="1" fill="rgba(134,239,172,0.3)"/>
-        {/* Tafseer lines (smaller) */}
-        <rect x="48" y="26" width="22" height="1.2" rx="0.6" fill="rgba(134,239,172,0.35)"/>
-        <rect x="48" y="30" width="18" height="1.2" rx="0.6" fill="rgba(134,239,172,0.3)"/>
-        <rect x="48" y="34" width="24" height="1.2" rx="0.6" fill="rgba(134,239,172,0.3)"/>
-        <rect x="48" y="38" width="16" height="1.2" rx="0.6" fill="rgba(134,239,172,0.25)"/>
-        <rect x="48" y="42" width="22" height="1.2" rx="0.6" fill="rgba(134,239,172,0.25)"/>
-        <rect x="48" y="46" width="20" height="1.2" rx="0.6" fill="rgba(134,239,172,0.2)"/>
-        <rect x="48" y="50" width="24" height="1.2" rx="0.6" fill="rgba(134,239,172,0.2)"/>
-        {/* Connector line */}
-        <line x1="38" y1="28" x2="44" y2="28" stroke="rgba(134,239,172,0.3)" strokeWidth="1" strokeDasharray="2,2"/>
-        {/* Magnifier / study icon */}
-        <circle cx="63" cy="57" r="5" stroke="rgba(134,239,172,0.5)" strokeWidth="1.5" fill="none"/>
-        <line x1="67" y1="61" x2="71" y2="65" stroke="rgba(134,239,172,0.5)" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    )
   }
 ];
 
@@ -446,7 +400,7 @@ export function MushafChoice() {
                   <div className="absolute top-2 right-2 w-1 h-1 rounded-full" style={{ background: mode.color, opacity: 0.4 }}/>
                   <div className="absolute bottom-2 left-2 w-1 h-1 rounded-full" style={{ background: mode.color, opacity: 0.4 }}/>
                   {/* SVG icon */}
-                  <div className="w-full h-full p-2">{mode.svg}</div>
+                  <div className="w-full h-full p-2"><MushafIcon color={mode.color} /></div>
                 </div>
 
                 {/* Text content */}
@@ -455,15 +409,6 @@ export function MushafChoice() {
                     <h3 className="font-black font-arabic text-xl md:text-2xl text-white leading-none">
                       {mode.title}
                     </h3>
-                    <span className="text-[9px] font-black px-2 py-0.5 rounded-full border"
-                      style={{
-                        color: mode.color,
-                        borderColor: mode.color + '35',
-                        background: mode.color + '12',
-                        letterSpacing: '0.05em'
-                      }}>
-                      {mode.tag}
-                    </span>
                   </div>
                   <p className="text-[11px] md:text-xs font-arabic font-bold leading-relaxed"
                     style={{ color: 'rgba(255,255,255,0.38)' }}>
