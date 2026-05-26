@@ -38,6 +38,13 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
   const [isIndexOpen, setIsIndexOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedVerseForDetail, setSelectedVerseForDetail] = useState<{verseKey: string, surahName: string} | null>(null);
+  const [showTafseerDrawer, setShowTafseerDrawer] = useState(true);
+
+  useEffect(() => {
+    if (currentPlayingVerse) {
+      setShowTafseerDrawer(true);
+    }
+  }, [currentPlayingVerse]);
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const observerTarget = useRef(null);
@@ -412,13 +419,22 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
       </footer>
 
       {/* Tafsir Drawer */}
-      {currentPlayingVerse && (
-          <div className="fixed bottom-32 left-1/2 -translate-x-1/2 w-[88%] max-w-lg z-[90] animate-in slide-in-from-bottom-10 duration-700">
-              <div className="bg-white/95 backdrop-blur-3xl border-2 border-primary rounded-2xl p-4 shadow-[0_20px_60px_rgba(0,0,0,0.4)] relative">
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-primary text-black px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
+      {currentPlayingVerse && showTafseerDrawer && (
+          <div className="fixed bottom-32 left-1/2 -translate-x-1/2 w-[88%] max-w-md z-[90] animate-in slide-in-from-bottom-10 duration-700">
+              <div className="bg-white/95 backdrop-blur-3xl border border-primary/50 rounded-xl p-3 shadow-[0_15px_45px_rgba(0,0,0,0.3)] relative">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-black px-3 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-md">
                       تفسير ميسر
                   </div>
-                  <p className="text-sm md:text-base text-[#0c0d10] font-arabic font-bold text-center leading-relaxed pt-1">
+                  
+                  <button
+                    onClick={() => setShowTafseerDrawer(false)}
+                    className="absolute top-1.5 left-2 w-5 h-5 rounded-full bg-[#0c0d10]/5 hover:bg-[#0c0d10]/15 flex items-center justify-center text-[#0c0d10]/40 hover:text-[#0c0d10] transition-all"
+                    title="إغلاق التفسير"
+                  >
+                      <X className="w-3 h-3" />
+                  </button>
+
+                  <p className="text-xs md:text-sm text-[#0c0d10] font-arabic font-bold text-center leading-relaxed pt-1.5 px-4">
                       {pages[currentPlayingVerse.pageIndex].verses[currentPlayingVerse.verseIndex].translations?.[0]?.text.replace(/<[^>]*>?/gm, '') || "جاري جلب التفسير..."}
                   </p>
                   <button 
@@ -427,10 +443,10 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
                         const [sId] = verse.verse_key.split(':');
                         setSelectedVerseForDetail({ verseKey: verse.verse_key, surahName: surahsData.find(s => s.id === parseInt(sId))?.name || "" });
                     }}
-                    className="mt-3 w-full flex items-center justify-center gap-2 text-[#0c0d10]/40 hover:text-primary transition-colors text-[10px] font-black uppercase tracking-[0.15em]"
+                    className="mt-2 w-full flex items-center justify-center gap-1.5 text-[#0c0d10]/40 hover:text-[#0c0d10]/80 transition-colors text-[9px] font-black uppercase tracking-[0.1em]"
                   >
                       عرض التفاصيل الكاملة
-                      <ChevronLeft className="w-3 h-3" />
+                      <ChevronLeft className="w-2.5 h-2.5" />
                   </button>
               </div>
           </div>
