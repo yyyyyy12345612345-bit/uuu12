@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue } from "framer-motion";
 import { X, Send, BotMessageSquare, MessageCircle, User, Wand2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useInstantPathname, navigateInstantly } from "@/lib/navigation";
@@ -25,6 +25,25 @@ export function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+
+  // Draggable button position
+  const chatX = useMotionValue(0);
+  const chatY = useMotionValue(0);
+  const isDragging = useRef(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('chatbot_btn_pos');
+      if (saved) {
+        try {
+          const { x, y } = JSON.parse(saved);
+          chatX.set(x);
+          chatY.set(y);
+        } catch {}
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   
   // استعادة الرسائل من جلسة العمل الحالية إن وجدت
   const [messages, setMessages] = useState<any[]>(() => {
@@ -379,14 +398,27 @@ ${activeQuiz.explanation}
 
   return (
     <>
-      {/* Premium Floating Action Button */}
+      {/* Draggable Floating Action Button */}
       <motion.button
+        drag
+        dragMomentum={false}
+        dragElastic={0}
+        style={{ x: chatX, y: chatY }}
+        onDragStart={() => { isDragging.current = true; }}
+        onDragEnd={() => {
+          localStorage.setItem('chatbot_btn_pos', JSON.stringify({
+            x: chatX.get(),
+            y: chatY.get()
+          }));
+          setTimeout(() => { isDragging.current = false; }, 150);
+        }}
         initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        whileHover={{ scale: 1.1, rotate: 5 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => setIsOpen(true)}
-        className={`fixed bottom-[90px] sm:bottom-24 left-4 sm:left-6 z-[400] w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500 group ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100'}`}
+        animate={{ scale: isOpen ? 0 : 1, opacity: isOpen ? 0 : 1 }}
+        whileHover={{ scale: isOpen ? 0 : 1.1, rotate: 5 }}
+        whileTap={{ scale: isOpen ? 0 : 0.9 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+        onClick={() => { if (!isDragging.current) setIsOpen(true); }}
+        className={`fixed bottom-[90px] sm:bottom-24 left-4 sm:left-6 z-[400] w-16 h-16 rounded-full flex items-center justify-center group cursor-grab active:cursor-grabbing ${isOpen ? 'pointer-events-none' : ''}`}
       >
         {/* Pulsing Aura */}
         <div className="absolute inset-0 bg-[#d4af37]/30 rounded-full blur-xl animate-pulse" />
@@ -407,6 +439,14 @@ ${activeQuiz.explanation}
           animate={{ scale: [1, 1.5, 1], opacity: [0.8, 0, 0.8] }}
           transition={{ duration: 2, repeat: Infinity }}
           className="absolute top-0 right-0 w-4 h-4 bg-emerald-500 rounded-full border-2 border-[#000] shadow-[0_0_10px_rgba(16,185,129,0.8)]"
+        />
+
+        {/* Drag hint on first render */}
+        <motion.div
+          initial={{ opacity: 0.7, scale: 1 }}
+          animate={{ opacity: 0, scale: 1.5 }}
+          transition={{ duration: 1.5, delay: 1 }}
+          className="absolute -inset-2 rounded-full border border-[#d4af37]/40 pointer-events-none"
         />
       </motion.button>
 
