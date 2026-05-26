@@ -153,7 +153,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
                     </div>
                     <div>
                       <p className="text-[10px] font-black text-primary/70 uppercase tracking-wider">رصيد النقاط</p>
-                      <p className="text-base font-black text-white">{userData.totalPoints || 0} نقطة</p>
+                      <p className="text-base font-black text-white">{Number((userData.totalPoints || 0).toFixed(1))} نقطة</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-1 text-[10px] font-black text-primary/80 group-hover:text-white transition-colors">

@@ -398,7 +398,7 @@ export function DailyHub() {
           <div className="flex flex-row md:flex-col items-center gap-3 bg-card border border-border p-4 md:p-6 rounded-[2rem] shadow-xl">
               <Star className="w-6 h-6 text-primary" />
               <div className="flex flex-col items-center">
-                  <span className="text-xl md:text-2xl font-black leading-none">{userData?.totalPoints || 0}</span>
+                  <span className="text-xl md:text-2xl font-black leading-none">{Number((userData?.totalPoints || 0).toFixed(1))}</span>
                   <span className="text-[8px] font-black text-foreground/30 uppercase tracking-widest">نقطة</span>
               </div>
           </div>
