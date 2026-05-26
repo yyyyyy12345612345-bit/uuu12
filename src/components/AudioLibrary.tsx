@@ -563,42 +563,42 @@ export function AudioLibrary() {
                   />
                   <motion.div 
                     initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-                    className="relative w-full max-w-xl bg-[#0d0d0d] rounded-t-[3rem] md:rounded-[3rem] border border-white/5 overflow-hidden flex flex-col shadow-2xl h-[80vh] md:h-auto md:max-h-[85vh]"
+                    className="relative w-full max-w-sm bg-[#0d0d0d] rounded-t-3xl md:rounded-3xl border border-white/5 overflow-hidden flex flex-col shadow-2xl h-[70vh] md:h-auto md:max-h-[80vh]"
                   >
-                      <div className="p-8 border-b border-white/5 flex items-center justify-between">
-                          <h3 className="text-2xl font-black">اختر القارئ</h3>
-                          <button onClick={() => setShowReciters(false)} className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-all">
-                              <X className="w-5 h-5 text-white/40" />
+                      <div className="p-4 md:p-5 border-b border-white/5 flex items-center justify-between">
+                          <h3 className="text-lg font-black">اختر القارئ</h3>
+                          <button onClick={() => setShowReciters(false)} className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all">
+                              <X className="w-4 h-4 text-white/40" />
                           </button>
                       </div>
 
-                      <div className="p-6 border-b border-white/5">
+                      <div className="p-4 border-b border-white/5">
                           <div className="relative group">
                               <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
                               <input 
                                 value={reciterSearch}
                                 onChange={(e) => setReciterSearch(e.target.value)}
                                 placeholder="ابحث عن قارئ..."
-                                className="w-full bg-white/5 border border-white/5 rounded-xl py-4 pr-12 pl-6 text-sm font-bold outline-none focus:border-primary/40 transition-all"
+                                className="w-full bg-white/5 border border-white/5 rounded-xl py-2.5 pr-12 pl-6 text-sm font-bold outline-none focus:border-primary/40 transition-all text-right font-arabic"
                               />
                           </div>
                       </div>
 
-                      <div className="flex-1 overflow-y-auto p-6 space-y-2 no-scrollbar">
+                      <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar">
                           {filteredReciters.map((r) => {
                               const sel = selectedReciter.id === r.id;
                               return (
                                   <button
                                     key={r.id}
                                     onClick={() => { setSelectedReciter(r); setShowReciters(false); }}
-                                    className={`w-full flex items-center gap-4 p-5 rounded-2xl transition-all border text-right ${
+                                    className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all border text-right ${
                                         sel ? 'bg-primary text-black border-primary' : 'bg-white/[0.03] border-transparent hover:bg-white/[0.06]'
                                     }`}
                                   >
-                                      <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${sel ? 'bg-black/10' : 'bg-white/5'}`}>
-                                          <User className="w-6 h-6" />
+                                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${sel ? 'bg-black/10' : 'bg-white/5'}`}>
+                                          <User className="w-4 h-4" />
                                       </div>
-                                      <span className="text-sm font-black truncate">{r.name}</span>
+                                      <span className="text-xs font-black truncate">{r.name}</span>
                                   </button>
                               );
                           })}

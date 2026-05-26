@@ -143,61 +143,61 @@ export function Mushaf() {
                     </header>
 
                     {/* Search */}
-                    <div className="px-6 md:px-12 mb-8">
-                        <div className="max-w-4xl mx-auto relative group">
-                            <Search className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-all w-6 h-6" />
+                    <div className="px-4 md:px-8 mb-6">
+                        <div className="max-w-xl mx-auto relative group">
+                            <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-all w-4 h-4" />
                             <input
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="ابحث عن سورة..."
-                                className="w-full bg-white/5 border border-white/10 rounded-3xl py-6 pr-16 pl-8 text-white text-xl outline-none focus:border-primary/50 transition-all text-right font-arabic"
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pr-12 pl-6 text-white text-sm outline-none focus:border-primary/50 transition-all text-right font-arabic"
                             />
                         </div>
                     </div>
 
                     {/* Surah List */}
-                    <div className="flex-1 overflow-y-auto px-6 md:px-12 pb-32 no-scrollbar">
-                        <div className="max-w-7xl mx-auto">
+                    <div className="flex-1 overflow-y-auto px-4 md:px-8 pb-32 no-scrollbar">
+                        <div className="max-w-5xl mx-auto">
                             {state.bookmark && (
-                                <div className="mb-10 p-8 rounded-[2.5rem] bg-primary/10 border border-primary/20 flex flex-col md:flex-row items-center justify-between gap-6">
-                                    <div className="flex items-center gap-6">
-                                        <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-black shadow-xl shadow-primary/20">
-                                            <Bookmark className="w-8 h-8 fill-current" />
+                                <div className="mb-6 p-4 rounded-2xl bg-primary/10 border border-primary/20 flex flex-col md:flex-row items-center justify-between gap-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-black shadow-xl shadow-primary/20">
+                                            <Bookmark className="w-6 h-6 fill-current" />
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">وردك المحفوظ</p>
-                                            <p className="text-2xl font-bold font-arabic">سورة {surahsData.find(s => s.id.toString() === state.bookmark?.surahId)?.name} - آية {state.bookmark.ayahId}</p>
+                                            <p className="text-[9px] font-black text-primary uppercase tracking-widest mb-0.5">وردك المحفوظ</p>
+                                            <p className="text-lg font-bold font-arabic">سورة {surahsData.find(s => s.id.toString() === state.bookmark?.surahId)?.name} - آية {state.bookmark.ayahId}</p>
                                         </div>
                                     </div>
                                     <button
                                         onClick={() => setSelectedSurah(state.bookmark?.surahId || "1")}
-                                        className="bg-primary text-black px-10 py-4 rounded-2xl font-bold hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/20"
+                                        className="bg-primary text-black px-6 py-2.5 rounded-xl font-bold text-xs hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/20"
                                     >
                                         مواصلة القراءة
                                     </button>
                                 </div>
                             )}
 
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                                 {filteredSurahs.map((surah) => (
                                     <button
                                         key={surah.id}
                                         onClick={() => setSelectedSurah(surah.id.toString())}
-                                        className="group relative p-6 rounded-[2.5rem] bg-white/5 border border-white/5 hover:border-primary/40 hover:bg-primary/[0.05] transition-all flex flex-col gap-4 text-right"
+                                        className="group relative p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/40 hover:bg-primary/[0.05] transition-all flex flex-col gap-3 text-right"
                                     >
                                         <div className="flex justify-between items-start">
-                                            <div className="relative w-12 h-12 flex items-center justify-center">
+                                            <div className="relative w-9 h-9 flex items-center justify-center">
                                                 <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-primary opacity-40 group-hover:opacity-100 transition-opacity">
                                                     <path d="M50 5 L62 38 L95 50 L62 62 L50 95 L38 62 L5 50 L38 38 Z" fill="currentColor" />
                                                 </svg>
-                                                <span className="relative z-10 text-[10px] font-black text-white group-hover:text-black transition-colors">{surah.id}</span>
+                                                <span className="relative z-10 text-[9px] font-black text-white group-hover:text-black transition-colors">{surah.id}</span>
                                             </div>
-                                            <div className="text-[10px] font-bold text-white/20 group-hover:text-primary transition-colors">
+                                            <div className="text-[9px] font-bold text-white/20 group-hover:text-primary transition-colors">
                                                 {surah.total_verses} آية
                                             </div>
                                         </div>
                                         <div>
-                                            <h3 className="text-2xl font-bold font-arabic group-hover:text-primary transition-colors">سورة {surah.name}</h3>
+                                            <h3 className="text-base font-bold font-arabic group-hover:text-primary transition-colors">سورة {surah.name}</h3>
                                         </div>
                                     </button>
                                 ))}
