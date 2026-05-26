@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
-  MapPin, Bell, BellOff, Settings2,
+  MapPin, Bell, BellOff,
   RefreshCw, X, Music, Wifi, WifiOff, Loader2, Navigation,
 } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
@@ -136,8 +136,7 @@ export function PrayerTimes() {
   const [syncMessage, setSyncMessage] = useState("");
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [showAthanSettings, setShowAthanSettings] = useState(false);
-  const [showDiagnostics, setShowDiagnostics] = useState(false);
-  const [showDevSettings, setShowDevSettings] = useState(false);
+
   const [customCity, setCustomCity] = useState("Cairo");
   const [customCountry, setCustomCountry] = useState("Egypt");
 
@@ -177,7 +176,7 @@ export function PrayerTimes() {
     return getTodayTimes(loadYearCalendar()!);
   }, [applyCalendar, syncCalendar]);
 
-  const { settings: prayerSettings, updateSettings: setPrayerSettings, sendTest, diagnostics, refreshDiagnostics, reschedule } =
+  const { settings: prayerSettings, updateSettings: setPrayerSettings } =
     usePrayerNotifications(calendar, fetchTimesQuiet);
 
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -501,36 +500,7 @@ export function PrayerTimes() {
         {/* ─── Year Calendar ─── */}
         {calendar && <PrayerYearCalendarView calendar={calendar} />}
 
-        {/* ─── Developer Settings ─── */}
-        <div className="flex flex-col items-center gap-4 mt-2 pt-6 border-t border-white/[0.04]">
-          <button
-            type="button"
-            onClick={() => setShowDevSettings(!showDevSettings)}
-            className="flex items-center gap-2 text-[10px] text-white/20 hover:text-white/40 transition font-black"
-          >
-            <Settings2 className="w-3.5 h-3.5" />
-            {showDevSettings ? "إخفاء خيارات المطورين" : "خيارات المطورين"}
-          </button>
-          {showDevSettings && (
-            <div className="flex flex-wrap gap-2 justify-center">
-              {[
-                { label: "إشعار تجريبي", action: async () => { const ok = await sendTest(); alert(ok ? "تم!" : "يرجى تفعيل الإشعارات أولاً."); } },
-                { label: "فحص النظام", action: async () => { setShowDiagnostics(v => !v); if (!showDiagnostics) await refreshDiagnostics(); } },
-                { label: "إعادة جدولة", action: () => void reschedule(true) },
-              ].map(({ label, action }) => (
-                <button key={label} type="button" onClick={action}
-                  className="px-4 py-2 text-[11px] font-black rounded-xl bg-white/5 border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition">
-                  {label}
-                </button>
-              ))}
-            </div>
-          )}
-          {showDiagnostics && diagnostics && (
-            <p className="text-center text-[10px] font-bold text-white/30 leading-relaxed">
-              صلاحية النظام: {diagnostics.permissionsGranted ? "مفعّلة ✓" : "غير مفعّلة ✗"} — مجدولة: {diagnostics.totalScheduledPending}
-            </p>
-          )}
-        </div>
+
       </div>
 
       {/* ─── Athan Settings Dialog ─── */}
