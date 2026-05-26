@@ -21,14 +21,26 @@ function generateCode(email: string): string {
   return num.toString().padStart(6, "0");
 }
 
+// ✅ CORS headers to allow requests from Capacitor APK
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+// Handle CORS preflight from Capacitor APK
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: CORS_HEADERS });
+}
+
 export async function POST(request: Request) {
   try {
     const { email, reason, type } = await request.json();
     if (!email) {
-      return NextResponse.json({ success: false, error: "البريد الإلكتروني مطلوب" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "البريد الإلكتروني مطلوب" }, { status: 400, headers: CORS_HEADERS });
     }
     if (!GMAIL_PASS) {
-      return NextResponse.json({ success: false, error: "Gmail غير مهيأ" }, { status: 500 });
+      return NextResponse.json({ success: false, error: "Gmail غير مهيأ" }, { status: 500, headers: CORS_HEADERS });
     }
 
     const cleanEmail = email.trim().toLowerCase();
@@ -68,9 +80,9 @@ export async function POST(request: Request) {
       success: true,
       emailSent: sent,
       message: sent ? "تم إرسال الكود" : "تم تجاوز التحقق (حد الإيميلات اليومي)",
-    });
+    }, { headers: CORS_HEADERS });
   } catch (error: any) {
     console.error("[send-otp] Error:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message }, { status: 500, headers: CORS_HEADERS });
   }
 }

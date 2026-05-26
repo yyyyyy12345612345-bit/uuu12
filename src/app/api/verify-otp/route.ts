@@ -1,6 +1,18 @@
 import { NextResponse } from "next/server";
 import { verifyOtp, verifySignedToken } from "../otp-store";
 
+// ✅ CORS headers to allow requests from Capacitor APK
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+// Handle CORS preflight from Capacitor APK
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: CORS_HEADERS });
+}
+
 export async function POST(request: Request) {
   try {
     const { email, code, token } = await request.json();
@@ -8,22 +20,23 @@ export async function POST(request: Request) {
     if (token) {
       const result = verifySignedToken(token);
       if (result) {
-        return NextResponse.json({ success: true, message: "تم التحقق بنجاح", email: result.email });
+        return NextResponse.json({ success: true, message: "تم التحقق بنجاح", email: result.email }, { headers: CORS_HEADERS });
       }
-      return NextResponse.json({ success: false, error: "الرابط غير صحيح أو منتهي الصلاحية" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "الرابط غير صحيح أو منتهي الصلاحية" }, { status: 400, headers: CORS_HEADERS });
     }
 
     if (!email || !code) {
-      return NextResponse.json({ success: false, error: "بيانات ناقصة" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "بيانات ناقصة" }, { status: 400, headers: CORS_HEADERS });
     }
 
     if (verifyOtp(email.trim().toLowerCase(), code)) {
-      return NextResponse.json({ success: true, message: "تم التحقق بنجاح" });
+      return NextResponse.json({ success: true, message: "تم التحقق بنجاح" }, { headers: CORS_HEADERS });
     }
 
-    return NextResponse.json({ success: false, error: "الكود غير صحيح أو منتهي الصلاحية" }, { status: 400 });
+    return NextResponse.json({ success: false, error: "الكود غير صحيح أو منتهي الصلاحية" }, { status: 400, headers: CORS_HEADERS });
   } catch (error: any) {
     console.error("verify-otp Error:", error);
-    return NextResponse.json({ success: false, error: "خطأ في التحقق" }, { status: 500 });
+    return NextResponse.json({ success: false, error: "خطأ في التحقق" }, { status: 500, headers: CORS_HEADERS });
   }
 }
+

@@ -111,7 +111,7 @@ export function AdminPanel() {
   const [versionSettings, setVersionSettings] = useState({
     version: "v21",
     releaseNotes: "تحسين استقرار التطبيق، تحديث واجهة المستخدم، وإضافة دعم الدفع الجديد.",
-    downloadUrl: "https://quran-henna-one.vercel.app/download",
+    downloadUrl: "https://quran1-mu.vercel.app/download",
     mandatoryUpdate: false, displayOnDownloadPage: false
   });
   const [versionHistory, setVersionHistory] = useState<any[]>([]);

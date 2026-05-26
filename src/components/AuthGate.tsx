@@ -15,6 +15,17 @@ import {
 import { doc, getDoc, setDoc, collection, query, where, getDocs, addDoc, onSnapshot } from "firebase/firestore";
 import { motion, AnimatePresence } from "framer-motion";
 
+// ✅ FIX: In APK (Capacitor static export), relative /api/* URLs don't exist.
+// We must call the live Vercel server directly.
+const VERCEL_BASE = "https://quran1-mu.vercel.app";
+
+function getApiUrl(path: string): string {
+  if (typeof window !== "undefined" && (window as any).Capacitor) {
+    return `${VERCEL_BASE}${path}`;
+  }
+  return path;
+}
+
 interface AuthGateProps {
   children: React.ReactNode;
 }
@@ -272,7 +283,7 @@ export function AuthGate({ children }: AuthGateProps) {
       const hasEmail = formData.email.trim().includes("@");
 
       if (hasEmail) {
-        const apiResponse = await fetch("/api/send-otp", {
+        const apiResponse = await fetch(getApiUrl("/api/send-otp"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: formData.email.trim(), reason: "تأكيد البريد الإلكتروني للتسجيل", type: "signup" })
@@ -319,7 +330,7 @@ export function AuthGate({ children }: AuthGateProps) {
     setError("");
     setIsLoggingIn(true);
     try {
-      const res = await fetch("/api/verify-otp", {
+      const res = await fetch(getApiUrl("/api/verify-otp"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: formData.email.trim(), code: signupOtp })
@@ -388,7 +399,7 @@ export function AuthGate({ children }: AuthGateProps) {
       setResetUsername(userData.username);
       setRecoveredPassword(userData.encP ? atob(userData.encP) : null);
       
-      const apiResponse = await fetch("/api/send-otp", {
+      const apiResponse = await fetch(getApiUrl("/api/send-otp"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: resetEmail.trim(), reason: "استعادة كلمة المرور" })
@@ -415,7 +426,7 @@ export function AuthGate({ children }: AuthGateProps) {
     setError("");
     setIsLoggingIn(true);
     try {
-      const res = await fetch("/api/verify-otp", {
+      const res = await fetch(getApiUrl("/api/verify-otp"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: resetEmail.trim().toLowerCase(), code: resetOtp })

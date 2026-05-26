@@ -1,36 +1,170 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# سكينة - القرآن الكريم
 
-## Getting Started
+**الإصدار 21.0 — Universal**  
+تطبيق إسلامي شامل ومتكامل يعمل على الويب (PWA) والأندرويد (Native).
 
-First, run the development server:
+---
+
+## المميزات
+
+### 📖 المصحف الشريف
+- قراءة المصحف كاملًا (604 صفحات) مع التقسيم بالصفحات
+- سور مكتوبة بالرسم العثماني مع دعم التشكيل والتجويد
+- البحث في السور والآيات
+- تشغيل الصوت لكل آية مع اختيار القارئ
+- التفسير والترجمة لكل آية
+- تحكم في حجم الخط
+
+### 🎧 المكتبة الصوتية
+- استماع للسور كاملة من عدة قراء
+- مشغل متكامل (تشغيل، إيقاف، تخطي، خلط، تكرار)
+- التحكم في الصوت (رفع/خفض، كتم)
+- المفضلة وآخر الاستماع
+- تحميل السور بصيغة MP3
+- تحكم متكامل من شاشة القفل (Media Session API)
+
+### 📿 الأذكار
+- أذكار الصباح والمساء، النوم، الاستيقاظ، الأذكار النبوية والقرآنية
+- بيانات من API الرسمي لحصن المسلم
+- عدّاد تلقائي مع منح النقاط
+- نسخ ومشاركة الذكر
+
+### 🕌 مواقيت الصلاة والأذان
+-日历 مواقيت الصلاة لـ 365 يومًا
+- مواقيت دقيقة تعتمد على الموقع الجغرافي (GPS يدوي)
+- عداد تنازلي للصلاة القادمة
+- **إشعارات الأذان** (حتى 60 إشعارًا مجدولًا):
+  - تشغيل صوت الأذان في الخلفية
+  - اختيار المؤذن المفضل
+  - تفعيل/تعطيل كل صلاة على حدة
+  - كشف الأذان في المقدمة (خلال ثانيتين من الموعد)
+- **التذكيرات الذكية**: رسائل تحفيزية يومية، تذكير بسورة الكهف يوم الجمعة، تذكير بالصلاة على النبي
+
+### 🧭 بوصلة القبلة
+- بوصلة حية تعمل بحساس الجهاز
+- مؤشر المسافة إلى الكعبة
+- اهتزاز عند المحاذاة (ضمن 6 درجات)
+- أسماء الجهات بالعربية
+
+### 🎬 استوديو الفيديو
+- تصميم فيديوهات عمودية (9:16) لتيك توك وإنستغرام ويوتيوب شورتس
+- إضافة آية قرآنية مع تحكم كامل (الخط، اللون، الحجم، الموقع)
+- خلفيات من Pexels (صور وفيديو) مع فلاتر
+- مؤثرات: جسيمات، أشعة ضوء، تمويه
+- موجة صوتية مرئية (Audio Visualizer)
+- رسوم متحركة بين الآيات (تكبير، انزلاق، طيران، إقلاع، ارتداد، تشويش)
+- تراكب اسم الحساب (تيك توك وإنستغرام)
+- **نظام اشتراك**: الخطط (مجاني - 5 فيديوهات، تجربة 30 يومًا غير محدودة، ستارتر 50/شهر، بريميم غير محدود + 4K)
+- دفع عبر فودافون كاش أو إنستاباي
+
+### 🏆 نظام النقاط والتحديات
+- نقاط للقراءة، الاستماع، الأذكار، المسابحة الإلكترونية، صناعة الفيديو، إكمال السور
+- حدود يومية لكل نشاط لمنع التلاعب
+- لوحة المتصدرين العالمية (أفضل 100 مستخدم)
+- تصفية حسب: العام، الدولة، القرآن، الأذكار، الاستماع
+- منصة تتويج لأفضل 3 (تاج، كأس)
+- **المهام اليومية**: تحديات تفاعلية تنتقل بك للقسم المناسب
+
+### 🤖 المساعد الذكي (AI Chatbot)
+- زر عائم قابل للسحب
+- إجابة أسئلة إسلامية، تفسير، سياق
+- **وضع الاختبارات**: أسئلة اختيار من متعدد + 15 نقطة مكافأة
+- **تعديل الملف الشخصي** عبر المحادثة
+- **إنشاء خطة قرآنية** مخصصة (اسم، مدة، هدف يومي)
+
+### 👤 نظام الحسابات
+- تسجيل عبر البريد الإلكتروني مع توثيق OTP
+- تسجيل عبر Google
+- اختيار الصورة الرمزية (DiceBear)
+- إدارة الملف الشخصي (الاسم، الدولة، الصورة، النقاط، الإحصائيات)
+
+### ⚙️ الإعدادات
+- تفعيل/تعطيل الإشعارات الذكية
+- ضبط تذكير الصلاة على النبي (كل 15 دقيقة إلى 6 ساعات)
+- اختبار الصوت
+
+---
+
+## المنصات
+
+| المنصة | الحالة |
+|---|---|
+| **Web (PWA)** | ✅ منشور على Vercel |
+| **Android (Native)** | ✅ APK قابل للتثبيت |
+| **iOS (PWA)** | ✅ مدعوم عبر المتصفح |
+
+---
+
+## التقنيات المستخدمة
+
+- **Framework**: Next.js 16 (App Router)
+- **اللغة**: TypeScript + React 19
+- **التصميم**: Tailwind CSS 4 + Framer Motion
+- **قاعدة البيانات**: Firebase (Firestore, Auth, Storage, Analytics)
+- **المحمول**: Capacitor 8 (Android, Push Notifications, GPS, Google Sign-In)
+- **الخطوط**: Amiri، Noto Naskh Arabic، Scheherazade New، Lateef، Cairo، Tajawal
+- **محرك الفيديو**: Remotion 4
+- **PWA**: Service Worker + Web Manifest
+- **API الخارجية**:
+  - Quran.com API — النص والتفسير والترجمة
+  - EveryAyah + mp3quran.net — الصوتيات
+  - AlAdhan API — مواقيت الصلاة والقبلة
+  - HisnMuslim API — الأذكار
+  - Pexels API — الخلفيات
+
+---
+
+## التثبيت والتشغيل
 
 ```bash
+# تثبيت الاعتماديات
+npm install
+
+# تشغيل بيئة التطوير
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# بناء نسخة الإنتاج
+npm run build
+
+# بناء APK الأندرويد
+npm run final-build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## النشر
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Web**: مستضاف على Vercel (`quran1-mu.vercel.app`)
+- **Android**: بناء يدوي عبر Gradle، يتم رفع APK يدويًا
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## الإصدارات
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `v21.0` — الإصدار الحالي
+- `versionCode: 21` — كود إصدار الأندرويد
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## المطور
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**يوسف أسامة**  
+تطبيق سكينة — القرآن الكريم  
+Islamic Digital Studio
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## الإشادات
+
+- Quran.com API
+- EveryAyah
+- mp3quran.net
+- AlAdhan
+- HisnMuslim API
+- Pexels
+- Remotion
+- DiceBear
+
+---
+
+**سكينة — رفيقك اليومي للقرآن والعبادة**

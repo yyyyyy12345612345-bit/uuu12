@@ -602,7 +602,7 @@ ${quiz.options}
   const websiteLinkMatch = /(?:لينك موقع|فين لينك|فين اللينك|رابط الموقع|الرابط بتاع الموقع|ايه رابط الموقع)/i.test(textClean);
   if (websiteLinkMatch) {
     return {
-      reply: `رابط الموقع هو: https://quran-henna-one.vercel.app
+      reply: `رابط الموقع هو: https://quran1-mu.vercel.app
 يمكنك فتحه مباشرة للحصول على كل الصفحات مثل المصحف، الصلاة، المكتبة الصوتية، والفيديو.`,
       score: 1.0,
       category: "رابط الموقع"
