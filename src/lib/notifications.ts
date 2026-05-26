@@ -37,7 +37,7 @@ export const PRAYER_NAMES_AR: Record<string, string> = {
   Isha: 'العشاء',
 };
 
-const CHANNEL_ID = 'prayer_notifications_v4'; // Changed ID to force channel recreation with max importance
+const CHANNEL_ID = 'prayer_notifications_v21'; // Changed ID to force channel recreation with max importance
 
 // ── Permission Request ───────────────────────────────────────────────────
 
@@ -274,7 +274,7 @@ export function checkForegroundPrayer(
 
 // ── Settings Helpers ─────────────────────────────────────────────────────
 
-const SETTINGS_KEY = 'prayer_notif_settings_v3';
+const SETTINGS_KEY = 'prayer_notif_settings_v21';
 
 export function getDefaultSettings(): PrayerSettingsMap {
   return {

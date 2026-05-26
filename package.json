@@ -1,6 +1,6 @@
 {
   "name": "quran-app",
-  "version": "7.0",
+  "version": "21.0",
   "private": true,
   "scripts": {
     "dev": "next dev",

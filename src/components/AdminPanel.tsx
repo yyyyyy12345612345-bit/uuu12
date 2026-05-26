@@ -109,7 +109,7 @@ export function AdminPanel() {
     newDashboard: true, betaUsers: false, fastLogin: false, videoStudio: true
   });
   const [versionSettings, setVersionSettings] = useState({
-    version: "v3.2",
+    version: "v21",
     releaseNotes: "تحسين استقرار التطبيق، تحديث واجهة المستخدم، وإضافة دعم الدفع الجديد.",
     downloadUrl: "https://quran-henna-one.vercel.app/download",
     mandatoryUpdate: false, displayOnDownloadPage: false
@@ -373,7 +373,7 @@ export function AdminPanel() {
       const s = await getDoc(doc(db, "settings", "version"));
       if (s.exists()) {
         const d = s.data();
-        setVersionSettings({ version: d.version || "v3.2", releaseNotes: d.releaseNotes || "", downloadUrl: d.downloadUrl || "", mandatoryUpdate: d.mandatoryUpdate || false, displayOnDownloadPage: d.displayOnDownloadPage || false });
+        setVersionSettings({ version: d.version || "v21", releaseNotes: d.releaseNotes || "", downloadUrl: d.downloadUrl || "", mandatoryUpdate: d.mandatoryUpdate || false, displayOnDownloadPage: d.displayOnDownloadPage || false });
         setVersionHistory(d.history || []);
       }
     } catch (e) { console.error(e); }

@@ -1,5 +1,5 @@
 /**
- * 🔔 Smart Personalized Notification System - v2.0
+ * 🔔 Smart Personalized Notification System - v21
  *
  * Features:
  * 1. Per-user intelligence: Reads user's actual points & activity from Firestore

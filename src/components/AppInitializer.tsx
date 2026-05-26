@@ -109,7 +109,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     try {
       const response = await fetch('/version.json?t=' + Date.now());
       const data = await response.json();
-      const LOCAL_VERSION = "7.0";
+      const LOCAL_VERSION = "21.0";
       
       if (isNewerVersion(data.version, LOCAL_VERSION)) {
         setUpdateInfo(data);
@@ -214,7 +214,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
         if (snapshot.exists()) {
           const data = snapshot.data();
           const remoteVersion = data?.version || "0.0";
-          const LOCAL_VERSION = "7.0";
+          const LOCAL_VERSION = "21.0";
           if (isNewerVersion(remoteVersion, LOCAL_VERSION)) {
             setUpdateInfo(data);
             setShowUpdateModal(true);
@@ -446,7 +446,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
            <div className="absolute inset-0 islamic-pattern opacity-[0.03]" />
            <div className="relative">
               <div className="w-32 h-32 rounded-[2.5rem] bg-primary/10 flex items-center justify-center p-6 border border-primary/20 animate-pulse relative z-10 shadow-2xl shadow-primary/20">
-                 <img src="/logo/logo.png?v=10" alt="Logo" className="w-full h-full object-contain" />
+                 <img src="/logo/logo.png?v=21" alt="Logo" className="w-full h-full object-contain" />
               </div>
               {/* Outer Rings */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border border-primary/10 rounded-full animate-ping duration-[3000ms]" />
@@ -455,7 +455,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
            
            <div className="mt-12 text-center animate-in slide-in-from-bottom-10 duration-1000">
               <h1 className="text-3xl font-black text-foreground tracking-tighter mb-2">قرآن كريم</h1>
-              <p className="text-[10px] text-primary font-black tracking-[0.3em] font-arabic">الإصدار السابع</p>
+              <p className="text-[10px] text-primary font-black tracking-[0.3em] font-arabic">الإصدار الحادي والعشرون</p>
            </div>
            
            <div className="absolute bottom-12 flex flex-col items-center gap-4">

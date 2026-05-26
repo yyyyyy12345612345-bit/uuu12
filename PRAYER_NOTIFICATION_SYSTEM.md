@@ -61,10 +61,10 @@ export const PRAYER_NAMES_AR: Record<string, string> = {
   Isha: 'العشاء',
 };
 
-const CHANNEL_ID = 'prayer_notifications_v5';
-const SETTINGS_KEY = 'prayer_notif_settings_v4';
+const CHANNEL_ID = 'prayer_notifications_v21';
+const SETTINGS_KEY = 'prayer_notif_settings_v21';
 const CACHE_KEY = 'prayer_times_cache';
-const LAST_SCHEDULE_DATE_KEY = 'last_schedule_date_v4';
+const LAST_SCHEDULE_DATE_KEY = 'last_schedule_date_v21';
 
 // ── Permissions & Channel ─────────────────────────────────────────────────
 
@@ -366,7 +366,7 @@ export function loadCachedTimes(): { times: PrayerTimesData; isStale: boolean } 
   }
 }
 
-const TRIGGERED_KEY = 'adhan:triggered:v1';
+const TRIGGERED_KEY = 'adhan:triggered:v21';
 
 export function checkForegroundPrayer(
   times: PrayerTimesData,
