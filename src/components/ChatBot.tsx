@@ -414,155 +414,80 @@ ${activeQuiz.explanation}
         }}
         initial={{ scale: 0 }}
         animate={{ scale: isOpen ? 0 : 1, opacity: isOpen ? 0 : 1 }}
-        whileHover={{ scale: isOpen ? 0 : 1.1, rotate: 5 }}
+        whileHover={{ scale: isOpen ? 0 : 1.1 }}
         whileTap={{ scale: isOpen ? 0 : 0.9 }}
         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
         onClick={() => { if (!isDragging.current) setIsOpen(true); }}
-        className={`fixed bottom-[90px] sm:bottom-24 left-4 sm:left-6 z-[400] w-16 h-16 rounded-full flex items-center justify-center group cursor-grab active:cursor-grabbing ${isOpen ? 'pointer-events-none' : ''}`}
+        className={`fixed bottom-20 left-4 sm:left-6 z-[400] w-12 h-12 rounded-full flex items-center justify-center group cursor-grab active:cursor-grabbing ${isOpen ? 'pointer-events-none' : ''}`}
       >
-        {/* Pulsing Aura */}
-        <div className="absolute inset-0 bg-[#d4af37]/30 rounded-full blur-xl animate-pulse" />
-        <motion.div 
-          animate={{ rotate: 360 }} 
-          transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-0 rounded-full border border-[#d4af37]/30 border-t-[#d4af37] border-b-[#d4af37]"
-        />
-        
-        {/* Main Button Body */}
-        <div className="relative w-full h-full bg-gradient-to-br from-[#1a1a1a] to-[#000] border-2 border-[#d4af37]/50 rounded-full flex items-center justify-center overflow-hidden shadow-[0_0_30px_rgba(212,175,55,0.4)]">
-          <div className="absolute inset-0 bg-gradient-to-tr from-[#d4af37]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-          <MessageCircle className="w-7 h-7 text-[#d4af37] drop-shadow-[0_0_10px_rgba(212,175,55,0.8)]" />
+        <div className="relative w-full h-full bg-gradient-to-br from-[#1a1a1a] to-[#000] border border-[#d4af37]/50 rounded-full flex items-center justify-center overflow-hidden shadow-[0_0_15px_rgba(212,175,55,0.3)]">
+          <MessageCircle className="w-5 h-5 text-[#d4af37]" />
         </div>
-
-        {/* Online Indicator */}
-        <motion.div 
-          animate={{ scale: [1, 1.5, 1], opacity: [0.8, 0, 0.8] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="absolute top-0 right-0 w-4 h-4 bg-emerald-500 rounded-full border-2 border-[#000] shadow-[0_0_10px_rgba(16,185,129,0.8)]"
-        />
-
-        {/* Drag hint on first render */}
-        <motion.div
-          initial={{ opacity: 0.7, scale: 1 }}
-          animate={{ opacity: 0, scale: 1.5 }}
-          transition={{ duration: 1.5, delay: 1 }}
-          className="absolute -inset-2 rounded-full border border-[#d4af37]/40 pointer-events-none"
-        />
       </motion.button>
 
-      {/* Premium Chat Window */}
+      {/* Chat Window - Compact */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.9, filter: "blur(10px)" }}
-            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: 50, scale: 0.9, filter: "blur(10px)" }}
-            transition={{ type: "spring", damping: 20, stiffness: 200 }}
-            className="fixed bottom-[85px] sm:bottom-20 left-0 sm:left-6 z-[500] w-full sm:w-[420px] h-[80vh] sm:h-[600px] bg-[#050505]/95 backdrop-blur-3xl sm:rounded-[2.5rem] rounded-[2.5rem] border border-[#d4af37]/20 shadow-[0_0_80px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.2 }}
+            className="fixed bottom-16 left-2 right-2 sm:left-4 sm:right-auto sm:w-[340px] z-[500] bg-[#0a0a0a] border border-[#d4af37]/20 rounded-xl shadow-2xl flex flex-col overflow-hidden max-h-[65vh]"
           >
-            {/* Background Animations */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-               <div className="absolute top-[-20%] left-[-20%] w-[50%] h-[50%] bg-[#d4af37]/5 rounded-full blur-[100px]" />
-               <div className="absolute bottom-[-20%] right-[-20%] w-[50%] h-[50%] bg-emerald-500/5 rounded-full blur-[100px]" />
-               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 mix-blend-screen" />
-            </div>
-            
             {/* Header */}
-            <div className="relative p-6 bg-gradient-to-b from-[#111] to-transparent border-b border-[#d4af37]/10 flex items-center justify-between shrink-0 z-10">
-              <div className="flex items-center gap-4">
-                <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-[#d4af37]/20 to-transparent border border-[#d4af37]/30 flex items-center justify-center overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-[#d4af37]/10 to-transparent animate-pulse" />
-                  <BotMessageSquare className="w-6 h-6 text-[#d4af37] relative z-10" />
-                </div>
-                <div>
-                  <h3 className="font-black text-white text-base flex items-center gap-2 font-sans">
-                    المساعد الذكي
-                  </h3>
-                  <div className="flex items-center gap-2 mt-1">
-                     <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                     </span>
-                     <p className="text-[10px] text-emerald-400/80 uppercase tracking-widest font-bold font-mono">متصل بالشبكة</p>
-                  </div>
-                </div>
+            <div className="px-4 py-2.5 bg-[#111] border-b border-[#d4af37]/10 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2">
+                <BotMessageSquare className="w-4 h-4 text-[#d4af37]" />
+                <span className="text-white text-xs font-bold">المساعد الذكي</span>
               </div>
-              <button 
-                onClick={() => setIsOpen(false)}
-                className="w-10 h-10 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-white/10 text-white/50 hover:text-white transition-all hover:rotate-90"
-              >
-                <X className="w-5 h-5" />
+              <button onClick={() => setIsOpen(false)} className="text-white/40 hover:text-white">
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Messages Area */}
-            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-6 font-sans relative z-10">
+            {/* Messages */}
+            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto no-scrollbar px-3 py-3 space-y-2 relative z-10">
               {messages.map((msg) => (
-                <motion.div 
-                  initial={{ opacity: 0, x: msg.sender === "user" ? 20 : -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  key={msg.id} 
-                  className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  <div className={`max-w-[85%] flex items-end gap-3 ${msg.sender === "user" ? "flex-row-reverse" : "flex-row"}`}>
-                    <div className={`shrink-0 w-8 h-8 rounded-xl flex items-center justify-center shadow-lg ${msg.sender === "user" ? "bg-gradient-to-br from-white/10 to-white/5 border border-white/10" : "bg-gradient-to-br from-[#d4af37] to-[#8a6e1c] border border-[#d4af37]/50"}`}>
-                      {msg.sender === "user" ? <User className="w-4 h-4 text-white" /> : <Wand2 className="w-4 h-4 text-black" />}
-                    </div>
-                    
-                    <div 
-                      className={`relative p-4 rounded-3xl text-sm leading-relaxed shadow-2xl ${
-                        msg.sender === "user" 
-                          ? "bg-white/10 text-white rounded-tr-sm border border-white/10 backdrop-blur-md" 
-                          : "bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] text-white/90 rounded-tl-sm border border-[#d4af37]/30"
-                      }`}
-                    >
-                      {/* Bot Message Glow */}
-                      {msg.sender === "bot" && <div className="absolute inset-0 bg-[#d4af37]/5 rounded-3xl blur-md pointer-events-none" />}
-                      <span className="relative z-10 leading-loose">{renderMessage(msg.text)}</span>
-                    </div>
+                <div key={msg.id} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
+                  <div className={`max-w-[90%] px-3 py-2 rounded-xl text-xs leading-relaxed ${
+                    msg.sender === "user"
+                      ? "bg-white/10 text-white rounded-tr-sm"
+                      : "bg-[#1a1a1a] text-white/90 border border-[#d4af37]/20 rounded-tl-sm"
+                  }`}>
+                    {renderMessage(msg.text)}
                   </div>
-                </motion.div>
+                </div>
               ))}
-              
               {isTyping && (
-                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex justify-start">
-                  <div className="max-w-[80%] flex items-end gap-3">
-                    <div className="shrink-0 w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#8a6e1c] border border-[#d4af37]/50 flex items-center justify-center shadow-lg">
-                      <Wand2 className="w-4 h-4 text-black" />
-                    </div>
-                    <div className="p-4 rounded-3xl bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] rounded-tl-sm border border-[#d4af37]/30 flex items-center gap-2 shadow-2xl">
-                      <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: 0 }} className="w-2 h-2 bg-[#d4af37] rounded-full shadow-[0_0_10px_rgba(212,175,55,0.8)]" />
-                      <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: 0.2 }} className="w-2 h-2 bg-[#d4af37] rounded-full shadow-[0_0_10px_rgba(212,175,55,0.8)]" />
-                      <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: 0.4 }} className="w-2 h-2 bg-[#d4af37] rounded-full shadow-[0_0_10px_rgba(212,175,55,0.8)]" />
-                    </div>
+                <div className="flex justify-start">
+                  <div className="px-3 py-2 rounded-xl bg-[#1a1a1a] border border-[#d4af37]/20 flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 bg-[#d4af37] rounded-full animate-bounce" style={{animationDelay:"0ms"}} />
+                    <div className="w-1.5 h-1.5 bg-[#d4af37] rounded-full animate-bounce" style={{animationDelay:"150ms"}} />
+                    <div className="w-1.5 h-1.5 bg-[#d4af37] rounded-full animate-bounce" style={{animationDelay:"300ms"}} />
                   </div>
-                </motion.div>
+                </div>
               )}
-              <div ref={messagesEndRef} className="h-2" />
+              <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area */}
-            <div className="p-6 bg-gradient-to-t from-[#000] to-transparent shrink-0 relative z-10 border-t border-[#d4af37]/10">
-              <form onSubmit={handleSendMessage} className="relative flex items-center gap-3">
-                <div className="relative flex-1">
-                  <input
-                    type="text"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="اكتب استفسارك هنا..."
-                    dir="rtl"
-                    className="w-full bg-[#111]/80 backdrop-blur-xl border border-[#d4af37]/20 rounded-full py-4 px-6 text-sm text-white placeholder:text-white/30 outline-none focus:border-[#d4af37]/60 focus:bg-[#1a1a1a] transition-all shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]"
-                  />
-                  {/* Inner glow on focus */}
-                  <div className="absolute inset-0 rounded-full pointer-events-none border border-transparent peer-focus:border-[#d4af37]/30 transition-all mix-blend-overlay" />
-                </div>
-                
+            {/* Input */}
+            <div className="px-3 py-2 border-t border-[#d4af37]/10">
+              <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="اكتب هنا..."
+                  dir="rtl"
+                  className="flex-1 bg-[#111] border border-[#d4af37]/20 rounded-lg px-3 py-2 text-xs text-white placeholder:text-white/30 outline-none focus:border-[#d4af37]/50"
+                />
                 <button
                   type="submit"
                   disabled={!message.trim() || isTyping}
-                  className="shrink-0 w-14 h-14 rounded-full bg-gradient-to-br from-[#d4af37] to-[#8a6e1c] flex items-center justify-center text-black disabled:opacity-50 disabled:grayscale transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(212,175,55,0.4)] group"
+                  className="shrink-0 w-8 h-8 rounded-lg bg-[#d4af37] flex items-center justify-center disabled:opacity-40"
                 >
-                  <Send className="w-6 h-6 -translate-x-0.5 group-hover:translate-x-[-4px] group-hover:-translate-y-[4px] transition-transform" />
+                  <Send className="w-3.5 h-3.5 text-black" />
                 </button>
               </form>
             </div>
