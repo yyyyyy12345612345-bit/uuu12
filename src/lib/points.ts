@@ -5,38 +5,39 @@ import {
   increment, 
   getDoc, 
   setDoc,
-  serverTimestamp
+  serverTimestamp,
+  FirestoreError
 } from "firebase/firestore";
 
 /**
- * Universal Points System V 21 (Global & Reliable)
- * Handles all point logic for Quran, Athkar, and Audio.
+ * نتيجة عملية تحديث النقاط
  */
-
 export interface PointUpdateResult {
   success: boolean;
   message?: string;
+  error?: Error;
 }
+
+/**
+ * حدود النقاط اليومية لكل نوع نشاط
+ */
+const DAILY_LIMITS: Record<string, number> = {
+  quran: 100,
+  athkar: 200,
+  listen: 200,
+  video: 100,
+  bonus: 1000   
+};
 
 // Internal state to track active timers
 let activeTimers: Record<string, number> = {};
 let lastAwardedAt: Record<string, number> = {};
 
 /**
- * Universal addPoints - The heart of the system.
- * This is what actually hits Firestore and local storage.
- */
-const DAILY_LIMITS: Record<string, number> = {
-  quran: 100,   // Doubled from 50
-  athkar: 200,  // Doubled from 100
-  listen: 200,  // Doubled from 100
-  video: 100,   // Doubled from 50
-  bonus: 1000   
-};
-
-/**
- * Universal addPoints - The heart of the system.
- * This is what actually hits Firestore and local storage.
+ * إضافة نقاط للمستخدم مع التحقق من الحدود اليومية
+ * @param type - نوع النشاط (quran, athkar, listen, video, bonus)
+ * @param amount - عدد النقاط المراد إضافتها
+ * @returns نتيجة العملية
  */
 export async function addPoints(type: string, amount: number = 1): Promise<PointUpdateResult> {
   const user = auth?.currentUser;
@@ -44,7 +45,10 @@ export async function addPoints(type: string, amount: number = 1): Promise<Point
   
   const pointsToAdd = Math.max(0, Number(amount));
   
-  if (isNaN(pointsToAdd) || pointsToAdd <= 0) return { success: false };
+  if (isNaN(pointsToAdd) || pointsToAdd <= 0) {
+    console.warn("[Points] Invalid points amount:", amount);
+    return { success: false, message: "قيمة النقاط غير صالحة" };
+  }
 
   // --- Anti-Spam Cooldown ---
   const now = Date.now();
@@ -55,39 +59,44 @@ export async function addPoints(type: string, amount: number = 1): Promise<Point
   // --------------------------
 
   // --- Daily Limit Logic ---
-  const today = new Date().toDateString();
-  const limitDateKey = "points_limit_date";
-  const earnedTodayKey = `points_earned_today_${type}`;
-  
-  const savedDate = localStorage.getItem(limitDateKey);
-  if (savedDate !== today) {
-    // Reset all limits for a new day
-    localStorage.setItem(limitDateKey, today);
-    Object.keys(DAILY_LIMITS).forEach(k => localStorage.setItem(`points_earned_today_${k}`, "0"));
+  try {
+    const today = new Date().toDateString();
+    const limitDateKey = "points_limit_date";
+    const earnedTodayKey = `points_earned_today_${type}`;
+    
+    const savedDate = localStorage.getItem(limitDateKey);
+    if (savedDate !== today) {
+      localStorage.setItem(limitDateKey, today);
+      Object.keys(DAILY_LIMITS).forEach(k => localStorage.setItem(`points_earned_today_${k}`, "0"));
+    }
+
+    const currentEarned = parseInt(localStorage.getItem(earnedTodayKey) || "0");
+    const limit = DAILY_LIMITS[type] || 100;
+
+    if (currentEarned >= limit) {
+      console.warn(`[Points] Daily limit reached for ${type}`);
+      return { success: false, message: "لقد وصلت للحد الأقصى للنقاط لهذا النشاط اليوم" };
+    }
+
+    const finalPointsToAdd = Math.min(pointsToAdd, limit - currentEarned);
+    localStorage.setItem(earnedTodayKey, (currentEarned + finalPointsToAdd).toString());
+    lastAwardedAt[type] = now;
+  } catch (error) {
+    console.error("[Points] Daily limit calculation error:", error);
+    return { success: false, message: "خطأ في حساب الحدود اليومية" };
   }
-
-  const currentEarned = parseInt(localStorage.getItem(earnedTodayKey) || "0");
-  const limit = DAILY_LIMITS[type] || 100;
-
-  if (currentEarned >= limit) {
-    console.warn(`[Points] Daily limit reached for ${type}`);
-    return { success: false, message: "لقد وصلت للحد الأقصى للنقاط لهذا النشاط اليوم" };
-  }
-
-  // Adjust points if they would exceed the limit
-  const finalPointsToAdd = Math.min(pointsToAdd, limit - currentEarned);
-  localStorage.setItem(earnedTodayKey, (currentEarned + finalPointsToAdd).toString());
-  lastAwardedAt[type] = now; // Update cooldown timer
   // --------------------------
 
-  console.log(`[Points] Adding ${finalPointsToAdd} for ${type} (Limit: ${currentEarned + finalPointsToAdd}/${limit})`);
+  console.log(`[Points] Adding ${finalPointsToAdd} for ${type}`);
 
   // 1. Instant Local Update
   try {
     const localKey = "cached_total_points";
     const current = parseInt(localStorage.getItem(localKey) || "0");
     localStorage.setItem(localKey, (current + finalPointsToAdd).toString());
-  } catch (e) {}
+  } catch (error) {
+    console.error("[Points] Local storage update error:", error);
+  }
 
   // 2. Persistent Firestore Update
   if (user && db) {
@@ -96,14 +105,14 @@ export async function addPoints(type: string, amount: number = 1): Promise<Point
       const todayISO = new Date().toISOString().split("T")[0];
       const dailyRef = doc(db, "users", user.uid, "stats", todayISO);
 
-      const fieldMap: any = {
+      const fieldMap: Record<string, string> = {
         quran: "quranPoints",
         athkar: "athkarPoints",
         listen: "listenPoints",
         video: "videoPoints"
       };
 
-      const updateData: any = {
+      const updateData: Record<string, any> = {
         totalPoints: increment(finalPointsToAdd),
         lastActive: serverTimestamp()
       };
@@ -112,7 +121,6 @@ export async function addPoints(type: string, amount: number = 1): Promise<Point
         updateData[fieldMap[type]] = increment(finalPointsToAdd);
       }
 
-      // Track statistics for user profile
       if (type === "quran") {
         updateData.readAyahs = increment(1);
       } else if (type === "listen") {
@@ -132,8 +140,30 @@ export async function addPoints(type: string, amount: number = 1): Promise<Point
 
       return { success: true };
     } catch (err) {
-      console.error("[Points] Firestore update error:", err);
-      return { success: false };
+      const firestoreError = err as FirestoreError;
+      console.error("[Points] Firestore update error:", firestoreError);
+      
+      if (firestoreError.code === 'permission-denied') {
+        return { 
+          success: false, 
+          message: "لا يوجد صلاحية لتحديث النقاط",
+          error: firestoreError
+        };
+      }
+      
+      if (firestoreError.code === 'unavailable') {
+        return { 
+          success: false, 
+          message: "خدمة Firebase غير متاحة حالياً، سيتم المحاولة لاحقاً",
+          error: firestoreError
+        };
+      }
+
+      return { 
+        success: false, 
+        message: "حدث خطأ أثناء حفظ النقاط",
+        error: firestoreError instanceof Error ? firestoreError : new Error(String(err))
+      };
     }
   }
 
@@ -141,89 +171,210 @@ export async function addPoints(type: string, amount: number = 1): Promise<Point
 }
 
 /**
- * Universal Timer Start
+ * بدء مؤقت لحساب وقت النشاط
+ * @param id - معرف المؤقت الفريد
  */
-export function startTimer(id: string) {
-  activeTimers[id] = Date.now();
-  console.log(`[Points] Timer started for: ${id}`);
+export function startTimer(id: string): void {
+  try {
+    activeTimers[id] = Date.now();
+    console.log(`[Points] Timer started for: ${id}`);
+  } catch (error) {
+    console.error("[Points] Failed to start timer:", error);
+  }
 }
 
 /**
- * Universal Timer End & Award
+ * إنهاء المؤقت ومنح النقاط بناءً على الوقت المنقضي
+ * @param id - معرف المؤقت
+ * @param minSeconds - الحد الأدنى بالثواني
+ * @param type - نوع النشاط
+ * @param amount - عدد النقاط
+ * @returns نتيجة العملية
  */
-export async function endTimer(id: string, minSeconds: number, type: string, amount: number) {
-  const startTime = activeTimers[id];
-  if (!startTime) return { success: false };
-
-  const elapsed = (Date.now() - startTime) / 1000;
-  
-  // Prevent double awarding for same ID in a short window (5s)
-  const lastAwarded = lastAwardedAt[id] || 0;
-  if (Date.now() - lastAwarded < 5000) return { success: false };
-
-  if (elapsed >= minSeconds) {
-    const result = await addPoints(type, amount);
-    if (result.success) {
-      lastAwardedAt[id] = Date.now();
-      delete activeTimers[id];
+export async function endTimer(
+  id: string, 
+  minSeconds: number, 
+  type: string, 
+  amount: number
+): Promise<PointUpdateResult> {
+  try {
+    const startTime = activeTimers[id];
+    if (!startTime) {
+      console.warn(`[Points] Timer not found: ${id}`);
+      return { success: false, message: "المؤقت غير موجود" };
     }
-    return result;
-  }
 
-  return { success: false, message: "Time threshold not met" };
+    const elapsed = (Date.now() - startTime) / 1000;
+    
+    const lastAwarded = lastAwardedAt[id] || 0;
+    if (Date.now() - lastAwarded < 5000) {
+      console.warn(`[Points] Double award prevention for ${id}`);
+      return { success: false, message: "تم منح النقاط مسبقاً" };
+    }
+
+    if (elapsed >= minSeconds) {
+      const result = await addPoints(type, amount);
+      if (result.success) {
+        lastAwardedAt[id] = Date.now();
+        delete activeTimers[id];
+      }
+      return result;
+    }
+
+    return { 
+      success: false, 
+      message: `لم يتم استيفاء الحد الأدنى للوقت (${minSeconds} ثانية)` 
+    };
+  } catch (error) {
+    console.error(`[Points] Error ending timer ${id}:`, error);
+    return { 
+      success: false, 
+      message: "خطأ في إنهاء المؤقت",
+      error: error instanceof Error ? error : new Error(String(error))
+    };
+  }
 }
 
 /* ─── Standard Legacy Wrappers ─── */
 
-export const startPageTimer = (pageId: string) => startTimer(`page_${pageId}`);
-export const endPageTimer = async (amount: number) => {
-    // Very flexible: just find any active page timer and end it
+/**
+ * بدء مؤقت قراءة صفحة
+ * @param pageId - رقم الصفحة
+ */
+export const startPageTimer = (pageId: string): void => startTimer(`page_${pageId}`);
+
+/**
+ * إنهاء مؤقت قراءة صفحة ومنح النقاط
+ * @param amount - عدد النقاط
+ * @returns نتيجة العملية
+ */
+export const endPageTimer = async (amount: number): Promise<PointUpdateResult> => {
+  try {
     const activePageKey = Object.keys(activeTimers).find(k => k.startsWith("page_"));
-    if (activePageKey) return await endTimer(activePageKey, 10, "quran", amount);
-    return { success: false };
+    if (activePageKey) {
+      return await endTimer(activePageKey, 10, "quran", amount);
+    }
+    return { success: false, message: "لا يوجد مؤقت نشط للصفحة" };
+  } catch (error) {
+    console.error("[Points] endPageTimer error:", error);
+    return { success: false, message: "خطأ في إنهاء مؤقت الصفحة" };
+  }
 };
 
-export const startAyahTimer = (ayahId: string) => startTimer(`ayah_${ayahId}`);
-export const endAyahTimer = async (amount: number) => {
+/**
+ * بدء مؤقت قراءة آية
+ * @param ayahId - معرف الآية
+ */
+export const startAyahTimer = (ayahId: string): void => startTimer(`ayah_${ayahId}`);
+
+/**
+ * إنهاء مؤقت قراءة آية ومنح النقاط
+ * @param amount - عدد النقاط
+ * @returns نتيجة العملية
+ */
+export const endAyahTimer = async (amount: number): Promise<PointUpdateResult> => {
+  try {
     const activeAyahKey = Object.keys(activeTimers).find(k => k.startsWith("ayah_"));
-    if (activeAyahKey) return await endTimer(activeAyahKey, 2, "quran", amount);
-    return { success: false };
+    if (activeAyahKey) {
+      return await endTimer(activeAyahKey, 2, "quran", amount);
+    }
+    return { success: false, message: "لا يوجد مؤقت نشط للآية" };
+  } catch (error) {
+    console.error("[Points] endAyahTimer error:", error);
+    return { success: false, message: "خطأ في إنهاء مؤقت الآية" };
+  }
 };
 
-export const startThikrTimer = (thikrId: string) => startTimer(`thikr_${thikrId}`);
-export const endThikrTimer = async (amount: number) => {
+/**
+ * بدء مؤقت ذكر
+ * @param thikrId - معرف الذكر
+ */
+export const startThikrTimer = (thikrId: string): void => startTimer(`thikr_${thikrId}`);
+
+/**
+ * إنهاء مؤقت ذكر ومنح النقاط
+ * @param amount - عدد النقاط
+ * @returns نتيجة العملية
+ */
+export const endThikrTimer = async (amount: number): Promise<PointUpdateResult> => {
+  try {
     const activeThikrKey = Object.keys(activeTimers).find(k => k.startsWith("thikr_"));
-    if (activeThikrKey) return await endTimer(activeThikrKey, 2, "athkar", amount);
-    return { success: false };
+    if (activeThikrKey) {
+      return await endTimer(activeThikrKey, 2, "athkar", amount);
+    }
+    return { success: false, message: "لا يوجد مؤقت نشط للذكر" };
+  } catch (error) {
+    console.error("[Points] endThikrTimer error:", error);
+    return { success: false, message: "خطأ في إنهاء مؤقت الذكر" };
+  }
 };
 
-export const addSebhaPoints = async (amount: number = 3) => await addPoints("athkar", amount);
+/**
+ * إضافة نقاط التسبيح الإلكتروني
+ * @param amount - عدد النقاط (الافتراضي: 3)
+ * @returns نتيجة العملية
+ */
+export const addSebhaPoints = async (amount: number = 3): Promise<PointUpdateResult> => {
+  try {
+    return await addPoints("athkar", amount);
+  } catch (error) {
+    console.error("[Points] addSebhaPoints error:", error);
+    return { success: false, message: "خطأ في إضافة نقاط التسبيح" };
+  }
+};
 
-export async function claimQuestPoints(questId: string, amount: number) {
+/**
+ * المطالبة بنقاط المهمة
+ * @param questId - معرف المهمة
+ * @param amount - عدد النقاط
+ * @returns نتيجة العملية
+ */
+export async function claimQuestPoints(questId: string, amount: number): Promise<PointUpdateResult> {
   const user = auth?.currentUser;
-  if (!user || !db) return { success: false };
+  if (!user || !db) {
+    return { success: false, message: "يجب تسجيل الدخول أولاً" };
+  }
   
   try {
     const questRef = doc(db, "users", user.uid, "completed_quests", questId);
     const snap = await getDoc(questRef);
-    if (snap.exists()) return { success: false, message: "تم الاستلام" };
+    
+    if (snap.exists()) {
+      return { success: false, message: "تم الاستلام مسبقاً" };
+    }
     
     const res = await addPoints("bonus", amount);
     if (res.success) {
-      await setDoc(questRef, { completedAt: serverTimestamp(), points: amount });
+      await setDoc(questRef, { 
+        completedAt: serverTimestamp(), 
+        points: amount 
+      });
     }
     return res;
-  } catch (e) {
-    return { success: false };
+  } catch (error) {
+    console.error("[Points] claimQuestPoints error:", error);
+    return { 
+      success: false, 
+      message: "خطأ في المطالبة بنقاط المهمة",
+      error: error instanceof Error ? error : new Error(String(error))
+    };
   }
 }
 
 /**
- * Award points for completing a surah, but only ONCE per surah.
+ * المطالبة بنقاط إكمال سورة (مرة واحدة فقط لكل سورة)
+ * @param surahId - رقم السورة
+ * @param amount - عدد النقاط (الافتراضي: 10)
+ * @returns نتيجة العملية
  */
-export async function claimSurahCompletionPoints(surahId: number, amount: number = 10) {
+export async function claimSurahCompletionPoints(
+  surahId: number, 
+  amount: number = 10
+): Promise<PointUpdateResult> {
   const user = auth?.currentUser;
-  if (!user || !db) return { success: false };
+  if (!user || !db) {
+    return { success: false, message: "يجب تسجيل الدخول أولاً" };
+  }
 
   try {
     const completionRef = doc(db, "users", user.uid, "completed_surahs", surahId.toString());
@@ -243,21 +394,37 @@ export async function claimSurahCompletionPoints(surahId: number, amount: number
       });
     }
     return res;
-  } catch (e) {
-    console.error("[Points] claimSurahCompletionPoints error:", e);
-    return { success: false };
+  } catch (error) {
+    console.error("[Points] claimSurahCompletionPoints error:", error);
+    return { 
+      success: false, 
+      message: "خطأ في منح نقاط إكمال السورة",
+      error: error instanceof Error ? error : new Error(String(error))
+    };
   }
 }
 
-export async function incrementVideoRenderCount() {
+/**
+ * زيادة عداد رندر الفيديوهات
+ * @returns نتيجة العملية
+ */
+export async function incrementVideoRenderCount(): Promise<PointUpdateResult> {
   const user = auth?.currentUser;
-  if (user && db) {
-    try {
-      await updateDoc(doc(db, "users", user.uid), {
-        videoRendersCount: increment(1)
-      });
-      return { success: true };
-    } catch (e) { return { success: false }; }
+  if (!user || !db) {
+    return { success: false, message: "يجب تسجيل الدخول أولاً" };
   }
-  return { success: false };
+  
+  try {
+    await updateDoc(doc(db, "users", user.uid), {
+      videoRendersCount: increment(1)
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("[Points] incrementVideoRenderCount error:", error);
+    return { 
+      success: false, 
+      message: "خطأ في تحديث عداد الفيديوهات",
+      error: error instanceof Error ? error : new Error(String(error))
+    };
+  }
 }
