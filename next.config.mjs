@@ -21,7 +21,13 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: "20mb",
     },
+    // Optimize package imports
+    optimizePackageImports: ['lucide-react', 'framer-motion', '@capacitor/core'],
   },
+  // Compression for static export
+  compress: true,
+  // Reduce JavaScript bundle size
+  swcMinify: true,
   serverExternalPackages: process.env.CAPACITOR_BUILD === 'true' ? [] : [
     "remotion",
     "@remotion/bundler",
