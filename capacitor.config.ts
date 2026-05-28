@@ -9,6 +9,11 @@ const config: CapacitorConfig = {
     cleartext: true
   },
   plugins: {
+    Geolocation: {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 60000
+    },
     PushNotifications: {
       presentationOptions: ["badge", "sound", "alert"]
     },

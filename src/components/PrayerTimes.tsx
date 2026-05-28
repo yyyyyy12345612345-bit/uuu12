@@ -189,9 +189,23 @@ export function PrayerTimes() {
     if (cached) {
       applyCalendar(cached);
       setLoading(false);
-      if (!meta || Date.now() - cached.fetchedAt > 7 * 86400000) void syncCalendar(cached.meta);
+      // If no cached location meta, try to detect location automatically
+      if (!meta || Date.now() - cached.fetchedAt > 7 * 86400000) {
+        void syncCalendar(cached.meta);
+        // Auto-detect location on first load if no location set
+        if (!meta && !localStorage.getItem('locationDetectionAttempted')) {
+          localStorage.setItem('locationDetectionAttempted', 'true');
+          setTimeout(() => detectLocation(), 1000);
+        }
+      }
     } else {
-      void syncCalendar({ city: "Cairo", country: "Egypt", label: "القاهرة، مصر" });
+      // First time user - try to detect location automatically
+      if (!localStorage.getItem('locationDetectionAttempted')) {
+        localStorage.setItem('locationDetectionAttempted', 'true');
+        void detectLocation();
+      } else {
+        void syncCalendar({ city: "Cairo", country: "Egypt", label: "القاهرة، مصر" });
+      }
     }
   }, [applyCalendar, syncCalendar]);
 
@@ -222,38 +236,100 @@ export function PrayerTimes() {
     setDraftPrayerSetting({ ...prayerSettings[activeSettingsPrayer] });
   }, [activeSettingsPrayer, prayerSettings]);
 
-  const detectLocation = async () => {
+  const detectLocation = async (retryCount = 0) => {
     setLoading(true);
     setSyncMessage("جاري تحديد موقعك...");
     try {
       let latitude = 0, longitude = 0;
+      
       if (Capacitor.isNativePlatform()) {
-        const permStatus = await Geolocation.checkPermissions();
-        let finalPerm = permStatus.location;
-        if (finalPerm !== "granted") { const r = await Geolocation.requestPermissions(); finalPerm = r.location; }
-        if (finalPerm !== "granted") throw new Error("صلاحية الموقع مطلوبة.");
-        const pos = await Geolocation.getCurrentPosition();
-        latitude = pos.coords.latitude; longitude = pos.coords.longitude;
+        // Native Android/iOS
+        try {
+          const permStatus = await Geolocation.checkPermissions();
+          let finalPerm = permStatus.location;
+          
+          if (finalPerm !== "granted") {
+            setSyncMessage("طلب إذن الوصول للموقع...");
+            const r = await Geolocation.requestPermissions();
+            finalPerm = r.location;
+          }
+          
+          if (finalPerm !== "granted") {
+            throw new Error("يرجى السماح بالوصول للموقع من إعدادات التطبيق");
+          }
+          
+          setSyncMessage("جاري الحصول على الإحداثيات...");
+          const pos = await Geolocation.getCurrentPosition({
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 60000
+          });
+          latitude = pos.coords.latitude;
+          longitude = pos.coords.longitude;
+        } catch (permError: any) {
+          console.error("Location permission error:", permError);
+          if (retryCount < 2) {
+            setSyncMessage(`محاولة ${retryCount + 2} من 3...`);
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            return await detectLocation(retryCount + 1);
+          }
+          throw new Error("فشل في الحصول على صلاحية الموقع");
+        }
       } else {
-        if (!navigator.geolocation) throw new Error("متصفحك لا يدعم تحديد الموقع.");
-        const pos = await new Promise<GeolocationPosition>((res, rej) => navigator.geolocation.getCurrentPosition(res, rej));
-        latitude = pos.coords.latitude; longitude = pos.coords.longitude;
+        // Web browser
+        if (!navigator.geolocation) {
+          throw new Error("متصفحك لا يدعم تحديد الموقع");
+        }
+        
+        try {
+          setSyncMessage("جاري الحصول على الإحداثيات...");
+          const pos = await new Promise<GeolocationPosition>((res, rej) => 
+            navigator.geolocation.getCurrentPosition(res, rej, {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 60000
+            })
+          );
+          latitude = pos.coords.latitude;
+          longitude = pos.coords.longitude;
+        } catch (geoError: any) {
+          console.error("Geolocation error:", geoError);
+          if (retryCount < 2) {
+            setSyncMessage(`محاولة ${retryCount + 2} من 3...`);
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            return await detectLocation(retryCount + 1);
+          }
+          throw new Error("فشل في تحديد الموقع - تأكد من تفعيل GPS");
+        }
       }
+      
+      setSyncMessage("جاري البحث عن المدينة...");
       let label = "موقعي الحالي";
       try {
-        const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=ar`);
+        const geoRes = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=ar`,
+          { headers: { 'User-Agent': 'QuranApp/1.0' } }
+        );
         const geoData = await geoRes.json();
         if (geoData?.address) {
           const name = geoData.address.city || geoData.address.town || geoData.address.village || geoData.address.state || "موقعي";
           label = `${name}، ${geoData.address.country || ""}`;
         }
-      } catch { }
+      } catch (revError) {
+        console.error("Reverse geocoding error:", revError);
+        label = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+      }
+      
+      setSyncMessage("جاري تحميل أوقات الصلاة...");
       await syncCalendar({ latitude, longitude, label });
-      setSyncMessage(`تم التحديث لـ: ${label}`);
+      setSyncMessage(`✓ تم التحديث: ${label}`);
     } catch (err: any) {
+      console.error("Location detection error:", err);
       alert(err.message || "فشل تحديد الموقع");
-      setSyncMessage("فشل تحديد الموقع");
-    } finally { setLoading(false); }
+      setSyncMessage("✗ فشل تحديد الموقع");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const locationLabel = calendar?.meta.label || "القاهرة، مصر";
@@ -366,7 +442,7 @@ export function PrayerTimes() {
         {/* ─── Header: Location + Date ─── */}
         <div className="flex items-center justify-between">
           <button
-            onClick={detectLocation}
+            onClick={() => detectLocation()}
             disabled={loading}
             className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-white/60 hover:text-white hover:border-white/20 transition-all text-xs font-bold disabled:opacity-50"
           >
@@ -462,7 +538,7 @@ export function PrayerTimes() {
             تحديث
           </button>
           <button
-            onClick={detectLocation}
+            onClick={() => detectLocation()}
             disabled={loading}
             className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-white/10 bg-white/[0.04] text-white/60 hover:text-white hover:border-white/20 transition-all text-xs font-black disabled:opacity-40"
           >
