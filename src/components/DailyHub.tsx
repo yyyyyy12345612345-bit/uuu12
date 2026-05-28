@@ -11,7 +11,7 @@ import {
   CheckCircle2, RotateCcw, Target, Fingerprint, 
   ArrowUpRight, ChevronRight, ChevronLeft, 
   Sun, Moon, Bed, BookOpen, Compass, MapPin, Search, Clock, Star, Video, Crown,
-  Sparkles, Heart, Quote, HandHeart
+  Sparkles, Heart, HandHeart
 } from "lucide-react";
 import { db, auth } from "@/lib/firebase";
 import { Capacitor } from '@capacitor/core';
@@ -39,41 +39,7 @@ export function DailyHub() {
   const [salawatCount, setSalawatCount] = useState<number>(0);
   const SALAWAT_DAILY_LIMIT = 1000;
 
-  // Hadith state
-  const [currentHadith, setCurrentHadith] = useState<number>(0);
-  
-  const HADITHS = [
-    {
-      id: 1,
-      text: "إنما الأعمال بالنيات وإنما لكل امرئ ما نوى، فمن كانت هجرته إلى الله ورسوله فهجرته إلى الله ورسوله، ومن كانت هجرته لدنيا يصيبها أو امرأة ينكحها فهجرته إلى ما هاجر إليه",
-      narrator: "عمر بن الخطاب رضي الله عنه",
-      source: "صحيح البخاري"
-    },
-    {
-      id: 2,
-      text: "لا يؤمن أحدكم حتى يحب لأخيه ما يحب لنفسه",
-      narrator: "أنس بن مالك رضي الله عنه",
-      source: "صحيح البخاري ومسلم"
-    },
-    {
-      id: 3,
-      text: "من كان يؤمن بالله واليوم الآخر فليقل خيراً أو ليصمت، ومن كان يؤمن بالله واليوم الآخر فليكرم جاره، ومن كان يؤمن بالله واليوم الآخر فليكرم ضيفه",
-      narrator: "أبو هريرة رضي الله عنه",
-      source: "صحيح البخاري ومسلم"
-    },
-    {
-      id: 4,
-      text: "الطهور شطر الإيمان، والحمد لله تملأ الميزان، وسبحان الله والحمد لله تملآن ما بين السماء والأرض",
-      narrator: "أبو مالك الأشعري رضي الله عنه",
-      source: "صحيح مسلم"
-    },
-    {
-      id: 5,
-      text: "اتق الله حيثما كنت، وأتبع السيئة الحسنة تمحها، وخالق الناس بخلق حسن",
-      narrator: "معاذ بن جبل رضي الله عنه",
-      source: "سنن الترمذي"
-    }
-  ];
+
 
   // Qibla state
   const [qibla, setQibla] = useState<{
@@ -84,7 +50,7 @@ export function DailyHub() {
     loading: boolean;
   }>({ heading: null, angle: null, distance: null, error: null, loading: false });
   const [scrollState, setScrollState] = useState({ left: false, right: false });
-  const [activeTab, setActiveTab] = useState<"dashboard" | "tasbeeh" | "istighfar" | "salawat" | "hadith" | "morning" | "evening" | "sleep" | "library" | "qibla">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "tasbeeh" | "istighfar" | "salawat" | "morning" | "evening" | "sleep" | "library" | "qibla">("dashboard");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const checkScroll = useCallback(() => {
@@ -147,20 +113,18 @@ export function DailyHub() {
       const savedSalawat = localStorage.getItem("salawat_count");
       if (savedSalawat) setSalawatCount(parseInt(savedSalawat, 10));
       
-      const savedHadith = localStorage.getItem("current_hadith");
-      if (savedHadith) setCurrentHadith(parseInt(savedHadith, 10));
+      
     } else {
       localStorage.setItem("daily_goal_date", today);
       localStorage.setItem("pages_read", "3");
       localStorage.setItem("sibha_count", "0");
       localStorage.setItem("istighfar_count", "0");
       localStorage.setItem("salawat_count", "0");
-      localStorage.setItem("current_hadith", "0");
+      
       setPagesRead(3);
       setSibhaCount(0);
       setIstighfarCount(0);
       setSalawatCount(0);
-      setCurrentHadith(0);
       setAthkarProgress({});
     }
 
@@ -324,17 +288,7 @@ export function DailyHub() {
     }
   };
 
-  const handleNextHadith = () => {
-    const nextIndex = (currentHadith + 1) % HADITHS.length;
-    setCurrentHadith(nextIndex);
-    localStorage.setItem("current_hadith", nextIndex.toString());
-  };
 
-  const handlePrevHadith = () => {
-    const prevIndex = (currentHadith - 1 + HADITHS.length) % HADITHS.length;
-    setCurrentHadith(prevIndex);
-    localStorage.setItem("current_hadith", prevIndex.toString());
-  };
 
   const handlePageRead = async () => {
     const res = await addPoints("quran", 2); // Reduced from 5 to 2 points
@@ -518,7 +472,7 @@ export function DailyHub() {
             { id: "tasbeeh", icon: Sparkles, label: "التسبيح" },
             { id: "istighfar", icon: Heart, label: "الاستغفار" },
             { id: "salawat", icon: HandHeart, label: "الصلاة على النبي" },
-            { id: "hadith", icon: Quote, label: "حديث اليوم" },
+            
             { id: "morning", icon: Sun, label: "الصباح" },
             { id: "evening", icon: Moon, label: "المساء" },
             { id: "sleep", icon: Bed, label: "النوم" },
@@ -819,40 +773,7 @@ export function DailyHub() {
             </div>
           )}
 
-          {activeTab === "hadith" && (
-            <div className="glass-effect p-12 rounded-[3rem] border border-border animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center text-center relative overflow-hidden shadow-2xl">
-                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em] mb-4">Hadith of the Day</span>
-                <div className="w-full max-w-2xl">
-                    <div className="bg-card/50 border border-border rounded-[2rem] p-8 mb-6">
-                        <Quote className="w-8 h-8 text-emerald-500/40 mx-auto mb-4" />
-                        <p className="text-2xl md:text-3xl font-black text-foreground leading-relaxed mb-6">
-                            {HADITHS[currentHadith].text}
-                        </p>
-                        <div className="border-t border-border pt-4">
-                            <p className="text-lg font-bold text-primary mb-1">{HADITHS[currentHadith].narrator}</p>
-                            <p className="text-sm text-foreground/40 font-bold">{HADITHS[currentHadith].source}</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center justify-center gap-4">
-                        <button 
-                            onClick={handlePrevHadith}
-                            className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center text-foreground/40 hover:text-primary hover:border-primary/40 transition-all"
-                        >
-                            <ChevronLeft className="w-6 h-6" />
-                        </button>
-                        <span className="text-sm font-black text-foreground/60">
-                            {currentHadith + 1} / {HADITHS.length}
-                        </span>
-                        <button 
-                            onClick={handleNextHadith}
-                            className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center text-foreground/40 hover:text-primary hover:border-primary/40 transition-all"
-                        >
-                            <ChevronRight className="w-6 h-6" />
-                        </button>
-                    </div>
-                </div>
-            </div>
-          )}
+
 
           {(activeTab === "morning" || activeTab === "evening" || activeTab === "sleep") && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">

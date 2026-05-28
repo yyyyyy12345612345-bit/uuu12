@@ -7,13 +7,13 @@ const geistMono = { variable: "" };
 
 export const metadata: Metadata = {
   title: {
-    default: "سكينة - القرآن الكريم | تطبيق إسلامي شامل",
-    template: "%s | سكينة - القرآن الكريم"
+    default: "يقين | Yaqeen - القرآن الكريم | تطبيق إسلامي شامل",
+    template: "%s | يقين | Yaqeen"
   },
-  description: "تطبيق سكينة الإسلامي الشامل: مصحف رقمي، مكتبة صوتية بأكثر من 50 قارئ، مواقيت صلاة دقيقة، أذكار، بوصلة قبلة، واستوديو فيديو احترافي لإنشاء محتوى إسلامي. متاح على الويب والأندرويد.",
+  description: "تطبيق يقين الإسلامي الشامل: مصحف رقمي، مكتبة صوتية بأكثر من 50 قارئ، مواقيت صلاة دقيقة، أذكار، بوصلة قبلة، واستوديو فيديو احترافي لإنشاء محتوى إسلامي. متاح على الويب والأندرويد.",
   authors: [{ name: "يوسف أسامة", url: "https://github.com/youssef" }],
   creator: "يوسف أسامة",
-  publisher: "سكينة - Islamic Digital Studio",
+  publisher: "يقين | Yaqeen - Islamic Digital Studio",
   keywords: [
     "قرآن", "قرآن كريم", "مصحف", "صلاة", "أذان", "أذكار", "قبلة", 
     "فيديوهات قرآن", "تطبيق إسلامي", "مواقيت الصلاة", "تفسير",
@@ -21,10 +21,10 @@ export const metadata: Metadata = {
     "Muslim", "Islam", "Salah", "Adhan", "Athkar"
   ],
   openGraph: {
-    title: "سكينة - القرآن الكريم",
+    title: "يقين | Yaqeen - القرآن الكريم",
     description: "تطبيق إسلامي شامل للمصحف، الصلاة، الأذكار، وصناعة الفيديوهات القرآنية",
     url: "https://quran1-mu.vercel.app",
-    siteName: "سكينة",
+    siteName: "يقين | Yaqeen",
     locale: "ar_EG",
     type: "website",
     images: [
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "سكينة - القرآن الكريم",
+    title: "يقين | Yaqeen - القرآن الكريم",
     description: "رفيقك اليومي للقرآن والعبادة",
     images: ["/logo/logo.png?v=25"],
   },
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "سكينة",
+    title: "يقين | Yaqeen",
   },
   icons: {
     icon: [
@@ -127,7 +127,7 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebApplication",
-              "name": "سكينة - القرآن الكريم",
+              "name": "يقين | Yaqeen - القرآن الكريم",
               "description": "تطبيق إسلامي شامل للمصحف، الصلاة، الأذكار، وصناعة الفيديوهات القرآنية",
               "url": "https://quran1-mu.vercel.app",
               "applicationCategory": "LifestyleApplication",
