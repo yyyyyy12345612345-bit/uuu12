@@ -6,7 +6,8 @@ import {
   Search, ShieldCheck, ChevronRight, LogIn,
   TrendingUp, Award, Crown, Phone, User, X,
   BookOpen, Headphones, Fingerprint, Calendar,
-  ArrowLeft, LayoutDashboard, ChevronLeft
+  ArrowLeft, LayoutDashboard, ChevronLeft,
+  Heart, HandHeart
 } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
 import { Capacitor } from '@capacitor/core';
@@ -59,7 +60,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
   const [loading, setLoading] = useState(true);
   const [showProfileSetup, setShowProfileSetup] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<"global" | "governorate" | "quran" | "athkar" | "listen">("global");
+  const [activeTab, setActiveTab] = useState<"global" | "governorate" | "quran" | "athkar" | "listen" | "istighfar" | "salawat">("global");
   const [activeQuests, setActiveQuests] = useState<any[]>([]);
   const [completedQuests, setCompletedQuests] = useState<string[]>([]);
   const { updateState } = useEditor();
@@ -152,7 +153,14 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
   const fetchLeaderboard = async () => {
     if (!db) return;
     try {
-      const q = query(collection(db, "users"), orderBy("totalPoints", "desc"), limit(100));
+      let orderByField = "totalPoints";
+      if (activeTab === "quran") orderByField = "quranPoints";
+      else if (activeTab === "athkar") orderByField = "athkarPoints";
+      else if (activeTab === "listen") orderByField = "listenPoints";
+      else if (activeTab === "istighfar") orderByField = "istighfarPoints";
+      else if (activeTab === "salawat") orderByField = "salawatPoints";
+      
+      const q = query(collection(db, "users"), orderBy(orderByField, "desc"), limit(100));
       const snapshot = await getDocs(q);
       let data = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter((u: any) => !u.isBanned).slice(0, 50);
       setLeaderboardData(data);
@@ -219,6 +227,8 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
         quranPoints: 0,
         athkarPoints: 0,
         listenPoints: 0,
+        istighfarPoints: 0,
+        salawatPoints: 0,
         streakDays: 0,
         badges: [],
         createdAt: new Date().toISOString(),
@@ -241,6 +251,8 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
       if (activeTab === "quran") return (b.quranPoints || 0) - (a.quranPoints || 0);
       if (activeTab === "athkar") return (b.athkarPoints || 0) - (a.athkarPoints || 0);
       if (activeTab === "listen") return (b.listenPoints || 0) - (a.listenPoints || 0);
+      if (activeTab === "istighfar") return (b.istighfarPoints || 0) - (a.istighfarPoints || 0);
+      if (activeTab === "salawat") return (b.salawatPoints || 0) - (a.salawatPoints || 0);
       return (b.totalPoints || 0) - (a.totalPoints || 0);
     });
 
@@ -425,7 +437,9 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                           { id: "governorate", label: "الدولة" },
                           { id: "quran", label: "القرآن" },
                           { id: "athkar", label: "الأذكار" },
-                          { id: "listen", label: "الاستماع" }
+                          { id: "listen", label: "الاستماع" },
+                          { id: "istighfar", label: "الاستغفار" },
+                          { id: "salawat", label: "الصلاة على النبي" }
                       ].map(tab => (
                           <button 
                             key={tab.id}
@@ -485,6 +499,14 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                                       <div className="flex flex-col items-center gap-1 opacity-20 hover:opacity-100 transition-opacity" title="نقاط الاستماع">
                                           <Headphones className="w-4 h-4" />
                                           <span className="text-[9px] font-black">{Math.round(entry.listenPoints || 0)}</span>
+                                      </div>
+                                      <div className="flex flex-col items-center gap-1 opacity-20 hover:opacity-100 transition-opacity" title="نقاط الاستغفار">
+                                          <Heart className="w-4 h-4" />
+                                          <span className="text-[9px] font-black">{Math.round(entry.istighfarPoints || 0)}</span>
+                                      </div>
+                                      <div className="flex flex-col items-center gap-1 opacity-20 hover:opacity-100 transition-opacity" title="نقاط الصلاة على النبي">
+                                          <HandHeart className="w-4 h-4" />
+                                          <span className="text-[9px] font-black">{Math.round(entry.salawatPoints || 0)}</span>
                                       </div>
                                   </div>
 

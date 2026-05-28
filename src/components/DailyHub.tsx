@@ -3,14 +3,15 @@
 import { ATHKAR } from "@/data/athkar";
 import { AthkarLibrary } from "./AthkarLibrary";
 import { QiblaCompass } from "./QiblaCompass";
-import { addPoints, addSebhaPoints, startThikrTimer, endThikrTimer, claimQuestPoints } from "@/lib/points";
+import { addPoints, addSebhaPoints, startThikrTimer, endThikrTimer, claimQuestPoints, addIstighfarPoints, addSalawatPoints } from "@/lib/points";
 import { useRouter } from "next/navigation";
 import { collection, query, where, getDocs, orderBy, limit, doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { useRef, useState, useEffect, useCallback } from "react";
 import { 
   CheckCircle2, RotateCcw, Target, Fingerprint, 
   ArrowUpRight, ChevronRight, ChevronLeft, 
-  Sun, Moon, Bed, BookOpen, Compass, MapPin, Search, Clock, Star, Video, Crown
+  Sun, Moon, Bed, BookOpen, Compass, MapPin, Search, Clock, Star, Video, Crown,
+  Sparkles, Heart, Quote, HandHeart
 } from "lucide-react";
 import { db, auth } from "@/lib/firebase";
 import { Capacitor } from '@capacitor/core';
@@ -30,6 +31,50 @@ export function DailyHub() {
   // Sibha state
   const [sibhaCount, setSibhaCount] = useState<number>(0);
 
+  // Istighfar state
+  const [istighfarCount, setIstighfarCount] = useState<number>(0);
+  const ISTIGHFAR_DAILY_LIMIT = 1000;
+
+  // Salawat state
+  const [salawatCount, setSalawatCount] = useState<number>(0);
+  const SALAWAT_DAILY_LIMIT = 1000;
+
+  // Hadith state
+  const [currentHadith, setCurrentHadith] = useState<number>(0);
+  
+  const HADITHS = [
+    {
+      id: 1,
+      text: "إنما الأعمال بالنيات وإنما لكل امرئ ما نوى، فمن كانت هجرته إلى الله ورسوله فهجرته إلى الله ورسوله، ومن كانت هجرته لدنيا يصيبها أو امرأة ينكحها فهجرته إلى ما هاجر إليه",
+      narrator: "عمر بن الخطاب رضي الله عنه",
+      source: "صحيح البخاري"
+    },
+    {
+      id: 2,
+      text: "لا يؤمن أحدكم حتى يحب لأخيه ما يحب لنفسه",
+      narrator: "أنس بن مالك رضي الله عنه",
+      source: "صحيح البخاري ومسلم"
+    },
+    {
+      id: 3,
+      text: "من كان يؤمن بالله واليوم الآخر فليقل خيراً أو ليصمت، ومن كان يؤمن بالله واليوم الآخر فليكرم جاره، ومن كان يؤمن بالله واليوم الآخر فليكرم ضيفه",
+      narrator: "أبو هريرة رضي الله عنه",
+      source: "صحيح البخاري ومسلم"
+    },
+    {
+      id: 4,
+      text: "الطهور شطر الإيمان، والحمد لله تملأ الميزان، وسبحان الله والحمد لله تملآن ما بين السماء والأرض",
+      narrator: "أبو مالك الأشعري رضي الله عنه",
+      source: "صحيح مسلم"
+    },
+    {
+      id: 5,
+      text: "اتق الله حيثما كنت، وأتبع السيئة الحسنة تمحها، وخالق الناس بخلق حسن",
+      narrator: "معاذ بن جبل رضي الله عنه",
+      source: "سنن الترمذي"
+    }
+  ];
+
   // Qibla state
   const [qibla, setQibla] = useState<{
     heading: number | null;
@@ -39,7 +84,7 @@ export function DailyHub() {
     loading: boolean;
   }>({ heading: null, angle: null, distance: null, error: null, loading: false });
   const [scrollState, setScrollState] = useState({ left: false, right: false });
-  const [activeTab, setActiveTab] = useState<"dashboard" | "sibha" | "morning" | "evening" | "sleep" | "library" | "qibla">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "tasbeeh" | "istighfar" | "salawat" | "hadith" | "morning" | "evening" | "sleep" | "library" | "qibla">("dashboard");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const checkScroll = useCallback(() => {
@@ -95,12 +140,27 @@ export function DailyHub() {
       
       const savedSibha = localStorage.getItem("sibha_count");
       if (savedSibha) setSibhaCount(parseInt(savedSibha, 10));
+      
+      const savedIstighfar = localStorage.getItem("istighfar_count");
+      if (savedIstighfar) setIstighfarCount(parseInt(savedIstighfar, 10));
+      
+      const savedSalawat = localStorage.getItem("salawat_count");
+      if (savedSalawat) setSalawatCount(parseInt(savedSalawat, 10));
+      
+      const savedHadith = localStorage.getItem("current_hadith");
+      if (savedHadith) setCurrentHadith(parseInt(savedHadith, 10));
     } else {
       localStorage.setItem("daily_goal_date", today);
       localStorage.setItem("pages_read", "3");
       localStorage.setItem("sibha_count", "0");
+      localStorage.setItem("istighfar_count", "0");
+      localStorage.setItem("salawat_count", "0");
+      localStorage.setItem("current_hadith", "0");
       setPagesRead(3);
       setSibhaCount(0);
+      setIstighfarCount(0);
+      setSalawatCount(0);
+      setCurrentHadith(0);
       setAthkarProgress({});
     }
 
@@ -228,6 +288,52 @@ export function DailyHub() {
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       navigator.vibrate(50); 
     }
+  };
+
+  const handleIstighfarClick = () => {
+    const now = Date.now();
+    if (now - lastClickTime.current < 150) return;
+    if (istighfarCount >= ISTIGHFAR_DAILY_LIMIT) {
+      alert("لقد وصلت للحد اليومي (1000 استغفار)");
+      return;
+    }
+    lastClickTime.current = now;
+    const newCount = istighfarCount + 1;
+    setIstighfarCount(newCount);
+    localStorage.setItem("istighfar_count", newCount.toString());
+    addIstighfarPoints(1);
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(30); 
+    }
+  };
+
+  const handleSalawatClick = () => {
+    const now = Date.now();
+    if (now - lastClickTime.current < 150) return;
+    if (salawatCount >= SALAWAT_DAILY_LIMIT) {
+      alert("لقد وصلت للحد اليومي (1000 صلاة على النبي)");
+      return;
+    }
+    lastClickTime.current = now;
+    const newCount = salawatCount + 1;
+    setSalawatCount(newCount);
+    localStorage.setItem("salawat_count", newCount.toString());
+    addSalawatPoints(1);
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(30); 
+    }
+  };
+
+  const handleNextHadith = () => {
+    const nextIndex = (currentHadith + 1) % HADITHS.length;
+    setCurrentHadith(nextIndex);
+    localStorage.setItem("current_hadith", nextIndex.toString());
+  };
+
+  const handlePrevHadith = () => {
+    const prevIndex = (currentHadith - 1 + HADITHS.length) % HADITHS.length;
+    setCurrentHadith(prevIndex);
+    localStorage.setItem("current_hadith", prevIndex.toString());
   };
 
   const handlePageRead = async () => {
@@ -409,10 +515,13 @@ export function DailyHub() {
         <div ref={scrollRef} onScroll={checkScroll} className="flex w-full rounded-[2.5rem] p-2 bg-card border border-border overflow-x-auto horizontal-scroll no-scrollbar snap-x">
           {[
             { id: "dashboard", icon: Star, label: "الرئيسية" },
+            { id: "tasbeeh", icon: Sparkles, label: "التسبيح" },
+            { id: "istighfar", icon: Heart, label: "الاستغفار" },
+            { id: "salawat", icon: HandHeart, label: "الصلاة على النبي" },
+            { id: "hadith", icon: Quote, label: "حديث اليوم" },
             { id: "morning", icon: Sun, label: "الصباح" },
             { id: "evening", icon: Moon, label: "المساء" },
             { id: "sleep", icon: Bed, label: "النوم" },
-            { id: "sibha", icon: Fingerprint, label: "السبحة" },
             { id: "library", icon: BookOpen, label: "المكتبة" },
             { id: "qibla", icon: Compass, label: "القبلة" }
           ].map((t) => (
@@ -652,7 +761,7 @@ export function DailyHub() {
             </div>
           )}
 
-          {activeTab === "sibha" && (
+          {activeTab === "tasbeeh" && (
             <div className="glass-effect p-12 rounded-[3rem] border border-border animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center text-center relative overflow-hidden shadow-2xl">
                 <button onClick={() => setSibhaCount(0)} className="absolute top-8 left-8 w-12 h-12 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/40 hover:text-primary transition-all"><RotateCcw className="w-6 h-6" /></button>
                 <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4">Tasbeeh Engine</span>
@@ -669,6 +778,79 @@ export function DailyHub() {
                     </div>
                 </div>
                 <p className="mt-12 text-foreground/30 font-black uppercase tracking-widest text-xs">اضغط للتسبيح • الاهتزاز مفعل</p>
+            </div>
+          )}
+
+          {activeTab === "istighfar" && (
+            <div className="glass-effect p-12 rounded-[3rem] border border-border animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center text-center relative overflow-hidden shadow-2xl">
+                <button onClick={() => setIstighfarCount(0)} className="absolute top-8 left-8 w-12 h-12 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/40 hover:text-rose-500 transition-all"><RotateCcw className="w-6 h-6" /></button>
+                <span className="text-[10px] font-black text-rose-500 uppercase tracking-[0.3em] mb-4">Istighfar Counter</span>
+                <div className="h-24 mb-12 flex items-center justify-center">
+                    <p className="text-3xl md:text-4xl font-black text-foreground drop-shadow-md">أَسْتَغْفِرُ اللَّهَ</p>
+                </div>
+                <div className="relative group cursor-pointer active:scale-95 transition-all duration-300" onClick={handleIstighfarClick}>
+                    <div className="absolute inset-0 bg-rose-500/20 rounded-full blur-[60px] animate-pulse" />
+                    <div className="w-64 h-64 md:w-80 md:h-80 rounded-full bg-card border-2 border-rose-500/20 flex flex-col items-center justify-center relative z-10 shadow-inner">
+                        <span className="text-8xl font-black text-foreground mb-2" style={{ direction: 'ltr' }}>{istighfarCount}</span>
+                        <span className="text-sm font-bold text-rose-500">/ {ISTIGHFAR_DAILY_LIMIT}</span>
+                        <Heart className="w-10 h-10 text-rose-500/40 mt-2" />
+                    </div>
+                </div>
+                <p className="mt-12 text-foreground/30 font-black uppercase tracking-widest text-xs">اضغط للاستغفار • الحد اليومي: 1000</p>
+            </div>
+          )}
+
+          {activeTab === "salawat" && (
+            <div className="glass-effect p-12 rounded-[3rem] border border-border animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center text-center relative overflow-hidden shadow-2xl">
+                <button onClick={() => setSalawatCount(0)} className="absolute top-8 left-8 w-12 h-12 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/40 hover:text-blue-500 transition-all"><RotateCcw className="w-6 h-6" /></button>
+                <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] mb-4">Salawat Counter</span>
+                <div className="h-24 mb-12 flex items-center justify-center">
+                    <p className="text-3xl md:text-4xl font-black text-foreground drop-shadow-md">اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ</p>
+                </div>
+                <div className="relative group cursor-pointer active:scale-95 transition-all duration-300" onClick={handleSalawatClick}>
+                    <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-[60px] animate-pulse" />
+                    <div className="w-64 h-64 md:w-80 md:h-80 rounded-full bg-card border-2 border-blue-500/20 flex flex-col items-center justify-center relative z-10 shadow-inner">
+                        <span className="text-8xl font-black text-foreground mb-2" style={{ direction: 'ltr' }}>{salawatCount}</span>
+                        <span className="text-sm font-bold text-blue-500">/ {SALAWAT_DAILY_LIMIT}</span>
+                        <HandHeart className="w-10 h-10 text-blue-500/40 mt-2" />
+                    </div>
+                </div>
+                <p className="mt-12 text-foreground/30 font-black uppercase tracking-widest text-xs">اضغط للصلاة على النبي • الحد اليومي: 1000</p>
+            </div>
+          )}
+
+          {activeTab === "hadith" && (
+            <div className="glass-effect p-12 rounded-[3rem] border border-border animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center text-center relative overflow-hidden shadow-2xl">
+                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em] mb-4">Hadith of the Day</span>
+                <div className="w-full max-w-2xl">
+                    <div className="bg-card/50 border border-border rounded-[2rem] p-8 mb-6">
+                        <Quote className="w-8 h-8 text-emerald-500/40 mx-auto mb-4" />
+                        <p className="text-2xl md:text-3xl font-black text-foreground leading-relaxed mb-6">
+                            {HADITHS[currentHadith].text}
+                        </p>
+                        <div className="border-t border-border pt-4">
+                            <p className="text-lg font-bold text-primary mb-1">{HADITHS[currentHadith].narrator}</p>
+                            <p className="text-sm text-foreground/40 font-bold">{HADITHS[currentHadith].source}</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center justify-center gap-4">
+                        <button 
+                            onClick={handlePrevHadith}
+                            className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center text-foreground/40 hover:text-primary hover:border-primary/40 transition-all"
+                        >
+                            <ChevronLeft className="w-6 h-6" />
+                        </button>
+                        <span className="text-sm font-black text-foreground/60">
+                            {currentHadith + 1} / {HADITHS.length}
+                        </span>
+                        <button 
+                            onClick={handleNextHadith}
+                            className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center text-foreground/40 hover:text-primary hover:border-primary/40 transition-all"
+                        >
+                            <ChevronRight className="w-6 h-6" />
+                        </button>
+                    </div>
+                </div>
             </div>
           )}
 

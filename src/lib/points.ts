@@ -26,7 +26,9 @@ const DAILY_LIMITS: Record<string, number> = {
   athkar: 200,
   listen: 200,
   video: 100,
-  bonus: 1000   
+  bonus: 1000,
+  istighfar: 1000,
+  salawat: 1000
 };
 
 // Internal state to track active timers
@@ -110,7 +112,9 @@ export async function addPoints(type: string, amount: number = 1): Promise<Point
         quran: "quranPoints",
         athkar: "athkarPoints",
         listen: "listenPoints",
-        video: "videoPoints"
+        video: "videoPoints",
+        istighfar: "istighfarPoints",
+        salawat: "salawatPoints"
       };
 
       const updateData: Record<string, any> = {
@@ -321,6 +325,34 @@ export const addSebhaPoints = async (amount: number = 3): Promise<PointUpdateRes
   } catch (error) {
     console.error("[Points] addSebhaPoints error:", error);
     return { success: false, message: "خطأ في إضافة نقاط التسبيح" };
+  }
+};
+
+/**
+ * إضافة نقاط الاستغفار
+ * @param amount - عدد النقاط (الافتراضي: 1)
+ * @returns نتيجة العملية
+ */
+export const addIstighfarPoints = async (amount: number = 1): Promise<PointUpdateResult> => {
+  try {
+    return await addPoints("istighfar", amount);
+  } catch (error) {
+    console.error("[Points] addIstighfarPoints error:", error);
+    return { success: false, message: "خطأ في إضافة نقاط الاستغفار" };
+  }
+};
+
+/**
+ * إضافة نقاط الصلاة على النبي
+ * @param amount - عدد النقاط (الافتراضي: 1)
+ * @returns نتيجة العملية
+ */
+export const addSalawatPoints = async (amount: number = 1): Promise<PointUpdateResult> => {
+  try {
+    return await addPoints("salawat", amount);
+  } catch (error) {
+    console.error("[Points] addSalawatPoints error:", error);
+    return { success: false, message: "خطأ في إضافة نقاط الصلاة على النبي" };
   }
 };
 
