@@ -28,7 +28,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
   const { userPlan: currentPlanData } = useUserPlan();
   const [isPending, setIsPending] = useState(false);
 
-  const [payMethod, setPayMethod] = useState<"vodafone" | "instapay" | "fawry">("vodafone");
+  const [payMethod, setPayMethod] = useState<"vodafone" | "instapay">("vodafone");
   const [formData, setFormData] = useState({
     platformLink: "",
     senderInfo: "",
@@ -126,7 +126,6 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
   const PAYMENT_METHODS = [
     { id: "vodafone", name: "فودافون كاش", icon: Smartphone, color: "from-red-500 to-red-600", number: pricing.vodafoneCash || "01000000000" },
     { id: "instapay", name: "Instapay", icon: CreditCard, color: "from-purple-500 to-indigo-600", number: pricing.instapay || "id@instapay" },
-    { id: "fawry", name: "Fawry Pay", icon: Building, color: "from-orange-500 to-orange-600", number: "كود Fawry: 12345" },
   ];
 
   const PLANS = [
@@ -254,7 +253,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
         </div>
 
         {/* Right Section: Checkout */}
-        <div className="flex-1 p-8 lg:p-16 flex flex-col justify-center relative z-10 bg-gradient-to-br from-black/30 to-transparent">
+        <div className="flex-1 p-8 lg:p-16 flex flex-col justify-center relative z-10 bg-gradient-to-br from-black/30 to-transparent overflow-hidden">
             {activeTab === "plans" ? (
                 <div className="animate-in fade-in slide-in-from-left-8 duration-500 space-y-8">
                     <div className="text-right">
@@ -314,7 +313,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                     )}
                 </div>
             ) : (
-                <form onSubmit={handleSubmitRequest} className="animate-in fade-in slide-in-from-right-8 duration-500 space-y-6">
+                <form onSubmit={handleSubmitRequest} className="animate-in fade-in slide-in-from-right-8 duration-500 space-y-6 overflow-y-auto no-scrollbar max-h-[calc(90vh-12rem)] pb-4">
                     <div className="flex items-center justify-between mb-4">
                         <button 
                           type="button" 
@@ -330,7 +329,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                     {/* Method Choice Selection */}
                     <div className="space-y-3 text-right">
                         <label className="text-[11px] font-black text-white/20 uppercase tracking-[0.4em] px-4 block">اختر طريقة التحويل</label>
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-2 gap-3">
                             {PAYMENT_METHODS.map((method) => (
                                 <button
                                     key={method.id}
@@ -374,14 +373,14 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                     <div className="space-y-5">
                         <div className="space-y-2 text-right">
                             <label className="text-[11px] font-black text-white/20 uppercase tracking-[0.4em] px-4 block">
-                                {payMethod === "vodafone" ? "رقم الهاتف المحول منه" : payMethod === "instapay" ? "اسم الحساب أو عنوان Instapay" : "رقم فوري المرجعي"}
+                                {payMethod === "vodafone" ? "رقم الهاتف المحول منه" : "اسم الحساب أو عنوان Instapay"}
                             </label>
                             <input 
                                 required
                                 value={formData.senderInfo}
                                 onChange={e => setFormData({...formData, senderInfo: e.target.value})}
                                 className="w-full bg-white/5 border-2 border-white/5 rounded-2xl py-5 px-6 text-right outline-none focus:border-primary/50 transition-all font-bold text-white shadow-xl text-sm hover:bg-white/[0.07]"
-                                placeholder={payMethod === "vodafone" ? "010XXXXXXXX" : payMethod === "instapay" ? "username@instapay" : "أدخل رقم فوري"}
+                                placeholder={payMethod === "vodafone" ? "010XXXXXXXX" : "username@instapay"}
                             />
                         </div>
 
