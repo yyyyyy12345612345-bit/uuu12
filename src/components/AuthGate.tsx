@@ -36,7 +36,22 @@ const AVATARS = {
     "https://api.dicebear.com/9.x/avataaars/svg?seed=Omar&top=shortRound&facialHairProbability=100&accessoriesProbability=0",
     "https://api.dicebear.com/9.x/avataaars/svg?seed=Ali&top=shortCurly&facialHairProbability=100&accessoriesProbability=0",
     "https://api.dicebear.com/9.x/avataaars/svg?seed=Hassan&top=shortWaved&facialHairProbability=100&accessoriesProbability=0",
-    "https://api.dicebear.com/9.x/avataaars/svg?seed=Zaid&top=theCaesar&facialHairProbability=100&accessoriesProbability=0"
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Zaid&top=theCaesar&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Mustafa&top=shortFlat&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Youssef&top=shortRound&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Ibrahim&top=shortCurly&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Karim&top=shortWaved&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Amr&top=theCaesar&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Khaled&top=shortFlat&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Tariq&top=shortRound&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Bilal&top=shortCurly&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Hamza&top=shortWaved&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Salem&top=theCaesar&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Nasser&top=shortFlat&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Fahad&top=shortRound&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Majed&top=shortCurly&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Waleed&top=shortWaved&facialHairProbability=100&accessoriesProbability=0",
+    "https://api.dicebear.com/9.x/avataaars/svg?seed=Rami&top=theCaesar&facialHairProbability=100&accessoriesProbability=0"
   ],
   female: [
     "https://api.dicebear.com/9.x/avataaars/svg?seed=Aisha&top=hijab&accessoriesProbability=0",
