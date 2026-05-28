@@ -59,6 +59,7 @@ export async function addPoints(type: string, amount: number = 1): Promise<Point
   // --------------------------
 
   // --- Daily Limit Logic ---
+  let finalPointsToAdd = pointsToAdd;
   try {
     const today = new Date().toDateString();
     const limitDateKey = "points_limit_date";
@@ -78,7 +79,7 @@ export async function addPoints(type: string, amount: number = 1): Promise<Point
       return { success: false, message: "لقد وصلت للحد الأقصى للنقاط لهذا النشاط اليوم" };
     }
 
-    const finalPointsToAdd = Math.min(pointsToAdd, limit - currentEarned);
+    finalPointsToAdd = Math.min(pointsToAdd, limit - currentEarned);
     localStorage.setItem(earnedTodayKey, (currentEarned + finalPointsToAdd).toString());
     lastAwardedAt[type] = now;
   } catch (error) {

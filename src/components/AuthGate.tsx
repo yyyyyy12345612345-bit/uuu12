@@ -760,14 +760,14 @@ export function AuthGate({ children }: AuthGateProps) {
                 </div>
                 
                 <form onSubmit={handleRegisterNext} className="w-full space-y-3.5">
-                  <InputField icon={<User />} type="text" value={formData.displayName} onChange={(v) => setFormData({...formData, displayName: v})} placeholder="الاسم الحقيقي" />
+                  <InputField icon={<User />} type="text" value={formData.displayName} onChange={(v: string) => setFormData({...formData, displayName: v})} placeholder="الاسم الحقيقي" />
                   
                   <div className="grid grid-cols-2 gap-2.5">
-                    <InputField icon={<User />} type="text" value={formData.username} onChange={(v) => setFormData({...formData, username: v.toLowerCase().replace(/[^a-z0-9_]/g, '')})} placeholder="youssef_1" dir="ltr" />
-                    <InputField icon={<Phone />} type="email" value={formData.email} onChange={(v) => setFormData({...formData, email: v})} placeholder="البريد الإلكتروني" dir="ltr" />
+                    <InputField icon={<User />} type="text" value={formData.username} onChange={(v: string) => setFormData({...formData, username: v.toLowerCase().replace(/[^a-z0-9_]/g, '')})} placeholder="youssef_1" dir="ltr" />
+                    <InputField icon={<Phone />} type="email" value={formData.email} onChange={(v: string) => setFormData({...formData, email: v})} placeholder="البريد الإلكتروني" dir="ltr" />
                   </div>
                   
-                  <InputField icon={<KeyRound />} type="password" value={formData.password} onChange={(v) => {
+                  <InputField icon={<KeyRound />} type="password" value={formData.password} onChange={(v: string) => {
                     setFormData({...formData, password: v});
                     setShowWeakPasswordWarning(false);
                     if (error.includes("ضعيفة")) setError("");

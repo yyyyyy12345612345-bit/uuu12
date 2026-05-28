@@ -14,6 +14,7 @@ export function AyahSearchModal({ isOpen, onClose }: { isOpen: boolean; onClose:
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const { updateState } = useEditor();
 
   const normalizeArabic = (text: string) => {

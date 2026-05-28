@@ -533,7 +533,6 @@ export function PrayerTimes() {
                   }
                 >
                   <span>{m.name}</span>
-                  <span className="text-[10px] opacity-50">{m.muezzinName}</span>
                 </button>
               ))}
             </div>

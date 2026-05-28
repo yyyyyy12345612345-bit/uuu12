@@ -49,8 +49,8 @@ export function VideoPreview() {
   const visualizerCanvasRef = useRef<HTMLCanvasElement>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
-  const sourceNodeRef = useRef<MediaElementSourceNode | null>(null);
-  const animationFrameRef = useRef<number>();
+  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const animationFrameRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     if (!audioRef.current || !state.showVisualizer || !audioContextRef.current) return;
@@ -372,11 +372,9 @@ export function VideoPreview() {
             <div 
               key={currentAyahIndex} 
               className={`flex flex-col gap-8 w-full transition-all duration-1000 ${
-                state.animation === 'scale' ? 'animate-in zoom-in-50 fade-in' : 
                 state.animation === 'slide' ? 'animate-in slide-in-from-bottom-32 fade-in' : 
-                state.animation === 'blur' ? 'animate-in fade-in blur-in duration-1000' :
                 state.animation === 'zoom' ? 'animate-in zoom-in-150 fade-in duration-1000' :
-                state.animation === 'flip' ? 'animate-in flip-in-x fade-in' :
+                state.animation === 'fly' ? 'animate-in slide-in-from-right-32 fade-in duration-1000' :
                 state.animation === 'bounce' ? 'animate-in slide-in-from-top-32 fade-in duration-1000' :
                 state.animation === 'glitch' ? 'animate-in skew-x-12 fade-in duration-100' :
                 'animate-in fade-in duration-1000'

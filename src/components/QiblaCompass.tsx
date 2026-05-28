@@ -49,14 +49,19 @@ export function QiblaCompass({ qiblaAngle, distance, onRequestLocation, isLoadin
   // Handle device orientation for real-time compass
   useEffect(() => {
     if (typeof window !== "undefined") {
-      if (typeof (DeviceOrientationEvent as any).requestPermission === "function") {
+      const DeviceOrientationEventAny = DeviceOrientationEvent as any;
+      if (typeof DeviceOrientationEventAny.requestPermission === "function") {
         setRequiresPermission(true);
       }
 
-      if ("ondeviceorientationabsolute" in window) {
-        window.addEventListener("deviceorientationabsolute", handleOrientation, true);
-      } else if ("DeviceOrientationEvent" in window) {
-        window.addEventListener("deviceorientation", handleOrientation, true);
+      const hasAbsolute = "ondeviceorientationabsolute" in window;
+      const hasDeviceOrientation = "DeviceOrientationEvent" in window;
+      
+      if (hasAbsolute) {
+        const win = window as any;
+        win.addEventListener("deviceorientationabsolute", handleOrientation, true);
+      } else if (hasDeviceOrientation) {
+        window.addEventListener("deviceorientation", handleOrientation as any, true);
       } else {
         setIsSupported(false);
       }
@@ -64,30 +69,36 @@ export function QiblaCompass({ qiblaAngle, distance, onRequestLocation, isLoadin
 
     return () => {
       if (typeof window !== "undefined") {
-        window.removeEventListener("deviceorientationabsolute", handleOrientation, true);
-        window.removeEventListener("deviceorientation", handleOrientation, true);
+        const win = window as any;
+        win.removeEventListener("deviceorientationabsolute", handleOrientation, true);
+        window.removeEventListener("deviceorientation", handleOrientation as any, true);
       }
     };
   }, [handleOrientation]);
 
   // Request iOS Sensor Permissions
   const requestSensorPermission = async () => {
-    if (typeof window !== "undefined" && typeof (DeviceOrientationEvent as any).requestPermission === "function") {
-      try {
-        const response = await (DeviceOrientationEvent as any).requestPermission();
-        if (response === "granted") {
-          setRequiresPermission(false);
-          // Re-bind to ensure listener starts immediately
-          if ("ondeviceorientationabsolute" in window) {
-            window.addEventListener("deviceorientationabsolute", handleOrientation, true);
+    if (typeof window !== "undefined") {
+      const DeviceOrientationEventAny = DeviceOrientationEvent as any;
+      if (typeof DeviceOrientationEventAny.requestPermission === "function") {
+        try {
+          const response = await DeviceOrientationEventAny.requestPermission();
+          if (response === "granted") {
+            setRequiresPermission(false);
+            // Re-bind to ensure listener starts immediately
+            const hasAbsolute = "ondeviceorientationabsolute" in window;
+            if (hasAbsolute) {
+              const win = window as any;
+              win.addEventListener("deviceorientationabsolute", handleOrientation, true);
+            } else {
+              window.addEventListener("deviceorientation", handleOrientation as any, true);
+            }
           } else {
-            window.addEventListener("deviceorientation", handleOrientation, true);
+            alert("تم رفض صلاحية مستشعر الاتجاه.");
           }
-        } else {
-          alert("تم رفض صلاحية مستشعر الاتجاه.");
+        } catch (err) {
+          console.error("Error requesting device orientation permission:", err);
         }
-      } catch (err) {
-        console.error("Error requesting device orientation permission:", err);
       }
     }
   };
