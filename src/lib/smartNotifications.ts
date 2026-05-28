@@ -18,6 +18,7 @@ const DAILY_REMINDER_KEY = 'smart_notif_daily_last';
 const KAHF_REMINDER_KEY = 'smart_notif_kahf_last';
 const NOTIF_SETTINGS_KEY = 'user_notif_settings';
 const USER_DAILY_POINTS_KEY = 'user_daily_points_cache';
+const ATHKAR_REMINDER_KEY = 'smart_notif_athkar_last';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export interface NotifSettings {
@@ -28,6 +29,8 @@ export interface NotifSettings {
   // Salawat (صلي على النبي) settings
   salawatEnabled: boolean;
   salawatIntervalMinutes: number; // every X minutes
+  // Athkar reminders
+  athkarReminders: boolean;
 }
 
 interface UserPointsCache {
@@ -45,6 +48,7 @@ export function defaultSettings(): NotifSettings {
     reminderHour: 9,
     salawatEnabled: false,
     salawatIntervalMinutes: 60,
+    athkarReminders: true,
   };
 }
 
@@ -357,6 +361,78 @@ export function checkFridayKahfReminder(): void {
   localStorage.setItem(KAHF_REMINDER_KEY, today);
 }
 
+// ─── Forgotten Athkar Reminders ───────────────────────────────────────────────
+const ATHKAR_REMINDERS = [
+  {
+    id: 'morning',
+    title: '🌅 أذكار الصباح',
+    body: 'لم تقرأ أذكار الصباح بعد! ابدأ يومك بذكر الله 💚',
+    timeRange: { start: 5, end: 10 }, // 5 AM - 10 AM
+  },
+  {
+    id: 'evening',
+    title: '🌇 أذكار المساء',
+    body: 'وقت أذكار المساء! حصّن نفسك بالذكر قبل الغروب 🌙',
+    timeRange: { start: 15, end: 19 }, // 3 PM - 7 PM
+  },
+  {
+    id: 'sleep',
+    title: '😴 أذكار النوم',
+    body: 'قبل ما تنام، لا تنس أذكار النوم. تحميك طول الليل ✨',
+    timeRange: { start: 21, end: 24 }, // 9 PM - 12 AM
+  },
+  {
+    id: 'wakeup',
+    title: '☀️ أذكار الاستيقاظ',
+    body: 'صباح الخير! ابدأ يومك بأذكار الاستيقاظ والحمد لله 🌟',
+    timeRange: { start: 5, end: 9 }, // 5 AM - 9 AM
+  },
+  {
+    id: 'home_exit',
+    title: '🚪 أذكار الخروج من المنزل',
+    body: 'خارج البيت؟ لا تنس دعاء الخروج: "بسم الله، توكلت على الله" 🤲',
+    timeRange: { start: 6, end: 22 }, // 6 AM - 10 PM (all day)
+  },
+  {
+    id: 'home_enter',
+    title: '🏠 أذكار دخول المنزل',
+    body: 'داخل البيت؟ قل: "بسم الله ولجنا وبسم الله خرجنا" 🏡',
+    timeRange: { start: 6, end: 24 }, // All day
+  },
+];
+
+export function checkAthkarReminders(): void {
+  const settings = getNotifSettings();
+  if (!settings.allowNotifications || !settings.athkarReminders) return;
+
+  const now = new Date();
+  const currentHour = now.getHours();
+  const today = now.toDateString();
+
+  // Check which athkar reminders should be shown
+  ATHKAR_REMINDERS.forEach((reminder) => {
+    const { start, end } = reminder.timeRange;
+    
+    // Check if current time is within the reminder's time range
+    if (currentHour >= start && currentHour < end) {
+      const reminderKey = `${ATHKAR_REMINDER_KEY}_${reminder.id}_${today}`;
+      const lastShown = localStorage.getItem(reminderKey);
+      
+      // Only show once per day per reminder type
+      if (lastShown !== today) {
+        showNotification(
+          reminder.title,
+          reminder.body,
+          '/logo/logo.png',
+          `athkar-${reminder.id}`,
+          true
+        );
+        localStorage.setItem(reminderKey, today);
+      }
+    }
+  });
+}
+
 // ─── Salawat Reminder ─────────────────────────────────────────────────────────
 let salawatInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -405,12 +481,14 @@ export async function initSmartNotifications(): Promise<void> {
   // Run immediately
   await checkDailyReminder();
   checkFridayKahfReminder();
+  checkAthkarReminders();
 
   // Periodic checks every 30 minutes
   if (mainInterval) clearInterval(mainInterval);
   mainInterval = setInterval(async () => {
     await checkDailyReminder();
     checkFridayKahfReminder();
+    checkAthkarReminders();
   }, 30 * 60 * 1000);
 
   // Start salawat if enabled
