@@ -63,6 +63,21 @@ export async function POST(req: Request) {
       ? leaderboard.map((u: any, idx: number) => `${idx + 1}. ${u.displayName} (@${u.username}) - ${u.totalPoints} نقطة - ${u.country}`).join("\n")
       : "1. يوسف أسامة (@youssef) - 5000 نقطة - مصر\n2. أحمد علي (@ahmed) - 4200 نقطة - السعودية\n3. عمر فاروق (@omar) - 3800 نقطة - الإمارات";
 
+    // ── نصيحة ذكية بناءً على ترتيب المستخدم في اللوحة ──
+    let smartTip: string;
+    if (!userData) {
+      smartTip = "سجل دخولك الآن لتبدأ رحلتك في جمع الحسنات والنقاط!";
+    } else {
+      const userRank = leaderboard?.findIndex((u: any) => u.username === userData.username);
+      if (userRank !== undefined && userRank >= 0 && userRank < 3) {
+        smartTip = `ما شاء الله! أنت من المتصدرين الأوائل (المركز ${userRank + 1})! استمر في القراءة والأذكار للمحافظة على صدارتك 🌟`;
+      } else if (userRank !== undefined && userRank >= 0) {
+        smartTip = `أنت في المركز ${userRank + 1}. ركز على قراءة الصفحات الكاملة (+5 نقاط) وختم السور (+10 نقاط) لتتسلق الترتيب بسرعة! 💪`;
+      } else {
+        smartTip = "ابدأ رحلتك اليوم! كل آية تقرأها، كل ذكر تقوله، يرفعك في لوحة الشرف ويكتب لك حسنات! ✨";
+      }
+    }
+
     // ── نظام تعليمات النظام ──
     const systemPrompt = `أنت "يقين" - المساعد الذكي الإسلامي المتطور والخبير في العلوم الإسلامية والقرآنية.
 
@@ -104,16 +119,7 @@ export async function POST(req: Request) {
 ${leaderboardList}
 
 نصيحة ذكية:
-${(() => {
-  if (!userData) return "سجل دخولك الآن لتبدأ رحلتك في جمع الحسنات والنقاط!";
-  const userRank = leaderboard?.findIndex((u: any) => u.username === userData.username);
-  if (userRank !== undefined && userRank >= 0 && userRank < 3) {
-    return \`ما شاء الله! أنت من المتصدرين الأوائل (المركز \${userRank + 1})! استمر في القراءة والأذكار للمحافظة على صدارتك 🌟\`;
-  } else if (userRank !== undefined && userRank >= 0) {
-    return \`أنت في المركز \${userRank + 1}. ركز على قراءة الصفحات الكاملة (+5 نقاط) وختم السور (+10 نقاط) لتتسلق الترتيب بسرعة! 💪\`;
-  }
-  return "ابدأ رحلتك اليوم! كل آية تقرأها، كل ذكر تقوله، يرفعك في لوحة الشرف ويكتب لك حسنات! ✨";
-})()}
+${smartTip}
 
 ═══════════════════════════════════════
 📖 نظام النقاط والمكافآت:
