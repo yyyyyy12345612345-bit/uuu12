@@ -1,5 +1,5 @@
 /**
- * ⚡ HYPER RENDER v21 — THE ULTIMATE SPEED DEMON
+ * ⚡ HYPER RENDER v22 — THE ULTIMATE SPEED DEMON
  * ==================================================
  * ✅ Sharp Composite: الدمج في الذاكرة (أسرع 100 مرة)
  * ✅ Fast Portrait Crop: قص الخلفية تلقائياً لتناسب الموبايل
@@ -429,5 +429,5 @@ app.get("/status/:jobId", (req, res) => {
 });
 
 app.listen(7860, "0.0.0.0", () => {
-  console.log("🚀 Hyper Render v21 Online on Port 7860");
+  console.log("🚀 Hyper Render v22 Online on Port 7860");
 });

@@ -411,7 +411,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                   </div>
                )}
                <div className="p-8 border-t border-white/5 text-center bg-black/40">
-                  <span className="text-[9px] font-black text-white/10 uppercase tracking-[0.5em]">الإصدار العالمي الفائق V 21</span>
+                  <span className="text-[9px] font-black text-white/10 uppercase tracking-[0.5em]">الإصدار العالمي الفائق V 22</span>
                </div>
             </div>
          </div>

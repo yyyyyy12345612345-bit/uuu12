@@ -10,8 +10,8 @@
  * - Desktop browsers
  */
 
-const APP_LOGO = 'https://quran1mu.vercel.app/logo/logo.png';
-const APP_LOGO_FULL = 'https://quran1mu.vercel.app/logo/logo.png';
+const APP_LOGO = 'https://yaqeen-app.vercel.app/logo/logo.png';
+const APP_LOGO_FULL = 'https://yaqeen-app.vercel.app/logo/logo.png';
 
 export interface MediaInfo {
   /** e.g. "سورة الفاتحة" */

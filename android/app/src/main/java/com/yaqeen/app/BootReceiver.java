@@ -1,4 +1,4 @@
-package quran1mu.vercel.app;
+package com.yaqeen.app;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

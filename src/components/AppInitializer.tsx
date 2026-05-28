@@ -109,7 +109,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     try {
       const response = await fetch('/version.json?t=' + Date.now());
       const data = await response.json();
-      const LOCAL_VERSION = "21.0";
+      const LOCAL_VERSION = "22.0";
       
       if (isNewerVersion(data.version, LOCAL_VERSION)) {
         setUpdateInfo(data);
@@ -214,7 +214,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
         if (snapshot.exists()) {
           const data = snapshot.data();
           const remoteVersion = data?.version || "0.0";
-          const LOCAL_VERSION = "21.0";
+          const LOCAL_VERSION = "22.0";
           if (isNewerVersion(remoteVersion, LOCAL_VERSION)) {
             setUpdateInfo(data);
             setShowUpdateModal(true);
@@ -468,7 +468,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
       {children}
 
       {/* Smart App Banner - Platform Aware */}
-      <AppBanner apkDownloadUrl="https://quran1-mu.vercel.app/download/" />
+      <AppBanner apkDownloadUrl="https://yaqeen-app.vercel.app/download/" />
     </>
   );
 }

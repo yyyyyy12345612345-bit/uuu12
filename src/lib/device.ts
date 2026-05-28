@@ -82,7 +82,7 @@ export async function isApkInstalled(): Promise<boolean> {
   if (!isAndroid() || isPWA()) return false;
   
   // Check localStorage flag set by the APK itself on install
-  const installedFlag = localStorage.getItem('sakina_apk_installed');
+  const installedFlag = localStorage.getItem('yaqeen_apk_installed');
   if (installedFlag === 'true') return true;
   
   // Try to detect via custom URL scheme (the APK should register this)
@@ -92,7 +92,7 @@ export async function isApkInstalled(): Promise<boolean> {
     try {
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
-      iframe.src = 'sakina://check';
+      iframe.src = 'yaqeen://check';
       document.body.appendChild(iframe);
       
       // If the app handles the custom scheme, it will respond

@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'quran1mu.vercel.app',
-  appName: 'القرآن الكريم',
+  appId: 'com.yaqeen.app',
+  appName: 'يقين | Yaqeen',
   webDir: 'out',
   server: {
     androidScheme: 'https',

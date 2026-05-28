@@ -109,9 +109,9 @@ export function AdminPanel() {
     newDashboard: true, betaUsers: false, fastLogin: false, videoStudio: true
   });
   const [versionSettings, setVersionSettings] = useState({
-    version: "v21",
+    version: "v22",
     releaseNotes: "تحسين استقرار التطبيق، تحديث واجهة المستخدم، وإضافة دعم الدفع الجديد.",
-    downloadUrl: "https://quran1-mu.vercel.app/download",
+    downloadUrl: "https://yaqeen-app.vercel.app/download",
     mandatoryUpdate: false, displayOnDownloadPage: false
   });
   const [versionHistory, setVersionHistory] = useState<any[]>([]);
@@ -373,7 +373,7 @@ export function AdminPanel() {
       const s = await getDoc(doc(db, "settings", "version"));
       if (s.exists()) {
         const d = s.data();
-        setVersionSettings({ version: d.version || "v21", releaseNotes: d.releaseNotes || "", downloadUrl: d.downloadUrl || "", mandatoryUpdate: d.mandatoryUpdate || false, displayOnDownloadPage: d.displayOnDownloadPage || false });
+        setVersionSettings({ version: d.version || "v22", releaseNotes: d.releaseNotes || "", downloadUrl: d.downloadUrl || "", mandatoryUpdate: d.mandatoryUpdate || false, displayOnDownloadPage: d.displayOnDownloadPage || false });
         setVersionHistory(d.history || []);
       }
     } catch (e) { console.error(e); }

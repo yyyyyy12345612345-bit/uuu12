@@ -17,7 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 // ✅ FIX: In APK (Capacitor static export), relative /api/* URLs don't exist.
 // We must call the live Vercel server directly.
-const VERCEL_BASE = "https://quran1-mu.vercel.app";
+const VERCEL_BASE = "https://yaqeen-app.vercel.app";
 
 function getApiUrl(path: string): string {
   if (typeof window !== "undefined" && (window as any).Capacitor) {
@@ -228,31 +228,31 @@ export function AuthGate({ children }: AuthGateProps) {
       const trimmedId = loginIdentifier.trim();
       let email = "";
 
-      // 1. Check if the user entered a real email directly (with @ symbol, but not @quran.app)
-      if (trimmedId.includes("@") && !trimmedId.toLowerCase().endsWith("@quran.app")) {
+      // 1. Check if the user entered a real email directly (with @ symbol, but not @yaqeen.app)
+      if (trimmedId.includes("@") && !trimmedId.toLowerCase().endsWith("@yaqeen.app")) {
         // Search by real email in Firestore first
         const emailQuery = query(collection(db, "users"), where("email", "==", trimmedId.toLowerCase()));
         const emailSnap = await getDocs(emailQuery);
         if (!emailSnap.empty) {
-          email = `${emailSnap.docs[0].data().username}@quran.app`;
+          email = `${emailSnap.docs[0].data().username}@yaqeen.app`;
         } else {
           // Fallback: search by username (part before @)
           const searchUsername = trimmedId.split("@")[0].toLowerCase();
           const usernameQuery = query(collection(db, "users"), where("username", "==", searchUsername));
           const usernameSnap = await getDocs(usernameQuery);
           if (!usernameSnap.empty) {
-            email = `${usernameSnap.docs[0].data().username}@quran.app`;
+            email = `${usernameSnap.docs[0].data().username}@yaqeen.app`;
           } else {
             email = trimmedId;
           }
         }
       } else {
         // 2. Search by username
-        const searchId = trimmedId.replace("@quran.app", "");
+        const searchId = trimmedId.replace("@yaqeen.app", "");
         const usernameQuery = query(collection(db, "users"), where("username", "==", searchId.toLowerCase()));
         const usernameSnap = await getDocs(usernameQuery);
         if (!usernameSnap.empty) {
-          email = `${usernameSnap.docs[0].data().username}@quran.app`;
+          email = `${usernameSnap.docs[0].data().username}@yaqeen.app`;
         } else {
           email = trimmedId;
         }
@@ -367,7 +367,7 @@ export function AuthGate({ children }: AuthGateProps) {
   const handleFinalSignup = async () => {
     setIsLoggingIn(true);
     try {
-      const email = `${formData.username.trim().toLowerCase()}@quran.app`;
+      const email = `${formData.username.trim().toLowerCase()}@yaqeen.app`;
       const res = await createUserWithEmailAndPassword(auth, email, formData.password);
       await setDoc(doc(db, "users", res.user.uid), {
         uid: res.user.uid,
@@ -468,7 +468,7 @@ export function AuthGate({ children }: AuthGateProps) {
     setIsLoggingIn(true);
     try {
       // 1. Sign in behind the scenes using the old password we recovered
-      const email = `${resetUsername}@quran.app`;
+      const email = `${resetUsername}@yaqeen.app`;
       await signInWithEmailAndPassword(auth, email, recoveredPassword);
       
       // 2. Now that we are authenticated, we can actually change the Firebase password!

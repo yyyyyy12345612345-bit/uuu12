@@ -1,5 +1,5 @@
 /**
- * 🔔 Smart Personalized Notification System - v21
+ * 🔔 Smart Personalized Notification System - v22
  *
  * Features:
  * 1. Per-user intelligence: Reads user's actual points & activity from Firestore
@@ -101,7 +101,7 @@ function showNotification(
   title: string,
   body: string,
   icon = '/logo/logo.png',
-  tag = 'sakina-notif',
+  tag = 'yaqeen-notif',
   playSound = true
 ): void {
   if (typeof Notification === 'undefined') return;

@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "يقين | Yaqeen - القرآن الكريم",
     description: "تطبيق إسلامي شامل للمصحف، الصلاة، الأذكار، وصناعة الفيديوهات القرآنية",
-    url: "https://quran1-mu.vercel.app",
+    url: "https://yaqeen-app.vercel.app",
     siteName: "يقين | Yaqeen",
     locale: "ar_EG",
     type: "website",
@@ -72,7 +72,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://quran1-mu.vercel.app",
+    canonical: "https://yaqeen-app.vercel.app",
   },
 };
 

@@ -13,7 +13,7 @@ interface AppBannerProps {
   apkDownloadUrl?: string;
 }
 
-export function AppBanner({ apkDownloadUrl = "https://quran1-mu.vercel.app/download/" }: AppBannerProps) {
+export function AppBanner({ apkDownloadUrl = "https://yaqeen-app.vercel.app/download/" }: AppBannerProps) {
   const [platform, setPlatform] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -95,7 +95,7 @@ export function AppBanner({ apkDownloadUrl = "https://quran1-mu.vercel.app/downl
         console.log("[AppBanner] User outcome:", outcome);
         
         if (outcome === "accepted") {
-          localStorage.setItem("sakina_apk_installed", "true");
+          localStorage.setItem("yaqeen_apk_installed", "true");
           setVisible(false);
         }
         setInstalling(false);
@@ -125,7 +125,7 @@ export function AppBanner({ apkDownloadUrl = "https://quran1-mu.vercel.app/downl
             {/* App Icon */}
             <div className="relative shrink-0">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#d4af37]/20 to-[#d4af37]/5 border border-[#d4af37]/30 flex items-center justify-center shadow-lg overflow-hidden">
-                <img src="/logo/logo.png" alt="Sakina" className="w-10 h-10 object-contain" />
+                <img src="/logo/logo.png" alt="Yaqeen" className="w-10 h-10 object-contain" />
               </div>
               <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center border-2 border-[#0d0d0d]">
                 <Download className="w-2.5 h-2.5 text-white" />

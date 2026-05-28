@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "quran1mu.vercel.app"
+    namespace = "com.yaqeen.app"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "quran1mu.vercel.app"
+        applicationId "com.yaqeen.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 21
-        versionName "v21"
+        versionCode 22
+        versionName "v22"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
