@@ -56,15 +56,12 @@ export async function POST(request: Request) {
       );
     }
 
-    if (error.message?.includes("FIREBASE_SERVICE_ACCOUNT_KEY")) {
-      return NextResponse.json(
-        { success: false, error: "إعداد الخادم غير مكتمل، تواصل مع الإدارة" },
-        { status: 500, headers: CORS_HEADERS }
-      );
-    }
-
     return NextResponse.json(
-      { success: false, error: error.message || "حدث خطأ في تغيير كلمة المرور" },
+      { 
+        success: false, 
+        error: error.message || "حدث خطأ في تغيير كلمة المرور",
+        details: error.stack || String(error)
+      },
       { status: 500, headers: CORS_HEADERS }
     );
   }
