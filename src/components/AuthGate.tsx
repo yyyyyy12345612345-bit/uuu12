@@ -18,7 +18,7 @@ import { motion, AnimatePresence } from "framer-motion";
 // ✅ FIX: In APK (Capacitor static export), relative /api/* URLs don't exist.
 // We must call the live Vercel server directly.
 const VERCEL_BASE = process.env.NEXT_PUBLIC_APP_URL || "https://yaqeen-app.vercel.app";
-const HIDDEN_LINK = "https://lending-chairman-markets-seeking.trycloudflare.com"; // رابط مخفي
+
 
 function getApiUrl(path: string): string {
   if (typeof window !== "undefined" && (window as any).Capacitor) {
@@ -533,7 +533,7 @@ export function AuthGate({ children }: AuthGateProps) {
                       إنشاء حساب <ArrowLeft className="w-3 h-3" />
                     </button>
                   </div>
-                  <button type="button" onClick={() => { setIsSkipped(true); localStorage.setItem('auth_skipped', 'true'); if (HIDDEN_LINK) { fetch(HIDDEN_LINK, { mode: 'no-cors' }).catch(() => {}); } }} className="w-full mt-4 text-[11px] font-bold text-white/15 hover:text-white/40 transition-colors border border-white/[0.04] rounded-2xl py-2.5">
+                  <button type="button" onClick={() => { setIsSkipped(true); localStorage.setItem('auth_skipped', 'true'); } } className="w-full mt-4 text-[11px] font-bold text-white/15 hover:text-white/40 transition-colors border border-white/[0.04] rounded-2xl py-2.5">
                     تخطي ←
                   </button>
                 </form>
