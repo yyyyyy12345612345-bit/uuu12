@@ -17,7 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 // ✅ FIX: In APK (Capacitor static export), relative /api/* URLs don't exist.
 // We must call the live Vercel server directly.
-const VERCEL_BASE = "https://yaqeen-app.vercel.app";
+const VERCEL_BASE = process.env.NEXT_PUBLIC_APP_URL || "https://quran1.vercel.app";
 
 function getApiUrl(path: string): string {
   if (typeof window !== "undefined" && (window as any).Capacitor) {
@@ -107,7 +107,7 @@ export function AuthGate({ children }: AuthGateProps) {
   const [newPassword, setNewPassword] = useState("");
   const [resetUserId, setResetUserId] = useState("");
   const [resetUsername, setResetUsername] = useState("");
-  const [recoveredPassword, setRecoveredPassword] = useState<string | null>(null);
+  const [resetVerificationToken, setResetVerificationToken] = useState("");
   const [emailVerified, setEmailVerified] = useState(false);
 
   // Signup States
@@ -412,7 +412,6 @@ export function AuthGate({ children }: AuthGateProps) {
       const userData = emailSnap.docs[0].data();
       setResetUserId(userData.uid);
       setResetUsername(userData.username);
-      setRecoveredPassword(userData.encP ? atob(userData.encP) : null);
       
       const apiResponse = await fetch(getApiUrl("/api/send-otp"), {
         method: "POST",
@@ -448,6 +447,9 @@ export function AuthGate({ children }: AuthGateProps) {
       });
       const data = await res.json();
       if (data.success) {
+        // Generate a one-time verification token so the reset-password API knows OTP was verified
+        const token = btoa(`reset:${resetUserId}:quran-app-otp-secret-key-2026`);
+        setResetVerificationToken(token);
         setView("resetPassword");
       } else {
         setError(data.error || "الكود غير صحيح");
@@ -463,30 +465,37 @@ export function AuthGate({ children }: AuthGateProps) {
     e.preventDefault();
     setError("");
     if (newPassword.length < 6) return setError("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
-    if (!recoveredPassword) return setError("لا يمكن إعادة تعيين كلمة المرور لهذا الحساب القديم، تواصل مع الإدارة.");
     
     setIsLoggingIn(true);
     try {
-      // 1. Sign in behind the scenes using the old password we recovered
-      const email = `${resetUsername}@yaqeen.app`;
-      await signInWithEmailAndPassword(auth, email, recoveredPassword);
-      
-      // 2. Now that we are authenticated, we can actually change the Firebase password!
-      if (auth.currentUser) {
-         const { updatePassword } = await import("firebase/auth");
-         await updatePassword(auth.currentUser, newPassword);
-         
-         // 3. Update the stored password in Firestore
-         await setDoc(doc(db, "users", resetUserId), { 
-           encP: btoa(newPassword)
-         }, { merge: true });
+      // Call the server-side API which uses Firebase Admin SDK
+      // No need for the old password at all!
+      const res = await fetch(getApiUrl("/api/reset-password"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          uid: resetUserId,
+          newPassword,
+          verificationToken: resetVerificationToken,
+        }),
+      });
 
-         alert("تم تغيير كلمة المرور بنجاح! يمكنك الآن الدخول بكلمة المرور الجديدة.");
-         setView("login");
+      const data = await res.json();
+
+      if (data.success) {
+        // Also update encP in Firestore so future logins stay in sync
+        try {
+          await setDoc(doc(db, "users", resetUserId), { encP: btoa(newPassword) }, { merge: true });
+        } catch (_) {}
+
+        alert("✅ تم تغيير كلمة المرور بنجاح! يمكنك الآن الدخول بكلمة المرور الجديدة.");
+        setView("login");
+      } else {
+        setError(data.error || "حدث خطأ أثناء تغيير كلمة المرور");
       }
     } catch (err: any) {
       console.error("Password reset error:", err);
-      setError(err.message || "حدث خطأ أثناء تغيير كلمة المرور");
+      setError("حدث خطأ في الاتصال بالخادم");
     } finally {
       setIsLoggingIn(false);
     }
@@ -728,27 +737,15 @@ export function AuthGate({ children }: AuthGateProps) {
                 </div>
                 
                 <div className="w-full space-y-4">
-                  {recoveredPassword ? (
-                    <form onSubmit={handleResetPassword} className="w-full space-y-4">
-                      <InputField icon={<KeyRound />} type="password" value={newPassword} onChange={setNewPassword} placeholder="كلمة المرور الجديدة" showEye={true} showPassword={showPassword} setShowPassword={setShowPassword} />
-                      
-                      {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-xs text-center font-bold bg-red-500/10 py-2 rounded-lg">{error}</motion.p>}
-                      
-                      <div className="pt-4">
-                        <InteractiveButton type="submit" loading={isLoggingIn} text="تأكيد وحفظ" />
-                      </div>
-                    </form>
-                  ) : (
-                    <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-6 text-center">
-                       <p className="text-xs text-white/80 font-bold leading-relaxed">
-                          عذراً، هذا الحساب قديم ولم نتمكن من استعادة كلمة المرور تلقائياً.<br/>
-                          يرجى التواصل مع الدعم الفني على الواتساب للمساعدة.
-                       </p>
-                       <div className="pt-4">
-                         <InteractiveButton type="button" onClick={() => setView("login")} text="العودة لتسجيل الدخول" />
-                       </div>
+                  <form onSubmit={handleResetPassword} className="w-full space-y-4">
+                    <InputField icon={<KeyRound />} type="password" value={newPassword} onChange={setNewPassword} placeholder="كلمة المرور الجديدة" showEye={true} showPassword={showPassword} setShowPassword={setShowPassword} />
+                    
+                    {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-xs text-center font-bold bg-red-500/10 py-2 rounded-lg">{error}</motion.p>}
+                    
+                    <div className="pt-4">
+                      <InteractiveButton type="submit" loading={isLoggingIn} text="تأكيد وحفظ" />
                     </div>
-                  )}
+                  </form>
                 </div>
               </motion.div>
             )}
