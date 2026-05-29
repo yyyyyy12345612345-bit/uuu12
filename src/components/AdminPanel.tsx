@@ -34,6 +34,8 @@ const NAV_ITEMS = [
 interface DailyStats {
   emailCount: number;
   regCount: number;
+  totalEmails: number;
+  totalUniqueEmails: number;
 }
 
 interface MaintenanceMode {
@@ -61,7 +63,7 @@ export function AdminPanel() {
     totalUsers: 0, topGovernorate: "...", totalPoints: 0,
     activeToday: 0, pushSubscribers: 0
   });
-  const [dailyStats, setDailyStats] = useState<DailyStats>({ emailCount: 0, regCount: 0 });
+  const [dailyStats, setDailyStats] = useState<DailyStats>({ emailCount: 0, regCount: 0, totalEmails: 0, totalUniqueEmails: 0 });
   const [maintenanceMode, setMaintenanceMode] = useState<MaintenanceMode>({
     enabled: false, message: "", reason: "", duration: ""
   });
@@ -272,6 +274,8 @@ export function AdminPanel() {
       const today = new Date().toISOString().split('T')[0];
       const emailSnap = await getDocs(collection(db, "emailLogs"));
       const emailCount = emailSnap.docs.filter(d => d.data().date === today).length;
+      const totalEmails = emailSnap.size;
+      const uniqueEmails = new Set(emailSnap.docs.map(d => d.data().email)).size;
 
       const usersSnap = await getDocs(collection(db, "users"));
       const regCount = usersSnap.docs.filter(d => {
@@ -279,7 +283,7 @@ export function AdminPanel() {
         return created && typeof created === 'string' && created.startsWith(today);
       }).length;
 
-      setDailyStats({ emailCount, regCount });
+      setDailyStats({ emailCount, regCount, totalEmails, totalUniqueEmails: uniqueEmails });
     } catch (e) { console.error(e); }
   };
 
@@ -801,12 +805,14 @@ export function AdminPanel() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                 {[
                   { label: 'إجمالي المستخدمين', value: stats.totalUsers, icon: Users, color: 'text-[#fbbf24]' },
                   { label: 'نشط اليوم', value: stats.activeToday, icon: UserCheck, color: 'text-emerald-400' },
-                  { label: 'إيميلات اليوم', value: dailyStats.emailCount, icon: Mail, color: 'text-sky-400' },
                   { label: 'تسجيلات اليوم', value: dailyStats.regCount, icon: TrendingUp, color: 'text-violet-400' },
+                  { label: 'إيميلات اليوم', value: dailyStats.emailCount, icon: Mail, color: 'text-sky-400' },
+                  { label: 'إجمالي رسائل التاكيد', value: dailyStats.totalEmails, icon: Mail, color: 'text-amber-400' },
+                  { label: 'إيميلات مرسَل لها', value: dailyStats.totalUniqueEmails, icon: Users, color: 'text-rose-400' },
                 ].map(card => (
                   <div key={card.label} className={STAT_CARD_CLASS}>
                     <card.icon className={`mx-auto mb-3 w-6 h-6 ${card.color}`} />
@@ -1753,6 +1759,7 @@ export function AdminPanel() {
                       <th className="p-5">المستخدم</th>
                       <th className="p-5">الهاتف</th>
                       <th className="p-5">الدولة</th>
+                      <th className="p-5">تاريخ التسجيل</th>
                       <th className="p-5">النقاط</th>
                       <th className="p-5">الاشتراك</th>
                       <th className="p-5">الانتهاء</th>
@@ -1770,6 +1777,7 @@ export function AdminPanel() {
                         </td>
                         <td className="p-5 text-xs text-white/40">{u.phoneNumber || '---'}</td>
                         <td className="p-5 text-xs text-white/40">{u.governorate || '---'}</td>
+                        <td className="p-5 text-xs text-white/40">{u.createdAt ? new Date(u.createdAt.toDate ? u.createdAt.toDate() : u.createdAt).toLocaleString('ar-EG') : '---'}</td>
                         <td className="p-5"><span className="inline-flex items-center gap-2 rounded-full bg-[#fbbf24]/10 px-3 py-2 text-sm font-black text-[#fbbf24]">{u.totalPoints || 0}</span></td>
                         <td className="p-5">
                           <span className={`inline-flex rounded-full px-3 py-2 text-[11px] font-black ${u.subscriptionActive ? 'bg-emerald-500/15 text-emerald-300' : 'bg-white/5 text-white/40'}`}>{u.subscriptionType || u.plan || 'free'}</span>

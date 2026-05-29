@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { 
-  LogIn, Loader2, User, KeyRound, Eye, EyeOff, ShieldCheck, Check, ArrowLeft, Phone, Sparkles, AlertTriangle, Wrench
+  LogIn, Loader2, User, KeyRound, Eye, EyeOff, Check, ArrowLeft, Phone, Sparkles, Wrench
 } from "lucide-react";
 import { auth, db, initFirebase } from "@/lib/firebase";
 import {
@@ -92,7 +92,7 @@ export function AuthGate({ children }: AuthGateProps) {
   const [user, setUser] = useState<FirebaseUser | null | undefined>(undefined);
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [view, setView] = useState<"login" | "signupInfo" | "signupAvatar" | "forgotPassword" | "verifyOtp" | "resetPassword" | "verifySignupOtp">("login");
+  const [view, setView] = useState<"login" | "signupInfo" | "signupAvatar" | "verifySignupOtp">("login");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
@@ -100,14 +100,8 @@ export function AuthGate({ children }: AuthGateProps) {
   const [loginIdentifier, setLoginIdentifier] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
-  // Forgot Password & Signup Verification States
-  const [resetEmail, setResetEmail] = useState("");
-  const [resetOtp, setResetOtp] = useState("");
+  // Signup Verification States
   const [signupOtp, setSignupOtp] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [resetUserId, setResetUserId] = useState("");
-  const [resetUsername, setResetUsername] = useState("");
-  const [resetVerificationToken, setResetVerificationToken] = useState("");
   const [emailVerified, setEmailVerified] = useState(false);
 
   // Signup States
@@ -227,44 +221,57 @@ export function AuthGate({ children }: AuthGateProps) {
     try {
       await initFirebase();
       const trimmedId = loginIdentifier.trim();
-      let email = "";
+      
+      let userDocData: any = null;
+      const isEmail = trimmedId.includes("@") && !trimmedId.toLowerCase().endsWith("@yaqeen.app");
 
-      // 1. Check if the user entered a real email directly (with @ symbol, but not @yaqeen.app)
-      if (trimmedId.includes("@") && !trimmedId.toLowerCase().endsWith("@yaqeen.app")) {
-        // Search by real email in Firestore first
-        const emailQuery = query(collection(db, "users"), where("email", "==", trimmedId.toLowerCase()));
-        const emailSnap = await getDocs(emailQuery);
-        if (!emailSnap.empty) {
-          email = `${emailSnap.docs[0].data().username}@yaqeen.app`;
+      try {
+        if (isEmail) {
+          const emailQuery = query(collection(db, "users"), where("email", "==", trimmedId.toLowerCase()));
+          const snap = await getDocs(emailQuery);
+          if (!snap.empty) {
+            userDocData = snap.docs[0].data();
+          }
         } else {
-          // Fallback: search by username (part before @)
-          const searchUsername = trimmedId.split("@")[0].toLowerCase();
+          const searchUsername = trimmedId.replace("@yaqeen.app", "").toLowerCase();
           const usernameQuery = query(collection(db, "users"), where("username", "==", searchUsername));
-          const usernameSnap = await getDocs(usernameQuery);
-          if (!usernameSnap.empty) {
-            email = `${usernameSnap.docs[0].data().username}@yaqeen.app`;
+          const snap = await getDocs(usernameQuery);
+          if (!snap.empty) {
+            userDocData = snap.docs[0].data();
+          }
+        }
+      } catch (firestoreErr) {
+        console.warn("Firestore lookup failed (possibly unauthenticated rules):", firestoreErr);
+      }
+
+      if (userDocData) {
+        // We found their Firestore document!
+        // We will first try to log in using their real email (stored in 'email')
+        // If they are an old user, their Auth account might be 'username@yaqeen.app'
+        const realEmail = userDocData.email;
+        const legacyEmail = `${userDocData.username}@yaqeen.app`;
+
+        try {
+          if (realEmail) {
+            await signInWithEmailAndPassword(auth, realEmail, loginPassword);
           } else {
-            email = trimmedId;
+            await signInWithEmailAndPassword(auth, legacyEmail, loginPassword);
+          }
+        } catch (firstAuthErr: any) {
+          // If trying the real email failed (e.g. they are an old user who has 'email' in Firestore but their Auth account is still the legacy one)
+          if (realEmail && firstAuthErr.code !== "auth/wrong-password" && firstAuthErr.code !== "auth/invalid-credential") {
+            // Try legacy email fallback
+            await signInWithEmailAndPassword(auth, legacyEmail, loginPassword);
+          } else {
+            throw firstAuthErr;
           }
         }
       } else {
-        // 2. Search by username
-        const searchId = trimmedId.replace("@yaqeen.app", "");
-        const usernameQuery = query(collection(db, "users"), where("username", "==", searchId.toLowerCase()));
-        const usernameSnap = await getDocs(usernameQuery);
-        if (!usernameSnap.empty) {
-          email = `${usernameSnap.docs[0].data().username}@yaqeen.app`;
-        } else {
-          email = trimmedId;
-        }
-      }
-
-      await signInWithEmailAndPassword(auth, email, loginPassword);
-      // Sync password for recovery if missing
-      if (auth.currentUser) {
-         await setDoc(doc(db, "users", auth.currentUser.uid), { encP: btoa(loginPassword) }, { merge: true });
+        // Fallback: Try signing in directly with the inputted identifier
+        await signInWithEmailAndPassword(auth, trimmedId, loginPassword);
       }
     } catch (err: any) {
+      console.error("Login failed:", err);
       setError("بيانات الدخول غير صحيحة أو الحساب غير موجود");
       setIsLoggingIn(false);
     }
@@ -277,6 +284,7 @@ export function AuthGate({ children }: AuthGateProps) {
     if (formData.username.trim().length < 3) return setError("الاسم المميز يجب أن يكون 3 أحرف على الأقل");
     if (!formData.email.trim().includes("@")) return setError("يرجى إدخال بريد إلكتروني صحيح");
     if (formData.password.length < 6) return setError("كلمة المرور 6 أحرف على الأقل");
+    if (!formData.phone.trim()) return setError("يرجى إدخال رقم الهاتف للتواصل");
 
     const hasUpperCase = /[A-Z]/.test(formData.password);
     const hasLowerCase = /[a-z]/.test(formData.password);
@@ -296,6 +304,22 @@ export function AuthGate({ children }: AuthGateProps) {
       const qUser = query(collection(db, "users"), where("username", "==", formData.username.trim().toLowerCase()));
       const snapUser = await getDocs(qUser);
       if (!snapUser.empty) { setError("الاسم المميز محجوز"); setIsLoggingIn(false); return; }
+
+      // التحقق من عدد الحسابات لنفس البريد الإلكتروني في اليوم
+      const qEmail = query(collection(db, "users"), where("email", "==", formData.email.trim().toLowerCase()));
+      const snapEmail = await getDocs(qEmail);
+      const today = new Date().toISOString().split('T')[0];
+      const todayCount = snapEmail.docs.filter(d => {
+        const created = d.data().createdAt;
+        if (!created) return false;
+        const createdDate = created.toDate ? created.toDate().toISOString().split('T')[0] : String(created).split('T')[0];
+        return createdDate === today;
+      }).length;
+      if (todayCount >= 2) {
+        setError("يمكنك إنشاء حسابين فقط بنفس البريد الإلكتروني في اليوم. انتظر 24 ساعة.");
+        setIsLoggingIn(false);
+        return;
+      }
 
       const hasEmail = formData.email.trim().includes("@");
 
@@ -403,114 +427,6 @@ export function AuthGate({ children }: AuthGateProps) {
     }
   };
 
-  // --- FORGOT PASSWORD FLOW ---
-  const handleSendEmailOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    if (!resetEmail.trim().includes("@")) return setError("يرجى إدخال بريد إلكتروني صحيح");
-    
-    setIsLoggingIn(true);
-    try {
-      await initFirebase();
-      const emailQuery = query(collection(db, "users"), where("email", "==", resetEmail.trim().toLowerCase()));
-      const emailSnap = await getDocs(emailQuery);
-      
-      if (emailSnap.empty) {
-        setError("البريد الإلكتروني هذا غير مسجل لدينا");
-        setIsLoggingIn(false);
-        return;
-      }
-
-      const userData = emailSnap.docs[0].data();
-      setResetUserId(userData.uid);
-      setResetUsername(userData.username);
-      
-      const apiResponse = await fetch(getApiUrl("/api/send-otp"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: resetEmail.trim(), reason: "استعادة كلمة المرور" })
-      });
-      
-      const apiData = await apiResponse.json();
-
-      if (apiData.success) {
-        setIsLoggingIn(false);
-        setView("verifyOtp");
-      } else {
-        setError(apiData.error || "فشل إرسال البريد الإلكتروني");
-        setIsLoggingIn(false);
-      }
-    } catch (err: any) {
-      console.error("Email Send OTP Error Details:", err);
-      setError(err.message || "حدث خطأ في النظام");
-      setIsLoggingIn(false);
-    }
-  };
-
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setIsLoggingIn(true);
-    try {
-      const res = await fetch(getApiUrl("/api/verify-otp"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: resetEmail.trim().toLowerCase(), code: resetOtp, uid: resetUserId })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setResetVerificationToken(data.token);
-        setView("resetPassword");
-      } else {
-        setError(data.error || "الكود غير صحيح");
-      }
-    } catch {
-      setError("فشل التحقق من الكود");
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
-
-  const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    if (newPassword.length < 6) return setError("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
-    
-    setIsLoggingIn(true);
-    try {
-      // Call the server-side API which uses Firebase Admin SDK
-      // No need for the old password at all!
-      const res = await fetch(getApiUrl("/api/reset-password"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          uid: resetUserId,
-          newPassword,
-          verificationToken: resetVerificationToken,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        // Also update encP in Firestore so future logins stay in sync
-        try {
-          await setDoc(doc(db, "users", resetUserId), { encP: btoa(newPassword) }, { merge: true });
-        } catch (_) {}
-
-        alert("✅ تم تغيير كلمة المرور بنجاح! يمكنك الآن الدخول بكلمة المرور الجديدة.");
-        setView("login");
-      } else {
-        setError(data.error || "حدث خطأ أثناء تغيير كلمة المرور");
-      }
-    } catch (err: any) {
-      console.error("Password reset error:", err);
-      setError("حدث خطأ في الاتصال بالخادم");
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
-
   // Bypass AuthGate entirely when user navigates to /admin
   const isAdminRoute = pathname?.includes("admin");
 
@@ -611,89 +527,13 @@ export function AuthGate({ children }: AuthGateProps) {
                   </div>
                   
                   {/* Footer Links */}
-                  <div className="flex justify-between items-center w-full px-1 mt-5">
-                    <button type="button" onClick={() => { setView("forgotPassword"); setError(""); }} className="text-[11px] font-bold text-white/25 hover:text-[#fbbf24] transition-colors">
-                      نسيت كلمة المرور؟
-                    </button>
-                    
-                    <button type="button" onClick={() => setView("signupInfo")} className="text-[11px] font-black text-[#fbbf24] flex items-center gap-1.5 hover:gap-2.5 transition-all">
+                  <div className="flex items-center w-full px-1 mt-5">
+                    <button type="button" onClick={() => setView("signupInfo")} className="mx-auto text-[11px] font-black text-[#fbbf24] flex items-center gap-1.5 hover:gap-2.5 transition-all">
                       إنشاء حساب <ArrowLeft className="w-3 h-3" />
                     </button>
                   </div>
                   <button type="button" onClick={() => { setIsSkipped(true); localStorage.setItem('auth_skipped', 'true'); }} className="w-full mt-4 text-[11px] font-bold text-white/15 hover:text-white/40 transition-colors border border-white/[0.04] rounded-2xl py-2.5">
                     تخطي ←
-                  </button>
-                </form>
-              </motion.div>
-            )}
-
-            {/* ======================================= */}
-            {/* FORGOT PASSWORD VIEW */}
-            {/* ======================================= */}
-            {view === "forgotPassword" && (
-              <motion.div 
-                key="forgotPassword"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-                className="flex flex-col items-center"
-              >
-                <div className="text-center mb-5 w-full">
-                  <div className="w-14 h-14 mx-auto bg-gradient-to-br from-[#fbbf24]/15 to-transparent rounded-2xl flex items-center justify-center mb-4 border border-[#fbbf24]/20">
-                    <ShieldCheck className="w-7 h-7 text-[#fbbf24]" />
-                  </div>
-                  <h2 className="text-2xl font-black text-white/90">استعادة الحساب</h2>
-                  <p className="text-white/30 text-xs mt-1.5 leading-relaxed">أدخل بريدك الإلكتروني المسجل وسنرسل رمز التحقق</p>
-                </div>
-                
-                <form onSubmit={handleSendEmailOtp} className="w-full space-y-3.5">
-                  <InputField icon={<Phone />} type="email" value={resetEmail} onChange={setResetEmail} placeholder="البريد الإلكتروني" dir="ltr" />
-                  
-                  {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-xs text-center font-bold bg-red-500/10 py-2.5 rounded-2xl border border-red-500/15">{error}</motion.p>}
-                  
-                  <div className="pt-3">
-                    <InteractiveButton type="submit" loading={isLoggingIn} text="إرسال الكود عبر البريد الإلكتروني" />
-                  </div>
-                  
-                  <button type="button" onClick={() => setView("login")} className="w-full mt-1 text-xs font-bold text-white/25 hover:text-white/60 transition-colors">
-                    إلغاء والعودة
-                  </button>
-                </form>
-              </motion.div>
-            )}
-
-            {/* ======================================= */}
-            {/* VERIFY OTP VIEW */}
-            {/* ======================================= */}
-            {view === "verifyOtp" && (
-              <motion.div 
-                key="verifyOtp"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-                className="flex flex-col items-center"
-              >
-                <div className="text-center mb-5 w-full">
-                  <div className="w-12 h-12 mx-auto bg-gradient-to-br from-[#fbbf24]/15 to-transparent rounded-2xl flex items-center justify-center mb-4 border border-[#fbbf24]/20">
-                    <ShieldCheck className="w-6 h-6 text-[#fbbf24]" />
-                  </div>
-                  <h2 className="text-2xl font-black text-white/90">رمز التحقق</h2>
-                  <p className="text-[#fbbf24]/60 text-xs mt-1.5">أدخل الرمز المكون من 6 أرقام المرسل إلى بريدك</p>
-                </div>
-                
-                <form onSubmit={handleVerifyOtp} className="w-full space-y-3.5">
-                  <InputField icon={<KeyRound />} type="number" value={resetOtp} onChange={setResetOtp} placeholder="----" dir="ltr" />
-                  
-                  {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-xs text-center font-bold bg-red-500/10 py-2.5 rounded-2xl border border-red-500/15">{error}</motion.p>}
-                  
-                  <div className="pt-3">
-                    <InteractiveButton type="submit" text="تأكيد الرمز" />
-                  </div>
-                  
-                  <button type="button" onClick={() => setView("forgotPassword")} className="w-full mt-1 text-xs font-bold text-white/25 hover:text-white/60 transition-colors">
-                    إعادة إرسال الرمز
                   </button>
                 </form>
               </motion.div>
@@ -730,38 +570,6 @@ export function AuthGate({ children }: AuthGateProps) {
             )}
 
             {/* ======================================= */}
-            {/* RESET PASSWORD VIEW */}
-            {/* ======================================= */}
-            {view === "resetPassword" && (
-              <motion.div 
-                key="resetPassword"
-                initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 1.05, y: -10 }}
-                transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
-                className="flex flex-col items-center"
-              >
-                <div className="text-center mb-6 w-full">
-                  <h2 className="text-3xl font-black text-[#d4af37]">كلمة مرور جديدة</h2>
-                  <p className="text-white/40 text-xs mt-2">أدخل كلمة المرور الجديدة لحسابك<br/>({resetUsername})</p>
-                </div>
-                
-                <div className="w-full space-y-4">
-                  <form onSubmit={handleResetPassword} className="w-full space-y-4">
-                    <InputField icon={<KeyRound />} type="password" value={newPassword} onChange={setNewPassword} placeholder="كلمة المرور الجديدة" showEye={true} showPassword={showPassword} setShowPassword={setShowPassword} />
-                    
-                    {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-xs text-center font-bold bg-red-500/10 py-2 rounded-lg">{error}</motion.p>}
-                    
-                    <div className="pt-4">
-                      <InteractiveButton type="submit" loading={isLoggingIn} text="تأكيد وحفظ" />
-                    </div>
-                  </form>
-                </div>
-              </motion.div>
-            )}
-
-
-            {/* ======================================= */}
             {/* SIGNUP INFO VIEW */}
             {/* ======================================= */}
             {view === "signupInfo" && (
@@ -788,6 +596,8 @@ export function AuthGate({ children }: AuthGateProps) {
                     <InputField icon={<User />} type="text" value={formData.username} onChange={(v: string) => setFormData({...formData, username: v.toLowerCase().replace(/[^a-z0-9_]/g, '')})} placeholder="youssef_1" dir="ltr" />
                     <InputField icon={<Phone />} type="email" value={formData.email} onChange={(v: string) => setFormData({...formData, email: v})} placeholder="البريد الإلكتروني" dir="ltr" />
                   </div>
+                  
+                  <InputField icon={<Phone />} type="text" value={formData.phone} onChange={(v: string) => setFormData({...formData, phone: v})} placeholder="رقم الهاتف (للتواصل)" dir="ltr" />
                   
                   <InputField icon={<KeyRound />} type="password" value={formData.password} onChange={(v: string) => {
                     setFormData({...formData, password: v});
@@ -821,6 +631,13 @@ export function AuthGate({ children }: AuthGateProps) {
                       </div>
                       رمز
                     </span>
+                  </div>
+
+                  {/* تحذير حفظ كلمة المرور */}
+                  <div className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.05] p-3.5 text-right">
+                    <p className="text-[11px] font-bold text-amber-400/90 leading-relaxed">
+                      ⚠️ لا يمكن استعادة كلمة المرور. احفظها في مكان آمن أو استخدم مدير كلمات مرور.
+                    </p>
                   </div>
                   
                   <div className="relative z-50">
