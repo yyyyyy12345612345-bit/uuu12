@@ -484,8 +484,8 @@ export function AuthGate({ children }: AuthGateProps) {
       <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,0.3) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
 
       {/* --- MAIN CARD --- */}
-      <div className="relative w-full max-w-md z-10">
-        <div className="relative w-full rounded-[2rem] p-6 md:p-9 shadow-2xl backdrop-blur-2xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+        <div className="relative w-full max-w-md z-10">
+          <div className="relative w-full rounded-[2rem] p-5 md:p-7 shadow-2xl backdrop-blur-2xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] shadow-[0_8px_32px_rgba(0,0,0,0.6)] max-h-[85vh] overflow-y-auto scrollbar-thin">
           <AnimatePresence mode="wait">
             {/* ======================================= */}
             {/* LOGIN VIEW */}
@@ -581,18 +581,18 @@ export function AuthGate({ children }: AuthGateProps) {
                 transition={{ duration: 0.35, ease: "easeOut" }}
                 className="flex flex-col items-center"
               >
-                <div className="text-center mb-4 w-full">
-                  <div className="w-12 h-12 mx-auto bg-gradient-to-br from-[#fbbf24]/15 to-transparent rounded-2xl flex items-center justify-center mb-3 border border-[#fbbf24]/20">
-                    <Sparkles className="w-6 h-6 text-[#fbbf24]" />
+                <div className="text-center mb-3 w-full">
+                  <div className="w-10 h-10 mx-auto bg-gradient-to-br from-[#fbbf24]/15 to-transparent rounded-2xl flex items-center justify-center mb-2 border border-[#fbbf24]/20">
+                    <Sparkles className="w-5 h-5 text-[#fbbf24]" />
                   </div>
-                  <h2 className="text-2xl font-black text-white/90">حساب جديد</h2>
-                  <p className="text-white/30 text-[11px] mt-1">المعلومات الأساسية</p>
+                  <h2 className="text-xl font-black text-white/90">حساب جديد</h2>
+                  <p className="text-white/30 text-[10px] mt-0.5">المعلومات الأساسية</p>
                 </div>
                 
-                <form onSubmit={handleRegisterNext} className="w-full space-y-3.5">
+                <form onSubmit={handleRegisterNext} className="w-full space-y-2.5">
                   <InputField icon={<User />} type="text" value={formData.displayName} onChange={(v: string) => setFormData({...formData, displayName: v})} placeholder="الاسم الحقيقي" />
                   
-                  <div className="grid grid-cols-2 gap-2.5">
+                  <div className="grid grid-cols-2 gap-2">
                     <InputField icon={<User />} type="text" value={formData.username} onChange={(v: string) => setFormData({...formData, username: v.toLowerCase().replace(/[^a-z0-9_]/g, '')})} placeholder="youssef_1" dir="ltr" />
                     <InputField icon={<Phone />} type="email" value={formData.email} onChange={(v: string) => setFormData({...formData, email: v})} placeholder="البريد الإلكتروني" dir="ltr" />
                   </div>
@@ -634,9 +634,9 @@ export function AuthGate({ children }: AuthGateProps) {
                   </div>
 
                   {/* تحذير حفظ كلمة المرور */}
-                  <div className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.05] p-3.5 text-right">
-                    <p className="text-[11px] font-bold text-amber-400/90 leading-relaxed">
-                      ⚠️ لا يمكن استعادة كلمة المرور. احفظها في مكان آمن أو استخدم مدير كلمات مرور.
+                  <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.05] p-2.5 text-right">
+                    <p className="text-[10px] font-bold text-amber-400/90 leading-relaxed">
+                      ⚠️ لا يمكن استعادة كلمة المرور. احفظها في مكان آمن.
                     </p>
                   </div>
                   
@@ -644,18 +644,18 @@ export function AuthGate({ children }: AuthGateProps) {
                     <CountrySelect value={formData.country} onChange={(val) => setFormData({...formData, country: val})} />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2.5 pt-1">
-                    <button type="button" onClick={() => setFormData({...formData, gender: "male"})} className={`py-3.5 rounded-2xl border-2 transition-all text-sm ${formData.gender === "male" ? "border-[#fbbf24]/70 bg-[#fbbf24]/10 text-[#fbbf24]" : "border-white/[0.06] text-white/35 hover:bg-white/[0.04]"}`}>👨 ذكر</button>
-                    <button type="button" onClick={() => setFormData({...formData, gender: "female"})} className={`py-3.5 rounded-2xl border-2 transition-all text-sm ${formData.gender === "female" ? "border-[#fbbf24]/70 bg-[#fbbf24]/10 text-[#fbbf24]" : "border-white/[0.06] text-white/35 hover:bg-white/[0.04]"}`}>👩 أنثى</button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button type="button" onClick={() => setFormData({...formData, gender: "male"})} className={`py-3 rounded-2xl border-2 transition-all text-sm ${formData.gender === "male" ? "border-[#fbbf24]/70 bg-[#fbbf24]/10 text-[#fbbf24]" : "border-white/[0.06] text-white/35 hover:bg-white/[0.04]"}`}>👨 ذكر</button>
+                    <button type="button" onClick={() => setFormData({...formData, gender: "female"})} className={`py-3 rounded-2xl border-2 transition-all text-sm ${formData.gender === "female" ? "border-[#fbbf24]/70 bg-[#fbbf24]/10 text-[#fbbf24]" : "border-white/[0.06] text-white/35 hover:bg-white/[0.04]"}`}>👩 أنثى</button>
                   </div>
 
-                  {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-xs text-center font-bold bg-red-500/10 py-2.5 rounded-2xl border border-red-500/15">{error}</motion.p>}
+                  {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-[11px] text-center font-bold bg-red-500/10 py-2 rounded-xl border border-red-500/15">{error}</motion.p>}
                   
-                  <div className="pt-3">
+                  <div className="pt-2">
                     <InteractiveButton type="submit" loading={isLoggingIn} text="التالي" />
                   </div>
                   
-                  <button type="button" onClick={() => setView("login")} className="w-full mt-1 text-xs font-bold text-white/25 hover:text-white/60 transition-colors">
+                  <button type="button" onClick={() => setView("login")} className="w-full text-[11px] font-bold text-white/25 hover:text-white/60 transition-colors py-1">
                     العودة لتسجيل الدخول
                   </button>
                 </form>
