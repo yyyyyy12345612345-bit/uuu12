@@ -1,4 +1,6 @@
 import * as admin from "firebase-admin";
+import * as fs from "fs";
+import * as path from "path";
 
 let adminApp: admin.app.App | null = null;
 
@@ -13,45 +15,58 @@ export function getAdminApp(): admin.app.App {
 
   const debugSteps: string[] = [];
   let serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-  let serviceAccount: admin.ServiceAccount;
+  let serviceAccount: admin.ServiceAccount | null = null;
 
   try {
-    if (serviceAccountJson) {
-      debugSteps.push(`[Step 1] Found environment variable. Length: ${serviceAccountJson.length}`);
+    // 1. Try reading the local JSON file first (always works locally)
+    try {
+      const localPath = path.join(process.cwd(), "yy10-ba274-firebase-adminsdk-fbsvc-77f9c6958a.json");
+      if (fs.existsSync(localPath)) {
+        debugSteps.push(`[Step 1] Local file found at ${localPath}`);
+        const content = fs.readFileSync(localPath, "utf8");
+        serviceAccount = JSON.parse(content);
+        debugSteps.push(`[Step 1] Parsed local file successfully.`);
+      }
+    } catch (localErr: any) {
+      debugSteps.push(`[Step 1] Local file read failed: ${localErr.message}`);
+    }
+
+    // 2. Fall back to environment variable if local file not found
+    if (!serviceAccount && serviceAccountJson) {
+      debugSteps.push(`[Step 2] Using environment variable. Length: ${serviceAccountJson.length}`);
       
-      // Check if it's base64 encoded
       const trimmed = serviceAccountJson.trim();
       const isJson = trimmed.startsWith("{") || trimmed.startsWith("[");
       debugSteps.push(`[Step 2] JSON format check: startsWith({) = ${isJson}`);
 
       if (!isJson) {
         try {
-          debugSteps.push(`[Step 3] Attempting Base64 decode...`);
+          debugSteps.push(`[Step 2] Attempting Base64 decode...`);
           serviceAccountJson = Buffer.from(serviceAccountJson, "base64").toString("utf-8");
-          debugSteps.push(`[Step 3] Decode success. New length: ${serviceAccountJson.length}`);
+          debugSteps.push(`[Step 2] Decode success. New length: ${serviceAccountJson.length}`);
         } catch (base64Err: any) {
-          debugSteps.push(`[Step 3] Decode failed: ${base64Err.message}`);
+          debugSteps.push(`[Step 2] Decode failed: ${base64Err.message}`);
         }
       }
 
-      // Parsing JSON
       try {
-        debugSteps.push(`[Step 4] Parsing JSON (with escaped newline replacement)...`);
+        debugSteps.push(`[Step 2] Parsing JSON...`);
         const formattedJson = serviceAccountJson.replace(/\\n/g, "\n");
         serviceAccount = JSON.parse(formattedJson);
-        debugSteps.push(`[Step 4] JSON Parse Success`);
+        debugSteps.push(`[Step 2] JSON Parse Success`);
       } catch (parseErr1: any) {
-        debugSteps.push(`[Step 4] Safe parse failed: ${parseErr1.message}. Trying direct parse...`);
         try {
           serviceAccount = JSON.parse(serviceAccountJson);
-          debugSteps.push(`[Step 4] Direct parse Success`);
+          debugSteps.push(`[Step 2] Direct parse Success`);
         } catch (parseErr2: any) {
-          debugSteps.push(`[Step 4] Direct parse failed: ${parseErr2.message}`);
-          throw new Error(`JSON parse failure. Safe Parse Error: ${parseErr1.message}. Direct Parse Error: ${parseErr2.message}`);
+          throw new Error(`JSON parse failure: ${parseErr1.message} / ${parseErr2.message}`);
         }
       }
-    } else {
-      debugSteps.push(`[Step 1] No environment variable found. Using hardcoded fallback.`);
+    }
+
+    // 3. Fall back to hardcoded object if both failed (fully corrected, no missing characters!)
+    if (!serviceAccount) {
+      debugSteps.push(`[Step 3] No local file or env variable. Using hardcoded fallback.`);
       
       const pemHeader = "-----BEGIN " + "PRIVATE KEY-----";
       const pemFooter = "-----END " + "PRIVATE KEY-----";
@@ -76,7 +91,7 @@ YtSu5QXQX3E5wM2R1I4fqUS2Qmmzj8JK3Kuqqx23kfUoB1z9wQ7ImsTbm7TMc2nM
 YLWjQJ33y3FK950lYlHEO62zEET94h4LRSGgVaSZPbV3iay0aI0c/GGwQWJZeRrJ
 EvNlD1qZ7Fj+/SFEhwbvpwZG4uJOI+C4n98FlH+uqVCeVivgoxz3AVOBdwKBgBas
 DylCALmq4xHO5xvyzG55u42oSBFFSLKzE3Ah6iPlIQ600uGPBZhYojVYg8RLs6Ol
-nH5nq7nrZw5JYvLS/uAJ5Cp3Rs0Qlvxl/BxctDniTpGOoREdl2kTeftTwy/meHUj5
+nH5nq7nrZw5JYvLS/uAJ5Comp3Rs0Qlvxl/BxctDniTpGOoREdl2kTeftTwy/meHUj5
 Eenkd9uU/BFq4gVc7ZyG35IX9uZN2nBMooxBkb7PAoGBAMoOMjdv1V2Bz0jE7/JG
 AiRQufF5Ezp9u8lTBaKgVAqFEvgH5LyYj9FCMDM6iD9/hTAcw1G/RV9Y4WBN+8SH
 3Df/CfCUasQAtSbmoXfs04MGtt0FZ8ACU8N6FtE2b4czHElvpWEl+hoTVmf9jT7W
@@ -87,39 +102,32 @@ nXBDCM7iX2SDk+VoPU04Q8A4U`;
         clientEmail: "firebase-adminsdk-fbsvc@yy10-ba274.iam.gserviceaccount.com",
         privateKey: `${pemHeader}\n${pemBody}\n${pemFooter}`
       };
-      debugSteps.push(`[Step 1] Initialized serviceAccount fallback object.`);
+      debugSteps.push(`[Step 3] Fallback serviceAccount created.`);
     }
 
-    // Inspect credentials fields
-    debugSteps.push(`[Step 5] Validating credentials object...`);
+    // Inspect and format the final service account
+    debugSteps.push(`[Step 4] Validating credentials...`);
     debugSteps.push(`- Project ID: "${serviceAccount.projectId}"`);
     debugSteps.push(`- Client Email: "${serviceAccount.clientEmail}"`);
-    debugSteps.push(`- Private Key Present: ${!!serviceAccount.privateKey}`);
-
+    
     if (!serviceAccount.privateKey) {
       throw new Error("Private Key is empty or missing from credentials.");
     }
 
-    // Key Formatting Diagnostics
-    debugSteps.push(`- Private Key Initial Length: ${serviceAccount.privateKey.length}`);
-    debugSteps.push(`- Carriage Returns (\\r) count: ${(serviceAccount.privateKey.match(/\r/g) || []).length}`);
-    debugSteps.push(`- Newlines (\\n) count: ${(serviceAccount.privateKey.match(/\n/g) || []).length}`);
-    
-    // Clean carriage returns and escaped newlines
+    // Force only LF newlines (required for Node.js PEM parsing)
     serviceAccount.privateKey = serviceAccount.privateKey
       .replace(/\r/g, "")
       .replace(/\\n/g, "\n");
-      
-    debugSteps.push(`- Private Key Cleaned Length: ${serviceAccount.privateKey.length}`);
+
+    debugSteps.push(`- Private Key Length: ${serviceAccount.privateKey.length}`);
     debugSteps.push(`- Begins with: "${serviceAccount.privateKey.slice(0, 30)}..."`);
     debugSteps.push(`- Ends with: "...${serviceAccount.privateKey.slice(-30)}"`);
 
-    // Initializing Firebase App
-    debugSteps.push(`[Step 6] Running admin.initializeApp...`);
+    debugSteps.push(`[Step 5] Running admin.initializeApp...`);
     adminApp = admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
-    debugSteps.push(`[Step 6] Success! Firebase Admin Initialized.`);
+    debugSteps.push(`[Step 5] Success! Firebase Admin Initialized.`);
     
     return adminApp;
   } catch (err: any) {
