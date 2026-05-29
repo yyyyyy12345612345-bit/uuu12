@@ -594,10 +594,10 @@ export function AuthGate({ children }: AuthGateProps) {
                   
                   <div className="grid grid-cols-2 gap-2">
                     <InputField icon={<User />} type="text" value={formData.username} onChange={(v: string) => setFormData({...formData, username: v.toLowerCase().replace(/[^a-z0-9_]/g, '')})} placeholder="youssef_1" dir="ltr" />
-                    <InputField icon={<Phone />} type="email" value={formData.email} onChange={(v: string) => setFormData({...formData, email: v})} placeholder="البريد الإلكتروني" dir="ltr" />
+                    <InputField icon={<Phone />} type="text" value={formData.phone} onChange={(v: string) => setFormData({...formData, phone: v})} placeholder="رقم الهاتف" dir="ltr" />
                   </div>
                   
-                  <InputField icon={<Phone />} type="text" value={formData.phone} onChange={(v: string) => setFormData({...formData, phone: v})} placeholder="رقم الهاتف (للتواصل)" dir="ltr" />
+                  <InputField icon={<Phone />} type="email" value={formData.email} onChange={(v: string) => setFormData({...formData, email: v})} placeholder="البريد الإلكتروني" dir="ltr" />
                   
                   <InputField icon={<KeyRound />} type="password" value={formData.password} onChange={(v: string) => {
                     setFormData({...formData, password: v});
