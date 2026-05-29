@@ -93,11 +93,11 @@ function buildFallback(): admin.ServiceAccount {
     "YLWjQJ33y3FK950lYlHEO62zEET94h4LRSGgVaSZPbV3iay0aI0c/GGwQWJZeRrJ\n" +
     "EvNlD1qZ7Fj+/SFEhwbvpwZG4uJOI+C4n98FlH+uqVCeVivgoxz3AVOBdwKBgBas\n" +
     "DylCALmq4xHO5xvyzG55u42oSBFFSLKzE3Ah6iPlIQ600uGPBZhYojVYg8RLs6Ol\n" +
-    "H5nq7nrZw5JYvLS/uAJ5Cp3Rs0Qlvxl/BxctDniTpGOoREdl2kTeftTwy/meHUj5\n" +
+    "nH5nq7nrZw5JYvLS/uAJ5Cp3Rs0Qlvxl/BxctDniTpGOoREdl2kTeftTwy/meHUj5\n" +
     "Eenkd9uU/BFq4gVc7ZyG35IX9uZN2nBMooxBkb7PAoGBAMoOMjdv1V2Bz0jE7/JG\n" +
     "AiRQufF5Ezp9u8lTBaKgVAqFEvgH5LyYj9FCMDM6iD9/hTAcw1G/RV9Y4WBN+8SH\n" +
     "3Df/CfCUasQAtSbmoXfs04MGtt0FZ8ACU8N6FtE2b4czHElvpWEl+hoTVmf9jT7W\n" +
-    "XBDCM7iX2SDk+VoPU04Q8A4U\n" +
+    "nXBDCM7iX2SDk+VoPU04Q8A4U\n" +
     E + K + "\n";
 
   return {
