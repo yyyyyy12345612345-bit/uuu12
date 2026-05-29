@@ -17,7 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 // ✅ FIX: In APK (Capacitor static export), relative /api/* URLs don't exist.
 // We must call the live Vercel server directly.
-const VERCEL_BASE = process.env.NEXT_PUBLIC_APP_URL || "https://quran1.vercel.app";
+const VERCEL_BASE = process.env.NEXT_PUBLIC_APP_URL || "https://yaqeen-app.vercel.app";
 
 function getApiUrl(path: string): string {
   if (typeof window !== "undefined" && (window as any).Capacitor) {
