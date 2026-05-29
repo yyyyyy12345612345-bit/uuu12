@@ -41,6 +41,9 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (request.method !== 'GET') return;
 
+  // Skip chrome-extension:// and other unsupported URL schemes
+  if (!request.url.startsWith('http://') && !request.url.startsWith('https://')) return;
+
   // 1. Audio files (.mp3) - Cache on demand (Cache-First)
   if (url.pathname.endsWith('.mp3') || request.destination === 'audio') {
     event.respondWith(
