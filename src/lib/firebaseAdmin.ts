@@ -54,9 +54,22 @@ export function getAdminApp(): admin.app.App {
     }
   }
 
-  adminApp = admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
+  try {
+    adminApp = admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+  } catch (initError: any) {
+    console.warn("[firebaseAdmin] Primary credential failed initialization. Trying hardcoded fallback...", initError.message);
+    try {
+      serviceAccount = buildFallback();
+      adminApp = admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+    } catch (fallbackError: any) {
+      console.error("[firebaseAdmin] All initialization attempts failed:", fallbackError);
+      throw fallbackError;
+    }
+  }
 
   return adminApp;
 }
