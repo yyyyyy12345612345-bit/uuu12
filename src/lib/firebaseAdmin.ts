@@ -24,14 +24,16 @@ export function getAdminApp(): admin.app.App {
         // try base64
         parsed = Buffer.from(parsed, "base64").toString("utf-8");
       }
-      parsed = parsed.replace(/\\n/g, "\n");
-      serviceAccount = JSON.parse(parsed);
-      if (serviceAccount.privateKey) {
-        serviceAccount.privateKey = serviceAccount.privateKey
+      const rawJson = JSON.parse(parsed);
+      serviceAccount = {
+        projectId: rawJson.project_id || rawJson.projectId,
+        clientEmail: rawJson.client_email || rawJson.clientEmail,
+        privateKey: (rawJson.private_key || rawJson.privateKey || "")
           .replace(/\r/g, "")
-          .replace(/\\n/g, "\n");
-      }
-    } catch {
+          .replace(/\\n/g, "\n"),
+      };
+    } catch (e) {
+      console.warn("[firebaseAdmin] Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY from env, using fallback:", e);
       serviceAccount = buildFallback();
     }
   } else {
@@ -40,16 +42,19 @@ export function getAdminApp(): admin.app.App {
       const localPath = path.join(process.cwd(), "yy10-ba274-firebase-adminsdk-fbsvc-77f9c6958a.json");
       if (fs.existsSync(localPath)) {
         const content = fs.readFileSync(localPath, "utf8");
-        serviceAccount = JSON.parse(content);
-        if (serviceAccount.privateKey) {
-          serviceAccount.privateKey = serviceAccount.privateKey
+        const rawJson = JSON.parse(content);
+        serviceAccount = {
+          projectId: rawJson.project_id || rawJson.projectId,
+          clientEmail: rawJson.client_email || rawJson.clientEmail,
+          privateKey: (rawJson.private_key || rawJson.privateKey || "")
             .replace(/\r/g, "")
-            .replace(/\\n/g, "\n");
-        }
+            .replace(/\\n/g, "\n"),
+        };
       } else {
         serviceAccount = buildFallback();
       }
-    } catch {
+    } catch (e) {
+      console.warn("[firebaseAdmin] Failed to read/parse local credentials file, using fallback:", e);
       serviceAccount = buildFallback();
     }
   }
