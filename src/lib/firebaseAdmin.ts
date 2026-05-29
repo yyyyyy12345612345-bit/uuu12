@@ -29,9 +29,6 @@ export function getAdminApp(): admin.app.App {
       // Safe parse: handle double-escaped newlines commonly introduced by env variables
       const formattedJson = serviceAccountJson.replace(/\\n/g, "\n");
       serviceAccount = JSON.parse(formattedJson);
-      if (serviceAccount.privateKey) {
-        serviceAccount.privateKey = serviceAccount.privateKey.replace(/\\n/g, "\n");
-      }
     } catch (e: any) {
       try {
         serviceAccount = JSON.parse(serviceAccountJson);
@@ -75,6 +72,15 @@ nXBDCM7iX2SDk+VoPU04Q8A4U`;
       clientEmail: "firebase-adminsdk-fbsvc@yy10-ba274.iam.gserviceaccount.com",
       privateKey: `${pemHeader}\n${pemBody}\n${pemFooter}`
     };
+  }
+
+  // ✅ CRITICAL FIX for Windows Line Endings (CRLF): 
+  // Node.js crypto/OpenSSL PEM parsing fails if the private key contains '\r\n'.
+  // We must strip all '\r' characters so it only has '\n'.
+  if (serviceAccount.privateKey) {
+    serviceAccount.privateKey = serviceAccount.privateKey
+      .replace(/\r/g, "")
+      .replace(/\\n/g, "\n");
   }
 
   adminApp = admin.initializeApp({
