@@ -15,7 +15,7 @@ export async function OPTIONS() {
 
 export async function POST(request: Request) {
   try {
-    const { email, code, token } = await request.json();
+    const { email, code, token, uid } = await request.json();
 
     if (token) {
       const result = verifySignedToken(token);
@@ -30,7 +30,11 @@ export async function POST(request: Request) {
     }
 
     if (verifyOtp(email.trim().toLowerCase(), code)) {
-      return NextResponse.json({ success: true, message: "تم التحقق بنجاح" }, { headers: CORS_HEADERS });
+      const responseData: any = { success: true, message: "تم التحقق بنجاح" };
+      if (uid) {
+        responseData.token = Buffer.from(`reset:${uid}:${process.env.OTP_SECRET || "quran-app-otp-secret-key-2026"}`).toString("base64");
+      }
+      return NextResponse.json(responseData, { headers: CORS_HEADERS });
     }
 
     return NextResponse.json({ success: false, error: "الكود غير صحيح أو منتهي الصلاحية" }, { status: 400, headers: CORS_HEADERS });

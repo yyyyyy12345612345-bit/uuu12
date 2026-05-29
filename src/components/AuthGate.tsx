@@ -225,6 +225,7 @@ export function AuthGate({ children }: AuthGateProps) {
     if (!loginIdentifier || !loginPassword) return setError("يرجى ملء جميع الحقول");
     setIsLoggingIn(true);
     try {
+      await initFirebase();
       const trimmedId = loginIdentifier.trim();
       let email = "";
 
@@ -291,6 +292,7 @@ export function AuthGate({ children }: AuthGateProps) {
 
     setIsLoggingIn(true);
     try {
+      await initFirebase();
       const qUser = query(collection(db, "users"), where("username", "==", formData.username.trim().toLowerCase()));
       const snapUser = await getDocs(qUser);
       if (!snapUser.empty) { setError("الاسم المميز محجوز"); setIsLoggingIn(false); return; }
@@ -387,7 +389,16 @@ export function AuthGate({ children }: AuthGateProps) {
       });
       window.location.reload();
     } catch (err: any) {
-      setError("حدث خطأ أثناء إنشاء الحساب");
+      console.error("Signup error:", err);
+      let errMsg = "حدث خطأ أثناء إنشاء الحساب";
+      if (err.code === "auth/email-already-in-use") {
+        errMsg = "اسم المستخدم هذا مستخدم بالفعل";
+      } else if (err.code === "auth/weak-password") {
+        errMsg = "كلمة المرور ضعيفة جداً";
+      } else if (err.message) {
+        errMsg = err.message;
+      }
+      setError(errMsg);
       setIsLoggingIn(false);
     }
   };
@@ -400,6 +411,7 @@ export function AuthGate({ children }: AuthGateProps) {
     
     setIsLoggingIn(true);
     try {
+      await initFirebase();
       const emailQuery = query(collection(db, "users"), where("email", "==", resetEmail.trim().toLowerCase()));
       const emailSnap = await getDocs(emailQuery);
       
@@ -443,13 +455,11 @@ export function AuthGate({ children }: AuthGateProps) {
       const res = await fetch(getApiUrl("/api/verify-otp"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: resetEmail.trim().toLowerCase(), code: resetOtp })
+        body: JSON.stringify({ email: resetEmail.trim().toLowerCase(), code: resetOtp, uid: resetUserId })
       });
       const data = await res.json();
       if (data.success) {
-        // Generate a one-time verification token so the reset-password API knows OTP was verified
-        const token = btoa(`reset:${resetUserId}:quran-app-otp-secret-key-2026`);
-        setResetVerificationToken(token);
+        setResetVerificationToken(data.token);
         setView("resetPassword");
       } else {
         setError(data.error || "الكود غير صحيح");
