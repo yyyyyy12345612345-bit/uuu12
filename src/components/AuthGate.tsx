@@ -30,7 +30,7 @@ function getApiUrl(path: string): string {
 
 interface AuthGateProps { children: React.ReactNode; }
 
-type View = "login" | "forgotPassword" | "forgotSent" | "signupInfo" | "signupOtp" | "signupAvatar";
+type View = "login" | "forgotPassword" | "forgotChooseAccount" | "forgotOtp" | "forgotReset" | "forgotSent" | "signupInfo" | "signupOtp" | "signupAvatar";
 
 const AVATARS = {
   male: [
@@ -103,6 +103,11 @@ export function AuthGate({ children }: AuthGateProps) {
   const [otpCode, setOtpCode] = useState("");
   const [emailVerified, setEmailVerified] = useState(false);
   const [showWeakPwWarn, setShowWeakPwWarn] = useState(false);
+  const [forgotAccounts, setForgotAccounts] = useState<{ uid: string; username: string; displayName: string; photoURL: string }[]>([]);
+  const [selectedAccount, setSelectedAccount] = useState<{ uid: string; username: string; displayName: string; photoURL: string } | null>(null);
+  const [forgotOtp, setForgotOtp] = useState("");
+  const [forgotNewPassword, setForgotNewPassword] = useState("");
+  const [resetToken, setResetToken] = useState("");
 
   useEffect(() => {
     let isMounted = true;
@@ -199,15 +204,115 @@ export function AuthGate({ children }: AuthGateProps) {
     if (!email.includes("@")) return setError("يرجى إدخال بريد إلكتروني صحيح");
     setIsLoading(true);
     try {
-      await initFirebase();
-      await sendPasswordResetEmail(auth, email);
-      setView("forgotSent");
-    } catch (err: any) {
-      const code = err?.code || "";
-      if (code === "auth/user-not-found") setError("لا يوجد حساب بهذا البريد");
-      else if (code === "auth/too-many-requests") setError("يرجى الانتظار قبل المحاولة");
-      else setError("حدث خطأ، يرجى المحاولة مجدداً");
-    } finally { setIsLoading(false); }
+      const res = await fetch(getApiUrl("/api/forgot-password"), {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setError(data.error || "لا يوجد حساب مرتبط بهذا البريد");
+        setIsLoading(false);
+        return;
+      }
+      setForgotAccounts(data.accounts);
+      if (data.accounts.length === 1) {
+        const acc = data.accounts[0];
+        setSelectedAccount(acc);
+        await triggerSendForgotOtp(email, acc);
+      } else {
+        setView("forgotChooseAccount");
+        setIsLoading(false);
+      }
+    } catch (err) {
+      setError("حدث خطأ، يرجى المحاولة مجدداً");
+      setIsLoading(false);
+    }
+  }
+
+  async function triggerSendForgotOtp(email: string, account: { uid: string; username: string; displayName: string }) {
+    try {
+      const res = await fetch(getApiUrl("/api/send-otp"), {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          reason: "كود التحقق لإعادة تعيين كلمة المرور لحسابك",
+          type: "reset",
+          username: account.username
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setError(data.error || "فشل إرسال كود التحقق");
+        setView("forgotPassword");
+      } else {
+        setView("forgotOtp");
+      }
+    } catch {
+      setError("فشل الاتصال بالخادم لإرسال الكود");
+      setView("forgotPassword");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleSelectAccount(account: { uid: string; username: string; displayName: string; photoURL: string }) {
+    clearError();
+    setIsLoading(true);
+    setSelectedAccount(account);
+    await triggerSendForgotOtp(forgotEmail.trim().toLowerCase(), account);
+  }
+
+  async function handleVerifyForgotOtp(e: React.FormEvent) {
+    e.preventDefault(); clearError();
+    if (!forgotOtp.trim()) return setError("يرجى إدخال الكود");
+    if (!selectedAccount) return setError("لم يتم تحديد حساب");
+    setIsLoading(true);
+    try {
+      const res = await fetch(getApiUrl("/api/verify-otp"), {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: forgotEmail.trim(),
+          code: forgotOtp.trim(),
+          uid: selectedAccount.uid
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.token) {
+        setResetToken(data.token);
+        setView("forgotReset");
+      } else {
+        setError(data.error || "الكود غير صحيح أو منتهي الصلاحية");
+      }
+    } catch {
+      setError("فشل التحقق من الكود");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleResetPassword(e: React.FormEvent) {
+    e.preventDefault(); clearError();
+    if (forgotNewPassword.length < 6) return setError("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+    setIsLoading(true);
+    try {
+      const res = await fetch(getApiUrl("/api/reset-password"), {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: resetToken,
+          newPassword: forgotNewPassword
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setView("forgotSent");
+      } else {
+        setError(data.error || "فشل إعادة تعيين كلمة المرور");
+      }
+    } catch {
+      setError("فشل الاتصال بالخادم لتحديث كلمة المرور");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   async function handleSignupNext(e: React.FormEvent) {
@@ -424,18 +529,84 @@ export function AuthGate({ children }: AuthGateProps) {
                   <CircleIcon color="#fbbf24"><KeyRound className="w-6 h-6" /></CircleIcon>
                   <div className="text-center mb-6">
                     <h2 className="text-xl font-black text-white">نسيت كلمة المرور؟</h2>
-                    <p className="text-white/30 text-xs mt-2 leading-relaxed">سنرسل رابط إعادة التعيين<br />إلى بريدك الإلكتروني مباشرةً</p>
+                    <p className="text-white/30 text-xs mt-2 leading-relaxed">أدخل بريدك الإلكتروني وسنرسل كود تحقق لاستعادة حسابك</p>
                   </div>
                   <form onSubmit={handleForgotPassword} className="space-y-3">
                     <FancyInput icon={<Mail />} type="email" value={forgotEmail} onChange={setForgotEmail} placeholder="البريد الإلكتروني" dir="ltr" />
                     <ErrorBox text={error} />
-                    <GoldBtn type="submit" loading={isLoading} label="إرسال رابط الاستعادة" />
+                    <GoldBtn type="submit" loading={isLoading} label="البحث عن الحسابات" />
                     <SubBtn onClick={() => { setView("login"); clearError(); }} label="العودة لتسجيل الدخول" />
                   </form>
                 </Slide>
               )}
 
-              {/* ── FORGOT SENT ── */}
+              {/* ── FORGOT CHOOSE ACCOUNT ── */}
+              {view === "forgotChooseAccount" && (
+                <Slide key="forgotChoose">
+                  <CircleIcon color="#fbbf24"><User className="w-6 h-6" /></CircleIcon>
+                  <div className="text-center mb-4">
+                    <h2 className="text-xl font-black text-white">اختر الحساب</h2>
+                    <p className="text-white/30 text-[11px] mt-1">هذا البريد الإلكتروني مرتبط بأكثر من حساب، اختر الحساب الذي تود استعادة كلمة المرور له:</p>
+                  </div>
+                  <div className="max-h-48 overflow-y-auto space-y-2 mb-4 custom-scrollbar">
+                    {forgotAccounts.map((acc) => (
+                      <button key={acc.uid} type="button" onClick={() => handleSelectAccount(acc)}
+                        className="w-full flex items-center gap-3 p-3 rounded-xl border border-white/[0.04] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/[0.08] transition-all text-right">
+                        <img src={acc.photoURL || AVATARS.male[0]} alt="" className="w-10 h-10 rounded-lg object-cover bg-black/20" />
+                        <div>
+                          <div className="text-sm font-bold text-white">{acc.displayName}</div>
+                          <div className="text-xs text-white/40">@{acc.username}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <ErrorBox text={error} />
+                  <SubBtn onClick={() => { setView("forgotPassword"); clearError(); }} label="تراجع" />
+                </Slide>
+              )}
+
+              {/* ── FORGOT OTP ── */}
+              {view === "forgotOtp" && (
+                <Slide key="forgotOtp">
+                  <CircleIcon color="#fbbf24"><Mail className="w-6 h-6" /></CircleIcon>
+                  <div className="text-center mb-6">
+                    <h2 className="text-xl font-black text-white">كود التحقق</h2>
+                    <p className="text-white/30 text-xs mt-2 leading-relaxed">أدخل كود التحقق المرسل إلى بريدك الإلكتروني<br />لحساب <span className="text-[#fbbf24] font-bold">@{selectedAccount?.username}</span></p>
+                  </div>
+                  <form onSubmit={handleVerifyForgotOtp} className="space-y-4">
+                    <OtpBoxes value={forgotOtp} onChange={setForgotOtp} />
+                    <ErrorBox text={error} />
+                    <GoldBtn type="submit" loading={isLoading} label="تأكيد الكود" />
+                    <SubBtn onClick={() => { 
+                      if (forgotAccounts.length > 1) {
+                        setView("forgotChooseAccount");
+                      } else {
+                        setView("forgotPassword");
+                      }
+                      clearError(); 
+                      setForgotOtp(""); 
+                    }} label="تراجع" />
+                  </form>
+                </Slide>
+              )}
+
+              {/* ── FORGOT RESET ── */}
+              {view === "forgotReset" && (
+                <Slide key="forgotReset">
+                  <CircleIcon color="#fbbf24"><KeyRound className="w-6 h-6" /></CircleIcon>
+                  <div className="text-center mb-6">
+                    <h2 className="text-xl font-black text-white font-bold">كلمة مرور جديدة</h2>
+                    <p className="text-white/30 text-xs mt-2">قم بتعيين كلمة مرور جديدة لحسابك</p>
+                  </div>
+                  <form onSubmit={handleResetPassword} className="space-y-4">
+                    <FancyInput icon={<KeyRound />} type="password" value={forgotNewPassword} onChange={setForgotNewPassword} placeholder="كلمة المرور الجديدة" showEye showPassword={showPassword} setShowPassword={setShowPassword} />
+                    <ErrorBox text={error} />
+                    <GoldBtn type="submit" loading={isLoading} label="حفظ كلمة المرور" />
+                  </form>
+                </Slide>
+              )}
+
+              {/* ── FORGOT SENT (SUCCESS) ── */}
               {view === "forgotSent" && (
                 <Slide key="forgotSent">
                   <div className="flex flex-col items-center py-4 text-center">
@@ -445,11 +616,9 @@ export function AuthGate({ children }: AuthGateProps) {
                       style={{ background: "rgba(16,185,129,0.08)" }}>
                       <Check className="w-10 h-10 text-emerald-400" />
                     </motion.div>
-                    <h2 className="text-xl font-black text-white mb-2">تم الإرسال ✓</h2>
-                    <p className="text-white/40 text-sm mb-1">تحقق من بريدك الإلكتروني</p>
-                    <p className="text-[#fbbf24] font-bold text-sm mb-5">{forgotEmail}</p>
-                    <p className="text-white/20 text-xs leading-relaxed mb-7">اضغط على الرابط في الإيميل لإعادة تعيين كلمة المرور</p>
-                    <button onClick={() => { setView("login"); clearError(); setForgotEmail(""); }}
+                    <h2 className="text-xl font-black text-white mb-2">تم التغيير ✓</h2>
+                    <p className="text-white/40 text-sm mb-5">تمت إعادة تعيين كلمة المرور لحسابك بنجاح</p>
+                    <button onClick={() => { setView("login"); clearError(); setForgotEmail(""); setForgotOtp(""); setForgotNewPassword(""); setResetToken(""); setSelectedAccount(null); }}
                       className="text-[#fbbf24] font-bold text-sm hover:underline">العودة لتسجيل الدخول</button>
                   </div>
                 </Slide>
