@@ -260,9 +260,12 @@ export function AuthGate({ children }: AuthGateProps) {
           }
         } catch (firstAuthErr: any) {
           // If trying the real email failed (e.g. they are an old user who has 'email' in Firestore but their Auth account is still the legacy one)
-          if (realEmail && firstAuthErr.code !== "auth/wrong-password" && firstAuthErr.code !== "auth/invalid-credential") {
-            // Try legacy email fallback
-            await signInWithEmailAndPassword(auth, legacyEmail, loginPassword);
+          if (realEmail) {
+            try {
+              await signInWithEmailAndPassword(auth, legacyEmail, loginPassword);
+            } catch (secondAuthErr) {
+              throw firstAuthErr;
+            }
           } else {
             throw firstAuthErr;
           }
@@ -328,7 +331,12 @@ export function AuthGate({ children }: AuthGateProps) {
         const apiResponse = await fetch(getApiUrl("/api/send-otp"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: formData.email.trim(), reason: "تأكيد البريد الإلكتروني للتسجيل", type: "signup" })
+          body: JSON.stringify({
+            email: formData.email.trim(),
+            reason: "تأكيد البريد الإلكتروني للتسجيل",
+            type: "signup",
+            username: formData.username.trim()
+          })
         });
 
         const apiData = await apiResponse.json();
@@ -394,7 +402,7 @@ export function AuthGate({ children }: AuthGateProps) {
   const handleFinalSignup = async () => {
     setIsLoggingIn(true);
     try {
-      const email = `${formData.username.trim().toLowerCase()}@yaqeen.app`;
+      const email = formData.email.trim().toLowerCase();
       const res = await createUserWithEmailAndPassword(auth, email, formData.password);
       await setDoc(doc(db, "users", res.user.uid), {
         uid: res.user.uid,
@@ -604,7 +612,7 @@ export function AuthGate({ children }: AuthGateProps) {
                     setFormData({...formData, password: v});
                     setShowWeakPasswordWarning(false);
                     if (error.includes("ضعيفة")) setError("");
-                  }} placeholder="كلمة المرور" />
+                  }} placeholder="كلمة المرور" showEye={true} showPassword={showPassword} setShowPassword={setShowPassword} />
                   
                   {/* Password Strength Indicator */}
                   <div className="flex justify-between text-[10px] w-full px-0.5 pt-0.5">
@@ -728,7 +736,7 @@ function InputField({ icon, type, value, onChange, placeholder, dir = "rtl", sho
       </div>
       <input
         required
-        type={showEye && !showPassword ? "password" : type}
+        type={showEye ? (showPassword ? "text" : "password") : type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}

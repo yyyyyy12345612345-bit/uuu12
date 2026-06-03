@@ -35,7 +35,7 @@ export async function OPTIONS() {
 
 export async function POST(request: Request) {
   try {
-    const { email, reason, type } = await request.json();
+    const { email, reason, type, username } = await request.json();
     if (!email) {
       return NextResponse.json({ success: false, error: "البريد الإلكتروني مطلوب" }, { status: 400, headers: CORS_HEADERS });
     }
@@ -51,19 +51,33 @@ export async function POST(request: Request) {
     let sent = true;
     try {
       let html = `
-        <div style="direction:rtl;font-family:Tahoma,sans-serif;text-align:center;padding:20px;max-width:480px;margin:auto;">
-          <h2 style="color:#1a1a2e;">مرحباً بك</h2>
-          <p style="color:#666;">${reason || "كود التحقق الخاص بك"}</p>
-          <div style="background:#f4f4f4;padding:20px;border-radius:8px;margin:16px 0;font-size:36px;letter-spacing:6px;color:#22c55e;font-weight:bold;">${otpCode}</div>`;
+        <div style="direction:rtl;font-family:Tahoma,sans-serif;text-align:center;padding:30px;max-width:480px;margin:auto;border:1px solid #e5e7eb;border-radius:16px;background-color:#ffffff;box-shadow:0 4px 6px rgba(0,0,0,0.05);">
+          <h2 style="color:#1e293b;font-size:22px;margin-bottom:8px;">مرحباً بك في الاستوديو القرآني</h2>
+          <p style="color:#4b5563;font-size:15px;margin-bottom:20px;">${reason || "كود التحقق الخاص بك لإنشاء الحساب"}</p>
+      `;
+
+      if (username) {
+        html += `
+          <div style="background-color:#f8fafc;padding:12px;border-radius:10px;margin-bottom:20px;border:1px dashed #cbd5e1;">
+            <span style="color:#64748b;font-size:14px;">اسم المستخدم الذي سجلت به:</span>
+            <strong style="color:#0f172a;font-size:16px;display:block;margin-top:4px;">${username}</strong>
+          </div>
+        `;
+      }
+
+      html += `
+          <div style="background:#f0fdf4;padding:20px;border-radius:12px;margin:20px 0;font-size:36px;letter-spacing:6px;color:#16a34a;font-weight:bold;border:1px solid #bbf7d0;">${otpCode}</div>
+      `;
 
       if (type === "signup") {
         const verifyLink = `${origin}/api/verify-token?t=${encodeURIComponent(token)}`;
         html += `
-          <p style="color:#999;font-size:13px;">أو اضغط على الرابط للتحقق مباشرة:</p>
-          <a href="${verifyLink}" style="display:inline-block;background:#22c55e;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:bold;margin:8px 0;">تأكيد الحساب</a>`;
+          <p style="color:#64748b;font-size:13px;margin-top:20px;">أو يمكنك الضغط على الزر التالي لتأكيد الحساب مباشرة:</p>
+          <a href="${verifyLink}" style="display:inline-block;background:#16a34a;color:#ffffff;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:bold;margin:10px 0;box-shadow:0 2px 4px rgba(22,163,74,0.2);">تأكيد الحساب</a>
+        `;
       }
 
-      html += `<p style="color:#aaa;font-size:12px;margin-top:16px;">هذا الكود صالح لمدة 5 دقائق.</p></div>`;
+      html += `<p style="color:#94a3b8;font-size:12px;margin-top:24px;border-top:1px solid #f1f5f9;padding-top:16px;">هذا الكود صالح لمدة 5 دقائق.</p></div>`;
 
       await getTransporter().sendMail({
         from: `"القرآن الكريم" <${GMAIL_USER}>`,
