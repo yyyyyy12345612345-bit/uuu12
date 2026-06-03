@@ -167,25 +167,52 @@ export function AuthGate({ children }: AuthGateProps) {
       const id = loginId.trim();
       const isEmail = id.includes("@") && !id.toLowerCase().endsWith("@yaqeen.app");
       let resolvedEmail: string = id;
+      let docUsername: string | null = null;
+
       try {
         if (isEmail) {
           const q = query(collection(db, "users"), where("email", "==", id.toLowerCase()));
           const snap = await getDocs(q);
-          resolvedEmail = snap.empty ? id : (snap.docs[0].data().email || id);
+          if (!snap.empty) {
+            if (snap.docs.length > 1) {
+              setError("هذا البريد مرتبط بأكثر من حساب، يرجى تسجيل الدخول باستخدام اسم المستخدم.");
+              setIsLoading(false);
+              return;
+            }
+            resolvedEmail = snap.docs[0].data().email || id;
+            docUsername = snap.docs[0].data().username || null;
+          }
         } else {
           const username = id.replace("@yaqeen.app", "").toLowerCase();
           const q = query(collection(db, "users"), where("username", "==", username));
           const snap = await getDocs(q);
-          resolvedEmail = snap.empty ? `${username}@yaqeen.app` : (snap.docs[0].data().email || `${username}@yaqeen.app`);
+          if (!snap.empty) {
+            resolvedEmail = snap.docs[0].data().email || `${username}@yaqeen.app`;
+            docUsername = snap.docs[0].data().username || username;
+          } else {
+            resolvedEmail = `${username}@yaqeen.app`;
+            docUsername = username;
+          }
         }
-      } catch { resolvedEmail = isEmail ? id : `${id.replace("@yaqeen.app", "").toLowerCase()}@yaqeen.app`; }
+      } catch {
+        resolvedEmail = isEmail ? id : `${id.replace("@yaqeen.app", "").toLowerCase()}@yaqeen.app`;
+      }
 
       try {
         await signInWithEmailAndPassword(auth, resolvedEmail, loginPass);
       } catch (firstErr: any) {
-        if (!isEmail && (firstErr.code === "auth/user-not-found" || firstErr.code === "auth/wrong-password" || firstErr.code === "auth/invalid-credential")) {
+        if (docUsername) {
+          const fallbackEmail = `${docUsername.toLowerCase()}@yaqeen.app`;
+          if (fallbackEmail !== resolvedEmail) {
+            await signInWithEmailAndPassword(auth, fallbackEmail, loginPass);
+            return;
+          }
+        } else if (!isEmail) {
           const legacy = `${id.replace("@yaqeen.app", "").toLowerCase()}@yaqeen.app`;
-          if (legacy !== resolvedEmail) { await signInWithEmailAndPassword(auth, legacy, loginPass); return; }
+          if (legacy !== resolvedEmail) {
+            await signInWithEmailAndPassword(auth, legacy, loginPass);
+            return;
+          }
         }
         throw firstErr;
       }
@@ -195,7 +222,9 @@ export function AuthGate({ children }: AuthGateProps) {
       else if (code === "auth/user-not-found") setError("الحساب غير موجود");
       else if (code === "auth/too-many-requests") setError("محاولات كثيرة، حاول لاحقاً");
       else setError("بيانات الدخول غير صحيحة");
-    } finally { setIsLoading(false); }
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   async function handleForgotPassword(e: React.FormEvent) {

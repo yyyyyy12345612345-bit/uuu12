@@ -34,6 +34,7 @@ const NAV_ITEMS = [
 interface DailyStats {
   emailCount: number;
   regCount: number;
+  forgotCount: number;
   totalEmails: number;
   totalUniqueEmails: number;
 }
@@ -63,7 +64,7 @@ export function AdminPanel() {
     totalUsers: 0, topGovernorate: "...", totalPoints: 0,
     activeToday: 0, pushSubscribers: 0
   });
-  const [dailyStats, setDailyStats] = useState<DailyStats>({ emailCount: 0, regCount: 0, totalEmails: 0, totalUniqueEmails: 0 });
+  const [dailyStats, setDailyStats] = useState<DailyStats>({ emailCount: 0, regCount: 0, forgotCount: 0, totalEmails: 0, totalUniqueEmails: 0 });
   const [maintenanceMode, setMaintenanceMode] = useState<MaintenanceMode>({
     enabled: false, message: "", reason: "", duration: ""
   });
@@ -273,17 +274,16 @@ export function AdminPanel() {
     try {
       const today = new Date().toISOString().split('T')[0];
       const emailSnap = await getDocs(collection(db, "emailLogs"));
-      const emailCount = emailSnap.docs.filter(d => d.data().date === today).length;
+      const todayEmails = emailSnap.docs.filter(d => d.data().date === today);
+      const emailCount = todayEmails.length;
+      
+      const forgotCount = todayEmails.filter(d => d.data().type === "reset").length;
+      const regCount = todayEmails.filter(d => d.data().type === "signup" || !d.data().type).length;
+      
       const totalEmails = emailSnap.size;
       const uniqueEmails = new Set(emailSnap.docs.map(d => d.data().email)).size;
 
-      const usersSnap = await getDocs(collection(db, "users"));
-      const regCount = usersSnap.docs.filter(d => {
-        const created = d.data().createdAt;
-        return created && typeof created === 'string' && created.startsWith(today);
-      }).length;
-
-      setDailyStats({ emailCount, regCount, totalEmails, totalUniqueEmails: uniqueEmails });
+      setDailyStats({ emailCount, regCount, forgotCount, totalEmails, totalUniqueEmails: uniqueEmails });
     } catch (e) { console.error(e); }
   };
 
@@ -805,14 +805,15 @@ export function AdminPanel() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 {[
                   { label: 'إجمالي المستخدمين', value: stats.totalUsers, icon: Users, color: 'text-[#fbbf24]' },
                   { label: 'نشط اليوم', value: stats.activeToday, icon: UserCheck, color: 'text-emerald-400' },
-                  { label: 'تسجيلات اليوم', value: dailyStats.regCount, icon: TrendingUp, color: 'text-violet-400' },
-                  { label: 'إيميلات اليوم', value: dailyStats.emailCount, icon: Mail, color: 'text-sky-400' },
-                  { label: 'إجمالي رسائل التاكيد', value: dailyStats.totalEmails, icon: Mail, color: 'text-amber-400' },
-                  { label: 'إيميلات مرسَل لها', value: dailyStats.totalUniqueEmails, icon: Users, color: 'text-rose-400' },
+                  { label: 'أكواد التسجيل (اليوم)', value: dailyStats.regCount, icon: TrendingUp, color: 'text-violet-400' },
+                  { label: 'أكواد الاستعادة (اليوم)', value: dailyStats.forgotCount, icon: KeyRound, color: 'text-orange-400' },
+                  { label: 'إجمالي إيميلات اليوم', value: dailyStats.emailCount, icon: Mail, color: 'text-sky-400' },
+                  { label: 'إجمالي رسائل التأكيد', value: dailyStats.totalEmails, icon: Mail, color: 'text-amber-400' },
+                  { label: 'إيميلات فريدة مرسل لها', value: dailyStats.totalUniqueEmails, icon: Users, color: 'text-rose-400' },
                 ].map(card => (
                   <div key={card.label} className={STAT_CARD_CLASS}>
                     <card.icon className={`mx-auto mb-3 w-6 h-6 ${card.color}`} />
