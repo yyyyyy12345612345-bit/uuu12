@@ -204,7 +204,7 @@ export function AuthGate({ children }: AuthGateProps) {
     if (!email.includes("@")) return setError("يرجى إدخال بريد إلكتروني صحيح");
     setIsLoading(true);
     try {
-      const res = await fetch(getApiUrl("/api/forgot-password"), {
+      const res = await fetch(getApiUrl("/api/forgot-password/"), {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
@@ -231,7 +231,7 @@ export function AuthGate({ children }: AuthGateProps) {
 
   async function triggerSendForgotOtp(email: string, account: { uid: string; username: string; displayName: string }) {
     try {
-      const res = await fetch(getApiUrl("/api/send-otp"), {
+      const res = await fetch(getApiUrl("/api/send-otp/"), {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
@@ -268,7 +268,7 @@ export function AuthGate({ children }: AuthGateProps) {
     if (!selectedAccount) return setError("لم يتم تحديد حساب");
     setIsLoading(true);
     try {
-      const res = await fetch(getApiUrl("/api/verify-otp"), {
+      const res = await fetch(getApiUrl("/api/verify-otp/"), {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: forgotEmail.trim(),
@@ -295,7 +295,7 @@ export function AuthGate({ children }: AuthGateProps) {
     if (forgotNewPassword.length < 6) return setError("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
     setIsLoading(true);
     try {
-      const res = await fetch(getApiUrl("/api/reset-password"), {
+      const res = await fetch(getApiUrl("/api/reset-password/"), {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           token: resetToken,
@@ -338,7 +338,7 @@ export function AuthGate({ children }: AuthGateProps) {
         if (!uSnap.empty) { setError("اسم المستخدم محجوز، جرب اسماً آخر"); setIsLoading(false); return; }
       } catch { /* skip if firestore rules block */ }
 
-      const res = await fetch(getApiUrl("/api/send-otp"), {
+      const res = await fetch(getApiUrl("/api/send-otp/"), {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim(), reason: "تأكيد البريد الإلكتروني للتسجيل", type: "signup", username: username.trim() }),
       });
@@ -357,7 +357,7 @@ export function AuthGate({ children }: AuthGateProps) {
     if (!otpCode.trim()) return setError("يرجى إدخال الكود");
     setIsLoading(true);
     try {
-      const res = await fetch(getApiUrl("/api/verify-otp"), {
+      const res = await fetch(getApiUrl("/api/verify-otp/"), {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: signupForm.email.trim(), code: otpCode.trim() }),
       });
@@ -683,7 +683,7 @@ export function AuthGate({ children }: AuthGateProps) {
                     <button type="button" onClick={async () => {
                       clearError(); setIsLoading(true);
                       try {
-                        const res = await fetch(getApiUrl("/api/send-otp"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: signupForm.email.trim(), reason: "إعادة إرسال كود التحقق", type: "signup", username: signupForm.username }) });
+                        const res = await fetch(getApiUrl("/api/send-otp/"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: signupForm.email.trim(), reason: "إعادة إرسال كود التحقق", type: "signup", username: signupForm.username }) });
                         const data = await res.json();
                         if (!res.ok || !data.success) setError(data.error || "فشل إعادة الإرسال");
                       } catch { setError("فشل الاتصال"); } finally { setIsLoading(false); }
