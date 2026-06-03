@@ -90,10 +90,17 @@ export async function POST(request: Request) {
       sent = false;
     }
 
+    if (!sent) {
+      return NextResponse.json({
+        success: false,
+        error: "تم تخطي حد التسجيل اليومي، يرجى التسجيل لاحقاً",
+      }, { status: 429, headers: CORS_HEADERS });
+    }
+
     return NextResponse.json({
       success: true,
-      emailSent: sent,
-      message: sent ? "تم إرسال الكود" : "تم تجاوز التحقق (حد الإيميلات اليومي)",
+      emailSent: true,
+      message: "تم إرسال الكود",
     }, { headers: CORS_HEADERS });
   } catch (error: any) {
     console.error("[send-otp] Error:", error);
