@@ -463,7 +463,7 @@ ${smartTip}
 
     // ── Local ML shortcut for direct known app queries before external calls ──
     const localClassification = classifyQueryWithML(lastUserMessage, userData);
-    if (localClassification.score === 1.0 && localClassification.category !== "افتراضي") {
+    if (localClassification.score === 1.0 && localClassification.category === "تعديل البيانات") {
       return NextResponse.json({
         text: localClassification.reply,
         updateProfile: localClassification.updateProfile,

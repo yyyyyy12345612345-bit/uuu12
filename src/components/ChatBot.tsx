@@ -7,8 +7,35 @@ import { useRouter } from "next/navigation";
 import { useInstantPathname, navigateInstantly } from "@/lib/navigation";
 import { classifyQueryWithML } from "@/lib/ml-model";
 import { auth, db, initFirebase } from "@/lib/firebase";
-import { doc, onSnapshot, collection, query, orderBy, limit, getDocs, updateDoc } from "firebase/firestore";
+import { doc, onSnapshot, collection, query, orderBy, limit, getDocs, updateDoc, addDoc, serverTimestamp } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+
+// helper functions for chatbot analytics
+function detectInsult(text: string): boolean {
+  const badWords = [
+    "غبي", "حمار", "كلب", "متخلف", "وحش", "سيء", "سيئ", "زباله", "زبالة", "غباء", 
+    "تفه", "ملل", "زهقت", "مللت", "خرا", "خراء", "شتم", "بضان", "يا عم", "ياعم", 
+    "غتي", "غبيي", "غبييي", "حيوان", "لعنة", "لعنه", "يلعن", "يا غبي", "ياحمار", "ياكلب",
+    "احا", "احى", "منيوك", "خول", "شرموط", "عرص"
+  ];
+  const normalized = text.toLowerCase().trim();
+  return badWords.some(word => normalized.includes(word));
+}
+
+function classifySentiment(text: string): "positive" | "negative" | "neutral" {
+  if (detectInsult(text)) return "negative";
+  
+  const niceWords = [
+    "شكرا", "شكرًا", "جميل", "حلو", "ممتاز", "رائع", "جزاك الله", "جزاكم الله", 
+    "بارك الله", "احسنت", "أحسنت", "عاش", "تسلم", "حبيبي", "يا غالي", "ياغالي", 
+    "كفو", "منور", "احبك", "أحبك", "مفيد", "جميل جدا", "رائع جدا", "شكرا لك"
+  ];
+  const normalized = text.toLowerCase().trim();
+  const hasNice = niceWords.some(word => normalized.includes(word));
+  if (hasNice) return "positive";
+  
+  return "neutral";
+}
 
 export function ChatBot() {
   const router = useRouter();
@@ -197,12 +224,55 @@ export function ChatBot() {
     return parts;
   };
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!message.trim() || isTyping) return;
+  const logMessageToFirestore = async (text: string, sender: "user" | "bot") => {
+    try {
+      await initFirebase();
+      if (!db) return;
+      
+      let targetUserId = "guest_unknown";
+      if (typeof window !== "undefined") {
+        let savedUid = localStorage.getItem("quran_chatbot_user_id");
+        if (!savedUid) {
+          savedUid = "guest_" + Math.random().toString(36).substring(2, 11);
+          localStorage.setItem("quran_chatbot_user_id", savedUid);
+        }
+        targetUserId = auth?.currentUser?.uid || savedUid;
+      }
+      
+      const targetUserName = auth?.currentUser?.uid 
+        ? (dbUser?.displayName || dbUser?.name || "مستخدم مسجل")
+        : "زائر";
 
-    const userText = message.trim();
+      await addDoc(collection(db, "chatbot_logs"), {
+        userId: targetUserId,
+        userName: sender === "user" ? targetUserName : "يقين (البوت)",
+        text: text,
+        sender: sender,
+        timestamp: serverTimestamp(),
+        sentiment: sender === "user" ? classifySentiment(text) : "neutral",
+        isInsult: sender === "user" ? detectInsult(text) : false
+      });
+    } catch (err) {
+      console.error("Failed to log message to Firestore:", err);
+    }
+  };
+
+  const handleSendMessage = async (e?: React.FormEvent, customText?: string) => {
+    if (e) e.preventDefault();
+    if (isTyping) return;
+
+    const userText = customText ? customText.trim() : message.trim();
+    if (!userText) return;
+
     const newUserMsg = { id: Date.now(), text: userText, sender: "user" };
+    
+    // Clear message input if it was typed
+    if (!customText) {
+      setMessage("");
+    }
+
+    // Log user message to Firestore
+    logMessageToFirestore(userText, "user");
     
     // Check if there is an active quiz we are waiting for an answer to
     if (activeQuiz) {
@@ -254,8 +324,11 @@ ${activeQuiz.explanation}
           newUserMsg,
           { id: Date.now() + 1, text: replyText, sender: "bot" }
         ]);
+
+        // Log bot response to Firestore
+        logMessageToFirestore(replyText, "bot");
+
         setActiveQuiz(null);
-        setMessage("");
         return;
       } else {
         // لو الإدخال ليس خياراً (أ، ب، ج، د)، نقوم بإلغاء الكويز النشط حتى يستطيع الـ AI فهم السؤال الجديد
@@ -267,7 +340,6 @@ ${activeQuiz.explanation}
     const updatedMessages = [...messages, newUserMsg];
     
     setMessages(updatedMessages);
-    setMessage("");
     setIsTyping(true);
 
     const userData = dbUser;
@@ -294,6 +366,9 @@ ${activeQuiz.explanation}
         ...prev,
         { id: Date.now() + 1, text: data.text, sender: "bot" }
       ]);
+
+      // Log bot response to Firestore
+      logMessageToFirestore(data.text, "bot");
 
       if (data.quiz) {
         setActiveQuiz(data.quiz);
@@ -349,6 +424,9 @@ ${activeQuiz.explanation}
         ...prev,
         { id: Date.now() + 1, text: mlClassification.reply, sender: "bot" }
       ]);
+
+      // Log bot response to Firestore
+      logMessageToFirestore(mlClassification.reply, "bot");
 
       if (mlClassification.quiz) {
         setActiveQuiz(mlClassification.quiz);
@@ -437,40 +515,40 @@ ${activeQuiz.explanation}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-16 left-1 right-1 sm:left-4 sm:right-auto sm:w-[400px] z-[500] bg-gradient-to-br from-[#0a0a0a] via-[#111111] to-[#0a0a0a] border border-[#d4af37]/30 rounded-2xl shadow-[0_0_50px_rgba(212,175,55,0.2)] flex flex-col overflow-hidden max-h-[75vh]"
+            className="fixed bottom-16 left-1 right-1 sm:left-4 sm:right-auto sm:w-[400px] z-[500] bg-black/85 backdrop-blur-2xl border border-white/10 rounded-[2rem] shadow-[0_15px_50px_rgba(0,0,0,0.8),0_0_40px_rgba(251,191,36,0.15)] flex flex-col overflow-hidden max-h-[75vh]"
           >
             {/* Header */}
-            <div className="px-4 py-3 bg-gradient-to-r from-[#111] via-[#1a1a1a] to-[#111] border-b border-[#d4af37]/20 flex items-center justify-between shrink-0">
+            <div className="px-5 py-4 bg-gradient-to-b from-white/[0.04] to-transparent border-b border-white/10 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#d4af37] to-[#f59e0b] flex items-center justify-center shadow-lg shadow-[#d4af37]/30">
-                  <BotMessageSquare className="w-4 h-4 text-black" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#fbbf24] to-[#f59e0b] flex items-center justify-center shadow-lg shadow-[#fbbf24]/30">
+                  <BotMessageSquare className="w-5 h-5 text-black" />
                 </div>
                 <div>
-                  <span className="text-white text-sm font-black">المساعد الذكي</span>
-                  <div className="flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                    <span className="text-[9px] text-green-400 font-bold">متصل الآن</span>
+                  <span className="text-white text-sm font-black">يقين | المساعد الذكي</span>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                    <span className="text-[9px] text-emerald-400 font-bold">نشط بالذكاء الاصطناعي</span>
                   </div>
                 </div>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-white/40 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10">
+              <button onClick={() => setIsOpen(false)} className="text-white/40 hover:text-white transition-colors p-2 rounded-xl hover:bg-white/5">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Messages */}
-            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto no-scrollbar px-4 py-4 space-y-3 relative z-10 bg-gradient-to-b from-transparent to-black/20">
+            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto no-scrollbar px-4 py-4 space-y-3.5 relative z-10 bg-gradient-to-b from-transparent to-black/30">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
                   <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-[13px] leading-relaxed shadow-lg ${
                     msg.sender === "user"
-                      ? "bg-gradient-to-br from-[#d4af37] to-[#f59e0b] text-black rounded-tr-sm font-bold"
-                      : "bg-gradient-to-br from-[#1a1a1a] to-[#111] text-white/90 border border-[#d4af37]/20 rounded-tl-sm"
+                      ? "bg-gradient-to-br from-[#fbbf24] to-[#d4af37] text-black rounded-tr-sm font-bold shadow-lg shadow-[#fbbf24]/10"
+                      : "bg-gradient-to-br from-white/[0.04] to-white/[0.01] backdrop-blur-md text-white/90 border border-white/10 rounded-tl-sm"
                   }`}>
                     {msg.sender === "bot" && (
-                      <div className="flex items-center gap-2 mb-2 pb-2 border-b border-[#d4af37]/10">
-                        <Sparkles className="w-3 h-3 text-[#d4af37]" />
-                        <span className="text-[9px] text-[#d4af37] font-black uppercase tracking-wider">المساعد الإسلامي</span>
+                      <div className="flex items-center gap-2 mb-2 pb-1.5 border-b border-white/5">
+                        <Sparkles className="w-3 h-3 text-[#fbbf24]" />
+                        <span className="text-[9px] text-[#fbbf24] font-black uppercase tracking-wider">المساعد الإسلامي</span>
                       </div>
                     )}
                     <div className="whitespace-pre-line">{renderMessage(msg.text)}</div>
@@ -479,34 +557,53 @@ ${activeQuiz.explanation}
               ))}
               {isTyping && (
                 <div className="flex justify-start">
-                  <div className="px-4 py-3 rounded-2xl bg-gradient-to-br from-[#1a1a1a] to-[#111] border border-[#d4af37]/20 flex items-center gap-2 shadow-lg">
+                  <div className="px-4 py-3 rounded-2xl bg-gradient-to-br from-white/[0.04] to-white/[0.01] border border-white/10 flex items-center gap-2 shadow-lg">
                     <div className="flex items-center gap-1.5">
-                      <div className="w-2 h-2 bg-[#d4af37] rounded-full animate-bounce" style={{animationDelay:"0ms"}} />
-                      <div className="w-2 h-2 bg-[#d4af37] rounded-full animate-bounce" style={{animationDelay:"150ms"}} />
-                      <div className="w-2 h-2 bg-[#d4af37] rounded-full animate-bounce" style={{animationDelay:"300ms"}} />
+                      <div className="w-2 h-2 bg-[#fbbf24] rounded-full animate-bounce" style={{animationDelay:"0ms"}} />
+                      <div className="w-2 h-2 bg-[#fbbf24] rounded-full animate-bounce" style={{animationDelay:"150ms"}} />
+                      <div className="w-2 h-2 bg-[#fbbf24] rounded-full animate-bounce" style={{animationDelay:"300ms"}} />
                     </div>
-                    <span className="text-[9px] text-[#d4af37] font-bold">يكتب...</span>
+                    <span className="text-[9px] text-[#fbbf24] font-bold">يكتب...</span>
                   </div>
                 </div>
               )}
               <div ref={messagesEndRef} />
             </div>
 
+            {/* Suggestion Chips */}
+            <div className="px-4 py-2 bg-black/45 border-t border-white/5 flex gap-2 overflow-x-auto no-scrollbar shrink-0">
+              {[
+                { label: "📖 تفسير آية الكرسي", text: "ما تفسير آية الكرسي؟" },
+                { label: "🕌 مواقيت الصلاة", text: "أين أجد مواقيت الصلاة في الموقع؟" },
+                { label: "🏆 كيف أكسب نقاط؟", text: "إزاي أجمع نقاط في الموقع؟" },
+                { label: "🎬 تصميم فيديو قرآني", text: "كيف أعمل فيديو قرآني؟" }
+              ].map((s) => (
+                <button
+                  key={s.label}
+                  type="button"
+                  onClick={() => handleSendMessage(undefined, s.text)}
+                  className="shrink-0 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-[#fbbf24]/10 hover:border-[#fbbf24]/30 text-[10px] text-white/70 hover:text-[#fbbf24] font-bold transition-all whitespace-nowrap"
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+
             {/* Input */}
-            <div className="px-4 py-3 border-t border-[#d4af37]/10 bg-gradient-to-t from-[#0a0a0a] to-transparent">
-              <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+            <div className="px-4 py-3 border-t border-white/5 bg-gradient-to-t from-black to-transparent">
+              <form onSubmit={(e) => handleSendMessage(e)} className="flex items-center gap-2">
                 <input
                   type="text"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="اكتب سؤالك الديني هنا..."
                   dir="rtl"
-                  className="flex-1 bg-gradient-to-r from-[#111] to-[#1a1a1a] border-2 border-[#d4af37]/20 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-[#d4af37]/50 transition-all shadow-inner"
+                  className="flex-1 bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-[#fbbf24]/40 focus:bg-white/[0.05] transition-all shadow-inner"
                 />
                 <button
                   type="submit"
                   disabled={!message.trim() || isTyping}
-                  className="shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#f59e0b] flex items-center justify-center disabled:opacity-40 shadow-lg shadow-[#d4af37]/30 hover:scale-105 active:scale-95 transition-all"
+                  className="shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br from-[#fbbf24] to-[#f59e0b] flex items-center justify-center disabled:opacity-40 shadow-lg shadow-[#fbbf24]/20 hover:scale-105 active:scale-95 transition-all"
                 >
                   <Send className="w-4 h-4 text-black" />
                 </button>

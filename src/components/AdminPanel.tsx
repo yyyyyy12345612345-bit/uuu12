@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { LayoutDashboard, BellRing, Activity, UserCircle, CreditCard, Swords, Settings, GalleryHorizontalEnd, BarChart3, History, HeadphonesIcon, Megaphone, AlertCircle, BookOpen, FlaskConical, Package, ShieldCheck, Loader2, X, MenuIcon, Users, UserCheck, Mail, TrendingUp, RefreshCw, Bell, Trophy, Ban, CheckCircle, Phone, AlertTriangle, Trash2 } from "lucide-react";
+import { LayoutDashboard, BellRing, Activity, UserCircle, CreditCard, Swords, Settings, GalleryHorizontalEnd, BarChart3, History, HeadphonesIcon, Megaphone, AlertCircle, BookOpen, FlaskConical, Package, ShieldCheck, Loader2, X, MenuIcon, Users, UserCheck, Mail, TrendingUp, RefreshCw, Bell, Trophy, Ban, CheckCircle, Phone, AlertTriangle, Trash2, Copy, KeyRound, MessageSquare, Sparkles } from "lucide-react";
 import surahsData from "@/data/surahs.json";
 import { auth, db, initFirebase } from "@/lib/firebase";
 import {
@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { id: 'performance', label: 'الأداء', icon: Activity },
   { id: 'users', label: 'المستخدمين', icon: UserCircle },
   { id: 'subs', label: 'الاشتراكات', icon: CreditCard },
+  { id: 'chatbot', label: 'تحليلات الشات بوت', icon: MessageSquare },
   { id: 'quests', label: 'المهام', icon: Swords },
   { id: 'settings', label: 'الإعدادات', icon: Settings },
   { id: 'showcase', label: 'المعرض', icon: GalleryHorizontalEnd },
@@ -94,6 +95,8 @@ export function AdminPanel() {
 
   const [subRequests, setSubRequests] = useState<any[]>([]);
   const [isSubsLoading, setIsSubsLoading] = useState(false);
+  const [subsFilter, setSubsFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
+  const [copiedCell, setCopiedCell] = useState<string | null>(null);
 
   const [showcaseItems, setShowcaseItems] = useState<any[]>([]);
   const [isAddingToShowcase, setIsAddingToShowcase] = useState(false);
@@ -128,6 +131,10 @@ export function AdminPanel() {
   });
   const [activityLog, setActivityLog] = useState<any[]>([]);
   const [supportTickets, setSupportTickets] = useState<any[]>([]);
+  const [chatbotLogs, setChatbotLogs] = useState<any[]>([]);
+  const [isChatbotLoading, setIsChatbotLoading] = useState(false);
+  const [selectedUserChat, setSelectedUserChat] = useState<any[] | null>(null);
+  const [selectedChatUserId, setSelectedChatUserId] = useState<string | null>(null);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [isSavingCampaigns, setIsSavingCampaigns] = useState(false);
   const [isSavingFlags, setIsSavingFlags] = useState(false);
@@ -221,6 +228,7 @@ export function AdminPanel() {
       performance: async () => { await fetchPerformanceMetrics(); },
       users: async () => {},
       subs: async () => { await fetchSubRequests(); },
+      chatbot: async () => { await fetchChatbotLogs(); },
       quests: async () => { await fetchQuests(); },
       settings: async () => { await fetchPaymentSettings(); await fetchMaintenanceMode(); },
       showcase: async () => { await fetchShowcaseItems(); },
@@ -285,6 +293,21 @@ export function AdminPanel() {
 
       setDailyStats({ emailCount, regCount, forgotCount, totalEmails, totalUniqueEmails: uniqueEmails });
     } catch (e) { console.error(e); }
+  };
+
+  const fetchChatbotLogs = async () => {
+    if (!db) return;
+    setIsChatbotLoading(true);
+    try {
+      const q = query(collection(db, "chatbot_logs"), orderBy("timestamp", "desc"));
+      const snapshot = await getDocs(q);
+      const logs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      setChatbotLogs(logs);
+    } catch (e) {
+      console.error("Failed to fetch chatbot logs:", e);
+    } finally {
+      setIsChatbotLoading(false);
+    }
   };
 
   const fetchMaintenanceMode = async () => {
@@ -662,6 +685,158 @@ export function AdminPanel() {
     try { const historySnap = await getDocs(query(collection(db, 'admin_push_notifications'), orderBy('sentAt', 'desc'))); setPushHistory(historySnap.docs.slice(0, 20).map(d => ({ id: d.id, ...d.data() }))); }
     catch (e) { console.error(e); }
   };
+
+  const chatbotStats = useMemo(() => {
+    if (!chatbotLogs || chatbotLogs.length === 0) {
+      return {
+        totalUniqueUsers: 0,
+        activeToday: 0,
+        returningUsers: 0,
+        returningPercent: 0,
+        oneTimeUsers: 0,
+        oneTimePercent: 0,
+        politeCount: 0,
+        insultCount: 0,
+        insultPercent: 0,
+        politePercent: 0,
+        topQuestions: [],
+        userSessions: {}
+      };
+    }
+
+    // Group logs by userId
+    const userSessions: Record<string, { userName: string, lastActive: any, messages: any[], textMessages: string[] }> = {};
+    let politeCount = 0;
+    let insultCount = 0;
+
+    chatbotLogs.forEach(log => {
+      const uid = log.userId;
+      if (!uid) return;
+      if (!userSessions[uid]) {
+        userSessions[uid] = {
+          userName: log.userName || "زائر",
+          lastActive: log.timestamp,
+          messages: [],
+          textMessages: []
+        };
+      }
+      
+      // Keep track of the user's display name if it's set
+      if (log.userName && log.userName !== "يقين (البوت)" && log.userName !== "زائر") {
+        userSessions[uid].userName = log.userName;
+      }
+      
+      userSessions[uid].messages.push(log);
+      if (log.sender === "user") {
+        userSessions[uid].textMessages.push(log.text);
+        if (log.isInsult) {
+          insultCount++;
+        } else if (log.sentiment === "positive") {
+          politeCount++;
+        }
+      }
+    });
+
+    const totalUniqueUsers = Object.keys(userSessions).length;
+
+    // Today's date in local time YYYY-MM-DD
+    const todayStr = new Date().toISOString().split('T')[0];
+    let activeToday = 0;
+    Object.values(userSessions).forEach(sess => {
+      const todayMsgs = sess.messages.filter(m => {
+        if (!m.timestamp) return false;
+        const dateStr = m.timestamp.toDate 
+          ? m.timestamp.toDate().toISOString().split('T')[0]
+          : new Date(m.timestamp).toISOString().split('T')[0];
+        return dateStr === todayStr;
+      });
+      if (todayMsgs.length > 0) activeToday++;
+    });
+
+    // One-time vs Returning:
+    // A user is returning if they have messages on more than one day OR sent > 5 messages in total.
+    let returningUsers = 0;
+    let oneTimeUsers = 0;
+
+    Object.values(userSessions).forEach(sess => {
+      const dates = new Set<string>();
+      sess.messages.forEach(m => {
+        if (m.timestamp) {
+          const dateStr = m.timestamp.toDate 
+            ? m.timestamp.toDate().toDateString()
+            : new Date(m.timestamp).toDateString();
+          dates.add(dateStr);
+        }
+      });
+
+      if (dates.size > 1 || sess.messages.length > 5) {
+        returningUsers++;
+      } else {
+        oneTimeUsers++;
+      }
+    });
+
+    const returningPercent = totalUniqueUsers > 0 ? Math.round((returningUsers / totalUniqueUsers) * 100) : 0;
+    const oneTimePercent = totalUniqueUsers > 0 ? Math.round((oneTimeUsers / totalUniqueUsers) * 100) : 0;
+
+    const totalClassifiedSentiment = politeCount + insultCount || 1;
+    const politePercent = Math.round((politeCount / totalClassifiedSentiment) * 100);
+    const insultPercent = Math.round((insultCount / totalClassifiedSentiment) * 100);
+
+    // Top 10 repeated questions
+    // Normalise and count questions
+    const questionCounts: Record<string, number> = {};
+    chatbotLogs.forEach(log => {
+      if (log.sender === "user") {
+        let qText = log.text.trim()
+          .replace(/[أإآ]/g, "ا")
+          .replace(/ة/g, "ه")
+          .replace(/ى/g, "ي")
+          .replace(/[.,!?()؛؟?"'«»]/g, "")
+          .replace(/\s+/g, " ")
+          .toLowerCase();
+        
+        if (qText.length > 3) {
+          questionCounts[qText] = (questionCounts[qText] || 0) + 1;
+        }
+      }
+    });
+
+    const topQuestions = Object.entries(questionCounts)
+      .map(([text, count]) => {
+        // Find original question for display
+        const original = chatbotLogs.find(l => {
+          if (l.sender !== "user") return false;
+          let norm = l.text.trim()
+            .replace(/[أإآ]/g, "ا")
+            .replace(/ة/g, "ه")
+            .replace(/ى/g, "ي")
+            .replace(/[.,!?()؛؟?"'«»]/g, "")
+            .replace(/\s+/g, " ")
+            .toLowerCase();
+          return norm === text;
+        })?.text || text;
+
+        return { text: original, count };
+      })
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
+    return {
+      totalUniqueUsers,
+      activeToday,
+      returningUsers,
+      returningPercent,
+      oneTimeUsers,
+      oneTimePercent,
+      politeCount,
+      insultCount,
+      insultPercent,
+      politePercent,
+      topQuestions,
+      userSessions
+    };
+  }, [chatbotLogs]);
 
   const filteredUsers = useMemo(() => {
     const q = debouncedSearch.toLowerCase();
@@ -1517,95 +1692,192 @@ export function AdminPanel() {
 
           {/* ========== SUBS TAB ========== */}
           {activeTab === 'subs' && (
-            <div className="space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
-              {/* Section 1: Pending Requests */}
-              <div className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.02)] p-6 overflow-x-auto">
-                <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-xl font-black">طلبات الاشتراك المعلقة</h2>
-                  <span className="rounded-lg bg-amber-500/10 px-3 py-1 text-xs font-black text-amber-500">
-                    {subRequests.filter(r => r.status === 'pending').length} طلب معلق
-                  </span>
-                </div>
-                <div className="min-w-[900px]">
-                  <table className="w-full text-right">
-                    <thead>
-                      <tr className="text-[10px] uppercase tracking-[0.18em] text-white/30 border-b border-white/10">
-                        <th className="p-4">المستخدم</th>
-                        <th className="p-4">الخطة</th>
-                        <th className="p-4">طريقة التحويل</th>
-                        <th className="p-4">المحول منه</th>
-                        <th className="p-4">المبلغ</th>
-                        <th className="p-4">الرابط</th>
-                        <th className="p-4">تاريخ الطلب</th>
-                        <th className="p-4 text-left">الإجراء</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/10">
-                      {subRequests.filter(r => r.status === 'pending').length === 0 ? (
-                        <tr>
-                          <td colSpan={8} className="p-10 text-center text-sm text-white/20 font-bold">لا توجد طلبات اشتراك معلقة حالياً</td>
-                        </tr>
-                      ) : (
-                        subRequests.filter(r => r.status === 'pending').map(r => (
-                          <tr key={r.id} className="hover:bg-white/5 transition-colors">
-                            <td className="p-4">
-                              <div className="space-y-1 text-right">
-                                <p className="font-black text-sm">{r.userName || 'مستخدم'}</p>
-                                <p className="text-[11px] text-white/40">البريد: {r.userEmail || '---'}</p>
-                                <p className="text-[11px] text-white/40">الهاتف: {r.userPhone || '---'}</p>
-                              </div>
-                            </td>
-                            <td className="p-4">
-                              <span className="inline-flex rounded-full bg-[#fbbf24]/10 px-2.5 py-1 text-[11px] font-black text-[#fbbf24]">
-                                {r.plan}
-                              </span>
-                            </td>
-                            <td className="p-4 text-xs font-bold text-white/60">
-                              {r.paymentMethod || '---'}
-                            </td>
-                            <td className="p-4 text-xs font-mono text-white/60">
-                              {r.senderInfo || '---'}
-                            </td>
-                            <td className="p-4 font-black text-emerald-400 text-sm">
-                              {r.amount || '---'} ج.م
-                            </td>
-                            <td className="p-4">
-                              {r.platformLink ? (
-                                <a href={r.platformLink} target="_blank" rel="noreferrer" className="text-sky-400 hover:underline text-xs">
-                                  فتح الرابط
-                                </a>
-                              ) : (
-                                '---'
-                              )}
-                            </td>
-                            <td className="p-4 text-xs text-white/30">
-                              {r.createdAt ? new Date(r.createdAt.toDate ? r.createdAt.toDate() : r.createdAt).toLocaleString("ar-EG") : '---'}
-                            </td>
-                            <td className="p-4 text-left">
-                              <div className="flex gap-2 justify-end">
-                                <button
-                                  onClick={() => handleActionSubscription(r.id, r.userId, r.plan, 'approve')}
-                                  className="rounded-xl bg-emerald-500 px-3 py-2 text-[11px] font-black text-black transition hover:opacity-90"
-                                >
-                                  تفعيل
-                                </button>
-                                <button
-                                  onClick={() => handleActionSubscription(r.id, r.userId, r.plan, 'reject')}
-                                  className="rounded-xl bg-red-500/10 border border-red-500/20 px-3 py-2 text-[11px] font-black text-red-400 transition hover:bg-red-500 hover:text-white"
-                                >
-                                  رفض
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
+
+              {/* Summary Stats */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                {[
+                  { label: 'طلبات معلقة', value: subRequests.filter(r => r.status === 'pending').length, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
+                  { label: 'مفعّلة', value: subRequests.filter(r => r.status === 'approved').length, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+                  { label: 'مرفوضة', value: subRequests.filter(r => r.status === 'rejected').length, color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/20' },
+                  { label: 'إجمالي الإيرادات', value: `${subRequests.filter(r => r.status === 'approved').reduce((sum, r) => sum + (r.amount || 0), 0).toLocaleString()} ج.م`, color: 'text-[#fbbf24]', bg: 'bg-[#fbbf24]/10 border-[#fbbf24]/20' },
+                ].map(card => (
+                  <div key={card.label} className={`rounded-2xl border p-5 text-center ${card.bg}`}>
+                    <p className={`text-2xl font-black ${card.color}`}>{card.value}</p>
+                    <p className="text-[11px] text-white/40 font-bold mt-1">{card.label}</p>
+                  </div>
+                ))}
               </div>
 
-              {/* Section 2: Active Subscriptions */}
+              {/* Filter Tabs */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {[
+                  { id: 'pending', label: '⏳ معلق', count: subRequests.filter(r => r.status === 'pending').length },
+                  { id: 'approved', label: '✅ مفعّل', count: subRequests.filter(r => r.status === 'approved').length },
+                  { id: 'rejected', label: '❌ مرفوض', count: subRequests.filter(r => r.status === 'rejected').length },
+                  { id: 'all', label: '📋 الكل', count: subRequests.length },
+                ].map(f => (
+                  <button
+                    key={f.id}
+                    onClick={() => setSubsFilter(f.id as any)}
+                    className={`px-4 py-2.5 rounded-xl text-sm font-black transition-all border ${
+                      subsFilter === f.id
+                        ? 'bg-[#fbbf24]/10 border-[#fbbf24]/30 text-[#fbbf24]'
+                        : 'bg-white/5 border-white/10 text-white/40 hover:bg-white/10'
+                    }`}
+                  >
+                    {f.label} <span className="opacity-60">({f.count})</span>
+                  </button>
+                ))}
+                <button
+                  onClick={fetchSubRequests}
+                  className="mr-auto px-4 py-2.5 rounded-xl text-sm font-black transition-all border bg-white/5 border-white/10 text-white/40 hover:bg-white/10 flex items-center gap-2"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" /> تحديث
+                </button>
+              </div>
+
+              {/* Requests Table */}
+              <div className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.02)] p-6 overflow-x-auto">
+                {isSubsLoading ? (
+                  <div className="flex items-center justify-center py-16">
+                    <Loader2 className="w-6 h-6 animate-spin text-[#fbbf24]" />
+                    <span className="mr-3 text-sm text-white/40 font-bold">جاري التحميل...</span>
+                  </div>
+                ) : (
+                  <div className="min-w-[1100px]">
+                    <table className="w-full text-right">
+                      <thead>
+                        <tr className="text-[10px] uppercase tracking-[0.18em] text-white/30 border-b border-white/10">
+                          <th className="p-3">رقم الطلب</th>
+                          <th className="p-3">المستخدم</th>
+                          <th className="p-3">الخطة</th>
+                          <th className="p-3">طريقة الدفع</th>
+                          <th className="p-3">معرّف المحوّل</th>
+                          <th className="p-3">رقم العملية</th>
+                          <th className="p-3">المبلغ</th>
+                          <th className="p-3">الحالة</th>
+                          <th className="p-3">التاريخ</th>
+                          {(subsFilter === 'pending' || subsFilter === 'all') && <th className="p-3 text-left">الإجراء</th>}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/10">
+                        {subRequests.filter(r => subsFilter === 'all' || r.status === subsFilter).length === 0 ? (
+                          <tr>
+                            <td colSpan={10} className="p-16 text-center text-sm text-white/20 font-bold">لا توجد طلبات</td>
+                          </tr>
+                        ) : (
+                          subRequests.filter(r => subsFilter === 'all' || r.status === subsFilter).map(r => (
+                            <tr key={r.id} className="hover:bg-white/5 transition-colors">
+                              {/* Order Number */}
+                              <td className="p-3">
+                                <span className="font-black text-[#fbbf24] text-[11px] bg-[#fbbf24]/10 px-2.5 py-1.5 rounded-lg whitespace-nowrap">
+                                  {r.orderNumber || '—'}
+                                </span>
+                              </td>
+                              {/* User Info */}
+                              <td className="p-3">
+                                <div className="space-y-1 text-right min-w-[140px]">
+                                  <p className="font-black text-sm">{r.fullName || r.userName || 'مستخدم'}</p>
+                                  <div className="flex items-center gap-1 justify-end">
+                                    <button
+                                      title={r.userEmail}
+                                      onClick={() => { navigator.clipboard.writeText(r.userEmail || ''); setCopiedCell(`email-${r.id}`); setTimeout(() => setCopiedCell(null), 2000); }}
+                                      className="p-1 rounded-md hover:bg-white/10 text-white/20 hover:text-white/60 transition-all"
+                                    >
+                                      {copiedCell === `email-${r.id}` ? <CheckCircle className="w-3 h-3 text-emerald-400" /> : <Mail className="w-3 h-3" />}
+                                    </button>
+                                    <p className="text-[10px] text-white/30 max-w-[120px] truncate">{r.userEmail || '—'}</p>
+                                  </div>
+                                  {r.userPhone && (
+                                    <div className="flex items-center gap-1 justify-end">
+                                      <button
+                                        title={r.userPhone}
+                                        onClick={() => { navigator.clipboard.writeText(r.userPhone); setCopiedCell(`phone-${r.id}`); setTimeout(() => setCopiedCell(null), 2000); }}
+                                        className="p-1 rounded-md hover:bg-white/10 text-white/20 hover:text-white/60 transition-all"
+                                      >
+                                        {copiedCell === `phone-${r.id}` ? <CheckCircle className="w-3 h-3 text-emerald-400" /> : <Phone className="w-3 h-3" />}
+                                      </button>
+                                      <p className="text-[10px] text-white/30 font-mono">{r.userPhone}</p>
+                                    </div>
+                                  )}
+                                  {r.platformLink && (
+                                    <a href={r.platformLink} target="_blank" rel="noreferrer" className="text-[10px] text-sky-400 hover:underline block text-right truncate max-w-[140px]">🔗 رابط المنصة</a>
+                                  )}
+                                  {r.note && (
+                                    <p className="text-[10px] text-amber-400/70">📝 {r.note}</p>
+                                  )}
+                                </div>
+                              </td>
+                              {/* Plan */}
+                              <td className="p-3">
+                                <span className="inline-flex rounded-full bg-[#fbbf24]/10 px-2.5 py-1 text-[11px] font-black text-[#fbbf24] whitespace-nowrap">{r.plan}</span>
+                              </td>
+                              {/* Payment Method */}
+                              <td className="p-3 text-xs font-bold text-white/60 whitespace-nowrap">{r.paymentMethod || '—'}</td>
+                              {/* Sender Identifier */}
+                              <td className="p-3">
+                                <div className="flex items-center gap-1.5 justify-end">
+                                  <button
+                                    onClick={() => { navigator.clipboard.writeText(r.senderIdentifier || r.senderInfo || ''); setCopiedCell(`sender-${r.id}`); setTimeout(() => setCopiedCell(null), 2000); }}
+                                    className="p-1.5 rounded-lg hover:bg-white/10 text-white/20 hover:text-white/60 transition-all"
+                                  >
+                                    {copiedCell === `sender-${r.id}` ? <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                                  </button>
+                                  <span className="text-xs font-mono text-white/70 whitespace-nowrap">{r.senderIdentifier || r.senderInfo || '—'}</span>
+                                </div>
+                              </td>
+                              {/* Transaction Ref */}
+                              <td className="p-3">
+                                {r.transactionRef ? (
+                                  <div className="flex items-center gap-1.5 justify-end">
+                                    <button
+                                      onClick={() => { navigator.clipboard.writeText(r.transactionRef); setCopiedCell(`ref-${r.id}`); setTimeout(() => setCopiedCell(null), 2000); }}
+                                      className="p-1.5 rounded-lg hover:bg-white/10 text-white/20 hover:text-white/60 transition-all"
+                                    >
+                                      {copiedCell === `ref-${r.id}` ? <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                                    </button>
+                                    <span className="text-xs font-mono text-white/70">{r.transactionRef}</span>
+                                  </div>
+                                ) : <span className="text-white/20 text-xs">—</span>}
+                              </td>
+                              {/* Amount */}
+                              <td className="p-3 font-black text-emerald-400 text-sm whitespace-nowrap">{r.amount || '—'} ج.م</td>
+                              {/* Status */}
+                              <td className="p-3">
+                                <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-black whitespace-nowrap ${
+                                  r.status === 'pending' ? 'bg-amber-500/15 text-amber-400' :
+                                  r.status === 'approved' ? 'bg-emerald-500/15 text-emerald-400' :
+                                  'bg-red-500/15 text-red-400'
+                                }`}>
+                                  {r.status === 'pending' ? '⏳ معلق' : r.status === 'approved' ? '✅ مفعّل' : '❌ مرفوض'}
+                                </span>
+                              </td>
+                              {/* Date */}
+                              <td className="p-3 text-xs text-white/30 whitespace-nowrap">
+                                {r.createdAt ? new Date(r.createdAt.toDate ? r.createdAt.toDate() : r.createdAt).toLocaleString('ar-EG') : '—'}
+                              </td>
+                              {/* Action */}
+                              {(subsFilter === 'pending' || subsFilter === 'all') && (
+                                <td className="p-3 text-left">
+                                  {r.status === 'pending' && (
+                                    <div className="flex gap-2 justify-end">
+                                      <button onClick={() => handleActionSubscription(r.id, r.userId, r.plan, 'approve')} className="rounded-xl bg-emerald-500 px-3 py-2 text-[11px] font-black text-black transition hover:opacity-90">تفعيل</button>
+                                      <button onClick={() => handleActionSubscription(r.id, r.userId, r.plan, 'reject')} className="rounded-xl bg-red-500/10 border border-red-500/20 px-3 py-2 text-[11px] font-black text-red-400 transition hover:bg-red-500 hover:text-white">رفض</button>
+                                    </div>
+                                  )}
+                                </td>
+                              )}
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              {/* Active Subscriptions */}
               <div className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.02)] p-6 overflow-x-auto">
                 <div className="mb-6 flex items-center justify-between">
                   <h2 className="text-xl font-black">المشتركون المفعلون حالياً</h2>
@@ -1621,7 +1893,7 @@ export function AdminPanel() {
                         <th className="p-4">الهاتف</th>
                         <th className="p-4">البريد الإلكتروني</th>
                         <th className="p-4">الباقة</th>
-                        <th className="p-4">بداية الاشتراك</th>
+                        <th className="p-4">باقي الأيام</th>
                         <th className="p-4">انتهاء الاشتراك</th>
                         <th className="p-4 text-left">الإجراء</th>
                       </tr>
@@ -1632,47 +1904,305 @@ export function AdminPanel() {
                           <td colSpan={7} className="p-10 text-center text-sm text-white/20 font-bold">لا يوجد مشتركون نشطون حالياً</td>
                         </tr>
                       ) : (
-                        users.filter(u => u.plan && u.plan !== 'free' && u.subscriptionActive).map(u => (
-                          <tr key={u.uid} className="hover:bg-white/5 transition-colors">
-                            <td className="p-4">
-                              <div className="space-y-1 text-right">
-                                <p className="font-black text-sm">{u.displayName || 'مستخدم'}</p>
-                                <p className="text-[11px] text-white/40">@{u.username || '---'}</p>
-                              </div>
-                            </td>
-                            <td className="p-4 text-xs font-mono text-white/60">
-                              {u.phoneNumber || u.phone || '---'}
-                            </td>
-                            <td className="p-4 text-xs text-white/60">
-                              {u.email || '---'}
-                            </td>
-                            <td className="p-4">
-                              <span className="inline-flex rounded-full bg-emerald-500/15 px-2.5 py-1 text-[11px] font-black text-emerald-300">
-                                {u.plan}
-                              </span>
-                            </td>
-                            <td className="p-4 text-xs text-white/40">
-                              {u.subscriptionDate ? new Date(u.subscriptionDate.toDate ? u.subscriptionDate.toDate() : u.subscriptionDate).toLocaleDateString("ar-EG") : '---'}
-                            </td>
-                            <td className="p-4 text-xs text-white/40">
-                              {u.subscriptionExpiry ? new Date(u.subscriptionExpiry.toDate ? u.subscriptionExpiry.toDate() : u.subscriptionExpiry).toLocaleDateString("ar-EG") : '---'}
-                            </td>
-                            <td className="p-4 text-left">
-                              <button
-                                onClick={() => handleCancelSubscription(u.uid)}
-                                disabled={isUpdatingSubscription}
-                                className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-2 text-[11px] font-black text-red-400 transition hover:bg-red-500 hover:text-white disabled:opacity-40"
-                              >
-                                إلغاء الاشتراك
-                              </button>
-                            </td>
-                          </tr>
-                        ))
+                        users.filter(u => u.plan && u.plan !== 'free' && u.subscriptionActive).map(u => {
+                          const expiry = u.subscriptionExpiry
+                            ? new Date(u.subscriptionExpiry.toDate ? u.subscriptionExpiry.toDate() : u.subscriptionExpiry)
+                            : null;
+                          const daysLeft = expiry
+                            ? Math.max(0, Math.ceil((expiry.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+                            : null;
+                          return (
+                            <tr key={u.uid} className="hover:bg-white/5 transition-colors">
+                              <td className="p-4">
+                                <div className="space-y-1 text-right">
+                                  <p className="font-black text-sm">{u.displayName || 'مستخدم'}</p>
+                                  <p className="text-[11px] text-white/40">@{u.username || '—'}</p>
+                                </div>
+                              </td>
+                              <td className="p-4">
+                                <div className="flex items-center gap-1.5 justify-end">
+                                  {u.phoneNumber && (
+                                    <button
+                                      onClick={() => { navigator.clipboard.writeText(u.phoneNumber); setCopiedCell(`uphone-${u.uid}`); setTimeout(() => setCopiedCell(null), 2000); }}
+                                      className="p-1.5 rounded-lg hover:bg-white/10 text-white/20 hover:text-white/60 transition-all"
+                                    >
+                                      {copiedCell === `uphone-${u.uid}` ? <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                                    </button>
+                                  )}
+                                  <span className="text-xs font-mono text-white/60">{u.phoneNumber || u.phone || '—'}</span>
+                                </div>
+                              </td>
+                              <td className="p-4">
+                                <div className="flex items-center gap-1.5 justify-end">
+                                  {u.email && (
+                                    <button
+                                      onClick={() => { navigator.clipboard.writeText(u.email); setCopiedCell(`uemail-${u.uid}`); setTimeout(() => setCopiedCell(null), 2000); }}
+                                      className="p-1.5 rounded-lg hover:bg-white/10 text-white/20 hover:text-white/60 transition-all"
+                                    >
+                                      {copiedCell === `uemail-${u.uid}` ? <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                                    </button>
+                                  )}
+                                  <span className="text-xs text-white/60 truncate max-w-[140px] block">{u.email || '—'}</span>
+                                </div>
+                              </td>
+                              <td className="p-4">
+                                <span className="inline-flex rounded-full bg-emerald-500/15 px-2.5 py-1 text-[11px] font-black text-emerald-300">{u.plan}</span>
+                              </td>
+                              <td className="p-4">
+                                {daysLeft !== null ? (
+                                  <span className={`inline-flex rounded-full px-2.5 py-1.5 text-[11px] font-black ${
+                                    daysLeft > 7 ? 'bg-emerald-500/15 text-emerald-300' :
+                                    daysLeft > 0 ? 'bg-amber-500/15 text-amber-400' :
+                                    'bg-red-500/15 text-red-400'
+                                  }`}>
+                                    {daysLeft > 0 ? `${daysLeft} يوم` : 'منتهي'}
+                                  </span>
+                                ) : <span className="text-white/20 text-xs">—</span>}
+                              </td>
+                              <td className="p-4 text-xs text-white/40">
+                                {expiry ? expiry.toLocaleDateString('ar-EG') : '—'}
+                              </td>
+                              <td className="p-4 text-left">
+                                <button
+                                  onClick={() => handleCancelSubscription(u.uid)}
+                                  disabled={isUpdatingSubscription}
+                                  className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-2 text-[11px] font-black text-red-400 transition hover:bg-red-500 hover:text-white disabled:opacity-40"
+                                >
+                                  إلغاء الاشتراك
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })
                       )}
                     </tbody>
                   </table>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* ========== CHATBOT TAB ========== */}
+          {activeTab === 'chatbot' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
+              
+              {/* Summary Stats Cards */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                {[
+                  { label: 'إجمالي من تحدث مع البوت', value: chatbotStats.totalUniqueUsers, icon: Users, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
+                  { label: 'نشط اليوم بالشات', value: chatbotStats.activeToday, icon: UserCheck, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+                  { label: 'أشخاص شتموا / زهقوا', value: chatbotStats.insultCount, icon: AlertTriangle, color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/20' },
+                  { label: 'أشخاص تكلموا حلو / مدحوا', value: chatbotStats.politeCount, icon: Trophy, color: 'text-sky-400', bg: 'bg-sky-500/10 border-sky-500/20' },
+                ].map(card => (
+                  <div key={card.label} className={`rounded-2xl border p-5 text-center ${card.bg}`}>
+                    <card.icon className={`mx-auto mb-3 w-6 h-6 ${card.color}`} />
+                    <p className="text-2xl font-black text-white">{card.value.toLocaleString()}</p>
+                    <p className="text-[11px] text-white/40 font-bold mt-1">{card.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Percentages and Analysis */}
+              <div className="grid md:grid-cols-2 gap-6">
+                
+                {/* Returning vs One-Time User Analysis */}
+                <div className={CARD_CLASS}>
+                  <p className="text-sm font-black text-white/70 mb-4">👥 تحليل تكرار الاستخدام (Returning vs. One-Time)</p>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between text-xs font-bold mb-1">
+                        <span className="text-amber-400">مستخدمين عائدين ({chatbotStats.returningUsers})</span>
+                        <span className="text-white/40">مستخدمين لمرة واحدة ({chatbotStats.oneTimeUsers})</span>
+                      </div>
+                      
+                      {/* Interactive percentage bar */}
+                      <div className="h-3 w-full bg-white/5 rounded-full overflow-hidden flex">
+                        <div className="bg-amber-400 h-full transition-all" style={{ width: `${chatbotStats.returningPercent}%` }} />
+                        <div className="bg-white/10 h-full transition-all" style={{ width: `${chatbotStats.oneTimePercent}%` }} />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 text-center mt-2">
+                      <div className="p-3 bg-white/[0.02] border border-white/[0.04] rounded-xl">
+                        <p className="text-2xl font-black text-amber-400">{chatbotStats.returningPercent}%</p>
+                        <p className="text-[10px] text-white/30 font-bold mt-0.5">نسبة العائدين</p>
+                      </div>
+                      <div className="p-3 bg-white/[0.02] border border-white/[0.04] rounded-xl">
+                        <p className="text-2xl font-black text-white/50">{chatbotStats.oneTimePercent}%</p>
+                        <p className="text-[10px] text-white/30 font-bold mt-0.5">نسبة المرة الواحدة</p>
+                      </div>
+                    </div>
+
+                    <p className="text-[11px] text-white/30 font-medium leading-relaxed mt-2 text-right">
+                      💡 التحليل: {chatbotStats.returningPercent > 50 
+                        ? "ما شاء الله! الشات بوت يحظى بنسبة ولاء عالية، حيث يعود أغلب المستخدمين للحديث معه مجدداً." 
+                        : "معدل العودة منخفض، قد يحتاج البوت لتقديم اقتراحات أذكى أو تنبيهات تشجع المستخدمين على العودة."
+                      }
+                    </p>
+                  </div>
+                </div>
+
+                {/* Sentiment & Insult Analysis */}
+                <div className={CARD_CLASS}>
+                  <p className="text-sm font-black text-white/70 mb-4">💬 تحليل أسلوب الكلام (المدح مقابل الإساءة)</p>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between text-xs font-bold mb-1">
+                        <span className="text-sky-400">أسلوب إيجابي / مدح ({chatbotStats.politeCount})</span>
+                        <span className="text-red-400">إساءة / شتائم وزهق ({chatbotStats.insultCount})</span>
+                      </div>
+                      
+                      <div className="h-3 w-full bg-white/5 rounded-full overflow-hidden flex">
+                        <div className="bg-sky-400 h-full transition-all" style={{ width: `${chatbotStats.politePercent}%` }} />
+                        <div className="bg-red-400 h-full transition-all" style={{ width: `${chatbotStats.insultPercent}%` }} />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 text-center mt-2">
+                      <div className="p-3 bg-white/[0.02] border border-white/[0.04] rounded-xl">
+                        <p className="text-2xl font-black text-sky-400">{chatbotStats.politePercent}%</p>
+                        <p className="text-[10px] text-white/30 font-bold mt-0.5">إيجابي</p>
+                      </div>
+                      <div className="p-3 bg-white/[0.02] border border-white/[0.04] rounded-xl">
+                        <p className="text-2xl font-black text-red-400">{chatbotStats.insultPercent}%</p>
+                        <p className="text-[10px] text-white/30 font-bold mt-0.5">إساءات / غضب</p>
+                      </div>
+                    </div>
+
+                    <p className="text-[11px] text-white/30 font-medium leading-relaxed mt-2 text-right">
+                      💡 التحليل: {chatbotStats.insultCount > chatbotStats.politeCount
+                        ? "تحذير: نسبة الغضب مرتفعة! قد يكون ذلك بسبب إجابات البوت الخاطئة. ترقية Gemini ستخفف من هذا الغضب بالتأكيد."
+                        : "ممتاز! المستخدمين يتفاعلون بشكل إيجابي ومحترم مع المساعد الذكي."
+                      }
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+
+              <div className="grid lg:grid-cols-[1fr_1.3fr] gap-6">
+                
+                {/* Top 10 Repeated Questions */}
+                <div className={CARD_CLASS}>
+                  <p className="text-sm font-black text-white/70 mb-4">🔥 أكثر 10 أسئلة متكررة للشات بوت</p>
+                  
+                  <div className="space-y-2">
+                    {chatbotStats.topQuestions.map((q, idx) => (
+                      <div key={idx} className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                        <div className="flex items-center gap-3">
+                          <span className="w-5 h-5 rounded-lg bg-white/5 flex items-center justify-center text-[10px] text-white/40 font-bold">{idx + 1}</span>
+                          <p className="text-xs text-white/80 font-bold truncate max-w-[200px] md:max-w-[280px]" title={q.text}>{q.text}</p>
+                        </div>
+                        <span className="text-xs font-black bg-amber-400/10 text-amber-400 px-2 py-1 rounded-md">{q.count} تكرار</span>
+                      </div>
+                    ))}
+                    {chatbotStats.topQuestions.length === 0 && (
+                      <p className="text-sm text-white/20 text-center py-12">لا توجد أسئلة كافية للتحليل</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Chat Sessions / Logs viewer */}
+                <div className={CARD_CLASS + " flex flex-col max-h-[500px]"}>
+                  <div className="flex justify-between items-center mb-4 shrink-0">
+                    <p className="text-sm font-black text-white/70">💬 سجلات المحادثات الأخيرة للجمهور</p>
+                    {selectedChatUserId && (
+                      <button 
+                        onClick={() => { setSelectedChatUserId(null); setSelectedUserChat(null); }}
+                        className="text-xs text-[#fbbf24] font-bold hover:underline"
+                      >
+                        رجوع للقائمة
+                      </button>
+                    )}
+                  </div>
+                  
+                  {isChatbotLoading ? (
+                    <div className="flex-1 flex items-center justify-center py-20">
+                      <Loader2 className="w-6 h-6 animate-spin text-[#fbbf24]" />
+                      <span className="mr-3 text-sm text-white/40 font-bold">جاري تحميل المحادثات...</span>
+                    </div>
+                  ) : !selectedChatUserId ? (
+                    /* Sessions list */
+                    <div className="flex-1 overflow-y-auto no-scrollbar space-y-2 pr-1">
+                      {Object.entries(chatbotStats.userSessions).map(([uid, sess]: any) => {
+                        const totalMsgs = sess.messages.length;
+                        const lastMsg = sess.messages[0]; // ordered desc, so first is newest
+                        const lastActiveDate = lastMsg?.timestamp
+                          ? new Date(lastMsg.timestamp.toDate ? lastMsg.timestamp.toDate() : lastMsg.timestamp).toLocaleString('ar-EG')
+                          : '—';
+                          
+                        return (
+                          <div 
+                            key={uid} 
+                            onClick={() => {
+                              setSelectedChatUserId(uid);
+                              setSelectedUserChat(sess.messages.slice().reverse()); // Show chronological order
+                            }}
+                            className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04] cursor-pointer transition flex items-center justify-between text-right"
+                          >
+                            <div className="space-y-1">
+                              <p className="text-xs text-white/30">{lastActiveDate}</p>
+                              <p className="text-[11px] text-white/40 truncate max-w-[200px] md:max-w-[320px]">
+                                {lastMsg?.sender === "user" ? "👤 المستخدم: " : "🤖 البوت: "} {lastMsg?.text}
+                              </p>
+                            </div>
+                            
+                            <div className="text-left shrink-0">
+                              <p className="font-black text-sm text-white/90">{sess.userName}</p>
+                              <span className="inline-block mt-1 text-[10px] bg-white/5 text-white/50 px-2 py-0.5 rounded-md font-mono">
+                                {totalMsgs} رسائل
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      {Object.keys(chatbotStats.userSessions).length === 0 && (
+                        <p className="text-sm text-white/20 text-center py-12">لا توجد محادثات مسجلة بعد</p>
+                      )}
+                    </div>
+                  ) : (
+                    /* Detailed Chat view */
+                    <div className="flex-1 flex flex-col overflow-hidden">
+                      <div className="p-3 bg-white/[0.02] border border-white/[0.04] rounded-xl mb-3 flex justify-between items-center shrink-0">
+                        <span className="text-xs text-white/40 font-mono">معرف: {selectedChatUserId.substring(0, 10)}...</span>
+                        <span className="font-black text-sm text-[#fbbf24]">
+                          {chatbotStats.userSessions[selectedChatUserId]?.userName || "مستمع"}
+                        </span>
+                      </div>
+                      
+                      <div className="flex-1 overflow-y-auto no-scrollbar space-y-3 p-2 bg-black/20 rounded-xl">
+                        {selectedUserChat?.map((msg) => (
+                          <div 
+                            key={msg.id} 
+                            className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+                          >
+                            <div className={`max-w-[85%] px-3.5 py-2.5 rounded-2xl text-[12px] leading-relaxed shadow-md ${
+                              msg.sender === "user"
+                                ? "bg-[#fbbf24] text-black rounded-tr-sm font-bold"
+                                : "bg-white/[0.05] text-white/90 border border-white/5 rounded-tl-sm"
+                            }`}>
+                              {msg.sender === "bot" && (
+                                <div className="text-[9px] text-[#fbbf24] font-black mb-1 flex items-center gap-1">
+                                  <Sparkles className="w-2.5 h-2.5" /> المساعد الذكي
+                                </div>
+                              )}
+                              <p className="whitespace-pre-line">{msg.text}</p>
+                              <span className="block text-[8px] text-right mt-1 opacity-40">
+                                {msg.timestamp ? new Date(msg.timestamp.toDate ? msg.timestamp.toDate() : msg.timestamp).toLocaleTimeString('ar-EG') : ''}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+
+              </div>
+
             </div>
           )}
 
