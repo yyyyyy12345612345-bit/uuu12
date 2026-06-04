@@ -7,24 +7,49 @@ const geistMono = { variable: "" };
 
 export const metadata: Metadata = {
   title: {
-    default: "يقين | Yaqeen - القرآن الكريم | تطبيق إسلامي شامل",
-    template: "%s | يقين | Yaqeen"
+    default: "يقين القرآن | Yaqeen AlQuran - القرآن الكريم | تطبيق إسلامي شامل",
+    template: "%s | يقين القرآن | Yaqeen AlQuran"
   },
-  description: "تطبيق يقين الإسلامي الشامل: مصحف رقمي، مكتبة صوتية بأكثر من 50 قارئ، مواقيت صلاة دقيقة، أذكار، بوصلة قبلة، واستوديو فيديو احترافي لإنشاء محتوى إسلامي. متاح على الويب والأندرويد.",
+  description: "تطبيق يقين القرآن الإسلامي الشامل: مصحف رقمي، مكتبة صوتية بأكثر من 50 قارئ، مواقيت صلاة دقيقة، أذكار، بوصلة قبلة، واستوديو فيديو احترافي لإنشاء محتوى إسلامي. متاح على الويب والأندرويد.",
   authors: [{ name: "يوسف أسامة", url: "https://github.com/youssef" }],
   creator: "يوسف أسامة",
-  publisher: "يقين | Yaqeen - Islamic Digital Studio",
+  publisher: "يقين القرآن | Yaqeen AlQuran - Islamic Digital Studio",
   keywords: [
-    "قرآن", "قرآن كريم", "مصحف", "صلاة", "أذان", "أذكار", "قبلة", 
-    "فيديوهات قرآن", "تطبيق إسلامي", "مواقيت الصلاة", "تفسير",
-    "Quran", "Islamic App", "Prayer Times", "Quran Video Maker",
-    "Muslim", "Islam", "Salah", "Adhan", "Athkar"
+    "قرآن", "القرآن", "القرآن الكريم", "مصحف", "المصحف", "كتاب الله", "كلام الله",
+    "سورة", "سور", "آية", "آيات", "جزء", "أجزاء", "حزب", "ربع", "صفحة",
+    "تفسير", "تفسير القرآن", "تدبر", "معنى الآية", "تفسير السعدي", "تفسير ابن كثير", "تفسير الطبري",
+    "قراءة", "قراءة القرآن", "ترتيل", "تجويد", "أحكام التجويد", "مخارج الحروف",
+    "صوت", "تلاوة", "تلاوات", "شيخ", "قراء", "قارئ", "شيوخ", "مشاري العفاسي",
+    "عبدالباسط عبدالصمد", "محمد صديق المنشاوي", "محمود خليل الحصري", "سعد الغامدي",
+    "عبدالرحمن السديس", "ماهر المعيقلي", "ياسر الدوسري", "عبدالله الجهني",
+    "ناصر القطامي", "عبدالمحسن القاسم", "إسلام صبحي", "هزاع البلوشي",
+    "صلاة", "صلوات", "الصلوات الخمس", "الفجر", "الظهر", "العصر", "المغرب", "العشاء",
+    "أذان", "آذان", "الأذان", "مؤذن", "مواقيت الصلاة", "التقويم الهجري",
+    "التاريخ الهجري", "الساعة الآن", "الوقت", "القبلة", "اتجاه القبلة", "بوصلة القبلة",
+    "الكعبة", "الكعبة المشرفة", "مكة", "المدينة", "المسجد الحرام", "المسجد النبوي",
+    "أذكار", "الذكر", "أذكار الصباح", "أذكار المساء", "أذكار النوم", "أذكار الاستيقاظ",
+    "حصن المسلم", "ورد", "ورد يومي", "تسبيح", "مسابحة", "استغفار", "تهليل", "تكبير", "تحميد",
+    "فيديو", "فيديوهات قرآنية", "مونتاج", "مونتاج قرآني", "تصميم فيديو",
+    "تيك توك إسلامي", "يوتيوب إسلامي", "انستغرام إسلامي", "شورتس",
+    "تطبيق إسلامي", "تطبيق قرآن", "برنامج إسلامي", "أفضل تطبيق إسلامي",
+    "إسلام", "مسلم", "مسلمين", "دين", "عبادة", "دعاء", "أدعية",
+    "اللهم", "سبحان الله", "الحمد لله", "لا إله إلا الله", "الله أكبر",
+    "Quran", "AlQuran", "Quran Karim", "Holy Quran", "Quran Online",
+    "Read Quran", "Listen Quran", "Quran Audio", "Quran Recitation",
+    "Quran Translation", "Quran Tafsir", "Quran Interpretation",
+    "Surah", "Ayah", "Juz", "Hizb", "Islamic App", "Muslim App",
+    "Prayer Times", "Salah", "Adhan", "Athkar", "Qibla", "Qibla Compass",
+    "Islamic Video Maker", "Quran Video", "Islamic Content Creator",
+    "Best Islamic App", "Ramadan", "Fasting", "Sadaqah", "Zakat",
+    "Mohamed Seddik El-Menshawy", "Abdulbasit Abdusamad",
+    "Mahmoud Khalil Al-Hussary", "Mishary Alafasy", "Saad Al-Ghamdi",
+    "Maher Al-Muaiqly", "Yasser Al-Dosari", "Islam Sobhi"
   ],
   openGraph: {
-    title: "يقين | Yaqeen - القرآن الكريم",
+    title: "يقين القرآن | Yaqeen AlQuran - القرآن الكريم",
     description: "تطبيق إسلامي شامل للمصحف، الصلاة، الأذكار، وصناعة الفيديوهات القرآنية",
-    url: "https://yaqeen-app.vercel.app",
-    siteName: "يقين | Yaqeen",
+    url: "https://yaqeenalquran.com",
+    siteName: "يقين القرآن | Yaqeen AlQuran",
     locale: "ar_EG",
     type: "website",
     images: [
@@ -32,13 +57,13 @@ export const metadata: Metadata = {
         url: "/logo/logo.png?v=25",
         width: 512,
         height: 512,
-        alt: "شعار تطبيق سكينة",
+        alt: "شعار يقين القرآن",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "يقين | Yaqeen - القرآن الكريم",
+    title: "يقين القرآن | Yaqeen AlQuran - القرآن الكريم",
     description: "رفيقك اليومي للقرآن والعبادة",
     images: ["/logo/logo.png?v=25"],
   },
@@ -46,7 +71,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "يقين | Yaqeen",
+    title: "يقين القرآن | Yaqeen AlQuran",
   },
   icons: {
     icon: [
@@ -72,7 +97,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://yaqeen-app.vercel.app",
+    canonical: "https://yaqeenalquran.com",
   },
 };
 
@@ -127,9 +152,9 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebApplication",
-              "name": "يقين | Yaqeen - القرآن الكريم",
+              "name": "يقين القرآن | Yaqeen AlQuran",
               "description": "تطبيق إسلامي شامل للمصحف، الصلاة، الأذكار، وصناعة الفيديوهات القرآنية",
-              "url": "https://quran1-mu.vercel.app",
+              "url": "https://yaqeenalquran.com",
               "applicationCategory": "LifestyleApplication",
               "operatingSystem": "Android, Web",
               "offers": {
