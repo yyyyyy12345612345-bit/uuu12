@@ -14,7 +14,8 @@ const bundleServerPath = path.join(
 
 try {
   let content = fs.readFileSync(bundleServerPath, "utf8");
-  if (content.includes('external: ["./middleware/handler.mjs"]')) {
+  const alreadyPatched = content.includes('"jose"');
+  if (!alreadyPatched) {
     content = content.replace(
       'external: ["./middleware/handler.mjs"]',
       'external: ["./middleware/handler.mjs", "jose"]'
@@ -22,7 +23,7 @@ try {
     fs.writeFileSync(bundleServerPath, content);
     console.log("[patch] Added jose to externals in bundle-server.js");
   } else {
-    console.log("[patch] Already patched or format changed");
+    console.log("[patch] Already patched");
   }
 } catch (e) {
   console.log("[patch] Skipped:", e.message);
