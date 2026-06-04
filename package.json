@@ -13,7 +13,8 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "final-build": "node update-assets.js && node build-wrapper.js && npx cap sync android && cd android && set JAVA_HOME=C:\\Users\\youse\\OneDrive\\Desktop\\my1\\jbr&& gradlew.bat assembleDebug",
-    "build:cf": "npx @opennextjs/cloudflare build"
+    "build:cf": "npx @opennextjs/cloudflare build",
+    "postinstall": "node patches/opennext-jose-external.js"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.1",
