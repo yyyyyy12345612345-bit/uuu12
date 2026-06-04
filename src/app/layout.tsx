@@ -43,7 +43,21 @@ export const metadata: Metadata = {
     "Best Islamic App", "Ramadan", "Fasting", "Sadaqah", "Zakat",
     "Mohamed Seddik El-Menshawy", "Abdulbasit Abdusamad",
     "Mahmoud Khalil Al-Hussary", "Mishary Alafasy", "Saad Al-Ghamdi",
-    "Maher Al-Muaiqly", "Yasser Al-Dosari", "Islam Sobhi"
+    "Maher Al-Muaiqly", "Yasser Al-Dosari", "Islam Sobhi",
+    "يقين قرآن", "موقع يقين", "تطبيق يقين الإسلامي", "yaqeen quran", "yaqeen al quran",
+    "موقع إسلامي متكامل", "تطبيق إسلامي بدون إعلانات", "منصة يقين القرآنية",
+    "القرآن الكريم كامل", "قراءة القرآن الكريم", "المصحف الإلكتروني المكتوب",
+    "قراءة سور القرآن", "مصحف فلاش سريع", "تتبع ختمة القرآن", "مصحف التجويد الإلكتروني",
+    "Read Quran online", "Digital Quran free",
+    "أذكار الصباح والمساء كاملة", "أذكار النوم والاستيقاظ",
+    "سبحة إلكترونية متطورة", "عداد الاستغفار الرقمي", "عداد الصلاة على النبي",
+    "التسبيح والاشعارات اليومية", "أذكار المسلم اليومية مكتوبة",
+    "Digital Tasbeeh counter", "Online Dhikr counter",
+    "مواقيت الصلاة اليوم", "أوقات الصلاة بدقة", "تحديد اتجاه القبلة بالهاتف",
+    "بوصلة القبلة الإلكترونية", "حساب وقت الصلاة GPS",
+    "Prayer times today", "Accurate Qibla finder",
+    "تحديات إسلامية يومية", "لوحة شرف حفظ القرآن", "مسابقات دينية ونقاط",
+    "تطبيق تحفيزي للعبادات", "ترتيب المستغفرين والمسبحين"
   ],
   openGraph: {
     title: "يقين القرآن | Yaqeen AlQuran - القرآن الكريم",
