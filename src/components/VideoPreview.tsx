@@ -21,29 +21,30 @@ const isVideoUrl = (url: string) => {
 const getFilterCSS = (filter?: string): string => {
   const map: Record<string, string> = {
     none: "none",
-    vintage: "sepia(0.5) contrast(1.1) brightness(0.8)",
-    cool: "saturate(0.8) hue-rotate(20deg) brightness(1.1)",
-    warm: "saturate(1.4) hue-rotate(-10deg) brightness(1.1)",
-    bw: "grayscale(1) contrast(1.3) brightness(0.9)",
-    dramatic: "contrast(1.5) brightness(0.6) saturate(1.3)",
-    blur: "blur(30px) brightness(0.7)",
-    sepia: "sepia(1) contrast(0.8) brightness(1.2)",
+    vintage: "sepia(0.5) contrast(1.1) brightness(0.9)",
+    cool: "saturate(0.8) hue-rotate(20deg) brightness(1.05)",
+    warm: "saturate(1.3) hue-rotate(-10deg) brightness(1.05)",
+    bw: "grayscale(1) contrast(1.2)",
+    dramatic: "contrast(1.4) brightness(0.7) saturate(1.2)",
+    blur: "blur(20px) brightness(0.8)",
+    invert: "invert(1) hue-rotate(180deg)",
     midnight: "brightness(0.5) contrast(1.3) saturate(0.7) hue-rotate(20deg)",
-    oceanic: "hue-rotate(170deg) brightness(1.2) saturate(1.3) contrast(1.1)",
-    saturated: "saturate(3) contrast(1.2)",
-    cinematic: "contrast(1.4) saturate(1.6) brightness(0.85) sepia(0.1)",
-    golden: "brightness(1.1) saturate(1.3) sepia(0.35) hue-rotate(-5deg)",
-    teal_orange: "contrast(1.2) saturate(1.1) sepia(0.15) hue-rotate(5deg) brightness(1.05)",
-    noir: "grayscale(1) contrast(1.5) brightness(0.85)",
-    dreamy: "brightness(1.15) saturate(0.7) contrast(0.9) blur(0.5px) sepia(0.15)",
-    neon: "saturate(2.5) contrast(1.3) hue-rotate(300deg) brightness(1.2)",
-    pastel: "saturate(0.5) brightness(1.2) contrast(0.85) sepia(0.2)",
-    lut_autumn: "sepia(0.6) saturate(1.4) hue-rotate(-20deg) brightness(1.0)",
-    lut_forest: "sepia(0.3) saturate(1.2) hue-rotate(80deg) brightness(0.9)",
-    high_contrast: "contrast(2) brightness(0.8) saturate(1.5)",
-    faded: "brightness(1.1) contrast(0.7) saturate(0.4) sepia(0.3)",
-    vignette: "brightness(0.9) contrast(1.3) saturate(1.1)",
-    cross_process: "contrast(1.3) saturate(0.7) sepia(0.4) hue-rotate(20deg) brightness(0.9)",
+    oceanic: "hue-rotate(30deg) brightness(1.05) saturate(1.2) contrast(1.1)",
+    sepia: "sepia(1) contrast(0.9) brightness(1.1)",
+    saturated: "saturate(2.2) contrast(1.15)",
+    cinematic: "contrast(1.25) brightness(0.85) saturate(1.1) sepia(0.15)",
+    golden: "sepia(0.35) contrast(1.15) brightness(1.05) saturate(1.3) hue-rotate(-5deg)",
+    teal_orange: "contrast(1.2) saturate(1.25) hue-rotate(-15deg) sepia(0.1) brightness(0.9)",
+    noir: "grayscale(1) contrast(1.7) brightness(0.75)",
+    dreamy: "saturate(0.95) brightness(1.15) contrast(0.9) blur(1.5px)",
+    neon: "saturate(2) hue-rotate(60deg) brightness(1.25) contrast(1.1)",
+    pastel: "saturate(0.65) brightness(1.2) contrast(0.95)",
+    lut_autumn: "sepia(0.2) saturate(1.45) hue-rotate(-20deg) contrast(1.15) brightness(0.95)",
+    lut_forest: "hue-rotate(50deg) saturate(1.25) contrast(1.2) brightness(0.85)",
+    high_contrast: "contrast(1.5) saturate(1.35) brightness(1.1)",
+    faded: "contrast(0.8) brightness(1.15) saturate(0.65)",
+    vignette: "brightness(0.95) contrast(1.05)",
+    cross_process: "contrast(1.35) saturate(1.15) hue-rotate(10deg) sepia(0.12)",
   };
   return map[filter || "none"] || "none";
 };
@@ -202,6 +203,9 @@ export function VideoPreview() {
 
   const currentVerse = surahData?.verses.find(v => v.id === currentAyahIndex);
 
+  // Scale font size for preview (preview is ~40% of final render size)
+  const previewFontSize = Math.min(Math.round(state.fontSize * 0.55), 68);
+
   return (
     <div className={`relative aspect-[9/16] h-full max-h-[78vh] group select-none font-['Tajawal']`} id="video-render-container">
       <style>{`
@@ -299,6 +303,135 @@ export function VideoPreview() {
                 }} />
               ))}
            </div>
+        )}
+
+        {/* ── Snow Overlay ── */}
+        {state.overlay === "snow" && (
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+            {[...Array(35)].map((_, i) => (
+              <div key={i} style={{
+                position: 'absolute', top: '-20px',
+                left: `${Math.random() * 100}%`,
+                width: `${Math.random() * 5 + 2}px`, height: `${Math.random() * 5 + 2}px`,
+                background: 'white', borderRadius: '50%', boxShadow: '0 0 4px white',
+                animation: `snowFall ${Math.random() * 8 + 8}s linear infinite`,
+                animationDelay: `-${Math.random() * 15}s`
+              }} />
+            ))}
+          </div>
+        )}
+
+        {/* ── Rain Overlay ── */}
+        {state.overlay === "rain" && (
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+            {[...Array(50)].map((_, i) => (
+              <div key={i} style={{
+                position: 'absolute',
+                top: `${Math.random() * -20}%`,
+                left: `${Math.random() * 120}%`,
+                width: '1px', height: `${Math.random() * 30 + 20}px`,
+                background: 'rgba(174,194,224,0.4)',
+                transform: 'rotate(15deg)',
+                animation: `rainFall ${Math.random() * 0.8 + 0.6}s linear infinite`,
+                animationDelay: `-${Math.random() * 2}s`
+              }} />
+            ))}
+          </div>
+        )}
+
+        {/* ── Fireflies Overlay ── */}
+        {state.overlay === "fireflies" && (
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+            {[...Array(18)].map((_, i) => (
+              <div key={i} style={{
+                position: 'absolute',
+                bottom: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                width: `${Math.random() * 5 + 3}px`, height: `${Math.random() * 5 + 3}px`,
+                background: '#D4AF37', borderRadius: '50%',
+                boxShadow: '0 0 10px #D4AF37, 0 0 20px #FFD700',
+                animation: `fireflyFloat ${Math.random() * 10 + 8}s ease-in-out infinite`,
+                animationDelay: `-${Math.random() * 15}s`
+              }} />
+            ))}
+          </div>
+        )}
+
+        {/* ── Smoke Overlay ── */}
+        {state.overlay === "smoke" && (
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} style={{
+                position: 'absolute', bottom: '-100px',
+                left: `${Math.random() * 100}%`,
+                width: `${Math.random() * 200 + 100}px`, height: `${Math.random() * 200 + 100}px`,
+                background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)',
+                borderRadius: '50%',
+                animation: `smokeRise ${Math.random() * 18 + 15}s ease-out infinite`,
+                animationDelay: `-${Math.random() * 20}s`
+              }} />
+            ))}
+          </div>
+        )}
+
+        {/* ── Sparkle Overlay ── */}
+        {state.overlay === "sparkle" && (
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+            {[...Array(16)].map((_, i) => (
+              <div key={i} style={{
+                position: 'absolute',
+                top: `${Math.random() * 90}%`,
+                left: `${Math.random() * 90}%`,
+                width: '10px', height: '10px',
+                background: '#FFD700',
+                clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
+                boxShadow: '0 0 8px #FFD700',
+                animation: `sparklePulse ${Math.random() * 3 + 2}s ease-in-out infinite`,
+                animationDelay: `-${Math.random() * 5}s`
+              }} />
+            ))}
+          </div>
+        )}
+
+        {/* ── Film Grain Overlay ── */}
+        {state.overlay === "film_grain" && (
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-10 opacity-[0.08] mix-blend-overlay">
+            <div style={{
+              position: 'absolute', top: '-50%', left: '-50%', width: '200%', height: '200%',
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+              animation: 'grainShift 0.4s steps(1) infinite'
+            }} />
+          </div>
+        )}
+
+        {/* ── Light Leak Overlay ── */}
+        {state.overlay === "light_leak" && (
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-10" style={{ mixBlendMode: 'screen' as any }}>
+            <div style={{
+              position: 'absolute', top: '-20%', left: '-20%', width: '140%', height: '140%',
+              background: 'radial-gradient(circle at 10% 20%, rgba(255,99,71,0.35) 0%, rgba(255,165,0,0.15) 40%, transparent 70%)',
+              filter: 'blur(50px)',
+              animation: 'lightLeakPulse 10s ease-in-out infinite'
+            }} />
+          </div>
+        )}
+
+        {/* ── Aurora Overlay ── */}
+        {state.overlay === "aurora" && (
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-10 opacity-50" style={{ mixBlendMode: 'color-dodge' as any }}>
+            <div style={{
+              position: 'absolute', top: '-10%', left: '-10%', width: '120%', height: '55%',
+              background: 'linear-gradient(90deg, rgba(0,255,136,0.3) 0%, rgba(0,136,255,0.3) 50%, rgba(200,0,255,0.3) 100%)',
+              filter: 'blur(60px)',
+              animation: 'auroraSway 12s ease-in-out infinite'
+            }} />
+          </div>
+        )}
+
+        {/* ── Vignette for vignette filter ── */}
+        {state.filter === "vignette" && (
+          <div className="absolute inset-0 pointer-events-none z-10"
+            style={{ boxShadow: 'inset 0 0 120px rgba(0,0,0,0.85)' }} />
         )}
 
         {/* Visualizer Canvas */}
@@ -406,7 +539,7 @@ export function VideoPreview() {
           </div>
         )}
 
-        {/* Keyframes for particles */}
+        {/* Keyframes for particles & overlays */}
         <style>{`
           @keyframes snowFall {
             0% { transform: translateY(-10px) translateX(0); opacity: 0; }
@@ -417,18 +550,50 @@ export function VideoPreview() {
           @keyframes leafFall {
             0% { transform: translateX(0) rotate(0deg); opacity: 0; }
             10% { opacity: 0.8; }
-            100% { transform: translateX(${Math.random() > 0.5 ? '' : '-'}100px) translateY(110vh) rotate(360deg); opacity: 0; }
+            100% { transform: translateX(-80px) translateY(110vh) rotate(360deg); opacity: 0; }
+          }
+          @keyframes rainFall {
+            0% { transform: translateY(-100px) translateX(0); opacity: 0.6; }
+            100% { transform: translateY(110vh) translateX(-80px); opacity: 0.6; }
+          }
+          @keyframes fireflyFloat {
+            0% { transform: translate(0, 0) scale(0.8); opacity: 0.2; }
+            50% { transform: translate(60px, -60px) scale(1.2); opacity: 0.9; }
+            100% { transform: translate(-30px, -120px) scale(0.8); opacity: 0.2; }
+          }
+          @keyframes smokeRise {
+            0% { transform: translateY(0) scale(1); opacity: 0; }
+            30% { opacity: 0.2; }
+            100% { transform: translateY(-900px) scale(2.5); opacity: 0; }
+          }
+          @keyframes sparklePulse {
+            0%, 100% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2) rotate(45deg); opacity: 0.9; }
+          }
+          @keyframes grainShift {
+            0%, 100% { transform: translate(0,0); }
+            25% { transform: translate(-2%,-1%); }
+            50% { transform: translate(1%,2%); }
+            75% { transform: translate(-1%,1%); }
+          }
+          @keyframes lightLeakPulse {
+            0%, 100% { transform: translate(-5%,-5%) scale(1); opacity: 0.5; }
+            50% { transform: translate(5%,5%) scale(1.2); opacity: 0.8; }
+          }
+          @keyframes auroraSway {
+            0%, 100% { transform: skewY(-3deg) translateY(0); filter: hue-rotate(0deg); }
+            50% { transform: skewY(3deg) translateY(-15px); filter: hue-rotate(40deg); }
           }
         `}</style>
 
         {/* Content Layer */}
         <div 
-          className="absolute inset-0 flex flex-col items-center px-10 text-center z-20 transition-all duration-1000 ease-out"
+          className="absolute inset-0 flex flex-col items-center px-10 text-center z-20 transition-all duration-700 ease-out"
           style={{ 
             justifyContent: state.textPosition === 'top' ? 'flex-start' : state.textPosition === 'bottom' ? 'flex-end' : 'center',
             paddingTop: state.textPosition === 'top' ? '180px' : '60px',
             paddingBottom: state.textPosition === 'bottom' ? '160px' : '60px',
-            transform: `translateY(${state.textVerticalOffset / 2}px)` 
+            transform: `translateY(${state.textVerticalOffset}px)` 
           }}
         >
           {surahLoading ? (
@@ -453,9 +618,11 @@ export function VideoPreview() {
                 className={`text-white leading-[1.8] text-center w-full break-words`}
                 style={{
                   color: state.textColor,
-                  fontSize: `${Math.min(state.fontSize, 70)}px`,
-                  fontWeight: state.fontWeight,
+                  fontSize: `${previewFontSize}px`,
+                  fontWeight: Number(state.fontWeight) || 700,
                   fontFamily: `"${state.fontFamily || 'Amiri'}", "Amiri", serif`,
+                  direction: 'rtl',
+                  lineHeight: 2.2,
                   textShadow: '0 8px 30px rgba(0,0,0,0.9)'
                 }}
               >

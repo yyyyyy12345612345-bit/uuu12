@@ -20,9 +20,26 @@ export type ViewType =
   | "admin";
 
 /**
- * أنواع الرسوم المتحركة للنص
+ * أنواع الرسوم المتحركة للنص (16 نوع)
  */
-export type AnimationType = "fade" | "slide" | "zoom" | "fly" | "bounce" | "glitch";
+export type AnimationType =
+  | "fade"
+  | "slide"
+  | "zoom"
+  | "fly"
+  | "bounce"
+  | "glitch"
+  | "scale"
+  | "blur"
+  | "flip"
+  | "wave"
+  | "typewriter"
+  | "elastic"
+  | "swing"
+  | "spiral"
+  | "cinematic"
+  | "split"
+  | "rotate";
 
 /**
  * أنواع الجسيمات البصرية

@@ -463,69 +463,110 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                             <span className="text-xs font-black text-primary font-mono">{state.fontSize}px</span>
                         </div>
                         <input
-                            type="range" min="20" max="300" step="2"
+                            type="range" min="24" max="200" step="2"
                             value={state.fontSize}
                             onChange={(e) => updateState({ fontSize: Number(e.target.value) })}
                             className="w-full h-2 bg-foreground/10 rounded-full appearance-none cursor-pointer accent-primary"
                         />
                     </div>
 
+                    {/* Text Position */}
+                    <div className="space-y-4">
+                        <span className="text-[10px] font-black text-foreground/20 uppercase tracking-[0.3em]">موقع النص</span>
+                        <div className="flex gap-3">
+                            {[
+                                { id: "top", label: "أعلى", icon: "⬆️" },
+                                { id: "center", label: "وسط", icon: "🎯" },
+                                { id: "bottom", label: "أسفل", icon: "⬇️" },
+                            ].map((pos) => (
+                                <button
+                                    key={pos.id}
+                                    onClick={() => updateState({ textPosition: pos.id as any })}
+                                    className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 text-[10px] font-black transition-all ${
+                                        state.textPosition === pos.id
+                                            ? 'border-primary bg-primary/10 text-white'
+                                            : 'border-white/5 text-white/40 hover:border-white/20'
+                                    }`}
+                                >
+                                    <span>{pos.icon}</span>
+                                    <span>{pos.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
                     {/* Vertical Offset */}
-                    <div className="space-y-6">
-                        <div className="flex justify-between items-center px-2">
-                            <span className="text-[10px] font-black text-foreground/20 uppercase tracking-[0.3em]">الموقع الرأسي</span>
-                            <span className="text-xs font-black text-primary font-mono">{state.textVerticalOffset}px</span>
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                            <span className="text-[10px] font-black text-foreground/20 uppercase tracking-[0.3em]">الضبط الرأسي الدقيق</span>
+                            <span className="text-xs font-black text-primary font-mono">{state.textVerticalOffset > 0 ? '+' : ''}{state.textVerticalOffset}px</span>
                         </div>
                         <input
-                            type="range" min="-500" max="500" step="5"
+                            type="range" min="-400" max="400" step="5"
                             value={state.textVerticalOffset}
                             onChange={(e) => updateState({ textVerticalOffset: Number(e.target.value) })}
                             className="w-full h-2 bg-foreground/10 rounded-full appearance-none cursor-pointer accent-primary"
                         />
+                        <button
+                            onClick={() => updateState({ textVerticalOffset: 0 })}
+                            className="w-full py-2 rounded-lg bg-white/5 text-[9px] font-black text-white/30 hover:text-white/60 hover:bg-white/10 transition-all uppercase tracking-widest"
+                        >
+                            إعادة ضبط ← 0
+                        </button>
                     </div>
 
                     {/* Font Weight */}
-                    <div className="space-y-6">
-                        <div className="flex justify-between items-center px-2">
-                            <span className="text-[10px] font-black text-foreground/20 uppercase tracking-[0.3em]">سمك وحجم الخط</span>
-                        </div>
+                    <div className="space-y-4">
+                        <span className="text-[10px] font-black text-foreground/20 uppercase tracking-[0.3em]">سُمك الخط</span>
                         <div className="flex gap-3">
                             {[
-                                { id: 400, label: "خفيف" },
-                                { id: 700, label: "عادي" },
-                                { id: 900, label: "عريض" },
+                                { id: 400, label: "خفيف", sample: "بسم" },
+                                { id: 700, label: "عادي", sample: "بسم" },
+                                { id: 900, label: "عريض", sample: "بسم" },
                             ].map((w) => (
                                 <button
                                     key={w.id}
                                     onClick={() => updateState({ fontWeight: w.id })}
-                                    className={`flex-1 py-3 rounded-xl border-2 text-[10px] font-black transition-all ${state.fontWeight === w.id ? 'border-primary bg-primary/10 text-white' : 'border-white/5 text-white/40'}`}
+                                    className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 text-[10px] font-black transition-all ${
+                                        Number(state.fontWeight) === w.id
+                                            ? 'border-primary bg-primary/10 text-white shadow-lg shadow-primary/20'
+                                            : 'border-white/5 text-white/40 hover:border-white/20'
+                                    }`}
                                 >
-                                    {w.label}
+                                    <span style={{ fontWeight: w.id, fontFamily: state.fontFamily || 'Amiri', fontSize: '18px', direction: 'rtl' }}>{w.sample}</span>
+                                    <span>{w.label}</span>
                                 </button>
                             ))}
                         </div>
                     </div>
 
                     {/* Ayah Decoration */}
-                    <div className="space-y-6">
-                        <div className="flex justify-between items-center px-2">
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-4">
+                            <div className="h-px flex-1 bg-foreground/10" />
                             <span className="text-[10px] font-black text-foreground/20 uppercase tracking-[0.3em]">شكل رقم الآية</span>
+                            <div className="h-px flex-1 bg-foreground/10" />
                         </div>
                         <div className="grid grid-cols-3 gap-3">
                             {[
-                                { id: "none", label: "بدون" },
-                                { id: "bracket1", label: "﴿ ١ ﴾" },
-                                { id: "bracket2", label: "﴾ ١ ﴿" },
-                                { id: "star", label: "✧ ١ ✧" },
-                                { id: "diamond", label: "✥ ١ ✥" },
-                                { id: "ornament", label: "۞ ١ ۞" },
+                                { id: "none", label: "بدون", preview: "١" },
+                                { id: "bracket1", label: "أقواس", preview: "﴿ ١ ﴾" },
+                                { id: "bracket2", label: "معكوس", preview: "﴾ ١ ﴿" },
+                                { id: "star", label: "نجوم", preview: "✧ ١ ✧" },
+                                { id: "diamond", label: "ماسة", preview: "✥ ١ ✥" },
+                                { id: "ornament", label: "زخرفة", preview: "۞ ١ ۞" },
                             ].map((w) => (
                                 <button
                                     key={w.id}
                                     onClick={() => updateState({ ayahDecoration: w.id as any })}
-                                    className={`flex-1 py-3 rounded-xl border-2 text-[12px] font-black transition-all ${state.ayahDecoration === w.id ? 'border-primary bg-primary/10 text-white' : 'border-white/5 text-white/40'}`}
+                                    className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 transition-all ${
+                                        state.ayahDecoration === w.id
+                                            ? 'border-primary bg-primary/10 text-white shadow-lg shadow-primary/20'
+                                            : 'border-white/5 text-white/40 hover:border-white/20'
+                                    }`}
                                 >
-                                    {w.label}
+                                    <span className="text-sm font-bold text-primary" style={{ fontFamily: 'Amiri, serif' }}>{w.preview}</span>
+                                    <span className="text-[9px] font-black uppercase tracking-widest">{w.label}</span>
                                 </button>
                             ))}
                         </div>
