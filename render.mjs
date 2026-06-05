@@ -373,24 +373,59 @@ async function startRender(jobId, data) {
     const frameEntries = [];
     const ext = isVideoBg ? "png" : "jpg";
 
+    const stripTashkeel = (s) => (s || "").replace(/[\u064B-\u065F\u0670]/g, '');
+
     for (let i = 0; i < verses.length; i++) {
       const v = verses[i];
       const dur = verseDurations[i];
       const lines = wrapText(v.text || "", sf, tw);
       const numLines = Math.max(1, lines.length);
-      const durPerLine = dur / numLines;
 
-      for (let j = 0; j < numLines; j++) {
-        const fPath = path.resolve(tempDir, `f-${i}-${j}.${ext}`);
-        const lineVerse = {
-          ...v,
-          text: lines[j],
-          translation: (j === numLines - 1) ? (v.translation || "") : ""
-        };
+      if (numLines === 1) {
+        // سطر واحد — كامل المدة
+        const fPath = path.resolve(tempDir, `f-${i}-0.${ext}`);
         const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration };
-        await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg);
-        frameEntries.push({ fPath, dur: durPerLine });
+        await generateVerseFrame({ ...v, text: lines[0], translation: v.translation || "" }, fPath, settings, bgPath, isVideoBg);
+        frameEntries.push({ fPath, dur: Math.max(dur, 0.5) });
+      } else {
+        // أسطر متعددة — توزيع المدة حسب طول النص + تجانس
+        const charLengths = lines.map(l => Math.max(stripTashkeel(l).length, 1));
+        const totalChars = charLengths.reduce((a, b) => a + b, 0);
+        let remainingDur = dur;
+        let remainingChars = totalChars;
+
+        for (let j = 0; j < numLines; j++) {
+          const fPath = path.resolve(tempDir, `f-${i}-${j}.${ext}`);
+          const lineVerse = {
+            ...v,
+            text: lines[j],
+            translation: (j === numLines - 1) ? (v.translation || "") : ""
+          };
+          const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration };
+          await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg);
+
+          let lineDur;
+          if (j === numLines - 1) {
+            // آخر سطر — يأخذ المدة المتبقية + 100ms hold
+            lineDur = Math.max(remainingDur + 0.1, 0.5);
+          } else {
+            const ratio = charLengths[j] / remainingChars;
+            lineDur = Math.max(remainingDur * ratio * 1.05, 0.4); // 5% overlap للسلاسة
+            remainingDur -= lineDur;
+            remainingChars -= charLengths[j];
+          }
+          frameEntries.push({ fPath, dur: lineDur });
+        }
       }
+    }
+
+    // ═══ ضبط توقيت الإطارات ليتطابق تماماً مع الصوت ═══
+    const audioTotal = verseDurations.reduce((a, b) => a + b, 0);
+    const frameTotal = frameEntries.reduce((a, f) => a + f.dur, 0);
+    const diff = audioTotal - frameTotal;
+    if (Math.abs(diff) > 0.01 && frameEntries.length > 0) {
+      // ضبط آخر إطار ليملأ الفرق
+      frameEntries[frameEntries.length - 1].dur = Math.max(0.3, frameEntries[frameEntries.length - 1].dur + diff);
     }
 
     const totalDuration = verseDurations.reduce((a, b) => a + b, 0);
