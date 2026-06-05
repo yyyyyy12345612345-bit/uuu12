@@ -403,10 +403,10 @@ export function AuthGate({ children }: AuthGateProps) {
 
   async function handleCreateAccount() {
     setIsLoading(true); clearError();
+    const origEmail = signupForm.email.trim().toLowerCase();
     try {
       await initFirebase();
       const { createUserWithEmailAndPassword } = await import("firebase/auth");
-      const origEmail = signupForm.email.trim().toLowerCase();
       const rnd = Math.random().toString(36).slice(2,6);
       const authEmail = origEmail.replace("@", `+${rnd}@`);
       const cred = await createUserWithEmailAndPassword(auth, authEmail, signupForm.password);
