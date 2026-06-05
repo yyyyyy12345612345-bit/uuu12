@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useInstantPathname, navigateInstantly } from "@/lib/navigation";
 import { classifyQueryWithML } from "@/lib/ml-model";
 import { auth, db, initFirebase } from "@/lib/firebase";
-import { doc, onSnapshot, collection, query, orderBy, limit, getDocs, updateDoc, addDoc, serverTimestamp } from "firebase/firestore";
+import { doc, onSnapshot, collection, query, orderBy, limit, getDocs, getCountFromServer, where, updateDoc, addDoc, serverTimestamp } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
 // helper functions for chatbot analytics
@@ -89,6 +89,7 @@ export function ChatBot() {
   const [dbUser, setDbUser] = useState<any>(null);
   const [leaderboardUsers, setLeaderboardUsers] = useState<any[]>([]);
   const [activeQuiz, setActiveQuiz] = useState<{ questionId: number; correctOption: string; explanation: string } | null>(null);
+  const [siteStats, setSiteStats] = useState<{ totalUsers: number; totalRenders: number } | null>(null);
 
   // جلب المتصدرين الأوائل لتزويد الذكاء الاصطناعي ببيانات لوحة الشرف
   useEffect(() => {
@@ -117,6 +118,27 @@ export function ChatBot() {
     return () => {
       isMounted = false;
     };
+  }, []);
+
+  // جلب إحصائيات الموقع (عدد المستخدمين وإجمالي الفيديوهات)
+  useEffect(() => {
+    let isMounted = true;
+    const fetchSiteStats = async () => {
+      await initFirebase();
+      if (!isMounted || !db) return;
+      try {
+        const [countSnap, rendersSnap] = await Promise.all([
+          getCountFromServer(collection(db, "users")),
+          getDocs(query(collection(db, "users"), where("videoRendersCount", ">", 0)))
+        ]);
+        const totalRenders = rendersSnap.docs.reduce((sum, d) => sum + (d.data().videoRendersCount || 0), 0);
+        if (isMounted) setSiteStats({ totalUsers: countSnap.data().count, totalRenders });
+      } catch (err) {
+        console.error("Error fetching site stats for chatbot:", err);
+      }
+    };
+    fetchSiteStats();
+    return () => { isMounted = false; };
   }, []);
 
   // حفظ الرسائل مؤقتاً عند أي تغيير
@@ -394,6 +416,10 @@ ${activeQuiz.explanation}
 - دقائق الاستماع: ${userMinutes}
 - تاريخ التسجيل: ${userCreatedAt}
 - الصفحة الحالية: ${pathname || "الرئيسية"}
+
+[إحصائيات الموقع العامة]
+- إجمالي المستخدمين المسجلين: ${siteStats?.totalUsers ?? "جاري التحميل..."} مستخدم
+- إجمالي الفيديوهات المنتجة: ${siteStats?.totalRenders ?? "جاري التحميل..."} فيديو
 
 [قواعد مهمة]
 1. أجِب فقط عن: (أ) القرآن والتفسير والأحكام الدينية (ب) أسئلة الموقع والتطبيق (ج) الدردشة العامة والترحيب
