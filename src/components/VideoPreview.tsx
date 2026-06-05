@@ -27,11 +27,23 @@ const getFilterCSS = (filter?: string): string => {
     bw: "grayscale(1) contrast(1.3) brightness(0.9)",
     dramatic: "contrast(1.5) brightness(0.6) saturate(1.3)",
     blur: "blur(30px) brightness(0.7)",
-    invert: "invert(1) hue-rotate(180deg)",
+    sepia: "sepia(1) contrast(0.8) brightness(1.2)",
     midnight: "brightness(0.5) contrast(1.3) saturate(0.7) hue-rotate(20deg)",
     oceanic: "hue-rotate(170deg) brightness(1.2) saturate(1.3) contrast(1.1)",
-    sepia: "sepia(1) contrast(0.8) brightness(1.2)",
     saturated: "saturate(3) contrast(1.2)",
+    cinematic: "contrast(1.4) saturate(1.6) brightness(0.85) sepia(0.1)",
+    golden: "brightness(1.1) saturate(1.3) sepia(0.35) hue-rotate(-5deg)",
+    teal_orange: "contrast(1.2) saturate(1.1) sepia(0.15) hue-rotate(5deg) brightness(1.05)",
+    noir: "grayscale(1) contrast(1.5) brightness(0.85)",
+    dreamy: "brightness(1.15) saturate(0.7) contrast(0.9) blur(0.5px) sepia(0.15)",
+    neon: "saturate(2.5) contrast(1.3) hue-rotate(300deg) brightness(1.2)",
+    pastel: "saturate(0.5) brightness(1.2) contrast(0.85) sepia(0.2)",
+    lut_autumn: "sepia(0.6) saturate(1.4) hue-rotate(-20deg) brightness(1.0)",
+    lut_forest: "sepia(0.3) saturate(1.2) hue-rotate(80deg) brightness(0.9)",
+    high_contrast: "contrast(2) brightness(0.8) saturate(1.5)",
+    faded: "brightness(1.1) contrast(0.7) saturate(0.4) sepia(0.3)",
+    vignette: "brightness(0.9) contrast(1.3) saturate(1.1)",
+    cross_process: "contrast(1.3) saturate(0.7) sepia(0.4) hue-rotate(20deg) brightness(0.9)",
   };
   return map[filter || "none"] || "none";
 };
@@ -353,6 +365,62 @@ export function VideoPreview() {
           </div>
         )}
 
+        {/* Particles Layer */}
+        {state.particles && state.particles !== "none" && (
+          <div className="absolute inset-0 z-15 pointer-events-none overflow-hidden">
+            {state.particles === "snow" && Array.from({ length: 30 }).map((_, i) => (
+              <div key={i} className="absolute w-1.5 h-1.5 bg-white/70 rounded-full"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  animation: `snowFall ${4 + Math.random() * 6}s linear infinite`,
+                  animationDelay: `${Math.random() * 5}s`,
+                  opacity: 0.3 + Math.random() * 0.5,
+                  width: `${2 + Math.random() * 3}px`,
+                  height: `${2 + Math.random() * 3}px`
+                }}
+              />
+            ))}
+            {state.particles === "leaves" && Array.from({ length: 15 }).map((_, i) => (
+              <div key={i} className="absolute text-lg"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `-5%`,
+                  animation: `leafFall ${8 + Math.random() * 7}s linear infinite`,
+                  animationDelay: `${Math.random() * 8}s`,
+                  opacity: 0.3 + Math.random() * 0.4,
+                }}
+              >🍂</div>
+            ))}
+            {state.particles === "petals" && Array.from({ length: 15 }).map((_, i) => (
+              <div key={i} className="absolute text-lg"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `-5%`,
+                  animation: `leafFall ${10 + Math.random() * 8}s linear infinite`,
+                  animationDelay: `${Math.random() * 10}s`,
+                  opacity: 0.3 + Math.random() * 0.4,
+                }}
+              >🌸</div>
+            ))}
+          </div>
+        )}
+
+        {/* Keyframes for particles */}
+        <style>{`
+          @keyframes snowFall {
+            0% { transform: translateY(-10px) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 0.5; }
+            100% { transform: translateY(100vh) translateX(30px); opacity: 0; }
+          }
+          @keyframes leafFall {
+            0% { transform: translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            100% { transform: translateX(${Math.random() > 0.5 ? '' : '-'}100px) translateY(110vh) rotate(360deg); opacity: 0; }
+          }
+        `}</style>
+
         {/* Content Layer */}
         <div 
           className="absolute inset-0 flex flex-col items-center px-10 text-center z-20 transition-all duration-1000 ease-out"
@@ -370,7 +438,7 @@ export function VideoPreview() {
             </div>
           ) : surahData ? (
             <div 
-              key={currentAyahIndex} 
+              key={`${currentAyahIndex}-${state.animation}`}
               className={`flex flex-col gap-8 w-full transition-all duration-1000 ${
                 state.animation === 'slide' ? 'animate-in slide-in-from-bottom-32 fade-in' : 
                 state.animation === 'zoom' ? 'animate-in zoom-in-150 fade-in duration-1000' :
@@ -382,11 +450,12 @@ export function VideoPreview() {
             >
               {/* Quranic Text */}
               <p
-                className={`font-['Amiri'] text-white leading-[1.8] text-center w-full break-words`}
+                className={`text-white leading-[1.8] text-center w-full break-words`}
                 style={{
                   color: state.textColor,
                   fontSize: `${Math.min(state.fontSize, 70)}px`,
                   fontWeight: state.fontWeight,
+                  fontFamily: `"${state.fontFamily || 'Amiri'}", "Amiri", serif`,
                   textShadow: '0 8px 30px rgba(0,0,0,0.9)'
                 }}
               >

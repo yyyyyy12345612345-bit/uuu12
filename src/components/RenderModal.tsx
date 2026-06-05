@@ -302,9 +302,23 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       bw: "grayscale(1) contrast(1.3) brightness(0.9)",
       dramatic: "contrast(1.5) brightness(0.6) saturate(1.3)",
       blur: "blur(10px) brightness(0.7)",
+      sepia: "sepia(1) contrast(0.8) brightness(1.2)",
       midnight: "brightness(0.5) contrast(1.3) saturate(0.7) hue-rotate(20deg)",
       oceanic: "hue-rotate(170deg) brightness(1.2) saturate(1.3) contrast(1.1)",
       saturated: "saturate(3) contrast(1.2)",
+      cinematic: "contrast(1.4) saturate(1.6) brightness(0.85) sepia(0.1)",
+      golden: "brightness(1.1) saturate(1.3) sepia(0.35) hue-rotate(-5deg)",
+      teal_orange: "contrast(1.2) saturate(1.1) sepia(0.15) hue-rotate(5deg) brightness(1.05)",
+      noir: "grayscale(1) contrast(1.5) brightness(0.85)",
+      dreamy: "brightness(1.15) saturate(0.7) contrast(0.9) blur(0.5px) sepia(0.15)",
+      neon: "saturate(2.5) contrast(1.3) hue-rotate(300deg) brightness(1.2)",
+      pastel: "saturate(0.5) brightness(1.2) contrast(0.85) sepia(0.2)",
+      lut_autumn: "sepia(0.6) saturate(1.4) hue-rotate(-20deg) brightness(1.0)",
+      lut_forest: "sepia(0.3) saturate(1.2) hue-rotate(80deg) brightness(0.9)",
+      high_contrast: "contrast(2) brightness(0.8) saturate(1.5)",
+      faded: "brightness(1.1) contrast(0.7) saturate(0.4) sepia(0.3)",
+      vignette: "brightness(0.9) contrast(1.3) saturate(1.1)",
+      cross_process: "contrast(1.3) saturate(0.7) sepia(0.4) hue-rotate(20deg) brightness(0.9)",
     };
     ctx.filter = filterMap[state.filter || "none"] || "none";
 
