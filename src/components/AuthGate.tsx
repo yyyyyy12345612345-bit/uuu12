@@ -549,9 +549,6 @@ export function AuthGate({ children }: AuthGateProps) {
                     className="w-full mt-4 py-2.5 text-[11px] text-white/15 hover:text-white/35 transition-colors border border-white/[0.05] rounded-xl font-medium">
                     تخطي لاحقاً ←
                   </button>
-                    className="w-full mt-4 py-2.5 text-[11px] text-white/15 hover:text-white/35 transition-colors border border-white/[0.05] rounded-xl font-medium">
-                    تخطي لاحقاً ←
-                  </button>
                 </Slide>
               )}
 
