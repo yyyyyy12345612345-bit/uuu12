@@ -345,14 +345,11 @@ ${activeQuiz.explanation}
     const userData = dbUser;
 
     try {
-      const res = await fetch("/api/chat", {
+      const res = await fetch("https://youssefosama--3abfbd14608111f1b4191607ee4eb77e.web.val.run/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          messages: updatedMessages,
-          userData,
-          pathname,
-          leaderboard: leaderboardUsers
+          prompt: userText
         })
       });
 

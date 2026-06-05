@@ -741,7 +741,11 @@ ${quiz.options}
   }
 
   // 2. فحص أسئلة صفحات الموقع والموقع نفسه مباشرة
-  const siteQueryMatch = /(?:موقع|صفحة|رابط|تحميل|اين|فين|كيف|ازاي|استوديو|video|library|prayers|mushaf|rank|profile|daily|tafsir|digital|مصحف|تفسير|أذكار|كتاب الله)/i.test(textClean);
+  const siteKeywords = ["موقع", "صفحة", "صفحات", "اقسام", "أقسام", "فروع", "رابط", "لينك", "قسم", "فيه"];
+  const siteMatchCount = siteKeywords.filter(k => textClean.includes(k)).length;
+  const hasPageName = /(?:video|library|prayers|mushaf|rank|profile|daily|tafsir|digital)/i.test(textClean);
+  const isSiteNavQuestion = siteMatchCount >= 2 || /(?:اقسام\s+الموقع|صفحات\s+الموقع|فروع\s+الموقع|فيه\s+اقسام|ايه\s+الاقسام|ايه\s+الصفحات|ايه\s+فيه\s+بالموقع|الموقع\s+عليه\s+ايه)/i.test(textClean) || /^(?:عندكم|فيه|فيها|عندها)\s+(?:صفحة|صفحات|اقسام)/i.test(textClean);
+  const siteQueryMatch = hasPageName || isSiteNavQuestion;
   if (siteQueryMatch) {
     return {
       reply: `يا ${userName}, الموقع هنا هو التطبيق القرآني الشامل. يمكنك الوصول إلى:
