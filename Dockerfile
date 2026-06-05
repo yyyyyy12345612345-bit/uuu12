@@ -1,18 +1,9 @@
-# استخدام بيئة رسمية خفيفة مبنية على Node
 FROM node:18-bullseye-slim
 
-# تنصيب متصفحات الكروم لتشغيل عملية الرندر وبرنامج ffmpeg للڤيديوهات والخطوط العربية
-RUN apt-get update && apt-get install -y \
-    chromium ffmpeg \
-    libnss3 libxss1 libasound2 \
-    fonts-liberation fonts-noto-core fonts-hosny-amiri fonts-kacst fonts-noto-color-emoji \
-    xdg-utils \
-    --no-install-recommends && \
-    rm -rf /var/lib/apt/lists/* || \
-  apt-get update && apt-get install -y chromium ffmpeg fonts-noto-core --no-install-recommends && \
-  rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y chromium ffmpeg fonts-noto-core --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
 
-# إخبار Remotion أن يستخدم Chromium المثبت مسبقاً بدل تحميل واحد جديد (110MB) كل مرة
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 ENV CHROMIUM_PATH=/usr/bin/chromium
@@ -20,19 +11,11 @@ ENV REMOTION_CHROME_EXECUTABLE=/usr/bin/chromium
 
 WORKDIR /app
 
-# نسخ ملفات الحزم
 COPY package*.json ./
-
-# تنصيب النسخ الأساسية
 RUN npm install
-
-# تأكيد وجود الحزم الاضافية (sharp لرسم SVG الآيات)
 RUN npm install express cors sharp
 
-# نسخ جميع ملفات المشروع
 COPY . .
 
-# المنفذ
 EXPOSE 7860
-
 CMD ["node", "render-server.mjs"]
