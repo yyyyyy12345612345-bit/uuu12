@@ -253,7 +253,7 @@ export function ChatBot() {
         isInsult: sender === "user" ? detectInsult(text) : false
       });
     } catch (err) {
-      console.error("Failed to log message to Firestore:", err);
+      // Silent - Firebase rules may block writing, but chat still works
     }
   };
 
