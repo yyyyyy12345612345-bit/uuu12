@@ -89,7 +89,7 @@ export async function POST(request: Request) {
         });
 
         await transporter.sendMail({
-          from: `"القرآن الكريم" <${account.user}>`,
+          from: account.user,
           to: cleanEmail,
           subject: "كود التحقق",
           html,
