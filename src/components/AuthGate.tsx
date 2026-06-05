@@ -175,11 +175,16 @@ export function AuthGate({ children }: AuthGateProps) {
           const snap = await getDocs(q);
           if (!snap.empty) {
             if (snap.docs.length > 1) {
+              await initFirebase();
+              for (const d of snap.docs) {
+                const ae = d.data().authEmail;
+                if (ae) try { await signInWithEmailAndPassword(auth, ae, loginPass); window.location.reload(); return; } catch {}
+              }
               setError("هذا البريد مرتبط بأكثر من حساب، يرجى تسجيل الدخول باستخدام اسم المستخدم.");
               setIsLoading(false);
               return;
             }
-            resolvedEmail = snap.docs[0].data().email || id;
+            resolvedEmail = snap.docs[0].data().authEmail || snap.docs[0].data().email || id;
             docUsername = snap.docs[0].data().username || null;
           }
         } else {
@@ -187,7 +192,7 @@ export function AuthGate({ children }: AuthGateProps) {
           const q = query(collection(db, "users"), where("username", "==", username));
           const snap = await getDocs(q);
           if (!snap.empty) {
-            resolvedEmail = snap.docs[0].data().email || `${username}@yaqeen.app`;
+            resolvedEmail = snap.docs[0].data().authEmail || snap.docs[0].data().email || `${username}@yaqeen.app`;
             docUsername = snap.docs[0].data().username || username;
           } else {
             resolvedEmail = `${username}@yaqeen.app`;
@@ -401,11 +406,13 @@ export function AuthGate({ children }: AuthGateProps) {
     try {
       await initFirebase();
       const { createUserWithEmailAndPassword } = await import("firebase/auth");
-      const email = signupForm.email.trim().toLowerCase();
-      const cred = await createUserWithEmailAndPassword(auth, email, signupForm.password);
+      const origEmail = signupForm.email.trim().toLowerCase();
+      const rnd = Math.random().toString(36).slice(2,6);
+      const authEmail = origEmail.replace("@", `+${rnd}@`);
+      const cred = await createUserWithEmailAndPassword(auth, authEmail, signupForm.password);
       await setDoc(doc(db, "users", cred.user.uid), {
         uid: cred.user.uid, username: signupForm.username.trim().toLowerCase(),
-        displayName: signupForm.displayName.trim(), email, emailVerified,
+        displayName: signupForm.displayName.trim(), email: origEmail, authEmail, emailVerified,
         phoneNumber: signupForm.phone.trim(), gender: signupForm.gender,
         country: signupForm.country, photoURL: signupForm.avatar,
         totalPoints: 0, createdAt: new Date().toISOString(), lastActive: new Date().toISOString(),
@@ -414,7 +421,23 @@ export function AuthGate({ children }: AuthGateProps) {
       window.location.reload();
     } catch (err: any) {
       const code = err?.code || "";
-      if (code === "auth/email-already-in-use") setError("هذا البريد مسجل بالفعل. يرجى تسجيل الدخول.");
+      if (code === "auth/email-already-in-use") {
+        const rnd2 = Math.random().toString(36).slice(2,8);
+        const authEmail2 = origEmail.replace("@", `+${rnd2}@`);
+        try {
+          const cred2 = await createUserWithEmailAndPassword(auth, authEmail2, signupForm.password);
+          await setDoc(doc(db, "users", cred2.user.uid), {
+            uid: cred2.user.uid, username: signupForm.username.trim().toLowerCase(),
+            displayName: signupForm.displayName.trim(), email: origEmail, authEmail: authEmail2, emailVerified,
+            phoneNumber: signupForm.phone.trim(), gender: signupForm.gender,
+            country: signupForm.country, photoURL: signupForm.avatar,
+            totalPoints: 0, createdAt: new Date().toISOString(), lastActive: new Date().toISOString(),
+            isBanned: false, encP: btoa(signupForm.password),
+          });
+          window.location.reload();
+          return;
+        } catch { setError("هذا البريد مسجل بالفعل. يرجى تسجيل الدخول."); }
+      }
       else if (code === "auth/weak-password") setError("كلمة المرور ضعيفة جداً");
       else setError(err.message || "حدث خطأ أثناء إنشاء الحساب");
       setIsLoading(false);
