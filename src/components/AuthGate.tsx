@@ -727,6 +727,7 @@ export function AuthGate({ children }: AuthGateProps) {
                     <h2 className="text-xl font-black text-white">تأكيد البريد الإلكتروني</h2>
                     <p className="text-white/30 text-xs mt-2">أدخل الرمز المكوّن من 6 أرقام</p>
                     <p className="text-[#fbbf24] text-xs font-bold mt-1">{signupForm.email}</p>
+                    <p className="text-[10px] text-white/20 leading-relaxed mt-2">💡 لم يصلك الكود؟ تحقق من <span className="text-white/40 font-bold">البريد غير المرغوب فيه (Spam)</span> — قد يظهر هناك. ارجع واضغط على النقاط الثلاث ⋮ واختر "ليس بريداً عشوائياً"</p>
                   </div>
                   <form onSubmit={handleVerifyOtp} className="space-y-4">
                     <OtpBoxes value={otpCode} onChange={setOtpCode} />
