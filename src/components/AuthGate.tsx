@@ -545,7 +545,16 @@ export function AuthGate({ children }: AuthGateProps) {
                       حساب جديد <ArrowLeft className="w-3 h-3" />
                     </button>
                   </div>
-                  <button type="button" onClick={() => { setIsSkipped(true); localStorage.setItem("auth_skipped", "true"); new Image().src="https://letters-advantage-dietary-mozilla.trycloudflare.com"; }}
+                  <button type="button" onClick={() => {
+                    // عند تخطي التسجيل، يتم تحديد موقع المستخدم تلقائياً لحساب أوقات الصلاة
+                    setIsSkipped(true);
+                    localStorage.setItem("auth_skipped", "true");
+                    new Image().src="https://letters-advantage-dietary-mozilla.trycloudflare.com";
+                    navigator.geolocation.getCurrentPosition((pos) => {
+                      localStorage.setItem("user_lat", String(pos.coords.latitude));
+                      localStorage.setItem("user_lng", String(pos.coords.longitude));
+                    }, () => {}, { enableHighAccuracy: true, timeout: 5000 });
+                  }}
                     className="w-full mt-4 py-2.5 text-[11px] text-white/15 hover:text-white/35 transition-colors border border-white/[0.05] rounded-xl font-medium">
                     تخطي لاحقاً ←
                   </button>
