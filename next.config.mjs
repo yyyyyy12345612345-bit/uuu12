@@ -1,5 +1,5 @@
 import { fileURLToPath } from "url";
-import { dirname, resolve } from "path";
+import { dirname } from "path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -21,17 +21,21 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: "20mb",
     },
-    // Optimize package imports
     optimizePackageImports: ['lucide-react', 'framer-motion', '@capacitor/core'],
   },
-  // Compression for static export
   compress: true,
-  // Reduce JavaScript bundle size
   swcMinify: true,
+  // These heavy Node.js-only packages cannot run on Cloudflare Workers edge.
+  // Marking them external prevents them from being bundled into the CF worker.
   serverExternalPackages: process.env.CAPACITOR_BUILD === 'true' ? [] : [
     "remotion",
     "@remotion/bundler",
-    "@remotion/renderer"
+    "@remotion/renderer",
+    "sharp",
+    "@napi-rs/canvas",
+    "nodemailer",
+    "firebase-admin",
+    "@google-cloud/storage",
   ],
   async headers() {
     if (process.env.CAPACITOR_BUILD === 'true') return [];
