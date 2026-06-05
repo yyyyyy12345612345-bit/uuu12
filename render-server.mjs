@@ -159,9 +159,57 @@ async function ensureFont(fontFamily) {
   }
 }
 
+// تزيين رقم الآية حسب الاختيار
+function getAyahDecoration(verseId, style) {
+  switch(style) {
+    case "none": return String(verseId);
+    case "bracket2": return `﴾ ${verseId} ﴿`;
+    case "star": return `✧ ${verseId} ✧`;
+    case "diamond": return `✥ ${verseId} ✥`;
+    case "ornament": return `۞ ${verseId} ۞`;
+    default: return `﴿ ${verseId} ﴾`;
+  }
+}
+
+// تطبيق فلتر سينمائي على SVG
+function applyFilterToSVG(svg, filterName) {
+  if (filterName === "none" || filterName === "original") return svg;
+  const filterId = "cinematicFilter";
+  let filterDef = "";
+  switch(filterName) {
+    case "warm": filterDef = `<filter id="${filterId}"><feColorMatrix type="matrix" values="1.1 0 0 0 0  0 0.9 0 0 0  0 0.7 0 0 0  0 0 0 1 0"/></filter>`; break;
+    case "cool": filterDef = `<filter id="${filterId}"><feColorMatrix type="matrix" values="0.9 0 0 0 0  0 1.0 0 0 0  0 0 1.2 0 0  0 0 0 1 0"/></filter>`; break;
+    case "gold": filterDef = `<filter id="${filterId}"><feColorMatrix type="matrix" values="1.2 0 0 0 0  0 0.9 0 0 0  0 0.5 0 0 0  0 0 0 1 0"/></filter>`; break;
+    case "sepia": filterDef = `<filter id="${filterId}"><feColorMatrix type="matrix" values="0.4 0.7 0 0 0  0.2 0.5 0 0 0  0.1 0.3 0 0 0  0 0 0 1 0"/></filter>`; break;
+    case "vintage": filterDef = `<filter id="${filterId}"><feColorMatrix type="matrix" values="0.6 0.3 0 0 0  0.2 0.5 0.1 0 0  0.1 0.2 0.4 0 0  0 0 0 0.8 0"/></filter>`; break;
+    case "dramatic": filterDef = `<filter id="${filterId}"><feColorMatrix type="matrix" values="1.4 0 0 0 0  0 1.4 0 0 0  0 0 1.4 0 0  0 0 0 1 0"/><feComponentTransfer><feFuncR type="linear" slope="1.3"/><feFuncG type="linear" slope="1.3"/><feFuncB type="linear" slope="1.3"/></feComponentTransfer></filter>`; break;
+    case "noir": filterDef = `<filter id="${filterId}"><feColorMatrix type="matrix" values="0.3 0.6 0.1 0 0  0.3 0.6 0.1 0 0  0.3 0.6 0.1 0 0  0 0 0 1 0"/><feComponentTransfer><feFuncR type="linear" slope="1.2"/><feFuncG type="linear" slope="1.2"/><feFuncB type="linear" slope="1.2"/></feComponentTransfer></filter>`; break;
+    case "moody": filterDef = `<filter id="${filterId}"><feColorMatrix type="matrix" values="0.8 0 0 0 0  0 0.7 0 0 0  0 0 0.9 0 0  0 0 0 0.9 0"/></filter>`; break;
+    default: filterDef = `<filter id="${filterId}"><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/></filter>`;
+  }
+  return svg.replace("<defs>", `<defs>${filterDef}`).replace("</svg>", `<rect width="100%" height="100%" filter="url(#${filterId})" opacity="0.85"/></svg>`);
+}
+
+// تطبيق overlay على SVG
+function applyOverlayToSVG(svg, overlayName) {
+  if (overlayName === "none" || !overlayName) return svg;
+  let overlaySVG = "";
+  switch(overlayName) {
+    case "lightRays": overlaySVG = `<rect width="100%" height="100%" fill="url(#raysGrad)" opacity="0.2"/>`; break;
+    case "bokeh": overlaySVG = `<circle cx="100" cy="200" r="60" fill="rgba(255,255,255,0.05)"/><circle cx="600" cy="400" r="40" fill="rgba(255,255,255,0.04)"/><circle cx="300" cy="900" r="80" fill="rgba(255,255,255,0.03)"/><circle cx="500" cy="1100" r="50" fill="rgba(255,255,255,0.04)"/>`; break;
+    case "vignette": overlaySVG = `<radialGradient id="vigGrad"><stop offset="60%" stop-color="rgba(0,0,0,0)"/><stop offset="100%" stop-color="rgba(0,0,0,0.6)"/></radialGradient><rect width="100%" height="100%" fill="url(#vigGrad)"/>`; break;
+    case "dust": overlaySVG = `<rect width="100%" height="100%" opacity="0.06" filter="url(#dustFilter)"><animate attributeName="opacity" values="0.03;0.07;0.03" dur="4s" repeatCount="indefinite"/></rect>`; break;
+    case "fog": overlaySVG = `<rect width="100%" height="100%" fill="rgba(200,200,220,0.08)"/>`; break;
+    case "gradient": overlaySVG = `<linearGradient id="gradOverlay" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(212,175,55,0.12)"/><stop offset="100%" stop-color="rgba(139,69,19,0.08)"/></linearGradient><rect width="100%" height="100%" fill="url(#gradOverlay)"/>`; break;
+    case "starburst": overlaySVG = `<polygon points="360,0 720,1280 0,1280" fill="rgba(255,215,0,0.03)"/>`; break;
+  }
+  if (!overlaySVG) return svg;
+  return svg.replace("</svg>", `${overlaySVG}</svg>`);
+}
+
 // رسم إطارات الآيات (SVG)
 async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg = false) {
-  const { fontSize = 50, fontWeight = 700, fontFamily = "Amiri", textColor = "#ffffff", textPosition = "center", surahName = "", userPlan = "free", instaHandle = "", tiktokHandle = "" } = settings;
+  const { fontSize = 50, fontWeight = 700, fontFamily = "Amiri", textColor = "#ffffff", textPosition = "center", textVerticalOffset = 0, surahName = "", userPlan = "free", instaHandle = "", tiktokHandle = "", filter = "none", overlay = "none", ayahDecoration = "bracket1" } = settings;
 
   const scaledFontSize = Math.min(Math.max(fontSize * 1.6, 40), 110);
   const translationFontSize = Math.min(Math.max(fontSize * 0.65, 28), 40);
@@ -184,7 +232,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
   if (textPosition === "top") startY = 200;
   else if (textPosition === "bottom") startY = Math.max(80, HEIGHT - totalH - 120);
   else startY = Math.max(80, (HEIGHT - totalH) / 2);
-  startY = Math.max(160, Math.min(startY, HEIGHT - totalH - 60));
+  startY = Math.max(160, Math.min(startY, HEIGHT - totalH - 60)) + (textVerticalOffset || 0);
 
   let curY = startY;
   const svgWeight = fontWeight >= 700 ? "bold" : fontWeight >= 500 ? "600" : "normal";
@@ -249,12 +297,14 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     <rect x="${(WIDTH - 100) / 2}" y="${sepY}" width="100" height="1.5" rx="1" fill="rgba(212,175,55,0.5)"/>
     <circle cx="${centerX}" cy="${sepY + 0.75}" r="3" fill="rgba(212,175,55,0.6)"/>
     ${tLines.length > 0 ? `<text x="${centerX}" y="${transY}" font-family="'${escapeXml(fontFamily)}', 'Amiri', serif" font-size="${translationFontSize}" font-weight="400" fill="rgba(255,255,255,0.88)" text-anchor="middle" font-style="italic" filter="url(#softShadow)">${transTSpans}</text>` : ""}
-    <text x="${centerX}" y="${ornamentY}" font-family="'${escapeXml(fontFamily)}', 'Amiri', serif" font-size="34" font-weight="bold" fill="url(#goldGrad)" text-anchor="middle">﴿ ${escapeXml(String(verse.id || ""))} ﴾</text>
+    <text x="${centerX}" y="${ornamentY}" font-family="'${escapeXml(fontFamily)}', 'Amiri', serif" font-size="34" font-weight="bold" fill="url(#goldGrad)" text-anchor="middle">${escapeXml(getAyahDecoration(verse.id, ayahDecoration))}</text>
   </g>
   ${socialSVG}
 </svg>`;
 
-  const svgBuffer = Buffer.from(svg);
+  let finalSvg = applyFilterToSVG(svg, filter);
+  finalSvg = applyOverlayToSVG(finalSvg, overlay);
+  const svgBuffer = Buffer.from(finalSvg);
 
   if (isVideoBg) {
     // رندرة شفافة لوضعها فوق الفيديو
@@ -276,7 +326,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
 
 // ═══ عملية الرندرة الأساسية ═══
 async function startRender(jobId, data) {
-  const { verses, backgroundUrl, surahName, textColor = "#ffffff", fontSize = 50, fontWeight = 700, fontFamily = "Amiri", textPosition = "center", userPlan = "free", instaHandle = "", tiktokHandle = "" } = data;
+  const { verses, backgroundUrl, surahName, textColor = "#ffffff", fontSize = 50, fontWeight = 700, fontFamily = "Amiri", filter = "none", overlay = "none", animation = "fade", textPosition = "center", textVerticalOffset = 0, userPlan = "free", instaHandle = "", tiktokHandle = "", ayahDecoration = "bracket1", showVisualizer = false, visualizerColor = "#D4AF37", visualizerStyle = "bars", particles = "none" } = data;
   const tempDir = path.resolve(os.tmpdir(), jobId);
   fs.mkdirSync(tempDir, { recursive: true });
 
@@ -334,7 +384,7 @@ async function startRender(jobId, data) {
           text: lines[j],
           translation: (j === numLines - 1) ? (v.translation || "") : ""
         };
-        const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, surahName, userPlan, instaHandle, tiktokHandle };
+        const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration };
         await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg);
         frameEntries.push({ fPath, dur: durPerLine });
       }

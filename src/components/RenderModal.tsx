@@ -95,6 +95,13 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           overlay: state.overlay || "none",
           animation: state.animation || "fade",
           textPosition: state.textPosition || "center",
+          textVerticalOffset: state.textVerticalOffset ?? 0,
+          showVisualizer: state.showVisualizer ?? false,
+          visualizerColor: state.visualizerColor ?? "#D4AF37",
+          visualizerStyle: state.visualizerStyle ?? "bars",
+          tiktokHandle: state.tiktokHandle ?? "",
+          instaHandle: state.instaHandle ?? "",
+          particles: state.particles ?? "none",
           userPlan: userPlan?.plan || "free",
           ayahDecoration: state.ayahDecoration || "bracket1",
         }),
@@ -540,14 +547,29 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     let translateY = state.textVerticalOffset || 0;
     let blur = 0;
 
-    if (state.animation === "fade") opacity = Math.min(1, ayahProgress * 2);
-    if (state.animation === "scale") { scale = 0.8 + (Math.min(1, ayahProgress * 2) * 0.2); opacity = Math.min(1, ayahProgress * 2); }
-    if (state.animation === "slide") { translateY += (1 - Math.min(1, ayahProgress * 2)) * 100; opacity = Math.min(1, ayahProgress * 2); }
-    if (state.animation === "blur") { blur = (1 - Math.min(1, ayahProgress * 2)) * 20; opacity = Math.min(1, ayahProgress * 2); }
-    if (state.animation === "zoom") { scale = 1.5 - (Math.min(1, ayahProgress * 2) * 0.5); opacity = Math.min(1, ayahProgress * 2); }
+    const ap = Math.min(1, ayahProgress * 2);
+    if (state.animation === "fade") { opacity = ap; }
+    if (state.animation === "scale") { scale = 0.8 + (ap * 0.2); opacity = ap; }
+    if (state.animation === "slide") { translateY += (1 - ap) * 100; opacity = ap; }
+    if (state.animation === "blur") { blur = (1 - ap) * 20; opacity = ap; }
+    if (state.animation === "zoom") { scale = 1.5 - (ap * 0.5); opacity = ap; }
+    if (state.animation === "flip") { scale = 1 - (1 - ap) * 0.5; opacity = ap; }
+    if (state.animation === "bounce") { scale = 0.9 + Math.sin(ap * Math.PI * 3) * 0.1; opacity = ap; }
+    if (state.animation === "glitch") { if (ap < 0.9) { opacity = Math.random() > 0.9 ? 0 : 1; translateY += (Math.random() - 0.5) * 20; } else { opacity = 1; } }
+    if (state.animation === "rotate") { opacity = ap; scale = ap; }
+    if (state.animation === "wave") { translateY += Math.sin(Date.now() / 200 + 0) * (1 - ap) * 30; opacity = ap; }
+    if (state.animation === "elastic") { scale = 0.5 + (ap * 0.5) + Math.sin(ap * Math.PI * 4) * (1 - ap) * 0.2; opacity = ap; }
+    if (state.animation === "swing") { const rot = (1 - ap) * 30 * Math.sin(ap * Math.PI * 2); ctx.rotate(rot * Math.PI / 180); opacity = ap; }
+    if (state.animation === "typewriter") { opacity = ap; }
+    if (state.animation === "spiral") { translateY += (1 - ap) * 200; const rot = (1 - ap) * 720; ctx.rotate(rot * Math.PI / 180); opacity = ap; }
+    if (state.animation === "cinematic") { scale = 1 + (1 - ap) * 0.3; opacity = Math.min(1, ap * 3); }
+    if (state.animation === "split") { opacity = ap; }
 
     ctx.save();
-    ctx.translate(canvas.width/2, canvas.height/2 + translateY);
+    let centerY = canvas.height / 2;
+    if (state.textPosition === "top") centerY = canvas.height * 0.28;
+    else if (state.textPosition === "bottom") centerY = canvas.height * 0.72;
+    ctx.translate(canvas.width/2, centerY + translateY);
     ctx.scale(scale, scale);
     ctx.globalAlpha = opacity;
     if (blur > 0) ctx.filter = `blur(${blur}px)`;
