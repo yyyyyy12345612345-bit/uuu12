@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npx @opennextjs/cloudflare build",
+    "build:next": "next build",
     "build:app": "node build-wrapper.js",
     "cap:sync": "node build-wrapper.js && npx cap sync",
     "start": "next start",
@@ -13,7 +14,6 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "final-build": "node update-assets.js && node build-wrapper.js && npx cap sync android && cd android && set JAVA_HOME=C:\\Users\\youse\\OneDrive\\Desktop\\my1\\jbr&& gradlew.bat assembleDebug",
-    "build:cf": "npx @opennextjs/cloudflare build",
     "postinstall": "node patches/opennext-jose-external.js"
   },
   "dependencies": {
