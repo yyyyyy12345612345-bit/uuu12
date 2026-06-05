@@ -65,9 +65,11 @@ function buildQuranContext(query) {
 // ===== CHAT ENDPOINT =====
 app.post('/api/chat', async (req, res) => {
   try {
-    const { message, history = [], context } = req.body;
+    // Accept both 'prompt' (from frontend) and 'message' (internal)
+    const msgText = req.body.message || req.body.prompt || '';
+    const { history = [], context } = req.body;
     
-    if (!message || typeof message !== 'string') {
+    if (!msgText || typeof msgText !== 'string') {
       return res.status(400).json({ error: 'الرسالة مطلوبة' });
     }
 
@@ -82,12 +84,12 @@ app.post('/api/chat', async (req, res) => {
     for (const msg of recentHistory) {
       contents.push({
         role: msg.role === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.content }]
+        parts: [{ text: msg.content || msg.prompt || msg.text }]
       });
     }
 
     // Add current message with Quran context
-    const enrichedMessage = `${message}\n\n---\nسياق القرآن:\n${buildQuranContext(message)}`;
+    const enrichedMessage = `${msgText}\n\n---\nسياق القرآن:\n${buildQuranContext(msgText)}`;
     contents.push({ role: 'user', parts: [{ text: enrichedMessage }] });
 
     // Call Gemini
@@ -110,6 +112,7 @@ app.post('/api/chat', async (req, res) => {
 
     res.json({
       success: true,
+      text: reply,
       reply,
       meta: {
         quranRefs: ayahMatches || [],
@@ -122,6 +125,7 @@ app.post('/api/chat', async (req, res) => {
     console.error('Chat error:', error);
     res.status(500).json({ 
       error: 'حدث خطأ في المعالجة',
+      text: null,
       detail: error.message 
     });
   }
