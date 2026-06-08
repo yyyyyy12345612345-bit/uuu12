@@ -128,6 +128,7 @@ import { EditorProvider } from "@/store/useEditor";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import AppInitializer from "@/components/AppInitializer";
 import Script from "next/script";
+import { ErrorDebug } from "@/components/ErrorDebug";
 
 const GA_ID = "G-M167S42G7X";
 
@@ -230,6 +231,7 @@ export default function RootLayout({
             </AppInitializer>
           </EditorProvider>
         </ThemeProvider>
+        <ErrorDebug />
         <Script id="register-sw" strategy="afterInteractive">
           {`
             if ('serviceWorker' in navigator) {
