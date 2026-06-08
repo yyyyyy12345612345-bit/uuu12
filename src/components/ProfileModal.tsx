@@ -4,12 +4,12 @@ import React, { useState, useEffect } from "react";
 import {
    X, Camera, User, Phone, Calendar,
    MapPin, Save, Loader2, CheckCircle, Image as ImageIcon, LogOut, ShieldCheck,
-   BookOpen, Headphones, Trophy, PlayCircle, Compass
+   BookOpen, Headphones, Trophy, PlayCircle, Compass, Settings, AlertTriangle, Trash2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { auth, db, storage } from "@/lib/firebase";
-import { doc, getDoc, updateDoc, collection, getDocs } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { doc, getDoc, updateDoc, collection, getDocs, deleteDoc } from "firebase/firestore";
+import { deleteUser } from "firebase/auth";
 
 interface ProfileModalProps {
    isOpen: boolean;
@@ -17,6 +17,7 @@ interface ProfileModalProps {
 }
 
 export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
+   const [activeTab, setActiveTab] = useState<"identity" | "stats" | "account">("identity");
    const [formData, setFormData] = useState({
       displayName: "",
       username: "",
@@ -29,6 +30,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
    const [loading, setLoading] = useState(false);
    const [saving, setSaving] = useState(false);
    const [success, setSuccess] = useState(false);
+   const [deletingAccount, setDeletingAccount] = useState(false);
 
    const AVATARS = {
       male: [
@@ -151,7 +153,6 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
          setSuccess(true);
          setTimeout(() => {
             setSuccess(false);
-            onClose();
          }, 1500);
       } catch (e) {
          console.error("Error saving profile:", e);
@@ -160,258 +161,334 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       }
    };
 
+   const handleDeleteAccount = async () => {
+      if (!auth?.currentUser || !db) return;
+      
+      const confirmMessage = "تحذير ⚠️\nهل أنت متأكد من رغبتك في حذف حسابك نهائياً؟ هذا الإجراء سيقوم بحذف جميع بياناتك وإنجازاتك ولا يمكن التراجع عنه أبداً.";
+      if (!window.confirm(confirmMessage)) return;
+
+      setDeletingAccount(true);
+      try {
+         const user = auth.currentUser;
+         // 1. Delete user doc from firestore
+         await deleteDoc(doc(db, "users", user.uid));
+         
+         // 2. Delete auth user
+         await deleteUser(user);
+         
+         alert("تم حذف الحساب بنجاح. نتمنى أن نراك مجدداً.");
+         onClose();
+         window.location.href = "/";
+      } catch (e: any) {
+         console.error("Error deleting account:", e);
+         if (e.code === 'auth/requires-recent-login') {
+            alert("لأسباب أمنية، يجب عليك تسجيل الخروج أولاً، ثم تسجيل الدخول مرة أخرى قبل محاولة حذف حسابك.");
+         } else {
+            alert("حدث خطأ أثناء محاولة حذف الحساب. يرجى المحاولة لاحقاً.");
+         }
+      } finally {
+         setDeletingAccount(false);
+      }
+   };
+
    if (!isOpen) return null;
 
    return (
-      <div className={`fixed inset-0 z-[2000] bg-black/90 backdrop-blur-2xl overflow-y-auto font-['Tajawal'] py-10 px-4 flex justify-center items-start no-scrollbar`}>
+      <div className="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-2xl overflow-y-auto font-['Tajawal'] py-10 px-4 flex justify-center items-start no-scrollbar">
          <div className="fixed inset-0" onClick={onClose} />
 
          <div className="relative w-full max-w-2xl bg-[#0a0a0d] border border-white/5 rounded-[3.5rem] shadow-[0_50px_100px_rgba(0,0,0,0.6)] flex flex-col animate-in zoom-in-95 duration-700 overflow-hidden">
             <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
 
-            <div className="p-8 border-b border-white/5 flex items-center justify-between bg-black/20 backdrop-blur-3xl sticky top-0 z-50">
+            <div className="p-6 md:p-8 border-b border-white/5 flex items-center justify-between bg-black/20 backdrop-blur-3xl sticky top-0 z-50">
                <button onClick={onClose} className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/20 hover:text-white transition-all">
                   <X className="w-6 h-6" />
                </button>
                <div className="text-right">
                   <h2 className="text-xl font-black text-white">الملف الشخصي</h2>
-                  <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em] mt-1">تخصيص هويتك الرقمية</p>
+                  <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em] mt-1">إعدادات هويتك الرقمية</p>
                </div>
             </div>
 
-            <div className="p-10 relative z-10">
+            <div className="p-6 md:p-10 relative z-10">
                {loading ? (
                   <div className="py-24 flex flex-col items-center gap-6">
                      <Loader2 className="w-12 h-12 text-primary animate-spin" />
                      <p className="text-primary font-black text-xs uppercase tracking-[0.4em]">جاري التحميل</p>
                   </div>
                ) : (
-                  <div className="space-y-10">
-                     {/* User Stats Dashboard */}
-                     {userStats && (
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                           <div className="bg-white/5 border border-white/5 rounded-[2rem] p-5 flex flex-col items-center justify-center text-center gap-3 hover:bg-white/10 transition-colors">
-                              <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                                 <Trophy className="w-5 h-5" />
+                  <div className="space-y-8">
+                     {/* Header Card */}
+                     <div className="flex items-center gap-5 bg-gradient-to-r from-primary/10 to-transparent p-6 rounded-3xl border border-primary/20 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-3xl rounded-full pointer-events-none" />
+                        <img src={formData.photoURL || AVATARS[formData.gender][0]} alt="Avatar" className="w-20 h-20 rounded-full border-2 border-primary shadow-[0_0_20px_rgba(251,191,36,0.3)] object-cover z-10 bg-black/50" />
+                        <div className="z-10">
+                           <h3 className="text-2xl font-black text-white">{formData.displayName || "مستخدم جديد"}</h3>
+                           <p className="text-primary text-xs tracking-widest uppercase font-bold mt-1">@{formData.username || "---"}</p>
+                        </div>
+                     </div>
+
+                     {/* Tabs */}
+                     <div className="flex bg-white/5 rounded-2xl p-1.5 shadow-inner">
+                        <button onClick={() => setActiveTab("identity")} className={`flex-1 py-3 text-sm font-black rounded-xl transition-all ${activeTab === 'identity' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-white/40 hover:text-white'}`}>الهوية</button>
+                        <button onClick={() => setActiveTab("stats")} className={`flex-1 py-3 text-sm font-black rounded-xl transition-all ${activeTab === 'stats' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-white/40 hover:text-white'}`}>الإحصائيات</button>
+                        <button onClick={() => setActiveTab("account")} className={`flex-1 py-3 text-sm font-black rounded-xl transition-all ${activeTab === 'account' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-white/40 hover:text-white'}`}>الحساب</button>
+                     </div>
+
+                     {/* Identity Tab */}
+                     {activeTab === 'identity' && (
+                        <form onSubmit={handleSave} className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                           {/* Avatar Selection */}
+                           <div className="space-y-5">
+                              <div className="flex items-center gap-3 px-2">
+                                 <div className="w-1 h-1 rounded-full bg-primary" />
+                                 <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">اختر الشخصية الرقمية</label>
                               </div>
-                              <div>
-                                 <span className="block text-2xl font-black text-white">{userStats.totalPoints || 0}</span>
-                                 <span className="text-[10px] text-white/40 uppercase tracking-widest font-black mt-1 block">إجمالي النقاط</span>
+                              <div className="flex flex-wrap gap-4 justify-center">
+                                 {AVATARS[formData.gender].map((url) => (
+                                    <button
+                                       key={url}
+                                       type="button"
+                                       onClick={() => setFormData(prev => ({ ...prev, photoURL: url }))}
+                                       className={`relative w-16 h-16 rounded-full overflow-hidden border-2 transition-all duration-300 ${formData.photoURL === url ? 'border-primary scale-110 shadow-lg shadow-primary/20' : 'border-white/5 opacity-50 hover:opacity-100 hover:scale-105'}`}
+                                    >
+                                       <img src={url} alt="Avatar" className="w-full h-full object-cover" />
+                                       {formData.photoURL === url && (
+                                          <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                                             <CheckCircle className="w-5 h-5 text-primary" />
+                                          </div>
+                                       )}
+                                    </button>
+                                 ))}
                               </div>
                            </div>
-                           
-                           <div className="bg-white/5 border border-white/5 rounded-[2rem] p-5 flex flex-col items-center justify-center text-center gap-3 hover:bg-white/10 transition-colors">
-                              <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
-                                 <BookOpen className="w-5 h-5" />
+
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                              {/* Display Name */}
+                              <div className="space-y-3">
+                                 <div className="flex items-center gap-3 px-2">
+                                    <div className="w-1 h-1 rounded-full bg-primary" />
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">الاسم بالكامل</label>
+                                 </div>
+                                 <div className="relative">
+                                    <input
+                                       required
+                                       value={formData.displayName}
+                                       onChange={e => setFormData({ ...formData, displayName: e.target.value })}
+                                       className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-sm font-bold text-white shadow-xl placeholder:text-white/20"
+                                       placeholder="اسمك هنا..."
+                                    />
+                                    <User className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 w-5 h-5" />
+                                 </div>
                               </div>
-                              <div>
-                                 <span className="block text-2xl font-black text-white">{userStats.readAyahs || 0}</span>
-                                 <span className="text-[10px] text-white/40 uppercase tracking-widest font-black mt-1 block">آيات قُرئت</span>
+
+                              {/* Username (Read Only) */}
+                              <div className="space-y-3">
+                                 <div className="flex items-center gap-3 px-2">
+                                    <div className="w-1 h-1 rounded-full bg-primary" />
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">اسم المستخدم</label>
+                                 </div>
+                                 <div className="relative">
+                                    <input
+                                       disabled
+                                       value={formData.username}
+                                       className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none opacity-50 cursor-not-allowed font-mono text-sm text-white shadow-xl"
+                                    />
+                                    <ShieldCheck className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 w-5 h-5" />
+                                 </div>
                               </div>
                            </div>
-                           
-                           <div className="bg-white/5 border border-white/5 rounded-[2rem] p-5 flex flex-col items-center justify-center text-center gap-3 hover:bg-white/10 transition-colors">
-                              <div className="w-10 h-10 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center">
-                                 <Headphones className="w-5 h-5" />
+
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                              {/* Phone */}
+                              <div className="space-y-3">
+                                 <div className="flex items-center gap-3 px-2">
+                                    <div className="w-1 h-1 rounded-full bg-primary" />
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">رقم التواصل</label>
+                                 </div>
+                                 <div className="relative">
+                                    <input
+                                       type="tel"
+                                       value={formData.phoneNumber}
+                                       onChange={e => setFormData({ ...formData, phoneNumber: e.target.value })}
+                                       className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all font-mono text-sm text-white shadow-xl placeholder:text-white/20"
+                                       placeholder="مثال: 9665xxxxxxxx"
+                                    />
+                                    <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 w-5 h-5" />
+                                 </div>
                               </div>
-                              <div>
-                                 <span className="block text-2xl font-black text-white">{Math.floor((userStats.audioSeconds || 0) / 60)}</span>
-                                 <span className="text-[10px] text-white/40 uppercase tracking-widest font-black mt-1 block">دقائق استماع</span>
+
+                              {/* Country */}
+                              <div className="space-y-3">
+                                 <div className="flex items-center gap-3 px-2">
+                                    <div className="w-1 h-1 rounded-full bg-primary" />
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">الدولة</label>
+                                 </div>
+                                 <div className="relative z-50">
+                                    <CountrySelectProfile 
+                                       value={formData.country} 
+                                       onChange={(val) => setFormData({...formData, country: val})} 
+                                       countries={ARAB_COUNTRIES} 
+                                    />
+                                 </div>
                               </div>
                            </div>
-                           
-                           <div className="bg-white/5 border border-white/5 rounded-[2rem] p-5 flex flex-col items-center justify-center text-center gap-3 hover:bg-white/10 transition-colors">
-                              <div className="w-10 h-10 rounded-full bg-purple-500/10 text-purple-500 flex items-center justify-center">
-                                 <PlayCircle className="w-5 h-5" />
+
+                           {/* Gender */}
+                           <div className="space-y-3">
+                              <div className="flex items-center gap-3 px-2">
+                                 <div className="w-1 h-1 rounded-full bg-primary" />
+                                 <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">الجنس</label>
                               </div>
-                              <div>
-                                 <span className="block text-2xl font-black text-white">{userStats.completedSurahsCount || 0}</span>
-                                 <span className="text-[10px] text-white/40 uppercase tracking-widest font-black mt-1 block">سور مكتملة</span>
+                              <div className="flex gap-4 p-1.5 bg-white/5 rounded-2xl border border-white/10 shadow-inner">
+                                 <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, gender: "male" }))}
+                                    className={`flex-1 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.gender === "male" ? "bg-primary text-black shadow-md shadow-primary/20" : "text-white/30 hover:text-white hover:bg-white/5"}`}
+                                 >
+                                    ذكر
+                                 </button>
+                                 <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, gender: "female" }))}
+                                    className={`flex-1 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.gender === "female" ? "bg-primary text-black shadow-md shadow-primary/20" : "text-white/30 hover:text-white hover:bg-white/5"}`}
+                                 >
+                                    أنثى
+                                 </button>
+                              </div>
+                           </div>
+
+                           <div className="pt-4">
+                              <button
+                                 type="submit"
+                                 disabled={saving || success}
+                                 className={`w-full py-5 rounded-[1.5rem] font-black text-sm transition-all duration-500 flex items-center justify-center gap-3 shadow-xl ${success
+                                    ? 'bg-emerald-500 text-white shadow-emerald-500/20'
+                                    : 'bg-primary text-black hover:scale-[1.02] active:scale-95 shadow-primary/20'
+                                    }`}
+                              >
+                                 {saving ? (
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                 ) : success ? (
+                                    <CheckCircle className="w-5 h-5 animate-bounce" />
+                                 ) : (
+                                    <Save className="w-5 h-5" />
+                                 )}
+                                 {success ? 'تم تحديث الهوية بنجاح' : 'حفظ التعديلات'}
+                              </button>
+                           </div>
+                        </form>
+                     )}
+
+                     {/* Stats Tab */}
+                     {activeTab === 'stats' && (
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+                           <div className="grid grid-cols-2 gap-4">
+                              <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col items-center justify-center text-center gap-4 hover:bg-white/10 transition-colors shadow-lg">
+                                 <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center shadow-inner shadow-primary/20">
+                                    <Trophy className="w-6 h-6" />
+                                 </div>
+                                 <div>
+                                    <span className="block text-3xl font-black text-white">{userStats?.totalPoints || 0}</span>
+                                    <span className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-black mt-2 block">إجمالي النقاط</span>
+                                 </div>
+                              </div>
+                              
+                              <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col items-center justify-center text-center gap-4 hover:bg-white/10 transition-colors shadow-lg">
+                                 <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center shadow-inner shadow-emerald-500/20">
+                                    <BookOpen className="w-6 h-6" />
+                                 </div>
+                                 <div>
+                                    <span className="block text-3xl font-black text-white">{userStats?.readAyahs || 0}</span>
+                                    <span className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-black mt-2 block">آيات قُرئت</span>
+                                 </div>
+                              </div>
+                              
+                              <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col items-center justify-center text-center gap-4 hover:bg-white/10 transition-colors shadow-lg">
+                                 <div className="w-12 h-12 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center shadow-inner shadow-blue-500/20">
+                                    <Headphones className="w-6 h-6" />
+                                 </div>
+                                 <div>
+                                    <span className="block text-3xl font-black text-white">{Math.floor((userStats?.audioSeconds || 0) / 60)}</span>
+                                    <span className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-black mt-2 block">دقائق استماع</span>
+                                 </div>
+                              </div>
+                              
+                              <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col items-center justify-center text-center gap-4 hover:bg-white/10 transition-colors shadow-lg">
+                                 <div className="w-12 h-12 rounded-full bg-purple-500/10 text-purple-500 flex items-center justify-center shadow-inner shadow-purple-500/20">
+                                    <PlayCircle className="w-6 h-6" />
+                                 </div>
+                                 <div>
+                                    <span className="block text-3xl font-black text-white">{userStats?.completedSurahsCount || 0}</span>
+                                    <span className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-black mt-2 block">سور مكتملة</span>
+                                 </div>
                               </div>
                            </div>
                         </div>
                      )}
 
-                  {/* Phone alert */}
-                  {formData.phoneNumber.length < 10 && (
-                    <div className="bg-amber-500/10 border border-amber-500/30 rounded-[2rem] p-6 text-center space-y-4">
-                      <div className="flex items-center justify-center gap-3">
-                        <ShieldCheck className="w-6 h-6 text-amber-400" />
-                        <p className="text-amber-400 text-sm font-bold">حسابك غير مؤمن برقم هاتف!</p>
-                      </div>
-                      <p className="text-white/50 text-xs">يرجى ربط رقم هاتفك لتتمكن من استعادة حسابك في حال نسيت كلمة المرور</p>
-                      <div className="relative max-w-xs mx-auto">
-                        <input
-                          type="tel"
-                          value={formData.phoneNumber}
-                          onChange={e => setFormData({ ...formData, phoneNumber: e.target.value })}
-                          placeholder="9665xxxxxxxx"
-                          className="w-full bg-white/5 border border-amber-500/30 rounded-xl py-3 px-4 text-center text-white outline-none focus:border-amber-500 text-sm font-mono"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  <form onSubmit={handleSave} className="space-y-10">
-                     {/* Avatar Selection */}
-                     <div className="space-y-6">
-                        <div className="flex items-center gap-3 px-2">
-                           <div className="w-1 h-1 rounded-full bg-primary" />
-                           <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">اختر الشخصية الرقمية</label>
-                        </div>
-                        <div className="flex flex-wrap gap-4 justify-center">
-                           {AVATARS[formData.gender].map((url) => (
-                              <button
-                                 key={url}
-                                 type="button"
-                                 onClick={() => setFormData(prev => ({ ...prev, photoURL: url }))}
-                                 className={`relative w-16 h-16 rounded-full overflow-hidden border-2 transition-all duration-300 ${formData.photoURL === url ? 'border-primary scale-110 shadow-lg shadow-primary/20' : 'border-white/5 opacity-50 hover:opacity-100'}`}
-                              >
-                                 <img src={url} alt="Avatar" className="w-full h-full object-cover" />
-                                 {formData.photoURL === url && (
-                                    <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                                       <CheckCircle className="w-5 h-5 text-primary" />
-                                    </div>
-                                 )}
-                              </button>
-                           ))}
-                        </div>
-                     </div>
-
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* Display Name */}
-                        <div className="space-y-4">
-                           <div className="flex items-center gap-3 px-2">
-                              <div className="w-1 h-1 rounded-full bg-primary" />
-                              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">الاسم بالكامل</label>
-                           </div>
-                           <div className="relative">
-                              <input
-                                 required
-                                 value={formData.displayName}
-                                 onChange={e => setFormData({ ...formData, displayName: e.target.value })}
-                                 className="w-full bg-white/5 border-2 border-white/5 rounded-2xl py-5 px-8 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-lg font-bold text-white shadow-xl"
-                              />
-                              <User className="absolute left-6 top-1/2 -translate-y-1/2 text-white/10 w-5 h-5" />
-                           </div>
-                        </div>
-
-                        {/* Username (Read Only) */}
-                        <div className="space-y-4">
-                           <div className="flex items-center gap-3 px-2">
-                              <div className="w-1 h-1 rounded-full bg-primary" />
-                              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">اسم المستخدم</label>
-                           </div>
-                           <div className="relative">
-                              <input
-                                 disabled
-                                 value={formData.username}
-                                 className="w-full bg-white/5 border-2 border-white/5 rounded-2xl py-5 px-8 text-right outline-none opacity-50 cursor-not-allowed font-mono text-white"
-                              />
-                              <ShieldCheck className="absolute left-6 top-1/2 -translate-y-1/2 text-white/10 w-5 h-5" />
-                           </div>
-                        </div>
-                     </div>
-
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* Phone */}
-                        <div className="space-y-4">
-                           <div className="flex items-center gap-3 px-2">
-                              <div className="w-1 h-1 rounded-full bg-primary" />
-                              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">رقم التواصل</label>
-                           </div>
-                           <div className="relative">
-                              <input
-                                 type="tel"
-                                 value={formData.phoneNumber}
-                                 onChange={e => setFormData({ ...formData, phoneNumber: e.target.value })}
-                                 className="w-full bg-white/5 border-2 border-white/5 rounded-2xl py-5 px-8 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all font-mono text-white"
-                              />
-                              <Phone className="absolute left-6 top-1/2 -translate-y-1/2 text-white/10 w-5 h-5" />
-                           </div>
-                        </div>
-
-                        {/* Country */}
-                        <div className="space-y-4">
-                           <div className="flex items-center gap-3 px-2">
-                              <div className="w-1 h-1 rounded-full bg-primary" />
-                              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">الدولة</label>
-                           </div>
-                           <div className="relative z-50">
-                              <CountrySelectProfile 
-                                 value={formData.country} 
-                                 onChange={(val) => setFormData({...formData, country: val})} 
-                                 countries={ARAB_COUNTRIES} 
-                              />
-                           </div>
-                        </div>
-                     </div>
-
-                     {/* Gender */}
-                     <div className="space-y-4">
-                        <div className="flex items-center gap-3 px-2">
-                           <div className="w-1 h-1 rounded-full bg-primary" />
-                           <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">الجنس</label>
-                        </div>
-                        <div className="flex gap-4 p-1 bg-white/5 rounded-2xl border border-white/5">
-                           <button
-                              type="button"
-                              onClick={() => setFormData(prev => ({ ...prev, gender: "male" }))}
-                              className={`flex-1 py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.gender === "male" ? "bg-primary text-black" : "text-white/20"}`}
-                           >
-                              ذكر
-                           </button>
-                           <button
-                              type="button"
-                              onClick={() => setFormData(prev => ({ ...prev, gender: "female" }))}
-                              className={`flex-1 py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.gender === "female" ? "bg-primary text-black" : "text-white/20"}`}
-                           >
-                              أنثى
-                           </button>
-                        </div>
-                     </div>
-
-                     <div className="pt-6 space-y-6">
-                        <button
-                           type="submit"
-                           disabled={saving || success}
-                           className={`w-full py-6 rounded-[2rem] font-black text-lg transition-all duration-700 flex items-center justify-center gap-4 shadow-2xl ${success
-                              ? 'bg-emerald-500 text-white'
-                              : 'bg-primary text-black hover:scale-[1.03] active:scale-95 shadow-primary/20'
-                              }`}
-                        >
-                           {saving ? (
-                              <Loader2 className="w-7 h-7 animate-spin" />
-                           ) : success ? (
-                              <CheckCircle className="w-7 h-7 animate-bounce" />
-                           ) : (
-                              <Save className="w-7 h-7" />
+                     {/* Account Tab */}
+                     {activeTab === 'account' && (
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+                           {/* Phone alert */}
+                           {formData.phoneNumber.length < 10 && (
+                              <div className="bg-amber-500/10 border border-amber-500/30 rounded-3xl p-6 text-center space-y-4 shadow-lg shadow-amber-500/5">
+                                 <div className="flex items-center justify-center gap-3">
+                                    <ShieldCheck className="w-7 h-7 text-amber-400" />
+                                    <p className="text-amber-400 text-sm font-black">حسابك غير مؤمن برقم هاتف!</p>
+                                 </div>
+                                 <p className="text-white/60 text-xs leading-relaxed">يرجى ربط رقم هاتفك من تبويب (الهوية) لتتمكن من استعادة حسابك بسهولة في حال نسيت كلمة المرور.</p>
+                              </div>
                            )}
-                           {success ? 'تم تحديث الهوية بنجاح' : 'حفظ التعديلات'}
-                        </button>
 
-                        <div className="h-px bg-white/5 w-full" />
+                           <div className="space-y-4">
+                              <button
+                                 type="button"
+                                 onClick={async () => {
+                                    if (window.confirm("هل أنت متأكد من رغبتك في تسجيل الخروج؟")) {
+                                       await auth.signOut();
+                                       onClose();
+                                       window.location.href = "/";
+                                    }
+                                 }}
+                                 className="w-full py-5 rounded-2xl font-black text-sm text-white/70 bg-white/5 border border-white/10 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-3 shadow-sm"
+                              >
+                                 <LogOut className="w-5 h-5" />
+                                 تسجيل الخروج
+                              </button>
 
-                        <button
-                           type="button"
-                           onClick={async () => {
-                              if (window.confirm("هل أنت متأكد من رغبتك في تسجيل الخروج؟")) {
-                                 await auth.signOut();
-                                 onClose();
-                                 window.location.href = "/";
-                              }
-                           }}
-                           className="w-full py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] text-red-400 bg-red-400/5 border border-red-400/10 hover:bg-red-400 hover:text-white transition-all flex items-center justify-center gap-3"
-                        >
-                           <LogOut className="w-5 h-5" />
-                           تسجيل الخروج الآمن
-                        </button>
-                     </div>
-                  </form>
+                              <div className="h-px bg-white/5 w-full my-6" />
+
+                              <div className="border border-red-500/20 bg-red-500/5 rounded-3xl p-6 space-y-5">
+                                 <div className="flex items-start gap-4">
+                                    <div className="bg-red-500/20 p-3 rounded-xl shrink-0">
+                                       <AlertTriangle className="w-6 h-6 text-red-500" />
+                                    </div>
+                                    <div>
+                                       <h4 className="text-red-400 font-black text-sm">منطقة الخطر</h4>
+                                       <p className="text-red-400/60 text-xs mt-2 leading-relaxed">
+                                          حذف حسابك سيؤدي إلى إزالة جميع بياناتك الشخصية، إنجازاتك، ونقاطك بشكل نهائي من خوادمنا. لا يمكن التراجع عن هذه الخطوة أبداً.
+                                       </p>
+                                    </div>
+                                 </div>
+                                 <button
+                                    type="button"
+                                    onClick={handleDeleteAccount}
+                                    disabled={deletingAccount}
+                                    className="w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest text-red-100 bg-red-500 hover:bg-red-600 transition-all flex items-center justify-center gap-3 shadow-lg shadow-red-500/20 disabled:opacity-50"
+                                 >
+                                    {deletingAccount ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+                                    حذف الحساب نهائياً
+                                 </button>
+                              </div>
+                           </div>
+                        </div>
+                     )}
+
                   </div>
                )}
-               <div className="p-8 border-t border-white/5 text-center bg-black/40">
-                  <span className="text-[9px] font-black text-white/10 uppercase tracking-[0.5em]">الإصدار العالمي الفائق V 22</span>
+               <div className="mt-10 pt-6 border-t border-white/5 text-center">
+                  <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.5em]">الإصدار العالمي الفائق V 22</span>
                </div>
             </div>
          </div>
@@ -427,16 +504,16 @@ function CountrySelectProfile({ value, onChange, countries }: { value: string, o
     <div className="relative w-full">
       <div 
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full bg-white/5 border-2 ${isOpen ? 'border-primary/50 bg-white/10' : 'border-white/5'} rounded-2xl py-5 px-8 text-right outline-none transition-all cursor-pointer text-white shadow-xl flex items-center justify-between group`}
+        className={`w-full bg-white/5 border ${isOpen ? 'border-primary/50 bg-white/10' : 'border-white/10'} rounded-2xl py-4 px-6 text-right outline-none transition-all cursor-pointer text-white shadow-xl flex items-center justify-between group`}
       >
-        <div className={`absolute left-6 top-1/2 -translate-y-1/2 transition-all ${isOpen ? 'text-primary' : 'text-white/10 group-hover:text-primary/50'}`}>
+        <div className={`absolute left-5 top-1/2 -translate-y-1/2 transition-all ${isOpen ? 'text-primary' : 'text-white/20 group-hover:text-primary/50'}`}>
           <Compass className="w-5 h-5" />
         </div>
-        <span className="flex items-center gap-3 text-lg font-bold">
-          <span className="text-2xl">{selected.flag}</span>
+        <span className="flex items-center gap-3 text-sm font-bold">
+          <span className="text-xl">{selected.flag}</span>
           <span>{selected.name}</span>
         </span>
-        <span className={`text-white/20 text-[10px] transition-transform ${isOpen ? 'rotate-180' : ''}`}>▼</span>
+        <span className={`text-white/20 text-xs transition-transform ${isOpen ? 'rotate-180' : ''}`}>▼</span>
       </div>
 
       <AnimatePresence>
@@ -456,9 +533,9 @@ function CountrySelectProfile({ value, onChange, countries }: { value: string, o
                   onChange(country.name);
                   setIsOpen(false);
                 }}
-                className={`w-full flex items-center justify-between p-4 rounded-xl transition-all ${value === country.name ? 'bg-gradient-to-r from-primary/20 to-transparent text-primary border border-primary/20' : 'text-white hover:bg-white/5 hover:pr-6'}`}
+                className={`w-full flex items-center justify-between p-3.5 rounded-xl transition-all ${value === country.name ? 'bg-gradient-to-r from-primary/20 to-transparent text-primary border border-primary/20' : 'text-white hover:bg-white/5 hover:pr-5'}`}
               >
-                <span className="font-bold text-base">{country.name}</span>
+                <span className="font-bold text-sm">{country.name}</span>
                 <span className="text-xl">{country.flag}</span>
               </button>
             ))}

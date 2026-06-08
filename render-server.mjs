@@ -105,14 +105,16 @@ async function getDuration(filePath) {
   } catch { return 5; }
 }
 
-// تقسيم النصوص العربية — نسبة عرض أوسع لمنع التداخل
+// تقسيم النصوص العربية — مساحة أوسع لتقليل عدد الأسطر
 function wrapText(text, fontSize, maxWidth) {
   if (!text) return [];
   // النص العربي المشكّل: كل حرف يأخذ مساحة أكبر بسبب التشكيل
   const hasHarakat = /[\u064B-\u065F]/.test(text);
-  const ratio = hasHarakat ? 0.55 : 0.50;
+  // تقليل النسبة لزيادة المساحة المسموحة للكلمات
+  const ratio = hasHarakat ? 0.45 : 0.40;
   const charWidth = fontSize * ratio;
-  const maxChars = Math.max(8, Math.floor(maxWidth / charWidth));
+  // مضاعفة عدد الأحرف المسموحة بنسبة كبيرة
+  const maxChars = Math.max(20, Math.floor((maxWidth * 1.6) / charWidth));
   const words = text.split(/\s+/).filter(Boolean);
   const lines = [];
   let current = "";
@@ -292,8 +294,13 @@ function applyOverlayToSVG(svg, overlayName) {
 }
 
 // رسم إطارات الآيات (SVG)
-async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg = false) {
+async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg = false, fontBase64 = null, animState = null) {
   const { fontSize = 50, fontWeight = 700, fontFamily = "Amiri", textColor = "#ffffff", textPosition = "center", textVerticalOffset = 0, surahName = "", userPlan = "free", instaHandle = "", tiktokHandle = "", filter = "none", overlay = "none", ayahDecoration = "bracket1" } = settings;
+
+  const opacity = animState ? animState.opacity : 1;
+  const verticalOffset = animState ? animState.offsetY : 0;
+  const scale = animState ? animState.scale : 1;
+  const activeWordIdx = animState ? animState.activeWordIndex : -1;
 
   const scaledFontSize = Math.min(Math.max(fontSize * 1.6, 40), 110);
   const translationFontSize = Math.min(Math.max(fontSize * 0.65, 28), 40);
@@ -316,7 +323,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
   if (textPosition === "top") startY = 200;
   else if (textPosition === "bottom") startY = Math.max(80, HEIGHT - totalH - 120);
   else startY = Math.max(80, (HEIGHT - totalH) / 2);
-  startY = Math.max(160, Math.min(startY, HEIGHT - totalH - 60)) + (textVerticalOffset || 0);
+  startY = Math.max(160, Math.min(startY, HEIGHT - totalH - 60)) + (textVerticalOffset || 0) + verticalOffset;
 
   let curY = startY;
   const svgWeight = fontWeight >= 700 ? "bold" : fontWeight >= 500 ? "600" : "normal";
@@ -326,7 +333,18 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     <text x="${centerX}" y="103" font-family="'${escapeXml(fontFamily)}', 'Amiri', serif" font-size="13" font-weight="600" fill="#FFD700" text-anchor="middle" letter-spacing="0.8">${escapeXml(surahName)} · ${escapeXml(String(verse.id || ""))}</text>` : "";
 
   const verseY = curY;
-  const verseTSpans = vLines.map((line, i) => `<tspan x="${centerX}" dy="${i === 0 ? 0 : lineH}">${escapeXml(line)}</tspan>`).join("");
+  const verseTSpans = vLines.map((line, i) => {
+    if (activeWordIdx === -1) {
+      return `<tspan x="${centerX}" dy="${i === 0 ? 0 : lineH}">${escapeXml(line)}</tspan>`;
+    }
+    const words = line.split(" ");
+    const lineSpans = words.map((w, wIdx) => {
+      const isHighlighted = wIdx === activeWordIdx;
+      const color = isHighlighted ? "#FFD700" : escapeXml(textColor);
+      return `<tspan fill="${color}">${escapeXml(w)} </tspan>`;
+    }).join("");
+    return `<tspan x="${centerX}" dy="${i === 0 ? 0 : lineH}">${lineSpans}</tspan>`;
+  }).join("");
   curY += VERSE_H;
 
   const sepY = curY + 12;
@@ -366,8 +384,14 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
   // تعتيم الخلفية للمشاهد
   const overlayGrad = `<linearGradient id="overlayGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(0,0,0,0.55)"/><stop offset="25%" stop-color="rgba(0,0,0,0.25)"/><stop offset="70%" stop-color="rgba(0,0,0,0.30)"/><stop offset="100%" stop-color="rgba(0,0,0,0.85)"/></linearGradient>`;
 
+  const fontFaceDef = fontBase64 ? `<style>@font-face { font-family: '${escapeXml(fontFamily)}'; src: url(data:font/truetype;charset=utf-8;base64,${fontBase64}) format('truetype'); }</style>` : "";
+
+  // Transform origin for scale
+  const transformOrigin = `${centerX}px ${startY + totalH/2}px`;
+
   const svg = `<svg width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
   <defs>
+    ${fontFaceDef}
     <filter id="textGlow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="rgba(0,0,0,0.9)" flood-opacity="0.9"/></filter>
     <filter id="softShadow" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="rgba(0,0,0,0.7)" flood-opacity="0.7"/></filter>
     <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#BF953F"/><stop offset="30%" stop-color="#FCF6BA"/><stop offset="50%" stop-color="#D4AF37"/><stop offset="70%" stop-color="#FCF6BA"/><stop offset="100%" stop-color="#AA771C"/></linearGradient>
@@ -375,7 +399,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
   </defs>
   <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#overlayGrad)"/>
   ${watermarkSVG}
-  <g>
+  <g opacity="${opacity}" transform="scale(${scale})" style="transform-origin: ${transformOrigin}">
     ${badgeSVG}
     <text x="${centerX}" y="${verseY}" font-family="'${escapeXml(fontFamily)}', 'Amiri', serif" font-size="${scaledFontSize}" font-weight="${svgWeight}" fill="${escapeXml(textColor)}" text-anchor="middle" direction="rtl" filter="url(#textGlow)">${verseTSpans}</text>
     <rect x="${(WIDTH - 100) / 2}" y="${sepY}" width="100" height="1.5" rx="1" fill="rgba(212,175,55,0.5)"/>
@@ -420,7 +444,8 @@ async function startRender(jobId, data) {
 
   try {
     setProgress(5, "تحميل الخطوط والموارد...");
-    await ensureFont(fontFamily);
+    const fontPath = await ensureFont(fontFamily);
+    const fontBase64 = fs.readFileSync(fontPath).toString("base64");
 
     // كشف فيديو الخلفية — يدعم Pexels و روابط بها query params
     const isVideoBg = backgroundUrl && (
@@ -433,7 +458,6 @@ async function startRender(jobId, data) {
 
     setProgress(20, "تحميل وتحليل الملفات الصوتية...");
 
-    // ═══ نظام كاريوكي: سطر واحد في كل لحظة ═══
     // 1. تحميل كل الصوتيات أولاً
     const audioPaths = [];
     const verseDurations = [];
@@ -445,15 +469,59 @@ async function startRender(jobId, data) {
       verseDurations.push(dur);
     }
 
-    setProgress(35, "توليد إطارات سطر بسطر...");
+    setProgress(35, "توليد إطارات سطر بسطر مع الحركات وتتبع الكلمات...");
 
-    // 2. تقسيم كل آية لأسطر وتوليد فريم لكل سطر
     const sf = Math.min(Math.max(fontSize * 1.6, 40), 110);
     const tw = Math.floor(WIDTH * 0.82);
-    const frameEntries = []; // { fPath, dur }
+    const frameEntries = []; 
     const ext = isVideoBg ? "png" : "jpg";
 
     const stripTashkeel = (s) => (s || "").replace(/[\u064B-\u065F\u0670]/g, '');
+
+    // Helper function to generate frames with animation and karaoke
+    const processLineWithAnim = async (lineVerse, lineDur, fBaseName, lineIdx) => {
+      const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration };
+      
+      const animDuration = 0.3; // 300ms for entrance transition
+      const hasTransition = animation && animation !== "none" && animation !== "fade"; // fade is handled natively if needed, but we'll manually simulate
+      
+      let remainingDur = lineDur;
+      
+      // 1. Entrance Transition (if requested)
+      if (hasTransition && remainingDur > 0.4) {
+        const transitionFrames = 6; // 6 frames = ~0.2s
+        const frameDur = 0.2 / transitionFrames;
+        for (let f = 0; f < transitionFrames; f++) {
+          const progress = f / (transitionFrames - 1); // 0 to 1
+          const animState = { opacity: 1, offsetY: 0, scale: 1, activeWordIndex: -1 };
+          
+          if (animation === "fade") animState.opacity = progress;
+          else if (animation === "slideUp") { animState.opacity = progress; animState.offsetY = 30 * (1 - progress); }
+          else if (animation === "slideDown") { animState.opacity = progress; animState.offsetY = -30 * (1 - progress); }
+          else if (animation === "zoomIn") { animState.opacity = progress; animState.scale = 0.8 + (0.2 * progress); }
+          else animState.opacity = progress; // fallback to fade
+
+          const fPath = path.resolve(tempDir, `${fBaseName}-anim-${f}.${ext}`);
+          await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fontBase64, animState);
+          frameEntries.push({ fPath, dur: frameDur });
+          remainingDur -= frameDur;
+        }
+      }
+
+      // 2. Karaoke Tracking (Highlighting words)
+      const words = lineVerse.text.split(/\s+/).filter(Boolean);
+      const wordCount = words.length;
+      
+      if (wordCount > 0 && remainingDur > 0) {
+        const durPerWord = remainingDur / wordCount;
+        for (let w = 0; w < wordCount; w++) {
+          const animState = { opacity: 1, offsetY: 0, scale: 1, activeWordIndex: w };
+          const fPath = path.resolve(tempDir, `${fBaseName}-word-${w}.${ext}`);
+          await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fontBase64, animState);
+          frameEntries.push({ fPath, dur: durPerWord });
+        }
+      }
+    };
 
     for (let i = 0; i < verses.length; i++) {
       const v = verses[i];
@@ -462,10 +530,9 @@ async function startRender(jobId, data) {
       const numLines = Math.max(1, lines.length);
 
       if (numLines === 1) {
-        const fPath = path.resolve(tempDir, `f-${i}-0.${ext}`);
-        const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration };
-        await generateVerseFrame({ ...v, text: lines[0], translation: v.translation || "" }, fPath, settings, bgPath, isVideoBg);
-        frameEntries.push({ fPath, dur: Math.max(dur, 0.5) });
+        const fBaseName = `f-${i}-0`;
+        const lineVerse = { ...v, text: lines[0], translation: v.translation || "" };
+        await processLineWithAnim(lineVerse, Math.max(dur, 0.5), fBaseName, 0);
       } else {
         const charLengths = lines.map(l => Math.max(stripTashkeel(l).length, 1));
         const totalChars = charLengths.reduce((a, b) => a + b, 0);
@@ -473,15 +540,12 @@ async function startRender(jobId, data) {
         let remainingChars = totalChars;
 
         for (let j = 0; j < numLines; j++) {
-          const fPath = path.resolve(tempDir, `f-${i}-${j}.${ext}`);
+          const fBaseName = `f-${i}-${j}`;
           const lineVerse = {
             ...v,
             text: lines[j],
             translation: (j === numLines - 1) ? (v.translation || "") : ""
           };
-          const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration };
-          await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg);
-
           let lineDur;
           if (j === numLines - 1) {
             lineDur = Math.max(remainingDur + 0.1, 0.5);
@@ -491,7 +555,8 @@ async function startRender(jobId, data) {
             remainingDur -= lineDur;
             remainingChars -= charLengths[j];
           }
-          frameEntries.push({ fPath, dur: lineDur });
+          
+          await processLineWithAnim(lineVerse, lineDur, fBaseName, j);
         }
       }
     }
