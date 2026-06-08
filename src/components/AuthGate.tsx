@@ -111,18 +111,26 @@ export function AuthGate({ children }: AuthGateProps) {
 
   useEffect(() => {
     let isMounted = true;
-    let unsub: (() => void) | null = null;
+    let unsubAdmin: (() => void) | null = null;
     (async () => {
       await initFirebase();
       if (!isMounted || !db) return;
-      try {
-        unsub = onSnapshot(doc(db, "admin", "config"), (snap) => {
-          if (!isMounted) return;
-          setMaintenance(snap.exists() ? snap.data().maintenance ?? { enabled: false, message: "", reason: "", duration: "" } : { enabled: false, message: "", reason: "", duration: "" });
-        }, () => setMaintenance({ enabled: false, message: "", reason: "", duration: "" }));
-      } catch { setMaintenance({ enabled: false, message: "", reason: "", duration: "" }); }
+      const u = auth.currentUser;
+      if (u) {
+        try {
+          const tokenResult = await u.getIdTokenResult();
+          if (tokenResult.claims.admin) {
+            try {
+              unsubAdmin = onSnapshot(doc(db, "admin", "config"), (snap) => {
+                if (!isMounted) return;
+                setMaintenance(snap.exists() ? snap.data().maintenance ?? { enabled: false, message: "", reason: "", duration: "" } : { enabled: false, message: "", reason: "", duration: "" });
+              }, () => setMaintenance({ enabled: false, message: "", reason: "", duration: "" }));
+            } catch { setMaintenance({ enabled: false, message: "", reason: "", duration: "" }); }
+          }
+        } catch { setMaintenance({ enabled: false, message: "", reason: "", duration: "" }); }
+      }
     })();
-    return () => { isMounted = false; unsub?.(); };
+    return () => { isMounted = false; unsubAdmin?.(); };
   }, []);
 
   useEffect(() => {

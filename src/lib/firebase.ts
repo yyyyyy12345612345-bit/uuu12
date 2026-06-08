@@ -20,12 +20,12 @@ export async function initFirebase(): Promise<void> {
   initPromise = (async () => {
     const { initializeApp, getApps, getApp } = await import("firebase/app");
     const { getAuth } = await import("firebase/auth");
-    const { getFirestore } = await import("firebase/firestore");
+    const { initializeFirestore } = await import("firebase/firestore");
     const { getStorage } = await import("firebase/storage");
     try {
       app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
       auth = getAuth(app);
-      db = getFirestore(app);
+      db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
       storage = getStorage(app);
       if (typeof window !== "undefined") {
         try {
