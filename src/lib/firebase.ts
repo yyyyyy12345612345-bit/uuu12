@@ -25,7 +25,7 @@ export async function initFirebase(): Promise<void> {
     try {
       app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
       auth = getAuth(app);
-      db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
+      db = initializeFirestore(app, { experimentalForceLongPolling: false });
       storage = getStorage(app);
       if (typeof window !== "undefined") {
         try {
@@ -43,6 +43,16 @@ export async function initFirebase(): Promise<void> {
 }
 
 export { app, auth, db, analytics, storage };
+
+export async function fetchFirestoreDoc(collection: string, document: string) {
+  const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/${collection}/${document}?key=${firebaseConfig.apiKey}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data;
+  } catch { return null; }
+}
 
 export const logAppEvent = async (eventName: string, params?: object) => {
   if (!initPromise) return;

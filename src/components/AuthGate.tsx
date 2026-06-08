@@ -6,7 +6,7 @@ import {
   Loader2, User, KeyRound, Eye, EyeOff, Check, ArrowLeft,
   Phone, Wrench, Mail, RefreshCw, ShieldCheck, Sparkles
 } from "lucide-react";
-import { auth, db, initFirebase } from "@/lib/firebase";
+import { auth, db, initFirebase, fetchFirestoreDoc } from "@/lib/firebase";
 import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
@@ -111,18 +111,25 @@ export function AuthGate({ children }: AuthGateProps) {
 
   useEffect(() => {
     let isMounted = true;
-    let unsubAdmin: (() => void) | null = null;
-    (async () => {
-      await initFirebase();
-      if (!isMounted || !db) return;
-      try {
-        unsubAdmin = onSnapshot(doc(db, "admin", "config"), (snap) => {
-          if (!isMounted) return;
-          setMaintenance(snap.exists() ? snap.data().maintenance ?? { enabled: false, message: "", reason: "", duration: "" } : { enabled: false, message: "", reason: "", duration: "" });
-        }, () => setMaintenance({ enabled: false, message: "", reason: "", duration: "" }));
-      } catch { setMaintenance({ enabled: false, message: "", reason: "", duration: "" }); }
-    })();
-    return () => { isMounted = false; unsubAdmin?.(); };
+    let interval: any = null;
+    initFirebase().then(() => {
+      if (!isMounted) return;
+      const poll = async () => {
+        if (!isMounted) return;
+        try {
+          const data = await fetchFirestoreDoc("admin", "config");
+          if (data?.fields?.maintenance) {
+            const m = data.fields.maintenance.mapValue?.fields;
+            if (m) {
+              setMaintenance({ enabled: m.enabled?.booleanValue === true, message: m.message?.stringValue || "", reason: m.reason?.stringValue || "", duration: m.duration?.stringValue || "" });
+            }
+          }
+        } catch { setMaintenance({ enabled: false, message: "", reason: "", duration: "" }); }
+      };
+      poll();
+      interval = setInterval(poll, 30000);
+    });
+    return () => { isMounted = false; if (interval) clearInterval(interval); };
   }, []);
 
   useEffect(() => {
