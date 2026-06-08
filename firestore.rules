@@ -1,57 +1,97 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // ----------------------------------------------------------------------
+    // Functions
+    // ----------------------------------------------------------------------
+    
+    // Check if the user has admin claim
     function isAdmin() {
       return request.auth != null && request.auth.token.admin == true;
     }
+    
+    // Check if the user is authenticated
     function isAuthenticated() {
       return request.auth != null;
     }
+    
+    // ----------------------------------------------------------------------
+    // Rules
+    // ----------------------------------------------------------------------
 
+    // Users and their subcollections
     match /users/{userId} {
-      allow read: if true;
+      allow read: if true; // Allows leaderboard to read totalPoints
       allow create: if request.auth.uid == userId;
       allow update, delete: if request.auth.uid == userId || isAdmin();
+      
+      // Subcollections inside users (like completed_quests, completed_surahs)
+      match /{subCollection}/{document=**} {
+        allow read: if true;
+        allow write: if request.auth.uid == userId || isAdmin();
+      }
     }
 
+    // Global Quests
+    match /global_quests/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Chatbot Logs
+    match /chatbot_logs/{document=**} {
+      allow read: if isAdmin();
+      allow write: if true; // Any user can add logs via the chatbot
+    }
+    
+    // Admin Push Notifications
+    match /admin_push_notifications/{document=**} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Settings
     match /settings/{document=**} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
+    // Email Logs
     match /emailLogs/{document=**} {
-      allow read: if true;
-      allow write: if true;
+      allow read: if isAdmin(); // Stronger: only admin should read logs
+      allow write: if true;     // AuthGate writes here without auth
     }
 
-    match /admin/{document=**} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
+    // Admin Logs
     match /admin_logs/{document=**} {
       allow read: if isAdmin();
       allow write: if isAdmin();
     }
 
+    // Support Tickets
     match /support_tickets/{document=**} {
       allow read: if isAdmin();
-      allow write: if true;
+      allow write: if isAuthenticated(); // Only logged-in users can send tickets
     }
 
+    // Subscription Requests
     match /subscription_requests/{document=**} {
       allow read: if isAdmin();
-      allow write: if true;
+      allow write: if isAuthenticated();
+      allow update, delete: if isAdmin();
     }
 
+    // Showcase
     match /showcase/{document=**} {
       allow read: if true;
       allow write: if isAuthenticated();
+      allow update, delete: if request.auth.uid == resource.data.userId || isAdmin();
     }
 
+    // Default Fallback
     match /{allPaths=**} {
-      allow read: if true;
-      allow write: if isAdmin();
+      // DENY ALL BY DEFAULT FOR UNMATCHED PATHS
+      allow read, write: if false;
     }
   }
 }

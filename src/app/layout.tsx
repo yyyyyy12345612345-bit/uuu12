@@ -7,14 +7,16 @@ const geistMono = { variable: "" };
 
 export const metadata: Metadata = {
   title: {
-    default: "يقين القرآن | Yaqeen AlQuran - القرآن الكريم | تطبيق إسلامي شامل",
-    template: "%s | يقين القرآن | Yaqeen AlQuran"
+    default: "يقين القران | Yaqeen AlQuran - القرآن الكريم | تطبيق إسلامي شامل",
+    template: "%s | يقين القران | Yaqeen AlQuran"
   },
   description: "تطبيق يقين القرآن الإسلامي الشامل: مصحف رقمي، مكتبة صوتية بأكثر من 50 قارئ، مواقيت صلاة دقيقة، أذكار، بوصلة قبلة، واستوديو فيديو احترافي لإنشاء محتوى إسلامي. متاح على الويب والأندرويد.",
   authors: [{ name: "يوسف أسامة", url: "https://github.com/youssef" }],
   creator: "يوسف أسامة",
   publisher: "يقين القرآن | Yaqeen AlQuran - Islamic Digital Studio",
   keywords: [
+    "يقين القران", "يقين القرآن", "yaqeen alquran", "yaqeen", "quran", "yaqueenalquran", "yaqueen",
+    "تطبيق يقين القران", "برنامج يقين القران", "موقع يقين القران", "مصحف يقين",
     "قرآن", "القرآن", "القرآن الكريم", "مصحف", "المصحف", "كتاب الله", "كلام الله",
     "سورة", "سور", "آية", "آيات", "جزء", "أجزاء", "حزب", "ربع", "صفحة",
     "تفسير", "تفسير القرآن", "تدبر", "معنى الآية", "تفسير السعدي", "تفسير ابن كثير", "تفسير الطبري",
@@ -57,13 +59,15 @@ export const metadata: Metadata = {
     "بوصلة القبلة الإلكترونية", "حساب وقت الصلاة GPS",
     "Prayer times today", "Accurate Qibla finder",
     "تحديات إسلامية يومية", "لوحة شرف حفظ القرآن", "مسابقات دينية ونقاط",
-    "تطبيق تحفيزي للعبادات", "ترتيب المستغفرين والمسبحين"
+    "تطبيق تحفيزي للعبادات", "ترتيب المستغفرين والمسبحين",
+    "يقين للقرآن الكريم", "القرآن يقين", "موسوعة يقين", "مشروع يقين",
+    "استوديو يقين"
   ],
   openGraph: {
-    title: "يقين القرآن | Yaqeen AlQuran - القرآن الكريم",
+    title: "يقين القران | Yaqeen AlQuran - القرآن الكريم",
     description: "تطبيق إسلامي شامل للمصحف، الصلاة، الأذكار، وصناعة الفيديوهات القرآنية",
-    url: "https://yaqeenalquran.com",
-    siteName: "يقين القرآن | Yaqeen AlQuran",
+    url: "https://yaqueenalquran.online",
+    siteName: "يقين القران | Yaqeen AlQuran",
     locale: "ar_EG",
     type: "website",
     images: [
@@ -71,13 +75,13 @@ export const metadata: Metadata = {
         url: "/logo/logo.png?v=25",
         width: 512,
         height: 512,
-        alt: "شعار يقين القرآن",
+        alt: "شعار يقين القران",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "يقين القرآن | Yaqeen AlQuran - القرآن الكريم",
+    title: "يقين القران | Yaqeen AlQuran - القرآن الكريم",
     description: "رفيقك اليومي للقرآن والعبادة",
     images: ["/logo/logo.png?v=25"],
   },
@@ -85,7 +89,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "يقين القرآن | Yaqeen AlQuran",
+    title: "يقين القران | Yaqeen AlQuran",
   },
   icons: {
     icon: [
@@ -111,7 +115,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://yaqeenalquran.com",
+    canonical: "https://yaqueenalquran.online",
   },
 };
 
@@ -169,7 +173,7 @@ export default function RootLayout({
               "@type": "WebApplication",
               "name": "يقين القرآن | Yaqeen AlQuran",
               "description": "تطبيق إسلامي شامل للمصحف، الصلاة، الأذكار، وصناعة الفيديوهات القرآنية",
-              "url": "https://yaqeenalquran.com",
+              "url": "https://yaqueenalquran.online",
               "applicationCategory": "LifestyleApplication",
               "operatingSystem": "Android, Web",
               "offers": {
