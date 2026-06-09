@@ -165,7 +165,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
         if (snapshot.exists()) {
           const data = snapshot.data();
           const message = data.mandatoryAnnouncement || data.announcement;
-          if (message) {
+          if (message && message.trim() !== "") {
             setMandatoryAnnouncement(message);
             setAnnouncementTimer(data.mandatoryDuration || 60);
           } else {
