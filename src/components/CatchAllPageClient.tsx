@@ -148,11 +148,18 @@ function CatchAllContent() {
   if (!isClient || !state.isHydrated) return <LoadingShell />;
 
   return (
-    <div className={`fixed inset-0 text-foreground flex flex-col w-full h-[100dvh] font-arabic overflow-hidden transition-opacity duration-1000 ${(activeView?.includes('mushaf') || activeView === 'daily' || activeView === 'prayers' || activeView === 'rank' || activeView === 'library') ? 'mushaf-full-bg' : 'bg-background'}`}>
+    <div className={`fixed inset-0 text-foreground flex flex-col w-full h-[100dvh] font-arabic overflow-hidden transition-opacity duration-1000 bg-background`}>
       
-      {/* Background Overlay */}
+      {/* Background Media */}
       {(activeView?.includes('mushaf') || activeView === 'daily' || activeView === 'prayers' || activeView === 'rank' || activeView === 'library') && (
-        <div className="absolute inset-0 bg-black/70 z-0 pointer-events-none" />
+        <>
+          <video 
+            className="absolute inset-0 w-full h-full object-cover z-[-2] opacity-30 mix-blend-screen"
+            autoPlay loop muted playsInline
+            src="https://videos.pexels.com/video-files/1448735/1448735-hd_1920_1080_24fps.mp4"
+          />
+          <div className="absolute inset-0 bg-black/70 z-[-1] pointer-events-none" />
+        </>
       )}
       
       {/* Global Top Bar - Logo + Install + Feedback */}

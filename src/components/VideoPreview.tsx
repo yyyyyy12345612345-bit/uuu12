@@ -247,7 +247,6 @@ export function VideoPreview() {
                 style={{ filter: getFilterCSS(state.filter) }}
                 loop
                 muted
-                autoPlay
                 playsInline
               />
             ) : (

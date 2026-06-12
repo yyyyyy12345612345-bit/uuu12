@@ -149,12 +149,6 @@ body {
   background-size: 120px 120px;
 }
 
-.mushaf-full-bg {
-  background-image: url("/mushaf-bg.jpg.png");
-  background-size: 100% 100%;
-  background-position: center;
-  background-repeat: no-repeat;
-}
 
 .gold-shimmer {
   background: linear-gradient(
@@ -442,3 +436,21 @@ tajweed.idgham_without_ghunnah {
   opacity: 0.65;
 }
 
+/* Light Mode Overrides for Hardcoded Dark Themes */
+html:not(.dark) .text-white { color: hsl(var(--foreground)) !important; }
+html:not(.dark) .text-white\/10 { color: hsl(var(--foreground) / 0.3) !important; }
+html:not(.dark) .text-white\/20 { color: hsl(var(--foreground) / 0.4) !important; }
+html:not(.dark) .text-white\/30 { color: hsl(var(--foreground) / 0.5) !important; }
+html:not(.dark) .text-white\/40 { color: hsl(var(--foreground) / 0.6) !important; }
+html:not(.dark) .text-white\/50 { color: hsl(var(--foreground) / 0.7) !important; }
+html:not(.dark) .text-white\/60 { color: hsl(var(--foreground) / 0.8) !important; }
+html:not(.dark) .text-white\/70 { color: hsl(var(--foreground) / 0.9) !important; }
+html:not(.dark) .text-white\/80 { color: hsl(var(--foreground)) !important; }
+html:not(.dark) .text-white\/90 { color: hsl(var(--foreground)) !important; }
+
+html:not(.dark) .bg-white\/5 { background-color: rgba(0,0,0,0.05) !important; }
+html:not(.dark) .bg-white\/10 { background-color: rgba(0,0,0,0.1) !important; }
+html:not(.dark) .bg-white\/20 { background-color: rgba(0,0,0,0.2) !important; }
+html:not(.dark) .border-white\/5 { border-color: rgba(0,0,0,0.1) !important; }
+html:not(.dark) .border-white\/10 { border-color: rgba(0,0,0,0.2) !important; }
+html:not(.dark) .border-white\/20 { border-color: rgba(0,0,0,0.3) !important; }

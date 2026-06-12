@@ -124,11 +124,11 @@ export function AppBanner({ apkDownloadUrl = "https://yaqeen-app.vercel.app/down
           <div className="flex items-center gap-4 p-4">
             {/* App Icon */}
             <div className="relative shrink-0">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#d4af37]/20 to-[#d4af37]/5 border border-[#d4af37]/30 flex items-center justify-center shadow-lg overflow-hidden">
-                <img src="/logo/logo.png" alt="Yaqeen" className="w-10 h-10 object-contain" />
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-gradient-to-br from-[#d4af37]/20 to-[#d4af37]/5 border border-[#d4af37]/30 flex items-center justify-center shadow-lg overflow-hidden">
+                <img src="/logo/logo.png" alt="Yaqeen" className="w-7 h-7 md:w-8 md:h-8 object-contain" />
               </div>
-              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center border-2 border-[#0d0d0d]">
-                <Download className="w-2.5 h-2.5 text-white" />
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center border-2 border-[#0d0d0d]">
+                <Download className="w-2 h-2 text-white" />
               </div>
             </div>
 
@@ -139,8 +139,8 @@ export function AppBanner({ apkDownloadUrl = "https://yaqeen-app.vercel.app/down
                   تطبيق أصلي
                 </span>
               </div>
-              <p className="text-white font-black text-sm leading-tight">ثبّت تطبيق سكينة</p>
-              <p className="text-white/40 text-[11px] font-bold mt-0.5">تجربة أفضل · أذان تلقائي · بدون إنترنت</p>
+              <p className="text-white font-black text-xs md:text-sm leading-tight">ثبّت تطبيق سكينة</p>
+              <p className="text-white/40 text-[9px] md:text-[11px] font-bold mt-0.5">تجربة أفضل · أذان تلقائي · بدون إنترنت</p>
               {/* Stars */}
               <div className="flex items-center justify-end gap-0.5 mt-1">
                 {[...Array(5)].map((_, i) => (
@@ -155,7 +155,7 @@ export function AppBanner({ apkDownloadUrl = "https://yaqeen-app.vercel.app/down
               <button
                 onClick={handleAndroidAction}
                 disabled={installing}
-                className="px-4 py-2.5 bg-[#d4af37] text-black rounded-2xl font-black text-sm shadow-lg shadow-[#d4af37]/30 hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
+                className="px-3 py-1.5 md:px-4 md:py-2.5 bg-[#d4af37] text-black rounded-2xl font-black text-xs md:text-sm shadow-lg shadow-[#d4af37]/30 hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
               >
                 {installing ? "جاري..." : isPWAInstallable ? "تثبيت" : "تحميل"}
               </button>

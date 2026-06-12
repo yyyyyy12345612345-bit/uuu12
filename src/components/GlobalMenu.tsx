@@ -124,7 +124,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
                   onClick={onOpenProfile}
                   className="w-full flex items-center justify-between p-3 px-4 rounded-[1.5rem] bg-foreground/[0.03] border border-foreground/5 hover:border-primary/30 hover:bg-foreground/[0.05] transition-all duration-300 group text-right shadow-lg cursor-pointer"
                 >
-                  <div className="flex items-center gap-3 flex-row-reverse">
+                  <div className="flex items-center gap-3">
                     <div className="relative shrink-0">
                       <div className="w-11 h-11 rounded-xl border border-foreground/10 bg-card overflow-hidden group-hover:scale-105 transition-transform duration-300">
                         <img 
@@ -147,7 +147,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
                   onClick={onOpenPointsGuide}
                   className="w-full p-3.5 px-4 rounded-[1.5rem] bg-gradient-to-l from-primary/10 via-primary/5 to-transparent border border-primary/20 flex items-center justify-between group hover:border-primary/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.15)] transition-all duration-300 text-right cursor-pointer"
                 >
-                  <div className="flex items-center gap-3 flex-row-reverse">
+                  <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center text-primary shadow-inner group-hover:scale-110 transition-transform duration-300">
                       <Trophy className="w-4.5 h-4.5" />
                     </div>
@@ -180,7 +180,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
         <div className="flex-1 overflow-y-auto no-scrollbar p-6 pt-2 space-y-8 relative z-10 animate-in fade-in duration-300 delay-75">
           {menuGroups.map((group, idx) => (
              <div key={idx} className="space-y-3.5">
-                  <div className="flex items-center justify-between gap-3 flex-row-reverse">
+                  <div className="flex items-center justify-between gap-3">
                      <h4 className="text-[10px] font-black text-primary/60 tracking-[0.15em] uppercase">{group.title}</h4>
                      <div className="h-[1px] flex-1 bg-gradient-to-l from-foreground/10 to-transparent" />
                   </div>
@@ -207,7 +207,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
                               {isActive && (
                                  <div className="absolute right-0 top-1/2 -translate-y-1/2 h-1/2 w-1.5 bg-primary rounded-l-full shadow-[0_0_15px_rgba(212,175,55,1)]" />
                               )}
-                              <div className="flex items-center gap-4 relative z-10 w-full justify-end flex-row-reverse">
+                              <div className="flex items-center gap-4 relative z-10 w-full">
                                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 shadow-inner shrink-0 ${
                                    isActive ? 'bg-primary shadow-primary/30 text-primary-foreground scale-105' : 'bg-foreground/5 text-foreground/40 group-hover:text-primary group-hover:bg-primary/10'
                                  }`}>
@@ -229,7 +229,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
                   onClick={() => { onClose(); navigate('/admin'); }}
                   className="w-full flex items-center justify-between p-3.5 px-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/15 hover:border-red-500/30 transition-all duration-200 group text-right"
                >
-                  <div className="flex items-center gap-4 flex-row-reverse">
+                  <div className="flex items-center gap-4">
                      <div className="w-9 h-9 rounded-xl bg-red-500/20 flex items-center justify-center shrink-0">
                           <ShieldCheck className="w-5 h-5" />
                      </div>

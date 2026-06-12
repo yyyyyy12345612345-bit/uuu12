@@ -361,18 +361,18 @@ export function AudioLibrary() {
                   
                   {/* Artwork / Visualizer Area */}
                   <div className="relative flex flex-col items-center justify-center">
-                      <div className="relative w-64 h-64 lg:w-96 lg:h-96">
+                      <div className="relative w-40 h-40 md:w-64 md:h-64 lg:w-96 lg:h-96">
                           <div className="absolute inset-0 bg-primary/20 rounded-full blur-[60px] lg:blur-[120px] animate-pulse" />
                           <motion.div 
                             animate={{ rotate: isPlaying ? 360 : 0 }}
                             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                            className="relative w-full h-full rounded-full border-[16px] border-black p-3 overflow-hidden bg-gradient-to-br from-white/10 to-transparent shadow-[0_50px_120px_rgba(0,0,0,0.9)] flex items-center justify-center"
+                            className="relative w-full h-full rounded-full border-[8px] md:border-[16px] border-black p-3 overflow-hidden bg-gradient-to-br from-white/10 to-transparent shadow-[0_50px_120px_rgba(0,0,0,0.9)] flex items-center justify-center"
                           >
                               <div className="absolute inset-0 islamic-pattern opacity-10" />
-                              <div className="w-full h-full rounded-full border border-white/5 flex flex-col items-center justify-center text-center p-8 lg:p-12">
-                                  <Disc className={`w-12 h-12 lg:w-20 lg:h-20 text-primary/30 mb-4 lg:mb-6 ${isPlaying ? 'animate-spin-slow' : ''}`} />
-                                  <span className="text-[10px] lg:text-base font-bold text-white/70 mb-2">{selectedReciter.name}</span>
-                                  <span className="text-[10px] lg:text-xs font-black text-primary px-5 py-2 bg-primary/10 rounded-full font-arabic">صوت عالي الجودة</span>
+                              <div className="w-full h-full rounded-full border border-white/5 flex flex-col items-center justify-center text-center p-4 md:p-8 lg:p-12">
+                                  <Disc className={`w-8 h-8 md:w-12 md:h-12 lg:w-20 lg:h-20 text-primary/30 mb-2 md:mb-4 lg:mb-6 ${isPlaying ? 'animate-spin-slow' : ''}`} />
+                                  <span className="text-[9px] md:text-[10px] lg:text-base font-bold text-white/70 mb-1 md:mb-2 truncate max-w-full px-2">{selectedReciter.name}</span>
+                                  <span className="text-[8px] md:text-[10px] lg:text-xs font-black text-primary px-3 md:px-5 py-1 md:py-2 bg-primary/10 rounded-full font-arabic whitespace-nowrap">صوت عالي الجودة</span>
                               </div>
                           </motion.div>
                           
@@ -399,10 +399,10 @@ export function AudioLibrary() {
 
                   {/* Player Metadata & Controls */}
                   <div className="flex flex-col">
-                      <div className="flex flex-col mb-10">
+                      <div className="flex flex-col mb-6 lg:mb-10 text-center lg:text-right">
                           <span className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mb-2">يتم تشغيله الآن</span>
-                          <h2 className="text-3xl lg:text-5xl font-black font-['Amiri'] leading-tight mb-2">سورة {currentSurah.name}</h2>
-                          <div className="flex items-center gap-4 text-white/40">
+                          <h2 className="text-2xl lg:text-5xl font-black font-['Amiri'] leading-tight mb-2">سورة {currentSurah.name}</h2>
+                          <div className="flex items-center justify-center lg:justify-start gap-4 text-white/40">
                                <span className="text-sm font-bold font-arabic">عدد الآيات: {currentSurah.total_verses}</span>
                           </div>
                       </div>
@@ -485,18 +485,18 @@ export function AudioLibrary() {
                           <button onClick={() => setIsShuffle(!isShuffle)} className={`p-4 rounded-2xl transition-all ${isShuffle ? 'text-primary bg-primary/10 scale-110' : 'text-white/20 hover:text-white/40 hover:bg-white/5'}`}>
                               <Shuffle className="w-6 h-6" />
                           </button>
-                          <div className="flex items-center gap-10 lg:gap-14">
+                          <div className="flex items-center gap-8 lg:gap-14">
                               <button onClick={handlePrev} className="text-white/40 hover:text-white transition-all hover:scale-125 active:scale-90">
-                                  <SkipBack className="w-10 h-10 lg:w-12 lg:h-12 fill-current" />
+                                  <SkipBack className="w-8 h-8 lg:w-12 lg:h-12 fill-current" />
                               </button>
                               <button 
                                 onClick={() => setIsPlaying(!isPlaying)}
-                                className="w-24 h-24 lg:w-32 lg:h-32 rounded-[3rem] bg-primary flex items-center justify-center text-black shadow-[0_25px_60px_rgba(212,175,55,0.5)] hover:scale-105 active:scale-95 transition-all group"
+                                className="w-16 h-16 md:w-24 md:h-24 lg:w-32 lg:h-32 rounded-3xl lg:rounded-[3rem] bg-primary flex items-center justify-center text-black shadow-[0_25px_60px_rgba(212,175,55,0.5)] hover:scale-105 active:scale-95 transition-all group"
                               >
-                                  {isPlaying ? <Pause className="w-10 h-10 lg:w-14 lg:h-14 fill-current" /> : <Play className="w-10 h-10 lg:w-14 lg:h-14 fill-current translate-x-1" />}
+                                  {isPlaying ? <Pause className="w-6 h-6 md:w-10 md:h-10 lg:w-14 lg:h-14 fill-current" /> : <Play className="w-6 h-6 md:w-10 md:h-10 lg:w-14 lg:h-14 fill-current translate-x-1" />}
                               </button>
                               <button onClick={handleNext} className="text-white/40 hover:text-white transition-all hover:scale-125 active:scale-90">
-                                  <SkipForward className="w-10 h-10 lg:w-12 lg:h-12 fill-current" />
+                                  <SkipForward className="w-8 h-8 lg:w-12 lg:h-12 fill-current" />
                               </button>
                           </div>
                           <button onClick={() => setIsRepeat(!isRepeat)} className={`p-4 rounded-2xl transition-all ${isRepeat ? 'text-primary bg-primary/10 scale-110' : 'text-white/20 hover:text-white/40 hover:bg-white/5'}`}>

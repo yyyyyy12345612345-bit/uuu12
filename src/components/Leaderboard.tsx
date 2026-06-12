@@ -341,49 +341,49 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                   <div className="flex items-end justify-center gap-4 md:gap-12 w-full">
                       {/* Rank 2 */}
                       {topThree[1] && (
-                          <div className="flex flex-col items-center gap-4 animate-in slide-in-from-bottom-10 duration-1000 delay-200">
+                          <div className="flex flex-col items-center gap-3 animate-in slide-in-from-bottom-10 duration-1000 delay-200">
                               <div className="relative group">
-                                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-[6px] border-slate-300 p-1.5 bg-card shadow-2xl relative z-10 overflow-hidden">
+                                  <div className="w-16 h-16 md:w-24 md:h-24 rounded-full border-[4px] md:border-[6px] border-slate-300 p-1 md:p-1.5 bg-card shadow-2xl relative z-10 overflow-hidden">
                                       <img src={topThree[1].photoURL || "/logo/logo.png"} alt="2" className="w-full h-full object-cover rounded-full" />
                                   </div>
-                                  <div className="absolute -top-3 -right-3 w-10 h-10 bg-slate-300 rounded-2xl flex items-center justify-center text-black font-black z-20 shadow-xl border-4 border-card">2</div>
+                                  <div className="absolute -top-2 -right-2 md:-top-3 md:-right-3 w-8 h-8 md:w-10 md:h-10 bg-slate-300 rounded-xl md:rounded-2xl flex items-center justify-center text-black font-black z-20 shadow-xl border-2 md:border-4 border-card">2</div>
                               </div>
                               <div className="text-center">
-                                  <h3 className="font-black text-foreground text-lg truncate max-w-[120px]">{topThree[1].displayName?.split(' ')[0]}</h3>
-                                  <p className="text-primary font-black text-xs">{Math.round(topThree[1].totalPoints)} نقطة</p>
+                                  <h3 className="font-black text-foreground text-sm md:text-lg truncate max-w-[80px] md:max-w-[100px]">{topThree[1].displayName?.split(' ')[0]}</h3>
+                                  <p className="text-primary font-black text-[10px] md:text-xs">{Math.round(topThree[1].totalPoints)} نقطة</p>
                               </div>
                           </div>
                       )}
 
                       {/* Rank 1 */}
                       {topThree[0] && (
-                          <div className="flex flex-col items-center gap-6 animate-in slide-in-from-bottom-12 duration-1000">
+                          <div className="flex flex-col items-center gap-4 md:gap-6 animate-in slide-in-from-bottom-12 duration-1000">
                               <div className="relative group scale-110">
-                                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 text-primary animate-pulse"><Crown className="w-12 h-12 fill-current" /></div>
-                                  <div className="w-32 h-32 md:w-44 md:h-44 rounded-full border-[8px] border-primary p-2 bg-card shadow-[0_20px_50px_rgba(212,175,55,0.3)] relative z-10 overflow-hidden">
+                                  <div className="absolute -top-8 md:-top-12 left-1/2 -translate-x-1/2 text-primary animate-pulse"><Crown className="w-8 h-8 md:w-12 md:h-12 fill-current" /></div>
+                                  <div className="w-20 h-20 md:w-28 md:h-28 rounded-full border-[6px] md:border-[8px] border-primary p-1.5 md:p-2 bg-card shadow-[0_20px_50px_rgba(212,175,55,0.3)] relative z-10 overflow-hidden">
                                       <img src={topThree[0].photoURL || "/logo/logo.png"} alt="1" className="w-full h-full object-cover rounded-full" />
                                   </div>
-                                  <div className="absolute -top-4 -right-4 w-12 h-12 bg-primary rounded-[1.2rem] flex items-center justify-center text-black font-black z-20 shadow-2xl border-4 border-card text-xl">1</div>
+                                  <div className="absolute -top-3 -right-3 md:-top-4 md:-right-4 w-10 h-10 md:w-12 md:h-12 bg-primary rounded-xl md:rounded-[1.2rem] flex items-center justify-center text-black font-black z-20 shadow-2xl border-2 md:border-4 border-card text-lg md:text-xl">1</div>
                               </div>
-                              <div className="text-center">
-                                  <h3 className="font-black text-foreground text-2xl truncate max-w-[160px]">{topThree[0].displayName?.split(' ')[0]}</h3>
-                                  <p className="text-primary font-black text-lg">{Math.round(topThree[0].totalPoints)} نقطة</p>
+                              <div className="text-center mt-2 md:mt-0">
+                                  <h3 className="font-black text-foreground text-lg md:text-2xl truncate max-w-[90px] md:max-w-[140px]">{topThree[0].displayName?.split(' ')[0]}</h3>
+                                  <p className="text-primary font-black text-sm md:text-lg">{Math.round(topThree[0].totalPoints)} نقطة</p>
                               </div>
                           </div>
                       )}
 
                       {/* Rank 3 */}
                       {topThree[2] && (
-                          <div className="flex flex-col items-center gap-4 animate-in slide-in-from-bottom-10 duration-1000 delay-500">
+                          <div className="flex flex-col items-center gap-3 animate-in slide-in-from-bottom-10 duration-1000 delay-500">
                               <div className="relative group">
-                                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-[6px] border-amber-700 p-1.5 bg-card shadow-2xl relative z-10 overflow-hidden">
+                                  <div className="w-16 h-16 md:w-24 md:h-24 rounded-full border-[4px] md:border-[6px] border-amber-700 p-1 md:p-1.5 bg-card shadow-2xl relative z-10 overflow-hidden">
                                       <img src={topThree[2].photoURL || "/logo/logo.png"} alt="3" className="w-full h-full object-cover rounded-full" />
                                   </div>
-                                  <div className="absolute -top-3 -right-3 w-10 h-10 bg-amber-700 rounded-2xl flex items-center justify-center text-white font-black z-20 shadow-xl border-4 border-card">3</div>
+                                  <div className="absolute -top-2 -right-2 md:-top-3 md:-right-3 w-8 h-8 md:w-10 md:h-10 bg-amber-700 rounded-xl md:rounded-2xl flex items-center justify-center text-white font-black z-20 shadow-xl border-2 md:border-4 border-card">3</div>
                               </div>
                               <div className="text-center">
-                                  <h3 className="font-black text-foreground text-lg truncate max-w-[120px]">{topThree[2].displayName?.split(' ')[0]}</h3>
-                                  <p className="text-primary font-black text-xs">{Math.round(topThree[2].totalPoints)} نقطة</p>
+                                  <h3 className="font-black text-foreground text-sm md:text-lg truncate max-w-[80px] md:max-w-[100px]">{topThree[2].displayName?.split(' ')[0]}</h3>
+                                  <p className="text-primary font-black text-[10px] md:text-xs">{Math.round(topThree[2].totalPoints)} نقطة</p>
                               </div>
                           </div>
                       )}
