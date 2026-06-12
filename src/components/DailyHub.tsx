@@ -596,33 +596,33 @@ export function DailyHub() {
                 )}
 
                 {/* Quran Ward Card */}
-                <div className="bg-card border border-border rounded-[3rem] p-8 relative overflow-hidden shadow-2xl group">
-                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
-                        <BookOpen className="w-24 h-24 text-primary" />
+                <div className="bg-card border border-border rounded-3xl p-5 md:p-6 relative overflow-hidden shadow-2xl group">
+                    <div className="absolute top-0 right-0 p-5 opacity-10 group-hover:scale-110 transition-transform">
+                        <BookOpen className="w-16 h-16 text-primary" />
                     </div>
-                    <h3 className="text-2xl font-black mb-2 relative z-10">ورد القرآن اليومي</h3>
-                    <p className="text-foreground/40 text-sm mb-8 relative z-10">أتممت {pagesRead} صفحات من أصل {dailyGoal}</p>
-                    <div className="relative w-full h-4 bg-foreground/5 rounded-full overflow-hidden mb-4">
+                    <h3 className="text-xl font-black mb-1.5 relative z-10">ورد القرآن اليومي</h3>
+                    <p className="text-foreground/40 text-xs mb-6 relative z-10">أتممت {pagesRead} صفحات من أصل {dailyGoal}</p>
+                    <div className="relative w-full h-3 bg-foreground/5 rounded-full overflow-hidden mb-3">
                         <div className="absolute inset-y-0 left-0 bg-primary transition-all duration-1000" style={{ width: `${(pagesRead/dailyGoal)*100}%` }} />
                     </div>
                     <div className="flex items-center justify-between">
-                        <span className="text-primary font-black">{Math.round((pagesRead/dailyGoal)*100)}% من الهدف</span>
-                        <button onClick={handlePageRead} className="px-6 py-2 bg-primary/10 hover:bg-primary/20 text-primary font-black rounded-2xl text-xs transition-all">سجل صفحة +</button>
+                        <span className="text-primary font-black text-xs">{Math.round((pagesRead/dailyGoal)*100)}% من الهدف</span>
+                        <button onClick={handlePageRead} className="px-5 py-2 bg-primary/10 hover:bg-primary/20 text-primary font-black rounded-xl text-xs transition-all">سجل صفحة +</button>
                     </div>
                 </div>
 
                 {/* Qibla Card */}
-                <div className="bg-primary text-black border border-primary/20 rounded-[3rem] p-8 relative overflow-hidden shadow-2xl group cursor-pointer" onClick={() => setActiveTab('qibla')}>
-                    <div className="absolute top-0 right-0 p-8 opacity-20">
-                        <Compass className="w-24 h-24 text-black" />
+                <div className="bg-card text-foreground border border-border rounded-3xl p-5 md:p-6 relative overflow-hidden shadow-2xl group cursor-pointer" onClick={() => setActiveTab('qibla')}>
+                    <div className="absolute top-0 right-0 p-5 opacity-10 group-hover:scale-110 transition-transform">
+                        <Compass className="w-16 h-16 text-primary" />
                     </div>
-                    <h3 className="text-2xl font-black mb-2">اتجاه القبلة</h3>
-                    <p className="text-black/40 text-sm mb-8">145° جنوب شرق</p>
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-black/10 flex items-center justify-center border border-black/10">
-                            <MapPin className="w-6 h-6 text-black" />
+                    <h3 className="text-xl font-black mb-1.5 relative z-10">اتجاه القبلة</h3>
+                    <p className="text-foreground/40 text-xs mb-6 relative z-10">145° جنوب شرق</p>
+                    <div className="flex items-center gap-3 relative z-10">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+                            <MapPin className="w-5 h-5 text-primary" />
                         </div>
-                        <span className="font-bold text-sm">مكة المكرمة</span>
+                        <span className="font-bold text-xs">مكة المكرمة</span>
                     </div>
                 </div>
 

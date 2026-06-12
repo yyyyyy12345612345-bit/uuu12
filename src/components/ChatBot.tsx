@@ -602,7 +602,7 @@ ${activeQuiz.explanation}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-16 left-1 right-1 sm:left-4 sm:right-auto sm:w-[400px] z-[500] bg-black/85 backdrop-blur-2xl border border-white/10 rounded-[2rem] shadow-[0_15px_50px_rgba(0,0,0,0.8),0_0_40px_rgba(251,191,36,0.15)] flex flex-col overflow-hidden max-h-[75vh]"
+            className="force-dark fixed bottom-16 left-1 right-1 sm:left-4 sm:right-auto sm:w-[400px] z-[500] bg-black/20 backdrop-blur-3xl border border-white/15 rounded-[2rem] shadow-[0_15px_60px_rgba(0,0,0,0.4),0_0_40px_rgba(251,191,36,0.1),inset_0_1px_0_rgba(255,255,255,0.08)] flex flex-col overflow-hidden max-h-[75vh]"
           >
             {/* Header */}
             <div className="px-5 py-4 bg-gradient-to-b from-white/[0.04] to-transparent border-b border-white/10 flex items-center justify-between shrink-0">
@@ -624,18 +624,18 @@ ${activeQuiz.explanation}
             </div>
 
             {/* Messages */}
-            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto no-scrollbar px-4 py-4 space-y-3.5 relative z-10 bg-gradient-to-b from-transparent to-black/30">
+            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto no-scrollbar px-4 py-4 space-y-3.5 relative z-10">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
                   <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-[13px] leading-relaxed shadow-lg ${
                     msg.sender === "user"
                       ? "bg-gradient-to-br from-[#fbbf24] to-[#d4af37] text-black rounded-tr-sm font-bold shadow-lg shadow-[#fbbf24]/10"
-                      : "bg-gradient-to-br from-white/[0.04] to-white/[0.01] backdrop-blur-md text-white/90 border border-white/10 rounded-tl-sm"
+                      : "bg-[#fdfbf7] text-gray-900 border-2 border-[#fbbf24] rounded-tl-sm shadow-md"
                   }`}>
                     {msg.sender === "bot" && (
-                      <div className="flex items-center gap-2 mb-2 pb-1.5 border-b border-white/5">
-                        <Sparkles className="w-3 h-3 text-[#fbbf24]" />
-                        <span className="text-[9px] text-[#fbbf24] font-black uppercase tracking-wider">المساعد الإسلامي</span>
+                      <div className="flex items-center gap-2 mb-2 pb-1.5 border-b border-[#fbbf24]/30">
+                        <Sparkles className="w-4 h-4 text-[#d4af37]" />
+                        <span className="text-[10px] text-[#d4af37] font-black uppercase tracking-wider">المساعد الإسلامي</span>
                       </div>
                     )}
                     <div className="whitespace-pre-line">{renderMessage(msg.text)}</div>
@@ -657,27 +657,8 @@ ${activeQuiz.explanation}
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Suggestion Chips */}
-            <div className="px-4 py-2 bg-black/45 border-t border-white/5 flex gap-2 overflow-x-auto no-scrollbar shrink-0">
-              {[
-                { label: "📖 تفسير آية الكرسي", text: "ما تفسير آية الكرسي؟" },
-                { label: "🕌 مواقيت الصلاة", text: "أين أجد مواقيت الصلاة في الموقع؟" },
-                { label: "🏆 كيف أكسب نقاط؟", text: "إزاي أجمع نقاط في الموقع؟" },
-                { label: "🎬 تصميم فيديو قرآني", text: "كيف أعمل فيديو قرآني؟" }
-              ].map((s) => (
-                <button
-                  key={s.label}
-                  type="button"
-                  onClick={() => handleSendMessage(undefined, s.text)}
-                  className="shrink-0 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-[#fbbf24]/10 hover:border-[#fbbf24]/30 text-[10px] text-white/70 hover:text-[#fbbf24] font-bold transition-all whitespace-nowrap"
-                >
-                  {s.label}
-                </button>
-              ))}
-            </div>
-
             {/* Input */}
-            <div className="px-4 py-3 border-t border-white/5 bg-gradient-to-t from-black to-transparent">
+            <div className="px-4 py-3 border-t border-white/10 bg-black/10 backdrop-blur-sm">
               <form onSubmit={(e) => handleSendMessage(e)} className="flex items-center gap-2">
                 <input
                   type="text"

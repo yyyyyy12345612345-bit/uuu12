@@ -245,9 +245,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                                 
                                 {state.backgroundUrl === item.src && (
                                 <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-black shadow-2xl animate-in zoom-in duration-300">
-                                        <Check className="w-6 h-6 stroke-[4px]" />
-                                    </div>
+                                    {/* Checkmark removed by user request */}
                                 </div>
                                 )}
     

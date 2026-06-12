@@ -113,13 +113,13 @@ function PrayerCountdown({ calendar, settings }: { calendar: PrayerYearCalendar;
 
   return (
     <div className="flex flex-col items-center gap-3">
-      <span className="text-xs font-black text-amber-400/70 uppercase tracking-[0.3em]">الصلاة القادمة</span>
-      <h3 className="text-2xl font-black text-white font-arabic">{next.nameAr}</h3>
-      <div className="font-mono text-5xl md:text-6xl font-black text-white tracking-widest" dir="ltr"
-        style={{ textShadow: "0 0 40px rgba(212,175,55,0.4)" }}>
+      <span className="text-xs font-black uppercase tracking-[0.3em]" style={{ color: 'rgba(212,175,55,0.7)' }}>الصلاة القادمة</span>
+      <h3 className="text-2xl font-black font-arabic" style={{ color: '#fefefe' }}>{next.nameAr}</h3>
+      <div className="font-mono text-5xl md:text-6xl font-black tracking-widest" dir="ltr"
+        style={{ color: '#fefefe', textShadow: "0 0 40px rgba(212,175,55,0.4)" }}>
         {next.inLabel}
       </div>
-      <p className="text-xs text-white/30 font-bold">
+      <p className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.3)' }}>
         في تمام الساعة {next.date.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" })}
       </p>
     </div>
@@ -408,7 +408,7 @@ export function PrayerTimes() {
   }, [times, nextPrayerId, prayerSettings]);
 
   return (
-    <div className="relative flex flex-col h-full overflow-y-auto overflow-x-hidden no-scrollbar font-arabic" style={{ background: "#06080f" }}>
+    <div className="force-dark relative flex flex-col h-full overflow-y-auto overflow-x-hidden no-scrollbar font-arabic" style={{ background: "#06080f", colorScheme: "dark" }}>
       {/* ─── Animated celestial background ─── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         {/* Stars */}
@@ -493,22 +493,22 @@ export function PrayerTimes() {
           {/* Center content */}
           <div className="relative z-10 flex flex-col items-center gap-2 text-center">
             {/* Arabic date */}
-            <span className="text-xs text-white/30 font-bold">
+            <span className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.35)' }}>
               {new Date().toLocaleDateString("ar-EG", { weekday: "long", day: "numeric", month: "long" })}
             </span>
 
             {/* Big clock */}
             <div className="flex items-end gap-1 my-1" dir="ltr">
-              <span className="text-6xl md:text-7xl font-black font-mono text-white leading-none"
-                style={{ textShadow: `0 0 60px ${nextPrayerColor.glow}` }}>
+              <span className="text-6xl md:text-7xl font-black font-mono leading-none"
+                style={{ color: '#fefefe', textShadow: `0 0 60px ${nextPrayerColor.glow}` }}>
                 {clockParts.hh}
               </span>
-              <span className="text-4xl font-black text-white/40 mb-1 font-mono animate-pulse">:</span>
-              <span className="text-6xl md:text-7xl font-black font-mono text-white leading-none"
-                style={{ textShadow: `0 0 60px ${nextPrayerColor.glow}` }}>
+              <span className="text-4xl font-black mb-1 font-mono animate-pulse" style={{ color: 'rgba(255,255,255,0.4)' }}>:</span>
+              <span className="text-6xl md:text-7xl font-black font-mono leading-none"
+                style={{ color: '#fefefe', textShadow: `0 0 60px ${nextPrayerColor.glow}` }}>
                 {clockParts.mm}
               </span>
-              <span className="text-4xl font-black text-white/40 mb-1 font-mono animate-pulse">:</span>
+              <span className="text-4xl font-black mb-1 font-mono animate-pulse" style={{ color: 'rgba(255,255,255,0.4)' }}>:</span>
               <span className="text-3xl md:text-4xl font-black font-mono mb-1 leading-none"
                 style={{ color: nextPrayerColor.icon, textShadow: `0 0 30px ${nextPrayerColor.glow}` }}>
                 {clockParts.ss}

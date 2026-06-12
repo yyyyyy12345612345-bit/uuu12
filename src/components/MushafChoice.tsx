@@ -328,7 +328,7 @@ export function MushafChoice() {
 
         {/* ── Title ── */}
         <div ref={titleRef} className="text-center">
-          <h1 className="text-[42px] md:text-[56px] font-black font-arabic leading-none tracking-tight"
+          <h1 className="text-[32px] md:text-[46px] font-black font-arabic leading-none tracking-tight"
             style={{
               background: 'linear-gradient(180deg, #ffffff 20%, #d4af37 60%, #a08020 100%)',
               WebkitBackgroundClip: 'text',
@@ -383,15 +383,15 @@ export function MushafChoice() {
                 background: `linear-gradient(90deg, transparent, ${mode.color}40, transparent)`
               }}/>
 
-              <div className="relative flex items-center gap-5 p-5 md:p-6">
+              <div className="relative flex items-center gap-4 p-4 md:p-5">
                 {/* Number */}
-                <div className="mc-num absolute top-4 right-5 text-[11px] font-black font-mono"
+                <div className="mc-num absolute top-3 right-4 text-[10px] font-black font-mono"
                   style={{ color: 'rgba(255,255,255,0.1)', letterSpacing: '0.1em' }}>
                   {mode.num}
                 </div>
 
                 {/* Icon container */}
-                <div className="mc-icon-container shrink-0 w-20 h-20 rounded-2xl relative overflow-hidden"
+                <div className="mc-icon-container shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl relative overflow-hidden"
                   style={{
                     background: `linear-gradient(135deg, ${mode.color}15, ${mode.color}05)`,
                     border: `1px solid ${mode.color}25`
@@ -404,9 +404,9 @@ export function MushafChoice() {
                 </div>
 
                 {/* Text content */}
-                <div className="flex-1 text-right min-w-0 pt-3">
+                <div className="flex-1 text-right min-w-0 pt-1 md:pt-2">
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-black font-arabic text-xl md:text-2xl text-white leading-none">
+                    <h3 className="font-black font-arabic text-lg md:text-xl text-white leading-none">
                       {mode.title}
                     </h3>
                   </div>

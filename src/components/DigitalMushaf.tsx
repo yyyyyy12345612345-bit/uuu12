@@ -108,6 +108,14 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
       initialPage = savedPage ? parseInt(savedPage) : 1;
     }
     fetchPageBatch(initialPage, true);
+
+    // Cleanup: pause audio on unmount to avoid "play() interrupted" errors
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = "";
+      }
+    };
   }, []);
 
   // Update URL when page changes to support sharing/deep-linking
@@ -249,16 +257,16 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
 
       {/* Reciter Picker Popover */}
       {showReciterPicker && (
-          <div className="absolute top-28 right-6 md:right-12 w-80 bg-background/95 backdrop-blur-3xl border border-border rounded-[3rem] shadow-[0_30px_90px_rgba(0,0,0,0.5)] z-[200] p-6 animate-in zoom-in-95 duration-300">
+          <div className="absolute top-28 right-6 md:right-12 w-80 bg-white dark:bg-[#0c0d10] backdrop-blur-3xl border border-black/10 dark:border-white/10 rounded-[3rem] shadow-[0_30px_90px_rgba(0,0,0,0.3)] z-[200] p-6 animate-in zoom-in-95 duration-300">
               <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] text-center mb-6">اختر قارئ المصحف</p>
               <div className="flex flex-col gap-2 max-h-[50vh] overflow-y-auto no-scrollbar">
                   {RECITERS.map(reciter => (
                       <button 
                         key={reciter.id} 
                         onClick={() => { updateState({ reciterId: reciter.id }); setShowReciterPicker(false); }}
-                        className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${state.reciterId === reciter.id ? 'bg-primary text-black' : 'hover:bg-white/5 text-white/60'}`}
+                        className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${state.reciterId === reciter.id ? 'bg-primary text-black' : 'hover:bg-black/5 dark:hover:bg-white/5 text-gray-700 dark:text-white/60'}`}
                       >
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${state.reciterId === reciter.id ? 'bg-black/10' : 'bg-white/5'}`}>
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${state.reciterId === reciter.id ? 'bg-black/10' : 'bg-black/5 dark:bg-white/5'}`}>
                               <User className="w-5 h-5" />
                           </div>
                           <span className="font-bold text-sm text-right flex-1">{reciter.name}</span>
@@ -271,22 +279,22 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
       {/* Side Surah Index */}
       {isIndexOpen && (
           <div className="absolute inset-0 z-[2000] flex animate-in fade-in duration-300">
-              <div className="absolute inset-0 bg-[#0c0d10]/60 backdrop-blur-md" onClick={() => setIsIndexOpen(false)} />
-              <div className="relative w-full max-w-sm bg-[#0c0d10] border-l border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col p-4 md:p-6 animate-in slide-in-from-left duration-500 overflow-hidden">
+              <div className="absolute inset-0 bg-black/50 backdrop-blur-md" onClick={() => setIsIndexOpen(false)} />
+              <div className="relative w-full max-w-sm bg-white dark:bg-[#0c0d10] border-l border-black/10 dark:border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.3)] flex flex-col p-4 md:p-6 animate-in slide-in-from-left duration-500 overflow-hidden">
                   <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-black text-white">فهرس السور</h3>
-                      <button onClick={() => setIsIndexOpen(false)} className="w-8 h-8 bg-white/5 rounded-lg flex items-center justify-center text-white hover:bg-primary hover:text-black transition-all">
+                      <h3 className="text-lg font-black text-gray-900 dark:text-white">فهرس السور</h3>
+                      <button onClick={() => setIsIndexOpen(false)} className="w-8 h-8 bg-black/5 dark:bg-white/5 rounded-lg flex items-center justify-center text-gray-600 dark:text-white hover:bg-primary hover:text-black transition-all">
                           <X className="w-4 h-4" />
                       </button>
                   </div>
 
                   <div className="relative mb-4 group">
-                      <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-all w-4 h-4" />
+                      <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/20 group-focus-within:text-primary transition-all w-4 h-4" />
                       <input 
                         value={searchQuery} 
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="ابحث عن السورة..."
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pr-12 pl-6 text-white text-sm outline-none focus:border-primary/50 transition-all text-right font-arabic"
+                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-3 pr-12 pl-6 text-gray-900 dark:text-white text-sm outline-none focus:border-primary/50 transition-all text-right font-arabic placeholder:text-gray-400 dark:placeholder:text-white/30"
                       />
                   </div>
 
@@ -295,20 +303,20 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
                           <button 
                             key={s.id} 
                             onClick={() => { setPages([]); fetchPageBatch(SURAH_START_PAGES[s.id] || 1, true); setIsIndexOpen(false); }}
-                            className="w-full p-3.5 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 hover:bg-primary/[0.08] transition-all group flex items-center justify-between text-right"
+                            className="w-full p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 hover:border-primary/30 hover:bg-primary/[0.08] transition-all group flex items-center justify-between text-right"
                           >
                               <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 rounded-xl bg-[#0c0d10] border border-primary/20 flex items-center justify-center text-primary text-xs font-bold relative overflow-hidden">
+                                  <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-[#0c0d10] border border-primary/20 flex items-center justify-center text-primary text-xs font-bold relative overflow-hidden">
                                       <div className="absolute inset-0 bg-primary opacity-0 group-hover:opacity-10 transition-opacity" />
                                       {s.id}
                                   </div>
                                   <div>
-                                      <h4 className="text-sm font-black text-white group-hover:text-primary transition-colors">سورة {s.name}</h4>
+                                      <h4 className="text-sm font-black text-gray-900 dark:text-white group-hover:text-primary transition-colors">سورة {s.name}</h4>
                                   </div>
                               </div>
                               <div className="text-left">
                                   <p className="text-xs font-black text-primary">{s.total_verses} آية</p>
-                                  <p className="text-[9px] font-bold text-white/20">{s.type === 'meccan' ? 'مكية' : 'مدنية'}</p>
+                                  <p className="text-[9px] font-bold text-gray-400 dark:text-white/20">{s.type === 'meccan' ? 'مكية' : 'مدنية'}</p>
                               </div>
                           </button>
                       ))}
@@ -344,7 +352,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
       </main>
 
       {/* Floating Action Bar */}
-      <footer className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-[#0c0d10]/90 backdrop-blur-3xl border border-white/10 rounded-2xl px-4 py-2 flex items-center gap-3 shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-[100]">
+      <footer className="force-dark fixed bottom-20 left-1/2 -translate-x-1/2 bg-[#0c0d10]/90 backdrop-blur-3xl border border-white/10 rounded-2xl px-4 py-2 flex items-center gap-3 shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-[100]">
           <div className="flex items-center gap-1.5">
               <button 
                 onClick={() => updateState({ mushafFontSize: Math.max(16, state.mushafFontSize - 2) })}

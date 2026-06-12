@@ -491,7 +491,7 @@ export function AuthGate({ children }: AuthGateProps) {
   const signupStepIdx = signupSteps.indexOf(view);
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden"
+    <div className="force-dark fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden"
       style={{ background: "linear-gradient(135deg,#07090f 0%,#0d0a17 50%,#060c10 100%)" }}>
 
       {/* Animated background orbs */}

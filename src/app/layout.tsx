@@ -149,7 +149,7 @@ export default function RootLayout({
       lang="ar"
       dir="rtl"
       className="dark h-full antialiased"
-      style={{ overflow: 'hidden', width: '100vw', height: '100dvh', backgroundColor: '#050505' }}
+      style={{ overflow: 'hidden', width: '100vw', height: '100dvh' }}
       suppressHydrationWarning
     >
       <head>
@@ -191,16 +191,14 @@ export default function RootLayout({
         />
       </head>
       <body 
-        className="h-full bg-[#050505] text-foreground selection:bg-primary selection:text-primary-foreground"
+        className="h-full bg-background text-foreground selection:bg-primary selection:text-primary-foreground"
         style={{ overflow: 'hidden', width: '100%', height: '100dvh', maxWidth: '100%', touchAction: 'pan-y', overscrollBehavior: 'none' }}
         suppressHydrationWarning
       >
 
         <div className="absolute inset-0 pointer-events-none overflow-hidden w-full h-full" />
 
-        <link rel="icon" href="/logo/logo.png?v=25" type="image/png" sizes="32x32" />
-        <link rel="shortcut icon" href="/logo/logo.png?v=25" type="image/png" />
-        <link rel="apple-touch-icon" href="/logo/logo.png?v=25" />
+        
         
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

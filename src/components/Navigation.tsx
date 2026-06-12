@@ -20,7 +20,7 @@ export function Navigation() {
 
   return (
     <nav className={`fixed bottom-0 left-0 right-0 z-[1000] w-full px-0 pb-0 pt-2 pointer-events-none font-['Tajawal']`}>
-      <div className="max-w-md mx-auto w-full h-[72px] bg-[#0a0a0d] backdrop-blur-3xl border-t border-white/5 rounded-t-[2rem] flex items-center justify-around px-2 shadow-[0_-20px_60px_rgba(0,0,0,0.6)] pointer-events-auto relative overflow-hidden group" style={{ willChange: "transform, opacity" }}>
+      <div className="max-w-md mx-auto w-full h-[72px] bg-white/70 dark:bg-background/80 backdrop-blur-3xl border-t border-border rounded-t-[2rem] flex items-center justify-around px-2 shadow-[0_-20px_60px_rgba(0,0,0,0.1)] dark:shadow-[0_-20px_60px_rgba(0,0,0,0.6)] pointer-events-auto relative overflow-hidden group" style={{ willChange: "transform, opacity" }}>
         
         {/* Background Pattern */}
         <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
@@ -45,11 +45,11 @@ export function Navigation() {
                 <div className="absolute -top-1 w-6 h-6 bg-primary/20 rounded-full blur-lg animate-pulse" />
               )}
               
-              <div className={`relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${isActive ? 'bg-primary text-black shadow-[0_10px_20px_rgba(212,175,55,0.3)]' : 'text-white'}`}>
+              <div className={`relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${isActive ? 'bg-primary text-primary-foreground shadow-[0_10px_20px_rgba(212,175,55,0.3)]' : 'text-black dark:text-foreground'}`}>
                 <Icon className={`w-4 h-4 stroke-[2.5px] transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover/nav:scale-125 group-hover/nav:rotate-12'}`} />
               </div>
 
-              <span className={`text-[10px] font-bold tracking-tight transition-all duration-200 ${isActive ? 'text-primary' : 'text-white'}`}>
+              <span className={`text-[10px] font-bold tracking-tight transition-all duration-200 ${isActive ? 'text-primary' : 'text-black dark:text-foreground'}`}>
                 {tab.label}
               </span>
 

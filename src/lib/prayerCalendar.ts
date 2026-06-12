@@ -51,15 +51,16 @@ function gregorianToKey(gregorianDate: string): string {
 
 function calendarUrl(meta: PrayerLocationMeta, year: number, month: number): string {
   const m = month + 1;
-  const params = new URLSearchParams({ year: String(year), month: String(m) });
+  const params = new URLSearchParams({ method: String(METHOD) });
   if (meta.latitude != null && meta.longitude != null) {
     params.set('latitude', String(meta.latitude));
     params.set('longitude', String(meta.longitude));
+    return `https://api.aladhan.com/v1/calendar/${year}/${m}?${params.toString()}`;
   } else {
     params.set('city', meta.city || 'Cairo');
     params.set('country', meta.country || 'Egypt');
+    return `https://api.aladhan.com/v1/calendarByCity/${year}/${m}?${params.toString()}`;
   }
-  return `/api/prayer-calendar?${params.toString()}`;
 }
 
 async function fetchMonth(meta: PrayerLocationMeta, year: number, month: number): Promise<Record<string, PrayerTimesData>> {
@@ -68,17 +69,20 @@ async function fetchMonth(meta: PrayerLocationMeta, year: number, month: number)
 
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`Calendar API request failed ${res.status} ${res.statusText}: ${body.slice(0, 300)}`);
+    console.warn(`Calendar API request failed ${res.status} ${res.statusText}: ${body.slice(0, 300)}`);
+    return {};
   }
 
   if (!contentType.includes('application/json')) {
     const body = await res.text();
-    throw new Error(`Calendar API returned non-JSON content for ${year}-${month + 1}: ${body.slice(0, 300)}`);
+    console.warn(`Calendar API returned non-JSON content for ${year}-${month + 1}: ${body.slice(0, 300)}`);
+    return {};
   }
 
   const json = await res.json();
   if (json.code !== 200 || !Array.isArray(json.data)) {
-    throw new Error(`Calendar API failed for ${year}-${month + 1}`);
+    console.warn(`Calendar API failed for ${year}-${month + 1}`);
+    return {};
   }
   const out: Record<string, PrayerTimesData> = {};
   for (const entry of json.data) {

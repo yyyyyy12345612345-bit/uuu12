@@ -47,13 +47,13 @@ export function PrayerYearCalendarView({ calendar }: Props) {
   const blanks = Array.from({ length: firstWeekday }, (_, i) => i);
 
   return (
-    <section className="bg-slate-950/95 border border-white/10 rounded-[1.75rem] p-5 md:p-8 shadow-2xl shadow-black/20">
+    <section className="bg-slate-950/95 border border-white/10 rounded-[1.75rem] p-5 md:p-8 shadow-2xl shadow-black/20 text-white">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-2">
-          <button type="button" onClick={prevMonth} className="w-10 h-10 rounded-xl bg-foreground/5 flex items-center justify-center hover:bg-primary/10">
+          <button type="button" onClick={prevMonth} className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 text-white">
             <ChevronRight className="w-5 h-5" />
           </button>
-          <button type="button" onClick={nextMonth} className="w-10 h-10 rounded-xl bg-foreground/5 flex items-center justify-center hover:bg-primary/10">
+          <button type="button" onClick={nextMonth} className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 text-white">
             <ChevronLeft className="w-5 h-5" />
           </button>
         </div>
@@ -62,20 +62,20 @@ export function PrayerYearCalendarView({ calendar }: Props) {
             <CalendarDays className="w-4 h-4" />
             <span className="text-[10px] font-black uppercase tracking-widest">تقويم المواقيت</span>
           </div>
-          <h3 className="text-xl font-black">{AR_MONTHS[month]} {year}</h3>
-          <p className="text-[10px] text-foreground/40 font-bold">محفوظ محلياً — يعمل بدون إنترنت</p>
+          <h3 className="text-xl font-black text-white">{AR_MONTHS[month]} {year}</h3>
+          <p className="text-[10px] text-white/40 font-bold">محفوظ محلياً — يعمل بدون إنترنت</p>
         </div>
       </div>
 
       <div className="grid grid-cols-7 gap-1.5 text-center mb-3">
         {['أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت'].map((d) => (
-          <span key={d} className="text-[10px] font-black text-foreground/40 py-1">{d}</span>
+          <span key={d} className="text-[10px] font-black text-white/40 py-1">{d}</span>
         ))}
       </div>
 
       <div className="grid grid-cols-7 gap-2 mb-6 auto-rows-[70px]">
         {blanks.map((b) => (
-          <div key={`b-${b}`} className="rounded-3xl bg-foreground/5" />
+          <div key={`b-${b}`} className="rounded-3xl bg-white/5" />
         ))}
         {dayKeys.map((key) => {
           const dayNum = parseInt(key.split("-")[2], 10);
@@ -90,12 +90,12 @@ export function PrayerYearCalendarView({ calendar }: Props) {
               disabled={!hasData}
               className={`w-full h-full rounded-[1.8rem] text-sm font-black transition-all duration-200 flex items-center justify-center ${
                 !hasData
-                  ? "bg-white/5 text-foreground/30 cursor-not-allowed"
+                  ? "bg-white/5 text-white/20 cursor-not-allowed"
                   : isSelected
                     ? "bg-primary text-black shadow-lg shadow-primary/20"
                     : isToday
                       ? "bg-primary/15 text-primary border border-primary/30"
-                      : "bg-white/5 hover:bg-white/10 text-foreground"
+                      : "bg-white/10 hover:bg-white/20 text-white"
               }`}
             >
               {dayNum}
@@ -105,17 +105,17 @@ export function PrayerYearCalendarView({ calendar }: Props) {
       </div>
 
       {selectedTimings && selectedDay && (
-        <div className="border-t border-border/50 pt-5">
-          <p className="text-xs font-black text-foreground/40 text-right mb-4">
+        <div className="border-t border-white/10 pt-5">
+          <p className="text-xs font-black text-white/40 text-right mb-4">
             مواقيت يوم {selectedDay.replace(/-/g, "/")}
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
             {PRAYER_KEYS.map((id) => (
               <div
                 key={id}
-                className="p-3 rounded-xl bg-foreground/[0.04] border border-border/40 text-center"
+                className="p-3 rounded-xl bg-white/5 border border-white/10 text-center"
               >
-                <p className="text-[10px] font-black text-foreground/40 mb-1">{PRAYER_NAMES_AR[id]}</p>
+                <p className="text-[10px] font-black text-white/40 mb-1">{PRAYER_NAMES_AR[id]}</p>
                 <p className="text-lg md:text-2xl font-mono font-black text-primary" dir="ltr">
                   {formatTimeDisplay(selectedTimings[id as keyof typeof selectedTimings])}
                 </p>

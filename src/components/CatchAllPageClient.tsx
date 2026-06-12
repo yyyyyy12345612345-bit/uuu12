@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
+import { motion } from "framer-motion";
 import nextDynamic from "next/dynamic";
 import { useEditor } from "@/store/useEditor";
 import { useRouter } from "next/navigation";
@@ -9,10 +10,16 @@ import { Settings, X, Download, Menu } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
+const ComponentLoader = () => (
+  <div className="flex h-full w-full items-center justify-center p-8">
+    <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+  </div>
+);
+
 // Lazy-loaded components
-const SurahSelector = nextDynamic(() => import("@/components/SurahSelector").then(mod => mod.SurahSelector), { ssr: false });
-const VideoPreview = nextDynamic(() => import("@/components/VideoPreview").then(mod => mod.VideoPreview), { ssr: false });
-const Controls = nextDynamic(() => import("@/components/Controls").then(mod => mod.Controls), { ssr: false });
+const SurahSelector = nextDynamic(() => import("@/components/SurahSelector").then(mod => mod.SurahSelector), { loading: () => <ComponentLoader />, ssr: false });
+const VideoPreview = nextDynamic(() => import("@/components/VideoPreview").then(mod => mod.VideoPreview), { loading: () => <ComponentLoader />, ssr: false });
+const Controls = nextDynamic(() => import("@/components/Controls").then(mod => mod.Controls), { loading: () => <ComponentLoader />, ssr: false });
 const RenderModal = nextDynamic(() => import("@/components/RenderModal").then(mod => mod.RenderModal), { ssr: false });
 const Mushaf = nextDynamic(() => import("@/components/Mushaf").then(mod => mod.Mushaf), { ssr: false });
 const PrayerTimes = nextDynamic(() => import("@/components/PrayerTimes").then(mod => mod.PrayerTimes), { ssr: false });
@@ -150,17 +157,13 @@ function CatchAllContent() {
   return (
     <div className={`fixed inset-0 text-foreground flex flex-col w-full h-[100dvh] font-arabic overflow-hidden transition-opacity duration-1000 bg-background`}>
       
-      {/* Background Media */}
-      {(activeView?.includes('mushaf') || activeView === 'daily' || activeView === 'prayers' || activeView === 'rank' || activeView === 'library') && (
-        <>
-          <video 
-            className="absolute inset-0 w-full h-full object-cover z-[-2] opacity-30 mix-blend-screen"
-            autoPlay loop muted playsInline
-            src="https://videos.pexels.com/video-files/1448735/1448735-hd_1920_1080_24fps.mp4"
-          />
-          <div className="absolute inset-0 bg-black/70 z-[-1] pointer-events-none" />
-        </>
-      )}
+      {/* Unified Nature Video Background for all sections */}
+      <video 
+        className="absolute inset-0 w-full h-full object-cover z-[-2] opacity-90 dark:opacity-70"
+        autoPlay loop muted playsInline
+        src="https://assets.mixkit.co/videos/preview/mixkit-winter-landscape-with-snow-covered-trees-2936-large.mp4"
+      />
+      <div className="absolute inset-0 bg-white/50 dark:bg-black/50 backdrop-blur-sm z-[-1] pointer-events-none transition-colors duration-1000" />
       
       {/* Global Top Bar - Logo + Install + Feedback */}
       <header className="h-14 shrink-0 bg-transparent px-4 md:px-8 flex items-center justify-between z-[200]">
@@ -195,6 +198,20 @@ function CatchAllContent() {
 
 
       <main className="flex-1 relative overflow-hidden bg-transparent">
+        {(activeView === 'mushaf' || activeView === 'mushaf-full' || activeView === 'mushaf-tafseer') && (
+          <motion.button 
+            drag
+            dragConstraints={{ left: 0, right: 0, top: -500, bottom: 100 }}
+            dragElastic={0.1}
+            dragMomentum={false}
+            onClick={() => navigateInstantly('/mushaf-choice')}
+            className="absolute bottom-24 left-4 z-[200] flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-black/40 dark:bg-black/60 backdrop-blur-md border border-white/10 text-white/70 hover:text-white hover:bg-black/70 hover:scale-105 active:scale-95 shadow-xl transition-all text-xs font-bold font-arabic cursor-move"
+            title="العودة واختيار مصحف آخر (اسحب لتغيير المكان)"
+          >
+            <X className="w-4 h-4 pointer-events-none" />
+            <span className="pointer-events-none">تغيير المصحف</span>
+          </motion.button>
+        )}
         {visited.mushaf && (
           <div key="mushaf" className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'mushaf' ? 'block view-transition' : 'hidden'}`}>
             <Mushaf />
@@ -245,9 +262,9 @@ function CatchAllContent() {
           <div key="video" className={`h-full w-full ${activeView === 'video' ? 'block view-transition' : 'hidden'}`}>
              <div className="flex h-full w-full overflow-hidden bg-[#0c0d10]">
                 {/* Desktop Sidebar */}
-                <aside className="hidden lg:flex w-[400px] h-full border-r border-border flex-col p-8 overflow-y-auto no-scrollbar gap-10 pb-40 relative z-50 bg-background/50 backdrop-blur-3xl">
+                <aside className="hidden lg:flex w-[340px] h-full border-r border-border flex-col p-4 overflow-y-auto no-scrollbar gap-4 pb-40 relative z-50 bg-background/50 backdrop-blur-3xl">
                    <div className="absolute inset-0 islamic-pattern opacity-[0.02] pointer-events-none" />
-                   <div className="relative z-10 flex flex-col gap-10">
+                   <div className="relative z-10 flex flex-col gap-6">
                       <SurahSelector />
                       <div className="h-px bg-white/5 w-full" />
                       <Controls onOpenSubscription={() => setIsSubscriptionOpen(true)} />
@@ -294,14 +311,17 @@ function CatchAllContent() {
       {isMobileControlsOpen && (
         <div className="fixed inset-0 z-[300] lg:hidden">
             <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={() => setIsMobileControlsOpen(false)} />
-            <div className="absolute bottom-0 left-0 right-0 h-[85vh] bg-background rounded-t-[3rem] border-t border-border flex flex-col p-6 overflow-hidden animate-in slide-in-from-bottom duration-300 text-right">
-                <div className="flex items-center justify-between mb-8">
-                    <button onClick={() => setIsMobileControlsOpen(false)} className="p-3 bg-foreground/5 rounded-full"><X className="w-6 h-6 text-foreground/40" /></button>
-                    <h2 className="text-xl font-bold font-arabic">إعدادات الفيديو</h2>
+            <div className="absolute inset-0 bg-background flex flex-col overflow-hidden">
+                {/* Full-page header */}
+                <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
+                    <button onClick={() => setIsMobileControlsOpen(false)} className="p-2.5 bg-foreground/5 rounded-full"><X className="w-5 h-5 text-foreground/50" /></button>
+                    <h2 className="text-base font-black font-arabic">إعدادات الفيديو</h2>
+                    <div className="w-10" />
                 </div>
-                <div className="flex-1 overflow-y-auto no-scrollbar pb-10 px-2">
+                {/* Scrollable content — full height */}
+                <div className="flex-1 overflow-y-auto no-scrollbar px-4 pb-6 pt-2">
                     <SurahSelector />
-                    <div className="h-8" />
+                    <div className="h-4" />
                     <Controls onOpenSubscription={() => setIsSubscriptionOpen(true)} />
                 </div>
             </div>

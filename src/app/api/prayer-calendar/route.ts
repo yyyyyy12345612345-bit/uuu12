@@ -24,15 +24,17 @@ export async function GET(req: Request) {
     method: String(PRAYER_METHOD),
   });
 
+  let apiUrl = "";
+
   if (latitude && longitude) {
     params.set("latitude", latitude);
     params.set("longitude", longitude);
+    apiUrl = `http://api.aladhan.com/v1/calendar?${params.toString()}`;
   } else {
     params.set("city", city || "Cairo");
     params.set("country", country || "Egypt");
+    apiUrl = `http://api.aladhan.com/v1/calendarByCity?${params.toString()}`;
   }
-
-  const apiUrl = `https://api.aladhan.com/v1/calendar?${params.toString()}`;
 
   try {
     const response = await fetch(apiUrl, { cache: "no-store" });

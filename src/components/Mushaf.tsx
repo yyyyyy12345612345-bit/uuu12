@@ -145,12 +145,12 @@ export function Mushaf() {
                     {/* Search */}
                     <div className="px-4 md:px-8 mb-6">
                         <div className="max-w-xl mx-auto relative group">
-                            <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-all w-4 h-4" />
+                            <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/20 group-focus-within:text-primary transition-all w-4 h-4" />
                             <input
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="ابحث عن سورة..."
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pr-12 pl-6 text-white text-sm outline-none focus:border-primary/50 transition-all text-right font-arabic"
+                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-3.5 pr-12 pl-6 text-gray-900 dark:text-white text-sm outline-none focus:border-primary/50 transition-all text-right font-arabic placeholder:text-gray-400"
                             />
                         </div>
                     </div>
@@ -183,21 +183,21 @@ export function Mushaf() {
                                     <button
                                         key={surah.id}
                                         onClick={() => setSelectedSurah(surah.id.toString())}
-                                        className="group relative p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/40 hover:bg-primary/[0.05] transition-all flex flex-col gap-3 text-right"
+                                        className="group relative p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 hover:border-primary/40 hover:bg-primary/[0.05] transition-all flex flex-col gap-3 text-right"
                                     >
                                         <div className="flex justify-between items-start">
                                             <div className="relative w-9 h-9 flex items-center justify-center">
                                                 <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-primary opacity-40 group-hover:opacity-100 transition-opacity">
                                                     <path d="M50 5 L62 38 L95 50 L62 62 L50 95 L38 62 L5 50 L38 38 Z" fill="currentColor" />
                                                 </svg>
-                                                <span className="relative z-10 text-[9px] font-black text-white group-hover:text-black transition-colors">{surah.id}</span>
+                                                <span className="relative z-10 text-[9px] font-black text-gray-700 dark:text-white group-hover:text-black transition-colors">{surah.id}</span>
                                             </div>
-                                            <div className="text-[9px] font-bold text-white/20 group-hover:text-primary transition-colors">
+                                            <div className="text-[9px] font-bold text-gray-400 dark:text-white/20 group-hover:text-primary transition-colors">
                                                 {surah.total_verses} آية
                                             </div>
                                         </div>
                                         <div>
-                                            <h3 className="text-base font-bold font-arabic group-hover:text-primary transition-colors">سورة {surah.name}</h3>
+                                            <h3 className="text-base font-bold font-arabic text-gray-900 dark:text-foreground group-hover:text-primary transition-colors">سورة {surah.name}</h3>
                                         </div>
                                     </button>
                                 ))}
@@ -242,16 +242,16 @@ export function Mushaf() {
 
             {/* Reciter Picker Popover */}
             {showReciterPicker && (
-                <div className="absolute top-28 right-8 w-80 bg-[#0c0d10]/98 backdrop-blur-2xl border border-white/10 rounded-[3rem] shadow-[0_30px_90px_rgba(0,0,0,0.5)] z-[1000] p-6 animate-in zoom-in-95 duration-300">
+                <div className="absolute top-28 right-8 w-80 bg-white dark:bg-[#0c0d10]/98 backdrop-blur-2xl border border-black/10 dark:border-white/10 rounded-[3rem] shadow-[0_30px_90px_rgba(0,0,0,0.3)] z-[1000] p-6 animate-in zoom-in-95 duration-300">
                     <p className="text-[10px] font-black text-primary uppercase tracking-widest text-center mb-6">اختر قارئ المصحف</p>
                     <div className="flex flex-col gap-2 max-h-[50vh] overflow-y-auto no-scrollbar">
                         {RECITERS.map(reciter => (
                             <button
                                 key={reciter.id}
                                 onClick={() => { updateState({ reciterId: reciter.id }); setShowReciterPicker(false); }}
-                                className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${state.reciterId === reciter.id ? 'bg-primary text-black' : 'hover:bg-white/5 text-white/40'}`}
+                                className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${state.reciterId === reciter.id ? 'bg-primary text-black' : 'hover:bg-black/5 dark:hover:bg-white/5 text-gray-700 dark:text-white/40'}`}
                             >
-                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${state.reciterId === reciter.id ? 'bg-black/10' : 'bg-white/5'}`}>
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${state.reciterId === reciter.id ? 'bg-black/10' : 'bg-black/5 dark:bg-white/5'}`}>
                                     <User className="w-5 h-5" />
                                 </div>
                                 <span className="font-bold text-sm text-right flex-1">{reciter.name}</span>

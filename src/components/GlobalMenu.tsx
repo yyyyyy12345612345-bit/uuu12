@@ -107,11 +107,12 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
             >
                 <X className="w-5 h-5" />
             </button>
+            {/* Theme Toggle */}
             <button 
                 onClick={toggleTheme}
-                className="w-12 h-12 rounded-[1.5rem] bg-foreground/5 border border-foreground/10 flex items-center justify-center text-foreground/40 hover:text-primary hover:bg-primary/10 transition-all duration-200 active:scale-90 shadow-xl"
+                className="w-12 h-12 rounded-[1.5rem] bg-foreground/5 border border-foreground/10 flex items-center justify-center text-foreground/40 hover:text-foreground hover:bg-foreground/10 hover:-rotate-12 transition-all duration-500 active:scale-90 shadow-xl"
             >
-                {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-indigo-500" />}
             </button>
           </div>
 
