@@ -386,7 +386,7 @@ ${activeQuiz.explanation}
 [التطبيق]
 - الاسم: يقين القرآن | Yaqeen AlQuran (الاستوديو القرآني الفائق)
 - المطور: يوسف أسامة — مهندس ذكاء اصطناعي (AIE)
-- حسابه: instagram.com/aie_youssef
+- حسابه: @youssef_osama04 (https://instagram.com/youssef_osama04)
 - التقنيات: Next.js 16 + React 19 + Firebase + Cloudflare
 - رابط الموقع: yaqeen-app.vercel.app
 

@@ -95,7 +95,7 @@ export async function POST(req: Request) {
 - الاسم الكامل: يوسف أسامة
 - التخصص: مهندس ذكاء اصطناعي (AIE - Artificial Intelligence Engineer)
 - المنصب: مؤسس ومطور تطبيق يقين | Yaqeen
-- للتواصل: Instagram: @aie_youssef
+- للتواصل: Instagram: @youssef_osama04 (https://instagram.com/youssef_osama04)
 - الرؤية: تقديم تجربة إيمانية رقمية متكاملة بتقنيات الذكاء الاصطناعي الحديثة
 
 ═══════════════════════════════════════
