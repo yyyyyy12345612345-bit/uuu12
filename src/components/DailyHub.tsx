@@ -758,7 +758,6 @@ export function DailyHub() {
           {activeTab === "tasbeeh" && (
             <div className="glass-effect p-12 rounded-[3rem] border border-border animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center text-center relative overflow-hidden shadow-2xl select-none">
                 <button onClick={() => setSibhaCount(0)} className="absolute top-8 left-8 w-12 h-12 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/40 hover:text-primary transition-all"><RotateCcw className="w-6 h-6" /></button>
-                <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4 select-none">Tasbeeh Engine</span>
                 <div className="h-24 mb-12 flex items-center justify-center select-none">
                     <p className="text-3xl md:text-4xl font-black text-foreground drop-shadow-md select-none">
                         {sibhaCount % 100 < 33 ? "سُبْحَانَ اللَّهِ" : sibhaCount % 100 < 66 ? "الْحَمْدُ لِلَّهِ" : "اللَّهُ أَكْبَرُ"}
@@ -793,7 +792,6 @@ export function DailyHub() {
           {activeTab === "istighfar" && (
             <div className="glass-effect p-12 rounded-[3rem] border border-border animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center text-center relative overflow-hidden shadow-2xl select-none">
                 <button onClick={() => setIstighfarCount(0)} className="absolute top-8 left-8 w-12 h-12 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/40 hover:text-rose-500 transition-all"><RotateCcw className="w-6 h-6" /></button>
-                <span className="text-[10px] font-black text-rose-500 uppercase tracking-[0.3em] mb-4 select-none">Istighfar Counter</span>
                 <div className="h-24 mb-12 flex items-center justify-center select-none">
                     <p className="text-3xl md:text-4xl font-black text-foreground drop-shadow-md select-none">أَسْتَغْفِرُ اللَّهَ</p>
                 </div>
@@ -827,7 +825,6 @@ export function DailyHub() {
           {activeTab === "salawat" && (
             <div className="glass-effect p-12 rounded-[3rem] border border-border animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center text-center relative overflow-hidden shadow-2xl select-none">
                 <button onClick={() => setSalawatCount(0)} className="absolute top-8 left-8 w-12 h-12 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/40 hover:text-blue-500 transition-all"><RotateCcw className="w-6 h-6" /></button>
-                <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] mb-4 select-none">Salawat Counter</span>
                 <div className="h-24 mb-12 flex items-center justify-center select-none">
                     <p className="text-3xl md:text-4xl font-black text-foreground drop-shadow-md select-none">اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ</p>
                 </div>

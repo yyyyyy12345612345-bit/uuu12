@@ -27,6 +27,32 @@ const timeAgo = (date: any) => {
   return d.toLocaleDateString("ar-EG", { day: "numeric", month: "short" });
 };
 
+const PROFANITY_WORDS = [
+  "كسم", "شرمو", "خول", "منيوك", "كسخت", "عرص", "ديوث", "قحبة", "كلب", "ابن الكلب", "ابن كلب", 
+  "شرموطة", "شرموطه", "وسخ", "يا وسخ", "تفه", "تفوه", "تف عليك", "زبي", "طيز", "نيك", "منيوكه",
+  "كس اختك", "كس امك", "ياعرص", "يا خول", "يا ديوث", "يا كلب", "يا حمار", "حمار"
+];
+
+const checkProfanity = (text: string): boolean => {
+  if (!text) return false;
+  const normalized = text
+    .trim()
+    .replace(/[أإآ]/g, "ا")
+    .replace(/ة/g, "ه")
+    .replace(/ى/g, "ي")
+    .replace(/[.,!?()؛؟?"'«»]/g, "")
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+  
+  const words = normalized.split(" ");
+  return PROFANITY_WORDS.some(badWord => {
+    if (badWord.includes(" ")) {
+      return normalized.includes(badWord);
+    }
+    return words.includes(badWord);
+  });
+};
+
 const NAV_H = 64;
 
 interface Post {
@@ -97,7 +123,9 @@ export function SocialFeed() {
       }
 
       const snap = await getDocs(q);
-      const newPosts = snap.docs.map(d => ({ id: d.id, ...d.data() } as Post));
+      const newPosts = snap.docs
+        .map(d => ({ id: d.id, ...d.data() } as any))
+        .filter(p => p.isBlocked !== true) as Post[];
 
       if (isLoadMore) {
         setPosts(prev => [...prev, ...newPosts]);
@@ -131,9 +159,12 @@ export function SocialFeed() {
     loadPosts();
   }, []);
 
-  // Create Post
   const handleCreatePost = async () => {
     if (!user || !newPost.trim() || posting) return;
+    if (checkProfanity(newPost)) {
+      alert("⚠️ عذراً، لا يمكن نشر محتوى يحتوي على كلمات غير لائقة.");
+      return;
+    }
     setPosting(true);
     try {
       const postData = {
@@ -238,6 +269,10 @@ export function SocialFeed() {
   const handlePostComment = async (postId: string) => {
     const text = commentText[postId]?.trim();
     if (!text || postingComment) return;
+    if (checkProfanity(text)) {
+      alert("⚠️ عذراً، لا يمكن نشر تعليق يحتوي على كلمات غير لائقة.");
+      return;
+    }
 
     const anon = isAnonymous[postId] ?? false;
     if (!anon && !user) {
@@ -285,6 +320,45 @@ export function SocialFeed() {
     } catch (e) {
       console.error("Error deleting post:", e);
       alert("حدث خطأ أثناء الحذف");
+    }
+  };
+
+  // Report Post
+  const handleReportPost = async (postId: string) => {
+    if (!user) {
+      alert("يجب تسجيل الدخول أولاً للإبلاغ عن منشور.");
+      return;
+    }
+    const postRef = doc(db, "posts", postId);
+    const reportUserRef = doc(db, "posts", postId, "reports", user.uid);
+    
+    try {
+      const reportSnap = await getDoc(reportUserRef);
+      if (reportSnap.exists()) {
+        alert("لقد قمت بالإبلاغ عن هذا المنشور مسبقاً.");
+        return;
+      }
+      
+      await setDoc(reportUserRef, { createdAt: serverTimestamp() });
+      
+      const postSnap = await getDoc(postRef);
+      const currentReports = (postSnap.data()?.reportsCount || 0) + 1;
+      const isBlocked = currentReports >= 2;
+      
+      await updateDoc(postRef, {
+        reportsCount: increment(1),
+        isBlocked: isBlocked
+      });
+      
+      if (isBlocked) {
+        setPosts(prev => prev.filter(p => p.id !== postId));
+        alert("شكرًا لك. تم حجب المنشور مؤقتاً لمراجعته من قِبل الإدارة لكثرة البلاغات.");
+      } else {
+        alert("تم تسجيل بلاغك بنجاح وستقوم الإدارة بمراجعته. شكرًا لك.");
+      }
+    } catch (e) {
+      console.error("Error reporting post:", e);
+      alert("حدث خطأ أثناء تقديم البلاغ.");
     }
   };
 
@@ -393,7 +467,7 @@ export function SocialFeed() {
                     <p className="text-[10px] text-foreground/30 font-bold">{timeAgo(post.createdAt)}</p>
                   </div>
                 </button>
-                {user?.uid === post.userId && (
+                {user && (
                   <div className="relative">
                     <button
                       onClick={() => setMenuOpen(menuOpen === post.id ? null : post.id)}
@@ -409,13 +483,23 @@ export function SocialFeed() {
                           exit={{ opacity: 0, scale: 0.9 }}
                           className="absolute left-0 top-full mt-1 bg-card border border-border rounded-xl shadow-2xl overflow-hidden z-50 min-w-[120px]"
                         >
-                          <button
-                            onClick={() => { handleDeletePost(post.id); setMenuOpen(null); }}
-                            className="w-full flex items-center gap-2 px-4 py-3 text-red-400 text-xs font-bold hover:bg-red-500/10 transition-colors"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                            حذف المنشور
-                          </button>
+                          {user.uid === post.userId ? (
+                            <button
+                              onClick={() => { handleDeletePost(post.id); setMenuOpen(null); }}
+                              className="w-full flex items-center gap-2 px-4 py-3 text-red-400 text-xs font-bold hover:bg-red-500/10 transition-colors"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              حذف المنشور
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => { handleReportPost(post.id); setMenuOpen(null); }}
+                              className="w-full flex items-center gap-2 px-4 py-3 text-amber-500 text-xs font-bold hover:bg-amber-500/10 transition-colors"
+                            >
+                              <AlertCircle className="w-3.5 h-3.5" />
+                              الإبلاغ عن المنشور
+                            </button>
+                          )}
                         </motion.div>
                       )}
                     </AnimatePresence>

@@ -31,6 +31,7 @@ const NAV_ITEMS = [
   { id: 'flags', label: 'التجارب', icon: FlaskConical },
   { id: 'versions', label: 'الإصدار', icon: Package },
   { id: 'analytics', label: 'التحليلات المتقدمة', icon: BarChart3 },
+  { id: 'moderation', label: 'رقابة المنشورات', icon: AlertTriangle },
 ];
 
 interface DailyStats {
@@ -155,6 +156,12 @@ export function AdminPanel() {
   const [isSendingPush, setIsSendingPush] = useState(false);
   const [pushHistory, setPushHistory] = useState<any[]>([]);
 
+  // Moderation state
+  const [reportedPosts, setReportedPosts] = useState<any[]>([]);
+  const [isModerationLoading, setIsModerationLoading] = useState(false);
+  const [moderatingComments, setModeratingComments] = useState<any[]>([]);
+  const [moderatingPostId, setModeratingPostId] = useState<string | null>(null);
+
   // Lazy loading: track which tabs have been visited
   const visitedTabsRef = useRef<Set<string>>(new Set(['stats']));
   const [tabLoading, setTabLoading] = useState<string | null>(null);
@@ -244,6 +251,7 @@ export function AdminPanel() {
       flags: async () => { await fetchFeatureFlags(); },
       versions: async () => { await fetchVersionSettings(); },
       analytics: async () => { await fetchAnalyticsData(); },
+      moderation: async () => { await fetchReportedPosts(); },
     };
 
     if (loaders[tab]) {
@@ -798,6 +806,93 @@ export function AdminPanel() {
 
   const handleDeleteShowcaseItem = async (id: string) => {
     if (!db || !window.confirm("حذف من المعرض؟")) return; try { await deleteDoc(doc(db, "showcase", id)); fetchShowcaseItems(); } catch (e) { console.error(e); }
+  };
+
+  const fetchReportedPosts = async () => {
+    if (!db) return;
+    setIsModerationLoading(true);
+    try {
+      const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+      const snap = await getDocs(q);
+      const list = snap.docs
+        .map(d => ({ id: d.id, ...d.data() } as any))
+        .filter(p => (p.reportsCount && p.reportsCount > 0) || p.isBlocked);
+      setReportedPosts(list);
+    } catch (e) {
+      console.error("Error fetching reported posts:", e);
+    } finally {
+      setIsModerationLoading(false);
+    }
+  };
+
+  const handleAdminDeletePost = async (postId: string) => {
+    if (!db || !window.confirm("هل أنت متأكد من حذف هذا المنشور نهائياً؟")) return;
+    try {
+      await deleteDoc(doc(db, "posts", postId));
+      setReportedPosts(prev => prev.filter(p => p.id !== postId));
+      alert("✅ تم حذف المنشور بنجاح.");
+    } catch (e) {
+      console.error(e);
+      alert("فشل الحذف");
+    }
+  };
+
+  const handleAdminDismissReports = async (postId: string) => {
+    if (!db || !window.confirm("تأكيد رفض البلاغات والإبقاء على المنشور؟")) return;
+    try {
+      const { deleteField } = await import("firebase/firestore");
+      await updateDoc(doc(db, "posts", postId), {
+        reportsCount: 0,
+        reports: deleteField(),
+        isBlocked: false
+      });
+      setReportedPosts(prev => prev.filter(p => p.id !== postId));
+      alert("✅ تم رفض البلاغات وتثبيت المنشور.");
+    } catch (e) {
+      console.error(e);
+      alert("فشل العملية");
+    }
+  };
+
+  const handleAdminToggleBlockPost = async (postId: string, isCurrentlyBlocked: boolean) => {
+    if (!db || !window.confirm(isCurrentlyBlocked ? "تأكيد فك حظر المنشور وعرضه للمستخدمين؟" : "تأكيد حظر المنشور وحجبه عن المستخدمين؟")) return;
+    try {
+      await updateDoc(doc(db, "posts", postId), {
+        isBlocked: !isCurrentlyBlocked
+      });
+      setReportedPosts(prev => prev.map(p => p.id === postId ? { ...p, isBlocked: !isCurrentlyBlocked } : p));
+      alert(!isCurrentlyBlocked ? "🚫 تم حظر المنشور بنجاح." : "✅ تم إلغاء حظر المنشور.");
+    } catch (e) {
+      console.error(e);
+      alert("فشل العملية");
+    }
+  };
+
+  const handleLoadCommentsForModeration = async (postId: string) => {
+    if (!db) return;
+    setModeratingPostId(postId);
+    try {
+      const q = query(collection(db, "posts", postId, "comments"), orderBy("createdAt", "desc"));
+      const snap = await getDocs(q);
+      setModeratingComments(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleAdminDeleteComment = async (postId: string, commentId: string) => {
+    if (!db || !window.confirm("هل أنت متأكد من حذف هذا التعليق؟")) return;
+    try {
+      await deleteDoc(doc(db, "posts", postId, "comments", commentId));
+      await updateDoc(doc(db, "posts", postId), {
+        commentsCount: increment(-1)
+      });
+      setModeratingComments(prev => prev.filter(c => c.id !== commentId));
+      alert("✅ تم حذف التعليق.");
+    } catch (e) {
+      console.error(e);
+      alert("فشل حذف التعليق");
+    }
   };
 
   const handleActionSubscription = async (requestId: string, userId: string, plan: string, action: 'approve' | 'reject') => {
@@ -2887,6 +2982,146 @@ export function AdminPanel() {
                     </div>
                   </div>
                 </>
+              )}
+            </div>
+          )}
+
+          {/* ========== MODERATION TAB ========== */}
+          {activeTab === 'moderation' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div>
+                  <h2 className="text-xl font-black text-white/90">رقابة المنشورات والتعليقات</h2>
+                  <p className="text-sm text-white/30 font-bold mt-1">مراجعة المنشورات التي تم الإبلاغ عنها أو حظرها تلقائياً.</p>
+                </div>
+                <button onClick={fetchReportedPosts} className={BTN_GHOST}>تحديث</button>
+              </div>
+
+              {isModerationLoading ? (
+                <div className="flex items-center justify-center py-16">
+                  <Loader2 className="w-6 h-6 animate-spin text-[#fbbf24]" />
+                  <span className="mr-3 text-sm text-white/40 font-bold">جاري تحميل البلاغات...</span>
+                </div>
+              ) : (
+                <div className="grid gap-6">
+                  {reportedPosts.length === 0 ? (
+                    <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.02] p-16 text-center text-white/30">
+                      لا توجد منشورات مبلغ عنها حالياً.
+                    </div>
+                  ) : (
+                    reportedPosts.map(post => (
+                      <div key={post.id} className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 space-y-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/40">
+                              {post.userAvatar ? (
+                                <img src={post.userAvatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                              ) : (
+                                <UserCircle className="w-8 h-8" />
+                              )}
+                            </div>
+                            <div className="text-right">
+                              <p className="font-black text-sm">{post.userName}</p>
+                              <p className="text-[10px] text-white/30">@{post.userId}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <span className="rounded-full bg-red-500/10 border border-red-500/20 px-3 py-1 text-xs font-black text-red-400">
+                              البلاغات: {post.reportsCount || 0}
+                            </span>
+                            {post.isBlocked && (
+                              <span className="rounded-full bg-rose-500 px-3 py-1 text-xs font-black text-black">
+                                محظور تلقائياً 🚫
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="p-4 bg-white/[0.01] border border-white/[0.04] rounded-xl text-right">
+                          <p className="text-sm leading-relaxed whitespace-pre-wrap">{post.content}</p>
+                          {post.category && (
+                            <span className="inline-block mt-3 text-[10px] bg-white/5 text-white/40 px-2 py-0.5 rounded-md">
+                              التصنيف: {post.category}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-4">
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleAdminDismissReports(post.id)}
+                              className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-black text-black transition hover:opacity-90"
+                            >
+                              إبقاء وتثبيت المنشور ✅
+                            </button>
+                            <button
+                              onClick={() => handleAdminToggleBlockPost(post.id, post.isBlocked || false)}
+                              className={`rounded-xl px-4 py-2 text-xs font-black transition ${
+                                post.isBlocked
+                                  ? 'bg-[#fbbf24] text-black'
+                                  : 'bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white'
+                              }`}
+                            >
+                              {post.isBlocked ? 'إلغاء الحظر 🔓' : 'حظر المنشور 🚫'}
+                            </button>
+                            <button
+                              onClick={() => handleAdminDeletePost(post.id)}
+                              className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-2 text-xs font-black text-red-400 transition hover:bg-red-500 hover:text-white"
+                            >
+                              حذف نهائي 🗑️
+                            </button>
+                          </div>
+
+                          <button
+                            onClick={() => handleLoadCommentsForModeration(post.id)}
+                            className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-xs font-bold text-white/60 hover:bg-white/10"
+                          >
+                            عرض التعليقات ({post.commentsCount || 0}) 💬
+                          </button>
+                        </div>
+
+                        {/* Comments moderation sub-section */}
+                        {moderatingPostId === post.id && (
+                          <div className="mt-4 p-4 rounded-xl bg-black/40 border border-white/5 space-y-3">
+                            <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                              <span className="text-xs text-white/40">إدارة تعليقات هذا المنشور</span>
+                              <button
+                                onClick={() => { setModeratingPostId(null); setModeratingComments([]); }}
+                                className="text-xs text-white/30 hover:text-white"
+                              >
+                                إغلاق ✖
+                              </button>
+                            </div>
+
+                            <div className="space-y-3 max-h-[200px] overflow-y-auto pr-1">
+                              {moderatingComments.length === 0 ? (
+                                <p className="text-xs text-white/20 text-center py-4">لا توجد تعليقات</p>
+                              ) : (
+                                moderatingComments.map(comment => (
+                                  <div key={comment.id} className="flex items-start justify-between gap-3 bg-white/[0.01] p-3 rounded-lg border border-white/[0.02]">
+                                    <button
+                                      onClick={() => handleAdminDeleteComment(post.id, comment.id)}
+                                      className="text-red-400 hover:text-red-500 p-1 rounded-md hover:bg-white/5 shrink-0"
+                                      title="حذف التعليق"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                    
+                                    <div className="flex-1 text-right min-w-0">
+                                      <p className="text-[10px] text-white/40">{comment.isAnonymous ? 'مجهول' : comment.userName}</p>
+                                      <p className="text-xs mt-1 text-white/80 break-words">{comment.content}</p>
+                                    </div>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
               )}
             </div>
           )}

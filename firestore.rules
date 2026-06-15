@@ -92,7 +92,8 @@ service cloud.firestore {
     match /posts/{postId} {
       allow read: if true;
       allow create: if isAuthenticated();
-      allow update, delete: if (isAuthenticated() && request.auth.uid == resource.data.userId) || isAdmin();
+      allow update: if isAuthenticated();
+      allow delete: if (isAuthenticated() && request.auth.uid == resource.data.userId) || isAdmin();
       
       match /likes/{likeId} {
         allow read: if true;
@@ -103,6 +104,10 @@ service cloud.firestore {
         allow read: if true;
         allow create: if true; // Allow anonymous comments
         allow update, delete: if (isAuthenticated() && (request.auth.uid == resource.data.userId || request.auth.uid == resource.data.commenterId)) || isAdmin();
+      }
+
+      match /reports/{reportId} {
+        allow read, write: if isAuthenticated();
       }
     }
 
