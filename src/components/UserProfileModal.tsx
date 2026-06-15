@@ -33,7 +33,7 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
   };
 
   useEffect(() => {
-    if (!userId || !myUid || !db) return;
+    if (!userId || !db) return;
 
     setLoading(true);
 
@@ -48,39 +48,46 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
     });
 
     // 2. Fetch current user data (to pass their name/avatar when sending requests or starting duels)
-    getDoc(doc(db, "users", myUid)).then((snap) => {
-      if (snap.exists()) {
-        setCurrentUserData(snap.data());
-      }
-    });
+    if (myUid) {
+      getDoc(doc(db, "users", myUid)).then((snap) => {
+        if (snap.exists()) {
+          setCurrentUserData(snap.data());
+        }
+      });
+    }
 
     // 3. Listen to relationship state
-    const friendshipId = getFriendshipId(myUid, userId);
-    
-    // Check friendships
-    const unsubFriendship = onSnapshot(doc(db, "friendships", friendshipId), (friendshipSnap) => {
-      if (friendshipSnap.exists()) {
-        setRelation("friends");
-      } else {
-        // If not friends, check pending requests
-        const reqSentRef = doc(db, "friend_requests", `${myUid}_${userId}`);
-        const reqReceivedRef = doc(db, "friend_requests", `${userId}_${myUid}`);
+    let unsubFriendship = () => {};
+    if (myUid) {
+      const friendshipId = getFriendshipId(myUid, userId);
+      
+      // Check friendships
+      unsubFriendship = onSnapshot(doc(db, "friendships", friendshipId), (friendshipSnap) => {
+        if (friendshipSnap.exists()) {
+          setRelation("friends");
+        } else {
+          // If not friends, check pending requests
+          const reqSentRef = doc(db, "friend_requests", `${myUid}_${userId}`);
+          const reqReceivedRef = doc(db, "friend_requests", `${userId}_${myUid}`);
 
-        getDoc(reqSentRef).then((sentSnap) => {
-          if (sentSnap.exists() && sentSnap.data()?.status === "pending") {
-            setRelation("sent_pending");
-          } else {
-            getDoc(reqReceivedRef).then((receivedSnap) => {
-              if (receivedSnap.exists() && receivedSnap.data()?.status === "pending") {
-                setRelation("received_pending");
-              } else {
-                setRelation("none");
-              }
-            });
-          }
-        });
-      }
-    });
+          getDoc(reqSentRef).then((sentSnap) => {
+            if (sentSnap.exists() && sentSnap.data()?.status === "pending") {
+              setRelation("sent_pending");
+            } else {
+              getDoc(reqReceivedRef).then((receivedSnap) => {
+                if (receivedSnap.exists() && receivedSnap.data()?.status === "pending") {
+                  setRelation("received_pending");
+                } else {
+                  setRelation("none");
+                }
+              });
+            }
+          });
+        }
+      });
+    } else {
+      setRelation("none");
+    }
 
     return () => {
       unsubUser();
@@ -382,81 +389,95 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
 
           {/* Action Buttons */}
           <div className="w-full max-w-sm mt-8 space-y-3 relative z-20">
-            {/* Friendship action */}
-            {relation === "none" && (
+            {!myUid ? (
               <button
-                onClick={handleAddFriend}
-                disabled={actionLoading}
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("show_auth_gate"));
+                  onClose();
+                }}
                 className="w-full py-4 bg-primary text-black rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
               >
-                {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
-                إرسال طلب صداقة
+                سجّل دخولك للتفاعل مع هذا القارئ
               </button>
-            )}
-
-            {relation === "sent_pending" && (
-              <button
-                onClick={handleCancelRequest}
-                disabled={actionLoading}
-                className="w-full py-4 bg-white/5 border border-white/10 text-white/60 rounded-2xl font-black text-sm hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center gap-2"
-              >
-                {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Loader2 className="w-4 h-4 animate-pulse" />}
-                طلب الصداقة معلق (إلغاء ❌)
-              </button>
-            )}
-
-            {relation === "received_pending" && (
-              <div className="flex gap-3">
-                <button
-                  onClick={handleAcceptFriend}
-                  disabled={actionLoading}
-                  className="flex-1 py-4 bg-emerald-500 text-white rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2"
-                >
-                  {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserCheck className="w-4 h-4" />}
-                  قبول
-                </button>
-                <button
-                  onClick={handleRejectRequest}
-                  disabled={actionLoading}
-                  className="px-6 py-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-2xl font-black text-sm active:scale-95 transition-all border border-red-500/20 flex items-center justify-center"
-                >
-                  رفض
-                </button>
-              </div>
-            )}
-
-            {relation === "friends" && (
-              <div className="space-y-3">
-                <div className="flex gap-3">
-                  {/* Chat */}
+            ) : (
+              <>
+                {/* Friendship action */}
+                {relation === "none" && (
                   <button
-                    onClick={handleStartChat}
+                    onClick={handleAddFriend}
                     disabled={actionLoading}
-                    className="flex-1 py-4 bg-primary text-black rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2"
+                    className="w-full py-4 bg-primary text-black rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
                   >
-                    <MessageCircle className="w-4 h-4" />
-                    محادثة
+                    {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
+                    إرسال طلب صداقة
                   </button>
-                  {/* Duel */}
+                )}
+
+                {relation === "sent_pending" && (
                   <button
-                    onClick={handleStartDuel}
+                    onClick={handleCancelRequest}
                     disabled={actionLoading}
-                    className="flex-1 py-4 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2 border border-purple-500/30"
+                    className="w-full py-4 bg-white/5 border border-white/10 text-white/60 rounded-2xl font-black text-sm hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center gap-2"
                   >
-                    <Swords className="w-4 h-4" />
-                    مبارزة
+                    {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Loader2 className="w-4 h-4 animate-pulse" />}
+                    طلب الصداقة معلق (إلغاء ❌)
                   </button>
-                </div>
-                
-                <button
-                  onClick={handleUnfriend}
-                  disabled={actionLoading}
-                  className="w-full py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-2xl font-black text-xs active:scale-95 transition-all border border-red-500/20 flex items-center justify-center gap-2"
-                >
-                  <UserMinus className="w-3.5 h-3.5" />
-                  إزالة من الأصدقاء
-                </button>
-              </div>
+                )}
+
+                {relation === "received_pending" && (
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handleAcceptFriend}
+                      disabled={actionLoading}
+                      className="flex-1 py-4 bg-emerald-500 text-white rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2"
+                    >
+                      {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserCheck className="w-4 h-4" />}
+                      قبول
+                    </button>
+                    <button
+                      onClick={handleRejectRequest}
+                      disabled={actionLoading}
+                      className="px-6 py-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-2xl font-black text-sm active:scale-95 transition-all border border-red-500/20 flex items-center justify-center"
+                    >
+                      رفض
+                    </button>
+                  </div>
+                )}
+
+                {relation === "friends" && (
+                  <div className="space-y-3">
+                    <div className="flex gap-3">
+                      {/* Chat */}
+                      <button
+                        onClick={handleStartChat}
+                        disabled={actionLoading}
+                        className="flex-1 py-4 bg-primary text-black rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        محادثة
+                      </button>
+                      {/* Duel */}
+                      <button
+                        onClick={handleStartDuel}
+                        disabled={actionLoading}
+                        className="flex-1 py-4 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2 border border-purple-500/30"
+                      >
+                        <Swords className="w-4 h-4" />
+                        مبارزة
+                      </button>
+                    </div>
+                    
+                    <button
+                      onClick={handleUnfriend}
+                      disabled={actionLoading}
+                      className="w-full py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-2xl font-black text-xs active:scale-95 transition-all border border-red-500/20 flex items-center justify-center gap-2"
+                    >
+                      <UserMinus className="w-3.5 h-3.5" />
+                      إزالة من الأصدقاء
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
