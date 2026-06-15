@@ -458,49 +458,49 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
           
           {/* User Status Card */}
           {user && userData ? (
-              <div className="bg-card border border-border rounded-[3rem] p-6 md:p-8 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 group">
-                  <div className="flex flex-row items-center gap-4 md:gap-6 w-full md:w-auto">
+              <div className="bg-card border border-border rounded-3xl p-4 md:p-5 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 group">
+                  <div className="flex flex-row items-center gap-3 md:gap-4 w-full md:w-auto">
                       <div className="relative shrink-0">
-                          <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-primary p-1 bg-card shadow-xl overflow-hidden group-hover:scale-105 transition-transform">
+                          <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-primary p-0.5 bg-card shadow-xl overflow-hidden group-hover:scale-105 transition-transform">
                               <img src={userData.photoURL || "/logo/logo.png"} alt="User" className="w-full h-full object-cover rounded-full" />
                           </div>
-                          <div className="absolute -bottom-1 -right-1 w-6 h-6 md:w-7 md:h-7 bg-primary rounded-lg flex items-center justify-center border-2 border-primary text-black shadow-lg">
-                              <Star className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary fill-primary" />
+                          <div className="absolute -bottom-1 -right-1 w-5 h-5 md:w-6 md:h-6 bg-primary rounded-md flex items-center justify-center border border-primary text-black shadow-lg">
+                              <Star className="w-2.5 h-2.5 md:w-3 text-primary fill-primary" />
                           </div>
                       </div>
                       <div className="text-right">
-                          <p className="text-[9px] md:text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-1">الرتبة: الحافظ المتميز</p>
-                          <h2 className="text-xl md:text-3xl font-black text-foreground truncate max-w-[200px] md:max-w-none">{userData.displayName || userData.username}</h2>
+                          <p className="text-[8px] md:text-[9px] font-black text-primary uppercase tracking-[0.3em] mb-0.5">الرتبة: الحافظ المتميز</p>
+                          <h2 className="text-lg md:text-xl font-black text-foreground truncate max-w-[200px] md:max-w-none">{userData.displayName || userData.username}</h2>
                       </div>
                   </div>
-                  <div className="flex items-center gap-3 bg-foreground/5 p-4 rounded-3xl border border-border w-full md:w-auto justify-between md:justify-start">
-                      <div className="text-center px-4">
-                          <p className="text-[9px] font-black text-foreground/30 uppercase">النقاط</p>
-                          <p className="text-2xl font-black text-primary">{Math.round(userData.totalPoints)}</p>
+                  <div className="flex items-center gap-2.5 bg-foreground/5 p-2.5 px-4 rounded-2xl border border-border w-full md:w-auto justify-between md:justify-start">
+                      <div className="text-center px-2">
+                          <p className="text-[8px] font-black text-foreground/30 uppercase">النقاط</p>
+                          <p className="text-xl font-black text-primary">{Math.round(userData.totalPoints)}</p>
                       </div>
-                      <div className="w-[1px] h-10 bg-border" />
-                      <button onClick={onEditProfile} className="px-6 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl font-black text-xs transition-all">تعديل الملف</button>
+                      <div className="w-[1px] h-8 bg-border" />
+                      <button onClick={onEditProfile} className="px-5 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg font-black text-xs transition-all">تعديل الملف</button>
                   </div>
               </div>
           ) : (
-              <div className="bg-gradient-to-br from-[#121212]/90 to-[#0a0a0a]/95 border border-primary/20 rounded-[3rem] p-6 md:p-8 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 group relative overflow-hidden">
+              <div className="bg-gradient-to-br from-[#121212]/90 to-[#0a0a0a]/95 border border-primary/20 rounded-3xl p-4 md:p-5 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 group relative overflow-hidden">
                   <div className="absolute inset-0 islamic-pattern opacity-5 pointer-events-none" />
-                  <div className="flex flex-row items-center gap-4 md:gap-6 w-full md:w-auto">
+                  <div className="flex flex-row items-center gap-3 md:gap-4 w-full md:w-auto">
                       <div className="relative shrink-0">
-                          <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-dashed border-primary/40 p-1 bg-card shadow-xl overflow-hidden flex items-center justify-center">
-                              <User className="w-8 h-8 md:w-10 md:h-10 text-primary/40" />
+                          <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-dashed border-primary/40 p-0.5 bg-card shadow-xl overflow-hidden flex items-center justify-center">
+                              <User className="w-6 h-6 md:w-7 md:h-7 text-primary/40" />
                           </div>
                       </div>
                       <div className="text-right flex-1 min-w-0">
-                          <p className="text-[9px] md:text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-1">حساب زائر</p>
-                          <h2 className="text-xl md:text-2xl font-black text-foreground truncate">لم تقم بتسجيل الدخول بعد</h2>
-                          <p className="text-[11px] md:text-xs text-white/40 mt-1 font-bold leading-relaxed">سجل حساباً الآن لتجميع النقاط والظهور في لوحة الشرف ومنافسة القراء.</p>
+                          <p className="text-[8px] md:text-[9px] font-black text-primary uppercase tracking-[0.3em] mb-0.5">حساب زائر</p>
+                          <h2 className="text-lg md:text-xl font-black text-foreground truncate">لم تقم بتسجيل الدخول بعد</h2>
+                          <p className="text-[10px] md:text-[11px] text-white/40 mt-0.5 font-bold leading-relaxed">سجل حساباً الآن لتجميع النقاط والظهور في لوحة الشرف ومنافسة القراء.</p>
                       </div>
                   </div>
                   <div className="relative z-10 shrink-0 w-full md:w-auto">
                       <button 
                         onClick={() => window.dispatchEvent(new CustomEvent("show_auth_gate"))} 
-                        className="w-full md:w-auto px-8 py-4 bg-gradient-to-r from-[#b38f24] via-[#f5d76e] to-[#b38f24] text-black rounded-2xl font-black text-sm hover:scale-105 active:scale-95 transition-all shadow-[0_10px_20px_rgba(212,175,55,0.2)]"
+                        className="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-[#b38f24] via-[#f5d76e] to-[#b38f24] text-black rounded-xl font-black text-xs hover:scale-105 active:scale-95 transition-all shadow-[0_10px_20px_rgba(212,175,55,0.2)]"
                       >
                         سجل دخولك الآن 🏆
                       </button>
