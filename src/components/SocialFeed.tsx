@@ -28,30 +28,97 @@ const timeAgo = (date: any) => {
   return d.toLocaleDateString("ar-EG", { day: "numeric", month: "short" });
 };
 
-const PROFANITY_WORDS = [
-  "كسم", "شرمو", "خول", "منيوك", "كسخت", "عرص", "ديوث", "قحبة", "كلب", "ابن الكلب", "ابن كلب", 
-  "شرموطة", "شرموطه", "وسخ", "يا وسخ", "تفه", "تفوه", "تف عليك", "زبي", "طيز", "نيك", "منيوكه",
-  "كس اختك", "كس امك", "ياعرص", "يا خول", "يا ديوث", "يا كلب", "يا حمار", "حمار"
+const SEVERE_PROFANITY = [
+  "كسم", "خول", "عرص", "ديوث", "قحبة", "قحبه", "زبي", "طيز", "نيك", 
+  "قواد", "عاهرة", "عاهره", "عاهر", "احا", "منيوك", "منيوكة", "منيوكه", 
+  "كسخت", "كس", "كس اختك", "كس امك", "ياعرص", "يا خول", "يا ديوث", "شرموط", "شرموطة", "شرموطه", "شرمو"
 ];
 
-const checkProfanity = (text: string): boolean => {
-  if (!text) return false;
-  const normalized = text
-    .trim()
-    .replace(/[أإآ]/g, "ا")
+const MILD_QUESTIONABLE = [
+  "كلب", "وسخ", "تفه", "تفوه", "زبالة", "زباله", "حمار", "تيس", "جحش",
+  "بضان", "شخاخ", "بول", "نجس", "حيوان", "سافل", "حقير", "منحط", "قذر",
+  "ابن الحرام", "اولاد الحرام", "ولاد الحرام", "ابن الكلب", "ابن كلب",
+  "بنت كلب", "بنت الكلب", "يا كلب", "يا حمار", "يا حيوان", "تف عليك", "تفو عليك"
+];
+
+const checkModerationStatus = (text: string): "block" | "flag" | "clean" => {
+  if (!text) return "clean";
+
+  // 1. Strip tashkeel (diacritics)
+  let normalized = text.replace(/[\u064B-\u0652\u0670]/g, "");
+
+  // 2. Normalize common letter variants
+  normalized = normalized
+    .replace(/[أإآٱ]/g, "ا")
     .replace(/ة/g, "ه")
     .replace(/ى/g, "ي")
-    .replace(/[.,!?()؛؟?"'«»]/g, "")
-    .replace(/\s+/g, " ")
-    .toLowerCase();
+    .replace(/[ؤئ]/g, "ء");
+
+  // 3. Remove punctuation, symbols, numbers, and extra whitespaces to counter bypasses
+  const strippedOfSymbols = normalized.replace(/[0-9\s\-_*.,!?()؛؟?"'«»[\]{}|<>/\\@#$%^&+=~`:]/g, "");
   
-  const words = normalized.split(" ");
-  return PROFANITY_WORDS.some(badWord => {
-    if (badWord.includes(" ")) {
-      return normalized.includes(badWord);
+  // Also keep a space-separated normalized version for word-by-word checks
+  const cleanWithSpaces = normalized
+    .replace(/[0-9\-_*.,!?()؛؟?"'«»[\]{}|<>/\\@#$%^&+=~`:]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // Helper to collapse consecutive repeated letters (e.g. عررررص -> عرص)
+  const collapseDuplicates = (str: string) => {
+    let result = "";
+    for (let i = 0; i < str.length; i++) {
+      if (i === 0 || str[i] !== str[i - 1]) {
+        result += str[i];
+      }
     }
-    return words.includes(badWord);
-  });
+    return result;
+  };
+
+  const collapsedStripped = collapseDuplicates(strippedOfSymbols);
+  const wordsList = cleanWithSpaces.split(" ");
+  const collapsedWordsList = wordsList.map(w => collapseDuplicates(w));
+
+  // A. Check Severe Profanity first (Hard block)
+  const severeSubstrings = [
+    "كسم", "شرمو", "منيوك", "كسخت", "عرص", "ديوث", "قحبة", "قحبه", "طيز", "زبي", "نيك", "شرمط"
+  ];
+
+  for (const sub of severeSubstrings) {
+    if (collapsedStripped.includes(sub) || strippedOfSymbols.includes(sub)) {
+      return "block";
+    }
+  }
+
+  for (const word of SEVERE_PROFANITY) {
+    if (word.includes(" ")) {
+      if (cleanWithSpaces.includes(word) || collapseDuplicates(cleanWithSpaces).includes(collapseDuplicates(word))) {
+        return "block";
+      }
+    } else {
+      if (wordsList.includes(word) || collapsedWordsList.includes(word)) {
+        return "block";
+      }
+    }
+  }
+
+  // B. Check Mild/Questionable Profanity (Soft block)
+  for (const word of MILD_QUESTIONABLE) {
+    if (word.includes(" ")) {
+      if (cleanWithSpaces.includes(word) || collapseDuplicates(cleanWithSpaces).includes(collapseDuplicates(word))) {
+        return "flag";
+      }
+    } else {
+      if (wordsList.includes(word) || collapsedWordsList.includes(word)) {
+        return "flag";
+      }
+    }
+  }
+
+  return "clean";
+};
+
+const checkProfanity = (text: string): boolean => {
+  return checkModerationStatus(text) !== "clean";
 };
 
 const NAV_H = 64;
@@ -80,6 +147,8 @@ interface Comment {
   content: string;
   isAnonymous: boolean;
   createdAt: any;
+  isBlocked?: boolean;
+  autoFlagged?: boolean;
 }
 
 const CATEGORIES = [
@@ -167,8 +236,8 @@ export function SocialFeed() {
       const snap = await getDocs(q);
       const rawPosts = snap.docs.map(d => ({ id: d.id, ...d.data() } as any));
       
-      // Filter blocked posts client-side
-      const newPosts = rawPosts.filter(p => p.isBlocked !== true) as Post[];
+      // Filter blocked posts client-side (allow current user to see their own blocked posts as 'under review')
+      const newPosts = rawPosts.filter(p => p.isBlocked !== true || p.userId === user?.uid) as Post[];
 
       if (isLoadMore) {
         setPosts(prev => [...prev, ...newPosts]);
@@ -223,10 +292,14 @@ export function SocialFeed() {
   // Create Post
   const handleCreatePost = async () => {
     if (!user || !newPost.trim() || posting) return;
-    if (checkProfanity(newPost)) {
+    
+    const modStatus = checkModerationStatus(newPost);
+    if (modStatus === "block") {
       alert("⚠️ عذراً، لا يمكن نشر محتوى يحتوي على كلمات غير لائقة.");
       return;
     }
+    const isAutoBlocked = modStatus === "flag";
+    
     setPosting(true);
     try {
       const postData = {
@@ -240,13 +313,19 @@ export function SocialFeed() {
         sharesCount: 0,
         category: creatorCategory,
         backgroundStyle: creatorTheme,
-        reactions: { like: 0, amin: 0, inspired: 0, reflected: 0 }
+        reactions: { like: 0, amin: 0, inspired: 0, reflected: 0 },
+        isBlocked: isAutoBlocked,
+        autoFlagged: isAutoBlocked,
+        reportsCount: isAutoBlocked ? 1 : 0
       };
       const docRef = await addDoc(collection(db, "posts"), postData);
       setPosts(prev => [{ id: docRef.id, ...postData, createdAt: new Date() } as Post, ...prev]);
       setNewPost("");
       // Reset defaults
       setCreatorTheme("glass");
+      if (isAutoBlocked) {
+        alert("ℹ️ تم نشر مشاركتك وهي قيد مراجعة الإدارة حالياً ولا تظهر للآخرين.");
+      }
     } catch (e) {
       console.error("Error creating post:", e);
       alert("حدث خطأ أثناء نشر المنشور");
@@ -415,10 +494,13 @@ export function SocialFeed() {
   const handlePostComment = async (postId: string) => {
     const text = commentText[postId]?.trim();
     if (!text || postingComment) return;
-    if (checkProfanity(text)) {
+    
+    const modStatus = checkModerationStatus(text);
+    if (modStatus === "block") {
       alert("⚠️ عذراً، لا يمكن نشر تعليق يحتوي على كلمات غير لائقة.");
       return;
     }
+    const isAutoBlocked = modStatus === "flag";
 
     const anon = isAnonymous[postId] ?? false;
     if (!anon && !user) {
@@ -435,6 +517,8 @@ export function SocialFeed() {
         content: text,
         isAnonymous: anon,
         createdAt: serverTimestamp(),
+        isBlocked: isAutoBlocked,
+        autoFlagged: isAutoBlocked,
       };
       const docRef = await addDoc(collection(db, "posts", postId, "comments"), commentData);
 
@@ -447,6 +531,10 @@ export function SocialFeed() {
       const postRef = doc(db, "posts", postId);
       await updateDoc(postRef, { commentsCount: increment(1) });
       setPosts(prev => prev.map(p => p.id === postId ? { ...p, commentsCount: p.commentsCount + 1 } : p));
+
+      if (isAutoBlocked) {
+        alert("ℹ️ تم نشر تعليقك وهو قيد مراجعة الإدارة حالياً.");
+      }
     } catch (e) {
       console.error("Error posting comment:", e);
       alert("حدث خطأ أثناء نشر التعليق");
@@ -767,6 +855,12 @@ export function SocialFeed() {
                   <p className="text-base leading-relaxed text-foreground/90 whitespace-pre-wrap break-words font-medium text-right">
                     {post.content}
                   </p>
+                  {post.isBlocked && (
+                    <div className="mt-3 p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-bold flex items-center gap-2 justify-end animate-in fade-in slide-in-from-top-1 duration-200">
+                      <span>هذا المنشور قيد مراجعة الإدارة حالياً ولا يظهر للعامة.</span>
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                    </div>
+                  )}
                 </div>
 
                 {/* Likes/Reactions and Comments Counts */}
@@ -877,8 +971,10 @@ export function SocialFeed() {
                       className="border-t border-border/10 overflow-hidden bg-foreground/[0.01]"
                     >
                       <div className="p-4 space-y-3.5 max-h-[300px] overflow-y-auto no-scrollbar">
-                        {(comments[post.id] || []).map((cmt) => (
-                          <div key={cmt.id} className="flex gap-3 items-start text-right">
+                        {(comments[post.id] || [])
+                          .filter(cmt => !cmt.isBlocked || cmt.userId === user?.uid)
+                          .map((cmt) => (
+                          <div key={cmt.id} className="flex gap-3 items-start text-right animate-in fade-in slide-in-from-bottom-2 duration-300">
                             {cmt.isAnonymous ? (
                               <div className="w-9 h-9 rounded-full bg-foreground/10 flex items-center justify-center shrink-0 border border-border/30">
                                 <EyeOff className="w-4 h-4 text-foreground/30" />
@@ -892,8 +988,13 @@ export function SocialFeed() {
                             )}
                             <div className="flex-1 min-w-0">
                               <div className="bg-foreground/5 border border-border/20 rounded-2xl px-4 py-2.5">
-                                <p className="text-[10px] font-black text-foreground/60 mb-0.5">
-                                  {cmt.isAnonymous ? "مجهول 🕶️" : cmt.userName}
+                                <p className="text-[10px] font-black text-foreground/60 mb-0.5 flex items-center justify-between gap-2">
+                                  <span>{cmt.isAnonymous ? "مجهول 🕶️" : cmt.userName}</span>
+                                  {cmt.isBlocked && (
+                                    <span className="text-[8px] bg-rose-500/10 text-rose-400 border border-rose-500/20 px-1.5 py-0.5 rounded-full font-bold">
+                                      قيد المراجعة ⏳
+                                    </span>
+                                  )}
                                 </p>
                                 <p className="text-xs text-foreground/90 leading-relaxed break-words font-medium">
                                   {cmt.content}

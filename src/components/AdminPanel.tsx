@@ -895,6 +895,21 @@ export function AdminPanel() {
     }
   };
 
+  const handleAdminApproveComment = async (postId: string, commentId: string) => {
+    if (!db || !window.confirm("تأكيد اعتماد وعرض التعليق للعامة؟")) return;
+    try {
+      await updateDoc(doc(db, "posts", postId, "comments", commentId), {
+        isBlocked: false,
+        autoFlagged: false
+      });
+      setModeratingComments(prev => prev.map(c => c.id === commentId ? { ...c, isBlocked: false, autoFlagged: false } : c));
+      alert("✅ تم اعتماد التعليق بنجاح.");
+    } catch (e) {
+      console.error(e);
+      alert("فشل العملية");
+    }
+  };
+
   const handleActionSubscription = async (requestId: string, userId: string, plan: string, action: 'approve' | 'reject') => {
     if (!db || !window.confirm(`تأكيد ${action === 'approve' ? 'تفعيل' : 'رفض'} الاشتراك؟`)) return;
     try {
@@ -3030,8 +3045,13 @@ export function AdminPanel() {
                             <span className="rounded-full bg-red-500/10 border border-red-500/20 px-3 py-1 text-xs font-black text-red-400">
                               البلاغات: {post.reportsCount || 0}
                             </span>
-                            {post.isBlocked && (
-                              <span className="rounded-full bg-rose-500 px-3 py-1 text-xs font-black text-black">
+                            {post.autoFlagged && (
+                              <span className="rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-xs font-black text-amber-400">
+                                فلترة تلقائية ⚠️
+                              </span>
+                            )}
+                            {post.isBlocked && !post.autoFlagged && (
+                              <span className="rounded-full bg-rose-500/10 border border-rose-500/20 px-3 py-1 text-xs font-black text-rose-400">
                                 محظور تلقائياً 🚫
                               </span>
                             )}
@@ -3099,17 +3119,35 @@ export function AdminPanel() {
                                 <p className="text-xs text-white/20 text-center py-4">لا توجد تعليقات</p>
                               ) : (
                                 moderatingComments.map(comment => (
-                                  <div key={comment.id} className="flex items-start justify-between gap-3 bg-white/[0.01] p-3 rounded-lg border border-white/[0.02]">
-                                    <button
-                                      onClick={() => handleAdminDeleteComment(post.id, comment.id)}
-                                      className="text-red-400 hover:text-red-500 p-1 rounded-md hover:bg-white/5 shrink-0"
-                                      title="حذف التعليق"
-                                    >
-                                      <Trash2 className="w-3.5 h-3.5" />
-                                    </button>
+                                  <div key={comment.id} className="flex items-start justify-between gap-3 bg-white/[0.01] p-3 rounded-lg border border-white/[0.02] animate-in fade-in slide-in-from-bottom-1 duration-200">
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                      <button
+                                        onClick={() => handleAdminDeleteComment(post.id, comment.id)}
+                                        className="text-red-400 hover:text-red-500 p-1.5 rounded-md hover:bg-white/5"
+                                        title="حذف التعليق"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </button>
+                                      {comment.isBlocked && (
+                                        <button
+                                          onClick={() => handleAdminApproveComment(post.id, comment.id)}
+                                          className="text-emerald-400 hover:text-emerald-500 p-1.5 rounded-md hover:bg-white/5"
+                                          title="اعتماد التعليق"
+                                        >
+                                          <CheckCircle className="w-3.5 h-3.5" />
+                                        </button>
+                                      )}
+                                    </div>
                                     
                                     <div className="flex-1 text-right min-w-0">
-                                      <p className="text-[10px] text-white/40">{comment.isAnonymous ? 'مجهول' : comment.userName}</p>
+                                      <p className="text-[10px] text-white/40 flex items-center gap-2 justify-end">
+                                        {comment.isBlocked && (
+                                          <span className="text-[8px] bg-rose-500/10 text-rose-400 border border-rose-500/20 px-1.5 py-0.5 rounded-full font-bold">
+                                            حظر تلقائي ⚠️
+                                          </span>
+                                        )}
+                                        <span>{comment.isAnonymous ? 'مجهول' : comment.userName}</span>
+                                      </p>
                                       <p className="text-xs mt-1 text-white/80 break-words">{comment.content}</p>
                                     </div>
                                   </div>
