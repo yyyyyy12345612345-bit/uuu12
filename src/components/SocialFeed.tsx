@@ -629,85 +629,99 @@ export function SocialFeed() {
         
         {/* Post Creator Card */}
         {user ? (
-          <div className="bg-card/40 backdrop-blur-xl border border-border/40 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden">
-            <div className="flex gap-4 items-start">
-              <div className="relative shrink-0">
-                <img
-                  src={userData?.photoURL || user.photoURL || `https://api.dicebear.com/9.x/avataaars/svg?seed=${user.uid}`}
-                  alt=""
-                  className="w-12 h-12 rounded-full border-2 border-primary/30 object-cover"
-                />
-                <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-card rounded-full" />
-              </div>
+          (() => {
+            const creatorThemeClass = THEMES.find(t => t.id === creatorTheme)?.class || THEMES[0].class;
+            const isCreatorThemeDark = creatorTheme !== "glass";
+            return (
+              <div className={`rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden transition-all duration-500 border ${creatorThemeClass}`}>
+                <div className="flex gap-4 items-start">
+                  <div className="relative shrink-0">
+                    <img
+                      src={userData?.photoURL || user.photoURL || `https://api.dicebear.com/9.x/avataaars/svg?seed=${user.uid}`}
+                      alt=""
+                      className="w-12 h-12 rounded-full border-2 border-primary/30 object-cover"
+                    />
+                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-card rounded-full" />
+                  </div>
 
-              <div className="flex-1 min-w-0 space-y-4">
-                <textarea
-                  value={newPost}
-                  onChange={(e) => setNewPost(e.target.value)}
-                  placeholder="شارك آية متدبرة، دعاء يلامس القلب، أو كلمة طيبة..."
-                  rows={3}
-                  className="w-full bg-foreground/[0.03] border border-border/30 rounded-2xl py-3 px-4 text-sm outline-none focus:border-primary/50 transition-all placeholder:text-foreground/30 font-bold resize-none text-right leading-relaxed"
-                  maxLength={500}
-                />
+                  <div className="flex-1 min-w-0 space-y-4">
+                    <textarea
+                      value={newPost}
+                      onChange={(e) => setNewPost(e.target.value)}
+                      placeholder="شارك آية متدبرة، دعاء يلامس القلب، أو كلمة طيبة..."
+                      rows={3}
+                      className={`w-full border rounded-2xl py-3 px-4 text-sm outline-none focus:border-primary/50 transition-all font-bold resize-none text-right leading-relaxed ${
+                        isCreatorThemeDark 
+                          ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" 
+                          : "bg-foreground/[0.03] border-border/30 text-foreground placeholder:text-foreground/30"
+                      }`}
+                      maxLength={500}
+                    />
 
-                {/* Creator Categories Selector */}
-                <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black text-foreground/40 uppercase tracking-wider">تصنيف المنشور</label>
-                  <div className="flex flex-wrap gap-2">
-                    {CATEGORIES.filter(c => c.id !== "all" && c.id !== "saved").map(cat => (
+                    {/* Creator Categories Selector */}
+                    <div className="flex flex-col gap-2">
+                      <label className={`text-[10px] font-black uppercase tracking-wider ${isCreatorThemeDark ? "text-white/40" : "text-foreground/40"}`}>
+                        تصنيف المنشور
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {CATEGORIES.filter(c => c.id !== "all" && c.id !== "saved").map(cat => (
+                          <button
+                            key={cat.id}
+                            onClick={() => setCreatorCategory(cat.id)}
+                            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                              creatorCategory === cat.id
+                                ? (isCreatorThemeDark ? "bg-white/20 border-white/40 text-white" : "bg-primary/10 border-primary/40 text-primary")
+                                : (isCreatorThemeDark ? "bg-white/5 border-transparent text-white/50 hover:bg-white/10" : "bg-foreground/5 border-transparent text-foreground/40")
+                            }`}
+                          >
+                            {cat.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Card Background Styles Theme Selector */}
+                    <div className="flex flex-col gap-2">
+                      <label className={`text-[10px] font-black uppercase tracking-wider ${isCreatorThemeDark ? "text-white/40" : "text-foreground/40"}`}>
+                        قالب البطاقة
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {THEMES.map(theme => (
+                          <button
+                            key={theme.id}
+                            onClick={() => setCreatorTheme(theme.id)}
+                            className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border text-center whitespace-nowrap ${
+                              creatorTheme === theme.id
+                                ? "bg-[#fbbf24]/10 border-[#fbbf24] text-[#fbbf24] scale-[1.02]"
+                                : (isCreatorThemeDark ? "bg-white/5 border-transparent text-white/50 hover:bg-white/10" : "bg-foreground/5 border-transparent text-foreground/40 hover:bg-foreground/10")
+                            }`}
+                          >
+                            {theme.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Submit Controls */}
+                    <div className="flex items-center justify-between border-t border-border/10 pt-3">
+                      <span className={`text-[10px] font-mono font-bold ${newPost.length > 450 ? 'text-red-400' : (isCreatorThemeDark ? 'text-white/30' : 'text-foreground/20')}`}>
+                        {newPost.length}/500
+                      </span>
+                      
                       <button
-                        key={cat.id}
-                        onClick={() => setCreatorCategory(cat.id)}
-                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border ${
-                          creatorCategory === cat.id
-                            ? "bg-primary/10 border-primary/40 text-primary"
-                            : "bg-foreground/5 border-transparent text-foreground/40"
-                        }`}
+                        onClick={handleCreatePost}
+                        disabled={!newPost.trim() || posting}
+                        className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#fbbf24] to-[#d4af37] text-black rounded-xl font-black text-xs hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg shadow-[#fbbf24]/10"
                       >
-                        {cat.label}
+                        {posting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                        نشر المنشور
                       </button>
-                    ))}
+                    </div>
                   </div>
                 </div>
-
-                {/* Card Background Styles Theme Selector */}
-                <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black text-foreground/40 uppercase tracking-wider">قالب البطاقة</label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {THEMES.map(theme => (
-                      <button
-                        key={theme.id}
-                        onClick={() => setCreatorTheme(theme.id)}
-                        className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border text-center whitespace-nowrap ${
-                          creatorTheme === theme.id
-                            ? "bg-[#fbbf24]/10 border-[#fbbf24] text-[#fbbf24] scale-[1.02]"
-                            : "bg-foreground/5 border-transparent text-foreground/40 hover:bg-foreground/10"
-                        }`}
-                      >
-                        {theme.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Submit Controls */}
-                <div className="flex items-center justify-between border-t border-border/10 pt-3">
-                  <span className={`text-[10px] font-mono font-bold ${newPost.length > 450 ? 'text-red-400' : 'text-foreground/20'}`}>
-                    {newPost.length}/500
-                  </span>
-                  
-                  <button
-                    onClick={handleCreatePost}
-                    disabled={!newPost.trim() || posting}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#fbbf24] to-[#d4af37] text-black rounded-xl font-black text-xs hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg shadow-[#fbbf24]/10"
-                  >
-                    {posting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                    نشر المنشور
-                  </button>
-                </div>
               </div>
-            </div>
-          </div>
+            );
+          })()
         ) : (
           <div className="bg-card/40 backdrop-blur-xl border border-border/40 rounded-[2rem] p-6 text-center shadow-xl">
             <User className="w-8 h-8 text-foreground/20 mx-auto mb-3" />
@@ -737,6 +751,7 @@ export function SocialFeed() {
             
             // Determine background class
             const themeClass = THEMES.find(t => t.id === post.backgroundStyle)?.class || THEMES[0].class;
+            const isDarkTheme = post.backgroundStyle && post.backgroundStyle !== "glass";
             const activeReact = userReactions[post.id];
 
             return (
@@ -760,7 +775,7 @@ export function SocialFeed() {
                     />
                     <div className="min-w-0 text-right">
                       <div className="flex items-center gap-2">
-                        <p className="text-sm font-black truncate">{post.userName}</p>
+                        <p className={`text-sm font-black truncate ${isDarkTheme ? 'text-white' : 'text-foreground'}`}>{post.userName}</p>
                         
                         {/* Dynamic Badges */}
                         {isUserAdmin ? (
@@ -778,19 +793,19 @@ export function SocialFeed() {
                         ) : null}
 
                         {authorPoints > 0 && (
-                          <span className="text-[8px] font-bold text-foreground/40 bg-foreground/5 border border-border/20 px-1.5 py-0.5 rounded-md">
+                          <span className={`text-[8px] font-bold border px-1.5 py-0.5 rounded-md ${isDarkTheme ? 'text-white/60 bg-white/10 border-white/20' : 'text-foreground/40 bg-foreground/5 border-border/20'}`}>
                             Lvl {Math.floor(authorPoints / 100) + 1}
                           </span>
                         )}
                       </div>
-                      <p className="text-[9px] text-foreground/30 font-bold mt-0.5">{timeAgo(post.createdAt)}</p>
+                      <p className={`text-[9px] font-bold mt-0.5 ${isDarkTheme ? 'text-white/40' : 'text-foreground/30'}`}>{timeAgo(post.createdAt)}</p>
                     </div>
                   </button>
 
                   <div className="flex items-center gap-2">
                     {/* Category Label Badge */}
                     {post.category && (
-                      <span className="text-[9px] font-black px-2.5 py-1 rounded-full bg-foreground/5 border border-border/30 text-foreground/60 uppercase">
+                      <span className={`text-[9px] font-black px-2.5 py-1 rounded-full border uppercase ${isDarkTheme ? 'bg-white/10 border-white/20 text-white/80' : 'bg-foreground/5 border-border/30 text-foreground/60'}`}>
                         {CATEGORIES.find(c => c.id === post.category)?.label || post.category}
                       </span>
                     )}
@@ -798,7 +813,7 @@ export function SocialFeed() {
                     {/* Bookmarking Toggle Button */}
                     <button
                       onClick={() => toggleBookmark(post.id)}
-                      className="p-2 rounded-xl bg-foreground/5 hover:bg-foreground/10 text-foreground/40 hover:text-primary transition-all"
+                      className={`p-2 rounded-xl transition-all ${isDarkTheme ? 'bg-white/5 hover:bg-white/10 text-white/40 hover:text-[#fbbf24]' : 'bg-foreground/5 hover:bg-foreground/10 text-foreground/40 hover:text-primary'}`}
                       title={bookmarkedPosts.has(post.id) ? "إزالة الحفظ" : "حفظ المنشور"}
                     >
                       {bookmarkedPosts.has(post.id) ? (
@@ -813,7 +828,7 @@ export function SocialFeed() {
                       <div className="relative">
                         <button
                           onClick={() => setMenuOpen(menuOpen === post.id ? null : post.id)}
-                          className="p-2 rounded-xl bg-foreground/5 hover:bg-foreground/10 text-foreground/40 hover:text-foreground/75 transition-colors"
+                          className={`p-2 rounded-xl transition-colors ${isDarkTheme ? 'bg-white/5 hover:bg-white/10 text-white/40 hover:text-white' : 'bg-foreground/5 hover:bg-foreground/10 text-foreground/40 hover:text-foreground/75'}`}
                         >
                           <MoreHorizontal className="w-4 h-4" />
                         </button>
@@ -852,7 +867,7 @@ export function SocialFeed() {
 
                 {/* Content */}
                 <div className="px-6 py-4">
-                  <p className="text-base leading-relaxed text-foreground/90 whitespace-pre-wrap break-words font-medium text-right">
+                  <p className={`text-base leading-relaxed whitespace-pre-wrap break-words font-medium text-right ${isDarkTheme ? 'text-white/95' : 'text-foreground/90'}`}>
                     {post.content}
                   </p>
                   {post.isBlocked && (
@@ -865,7 +880,7 @@ export function SocialFeed() {
 
                 {/* Likes/Reactions and Comments Counts */}
                 {(post.likesCount > 0 || post.commentsCount > 0) && (
-                  <div className="flex items-center justify-between px-6 py-2.5 border-t border-border/10 bg-foreground/[0.01]">
+                  <div className={`flex items-center justify-between px-6 py-2.5 border-t bg-foreground/[0.01] ${isDarkTheme ? 'border-white/10' : 'border-border/10'}`}>
                     <div className="flex items-center gap-1">
                       {post.reactions && Object.entries(post.reactions).map(([type, count]) => {
                         if (count <= 0) return null;
@@ -876,7 +891,7 @@ export function SocialFeed() {
                           </span>
                         );
                       })}
-                      <span className="text-[10px] text-foreground/30 font-bold mr-1.5">
+                      <span className={`text-[10px] font-bold mr-1.5 ${isDarkTheme ? 'text-white/40' : 'text-foreground/30'}`}>
                         {post.likesCount} تفاعل
                       </span>
                     </div>
@@ -884,7 +899,7 @@ export function SocialFeed() {
                     {post.commentsCount > 0 && (
                       <button
                         onClick={() => toggleComments(post.id)}
-                        className="text-[10px] text-foreground/30 font-bold hover:text-[#fbbf24] transition-colors"
+                        className={`text-[10px] font-bold transition-colors ${isDarkTheme ? 'text-white/40 hover:text-[#fbbf24]' : 'text-foreground/30 hover:text-[#fbbf24]'}`}
                       >
                         {post.commentsCount} تعليق
                       </button>
@@ -893,7 +908,7 @@ export function SocialFeed() {
                 )}
 
                 {/* Social Actions Buttons Section */}
-                <div className="flex border-t border-border/10 relative">
+                <div className={`flex border-t relative ${isDarkTheme ? 'border-white/10' : 'border-border/10'}`}>
                   
                   {/* Reaction Button with Popover */}
                   <div 
@@ -905,8 +920,8 @@ export function SocialFeed() {
                       onLongPress={() => setActiveReactionPopup(post.id)}
                       className={`w-full flex items-center justify-center gap-2 py-3.5 text-xs font-black transition-all active:scale-95 ${
                         activeReact
-                          ? "text-primary scale-102"
-                          : "text-foreground/40 hover:text-primary"
+                          ? (isDarkTheme ? "text-[#fbbf24] scale-102" : "text-primary scale-102")
+                          : (isDarkTheme ? "text-white/40 hover:text-white" : "text-foreground/40 hover:text-primary")
                       }`}
                     >
                       {activeReact ? (
@@ -945,7 +960,7 @@ export function SocialFeed() {
 
                   <button
                     onClick={() => toggleComments(post.id)}
-                    className="flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-black text-foreground/40 hover:text-primary transition-all active:scale-95 border-r border-border/10"
+                    className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-black transition-all active:scale-95 border-r ${isDarkTheme ? 'border-white/10 text-white/40 hover:text-[#fbbf24]' : 'border-border/10 text-foreground/40 hover:text-primary'}`}
                   >
                     <MessageCircle className="w-4 h-4" />
                     تعليق
@@ -953,7 +968,7 @@ export function SocialFeed() {
 
                   <button
                     onClick={() => handleShare(post)}
-                    className="flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-black text-foreground/40 hover:text-blue-400 transition-all active:scale-95 border-r border-border/10"
+                    className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-black transition-all active:scale-95 border-r ${isDarkTheme ? 'border-white/10 text-white/40 hover:text-blue-400' : 'border-border/10 text-foreground/40 hover:text-blue-400'}`}
                   >
                     <Share2 className="w-4 h-4" />
                     مشاركة
@@ -968,7 +983,7 @@ export function SocialFeed() {
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.3 }}
-                      className="border-t border-border/10 overflow-hidden bg-foreground/[0.01]"
+                      className={`border-t overflow-hidden ${isDarkTheme ? 'border-white/10 bg-black/20' : 'border-border/10 bg-foreground/[0.01]'}`}
                     >
                       <div className="p-4 space-y-3.5 max-h-[300px] overflow-y-auto no-scrollbar">
                         {(comments[post.id] || [])
@@ -987,8 +1002,8 @@ export function SocialFeed() {
                               />
                             )}
                             <div className="flex-1 min-w-0">
-                              <div className="bg-foreground/5 border border-border/20 rounded-2xl px-4 py-2.5">
-                                <p className="text-[10px] font-black text-foreground/60 mb-0.5 flex items-center justify-between gap-2">
+                              <div className={`border rounded-2xl px-4 py-2.5 ${isDarkTheme ? 'bg-white/5 border-white/10' : 'bg-foreground/5 border-border/20'}`}>
+                                <p className={`text-[10px] font-black mb-0.5 flex items-center justify-between gap-2 ${isDarkTheme ? 'text-white/60' : 'text-foreground/60'}`}>
                                   <span>{cmt.isAnonymous ? "مجهول 🕶️" : cmt.userName}</span>
                                   {cmt.isBlocked && (
                                     <span className="text-[8px] bg-rose-500/10 text-rose-400 border border-rose-500/20 px-1.5 py-0.5 rounded-full font-bold">
@@ -996,11 +1011,11 @@ export function SocialFeed() {
                                     </span>
                                   )}
                                 </p>
-                                <p className="text-xs text-foreground/90 leading-relaxed break-words font-medium">
+                                <p className={`text-xs leading-relaxed break-words font-medium ${isDarkTheme ? 'text-white/90' : 'text-foreground/90'}`}>
                                   {cmt.content}
                                 </p>
                               </div>
-                              <p className="text-[8px] text-foreground/20 font-bold mt-1 px-2">
+                              <p className={`text-[8px] font-bold mt-1 px-2 ${isDarkTheme ? 'text-white/30' : 'text-foreground/20'}`}>
                                 {timeAgo(cmt.createdAt)}
                               </p>
                             </div>
@@ -1015,7 +1030,7 @@ export function SocialFeed() {
                       </div>
 
                       {/* Comment Input */}
-                      <div className="p-4 pt-0 border-t border-border/10">
+                      <div className={`p-4 pt-0 border-t ${isDarkTheme ? 'border-white/10' : 'border-border/10'}`}>
                         {/* Anonymous Toggle */}
                         <div className="flex items-center justify-end gap-2 mb-2 pt-2">
                           <button
@@ -1037,7 +1052,7 @@ export function SocialFeed() {
                             onChange={(e) => setCommentText(prev => ({ ...prev, [post.id]: e.target.value }))}
                             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handlePostComment(post.id)}
                             placeholder={isAnonymous[post.id] ? "اكتب تعليقاً مجهولاً..." : "اكتب تعليقاً..."}
-                            className="flex-1 bg-foreground/5 border border-border/30 rounded-xl py-2.5 px-4 text-xs outline-none focus:border-primary/50 transition-all placeholder:text-foreground/25 font-bold text-right"
+                            className={`flex-1 border rounded-xl py-2.5 px-4 text-xs outline-none focus:border-primary/50 transition-all font-bold text-right ${isDarkTheme ? 'bg-white/5 border-white/20 text-white placeholder:text-white/25' : 'bg-foreground/5 border-border/30 text-foreground placeholder:text-foreground/25'}`}
                             maxLength={300}
                           />
                           <button

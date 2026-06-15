@@ -27,11 +27,13 @@ const fmt = (s: number) => {
 const normalizeArabic = (text: string) => {
   if (!text) return "";
   return text.toLowerCase()
-    .replace(/[أإآ]/g, "ا")
+    .replace(/[أإآٱ]/g, "ا")
     .replace(/ة/g, "ه")
     .replace(/ى/g, "ي")
+    .replace(/[ؤئ]/g, "ء")
     .replace(/[ًٌٍَُِّْ]/g, "")
-    .replace(/\s+/g, "");
+    .replace(/\s+/g, " ")
+    .trim();
 };
 
 /* ─── NAV HEIGHT (px) – must match Navigation.tsx ─── */
@@ -139,14 +141,39 @@ export function AudioLibrary() {
       const ids = recentlyPlayed;
       list = ids.map(id => surahsData.find(s => s.id === id)!).filter(Boolean);
     }
-    return list.filter(s =>
-      s.name.includes(search) || s.transliteration.toLowerCase().includes(search.toLowerCase())
-    );
+    
+    if (!search.trim()) return list;
+    const queryNormalized = normalizeArabic(search);
+    const queryWords = queryNormalized.split(" ").filter(Boolean);
+    
+    return list.filter(s => {
+      const normalizedName = normalizeArabic(s.name);
+      const normalizedTrans = s.transliteration.toLowerCase();
+      
+      return queryWords.every(word => 
+        normalizedName.includes(word) || normalizedTrans.includes(word.toLowerCase())
+      );
+    });
   }, [search, activeTab, favorites, recentlyPlayed]);
 
   const filteredReciters = useMemo(() => {
-    const q = normalizeArabic(reciterSearch);
-    return RECITERS.filter(r => normalizeArabic(r.name).includes(q));
+    if (!reciterSearch.trim()) return RECITERS;
+    
+    const queryNormalized = normalizeArabic(reciterSearch);
+    const queryWords = queryNormalized.split(" ").filter(Boolean);
+    
+    return RECITERS.filter(r => {
+      const reciterNameNormalized = normalizeArabic(r.name);
+      
+      return queryWords.every(word => {
+        if (reciterNameNormalized.includes(word)) return true;
+        
+        // Support composite matching (e.g. "عبد الباسط" searching "عبدالباسط" or vice versa)
+        const reciterNoSpaces = reciterNameNormalized.replace(/\s/g, "");
+        const wordNoSpaces = word.replace(/\s/g, "");
+        return reciterNoSpaces.includes(wordNoSpaces);
+      });
+    });
   }, [reciterSearch]);
 
   /* ── Audio Source ── */

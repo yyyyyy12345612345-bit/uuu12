@@ -161,6 +161,7 @@ export function AdminPanel() {
   const [isModerationLoading, setIsModerationLoading] = useState(false);
   const [moderatingComments, setModeratingComments] = useState<any[]>([]);
   const [moderatingPostId, setModeratingPostId] = useState<string | null>(null);
+  const [moderationFilter, setModerationFilter] = useState<'all' | 'reported' | 'blocked'>('all');
 
   // Lazy loading: track which tabs have been visited
   const visitedTabsRef = useRef<Set<string>>(new Set(['stats']));
@@ -814,9 +815,7 @@ export function AdminPanel() {
     try {
       const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
       const snap = await getDocs(q);
-      const list = snap.docs
-        .map(d => ({ id: d.id, ...d.data() } as any))
-        .filter(p => (p.reportsCount && p.reportsCount > 0) || p.isBlocked);
+      const list = snap.docs.map(d => ({ id: d.id, ...d.data() } as any));
       setReportedPosts(list);
     } catch (e) {
       console.error("Error fetching reported posts:", e);
@@ -3012,6 +3011,40 @@ export function AdminPanel() {
                 <button onClick={fetchReportedPosts} className={BTN_GHOST}>تحديث</button>
               </div>
 
+              {/* Filter Buttons */}
+              <div className="flex flex-wrap gap-2.5 bg-white/[0.02] border border-white/5 p-2.5 rounded-2xl">
+                <button
+                  onClick={() => setModerationFilter('all')}
+                  className={`px-4 py-2 text-xs font-black rounded-xl transition-all ${
+                    moderationFilter === 'all'
+                      ? 'bg-white text-black shadow-lg scale-102'
+                      : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  الكل ({reportedPosts.length})
+                </button>
+                <button
+                  onClick={() => setModerationFilter('reported')}
+                  className={`px-4 py-2 text-xs font-black rounded-xl transition-all ${
+                    moderationFilter === 'reported'
+                      ? 'bg-rose-500 text-black shadow-lg scale-102'
+                      : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  مبلغ عنها ({reportedPosts.filter(p => (p.reportsCount || 0) > 0).length})
+                </button>
+                <button
+                  onClick={() => setModerationFilter('blocked')}
+                  className={`px-4 py-2 text-xs font-black rounded-xl transition-all ${
+                    moderationFilter === 'blocked'
+                      ? 'bg-[#fbbf24] text-black shadow-lg scale-102'
+                      : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  محجوبة تلقائياً ({reportedPosts.filter(p => p.isBlocked).length})
+                </button>
+              </div>
+
               {isModerationLoading ? (
                 <div className="flex items-center justify-center py-16">
                   <Loader2 className="w-6 h-6 animate-spin text-[#fbbf24]" />
@@ -3019,12 +3052,26 @@ export function AdminPanel() {
                 </div>
               ) : (
                 <div className="grid gap-6">
-                  {reportedPosts.length === 0 ? (
-                    <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.02] p-16 text-center text-white/30">
-                      لا توجد منشورات مبلغ عنها حالياً.
-                    </div>
-                  ) : (
-                    reportedPosts.map(post => (
+                  {(() => {
+                    const filtered = reportedPosts.filter(p => {
+                      if (moderationFilter === 'reported') return (p.reportsCount || 0) > 0;
+                      if (moderationFilter === 'blocked') return p.isBlocked;
+                      return true; // all
+                    });
+
+                    if (filtered.length === 0) {
+                      return (
+                        <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.02] p-16 text-center text-white/30 font-bold">
+                          {moderationFilter === 'reported' 
+                            ? "لا توجد منشورات مبلغ عنها حالياً." 
+                            : moderationFilter === 'blocked' 
+                              ? "لا توجد منشورات محجوبة تلقائياً حالياً." 
+                              : "لا توجد منشورات في قاعدة البيانات حالياً."}
+                        </div>
+                      );
+                    }
+
+                    return filtered.map(post => (
                       <div key={post.id} className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 space-y-4">
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-3">
@@ -3157,8 +3204,8 @@ export function AdminPanel() {
                           </div>
                         )}
                       </div>
-                    ))
-                  )}
+                    ));
+                  })()}
                 </div>
               )}
             </div>
