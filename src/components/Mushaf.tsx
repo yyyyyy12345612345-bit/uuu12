@@ -320,7 +320,7 @@ export function Mushaf() {
                                     </div>
 
                                     {/* Translation / Tafsir */}
-                                    <div className="mt-16">
+                                    <div className="mt-6">
                                         <div 
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -329,12 +329,12 @@ export function Mushaf() {
                                                     surahName: surahContent.name 
                                                 });
                                             }}
-                                            className="p-10 rounded-[2.5rem] bg-black/20 border border-white/5 relative text-right hover:bg-black/30 transition-all group/tafsir"
+                                            className="p-5 px-6 rounded-2xl bg-black/20 border border-white/5 relative text-right hover:bg-black/30 transition-all group/tafsir"
                                         >
-                                            <p className="text-xl md:text-2xl text-white/40 leading-relaxed font-arabic font-medium group-hover:text-white/60 transition-colors">
+                                            <p className="text-sm md:text-base text-white/40 leading-relaxed font-arabic font-medium group-hover:text-white/60 transition-colors">
                                                 {verse.translation}
                                             </p>
-                                            <div className="mt-6 flex items-center justify-end gap-3 text-primary/40 group-hover/tafsir:text-primary transition-colors">
+                                            <div className="mt-3 flex items-center justify-end gap-3 text-primary/40 group-hover/tafsir:text-primary transition-colors">
                                                 <span className="text-[10px] font-black uppercase tracking-[0.2em]">إظهار التفسير الكامل</span>
                                                 <ChevronLeft className="w-4 h-4" />
                                             </div>

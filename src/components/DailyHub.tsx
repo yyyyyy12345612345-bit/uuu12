@@ -39,7 +39,10 @@ export function DailyHub() {
   const [salawatCount, setSalawatCount] = useState<number>(0);
   const SALAWAT_DAILY_LIMIT = 1000;
 
-
+  // Floating text states
+  const [sibhaFloatingTexts, setSibhaFloatingTexts] = useState<{ id: number; text: string; x: number; y: number }[]>([]);
+  const [istighfarFloatingTexts, setIstighfarFloatingTexts] = useState<{ id: number; text: string; x: number; y: number }[]>([]);
+  const [salawatFloatingTexts, setSalawatFloatingTexts] = useState<{ id: number; text: string; x: number; y: number }[]>([]);
 
   // Qibla state
   const [qibla, setQibla] = useState<{
@@ -239,13 +242,42 @@ export function DailyHub() {
     }
   };
 
-  const handleSibhaClick = () => {
+  const spawnFloatingText = (
+    text: string,
+    setter: React.Dispatch<React.SetStateAction<{ id: number; text: string; x: number; y: number }[]>>,
+    e?: React.MouseEvent
+  ) => {
+    let x = 50;
+    let y = 50;
+    if (e && e.currentTarget) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      x = ((e.clientX - rect.left) / rect.width) * 100;
+      y = ((e.clientY - rect.top) / rect.height) * 100;
+    } else {
+      x = 40 + Math.random() * 20;
+      y = 40 + Math.random() * 20;
+    }
+
+    const id = Date.now() + Math.random();
+    setter(prev => [...prev, { id, text, x, y }]);
+
+    setTimeout(() => {
+      setter(prev => prev.filter(t => t.id !== id));
+    }, 1000);
+  };
+
+  const handleSibhaClick = (e?: React.MouseEvent) => {
     const now = Date.now();
     if (now - lastClickTime.current < 200) return;
     lastClickTime.current = now;
     const newCount = sibhaCount + 1;
     setSibhaCount(newCount);
     localStorage.setItem("sibha_count", newCount.toString());
+    
+    // Spawn floating text based on current phase
+    const text = sibhaCount % 100 < 33 ? "سُبْحَانَ اللَّهِ" : sibhaCount % 100 < 66 ? "الْحَمْدُ لِلَّهِ" : "اللَّهُ أَكْبَرُ";
+    spawnFloatingText(text, setSibhaFloatingTexts, e);
+
     if (newCount % 99 === 0 && newCount > 0) {
        addSebhaPoints(3);
     }
@@ -254,7 +286,7 @@ export function DailyHub() {
     }
   };
 
-  const handleIstighfarClick = () => {
+  const handleIstighfarClick = (e?: React.MouseEvent) => {
     const now = Date.now();
     if (now - lastClickTime.current < 150) return;
     if (istighfarCount >= ISTIGHFAR_DAILY_LIMIT) {
@@ -266,12 +298,16 @@ export function DailyHub() {
     setIstighfarCount(newCount);
     localStorage.setItem("istighfar_count", newCount.toString());
     addIstighfarPoints(1);
+    
+    // Spawn floating text
+    spawnFloatingText("أَسْتَغْفِرُ اللَّهَ", setIstighfarFloatingTexts, e);
+
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       navigator.vibrate(30); 
     }
   };
 
-  const handleSalawatClick = () => {
+  const handleSalawatClick = (e?: React.MouseEvent) => {
     const now = Date.now();
     if (now - lastClickTime.current < 150) return;
     if (salawatCount >= SALAWAT_DAILY_LIMIT) {
@@ -283,6 +319,10 @@ export function DailyHub() {
     setSalawatCount(newCount);
     localStorage.setItem("salawat_count", newCount.toString());
     addSalawatPoints(1);
+    
+    // Spawn floating text
+    spawnFloatingText("عَلَيْهِ أَفْضَلُ الصَّلَاةِ وَالسَّلَامِ", setSalawatFloatingTexts, e);
+
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       navigator.vibrate(30); 
     }
@@ -724,11 +764,26 @@ export function DailyHub() {
                         {sibhaCount % 100 < 33 ? "سُبْحَانَ اللَّهِ" : sibhaCount % 100 < 66 ? "الْحَمْدُ لِلَّهِ" : "اللَّهُ أَكْبَرُ"}
                     </p>
                 </div>
-                <button type="button" className="relative group cursor-pointer active:scale-95 transition-all duration-300 select-none outline-none focus:outline-none" onClick={handleSibhaClick}>
+                <button type="button" className="relative group cursor-pointer active:scale-95 transition-all duration-300 select-none outline-none focus:outline-none" onClick={(e) => handleSibhaClick(e)}>
                     <div className="absolute inset-0 bg-primary/20 rounded-full blur-[60px] animate-pulse pointer-events-none" />
                     <div className="w-64 h-64 md:w-80 md:h-80 rounded-full bg-card border-2 border-primary/20 flex flex-col items-center justify-center relative z-10 shadow-inner select-none">
                         <span className="text-8xl font-black text-foreground mb-2 select-none" style={{ direction: 'ltr' }}>{sibhaCount}</span>
                         <Fingerprint className="w-10 h-10 text-primary/40 select-none pointer-events-none" />
+                    </div>
+                    {/* Floating texts container */}
+                    <div className="absolute inset-0 pointer-events-none overflow-visible z-30">
+                        {sibhaFloatingTexts.map((item) => (
+                            <span
+                                key={item.id}
+                                className="absolute text-xl md:text-3xl font-black font-arabic text-primary select-none animate-float-up-fade whitespace-nowrap drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]"
+                                style={{
+                                    left: `${item.x}%`,
+                                    top: `${item.y}%`,
+                                }}
+                            >
+                                {item.text}
+                            </span>
+                        ))}
                     </div>
                 </button>
                 <p className="mt-12 text-foreground/30 font-black uppercase tracking-widest text-xs select-none">اضغط للتسبيح • الاهتزاز مفعل</p>
@@ -742,12 +797,27 @@ export function DailyHub() {
                 <div className="h-24 mb-12 flex items-center justify-center select-none">
                     <p className="text-3xl md:text-4xl font-black text-foreground drop-shadow-md select-none">أَسْتَغْفِرُ اللَّهَ</p>
                 </div>
-                <button type="button" className="relative group cursor-pointer active:scale-95 transition-all duration-300 select-none outline-none focus:outline-none" onClick={handleIstighfarClick}>
+                <button type="button" className="relative group cursor-pointer active:scale-95 transition-all duration-300 select-none outline-none focus:outline-none" onClick={(e) => handleIstighfarClick(e)}>
                     <div className="absolute inset-0 bg-rose-500/20 rounded-full blur-[60px] animate-pulse pointer-events-none" />
                     <div className="w-64 h-64 md:w-80 md:h-80 rounded-full bg-card border-2 border-rose-500/20 flex flex-col items-center justify-center relative z-10 shadow-inner select-none">
                         <span className="text-8xl font-black text-foreground mb-2 select-none" style={{ direction: 'ltr' }}>{istighfarCount}</span>
                         <span className="text-sm font-bold text-rose-500 select-none">/ {ISTIGHFAR_DAILY_LIMIT}</span>
                         <Heart className="w-10 h-10 text-rose-500/40 mt-2 select-none pointer-events-none" />
+                    </div>
+                    {/* Floating texts container */}
+                    <div className="absolute inset-0 pointer-events-none overflow-visible z-30">
+                        {istighfarFloatingTexts.map((item) => (
+                            <span
+                                key={item.id}
+                                className="absolute text-xl md:text-3xl font-black font-arabic text-rose-400 select-none animate-float-up-fade whitespace-nowrap drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]"
+                                style={{
+                                    left: `${item.x}%`,
+                                    top: `${item.y}%`,
+                                }}
+                            >
+                                {item.text}
+                            </span>
+                        ))}
                     </div>
                 </button>
                 <p className="mt-12 text-foreground/30 font-black uppercase tracking-widest text-xs select-none">اضغط للاستغفار • الحد اليومي: 1000</p>
@@ -761,12 +831,27 @@ export function DailyHub() {
                 <div className="h-24 mb-12 flex items-center justify-center select-none">
                     <p className="text-3xl md:text-4xl font-black text-foreground drop-shadow-md select-none">اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ</p>
                 </div>
-                <button type="button" className="relative group cursor-pointer active:scale-95 transition-all duration-300 select-none outline-none focus:outline-none" onClick={handleSalawatClick}>
+                <button type="button" className="relative group cursor-pointer active:scale-95 transition-all duration-300 select-none outline-none focus:outline-none" onClick={(e) => handleSalawatClick(e)}>
                     <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-[60px] animate-pulse pointer-events-none" />
                     <div className="w-64 h-64 md:w-80 md:h-80 rounded-full bg-card border-2 border-blue-500/20 flex flex-col items-center justify-center relative z-10 shadow-inner select-none">
                         <span className="text-8xl font-black text-foreground mb-2 select-none" style={{ direction: 'ltr' }}>{salawatCount}</span>
                         <span className="text-sm font-bold text-blue-500 select-none">/ {SALAWAT_DAILY_LIMIT}</span>
                         <HandHeart className="w-10 h-10 text-blue-500/40 mt-2 select-none pointer-events-none" />
+                    </div>
+                    {/* Floating texts container */}
+                    <div className="absolute inset-0 pointer-events-none overflow-visible z-30">
+                        {salawatFloatingTexts.map((item) => (
+                            <span
+                                key={item.id}
+                                className="absolute text-xl md:text-3xl font-black font-arabic text-blue-400 select-none animate-float-up-fade whitespace-nowrap drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]"
+                                style={{
+                                    left: `${item.x}%`,
+                                    top: `${item.y}%`,
+                                }}
+                            >
+                                {item.text}
+                            </span>
+                        ))}
                     </div>
                 </button>
                 <p className="mt-12 text-foreground/30 font-black uppercase tracking-widest text-xs select-none">اضغط للصلاة على النبي • الحد اليومي: 1000</p>

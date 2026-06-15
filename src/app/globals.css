@@ -458,3 +458,23 @@ html:not(.dark) :not(.force-dark):not(.force-dark *).border-white\/20 { border-c
 
 /* force-dark: Use this class on containers with hard-coded dark backgrounds */
 .force-dark { color-scheme: dark; }
+
+@keyframes float-up-fade {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.6);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, calc(-50% - 20px)) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% - 120px)) scale(0.9);
+  }
+}
+
+.animate-float-up-fade {
+  animation: float-up-fade 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  pointer-events: none;
+}

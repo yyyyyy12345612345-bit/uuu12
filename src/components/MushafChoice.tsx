@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from 'react';
-import Link from 'next/link';
+import { navigateInstantly } from '@/lib/navigation';
 
 // GSAP - ensure you've run: npm install gsap
 let gsap: any;
@@ -358,13 +358,13 @@ export function MushafChoice() {
         {/* ── Cards ── */}
         <div className="w-full flex flex-col gap-4 mt-2">
           {MODES.map((mode, i) => (
-            <Link
+            <div
               key={mode.href}
-              href={mode.href}
+              onClick={() => navigateInstantly(mode.href)}
               ref={(el) => { if (el) cardsRef.current[i] = el as any; }}
               onMouseEnter={() => handleCardHover(i, true)}
               onMouseLeave={() => handleCardHover(i, false)}
-              className="block relative rounded-3xl overflow-hidden"
+              className="block relative rounded-3xl overflow-hidden cursor-pointer"
               style={{
                 background: mode.gradient,
                 border: '1px solid rgba(255,255,255,0.06)',
@@ -429,7 +429,7 @@ export function MushafChoice() {
               <div className="absolute bottom-0 right-0 w-1/3 h-px" style={{
                 background: `linear-gradient(90deg, transparent, ${mode.color}50)`
               }}/>
-            </Link>
+            </div>
           ))}
         </div>
 
