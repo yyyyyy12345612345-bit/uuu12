@@ -59,6 +59,8 @@ export function VideoPreview() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [visualizerActive, setVisualizerActive] = useState(false);
+  const textWrapperRef = useRef<HTMLDivElement>(null);
   const visualizerCanvasRef = useRef<HTMLCanvasElement>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -66,48 +68,80 @@ export function VideoPreview() {
   const animationFrameRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
-    if (!audioRef.current || !state.showVisualizer || !audioContextRef.current) return;
-    
-    let analyser = analyserRef.current;
-    let source = sourceNodeRef.current;
-    
-    try {
-      if (!analyser || !audioContextRef.current) return;
-      
-      const audioEl = audioRef.current as any;
-      if (audioEl.__sourceNode) {
-        source = audioEl.__sourceNode;
-        sourceNodeRef.current = source;
+    if (!visualizerActive || !state.showVisualizer) {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = undefined;
       }
-      
-      const bufferLength = analyser.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
- 
-      const draw = () => {
-        if (!visualizerCanvasRef.current || !analyserRef.current) return;
-        const canvas = visualizerCanvasRef.current;
-        const ctx = canvas.getContext('2d')!;
-        analyserRef.current.getByteFrequencyData(dataArray);
- 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const barWidth = (canvas.width / bufferLength) * 1.2;
-        let x = (canvas.width - (barWidth * bufferLength)) / 2;
- 
-        for(let i = 0; i < bufferLength; i++) {
-          const barHeight = (dataArray[i] / 255) * canvas.height;
-          ctx.fillStyle = state.visualizerColor || '#D4AF37';
-          ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
-          x += barWidth;
+      if (textWrapperRef.current) {
+        textWrapperRef.current.style.transform = 'scale(1)';
+      }
+      return;
+    }
+
+    const analyser = analyserRef.current;
+    if (!analyser) return;
+
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    const draw = () => {
+      if (!visualizerCanvasRef.current || !analyserRef.current) return;
+      const canvas = visualizerCanvasRef.current;
+      const ctx = canvas.getContext('2d')!;
+      analyserRef.current.getByteFrequencyData(dataArray);
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const barWidth = (canvas.width / bufferLength) * 0.8;
+      const spacing = 4;
+      let x = (canvas.width - (barWidth * bufferLength)) / 2;
+
+      const grad = ctx.createLinearGradient(0, canvas.height, 0, 0);
+      grad.addColorStop(0, (state.visualizerColor || '#D4AF37') + '22');
+      grad.addColorStop(0.5, state.visualizerColor || '#D4AF37');
+      grad.addColorStop(1, '#ffffff');
+
+      let sum = 0;
+      for (let i = 0; i < bufferLength; i++) {
+        sum += dataArray[i];
+        const barHeight = (dataArray[i] / 255) * canvas.height * 1.5;
+        ctx.fillStyle = grad;
+        
+        const rx = x;
+        const ry = canvas.height - barHeight;
+        const rw = barWidth - spacing;
+        const rh = barHeight;
+
+        if (rh > 0) {
+          ctx.beginPath();
+          if (typeof ctx.roundRect === 'function') {
+            ctx.roundRect(rx, ry, rw, rh, [rw / 2, rw / 2, 0, 0]);
+          } else {
+            ctx.rect(rx, ry, rw, rh);
+          }
+          ctx.fill();
         }
-        animationFrameRef.current = requestAnimationFrame(draw);
-      };
- 
-      draw();
-      return () => {
-        if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-      };
-    } catch (e) { console.error("Visualizer error:", e); }
-  }, [state.showVisualizer, state.visualizerColor]);
+        x += barWidth;
+      }
+
+      // Audio-reactive text pulse
+      const average = sum / bufferLength;
+      const scale = 1 + (average / 255) * 0.08;
+      if (textWrapperRef.current) {
+        textWrapperRef.current.style.transform = `scale(${scale})`;
+      }
+
+      animationFrameRef.current = requestAnimationFrame(draw);
+    };
+
+    draw();
+    return () => {
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      if (textWrapperRef.current) {
+        textWrapperRef.current.style.transform = 'scale(1)';
+      }
+    };
+  }, [visualizerActive, state.showVisualizer, state.visualizerColor]);
 
   useEffect(() => {
     setCurrentAyahIndex(state.startAyah);
@@ -123,6 +157,7 @@ export function VideoPreview() {
       setCurrentAyahIndex(currentAyahIndex + 1);
     } else {
       setIsPlaying(false);
+      setVisualizerActive(false);
       videoRef.current?.pause();
       setCurrentAyahIndex(state.startAyah);
     }
@@ -162,6 +197,7 @@ export function VideoPreview() {
         source.connect(analyserRef.current!);
         analyserRef.current!.connect(audioContext.destination);
       }
+      setVisualizerActive(true);
     } catch (error) {
       console.error("Visualizer setup failed:", error);
     }
@@ -173,6 +209,7 @@ export function VideoPreview() {
       audioRef.current.pause();
       videoRef.current?.pause();
       setIsPlaying(false);
+      setVisualizerActive(false);
     } else {
       try {
         if (state.showVisualizer) {
@@ -228,6 +265,89 @@ export function VideoPreview() {
             0% { box-shadow: 0 0 20px rgba(212,175,55,0.2); }
             50% { box-shadow: 0 0 50px rgba(212,175,55,0.5); }
             100% { box-shadow: 0 0 20px rgba(212,175,55,0.2); }
+        }
+        /* ── 16 Text Transition Animations ── */
+        @keyframes vpFadeIn {
+          0% { opacity: 0; }
+          100% { opacity: 1; }
+        }
+        @keyframes vpScaleIn {
+          0% { opacity: 0; transform: scale(0.3); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes vpSlideUp {
+          0% { opacity: 0; transform: translateY(120px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes vpBlurIn {
+          0% { opacity: 0; filter: blur(20px); transform: scale(1.1); }
+          100% { opacity: 1; filter: blur(0); transform: scale(1); }
+        }
+        @keyframes vpZoomIn {
+          0% { opacity: 0; transform: scale(2.5); filter: blur(10px); }
+          100% { opacity: 1; transform: scale(1); filter: blur(0); }
+        }
+        @keyframes vpFlipIn {
+          0% { opacity: 0; transform: perspective(800px) rotateY(90deg); }
+          100% { opacity: 1; transform: perspective(800px) rotateY(0); }
+        }
+        @keyframes vpBounceIn {
+          0% { opacity: 0; transform: translateY(-200px); }
+          60% { opacity: 1; transform: translateY(20px); }
+          80% { transform: translateY(-8px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes vpGlitchIn {
+          0% { opacity: 0; transform: translate(-5px, 3px) skewX(5deg); filter: blur(4px); }
+          12% { opacity: 0.7; transform: translate(4px, -2px) skewX(-3deg); filter: blur(2px); }
+          25% { transform: translate(-3px, 1px) skewX(2deg); filter: blur(1px); }
+          37% { transform: translate(2px, -1px) skewX(-1deg); filter: blur(0); }
+          50% { opacity: 1; transform: translate(-1px, 0) skewX(0); }
+          62% { transform: translate(1px, 0); }
+          75% { transform: translate(0, 0); }
+          100% { opacity: 1; transform: translate(0, 0); filter: blur(0); }
+        }
+        @keyframes vpTypewriter {
+          0% { opacity: 0; clip-path: inset(0 100% 0 0); }
+          100% { opacity: 1; clip-path: inset(0 0 0 0); }
+        }
+        @keyframes vpWaveIn {
+          0% { opacity: 0; transform: translateY(60px); }
+          25% { opacity: 0.5; transform: translateY(-20px); }
+          50% { opacity: 0.8; transform: translateY(10px); }
+          75% { transform: translateY(-5px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes vpSpiralIn {
+          0% { opacity: 0; transform: scale(0) rotate(360deg); }
+          100% { opacity: 1; transform: scale(1) rotate(0); }
+        }
+        @keyframes vpElasticIn {
+          0% { opacity: 0; transform: scale(0.2); }
+          40% { opacity: 0.8; transform: scale(1.15); }
+          60% { transform: scale(0.9); }
+          80% { opacity: 1; transform: scale(1.05); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes vpSwingIn {
+          0% { opacity: 0; transform: rotate(-15deg) translateY(30px); transform-origin: top center; }
+          40% { opacity: 1; transform: rotate(10deg); }
+          60% { transform: rotate(-5deg); }
+          80% { transform: rotate(2deg); }
+          100% { opacity: 1; transform: rotate(0); }
+        }
+        @keyframes vpCinematicIn {
+          0% { opacity: 0; clip-path: inset(45% 0 45% 0); transform: scale(1.3); }
+          50% { opacity: 0.8; clip-path: inset(15% 0 15% 0); transform: scale(1.1); }
+          100% { opacity: 1; clip-path: inset(0 0 0 0); transform: scale(1); }
+        }
+        @keyframes vpSplitIn {
+          0% { opacity: 0; clip-path: inset(0 50% 0 50%); transform: scaleY(0.8); }
+          100% { opacity: 1; clip-path: inset(0 0 0 0); transform: scaleY(1); }
+        }
+        @keyframes vpRotateIn {
+          0% { opacity: 0; transform: rotate(-180deg) scale(0.5); }
+          100% { opacity: 1; transform: rotate(0) scale(1); }
         }
       `}</style>
 
@@ -439,7 +559,7 @@ export function VideoPreview() {
               ref={visualizerCanvasRef} 
               width={400} 
               height={200} 
-              className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[30%] opacity-40 z-[4] mix-blend-screen pointer-events-none"
+              className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[40%] opacity-70 z-[4] mix-blend-screen pointer-events-none"
            />
         )}
 
@@ -602,43 +722,66 @@ export function VideoPreview() {
             </div>
           ) : surahData ? (
             <div 
-              key={`${currentAyahIndex}-${state.animation}`}
-              className={`flex flex-col gap-8 w-full transition-all duration-1000 ${
-                state.animation === 'slide' ? 'animate-in slide-in-from-bottom-32 fade-in' : 
-                state.animation === 'zoom' ? 'animate-in zoom-in-150 fade-in duration-1000' :
-                state.animation === 'fly' ? 'animate-in slide-in-from-right-32 fade-in duration-1000' :
-                state.animation === 'bounce' ? 'animate-in slide-in-from-top-32 fade-in duration-1000' :
-                state.animation === 'glitch' ? 'animate-in skew-x-12 fade-in duration-100' :
-                'animate-in fade-in duration-1000'
-              }`}
+              ref={textWrapperRef}
+              className="w-full flex flex-col items-center justify-center transition-transform duration-75"
+              style={{ transform: 'scale(1)' }}
             >
-              {/* Quranic Text */}
-              <p
-                className={`text-white leading-[1.8] text-center w-full break-words`}
+              <div 
+                key={`${currentAyahIndex}-${state.animation}`}
+                className="flex flex-col gap-8 w-full"
                 style={{
-                  color: state.textColor,
-                  fontSize: `${previewFontSize}px`,
-                  fontWeight: Number(state.fontWeight) || 700,
-                  fontFamily: `"${state.fontFamily || 'Amiri'}", "Amiri", serif`,
-                  direction: 'rtl',
-                  lineHeight: 2.2,
-                  textShadow: '0 8px 30px rgba(0,0,0,0.9)'
+                  animation: (() => {
+                    const map: Record<string, string> = {
+                      fade: 'vpFadeIn 1s ease-out forwards',
+                      scale: 'vpScaleIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+                      slide: 'vpSlideUp 0.8s ease-out forwards',
+                      blur: 'vpBlurIn 1s ease-out forwards',
+                      zoom: 'vpZoomIn 1s ease-out forwards',
+                      flip: 'vpFlipIn 0.8s ease-out forwards',
+                      bounce: 'vpBounceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+                      glitch: 'vpGlitchIn 0.5s steps(8) forwards',
+                      typewriter: 'vpTypewriter 1.2s ease-out forwards',
+                      wave: 'vpWaveIn 1s ease-out forwards',
+                      spiral: 'vpSpiralIn 0.9s ease-out forwards',
+                      elastic: 'vpElasticIn 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards',
+                      swing: 'vpSwingIn 0.8s ease-out forwards',
+                      cinematic: 'vpCinematicIn 1.2s ease-out forwards',
+                      split: 'vpSplitIn 0.8s ease-out forwards',
+                      rotate: 'vpRotateIn 0.9s ease-out forwards',
+                    };
+                    return map[state.animation] || map.fade;
+                  })(),
+                  opacity: 0,
                 }}
               >
-                {currentVerse?.text || "لم يتم العثور على الآية"}
-              </p>
+                {/* Quranic Text */}
+                <p
+                  className={`text-white leading-[1.8] text-center w-full break-words`}
+                  style={{
+                    color: state.textColor,
+                    fontSize: `${previewFontSize}px`,
+                    fontWeight: Number(state.fontWeight) || 700,
+                    fontFamily: `"${state.fontFamily || 'Amiri'}", "Amiri", serif`,
+                    direction: 'rtl',
+                    lineHeight: 2.2,
+                    textShadow: '0 8px 30px rgba(0,0,0,0.9)'
+                  }}
+                >
+                  {currentVerse?.text || "لم يتم العثور على الآية"}
+                </p>
 
-              {/* Divider */}
-              <div className="flex items-center gap-4 self-center w-32">
-                 <div className="h-px flex-1 bg-gradient-to-r from-transparent to-primary/40" />
-                 <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
-                 <div className="h-px flex-1 bg-gradient-to-l from-transparent to-primary/40" />
+                {/* Divider */}
+                <div className="flex items-center gap-4 self-center w-32">
+                   <div className="h-px flex-1 bg-gradient-to-r from-transparent to-primary/40" />
+                   <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
+                   <div className="h-px flex-1 bg-gradient-to-l from-transparent to-primary/40" />
+                </div>
+
+                {/* Translation */}
+                <p className="text-[15px] md:text-[17px] text-white/90 font-medium italic leading-loose text-center w-full line-clamp-5 px-4" style={{ textShadow: '0 4px 20px rgba(0,0,0,0.8)' }}>
+                  {currentVerse?.translation}
+                </p>
               </div>
-
-              {/* Translation */}
-              <p className="text-[15px] md:text-[17px] text-white/90 font-medium italic leading-loose text-center w-full line-clamp-5 px-4" style={{ textShadow: '0 4px 20px rgba(0,0,0,0.8)' }}>
-                {currentVerse?.translation}
-              </p>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-6 p-10 bg-red-500/10 border border-red-500/20 rounded-[2.5rem] backdrop-blur-xl">

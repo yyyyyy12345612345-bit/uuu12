@@ -423,7 +423,7 @@ export function DailyHub() {
           key={thikr.id} 
           data-thikr-id={`${type}_${thikr.id}`}
           onClick={() => handleThikrClick(thikr.id, thikr.count, type)}
-          className={`p-6 rounded-[2rem] border transition-all cursor-pointer relative overflow-hidden active:scale-[0.97] duration-300 ${
+          className={`p-6 rounded-[2rem] border transition-all cursor-pointer relative overflow-hidden active:scale-[0.97] duration-300 select-none ${
              isComplete ? 'bg-primary/5 border-primary/20 opacity-70' : 'bg-card border-border hover:border-primary/20 shadow-lg'
           }`}
         >
@@ -716,60 +716,60 @@ export function DailyHub() {
           )}
 
           {activeTab === "tasbeeh" && (
-            <div className="glass-effect p-12 rounded-[3rem] border border-border animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center text-center relative overflow-hidden shadow-2xl">
+            <div className="glass-effect p-12 rounded-[3rem] border border-border animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center text-center relative overflow-hidden shadow-2xl select-none">
                 <button onClick={() => setSibhaCount(0)} className="absolute top-8 left-8 w-12 h-12 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/40 hover:text-primary transition-all"><RotateCcw className="w-6 h-6" /></button>
-                <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4">Tasbeeh Engine</span>
-                <div className="h-24 mb-12 flex items-center justify-center">
-                    <p className="text-3xl md:text-4xl font-black text-foreground drop-shadow-md">
+                <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4 select-none">Tasbeeh Engine</span>
+                <div className="h-24 mb-12 flex items-center justify-center select-none">
+                    <p className="text-3xl md:text-4xl font-black text-foreground drop-shadow-md select-none">
                         {sibhaCount % 100 < 33 ? "سُبْحَانَ اللَّهِ" : sibhaCount % 100 < 66 ? "الْحَمْدُ لِلَّهِ" : "اللَّهُ أَكْبَرُ"}
                     </p>
                 </div>
-                <div className="relative group cursor-pointer active:scale-95 transition-all duration-300" onClick={handleSibhaClick}>
-                    <div className="absolute inset-0 bg-primary/20 rounded-full blur-[60px] animate-pulse" />
-                    <div className="w-64 h-64 md:w-80 md:h-80 rounded-full bg-card border-2 border-primary/20 flex flex-col items-center justify-center relative z-10 shadow-inner">
-                        <span className="text-8xl font-black text-foreground mb-2" style={{ direction: 'ltr' }}>{sibhaCount}</span>
-                        <Fingerprint className="w-10 h-10 text-primary/40" />
+                <button type="button" className="relative group cursor-pointer active:scale-95 transition-all duration-300 select-none outline-none focus:outline-none" onClick={handleSibhaClick}>
+                    <div className="absolute inset-0 bg-primary/20 rounded-full blur-[60px] animate-pulse pointer-events-none" />
+                    <div className="w-64 h-64 md:w-80 md:h-80 rounded-full bg-card border-2 border-primary/20 flex flex-col items-center justify-center relative z-10 shadow-inner select-none">
+                        <span className="text-8xl font-black text-foreground mb-2 select-none" style={{ direction: 'ltr' }}>{sibhaCount}</span>
+                        <Fingerprint className="w-10 h-10 text-primary/40 select-none pointer-events-none" />
                     </div>
-                </div>
-                <p className="mt-12 text-foreground/30 font-black uppercase tracking-widest text-xs">اضغط للتسبيح • الاهتزاز مفعل</p>
+                </button>
+                <p className="mt-12 text-foreground/30 font-black uppercase tracking-widest text-xs select-none">اضغط للتسبيح • الاهتزاز مفعل</p>
             </div>
           )}
 
           {activeTab === "istighfar" && (
-            <div className="glass-effect p-12 rounded-[3rem] border border-border animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center text-center relative overflow-hidden shadow-2xl">
+            <div className="glass-effect p-12 rounded-[3rem] border border-border animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center text-center relative overflow-hidden shadow-2xl select-none">
                 <button onClick={() => setIstighfarCount(0)} className="absolute top-8 left-8 w-12 h-12 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/40 hover:text-rose-500 transition-all"><RotateCcw className="w-6 h-6" /></button>
-                <span className="text-[10px] font-black text-rose-500 uppercase tracking-[0.3em] mb-4">Istighfar Counter</span>
-                <div className="h-24 mb-12 flex items-center justify-center">
-                    <p className="text-3xl md:text-4xl font-black text-foreground drop-shadow-md">أَسْتَغْفِرُ اللَّهَ</p>
+                <span className="text-[10px] font-black text-rose-500 uppercase tracking-[0.3em] mb-4 select-none">Istighfar Counter</span>
+                <div className="h-24 mb-12 flex items-center justify-center select-none">
+                    <p className="text-3xl md:text-4xl font-black text-foreground drop-shadow-md select-none">أَسْتَغْفِرُ اللَّهَ</p>
                 </div>
-                <div className="relative group cursor-pointer active:scale-95 transition-all duration-300" onClick={handleIstighfarClick}>
-                    <div className="absolute inset-0 bg-rose-500/20 rounded-full blur-[60px] animate-pulse" />
-                    <div className="w-64 h-64 md:w-80 md:h-80 rounded-full bg-card border-2 border-rose-500/20 flex flex-col items-center justify-center relative z-10 shadow-inner">
-                        <span className="text-8xl font-black text-foreground mb-2" style={{ direction: 'ltr' }}>{istighfarCount}</span>
-                        <span className="text-sm font-bold text-rose-500">/ {ISTIGHFAR_DAILY_LIMIT}</span>
-                        <Heart className="w-10 h-10 text-rose-500/40 mt-2" />
+                <button type="button" className="relative group cursor-pointer active:scale-95 transition-all duration-300 select-none outline-none focus:outline-none" onClick={handleIstighfarClick}>
+                    <div className="absolute inset-0 bg-rose-500/20 rounded-full blur-[60px] animate-pulse pointer-events-none" />
+                    <div className="w-64 h-64 md:w-80 md:h-80 rounded-full bg-card border-2 border-rose-500/20 flex flex-col items-center justify-center relative z-10 shadow-inner select-none">
+                        <span className="text-8xl font-black text-foreground mb-2 select-none" style={{ direction: 'ltr' }}>{istighfarCount}</span>
+                        <span className="text-sm font-bold text-rose-500 select-none">/ {ISTIGHFAR_DAILY_LIMIT}</span>
+                        <Heart className="w-10 h-10 text-rose-500/40 mt-2 select-none pointer-events-none" />
                     </div>
-                </div>
-                <p className="mt-12 text-foreground/30 font-black uppercase tracking-widest text-xs">اضغط للاستغفار • الحد اليومي: 1000</p>
+                </button>
+                <p className="mt-12 text-foreground/30 font-black uppercase tracking-widest text-xs select-none">اضغط للاستغفار • الحد اليومي: 1000</p>
             </div>
           )}
 
           {activeTab === "salawat" && (
-            <div className="glass-effect p-12 rounded-[3rem] border border-border animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center text-center relative overflow-hidden shadow-2xl">
+            <div className="glass-effect p-12 rounded-[3rem] border border-border animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col items-center text-center relative overflow-hidden shadow-2xl select-none">
                 <button onClick={() => setSalawatCount(0)} className="absolute top-8 left-8 w-12 h-12 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/40 hover:text-blue-500 transition-all"><RotateCcw className="w-6 h-6" /></button>
-                <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] mb-4">Salawat Counter</span>
-                <div className="h-24 mb-12 flex items-center justify-center">
-                    <p className="text-3xl md:text-4xl font-black text-foreground drop-shadow-md">اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ</p>
+                <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] mb-4 select-none">Salawat Counter</span>
+                <div className="h-24 mb-12 flex items-center justify-center select-none">
+                    <p className="text-3xl md:text-4xl font-black text-foreground drop-shadow-md select-none">اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ</p>
                 </div>
-                <div className="relative group cursor-pointer active:scale-95 transition-all duration-300" onClick={handleSalawatClick}>
-                    <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-[60px] animate-pulse" />
-                    <div className="w-64 h-64 md:w-80 md:h-80 rounded-full bg-card border-2 border-blue-500/20 flex flex-col items-center justify-center relative z-10 shadow-inner">
-                        <span className="text-8xl font-black text-foreground mb-2" style={{ direction: 'ltr' }}>{salawatCount}</span>
-                        <span className="text-sm font-bold text-blue-500">/ {SALAWAT_DAILY_LIMIT}</span>
-                        <HandHeart className="w-10 h-10 text-blue-500/40 mt-2" />
+                <button type="button" className="relative group cursor-pointer active:scale-95 transition-all duration-300 select-none outline-none focus:outline-none" onClick={handleSalawatClick}>
+                    <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-[60px] animate-pulse pointer-events-none" />
+                    <div className="w-64 h-64 md:w-80 md:h-80 rounded-full bg-card border-2 border-blue-500/20 flex flex-col items-center justify-center relative z-10 shadow-inner select-none">
+                        <span className="text-8xl font-black text-foreground mb-2 select-none" style={{ direction: 'ltr' }}>{salawatCount}</span>
+                        <span className="text-sm font-bold text-blue-500 select-none">/ {SALAWAT_DAILY_LIMIT}</span>
+                        <HandHeart className="w-10 h-10 text-blue-500/40 mt-2 select-none pointer-events-none" />
                     </div>
-                </div>
-                <p className="mt-12 text-foreground/30 font-black uppercase tracking-widest text-xs">اضغط للصلاة على النبي • الحد اليومي: 1000</p>
+                </button>
+                <p className="mt-12 text-foreground/30 font-black uppercase tracking-widest text-xs select-none">اضغط للصلاة على النبي • الحد اليومي: 1000</p>
             </div>
           )}
 

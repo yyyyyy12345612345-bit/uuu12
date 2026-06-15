@@ -36,10 +36,13 @@ const AuthGate = nextDynamic(() => import("@/components/AuthGate").then(mod => m
 const MushafChoice = nextDynamic(() => import("@/components/MushafChoice").then(mod => mod.MushafChoice), { ssr: false });
 const SubscriptionModal = nextDynamic(() => import("@/components/SubscriptionModal").then(mod => mod.SubscriptionModal), { ssr: false });
 const CommunityShowcase = nextDynamic(() => import("@/components/CommunityShowcase").then(mod => mod.CommunityShowcase), { ssr: false });
+const SocialFeed = nextDynamic(() => import("@/components/SocialFeed").then(mod => mod.SocialFeed), { ssr: false });
 const PointsGuideModal = nextDynamic(() => import("@/components/PointsGuideModal").then(mod => mod.PointsGuideModal), { ssr: false });
 const ChatBot = nextDynamic(() => import("@/components/ChatBot").then(mod => mod.ChatBot), { ssr: false });
 const SettingsModal = nextDynamic(() => import("@/components/SettingsModal").then(mod => mod.SettingsModal), { ssr: false });
 const AppSettingsModal = nextDynamic(() => import("@/components/AppSettingsModal").then(mod => mod.AppSettingsModal), { ssr: false });
+const UserProfileModal = nextDynamic(() => import("@/components/UserProfileModal").then(mod => mod.UserProfileModal), { ssr: false });
+const DirectChatModal = nextDynamic(() => import("@/components/DirectChatModal").then(mod => mod.DirectChatModal), { ssr: false });
 
 // Error Boundary for CatchAll
 class CatchAllErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error?: Error }> {
@@ -110,7 +113,26 @@ function CatchAllContent() {
   const [isPointsGuideOpen, setIsPointsGuideOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAppSettingsOpen, setIsAppSettingsOpen] = useState(false);
+  const [selectedProfileUserId, setSelectedProfileUserId] = useState<string | null>(null);
+  const [chatPartnerId, setChatPartnerId] = useState<string | null>(null);
 
+  // Listen for custom events to open user profile and direct chat modals
+  useEffect(() => {
+    const handleShowProfile = (e: any) => {
+      const userId = e.detail?.userId;
+      if (userId) setSelectedProfileUserId(userId);
+    };
+    const handleOpenChat = (e: any) => {
+      const userId = e.detail?.userId;
+      if (userId) setChatPartnerId(userId);
+    };
+    window.addEventListener('show_user_profile', handleShowProfile);
+    window.addEventListener('open_direct_chat', handleOpenChat);
+    return () => {
+      window.removeEventListener('show_user_profile', handleShowProfile);
+      window.removeEventListener('open_direct_chat', handleOpenChat);
+    };
+  }, []);
 
   // Derived active view from pathname - the safest way in Next.js 15/16 Client Components
   const activeView = useMemo(() => {
@@ -258,6 +280,11 @@ function CatchAllContent() {
             <CommunityShowcase />
           </div>
         )}
+        {visited.feed && (
+          <div key="feed" className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'feed' ? 'block view-transition' : 'hidden'}`}>
+            <SocialFeed />
+          </div>
+        )}
         {visited.video && (
           <div key="video" className={`h-full w-full ${activeView === 'video' ? 'block view-transition' : 'hidden'}`}>
              <div className="flex h-full w-full overflow-hidden bg-[#0c0d10]">
@@ -296,7 +323,7 @@ function CatchAllContent() {
                    {/* Main Preview Area */}
                    <div className="flex-1 flex items-center justify-center p-4 md:p-12 min-h-0 relative z-10">
                       <div className="scale-[0.8] md:scale-[0.95] lg:scale-100 h-full flex items-center justify-center transition-all duration-1000">
-                        <VideoPreview key={state.reciterId} />
+                        <VideoPreview />
                       </div>
                    </div>
 
@@ -373,6 +400,16 @@ function CatchAllContent() {
       <PointsGuideModal isOpen={isPointsGuideOpen} onClose={() => setIsPointsGuideOpen(false)} />
       <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       <AppSettingsModal isOpen={isAppSettingsOpen} onClose={() => setIsAppSettingsOpen(false)} />
+      
+      {/* User Profile Modal (triggered from Leaderboard / SocialFeed clicks) */}
+      {selectedProfileUserId && (
+        <UserProfileModal userId={selectedProfileUserId} onClose={() => setSelectedProfileUserId(null)} />
+      )}
+
+      {/* Direct Chat Modal (triggered from UserProfileModal "Chat" button) */}
+      {chatPartnerId && (
+        <DirectChatModal partnerId={chatPartnerId} onClose={() => setChatPartnerId(null)} />
+      )}
       
       {/* Global AI ChatBot */}
       <ChatBot />

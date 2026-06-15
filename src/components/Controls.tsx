@@ -84,9 +84,9 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                <Crown className="w-7 h-7 fill-current" />
             </div>
             <div className="text-right">
-               <span className="block text-lg font-black text-foreground leading-tight">عضوية التميز النادرة</span>
+               <span className="block text-lg font-black text-foreground leading-tight">ادعم يقين القرآن</span>
                <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em] mt-1">
-                  {userPlan?.plan === 'free' ? 'قم بترقية حسابك لتجربة كاملة' : 'أنت الآن مشترك في باقة التميز'}
+                  {userPlan?.plan === 'free' ? 'ساهم في استمرار المشروع' : 'شكراً لدعمك المستمر ❤️'}
                </p>
             </div>
          </div>

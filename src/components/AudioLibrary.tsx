@@ -24,6 +24,16 @@ const fmt = (s: number) => {
   return `${m}:${rs.toString().padStart(2, "0")}`;
 };
 
+const normalizeArabic = (text: string) => {
+  if (!text) return "";
+  return text.toLowerCase()
+    .replace(/[أإآ]/g, "ا")
+    .replace(/ة/g, "ه")
+    .replace(/ى/g, "ي")
+    .replace(/[ًٌٍَُِّْ]/g, "")
+    .replace(/\s+/g, "");
+};
+
 /* ─── NAV HEIGHT (px) – must match Navigation.tsx ─── */
 const NAV_H = 72;
 
@@ -134,8 +144,10 @@ export function AudioLibrary() {
     );
   }, [search, activeTab, favorites, recentlyPlayed]);
 
-  const filteredReciters = useMemo(() =>
-    RECITERS.filter(r => r.name.includes(reciterSearch)), [reciterSearch]);
+  const filteredReciters = useMemo(() => {
+    const q = normalizeArabic(reciterSearch);
+    return RECITERS.filter(r => normalizeArabic(r.name).includes(q));
+  }, [reciterSearch]);
 
   /* ── Audio Source ── */
   useEffect(() => {
@@ -687,33 +699,51 @@ export function AudioLibrary() {
                     value={reciterSearch}
                     onChange={e => setReciterSearch(e.target.value)}
                     placeholder="ابحث عن قارئ..."
-                    className="w-full bg-foreground/5 border border-border/50 rounded-xl py-2 pr-9 pl-4 text-sm outline-none focus:border-primary/60 transition-all placeholder:text-foreground/30 font-bold text-right"
+                    className="w-full bg-foreground/5 border border-border/50 rounded-xl py-2 pr-9 pl-9 text-sm outline-none focus:border-primary/60 transition-all placeholder:text-foreground/30 font-bold text-right"
                   />
+                  {reciterSearch && (
+                    <button onClick={() => setReciterSearch("")} className="absolute left-3 top-1/2 -translate-y-1/2">
+                      <X className="w-3.5 h-3.5 text-foreground/40 hover:text-foreground transition-colors" />
+                    </button>
+                  )}
                 </div>
               </div>
 
               {/* List */}
               <div className="flex-1 overflow-y-auto no-scrollbar p-2 space-y-0.5">
-                {filteredReciters.map(r => {
-                  const sel = selectedReciter.id === r.id;
-                  return (
+                {filteredReciters.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
+                    <Search className="w-8 h-8 text-foreground/15" />
+                    <p className="text-sm text-foreground/30 font-bold">لا يوجد قراء بهذا الاسم</p>
                     <button
-                      key={r.id}
-                      onClick={() => { setSelectedReciter(r); setShowReciters(false); }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-right ${
-                        sel ? "bg-primary/10 text-primary" : "hover:bg-foreground/5 text-foreground/70"
-                      }`}
+                      onClick={() => setReciterSearch("")}
+                      className="text-xs text-primary font-bold hover:underline"
                     >
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                        sel ? "bg-primary/20 text-primary" : "bg-foreground/8 text-foreground/40"
-                      }`}>
-                        <Mic2 className="w-3.5 h-3.5" />
-                      </div>
-                      <span className="text-sm font-bold flex-1 truncate">{r.name}</span>
-                      {sel && <div className="w-2 h-2 rounded-full bg-primary shrink-0" />}
+                      مسح البحث
                     </button>
-                  );
-                })}
+                  </div>
+                ) : (
+                  filteredReciters.map(r => {
+                    const sel = selectedReciter.id === r.id;
+                    return (
+                      <button
+                        key={r.id}
+                        onClick={() => { setSelectedReciter(r); setShowReciters(false); }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-right ${
+                          sel ? "bg-primary/10 text-primary" : "hover:bg-foreground/5 text-foreground/70"
+                        }`}
+                      >
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                          sel ? "bg-primary/20 text-primary" : "bg-foreground/8 text-foreground/40"
+                        }`}>
+                          <Mic2 className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="text-sm font-bold flex-1 truncate">{r.name}</span>
+                        {sel && <div className="w-2 h-2 rounded-full bg-primary shrink-0" />}
+                      </button>
+                    );
+                  })
+                )}
               </div>
             </motion.div>
           </div>

@@ -1,0 +1,467 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { 
+  X, User, Phone, Calendar, MapPin, Loader2, CheckCircle, 
+  UserPlus, UserMinus, UserCheck, MessageCircle, Swords, Heart, Crown, Lock
+} from "lucide-react";
+import { auth, db } from "@/lib/firebase";
+import { 
+  doc, getDoc, setDoc, deleteDoc, updateDoc, collection, addDoc, 
+  serverTimestamp, onSnapshot, query, where, getDocs 
+} from "firebase/firestore";
+
+interface UserProfileModalProps {
+  userId: string;
+  onClose: () => void;
+}
+
+export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
+  const [loading, setLoading] = useState(true);
+  const [targetUser, setTargetUser] = useState<any>(null);
+  const [currentUserData, setCurrentUserData] = useState<any>(null);
+  
+  // Relation state: "none" | "sent_pending" | "received_pending" | "friends"
+  const [relation, setRelation] = useState<"none" | "sent_pending" | "received_pending" | "friends">("none");
+  const [actionLoading, setActionLoading] = useState(false);
+
+  const myUid = auth?.currentUser?.uid;
+
+  // Helper to generate a lexicographically sorted friendship ID
+  const getFriendshipId = (uid1: string, uid2: string) => {
+    return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;
+  };
+
+  useEffect(() => {
+    if (!userId || !myUid || !db) return;
+
+    setLoading(true);
+
+    // 1. Fetch target user doc
+    const unsubUser = onSnapshot(doc(db, "users", userId), (snap) => {
+      if (snap.exists()) {
+        setTargetUser(snap.value ? snap.value() : snap.data());
+      } else {
+        onClose();
+      }
+      setLoading(false);
+    });
+
+    // 2. Fetch current user data (to pass their name/avatar when sending requests or starting duels)
+    getDoc(doc(db, "users", myUid)).then((snap) => {
+      if (snap.exists()) {
+        setCurrentUserData(snap.data());
+      }
+    });
+
+    // 3. Listen to relationship state
+    const friendshipId = getFriendshipId(myUid, userId);
+    
+    // Check friendships
+    const unsubFriendship = onSnapshot(doc(db, "friendships", friendshipId), (friendshipSnap) => {
+      if (friendshipSnap.exists()) {
+        setRelation("friends");
+      } else {
+        // If not friends, check pending requests
+        const reqSentRef = doc(db, "friend_requests", `${myUid}_${userId}`);
+        const reqReceivedRef = doc(db, "friend_requests", `${userId}_${myUid}`);
+
+        getDoc(reqSentRef).then((sentSnap) => {
+          if (sentSnap.exists() && sentSnap.data()?.status === "pending") {
+            setRelation("sent_pending");
+          } else {
+            getDoc(reqReceivedRef).then((receivedSnap) => {
+              if (receivedSnap.exists() && receivedSnap.data()?.status === "pending") {
+                setRelation("received_pending");
+              } else {
+                setRelation("none");
+              }
+            });
+          }
+        });
+      }
+    });
+
+    return () => {
+      unsubUser();
+      unsubFriendship();
+    };
+  }, [userId, myUid]);
+
+  // Actions
+  const handleAddFriend = async () => {
+    if (!myUid || !userId || !db || actionLoading) return;
+    setActionLoading(true);
+    try {
+      const requestRef = doc(db, "friend_requests", `${myUid}_${userId}`);
+      await setDoc(requestRef, {
+        senderId: myUid,
+        senderName: currentUserData?.displayName || "مستخدم يقين",
+        senderAvatar: currentUserData?.photoURL || "",
+        receiverId: userId,
+        status: "pending",
+        createdAt: serverTimestamp()
+      });
+      setRelation("sent_pending");
+    } catch (e) {
+      console.error(e);
+      alert("حدث خطأ أثناء إرسال الطلب");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleCancelRequest = async () => {
+    if (!myUid || !userId || !db || actionLoading) return;
+    setActionLoading(true);
+    try {
+      await deleteDoc(doc(db, "friend_requests", `${myUid}_${userId}`));
+      setRelation("none");
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleAcceptFriend = async () => {
+    if (!myUid || !userId || !db || actionLoading) return;
+    setActionLoading(true);
+    try {
+      const friendshipId = getFriendshipId(myUid, userId);
+      
+      // 1. Create friendship document
+      await setDoc(doc(db, "friendships", friendshipId), {
+        users: [myUid, userId],
+        createdAt: serverTimestamp()
+      });
+
+      // 2. Delete the pending request
+      await deleteDoc(doc(db, "friend_requests", `${userId}_${myUid}`));
+      
+      // 3. Create or initialize direct chat document
+      await setDoc(doc(db, "chats", friendshipId), {
+        participants: [myUid, userId],
+        lastMessage: "تم قبول طلب الصداقة، ابدأوا الآن كلامكم الطيب ✨",
+        lastMessageAt: serverTimestamp(),
+        unreadCount: {
+          [myUid]: 0,
+          [userId]: 0
+        }
+      });
+
+      setRelation("friends");
+    } catch (e) {
+      console.error(e);
+      alert("حدث خطأ أثناء قبول الصداقة");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleRejectRequest = async () => {
+    if (!myUid || !userId || !db || actionLoading) return;
+    setActionLoading(true);
+    try {
+      await deleteDoc(doc(db, "friend_requests", `${userId}_${myUid}`));
+      setRelation("none");
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleUnfriend = async () => {
+    if (!myUid || !userId || !db || actionLoading) return;
+    if (!window.confirm("هل أنت متأكد من رغبتك في إزالة هذا الصديق؟")) return;
+    setActionLoading(true);
+    try {
+      const friendshipId = getFriendshipId(myUid, userId);
+      await deleteDoc(doc(db, "friendships", friendshipId));
+      setRelation("none");
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleStartChat = () => {
+    window.dispatchEvent(new CustomEvent("open_direct_chat", { detail: { userId } }));
+    onClose();
+  };
+
+  const handleStartDuel = async () => {
+    if (!myUid || !userId || !db || actionLoading) return;
+    if (!window.confirm(`هل أنت مستعد لتحدي ${targetUser.displayName} في مبارزة نقاط إيمانية لمدة 3 أيام؟ ⚔️`)) return;
+    setActionLoading(true);
+    try {
+      // Check if there is already an active duel between these two users
+      const activeDuelsQuery = query(
+        collection(db, "duels"),
+        where("participants", "array-contains", myUid),
+        where("status", "==", "active")
+      );
+      const activeDuelsSnap = await getDocs(activeDuelsQuery);
+      
+      // Filter duels to see if opponent is our target friend
+      const alreadyDueling = activeDuelsSnap.docs.some(doc => {
+        const data = doc.data();
+        return data.participants.includes(userId);
+      });
+
+      if (alreadyDueling) {
+        alert("توجد مبارزة نشطة بالفعل بينكما حالياً!");
+        return;
+      }
+
+      const endsAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000); // 3 days
+
+      const duelData = {
+        participants: [myUid, userId],
+        names: {
+          [myUid]: currentUserData?.displayName || "أنا",
+          [userId]: targetUser.displayName || "صديقي"
+        },
+        avatars: {
+          [myUid]: currentUserData?.photoURL || "",
+          [userId]: targetUser.photoURL || ""
+        },
+        creatorId: myUid,
+        status: "active",
+        createdAt: serverTimestamp(),
+        endsAt: endsAt.toISOString(),
+        startPoints: {
+          [myUid]: currentUserData?.totalPoints || 0,
+          [userId]: targetUser.totalPoints || 0
+        },
+        currentPoints: {
+          [myUid]: currentUserData?.totalPoints || 0,
+          [userId]: targetUser.totalPoints || 0
+        },
+        likes: {
+          [myUid]: 0,
+          [userId]: 0
+        },
+        cheerers: {
+          [myUid]: [],
+          [userId]: []
+        }
+      };
+
+      await addDoc(collection(db, "duels"), duelData);
+      alert("⚔️ تم بدء المبارزة بنجاح! سابق صديقك الآن في الطاعات والأذكار واجمع النقاط ليفوز الأحرص!");
+      onClose();
+    } catch (e) {
+      console.error(e);
+      alert("حدث خطأ أثناء بدء التحدي");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Check privacy helpers
+  const canSeePhone = () => {
+    if (userId === myUid) return true;
+    const privacy = targetUser?.privacySettings?.phone || "public";
+    if (privacy === "public") return true;
+    if (privacy === "friends" && relation === "friends") return true;
+    return false;
+  };
+
+  const canSeeBirthDate = () => {
+    if (userId === myUid) return true;
+    const privacy = targetUser?.privacySettings?.birthDate || "public";
+    if (privacy === "public") return true;
+    if (privacy === "friends" && relation === "friends") return true;
+    return false;
+  };
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 z-[3000] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-[3000] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 overflow-y-auto no-scrollbar font-['Tajawal']">
+      <div className="absolute inset-0" onClick={onClose} />
+      
+      <div className="relative w-full max-w-lg bg-[#0a0a0d] border border-white/10 rounded-[3rem] shadow-[0_30px_70px_rgba(0,0,0,0.8)] overflow-hidden animate-in zoom-in-95 duration-500">
+        <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
+        
+        {/* Cover Backdrop */}
+        <div className="h-28 bg-gradient-to-r from-primary/30 to-purple-500/20 relative">
+          <button 
+            onClick={onClose} 
+            className="absolute top-4 left-4 w-10 h-10 rounded-xl bg-black/40 hover:bg-black/60 text-white/70 hover:text-white flex items-center justify-center transition-all z-20"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Profile Info */}
+        <div className="px-6 pb-8 pt-0 -mt-12 relative z-10 flex flex-col items-center text-center">
+          <img 
+            src={targetUser?.photoURL || "https://api.dicebear.com/9.x/avataaars/svg?seed=Yaqeen"} 
+            alt="Avatar" 
+            className="w-24 h-24 rounded-full border-4 border-[#0a0a0d] bg-[#0c0d10] shadow-2xl object-cover mb-4" 
+          />
+
+          <h3 className="text-2xl font-black text-white flex items-center gap-2">
+            {targetUser?.displayName || "قارئ يقين"}
+            {targetUser?.plan && targetUser.plan !== 'free' && (
+              <Crown className="w-5 h-5 text-primary fill-current animate-pulse" />
+            )}
+          </h3>
+          <p className="text-primary text-xs font-bold font-mono tracking-widest mt-1">@{targetUser?.username}</p>
+          
+          <div className="flex items-center gap-2 text-foreground/40 text-[10px] font-black bg-foreground/5 px-3 py-1 rounded-full mt-3">
+            <MapPin className="w-3 h-3 text-primary" />
+            <span>{targetUser?.country || targetUser?.governorate || "مصر"}</span>
+          </div>
+
+          {/* Quick Stats Grid */}
+          <div className="grid grid-cols-3 gap-3 w-full max-w-sm mt-6 p-4 rounded-2xl bg-white/5 border border-white/5 shadow-inner">
+            <div className="text-center">
+              <span className="block text-lg font-black text-white">{targetUser?.totalPoints ? Math.round(targetUser.totalPoints) : 0}</span>
+              <span className="text-[8px] text-white/30 font-bold uppercase tracking-widest">إجمالي النقاط</span>
+            </div>
+            <div className="w-[1px] h-8 bg-white/10 self-center justify-self-center" />
+            <div className="text-center">
+              <span className="block text-lg font-black text-white">{targetUser?.readAyahs || 0}</span>
+              <span className="text-[8px] text-white/30 font-bold uppercase tracking-widest">آية مقروءة</span>
+            </div>
+          </div>
+
+          {/* Personal details with privacy */}
+          <div className="w-full max-w-sm space-y-3 mt-6">
+            {/* Phone */}
+            <div className="flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-2xl">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                  <Phone className="w-4 h-4" />
+                </div>
+                <span className="text-xs text-white/40 font-bold">رقم الهاتف</span>
+              </div>
+              <span className="text-sm font-mono font-bold text-white flex items-center gap-1.5">
+                {canSeePhone() ? (
+                  targetUser?.phoneNumber || "غير متوفر"
+                ) : (
+                  <>
+                    <Lock className="w-3.5 h-3.5 text-white/20" />
+                    <span className="text-white/20 text-xs">خاص</span>
+                  </>
+                )}
+              </span>
+            </div>
+
+            {/* BirthDate */}
+            <div className="flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-2xl">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center">
+                  <Calendar className="w-4 h-4" />
+                </div>
+                <span className="text-xs text-white/40 font-bold">تاريخ الميلاد</span>
+              </div>
+              <span className="text-sm font-mono font-bold text-white flex items-center gap-1.5">
+                {canSeeBirthDate() ? (
+                  targetUser?.birthDate || "غير متوفر"
+                ) : (
+                  <>
+                    <Lock className="w-3.5 h-3.5 text-white/20" />
+                    <span className="text-white/20 text-xs">خاص</span>
+                  </>
+                )}
+              </span>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="w-full max-w-sm mt-8 space-y-3 relative z-20">
+            {/* Friendship action */}
+            {relation === "none" && (
+              <button
+                onClick={handleAddFriend}
+                disabled={actionLoading}
+                className="w-full py-4 bg-primary text-black rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+              >
+                {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
+                إرسال طلب صداقة
+              </button>
+            )}
+
+            {relation === "sent_pending" && (
+              <button
+                onClick={handleCancelRequest}
+                disabled={actionLoading}
+                className="w-full py-4 bg-white/5 border border-white/10 text-white/60 rounded-2xl font-black text-sm hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center gap-2"
+              >
+                {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Loader2 className="w-4 h-4 animate-pulse" />}
+                طلب الصداقة معلق (إلغاء ❌)
+              </button>
+            )}
+
+            {relation === "received_pending" && (
+              <div className="flex gap-3">
+                <button
+                  onClick={handleAcceptFriend}
+                  disabled={actionLoading}
+                  className="flex-1 py-4 bg-emerald-500 text-white rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2"
+                >
+                  {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserCheck className="w-4 h-4" />}
+                  قبول
+                </button>
+                <button
+                  onClick={handleRejectRequest}
+                  disabled={actionLoading}
+                  className="px-6 py-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-2xl font-black text-sm active:scale-95 transition-all border border-red-500/20 flex items-center justify-center"
+                >
+                  رفض
+                </button>
+              </div>
+            )}
+
+            {relation === "friends" && (
+              <div className="space-y-3">
+                <div className="flex gap-3">
+                  {/* Chat */}
+                  <button
+                    onClick={handleStartChat}
+                    disabled={actionLoading}
+                    className="flex-1 py-4 bg-primary text-black rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    محادثة
+                  </button>
+                  {/* Duel */}
+                  <button
+                    onClick={handleStartDuel}
+                    disabled={actionLoading}
+                    className="flex-1 py-4 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2 border border-purple-500/30"
+                  >
+                    <Swords className="w-4 h-4" />
+                    مبارزة
+                  </button>
+                </div>
+                
+                <button
+                  onClick={handleUnfriend}
+                  disabled={actionLoading}
+                  className="w-full py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-2xl font-black text-xs active:scale-95 transition-all border border-red-500/20 flex items-center justify-center gap-2"
+                >
+                  <UserMinus className="w-3.5 h-3.5" />
+                  إزالة من الأصدقاء
+                </button>
+              </div>
+            )}
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}

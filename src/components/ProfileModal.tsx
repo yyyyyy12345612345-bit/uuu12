@@ -4,11 +4,12 @@ import React, { useState, useEffect } from "react";
 import {
    X, Camera, User, Phone, Calendar,
    MapPin, Save, Loader2, CheckCircle, Image as ImageIcon, LogOut, ShieldCheck,
-   BookOpen, Headphones, Trophy, PlayCircle, Compass, Settings, AlertTriangle, Trash2
+   BookOpen, Headphones, Trophy, PlayCircle, Compass, Settings, AlertTriangle, Trash2,
+   FileText, Crown, MessageCircle, Heart
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { auth, db, storage } from "@/lib/firebase";
-import { doc, getDoc, updateDoc, collection, getDocs, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, getDocs, deleteDoc, query, where, orderBy } from "firebase/firestore";
 import { deleteUser } from "firebase/auth";
 
 interface ProfileModalProps {
@@ -17,20 +18,55 @@ interface ProfileModalProps {
 }
 
 export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
-   const [activeTab, setActiveTab] = useState<"identity" | "stats" | "account">("identity");
+   const [activeTab, setActiveTab] = useState<"identity" | "stats" | "posts" | "account">("identity");
    const [formData, setFormData] = useState({
       displayName: "",
       username: "",
       photoURL: "",
       phoneNumber: "",
       gender: "male" as "male" | "female",
-      country: "مصر"
+      country: "مصر",
+      birthDate: "",
+      privacyPhone: "public" as "public" | "friends" | "private",
+      privacyBirthDate: "public" as "public" | "friends" | "private"
    });
    const [userStats, setUserStats] = useState<any>(null);
    const [loading, setLoading] = useState(false);
    const [saving, setSaving] = useState(false);
    const [success, setSuccess] = useState(false);
    const [deletingAccount, setDeletingAccount] = useState(false);
+   const [myPosts, setMyPosts] = useState<any[]>([]);
+   const [loadingMyPosts, setLoadingMyPosts] = useState(false);
+
+   const fetchMyPosts = async () => {
+      if (!auth?.currentUser || !db) return;
+      setLoadingMyPosts(true);
+      try {
+         const q = query(
+            collection(db, "posts"),
+            where("userId", "==", auth.currentUser.uid),
+            orderBy("createdAt", "desc")
+         );
+         const snap = await getDocs(q);
+         const list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+         setMyPosts(list);
+      } catch (e) {
+         console.error("Error fetching my posts:", e);
+      } finally {
+         setLoadingMyPosts(false);
+      }
+   };
+
+   const handleDeleteMyPost = async (postId: string) => {
+      if (!window.confirm("هل أنت متأكد من حذف هذا المنشور؟")) return;
+      try {
+         await deleteDoc(doc(db, "posts", postId));
+         setMyPosts(prev => prev.filter(p => p.id !== postId));
+      } catch (e) {
+         console.error("Error deleting post:", e);
+         alert("حدث خطأ أثناء الحذف");
+      }
+   };
 
    const AVATARS = {
       male: [
@@ -103,6 +139,12 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       }
    }, [isOpen]);
 
+   useEffect(() => {
+      if (activeTab === "posts" && isOpen && auth?.currentUser) {
+         fetchMyPosts();
+      }
+   }, [activeTab, isOpen]);
+
    const fetchUserData = async () => {
       if (!auth?.currentUser || !db) return;
       setLoading(true);
@@ -131,7 +173,10 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                photoURL: data.photoURL || "",
                phoneNumber: data.phoneNumber || "",
                gender: data.gender || "male",
-               country: data.country || data.governorate || "مصر"
+               country: data.country || data.governorate || "مصر",
+               birthDate: data.birthDate || "",
+               privacyPhone: data.privacySettings?.phone || "public",
+               privacyBirthDate: data.privacySettings?.birthDate || "public"
             });
          }
       } catch (e) {
@@ -146,8 +191,13 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       if (!auth?.currentUser || !db) return;
       setSaving(true);
       try {
+         const { privacyPhone, privacyBirthDate, ...rest } = formData;
          await updateDoc(doc(db, "users", auth.currentUser.uid), {
-            ...formData,
+            ...rest,
+            privacySettings: {
+               phone: privacyPhone,
+               birthDate: privacyBirthDate
+            },
             lastUpdated: new Date().toISOString()
          });
          setSuccess(true);
@@ -218,22 +268,65 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                   </div>
                ) : (
                   <div className="space-y-8">
-                     {/* Header Card */}
-                     <div className="flex items-center gap-5 bg-gradient-to-r from-primary/10 to-transparent p-6 rounded-3xl border border-primary/20 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-3xl rounded-full pointer-events-none" />
-                        <img src={formData.photoURL || AVATARS[formData.gender][0]} alt="Avatar" className="w-20 h-20 rounded-full border-2 border-primary shadow-[0_0_20px_rgba(251,191,36,0.3)] object-cover z-10 bg-black/50" />
-                        <div className="z-10">
-                           <h3 className="text-2xl font-black text-white">{formData.displayName || "مستخدم جديد"}</h3>
-                           <p className="text-primary text-xs tracking-widest uppercase font-bold mt-1">@{formData.username || "---"}</p>
-                        </div>
-                     </div>
+                      {/* Premium Header Layout */}
+                      <div className="relative rounded-[2.5rem] overflow-hidden border border-white/10 bg-gradient-to-b from-[#18181b] to-[#09090b] shadow-2xl flex flex-col">
+                         {/* Cover Gradient */}
+                         <div className="h-32 w-full bg-gradient-to-r from-primary/30 via-purple-500/20 to-primary/15 relative">
+                            <div className="absolute inset-0 islamic-pattern opacity-[0.05]" />
+                            <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-[#09090b] to-transparent" />
+                         </div>
+                         {/* Profile Info Row */}
+                         <div className="px-6 pb-6 pt-0 flex flex-col sm:flex-row sm:items-end gap-4 -mt-10 relative z-10">
+                            <div className="relative shrink-0 self-center sm:self-auto">
+                               <img 
+                                  src={formData.photoURL || AVATARS[formData.gender][0]} 
+                                  alt="Avatar" 
+                                  className="w-24 h-24 rounded-full border-4 border-[#09090b] bg-[#0c0d10] shadow-2xl object-cover" 
+                               />
+                            </div>
+                            <div className="flex-1 text-center sm:text-right">
+                               <h3 className="text-2xl font-black text-white leading-tight flex items-center justify-center sm:justify-start gap-2">
+                                  {formData.displayName || "مستخدم جديد"}
+                                  {userStats?.plan && userStats.plan !== 'free' && (
+                                     <Crown className="w-5 h-5 text-primary fill-current animate-pulse" />
+                                  )}
+                               </h3>
+                               <p className="text-primary text-xs font-bold font-mono tracking-widest mt-1">@{formData.username || "---"}</p>
+                            </div>
+                            {/* Quick Stats Summary */}
+                            <div className="flex items-center justify-center gap-4 sm:border-r sm:border-white/5 sm:pr-6 sm:py-2">
+                               <div className="text-center">
+                                  <span className="block text-lg font-black text-white">{userStats?.totalPoints || 0}</span>
+                                  <span className="text-[9px] text-white/30 font-bold uppercase tracking-widest">نقطة</span>
+                               </div>
+                               <div className="w-px h-6 bg-white/10" />
+                               <div className="text-center">
+                                  <span className="block text-lg font-black text-white">{userStats?.readAyahs || 0}</span>
+                                  <span className="text-[9px] text-white/30 font-bold uppercase tracking-widest">آية</span>
+                               </div>
+                            </div>
+                         </div>
+                      </div>
 
-                     {/* Tabs */}
-                     <div className="flex bg-white/5 rounded-2xl p-1.5 shadow-inner">
-                        <button onClick={() => setActiveTab("identity")} className={`flex-1 py-3 text-sm font-black rounded-xl transition-all ${activeTab === 'identity' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-white/40 hover:text-white'}`}>الهوية</button>
-                        <button onClick={() => setActiveTab("stats")} className={`flex-1 py-3 text-sm font-black rounded-xl transition-all ${activeTab === 'stats' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-white/40 hover:text-white'}`}>الإحصائيات</button>
-                        <button onClick={() => setActiveTab("account")} className={`flex-1 py-3 text-sm font-black rounded-xl transition-all ${activeTab === 'account' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-white/40 hover:text-white'}`}>الحساب</button>
-                     </div>
+                      {/* Tabs */}
+                      <div className="flex bg-white/5 rounded-2xl p-1.5 shadow-inner overflow-x-auto no-scrollbar gap-1">
+                         <button type="button" onClick={() => setActiveTab("identity")} className={`flex-1 py-3 px-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${activeTab === 'identity' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-white/40 hover:text-white'}`}>
+                           <User className="w-3.5 h-3.5" />
+                           <span>الهوية</span>
+                         </button>
+                         <button type="button" onClick={() => setActiveTab("stats")} className={`flex-1 py-3 px-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${activeTab === 'stats' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-white/40 hover:text-white'}`}>
+                           <Trophy className="w-3.5 h-3.5" />
+                           <span>الإحصائيات</span>
+                         </button>
+                         <button type="button" onClick={() => setActiveTab("posts")} className={`flex-1 py-3 px-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${activeTab === 'posts' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-white/40 hover:text-white'}`}>
+                           <FileText className="w-3.5 h-3.5" />
+                           <span>منشوراتي</span>
+                         </button>
+                         <button type="button" onClick={() => setActiveTab("account")} className={`flex-1 py-3 px-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${activeTab === 'account' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-white/40 hover:text-white'}`}>
+                           <Settings className="w-3.5 h-3.5" />
+                           <span>الحساب</span>
+                         </button>
+                      </div>
 
                      {/* Identity Tab */}
                      {activeTab === 'identity' && (
@@ -318,45 +411,106 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                  </div>
                               </div>
 
-                              {/* Country */}
+                              {/* Phone Privacy */}
                               <div className="space-y-3">
                                  <div className="flex items-center gap-3 px-2">
                                     <div className="w-1 h-1 rounded-full bg-primary" />
-                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">الدولة</label>
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">خصوصية رقم الهاتف</label>
                                  </div>
-                                 <div className="relative z-50">
-                                    <CountrySelectProfile 
-                                       value={formData.country} 
-                                       onChange={(val) => setFormData({...formData, country: val})} 
-                                       countries={ARAB_COUNTRIES} 
-                                    />
-                                 </div>
+                                 <select 
+                                    value={formData.privacyPhone}
+                                    onChange={e => setFormData({...formData, privacyPhone: e.target.value as any})}
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-sm font-bold text-white shadow-xl appearance-none"
+                                 >
+                                    <option value="public" className="bg-[#0c0d10] text-white">عام (للجميع) 🌍</option>
+                                    <option value="friends" className="bg-[#0c0d10] text-white">الأصدقاء فقط 👥</option>
+                                    <option value="private" className="bg-[#0c0d10] text-white">خاص (أنا فقط) 🔒</option>
+                                 </select>
                               </div>
                            </div>
 
-                           {/* Gender */}
-                           <div className="space-y-3">
-                              <div className="flex items-center gap-3 px-2">
-                                 <div className="w-1 h-1 rounded-full bg-primary" />
-                                 <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">الجنس</label>
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                              {/* Birthdate */}
+                              <div className="space-y-3">
+                                 <div className="flex items-center gap-3 px-2">
+                                    <div className="w-1 h-1 rounded-full bg-primary" />
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">تاريخ الميلاد</label>
+                                 </div>
+                                 <div className="relative">
+                                    <input
+                                       type="date"
+                                       value={formData.birthDate}
+                                       onChange={e => setFormData({ ...formData, birthDate: e.target.value })}
+                                       className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-sm font-bold text-white shadow-xl placeholder:text-white/20"
+                                    />
+                                 </div>
                               </div>
-                              <div className="flex gap-4 p-1.5 bg-white/5 rounded-2xl border border-white/10 shadow-inner">
-                                 <button
-                                    type="button"
-                                    onClick={() => setFormData(prev => ({ ...prev, gender: "male" }))}
-                                    className={`flex-1 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.gender === "male" ? "bg-primary text-black shadow-md shadow-primary/20" : "text-white/30 hover:text-white hover:bg-white/5"}`}
+
+                              {/* Birthdate Privacy */}
+                              <div className="space-y-3">
+                                 <div className="flex items-center gap-3 px-2">
+                                    <div className="w-1 h-1 rounded-full bg-primary" />
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">خصوصية تاريخ الميلاد</label>
+                                 </div>
+                                 <select 
+                                    value={formData.privacyBirthDate}
+                                    onChange={e => setFormData({...formData, privacyBirthDate: e.target.value as any})}
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-sm font-bold text-white shadow-xl appearance-none"
                                  >
-                                    ذكر
-                                 </button>
-                                 <button
-                                    type="button"
-                                    onClick={() => setFormData(prev => ({ ...prev, gender: "female" }))}
-                                    className={`flex-1 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.gender === "female" ? "bg-primary text-black shadow-md shadow-primary/20" : "text-white/30 hover:text-white hover:bg-white/5"}`}
-                                 >
-                                    أنثى
-                                 </button>
+                                    <option value="public" className="bg-[#0c0d10] text-white">عام (للجميع) 🌍</option>
+                                    <option value="friends" className="bg-[#0c0d10] text-white">الأصدقاء فقط 👥</option>
+                                    <option value="private" className="bg-[#0c0d10] text-white">خاص (أنا فقط) 🔒</option>
+                                 </select>
                               </div>
                            </div>
+
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                               {/* Country */}
+                               <div className="space-y-3">
+                                  <div className="flex items-center gap-3 px-2">
+                                     <div className="w-1 h-1 rounded-full bg-primary" />
+                                     <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">الدولة</label>
+                                  </div>
+                                  <div className="relative z-50">
+                                     <CountrySelectProfile 
+                                        value={formData.country} 
+                                        onChange={(val) => setFormData({...formData, country: val})} 
+                                        countries={ARAB_COUNTRIES} 
+                                     />
+                                  </div>
+                               </div>
+
+                               {/* Gender */}
+                               <div className="space-y-3">
+                                  <div className="flex items-center gap-3 px-2">
+                                     <div className="w-1 h-1 rounded-full bg-primary" />
+                                     <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">الجنس</label>
+                                  </div>
+                                  <div className="flex gap-4 p-1.5 bg-white/5 rounded-2xl border border-white/10 shadow-inner">
+                                     <button
+                                        type="button"
+                                        onClick={() => setFormData(prev => ({ ...prev, gender: "male" }))}
+                                        className={`flex-1 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.gender === "male" ? "bg-primary text-black shadow-md shadow-primary/20" : "text-white/30 hover:text-white hover:bg-white/5"}`}
+                                     >
+                                        ذكر
+                                     </button>
+                                     <button
+                                        type="button"
+                                        onClick={() => setFormData(prev => ({ ...prev, gender: "female" }))}
+                                        className={`flex-1 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.gender === "female" ? "bg-primary text-black shadow-md shadow-primary/20" : "text-white/30 hover:text-white hover:bg-white/5"}`}
+                                     >
+                                        أنثى
+                                     </button>
+                                  </div>
+                               </div>
+                            </div>
+
+
+
+
+
+
 
                            <div className="pt-4">
                               <button
@@ -426,6 +580,57 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                            </div>
                         </div>
                      )}
+
+                      {/* Posts Tab */}
+                      {activeTab === 'posts' && (
+                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-4">
+                            {loadingMyPosts ? (
+                               <div className="py-12 flex flex-col items-center gap-4">
+                                  <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                                  <p className="text-white/40 text-xs font-bold">جاري تحميل منشوراتك...</p>
+                               </div>
+                            ) : myPosts.length === 0 ? (
+                               <div className="py-12 text-center text-white/30 space-y-3 bg-white/5 border border-white/10 rounded-3xl">
+                                  <FileText className="w-10 h-10 text-white/10 mx-auto" />
+                                  <p className="text-sm font-bold">لم تقم بنشر أي منشور بعد</p>
+                                  <p className="text-xs text-white/20">منشوراتك التي تنشرها في المجتمع ستظهر هنا</p>
+                               </div>
+                            ) : (
+                               <div className="space-y-4 max-h-[50vh] overflow-y-auto no-scrollbar p-1">
+                                  {myPosts.map((post) => (
+                                     <div key={post.id} className="bg-white/5 border border-white/10 rounded-3xl p-5 relative group/post hover:bg-white/10 transition-colors shadow-lg">
+                                        <div className="flex justify-between items-start gap-4 mb-3">
+                                           <div className="text-right">
+                                              <span className="block text-[10px] text-white/30 font-mono">
+                                                 {post.createdAt ? (post.createdAt.toDate ? post.createdAt.toDate().toLocaleDateString('ar-EG') : new Date(post.createdAt).toLocaleDateString('ar-EG')) : ''}
+                                              </span>
+                                           </div>
+                                           <button 
+                                              type="button"
+                                              onClick={() => handleDeleteMyPost(post.id)}
+                                              className="p-2 bg-red-500/10 text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-all scale-90 group-hover/post:scale-100 opacity-80 hover:opacity-100"
+                                           >
+                                              <Trash2 className="w-4 h-4" />
+                                           </button>
+                                        </div>
+                                        <p className="text-sm text-white/85 leading-relaxed text-right font-medium whitespace-pre-wrap break-words">{post.content}</p>
+                                        
+                                        <div className="flex items-center gap-6 mt-4 pt-3 border-t border-white/5 text-xs text-white/40">
+                                           <div className="flex items-center gap-1.5">
+                                              <Heart className="w-3.5 h-3.5 fill-current text-red-500/80" />
+                                              <span>{post.likesCount || 0} أعجبني</span>
+                                           </div>
+                                           <div className="flex items-center gap-1.5">
+                                              <MessageCircle className="w-3.5 h-3.5 text-primary" />
+                                              <span>{post.commentsCount || 0} تعليق</span>
+                                           </div>
+                                        </div>
+                                     </div>
+                                  ))}
+                               </div>
+                            )}
+                         </div>
+                      )}
 
                      {/* Account Tab */}
                      {activeTab === 'account' && (

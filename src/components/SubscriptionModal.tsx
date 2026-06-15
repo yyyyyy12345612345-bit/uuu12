@@ -181,10 +181,10 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
   ];
 
   const PLANS = [
-    { id: "free", name: "العضوية المجانية", price: 0, icon: Star, color: "from-gray-500 to-gray-600", features: ["5 فيديوهات فقط", "علامة مائية", "خلفيات ثابتة"] },
+    { id: "free", name: "بدون دعم", price: 0, icon: Star, color: "from-gray-500 to-gray-600", features: ["5 فيديوهات فقط", "علامة مائية", "خلفيات ثابتة"] },
     { id: "trial", name: "تجربة مجانية 🎁", price: 0, icon: Gift, color: "from-green-500 to-emerald-600", features: ["فيديوهات غير محدودة", "بدون علامة مائية", "خلفيات فيديو", "30 يوم"] },
-    { id: "starter", name: "باقة الهواة", price: pricing.priceStarter, icon: Zap, color: "from-blue-500 to-cyan-600", features: ["50 فيديو شهرياً", "بدون علامة مائية", "خلفيات فيديو", "فتح ميزة البحث"] },
-    { id: "premium", name: "عضوية التميز 👑", price: pricing.pricePremium, icon: Crown, color: "from-yellow-500 to-amber-600", features: ["غير محدود + 4K", "بدون علامة مائية", "أولوية الرندر", "قوالب حصرية"] },
+    { id: "starter", name: "دعم أساسي", price: pricing.priceStarter, icon: Zap, color: "from-blue-500 to-cyan-600", features: ["50 فيديو شهرياً", "بدون علامة مائية", "خلفيات فيديو", "فتح ميزة البحث"] },
+    { id: "premium", name: "داعم مميز", price: pricing.pricePremium, icon: Crown, color: "from-yellow-500 to-amber-600", features: ["غير محدود + 4K", "بدون علامة مائية", "أولوية الرندر", "قوالب حصرية"] },
   ];
 
   const currentSelected = PLANS.find(p => p.id === selectedPlan);
@@ -221,9 +221,9 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-3">
               <Sparkles className="w-6 h-6 text-primary animate-pulse" />
-              <h2 className="text-3xl lg:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-primary to-white">خطط التميز</h2>
+              <h2 className="text-3xl lg:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-primary to-white">ادعم يقين القرآن</h2>
             </div>
-            <p className="text-[11px] text-primary/60 font-black uppercase tracking-[0.2em] mt-2">اختر طريقك نحو الإبداع الرقمي</p>
+            <p className="text-[11px] text-primary/60 font-black uppercase tracking-[0.2em] mt-2">ساهم في استمرار المشروع واحصل على ميزات إضافية</p>
 
             {/* Current subscription status with days remaining */}
             {currentPlanData?.plan && currentPlanData.plan !== 'free' && daysRemaining !== null && (
@@ -303,11 +303,11 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
             </div>
             <div className="flex-1 relative z-10">
               <h5 className="font-black text-sm text-white flex items-center gap-2">
-                تحدي النخبة: باقة التميز مجاناً! 🏆
+                تحدي الهمة: احصل على الميزات مجاناً! 🏆
                 <Sparkles className="w-4 h-4 text-primary animate-spin-slow" />
               </h5>
               <p className="text-[11px] text-white/60 leading-relaxed mt-2">
-                اجمع 10,000 نقطة من الأنشطة اليومية، وسيتم ترقيتك لعضوية التميز (Premium) لإنتاج الفيديوهات مجاناً بالكامل دون أي رسوم!
+                اجمع 10,000 نقطة من الأنشطة اليومية (قراءة، أذكار، استماع)، وسيتم فتح جميع الميزات المميزة لك مجاناً بالكامل دون أي تبرع!
               </p>
               {currentPlanData?.totalPoints !== undefined && (
                 <div className="mt-3 flex items-center gap-3">
@@ -333,9 +333,9 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
             /* ---- Payment Gateway View ---- */
             <div className="animate-in fade-in slide-in-from-left-8 duration-500 space-y-8">
               <div className="text-right">
-                <h3 className="text-2xl lg:text-3xl font-black text-white mb-4">بوابة الدفع</h3>
+                <h3 className="text-2xl lg:text-3xl font-black text-white mb-4">طريقة التبرع</h3>
                 <p className="text-white/50 text-sm leading-relaxed">
-                  يرجى تحويل مبلغ <span className="text-primary font-black text-lg">{currentSelected?.price} ج.م</span> عبر أحد الوسائل التالية، ثم قم بإرسال إثبات الدفع.
+                  يرجى تحويل مبلغ <span className="text-primary font-black text-lg">{currentSelected?.price} ج.م</span> عبر أحد الوسائل التالية، ثم قم بإرسال إثبات التبرع.
                 </p>
               </div>
 
