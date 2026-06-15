@@ -44,11 +44,15 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       try {
          const q = query(
             collection(db, "posts"),
-            where("userId", "==", auth.currentUser.uid),
-            orderBy("createdAt", "desc")
+            where("userId", "==", auth.currentUser.uid)
          );
          const snap = await getDocs(q);
          const list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+         list.sort((a: any, b: any) => {
+            const timeA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : new Date(a.createdAt || 0).getTime();
+            const timeB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : new Date(b.createdAt || 0).getTime();
+            return timeB - timeA;
+         });
          setMyPosts(list);
       } catch (e) {
          console.error("Error fetching my posts:", e);

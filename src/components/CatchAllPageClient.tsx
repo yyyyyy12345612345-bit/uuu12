@@ -170,6 +170,7 @@ function CatchAllContent() {
 
   // Prevent any rendering until hydration is complete to stop Next.js 16 mismatch
   const [isClient, setIsClient] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -179,12 +180,21 @@ function CatchAllContent() {
   return (
     <div className={`fixed inset-0 text-foreground flex flex-col w-full h-[100dvh] font-arabic overflow-hidden transition-opacity duration-1000 bg-background`}>
       
-      {/* Unified Nature Video Background for all sections */}
-      <video 
-        className="absolute inset-0 w-full h-full object-cover z-[-2] opacity-90 dark:opacity-70"
-        autoPlay loop muted playsInline
-        src="https://assets.mixkit.co/videos/preview/mixkit-winter-landscape-with-snow-covered-trees-2936-large.mp4"
-      />
+      {/* Unified Nature Background for all sections */}
+      {videoError ? (
+        <img 
+          src="/mushaf-bg.jpg.png"
+          alt="background"
+          className="absolute inset-0 w-full h-full object-cover z-[-2] opacity-90 dark:opacity-70"
+        />
+      ) : (
+        <video 
+          className="absolute inset-0 w-full h-full object-cover z-[-2] opacity-90 dark:opacity-70"
+          autoPlay loop muted playsInline
+          src="https://assets.mixkit.co/videos/preview/mixkit-winter-landscape-with-snow-covered-trees-2936-large.mp4"
+          onError={() => setVideoError(true)}
+        />
+      )}
       <div className="absolute inset-0 bg-white/50 dark:bg-black/50 backdrop-blur-sm z-[-1] pointer-events-none transition-colors duration-1000" />
       
       {/* Global Top Bar - Logo + Install + Feedback */}

@@ -140,6 +140,12 @@ service cloud.firestore {
       allow update: if isAuthenticated();
     }
 
+    // Admin configuration (maintenance status, etc.)
+    match /admin/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // Default Fallback
     match /{allPaths=**} {
       // DENY ALL BY DEFAULT FOR UNMATCHED PATHS
