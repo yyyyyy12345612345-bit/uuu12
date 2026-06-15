@@ -5,11 +5,11 @@ import {
    X, Camera, User, Phone, Calendar,
    MapPin, Save, Loader2, CheckCircle, Image as ImageIcon, LogOut, ShieldCheck,
    BookOpen, Headphones, Trophy, PlayCircle, Compass, Settings, AlertTriangle, Trash2,
-   FileText, Crown, MessageCircle, Heart
+   FileText, Crown, MessageCircle, Heart, Users, UserPlus, UserMinus, UserCheck, ShieldAlert, Search
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { auth, db, storage } from "@/lib/firebase";
-import { doc, getDoc, updateDoc, collection, getDocs, deleteDoc, query, where, orderBy } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, getDocs, deleteDoc, query, where, orderBy, setDoc, serverTimestamp } from "firebase/firestore";
 import { deleteUser } from "firebase/auth";
 
 interface ProfileModalProps {
@@ -18,7 +18,7 @@ interface ProfileModalProps {
 }
 
 export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
-   const [activeTab, setActiveTab] = useState<"identity" | "stats" | "posts" | "account">("identity");
+   const [activeTab, setActiveTab] = useState<"identity" | "stats" | "posts" | "social" | "account">("identity");
    const [formData, setFormData] = useState({
       displayName: "",
       username: "",
@@ -37,6 +37,17 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
    const [deletingAccount, setDeletingAccount] = useState(false);
    const [myPosts, setMyPosts] = useState<any[]>([]);
    const [loadingMyPosts, setLoadingMyPosts] = useState(false);
+
+   // Social features states
+   const [searchQuery, setSearchQuery] = useState("");
+   const [searchResults, setSearchResults] = useState<any[]>([]);
+   const [searching, setSearching] = useState(false);
+   const [friendRequests, setFriendRequests] = useState<any[]>([]);
+   const [loadingRequests, setLoadingRequests] = useState(false);
+   const [friendsList, setFriendsList] = useState<any[]>([]);
+   const [loadingFriends, setLoadingFriends] = useState(false);
+   const [blockedList, setBlockedList] = useState<any[]>([]);
+   const [loadingBlocked, setLoadingBlocked] = useState(false);
 
    const fetchMyPosts = async () => {
       if (!auth?.currentUser || !db) return;
@@ -61,7 +72,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       }
    };
 
-   const handleDeleteMyPost = async (postId: string) => {
+    const handleDeleteMyPost = async (postId: string) => {
       if (!window.confirm("هل أنت متأكد من حذف هذا المنشور؟")) return;
       try {
          await deleteDoc(doc(db, "posts", postId));
@@ -71,6 +82,216 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
          alert("حدث خطأ أثناء الحذف");
       }
    };
+
+   // --- Social Helper Functions ---
+   const handleSearchFriends = async (queryText: string) => {
+      setSearchQuery(queryText);
+      if (!queryText.trim() || !db) {
+         setSearchResults([]);
+         return;
+      }
+      setSearching(true);
+      try {
+         const searchLower = queryText.trim().toLowerCase();
+         // Search by username prefix
+         const q = query(
+            collection(db, "users"),
+            where("username", ">=", searchLower),
+            where("username", "<=", searchLower + "\uf8ff")
+         );
+         const snap = await getDocs(q);
+         const list = snap.docs
+            .map(doc => doc.data())
+            .filter(u => u.uid !== auth?.currentUser?.uid); // exclude self
+         setSearchResults(list);
+      } catch (e) {
+         console.error("Error searching friends:", e);
+      } finally {
+         setSearching(false);
+      }
+   };
+
+   const fetchFriendRequests = async () => {
+      if (!auth?.currentUser || !db) return;
+      setLoadingRequests(true);
+      try {
+         const q = query(
+            collection(db, "friend_requests"),
+            where("receiverId", "==", auth.currentUser.uid),
+            where("status", "==", "pending")
+         );
+         const snap = await getDocs(q);
+         const list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+         setFriendRequests(list);
+      } catch (e) {
+         console.error("Error fetching friend requests:", e);
+      } finally {
+         setLoadingRequests(false);
+      }
+   };
+
+   const fetchFriends = async () => {
+      if (!auth?.currentUser || !db) return;
+      setLoadingFriends(true);
+      try {
+         const myUid = auth.currentUser.uid;
+         const q = query(
+            collection(db, "friendships"),
+            where("users", "array-contains", myUid)
+         );
+         const snap = await getDocs(q);
+         const friendships = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+         
+         const list = await Promise.all(
+            friendships.map(async (f: any) => {
+               const friendUid = f.users.find((uid: string) => uid !== myUid);
+               if (!friendUid) return null;
+               const userSnap = await getDoc(doc(db, "users", friendUid));
+               if (userSnap.exists()) {
+                  return { friendshipId: f.id, ...userSnap.data() };
+               }
+               return { friendshipId: f.id, uid: friendUid, displayName: "مستخدم يقين", photoURL: "" };
+            })
+         );
+         setFriendsList(list.filter(Boolean));
+      } catch (e) {
+         console.error("Error fetching friends:", e);
+      } finally {
+         setLoadingFriends(false);
+      }
+   };
+
+   const fetchBlockedUsers = async (blockedUids: string[]) => {
+      if (!db || !blockedUids || blockedUids.length === 0) {
+         setBlockedList([]);
+         return;
+      }
+      setLoadingBlocked(true);
+      try {
+         const list = await Promise.all(
+            blockedUids.map(async (uid) => {
+               const userSnap = await getDoc(doc(db, "users", uid));
+               if (userSnap.exists()) {
+                  return userSnap.data();
+               }
+               return { uid, displayName: "مستخدم محظور", photoURL: "" };
+            })
+         );
+         setBlockedList(list.filter(Boolean));
+      } catch (e) {
+         console.error("Error fetching blocked users:", e);
+      } finally {
+         setLoadingBlocked(false);
+      }
+   };
+
+   const handleAcceptFriendRequest = async (request: any) => {
+      if (!auth?.currentUser || !db) return;
+      try {
+         const myUid = auth.currentUser.uid;
+         const friendshipId = myUid < request.senderId ? `${myUid}_${request.senderId}` : `${request.senderId}_${myUid}`;
+         
+         await setDoc(doc(db, "friendships", friendshipId), {
+            users: [myUid, request.senderId],
+            createdAt: serverTimestamp()
+         });
+         await deleteDoc(doc(db, "friend_requests", request.id));
+         await setDoc(doc(db, "chats", friendshipId), {
+            participants: [myUid, request.senderId],
+            lastMessage: "تم قبول طلب الصداقة، ابدأوا الآن كلامكم الطيب ✨",
+            lastMessageAt: serverTimestamp(),
+            unreadCount: {
+               [myUid]: 0,
+               [request.senderId]: 0
+            }
+         });
+         
+         fetchFriendRequests();
+         fetchFriends();
+         alert("تم قبول طلب الصداقة ✅");
+      } catch (e) {
+         console.error(e);
+      }
+   };
+
+   const handleRejectFriendRequest = async (requestId: string) => {
+      if (!db) return;
+      try {
+         await deleteDoc(doc(db, "friend_requests", requestId));
+         fetchFriendRequests();
+      } catch (e) {
+         console.error(e);
+      }
+   };
+
+    const handleBlockUser = async (targetUid: string) => {
+       if (!auth?.currentUser || !db) return;
+       if (!window.confirm("هل أنت متأكد من رغبتك في حظر هذا المستخدم نهائياً؟ لن يتمكن من إرسال طلبات صداقة لك مجدداً.")) return;
+       try {
+          const myUid = auth.currentUser.uid;
+          
+          const userRef = doc(db, "users", myUid);
+          const userSnap = await getDoc(userRef);
+          const currentBlocked = userSnap.exists() ? (userSnap.data().blockedUsers || []) : [];
+          const updatedBlocked = currentBlocked.includes(targetUid) ? currentBlocked : [...currentBlocked, targetUid];
+          
+          if (!currentBlocked.includes(targetUid)) {
+             await updateDoc(userRef, { blockedUsers: updatedBlocked });
+             setBlockedList(prev => [...prev.filter((u: any) => u.uid !== targetUid), { uid: targetUid }]);
+             fetchBlockedUsers(updatedBlocked);
+             setUserStats((prev: any) => prev ? { ...prev, blockedUsers: updatedBlocked } : prev);
+          }
+
+          try {
+             await deleteDoc(doc(db, "friend_requests", `${myUid}_${targetUid}`));
+          } catch {}
+          try {
+             await deleteDoc(doc(db, "friend_requests", `${targetUid}_${myUid}`));
+          } catch {}
+
+          const friendshipId = myUid < targetUid ? `${myUid}_${targetUid}` : `${targetUid}_${myUid}`;
+          try {
+             await deleteDoc(doc(db, "friendships", friendshipId));
+          } catch {}
+
+          fetchFriendRequests();
+          fetchFriends();
+          alert("تم حظر المستخدم نهائياً 🚫");
+       } catch (e) {
+          console.error(e);
+       }
+    };
+
+    const handleUnblockUser = async (targetUid: string) => {
+       if (!auth?.currentUser || !db) return;
+       try {
+          const myUid = auth.currentUser.uid;
+          const userRef = doc(db, "users", myUid);
+          const userSnap = await getDoc(userRef);
+          const currentBlocked = userSnap.exists() ? (userSnap.data().blockedUsers || []) : [];
+          const updatedBlocked = currentBlocked.filter((uid: string) => uid !== targetUid);
+          await updateDoc(userRef, { blockedUsers: updatedBlocked });
+          
+          fetchBlockedUsers(updatedBlocked);
+          setUserStats((prev: any) => prev ? { ...prev, blockedUsers: updatedBlocked } : prev);
+          alert("تم إلغاء الحظر ✅");
+       } catch (e) {
+          console.error(e);
+       }
+    };
+
+    const handleRemoveFriend = async (friendUid: string, friendshipId: string) => {
+       if (!db) return;
+       if (!window.confirm("هل أنت متأكد من رغبتك في إزالة هذا الصديق؟")) return;
+       try {
+          await deleteDoc(doc(db, "friendships", friendshipId));
+          fetchFriends();
+          alert("تمت إزالة الصديق بنجاح ✅");
+       } catch (e) {
+          console.error(e);
+          alert("حدث خطأ أثناء إزالة الصديق");
+       }
+    };
 
    const AVATARS = {
       male: [
@@ -144,10 +365,18 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
    }, [isOpen]);
 
    useEffect(() => {
-      if (activeTab === "posts" && isOpen && auth?.currentUser) {
-         fetchMyPosts();
+      if (isOpen && auth?.currentUser) {
+         if (activeTab === "posts") {
+            fetchMyPosts();
+         } else if (activeTab === "social") {
+            fetchFriendRequests();
+            fetchFriends();
+            if (userStats?.blockedUsers) {
+               fetchBlockedUsers(userStats.blockedUsers);
+            }
+         }
       }
-   }, [activeTab, isOpen]);
+   }, [activeTab, isOpen, userStats]);
 
    const fetchUserData = async () => {
       if (!auth?.currentUser || !db) return;
@@ -170,6 +399,10 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                ...data,
                completedSurahsCount
             });
+            
+            if (data.blockedUsers) {
+               fetchBlockedUsers(data.blockedUsers);
+            }
             
             setFormData({
                displayName: data.displayName || "",
@@ -325,6 +558,10 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                          <button type="button" onClick={() => setActiveTab("posts")} className={`flex-1 py-3 px-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${activeTab === 'posts' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-white/40 hover:text-white'}`}>
                            <FileText className="w-3.5 h-3.5" />
                            <span>منشوراتي</span>
+                         </button>
+                         <button type="button" onClick={() => setActiveTab("social")} className={`flex-1 py-3 px-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${activeTab === 'social' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-white/40 hover:text-white'}`}>
+                           <Users className="w-3.5 h-3.5" />
+                           <span>الأصدقاء</span>
                          </button>
                          <button type="button" onClick={() => setActiveTab("account")} className={`flex-1 py-3 px-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${activeTab === 'account' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-white/40 hover:text-white'}`}>
                            <Settings className="w-3.5 h-3.5" />
@@ -633,6 +870,256 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                   ))}
                                </div>
                             )}
+                         </div>
+                      )}
+
+                      {/* Social Tab */}
+                      {activeTab === 'social' && (
+                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
+                            
+                            {/* Search for Friends */}
+                            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 space-y-4 shadow-lg">
+                               <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-3">
+                                     <Search className="w-5 h-5 text-primary animate-pulse" />
+                                     <h4 className="text-white font-black text-sm">البحث عن صديق جديد</h4>
+                                  </div>
+                                  <span className="text-[9px] font-black text-primary bg-primary/10 px-2.5 py-1 rounded-full uppercase tracking-wider">المجتمع</span>
+                               </div>
+                               
+                               <div className="relative">
+                                  <input
+                                     type="text"
+                                     value={searchQuery}
+                                     onChange={(e) => handleSearchFriends(e.target.value)}
+                                     placeholder="ابحث باسم المستخدم (مثال: ahmad)..."
+                                     className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pr-12 pl-6 text-right outline-none focus:border-primary/50 transition-all text-sm font-bold text-white shadow-inner placeholder:text-white/20"
+                                  />
+                                  <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-white/20 w-5 h-5" />
+                               </div>
+
+                               {searching ? (
+                                  <div className="flex items-center justify-center py-6 gap-2">
+                                     <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                                     <span className="text-white/40 text-xs font-bold">جاري البحث عن رفقاء الدرب...</span>
+                                  </div>
+                               ) : searchQuery.trim() !== "" && searchResults.length === 0 ? (
+                                  <div className="text-center text-white/30 text-xs py-4 font-bold bg-white/5 rounded-2xl">
+                                     لا توجد نتائج مطابقة لمصطلح البحث
+                                  </div>
+                               ) : searchResults.length > 0 ? (
+                                  <div className="space-y-3 max-h-56 overflow-y-auto no-scrollbar pt-2">
+                                     {searchResults.map((user: any) => (
+                                        <div key={user.uid} className="flex items-center justify-between p-3.5 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 transition-colors shadow-sm">
+                                           <div className="flex items-center gap-2">
+                                              <button
+                                                 type="button"
+                                                 onClick={() => handleBlockUser(user.uid)}
+                                                 className="px-3 py-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white rounded-xl transition-all text-xs font-black flex items-center gap-1.5 border border-red-500/15"
+                                                 title="حظر نهائي"
+                                              >
+                                                 <ShieldAlert className="w-3.5 h-3.5" />
+                                                 <span>حظر</span>
+                                              </button>
+                                              <button
+                                                 type="button"
+                                                 onClick={() => {
+                                                    window.dispatchEvent(new CustomEvent("show_user_profile", { detail: { userId: user.uid } }));
+                                                 }}
+                                                 className="px-3 py-2 bg-primary/10 hover:bg-primary text-primary hover:text-black rounded-xl transition-all text-xs font-black flex items-center gap-1.5 border border-primary/20"
+                                              >
+                                                 <User className="w-3.5 h-3.5" />
+                                                 <span>الملف الشخصي</span>
+                                              </button>
+                                           </div>
+                                           <div className="flex items-center gap-3">
+                                              <div className="text-right">
+                                                 <span className="block text-sm font-bold text-white leading-tight">{user.displayName || "مستمع قرآن"}</span>
+                                                 <span className="block text-[10px] text-primary font-mono mt-0.5">@{user.username}</span>
+                                              </div>
+                                              <img
+                                                 src={user.photoURL || AVATARS[user.gender || 'male'][0]}
+                                                 alt="Avatar"
+                                                 className="w-10 h-10 rounded-full border-2 border-white/5 bg-[#0c0d10] object-cover shadow-md"
+                                              />
+                                           </div>
+                                        </div>
+                                     ))}
+                                  </div>
+                               ) : null}
+                            </div>
+
+                            {/* Friend Requests */}
+                            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 space-y-4 shadow-lg">
+                               <div className="flex items-center gap-3">
+                                  <UserCheck className="w-5 h-5 text-emerald-400" />
+                                  <h4 className="text-white font-black text-sm">طلبات الصداقة الواردة ({friendRequests.length})</h4>
+                               </div>
+
+                               {loadingRequests ? (
+                                  <div className="flex items-center justify-center py-6">
+                                     <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                                  </div>
+                               ) : friendRequests.length === 0 ? (
+                                  <div className="text-center text-white/20 text-xs py-8 font-bold bg-white/5 border border-dashed border-white/5 rounded-2xl">
+                                     لا توجد طلبات صداقة معلقة حالياً
+                                  </div>
+                               ) : (
+                                  <div className="space-y-3">
+                                     {friendRequests.map((request: any) => (
+                                        <div key={request.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-[#0e0e12] border border-white/5 rounded-2xl gap-3 shadow-md">
+                                           <div className="flex items-center gap-2">
+                                              <button
+                                                 type="button"
+                                                 onClick={() => handleAcceptFriendRequest(request)}
+                                                 className="flex-1 sm:flex-initial px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-500/10"
+                                              >
+                                                 <UserCheck className="w-3.5 h-3.5" />
+                                                 قبول
+                                              </button>
+                                              <button
+                                                 type="button"
+                                                 onClick={() => handleRejectFriendRequest(request.id)}
+                                                 className="flex-1 sm:flex-initial px-4 py-2 bg-white/5 border border-white/10 hover:bg-white/10 text-white/70 rounded-xl font-bold text-xs transition-all flex items-center justify-center"
+                                              >
+                                                 رفض
+                                              </button>
+                                              <button
+                                                 type="button"
+                                                 onClick={() => handleBlockUser(request.senderId)}
+                                                 className="px-3 py-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white rounded-xl transition-all text-xs font-black border border-red-500/10"
+                                                 title="حظر نهائي لمنع إرسال طلبات أخرى"
+                                              >
+                                                 حظر نهائي
+                                              </button>
+                                           </div>
+                                           
+                                           <div className="flex items-center justify-end gap-3">
+                                              <div className="text-right">
+                                                 <span className="block text-sm font-bold text-white">{request.senderName || "قارئ جديد"}</span>
+                                                 <span className="block text-[10px] text-white/40 mt-0.5">يرغب في أن يكون صديقاً لك</span>
+                                              </div>
+                                              <img
+                                                 src={request.senderAvatar || AVATARS['male'][0]}
+                                                 alt="Avatar"
+                                                 className="w-10 h-10 rounded-full border-2 border-white/5 bg-[#0c0d10] object-cover shadow-md"
+                                              />
+                                           </div>
+                                        </div>
+                                     ))}
+                                  </div>
+                               )}
+                            </div>
+
+                            {/* Friends List */}
+                            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 space-y-4 shadow-lg">
+                               <div className="flex items-center gap-3">
+                                  <Users className="w-5 h-5 text-primary" />
+                                  <h4 className="text-white font-black text-sm">قائمة الأصدقاء ({friendsList.length})</h4>
+                               </div>
+
+                               {loadingFriends ? (
+                                  <div className="flex items-center justify-center py-6">
+                                     <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                                  </div>
+                               ) : friendsList.length === 0 ? (
+                                  <div className="text-center text-white/20 text-xs py-10 font-bold bg-white/5 border border-dashed border-white/5 rounded-2xl">
+                                     لم تقم بإضافة أصدقاء بعد. ابحث عن الأصدقاء وتفاعل معهم!
+                                  </div>
+                               ) : (
+                                  <div className="space-y-3 max-h-64 overflow-y-auto no-scrollbar">
+                                     {friendsList.map((friend: any) => (
+                                        <div key={friend.uid} className="flex items-center justify-between p-3.5 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 transition-all shadow-sm">
+                                           <div className="flex items-center gap-2">
+                                              <button
+                                                 type="button"
+                                                 onClick={() => handleBlockUser(friend.uid)}
+                                                 className="px-2.5 py-1.5 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-400 rounded-xl transition-all text-xs font-black border border-red-500/10"
+                                                 title="حظر نهائي"
+                                              >
+                                                 حظر
+                                              </button>
+                                              <button
+                                                 type="button"
+                                                 onClick={() => handleRemoveFriend(friend.uid, friend.friendshipId)}
+                                                 className="px-2.5 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 text-white/60 rounded-xl transition-all text-xs font-bold"
+                                                 title="إزالة الصديق"
+                                              >
+                                                 إزالة
+                                              </button>
+                                              <button
+                                                 type="button"
+                                                 onClick={() => {
+                                                    window.dispatchEvent(new CustomEvent("open_direct_chat", { detail: { userId: friend.uid } }));
+                                                 }}
+                                                 className="px-3.5 py-1.5 bg-primary/20 hover:bg-primary text-primary hover:text-black rounded-xl transition-all text-xs font-black flex items-center gap-1.5 border border-primary/20"
+                                              >
+                                                 <MessageCircle className="w-3.5 h-3.5" />
+                                                 <span>دردشة</span>
+                                              </button>
+                                           </div>
+
+                                           <div className="flex items-center gap-3">
+                                              <div className="text-right">
+                                                 <span className="block text-sm font-bold text-white leading-tight">{friend.displayName || "مستمع يقين"}</span>
+                                                 <span className="block text-[10px] text-primary font-mono mt-0.5">@{friend.username}</span>
+                                              </div>
+                                              <img
+                                                 src={friend.photoURL || AVATARS[friend.gender || 'male'][0]}
+                                                 alt="Avatar"
+                                                 className="w-10 h-10 rounded-full border-2 border-white/5 bg-[#0c0d10] object-cover shadow-md"
+                                              />
+                                           </div>
+                                        </div>
+                                     ))}
+                                  </div>
+                               )}
+                            </div>
+
+                            {/* Blocked Users List */}
+                            {blockedList.length > 0 && (
+                               <div className="bg-red-500/5 border border-red-500/20 rounded-3xl p-6 space-y-4 shadow-lg animate-in slide-in-from-bottom-2 duration-300">
+                                  <div className="flex items-center gap-3">
+                                     <ShieldAlert className="w-5 h-5 text-red-400" />
+                                     <h4 className="text-red-400 font-black text-sm">المستخدمون المحظورون ({blockedList.length})</h4>
+                                  </div>
+
+                                  {loadingBlocked ? (
+                                     <div className="flex items-center justify-center py-6">
+                                        <Loader2 className="w-6 h-6 text-red-400 animate-spin" />
+                                     </div>
+                                  ) : (
+                                     <div className="space-y-3 max-h-48 overflow-y-auto no-scrollbar">
+                                        {blockedList.map((blocked: any) => (
+                                           <div key={blocked.uid} className="flex items-center justify-between p-3 bg-white/5 border border-white/5 rounded-2xl shadow-sm">
+                                              <button
+                                                 type="button"
+                                                 onClick={() => handleUnblockUser(blocked.uid)}
+                                                 className="px-3.5 py-1.5 bg-emerald-500/10 hover:bg-emerald-500 hover:text-white text-emerald-400 rounded-xl transition-all text-xs font-black border border-emerald-500/20"
+                                              >
+                                                 إلغاء الحظر
+                                              </button>
+                                              
+                                              <div className="flex items-center gap-3">
+                                                 <div className="text-right">
+                                                    <span className="block text-sm font-bold text-white">{blocked.displayName || "مستمع محظور"}</span>
+                                                    {blocked.username && (
+                                                       <span className="block text-[10px] text-white/30 font-mono mt-0.5">@{blocked.username}</span>
+                                                    )}
+                                                 </div>
+                                                 <img
+                                                    src={blocked.photoURL || AVATARS[blocked.gender || 'male'][0]}
+                                                    alt="Avatar"
+                                                    className="w-10 h-10 rounded-full border-2 border-white/5 bg-[#0c0d10] object-cover opacity-60 shadow-md"
+                                                 />
+                                              </div>
+                                           </div>
+                                        ))}
+                                     </div>
+                                  )}
+                               </div>
+                            )}
+
                          </div>
                       )}
 

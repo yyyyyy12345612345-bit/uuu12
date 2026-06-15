@@ -109,7 +109,11 @@ service cloud.firestore {
     // Friend Requests
     match /friend_requests/{requestId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.senderId;
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.senderId
+                    && (
+                      !('blockedUsers' in get(/databases/$(database)/documents/users/$(request.resource.data.receiverId)).data)
+                      || !(request.auth.uid in get(/databases/$(database)/documents/users/$(request.resource.data.receiverId)).data.blockedUsers)
+                    );
       allow update: if isAuthenticated() && (request.auth.uid == resource.data.senderId || request.auth.uid == resource.data.receiverId);
       allow delete: if isAuthenticated() && (request.auth.uid == resource.data.senderId || request.auth.uid == resource.data.receiverId);
     }
