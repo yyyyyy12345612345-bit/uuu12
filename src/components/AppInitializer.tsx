@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Capacitor } from '@capacitor/core';
-import { X, Download, Info, ShieldCheck, Bell, MapPin, CheckCircle2, ArrowRight } from 'lucide-react';
+import { X, Download, Info, ShieldCheck, Bell, MapPin, CheckCircle2, ArrowRight, SkipForward } from 'lucide-react';
+import { gsap } from "gsap";
 import { requestNotificationPermission, smartReschedule, loadSettings } from '@/lib/prayerNotifications';
 import { initializePushNotifications } from '@/lib/pushNotifications';
 import { Geolocation } from '@capacitor/geolocation';
@@ -18,6 +19,30 @@ import { initSmartNotifications, cleanupSmartNotifications } from '@/lib/smartNo
 
 export default function AppInitializer({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState(true);
+  
+  // GSAP animation refs
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const starPathRef = useRef<SVGPathElement>(null);
+  const bookPathRef = useRef<SVGPathElement>(null);
+  const logoImgRef = useRef<HTMLDivElement>(null);
+  const textContainerRef = useRef<HTMLDivElement>(null);
+  const authorRef = useRef<HTMLDivElement>(null);
+  const skipBtnRef = useRef<HTMLButtonElement>(null);
+
+  const handleSkipSplash = () => {
+    if (overlayRef.current) {
+      gsap.killTweensOf(overlayRef.current);
+      gsap.killTweensOf(starPathRef.current);
+      gsap.killTweensOf(bookPathRef.current);
+      gsap.killTweensOf(logoImgRef.current);
+      gsap.killTweensOf(textContainerRef.current);
+      gsap.killTweensOf(authorRef.current);
+    }
+    setShowSplash(false);
+    sessionStorage.setItem("has_seen_splash", "true");
+    checkFirstRun();
+  };
+
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateInfo, setUpdateInfo] = useState<any>(null);
   const [showPermissionModal, setShowPermissionModal] = useState(false);
@@ -54,18 +79,107 @@ export default function AppInitializer({ children }: { children: React.ReactNode
   useEffect(() => {
     // Only show splash once per session to avoid annoying re-loads during navigation
     const hasSeenSplash = sessionStorage.getItem("has_seen_splash");
+    
+    // Check for prefers-reduced-motion
+    const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
     if (hasSeenSplash) {
       setShowSplash(false);
       checkFirstRun();
       return;
     }
 
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-      sessionStorage.setItem("has_seen_splash", "true");
-      checkFirstRun();
-    }, 400); // Reduced to 400ms for instant feel
-    return () => clearTimeout(timer);
+    if (prefersReducedMotion) {
+      // Reduced motion: simple fast fade-out
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+        sessionStorage.setItem("has_seen_splash", "true");
+        checkFirstRun();
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+
+    // GSAP Intro Timeline
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        onComplete: () => {
+          setShowSplash(false);
+          sessionStorage.setItem("has_seen_splash", "true");
+          checkFirstRun();
+        }
+      });
+
+      // 1. Initially set element starting properties
+      gsap.set([textContainerRef.current, authorRef.current, skipBtnRef.current], { opacity: 0, y: 15 });
+      gsap.set(logoImgRef.current, { scale: 0.8, opacity: 0 });
+
+      // Animate the SVG paths stroke drawing
+      if (starPathRef.current && bookPathRef.current) {
+        const starLength = starPathRef.current.getTotalLength();
+        const bookLength = bookPathRef.current.getTotalLength();
+
+        gsap.set(starPathRef.current, { strokeDasharray: starLength, strokeDashoffset: starLength });
+        gsap.set(bookPathRef.current, { strokeDasharray: bookLength, strokeDashoffset: bookLength });
+
+        tl.to(starPathRef.current, {
+          strokeDashoffset: 0,
+          duration: 1.2,
+          ease: "power2.inOut"
+        })
+        .to(bookPathRef.current, {
+          strokeDashoffset: 0,
+          duration: 0.8,
+          ease: "power2.out"
+        }, "-=0.6")
+        .to(logoImgRef.current, {
+          scale: 1,
+          opacity: 1,
+          duration: 0.5,
+          ease: "back.out(1.5)"
+        }, "-=0.2");
+      } else {
+        // Fallback if SVG paths not present/resolvable
+        tl.to(logoImgRef.current, {
+          scale: 1,
+          opacity: 1,
+          duration: 0.8,
+          ease: "power2.out"
+        });
+      }
+
+      // 2. Animate title, subtitle and author text
+      tl.to(textContainerRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "power2.out"
+      }, "-=0.2")
+      .to(authorRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
+        ease: "power2.out"
+      }, "-=0.3")
+      .to(skipBtnRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.4,
+        ease: "power2.out"
+      }, "-=0.4");
+
+      // 3. Pause momentarily for impact
+      tl.to({}, { duration: 0.8 });
+
+      // 4. Exit screen transition (fade out overlay)
+      tl.to(overlayRef.current, {
+        opacity: 0,
+        scale: 1.02,
+        duration: 0.6,
+        ease: "power3.inOut"
+      });
+    });
+
+    return () => ctx.revert();
   }, []);
 
   const checkFirstRun = async () => {
@@ -468,25 +582,77 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
       {/* Custom Splash Screen Overlay */}
       {showSplash && (
-        <div className="fixed inset-0 z-[5000] bg-background flex flex-col items-center justify-center font-arabic animate-out fade-out duration-1000 fill-mode-forwards">
-           <div className="absolute inset-0 islamic-pattern opacity-[0.03]" />
-           <div className="relative">
-              <div className="w-32 h-32 rounded-[2.5rem] bg-primary/10 flex items-center justify-center p-6 border border-primary/20 animate-pulse relative z-10 shadow-2xl shadow-primary/20">
-                 <img src="/logo/logo.png?v=21" alt="Logo" className="w-full h-full object-contain" />
+        <div 
+          ref={overlayRef}
+          className="fixed inset-0 z-[5000] bg-[#05060a] flex flex-col items-center justify-center font-arabic overflow-hidden select-none"
+        >
+           {/* Decorative Background Glows */}
+           <div className="absolute inset-0 bg-gradient-to-b from-[#0e1424] via-[#090b11] to-[#05060a]" />
+           <div className="absolute w-[45rem] h-[45rem] rounded-full bg-[#fbbf24]/5 blur-[120px] pointer-events-none" />
+           <div className="absolute inset-0 islamic-pattern opacity-[0.02] scale-110" />
+           
+           {/* Central SVG Calligraphy / Logo animation */}
+           <div ref={logoImgRef} className="relative w-44 h-44 flex items-center justify-center mb-6">
+              {/* Rotating background ring - hidden on mobile for performance */}
+              <div className="absolute inset-0 md:block hidden animate-[spin_60s_linear_infinite] opacity-15">
+                 <svg viewBox="0 0 100 100" className="w-full h-full text-[#fbbf24]/40">
+                    <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="0.25" strokeDasharray="3 6" />
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                 </svg>
               </div>
-              {/* Outer Rings */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border border-primary/10 rounded-full animate-ping duration-[3000ms]" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border border-primary/5 rounded-full animate-ping duration-[4000ms]" />
+              
+              {/* SVG drawing */}
+              <svg viewBox="0 0 100 100" className="w-32 h-32 text-[#fbbf24] drop-shadow-[0_0_15px_rgba(251,191,36,0.35)]">
+                 {/* Islamic 8-pointed star (Rub el Hizb) */}
+                 <path 
+                    ref={starPathRef}
+                    d="M 50 8 L 62 20 L 78 20 L 78 36 L 90 48 L 78 60 L 78 76 L 62 76 L 50 88 L 38 76 L 22 76 L 22 60 L 10 48 L 22 36 L 22 20 L 38 20 Z" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="1.2" 
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                 />
+                 {/* Open Quran Book */}
+                 <path 
+                    ref={bookPathRef}
+                    d="M 50 62 C 43 57 32 57 30 59 L 30 40 C 32 38 43 38 50 43 Z M 50 62 C 57 57 68 57 70 59 L 70 40 C 68 38 57 38 50 43 Z M 50 43 L 50 63" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="1.2" 
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                 />
+              </svg>
            </div>
            
-           <div className="mt-12 text-center animate-in slide-in-from-bottom-10 duration-1000">
-              <h1 className="text-3xl font-black text-foreground tracking-tighter mb-2">قرآن كريم</h1>
-              <p className="text-[10px] text-primary font-black tracking-[0.3em] font-arabic">الإصدار الحادي والعشرون</p>
+           {/* Brand and titles */}
+           <div ref={textContainerRef} className="text-center z-10">
+              <h1 className="text-3xl font-black text-white tracking-wider mb-2 drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] font-arabic">
+                 يَـقِـيـن
+              </h1>
+              <p className="text-[10px] text-[#fbbf24] font-black tracking-[0.25em] font-arabic uppercase opacity-85">
+                 المصحف الإلكتروني والأذكار
+              </p>
            </div>
            
-           <div className="absolute bottom-12 flex flex-col items-center gap-4">
-              <div className="w-1 h-12 bg-gradient-to-b from-primary to-transparent rounded-full animate-bounce" />
-              <p className="text-[9px] text-foreground/20 font-bold uppercase tracking-widest italic">بواسطة يوسف أسامة</p>
+           {/* Footer info & Skip button */}
+           <div className="absolute bottom-10 flex flex-col items-center gap-6 z-10 w-full px-6">
+              <button
+                 ref={skipBtnRef}
+                 onClick={handleSkipSplash}
+                 className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition duration-300 text-[10px] font-black text-white/75 active:scale-95 shadow-md"
+              >
+                 <SkipForward className="w-3.5 h-3.5" />
+                 تخطي التحميل
+              </button>
+              
+              <div ref={authorRef} className="flex flex-col items-center gap-2">
+                 <div className="w-1.5 h-1.5 rounded-full bg-[#fbbf24] animate-ping" />
+                 <p className="text-[9px] text-white/30 font-bold tracking-widest uppercase">
+                    بواسطة يوسف أسامة
+                 </p>
+              </div>
            </div>
         </div>
       )}
