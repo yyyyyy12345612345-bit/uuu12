@@ -29,10 +29,17 @@ export const RECITERS: Reciter[] = [
     "everyAyahFolder": "Saood_ash-Shuraym_128kbps"
   },
   {
-    "id": "juhani",
+    "id": "hani_rifai",
     "name": "هاني الرفاعي",
-    "folder": "juhani",
+    "folder": "hani",
     "mp3quranServer": "server8.mp3quran.net/hani",
+    "everyAyahFolder": "Hani_Rifai_192kbps"
+  },
+  {
+    "id": "juhani",
+    "name": "عبدالله عواد الجهني",
+    "folder": "jhn",
+    "mp3quranServer": "server13.mp3quran.net/jhn",
     "everyAyahFolder": "Abdullaah_3awwaad_Al-Juhaynee_128kbps"
   },
   {
@@ -60,7 +67,8 @@ export const RECITERS: Reciter[] = [
     "id": "ajm",
     "name": "أحمد بن علي العجمي",
     "folder": "ajm",
-    "mp3quranServer": "server10.mp3quran.net/ajm"
+    "mp3quranServer": "server10.mp3quran.net/ajm",
+    "everyAyahFolder": "Ahmed_ibn_Ali_al-Ajamy_128kbps_ketaballah.net"
   },
   {
     "id": "yasser",
@@ -76,25 +84,46 @@ export const RECITERS: Reciter[] = [
     "mp3quranServer": "server6.mp3quran.net/abkr"
   },
   {
-    "id": "basit",
-    "name": "عبدالباسط عبدالصمد",
+    "id": "basit_murattal",
+    "name": "عبدالباسط عبدالصمد (مرتل)",
     "folder": "basit",
     "mp3quranServer": "server7.mp3quran.net/basit",
     "everyAyahFolder": "Abdul_Basit_Murattal_192kbps"
   },
   {
-    "id": "minsh",
-    "name": "محمد صديق المنشاوي",
+    "id": "basit_mujawwad",
+    "name": "عبدالباسط عبدالصمد (مجود)",
+    "folder": "basit_mjwd",
+    "mp3quranServer": "server11.mp3quran.net/basit_mjwd",
+    "everyAyahFolder": "Abdul_Basit_Mujawwad_128kbps"
+  },
+  {
+    "id": "minsh_murattal",
+    "name": "محمد صديق المنشاوي (مرتل)",
     "folder": "minsh",
     "mp3quranServer": "server10.mp3quran.net/minsh",
     "everyAyahFolder": "Minshawy_Murattal_128kbps"
   },
   {
-    "id": "husr",
-    "name": "محمود خليل الحصري",
+    "id": "minsh_mujawwad",
+    "name": "محمد صديق المنشاوي (مجود)",
+    "folder": "minsh_mjwd",
+    "mp3quranServer": "server11.mp3quran.net/minsh_mjwd",
+    "everyAyahFolder": "Minshawy_Mujawwad_192kbps"
+  },
+  {
+    "id": "husr_murattal",
+    "name": "محمود خليل الحصري (مرتل)",
     "folder": "husr",
     "mp3quranServer": "server13.mp3quran.net/husr",
     "everyAyahFolder": "Husary_128kbps"
+  },
+  {
+    "id": "husr_mujawwad",
+    "name": "محمود خليل الحصري (مجود)",
+    "folder": "husr_mjwd",
+    "mp3quranServer": "server11.mp3quran.net/husr_mjwd",
+    "everyAyahFolder": "Husary_Mujawwad_64kbps"
   },
   {
     "id": "shatree",
@@ -121,7 +150,8 @@ export const RECITERS: Reciter[] = [
     "id": "akdr",
     "name": "إبراهيم الأخضر",
     "folder": "akdr",
-    "mp3quranServer": "server6.mp3quran.net/akdr"
+    "mp3quranServer": "server6.mp3quran.net/akdr",
+    "everyAyahFolder": "Ibrahim_Akhdar_64kbps"
   },
   {
     "id": "jleel",
@@ -151,7 +181,8 @@ export const RECITERS: Reciter[] = [
     "id": "albana",
     "name": "محمود علي البنا",
     "folder": "bna",
-    "mp3quranServer": "server8.mp3quran.net/bna"
+    "mp3quranServer": "server8.mp3quran.net/bna",
+    "everyAyahFolder": "mahmoud_ali_al_banna_32kbps"
   },
   {
     "id": "basfar",
@@ -161,13 +192,13 @@ export const RECITERS: Reciter[] = [
     "everyAyahFolder": "Abdullah_Basfar_64kbps"
   },
   {
-    "id": "mohammad_rifaat",
+    "id": "hamad_daghriri",
     "name": "حمد الدغريري",
     "folder": "mohammad_rifaat",
     "mp3quranServer": "server6.mp3quran.net/hamad"
   },
   {
-    "id": "sayed_nakashibandi",
+    "id": "salah_hashim",
     "name": "صلاح الهاشم",
     "folder": "sayed_nakashibandi",
     "mp3quranServer": "server12.mp3quran.net/salah_hashim_m"
@@ -188,7 +219,8 @@ export const RECITERS: Reciter[] = [
     "id": "ali_abdullah_jaber",
     "name": "علي عبد الله جابر",
     "folder": "ali_abdullah_jaber",
-    "mp3quranServer": "server9.mp3quran.net/abdullah"
+    "mp3quranServer": "server9.mp3quran.net/abdullah",
+    "everyAyahFolder": "Ali_Jaber_64kbps"
   },
   {
     "id": "ahmed_ibn_taleb_hameed",
@@ -203,13 +235,14 @@ export const RECITERS: Reciter[] = [
     "mp3quranServer": "server14.mp3quran.net/islam/Rewayat-Hafs-A-n-Assem"
   },
   {
-    "id": "abdurrahman_musaab",
+    "id": "ahmed_naina",
     "name": "أحمد نعينع",
     "folder": "abdurrahman_musaab",
-    "mp3quranServer": "server11.mp3quran.net/ahmad_nu"
+    "mp3quranServer": "server11.mp3quran.net/ahmad_nu",
+    "everyAyahFolder": "Ahmed_Neana_128kbps"
   },
   {
-    "id": "ahmed_kasab",
+    "id": "abdulaziz_alahmed",
     "name": "عبدالعزيز الأحمد",
     "folder": "ahmed_kasab",
     "mp3quranServer": "server11.mp3quran.net/a_ahmed"
@@ -218,22 +251,23 @@ export const RECITERS: Reciter[] = [
     "id": "mustafa_ismail",
     "name": "مصطفى إسماعيل",
     "folder": "mustafa_ismail",
-    "mp3quranServer": "server8.mp3quran.net/mustafa"
+    "mp3quranServer": "server8.mp3quran.net/mustafa",
+    "everyAyahFolder": "Mustafa_Ismail_48kbps"
   },
   {
-    "id": "kamel_yousef_albahtimi",
+    "id": "yousef_shohaee",
     "name": "يوسف الشويعي",
     "folder": "kamel_yousef_albahtimi",
     "mp3quranServer": "server9.mp3quran.net/yousef"
   },
   {
-    "id": "taha_alfashny",
+    "id": "ahmed_hawashi",
     "name": "أحمد الحواشي",
     "folder": "taha_alfashny",
     "mp3quranServer": "server11.mp3quran.net/hawashi"
   },
   {
-    "id": "abu_alaneen_shaishaa",
+    "id": "ahmed_trabulsi",
     "name": "أحمد الطرابلسي",
     "folder": "abu_alaneen_shaishaa",
     "mp3quranServer": "server10.mp3quran.net/trabulsi"
@@ -242,7 +276,8 @@ export const RECITERS: Reciter[] = [
     "id": "alqasim",
     "name": "عبدالمحسن القاسم",
     "folder": "alqasim",
-    "mp3quranServer": "server8.mp3quran.net/qasm"
+    "mp3quranServer": "server8.mp3quran.net/qasm",
+    "everyAyahFolder": "Muhsin_Al_Qasim_192kbps"
   },
   {
     "id": "ath_thubaity",
@@ -251,7 +286,7 @@ export const RECITERS: Reciter[] = [
     "mp3quranServer": "server6.mp3quran.net/thubti"
   },
   {
-    "id": "adel_kalbani",
+    "id": "abdulwali_arkani",
     "name": "عبدالولي الأركاني",
     "folder": "adel_kalbani",
     "mp3quranServer": "server6.mp3quran.net/arkani"
@@ -260,13 +295,15 @@ export const RECITERS: Reciter[] = [
     "id": "khalid_alqahtani",
     "name": "خالد القحطاني",
     "folder": "khalid_alqahtani",
-    "mp3quranServer": "server10.mp3quran.net/qht"
+    "mp3quranServer": "server10.mp3quran.net/qht",
+    "everyAyahFolder": "Khaalid_Abdullaah_al-Qahtaanee_192kbps"
   },
   {
     "id": "salah_albudair",
     "name": "صلاح البدير",
     "folder": "salah_albudair",
-    "mp3quranServer": "server6.mp3quran.net/s_bud"
+    "mp3quranServer": "server6.mp3quran.net/s_bud",
+    "everyAyahFolder": "Salah_Al_Budair_128kbps"
   },
   {
     "id": "ibrahim_aljibrin",
@@ -275,7 +312,7 @@ export const RECITERS: Reciter[] = [
     "mp3quranServer": "server6.mp3quran.net/jbreen"
   },
   {
-    "id": "abdullah_almatrouk",
+    "id": "abdullah_kandari",
     "name": "عبدالله الكندري",
     "folder": "abdullah_almatrouk",
     "mp3quranServer": "server10.mp3quran.net/Abdullahk"
@@ -284,7 +321,8 @@ export const RECITERS: Reciter[] = [
     "id": "nabil_rafat",
     "name": "نبيل الرفاعي",
     "folder": "nabil_rafat",
-    "mp3quranServer": "server9.mp3quran.net/nabil"
+    "mp3quranServer": "server9.mp3quran.net/nabil",
+    "everyAyahFolder": "Nabil_Rifa3i_48kbps"
   },
   {
     "id": "mohamed_jassem",
@@ -299,7 +337,7 @@ export const RECITERS: Reciter[] = [
     "mp3quranServer": "server16.mp3quran.net/hasan"
   },
   {
-    "id": "mohammed_ismail",
+    "id": "khalid_ghamdi",
     "name": "خالد الغامدي",
     "folder": "mohammed_ismail",
     "mp3quranServer": "server6.mp3quran.net/ghamdi"
@@ -323,13 +361,13 @@ export const RECITERS: Reciter[] = [
     "mp3quranServer": "server14.mp3quran.net/nasser_almajed"
   },
   {
-    "id": "saleh_alorman",
+    "id": "salman_alotaibi",
     "name": "سلمان العتيبي",
     "folder": "saleh_alorman",
     "mp3quranServer": "server11.mp3quran.net/salman"
   },
   {
-    "id": "fadhel_alqahtani",
+    "id": "mustafa_lahoni",
     "name": "مصطفى اللاهوني",
     "folder": "fadhel_alqahtani",
     "mp3quranServer": "server6.mp3quran.net/lahoni"
@@ -347,7 +385,7 @@ export const RECITERS: Reciter[] = [
     "mp3quranServer": "server12.mp3quran.net/yahya"
   },
   {
-    "id": "mohammed_alzaidi",
+    "id": "dawood_hamza",
     "name": "داود حمزة",
     "folder": "mohammed_alzaidi",
     "mp3quranServer": "server9.mp3quran.net/hamza"
@@ -371,13 +409,13 @@ export const RECITERS: Reciter[] = [
     "mp3quranServer": "server8.mp3quran.net/saber"
   },
   {
-    "id": "fahd_alqadi",
+    "id": "alzain_mohammad",
     "name": "الزين محمد أحمد",
     "folder": "fahd_alqadi",
     "mp3quranServer": "server9.mp3quran.net/alzain"
   },
   {
-    "id": "mohammed_alsharif",
+    "id": "abdulmohsen_harthi",
     "name": "عبدالمحسن الحارثي",
     "folder": "mohammed_alsharif",
     "mp3quranServer": "server6.mp3quran.net/mohsin_harthi"
@@ -395,19 +433,19 @@ export const RECITERS: Reciter[] = [
     "mp3quranServer": "server11.mp3quran.net/qari"
   },
   {
-    "id": "ahmed_alhameidi",
+    "id": "waleed_dulyami",
     "name": "وليد الدليمي",
     "folder": "ahmed_alhameidi",
     "mp3quranServer": "server8.mp3quran.net/dlami"
   },
   {
-    "id": "ahmad_alsaeed",
+    "id": "abdurrahman_majed",
     "name": "عبدالرحمن الماجد",
     "folder": "ahmad_alsaeed",
     "mp3quranServer": "server10.mp3quran.net/a_majed"
   },
   {
-    "id": "majid_alqadi",
+    "id": "mohammad_khalil_qari",
     "name": "محمد خليل القارئ",
     "folder": "majid_alqadi",
     "mp3quranServer": "server8.mp3quran.net/m_qari"
@@ -431,31 +469,31 @@ export const RECITERS: Reciter[] = [
     "mp3quranServer": "server6.mp3quran.net/jamal"
   },
   {
-    "id": "mohammad_albanna",
+    "id": "khalid_mohna",
     "name": "خالد المهنا",
     "folder": "mohammad_albanna",
     "mp3quranServer": "server11.mp3quran.net/mohna"
   },
   {
-    "id": "akram_alraisi",
+    "id": "akram_raisi",
     "name": "أكرم الرايسي",
     "folder": "akram_alraisi",
     "mp3quranServer": "server10.mp3quran.net/trablsi"
   },
   {
-    "id": "omar_alnasser",
+    "id": "alashri_omran",
     "name": "العشري عمران",
     "folder": "omar_alnasser",
     "mp3quranServer": "server9.mp3quran.net/omran"
   },
   {
-    "id": "mohammed_alqarny",
+    "id": "saleh_habdan",
     "name": "صالح الهبدان",
     "folder": "mohammed_alqarny",
     "mp3quranServer": "server6.mp3quran.net/habdan"
   },
   {
-    "id": "mohamed_alsaeed",
+    "id": "mohammed_alsaeed",
     "name": "محمد السعيد",
     "folder": "mohamed_alsaeed",
     "mp3quranServer": "server9.mp3quran.net/waleed"
@@ -464,7 +502,8 @@ export const RECITERS: Reciter[] = [
     "id": "akrm",
     "name": "أكرم العلاقمي",
     "folder": "akrm",
-    "mp3quranServer": "server9.mp3quran.net/akrm"
+    "mp3quranServer": "server9.mp3quran.net/akrm",
+    "everyAyahFolder": "Akram_AlAlaqimy_128kbps"
   },
   {
     "id": "majd_onazi",
@@ -482,7 +521,8 @@ export const RECITERS: Reciter[] = [
     "id": "tblawi",
     "name": "محمد الطبلاوي",
     "folder": "tblawi",
-    "mp3quranServer": "server12.mp3quran.net/tblawi"
+    "mp3quranServer": "server12.mp3quran.net/tblawi",
+    "everyAyahFolder": "Mohammad_al_Tablaway_128kbps"
   },
   {
     "id": "lhdan",
@@ -506,31 +546,14 @@ export const RECITERS: Reciter[] = [
     "id": "m_krm",
     "name": "محمد عبدالكريم",
     "folder": "m_krm",
-    "mp3quranServer": "server12.mp3quran.net/m_krm"
+    "mp3quranServer": "server12.mp3quran.net/m_krm",
+    "everyAyahFolder": "Muhammad_AbdulKareem_128kbps"
   },
   {
     "id": "ra3ad",
     "name": "مصطفى رعد العزاوي",
     "folder": "ra3ad",
     "mp3quranServer": "server8.mp3quran.net/ra3ad"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "مفتاح السلطني",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server14.mp3quran.net/muftah_sultany/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "عبدالإله بن عون",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/a_binaoun/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "أحمد طالب بن حميد",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/a_binhameed/Rewayat-Hafs-A-n-Assem"
   },
   {
     "id": "zaml",
@@ -543,12 +566,6 @@ export const RECITERS: Reciter[] = [
     "name": "ماهر شخاشيرو",
     "folder": "shaksh",
     "mp3quranServer": "server10.mp3quran.net/shaksh"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "ياسر سلامة",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server12.mp3quran.net/salamah/Rewayat-Hafs-A-n-Assem"
   },
   {
     "id": "a_klb",
@@ -579,12 +596,6 @@ export const RECITERS: Reciter[] = [
     "name": "توفيق الصايغ",
     "folder": "twfeeq",
     "mp3quranServer": "server6.mp3quran.net/twfeeq"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "إبراهيم الدوسري",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server10.mp3quran.net/ibrahim_dosri/Rewayat-Hafs-A-n-Assem"
   },
   {
     "id": "jaman",
@@ -653,78 +664,6 @@ export const RECITERS: Reciter[] = [
     "mp3quranServer": "server7.mp3quran.net/dgsh"
   },
   {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "عبدالله القرافي",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/a_alqrafi/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "عبدالبديع غيلان",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/A-Ghailan/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "محمد برهجي",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/M_Burhaji/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "يوسف العيدروس",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/Y_ALaidroos/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "حسن الدغريري",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/H-Aldaghriri/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "محمد الفقيه",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/M_Alfaqih/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "جنيد آدم عبدالله",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/J-Abdullah/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "خالد الزيادي",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/K-Alzadi/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "إبراهيم الشهري",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/Ibrahim-Al-Shahri/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "عبدالرحمن بن عبدالرزاق البدر",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "عليجان قوري حمدان",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/Alijon/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "محمد الزبيدي",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/M-AlZubaidi/Rewayat-Hafs-A-n-Assem"
-  },
-  {
     "id": "Othmn",
     "name": "عثمان الأنصاري",
     "folder": "Othmn",
@@ -788,19 +727,14 @@ export const RECITERS: Reciter[] = [
     "id": "tnjy",
     "name": "خليفة الطنيجي",
     "folder": "tnjy",
-    "mp3quranServer": "server12.mp3quran.net/tnjy"
+    "mp3quranServer": "server12.mp3quran.net/tnjy",
+    "everyAyahFolder": "khalefa_al_tunaiji_64kbps"
   },
   {
     "id": "refat",
     "name": "محمد رفعت",
     "folder": "refat",
     "mp3quranServer": "server14.mp3quran.net/refat"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "عبدالله الموسى",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server14.mp3quran.net/mousa/Rewayat-Hafs-A-n-Assem"
   },
   {
     "id": "khalf",
@@ -821,196 +755,11 @@ export const RECITERS: Reciter[] = [
     "mp3quranServer": "server14.mp3quran.net/bukheet"
   },
   {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "أحمد السويلم",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server14.mp3quran.net/swlim/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "هيثم الجدعاني",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/hitham/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "أحمد خليل شاهين",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/shaheen/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "سعد المقرن",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/saad/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "أحمد النفيس",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "عمر الدريويز",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/darweez/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "عبدالعزيز العسيري",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/abdulazizasiri/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "أحمد ديبان",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/deban/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "عبدالله كامل",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/kamel/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "بيشه وا قادر الكردي",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/peshawa/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "نذير المالكي",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net//nathier/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "هيثم الدخين",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/h_dukhain/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "محمود عبدالحكم",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/m_abdelhakam/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "أحمد عيسى المعصراوي",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/a_maasaraawi/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "هاشم أبو دلال",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/h_abudalal/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "فؤاد الخامري",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/f_khamery/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "سيد أحمد هاشمي",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/s_hashemi/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "خالد كريم محمدي",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/kh_mohammadi/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "مال الله عبدالرحمن الجابر",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/mal-allah_jaber/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "سلمان الصديق",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/s_sadeiq/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "حسن صالح",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/h_saleh/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "عبدالرحمن الشحات",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/a_alshahhat/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "عيسى عمر سناكو",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/i_sanankoua/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "هارون بقائي",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/h_baqai/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "عبدالله بخاري",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/a_bukhari/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "صالح القريشي",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/s_alquraishi/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "3siri",
-    "name": "إبراهيم العسيري",
-    "folder": "3siri",
-    "mp3quranServer": "server6.mp3quran.net/3siri"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "صالح الشمراني",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/shamrani/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "فيصل الهاجري",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/f_hajry/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "أنس العمادي",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/a_alemadi/Rewayat-Hafs-A-n-Assem"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "عبدالكريم الحازمي",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/a_alhazmi/Rewayat-Hafs-A-n-Assem"
-  },
-  {
     "id": "shl",
     "name": "سهل ياسين",
     "folder": "shl",
-    "mp3quranServer": "server6.mp3quran.net/shl"
+    "mp3quranServer": "server6.mp3quran.net/shl",
+    "everyAyahFolder": "Sahl_Yassin_128kbps"
   },
   {
     "id": "zaki",
@@ -1052,13 +801,8 @@ export const RECITERS: Reciter[] = [
     "id": "bu_khtr",
     "name": "صلاح بو خاطر",
     "folder": "bu_khtr",
-    "mp3quranServer": "server8.mp3quran.net/bu_khtr"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "مختار الحاج",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem"
+    "mp3quranServer": "server8.mp3quran.net/bu_khtr",
+    "everyAyahFolder": "Salaah_AbdulRahman_Bukhatir_128kbps"
   },
   {
     "id": "ryan",
@@ -1088,7 +832,8 @@ export const RECITERS: Reciter[] = [
     "id": "mtrod",
     "name": "عبدالله المطرود",
     "folder": "mtrod",
-    "mp3quranServer": "server8.mp3quran.net/mtrod"
+    "mp3quranServer": "server8.mp3quran.net/mtrod",
+    "everyAyahFolder": "Abdullah_Matroud_128kbps"
   },
   {
     "id": "kyat",
@@ -1097,22 +842,10 @@ export const RECITERS: Reciter[] = [
     "mp3quranServer": "server12.mp3quran.net/kyat"
   },
   {
-    "id": "jhn",
-    "name": "عبدالله عواد الجهني",
-    "folder": "jhn",
-    "mp3quranServer": "server13.mp3quran.net/jhn"
-  },
-  {
     "id": "gulan",
     "name": "عبدالله غيلان",
     "folder": "gulan",
     "mp3quranServer": "server8.mp3quran.net/gulan"
-  },
-  {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "عبدالرشيد صوفي",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/soufi/Rewayat-Hafs-A-n-Assem"
   },
   {
     "id": "askr",
@@ -1142,37 +875,35 @@ export const RECITERS: Reciter[] = [
     "id": "hthfi",
     "name": "علي بن عبدالرحمن الحذيفي",
     "folder": "hthfi",
-    "mp3quranServer": "server9.mp3quran.net/hthfi"
+    "mp3quranServer": "server9.mp3quran.net/hthfi",
+    "everyAyahFolder": "Hudhaify_128kbps"
   },
   {
     "id": "a_jbr",
     "name": "علي جابر",
     "folder": "a_jbr",
-    "mp3quranServer": "server11.mp3quran.net/a_jbr"
+    "mp3quranServer": "server11.mp3quran.net/a_jbr",
+    "everyAyahFolder": "Ali_Jaber_64kbps"
   },
   {
     "id": "hajjaj",
     "name": "علي حجاج السويسي",
     "folder": "hajjaj",
-    "mp3quranServer": "server9.mp3quran.net/hajjaj"
+    "mp3quranServer": "server9.mp3quran.net/hajjaj",
+    "everyAyahFolder": "Ali_Hajjaj_AlSuesy_128kbps"
   },
   {
-    "id": "hafz",
+    "id": "hafz_emad",
     "name": "عماد زهير حافظ",
     "folder": "hafz",
     "mp3quranServer": "server6.mp3quran.net/hafz"
   },
   {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "عبدالعزيز التركي",
-    "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/a_turki/Rewayat-Hafs-A-n-Assem"
-  },
-  {
     "id": "frs_a",
     "name": "فارس عباد",
     "folder": "frs_a",
-    "mp3quranServer": "server8.mp3quran.net/frs_a"
+    "mp3quranServer": "server8.mp3quran.net/frs_a",
+    "everyAyahFolder": "Fares_Abbad_64kbps"
   },
   {
     "id": "kndri",
@@ -1199,9 +930,224 @@ export const RECITERS: Reciter[] = [
     "mp3quranServer": "server6.mp3quran.net/fyl"
   },
   {
-    "id": "Rewayat-Hafs-A-n-Assem",
-    "name": "عبدالله عبدل",
+    "id": "ahmed_swlim",
+    "name": "أحمد السويلم",
     "folder": "Rewayat-Hafs-A-n-Assem",
-    "mp3quranServer": "server16.mp3quran.net/a_abdl/Rewayat-Hafs-A-n-Assem"
+    "mp3quranServer": "server14.mp3quran.net/swlim/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "hitham_jadani",
+    "name": "هيثم الجدعاني",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/hitham/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "shaheen",
+    "name": "أحمد خليل شاهين",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/shaheen/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "saad_muqrin",
+    "name": "سعد المقرن",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/saad/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "nufais",
+    "name": "أحمد النفيس",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "darweez",
+    "name": "عمر الدريويز",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/darweez/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "abdulazizasiri",
+    "name": "عبدالعزيز العسيري",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/abdulazizasiri/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "deban",
+    "name": "أحمد ديبان",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/deban/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "kamel",
+    "name": "عبدالله كامل",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/kamel/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "peshawa",
+    "name": "بيشه وا قادر الكردي",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/peshawa/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "nathier",
+    "name": "نذير المالكي",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net//nathier/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "h_dukhain",
+    "name": "هيثم الدخين",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/h_dukhain/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "m_abdelhakam",
+    "name": "محمود عبدالحكم",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/m_abdelhakam/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "a_maasaraawi",
+    "name": "أحمد عيسى المعصراوي",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/a_maasaraawi/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "h_abudalal",
+    "name": "هاشم أبو دلال",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/h_abudalal/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "f_khamery",
+    "name": "فؤاد الخامري",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/f_khamery/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "s_hashemi",
+    "name": "سيد أحمد هاشمي",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/s_hashemi/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "kh_mohammadi",
+    "name": "خالد كريم محمدي",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/kh_mohammadi/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "mal_allah_jaber",
+    "name": "مال الله عبدالرحمن الجابر",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/mal-allah_jaber/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "s_sadeiq",
+    "name": "سلمان الصديق",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/s_sadeiq/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "h_saleh",
+    "name": "حسن صالح",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/h_saleh/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "a_alshahhat",
+    "name": "عبدالرحمن الشحات",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/a_alshahhat/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "i_sanankoua",
+    "name": "عيسى عمر سناكو",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/i_sanankoua/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "h_baqai",
+    "name": "هارون بقائي",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/h_baqai/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "a_bukhari",
+    "name": "عبدالله بخاري",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/a_bukhari/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "s_alquraishi",
+    "name": "صالح القريشي",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/s_alquraishi/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "shamrani",
+    "name": "صالح الشمراني",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/shamrani/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "f_hajry",
+    "name": "فيصل الهاجري",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/f_hajry/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "a_alemadi",
+    "name": "أناس العمادي",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/a_alemadi/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "a_alhazmi",
+    "name": "عبدالكريم الحازمي",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/a_alhazmi/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "mukhtar_haj",
+    "name": "مختار الحاج",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem"
+  },
+  {
+    "id": "salamah",
+    "name": "ياسر سلامة",
+    "folder": "Rewayat-Hafs-A-n-Assem",
+    "mp3quranServer": "server12.mp3quran.net/salamah/Rewayat-Hafs-A-n-Assem",
+    "everyAyahFolder": "Yaser_Salamah_128kbps"
+  },
+  {
+    "id": "ayman_sowaid",
+    "name": "أيمن سويد",
+    "folder": "ayman_sowaid",
+    "mp3quranServer": "server8.mp3quran.net/sowaid",
+    "everyAyahFolder": "Ayman_Sowaid_64kbps"
+  },
+  {
+    "id": "karim_mansoori",
+    "name": "كريم منصوري",
+    "folder": "mansoori",
+    "mp3quranServer": "server8.mp3quran.net/mansoori",
+    "everyAyahFolder": "Karim_Mansoori_40kbps"
+  },
+  {
+    "id": "parhizgar",
+    "name": "شهريار برهيزكار",
+    "folder": "parhizgar",
+    "mp3quranServer": "server8.mp3quran.net/parhizgar",
+    "everyAyahFolder": "Parhizgar_48kbps"
+  },
+  {
+    "id": "aziz_alili",
+    "name": "عزيز عليلي",
+    "folder": "alili",
+    "mp3quranServer": "server8.mp3quran.net/alili",
+    "everyAyahFolder": "aziz_alili_128kbps"
   }
 ];

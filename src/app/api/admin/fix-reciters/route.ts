@@ -18,13 +18,19 @@ export async function GET() {
     }
 
     const arrayStr = arrayMatch[1];
-    // Safely evaluate or parse the array
+    // Safely evaluate or parse the array using JSON.parse instead of unsafe-eval/new Function
     let reciters: any[];
     try {
-      // Use Function constructor instead of eval for safety in Next.js environment
-      reciters = new Function(`return ${arrayStr}`)();
-    } catch (e: any) {
-      return NextResponse.json({ error: `Failed to parse array: ${e.message}` }, { status: 400 });
+      reciters = JSON.parse(arrayStr);
+    } catch (e) {
+      try {
+        const cleanedStr = arrayStr
+          .replace(/\/\/.*$/gm, "") // remove comments
+          .replace(/,(\s*[\]}])/g, "$1"); // remove trailing commas
+        reciters = JSON.parse(cleanedStr);
+      } catch (err: any) {
+        return NextResponse.json({ error: `Failed to parse array: ${err.message}` }, { status: 400 });
+      }
     }
 
     console.log(`[FIX RECITERS] Loaded ${reciters.length} reciters.`);
@@ -61,7 +67,7 @@ export async function GET() {
         name: "محمد صديق المنشاوي (مجود)",
         folder: "minsh_mjwd",
         mp3quranServer: "server11.mp3quran.net/minsh_mjwd",
-        everyAyahFolder: "Minshawy_Mujawwad_128kbps"
+        everyAyahFolder: "Minshawy_Mujawwad_192kbps"
       },
       {
         id: "husr_murattal",
@@ -101,8 +107,8 @@ export async function GET() {
 
     // Now process all other reciters in the list
     for (let r of reciters) {
-      // Skip the old basit, minsh, husr, juhani entries to avoid duplicates of the main ones we just added
-      const oldSkipIds = ["basit", "minsh", "husr", "juhani"];
+      // Skip the old basit, minsh, husr, juhani, hani entries to avoid duplicates of the main ones we just added
+      const oldSkipIds = ["basit", "minsh", "husr", "juhani", "hani_rifai", "basit_murattal", "basit_mujawwad", "minsh_murattal", "minsh_mujawwad", "husr_murattal", "husr_mujawwad"];
       if (oldSkipIds.includes(r.id)) continue;
       
       // Skip if the name matches the main ones we manually added
@@ -214,24 +220,50 @@ export async function GET() {
           everyAyahFolder = "Fares_Abbad_64kbps";
         } else if (lowerId === "hthfi" || lowerName.includes("الحذيفي")) {
           everyAyahFolder = "Hudhaify_128kbps";
-        } else if (lowerId === "ali_jbr" || lowerName.includes("علي جابر")) {
+        } else if (lowerId === "ali_jbr" || lowerId === "a_jbr" || lowerName.includes("علي جابر")) {
           everyAyahFolder = "Ali_Jaber_64kbps";
         } else if (lowerId === "bna" || lowerId === "albana" || lowerName.includes("البنا")) {
           everyAyahFolder = "mahmoud_ali_al_banna_32kbps";
-        } else if (lowerId === "mustafa" || lowerName.includes("مصطفى إسماعيل")) {
+        } else if (lowerId === "mustafa" || lowerId === "mustafa_ismail" || lowerName.includes("مصطفى إسماعيل")) {
           everyAyahFolder = "Mustafa_Ismail_48kbps";
-        } else if (lowerId === "nabil" || lowerName.includes("نبيل الرفاعي")) {
+        } else if (lowerId === "nabil" || lowerId === "nabil_rafat" || lowerName.includes("نبيل الرفاعي")) {
           everyAyahFolder = "Nabil_Rifa3i_48kbps";
-        } else if (lowerId === "s_bud" || lowerName.includes("البدير")) {
+        } else if (lowerId === "s_bud" || lowerId === "salah_albudair" || lowerName.includes("البدير")) {
           everyAyahFolder = "Salah_Al_Budair_128kbps";
-        } else if (lowerId === "ahmad_nu" || lowerName.includes("نعينع")) {
+        } else if (lowerId === "ahmad_nu" || lowerId === "ahmed_naina" || lowerName.includes("نعينع")) {
           everyAyahFolder = "Ahmed_Neana_128kbps";
-        } else if (lowerId === "soufi" || lowerName.includes("عبدالرشيد صوفي")) {
-          everyAyahFolder = "Abdurrashid_Sufi_128kbps";
-        } else if (lowerId === "qht" || lowerName.includes("خالد القحطاني")) {
-          everyAyahFolder = "khalid_alqahtani_128kbps";
-        } else if (lowerId === "tnjy" || lowerName.includes("خليفة الطنيجي")) {
+        } else if (lowerId === "qht" || lowerId === "khalid_alqahtani" || lowerName.includes("القحطاني")) {
+          everyAyahFolder = "Khaalid_Abdullaah_al-Qahtaanee_192kbps";
+        } else if (lowerId === "tnjy" || lowerName.includes("خليفة الطنيجي") || lowerName.includes("خليفه الطنيجي")) {
           everyAyahFolder = "khalefa_al_tunaiji_64kbps";
+        } else if (lowerId === "ayman_sowaid" || lowerName.includes("أيمن سويد")) {
+          everyAyahFolder = "Ayman_Sowaid_64kbps";
+        } else if (lowerId === "karim_mansoori" || lowerName.includes("كريم منصوري")) {
+          everyAyahFolder = "Karim_Mansoori_40kbps";
+        } else if (lowerId === "parhizgar" || lowerName.includes("برهيزكار")) {
+          everyAyahFolder = "Parhizgar_48kbps";
+        } else if (lowerId === "aziz_alili" || lowerName.includes("عزيز عليلي")) {
+          everyAyahFolder = "aziz_alili_128kbps";
+        } else if (lowerId === "ajm" || lowerName.includes("العجمي")) {
+          everyAyahFolder = "Ahmed_ibn_Ali_al-Ajamy_128kbps_ketaballah.net";
+        } else if (lowerId === "akdr" || lowerName.includes("الأخضر") || lowerName.includes("الاخضر")) {
+          everyAyahFolder = "Ibrahim_Akhdar_64kbps";
+        } else if (lowerId === "tblawi" || lowerName.includes("الطبلاوي")) {
+          everyAyahFolder = "Mohammad_al_Tablaway_128kbps";
+        } else if (lowerId === "m_krm" || lowerName.includes("عبدالكريم")) {
+          everyAyahFolder = "Muhammad_AbdulKareem_128kbps";
+        } else if (lowerId === "shl" || lowerName.includes("سهل ياسين")) {
+          everyAyahFolder = "Sahl_Yassin_128kbps";
+        } else if (lowerId === "bu_khtr" || lowerName.includes("بو خاطر") || lowerName.includes("بوخاطر")) {
+          everyAyahFolder = "Salaah_AbdulRahman_Bukhatir_128kbps";
+        } else if (lowerId === "mtrod" || lowerName.includes("المطرود")) {
+          everyAyahFolder = "Abdullah_Matroud_128kbps";
+        } else if (lowerId === "hajjaj" || lowerName.includes("السويسي")) {
+          everyAyahFolder = "Ali_Hajjaj_AlSuesy_128kbps";
+        } else if (lowerId === "salamah" || lowerId === "yaser_salamah" || lowerName.includes("ياسر سلامة") || lowerName.includes("ياسر سلامه")) {
+          everyAyahFolder = "Yaser_Salamah_128kbps";
+        } else if (lowerId === "akrm" || lowerName.includes("العلاقمي")) {
+          everyAyahFolder = "Akram_AlAlaqimy_128kbps";
         }
       }
 
@@ -243,6 +275,45 @@ export async function GET() {
         mp3quranServer,
         ...(everyAyahFolder ? { everyAyahFolder } : {})
       });
+    }
+
+    // Add new reciters if they don't already exist in the list
+    const extraReciters = [
+      {
+        id: "ayman_sowaid",
+        name: "أيمن سويد",
+        folder: "ayman_sowaid",
+        mp3quranServer: "server8.mp3quran.net/sowaid",
+        everyAyahFolder: "Ayman_Sowaid_64kbps"
+      },
+      {
+        id: "karim_mansoori",
+        name: "كريم منصوري",
+        folder: "mansoori",
+        mp3quranServer: "server8.mp3quran.net/mansoori",
+        everyAyahFolder: "Karim_Mansoori_40kbps"
+      },
+      {
+        id: "parhizgar",
+        name: "شهريار برهيزكار",
+        folder: "parhizgar",
+        mp3quranServer: "server8.mp3quran.net/parhizgar",
+        everyAyahFolder: "Parhizgar_48kbps"
+      },
+      {
+        id: "aziz_alili",
+        name: "عزيز عليلي",
+        folder: "alili",
+        mp3quranServer: "server8.mp3quran.net/alili",
+        everyAyahFolder: "aziz_alili_128kbps"
+      }
+    ];
+
+    for (const er of extraReciters) {
+      if (!seenIds.has(er.id)) {
+        updatedReciters.push(er);
+        seenIds.add(er.id);
+      }
     }
 
     // Construct the file content

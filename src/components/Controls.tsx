@@ -63,6 +63,10 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
 
   const displayMedia = bgMode === "library" ? filteredLibrary : (media.length > 0 ? media : STATIC_BACKGROUNDS);
 
+  const videoReciters = useMemo(() => {
+    return RECITERS.filter(r => !!r.everyAyahFolder);
+  }, []);
+
   const tabs = [
     { id: "bg", label: "الخلفية", icon: ImageIcon },
     { id: "reciter", label: "القاريء", icon: Music },
@@ -265,7 +269,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
           {activeTab === "reciter" && (
             <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
                 <p className="text-[10px] font-black text-foreground/20 uppercase tracking-[0.3em] mb-4">اختر الصوت المناسب للمشهد</p>
-                {RECITERS.map((r) => (
+                {videoReciters.map((r) => (
                     <button
                         key={r.id}
                         onClick={() => updateState({ reciterId: r.id })}

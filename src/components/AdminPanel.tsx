@@ -35,6 +35,7 @@ const NAV_ITEMS = [
   { id: 'versions', label: 'الإصدار', icon: Package },
   { id: 'analytics', label: 'التحليلات المتقدمة', icon: BarChart3 },
   { id: 'moderation', label: 'رقابة المنشورات', icon: AlertTriangle },
+  { id: 'tests', label: 'اختبارات التشخيص 🧪', icon: ShieldCheck },
 ];
 
 interface DailyStats {
@@ -161,6 +162,129 @@ export function AdminPanel() {
   const [reciterFixResult, setReciterFixResult] = useState<string | null>(null);
   const [reciterCheckingAll, setReciterCheckingAll] = useState(false);
   const reciterAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Diagnostics States
+  const [diagRunning, setDiagRunning] = useState(false);
+  const [dbStatus, setDbStatus] = useState<'idle' | 'checking' | 'success' | 'error'>('idle');
+  const [dbMessage, setDbMessage] = useState('');
+  const [authStatus, setAuthStatus] = useState<'idle' | 'checking' | 'success' | 'error'>('idle');
+  const [authMessage, setAuthMessage] = useState('');
+  const [pexelsStatus, setPexelsStatus] = useState<'idle' | 'checking' | 'success' | 'error'>('idle');
+  const [pexelsMessage, setPexelsMessage] = useState('');
+  const [renderServerStatus, setRenderServerStatus] = useState<'idle' | 'checking' | 'success' | 'error'>('idle');
+  const [renderServerMessage, setRenderServerMessage] = useState('');
+  const [envStatus, setEnvStatus] = useState<'idle' | 'checking' | 'success' | 'error'>('idle');
+  const [envMessage, setEnvMessage] = useState('');
+
+  const checkDbDiagnostic = async () => {
+    setDbStatus('checking');
+    setDbMessage('جاري الاتصال بـ Firestore...');
+    try {
+      if (!db) throw new Error("قاعدة بيانات Firebase غير مهيأة");
+      const usersSnapshot = await getDocs(query(collection(db, "users")));
+      setDbStatus('success');
+      setDbMessage(`تم الاتصال بنجاح! تم العثور على ${usersSnapshot.size} مستخدم.`);
+    } catch (e: any) {
+      setDbStatus('error');
+      setDbMessage(`فشل الاتصال: ${e.message}`);
+    }
+  };
+
+  const checkAuthDiagnostic = async () => {
+    setAuthStatus('checking');
+    setAuthMessage('جاري التحقق من صلاحيات المشرف...');
+    try {
+      const user = auth?.currentUser;
+      if (!user) throw new Error("لا يوجد مستخدم مسجل حالياً");
+      setAuthStatus('success');
+      setAuthMessage(`مسجل كـ ${user.email} (UID: ${user.uid})`);
+    } catch (e: any) {
+      setAuthStatus('error');
+      setAuthMessage(`خطأ في التحقق: ${e.message}`);
+    }
+  };
+
+  const checkPexelsDiagnostic = async () => {
+    setPexelsStatus('checking');
+    setPexelsMessage('جاري اختبار البحث في Pexels API...');
+    try {
+      const res = await fetch("/api/pexels", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: "islamic", per_page: 1, type: "both" })
+      });
+      const data = await res.json();
+      if (res.ok && data.items) {
+        setPexelsStatus('success');
+        setPexelsMessage(`متصل بنجاح! تم استرجاع ${data.items.length} خلفية من البحث.`);
+      } else {
+        throw new Error(data.error || "استجابة غير صالحة من API");
+      }
+    } catch (e: any) {
+      setPexelsStatus('error');
+      setPexelsMessage(`فشل الاتصال بـ Pexels: ${e.message}`);
+    }
+  };
+
+  const checkRenderServerDiagnostic = async () => {
+    setRenderServerStatus('checking');
+    setRenderServerMessage('جاري الاتصال بسيرفر المونتاج السحابي...');
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const res = await fetch("https://yousef891238-render-server.hf.space/", {
+        signal: controller.signal,
+        mode: "cors"
+      });
+      clearTimeout(timeoutId);
+      setRenderServerStatus('success');
+      setRenderServerMessage(`سيرفر الفيديو متصل ويعمل بشكل سليم (حالة الاستجابة: ${res.status})`);
+    } catch (e: any) {
+      setRenderServerStatus('error');
+      setRenderServerMessage(`تعذر الاتصال بالسيرفر السحابي للفيديو: ${e.message}`);
+    }
+  };
+
+  const checkEnvDiagnostic = async () => {
+    setEnvStatus('checking');
+    setEnvMessage('جاري فحص متغيرات البيئة والتخزين...');
+    try {
+      const checks = [];
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('__diag_test__', '1');
+        localStorage.removeItem('__diag_test__');
+        checks.push("localStorage سليم");
+      }
+      const missingEnv = [];
+      if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) missingEnv.push("Firebase API Key");
+      if (!process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN) missingEnv.push("Firebase Auth Domain");
+      if (!process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID) missingEnv.push("Firebase Project ID");
+      
+      if (missingEnv.length > 0) {
+        setEnvStatus('error');
+        setEnvMessage(`متغيرات بيئة مفقودة: ${missingEnv.join(', ')}`);
+      } else {
+        setEnvStatus('success');
+        setEnvMessage(`${checks.join(' | ')} - تم التحقق من متغيرات البيئة الأساسية بنجاح.`);
+      }
+    } catch (e: any) {
+      setEnvStatus('error');
+      setEnvMessage(`خطأ في تشخيص التخزين/البيئة: ${e.message}`);
+    }
+  };
+
+  const runAllDiagnostics = async () => {
+    if (diagRunning) return;
+    setDiagRunning(true);
+    await Promise.all([
+      checkDbDiagnostic(),
+      checkAuthDiagnostic(),
+      checkPexelsDiagnostic(),
+      checkRenderServerDiagnostic(),
+      checkEnvDiagnostic()
+    ]);
+    setDiagRunning(false);
+  };
 
   useEffect(() => {
     return () => {
@@ -3789,6 +3913,113 @@ export function AdminPanel() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'tests' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/[0.02] border border-white/[0.06] p-6 rounded-3xl">
+                <div className="text-right flex-1">
+                  <h2 className="text-2xl font-black text-white">لوحة تشخيص واختبارات النظام 🧪</h2>
+                  <p className="text-xs text-white/40 mt-1">فحص الاتصال بقواعد البيانات، خادم الفيديوهات السحابي، ومفاتيح API لضمان عمل التطبيق بكفاءة</p>
+                </div>
+                <button
+                  onClick={runAllDiagnostics}
+                  disabled={diagRunning}
+                  className="flex items-center gap-2 px-6 py-3.5 bg-[#fbbf24] text-black font-black rounded-xl hover:brightness-110 active:scale-95 transition disabled:opacity-50 text-xs shadow-lg shadow-[#fbbf24]/10"
+                >
+                  {diagRunning ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      جاري تشغيل الفحص...
+                    </>
+                  ) : (
+                    <>
+                      <Activity className="w-4 h-4" />
+                      تشغيل الفحص الشامل للخدمات ⚡
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Diagnostic Cards Grid */}
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {[
+                  {
+                    id: 'database',
+                    title: 'قاعدة بيانات Firestore 💾',
+                    status: dbStatus,
+                    message: dbMessage,
+                    checkFn: checkDbDiagnostic,
+                    desc: 'اختبار قراءة بيانات المستخدمين من Firestore وتأكيد نجاح الاتصال.'
+                  },
+                  {
+                    id: 'auth',
+                    title: 'صلاحيات حساب المشرف 🔑',
+                    status: authStatus,
+                    message: authMessage,
+                    checkFn: checkAuthDiagnostic,
+                    desc: 'التحقق من صلاحية الجلسة الحالية وتصاريح المسؤول الحالية.'
+                  },
+                  {
+                    id: 'pexels',
+                    title: 'مزود الخلفيات Pexels API 🖼️',
+                    status: pexelsStatus,
+                    message: pexelsMessage,
+                    checkFn: checkPexelsDiagnostic,
+                    desc: 'اختبار البحث عن الصور ومقاطع الفيديو للتأكد من عمل مفتاح API بنجاح.'
+                  },
+                  {
+                    id: 'render',
+                    title: 'سيرفر المونتاج السحابي 🎬',
+                    status: renderServerStatus,
+                    message: renderServerMessage,
+                    checkFn: checkRenderServerDiagnostic,
+                    desc: 'التحقق من حالة سيرفر رندر الفيديوهات على Hugging Face ومعدل الاستجابة.'
+                  },
+                  {
+                    id: 'env',
+                    title: 'متغيرات البيئة والتخزين 📦',
+                    status: envStatus,
+                    message: envMessage,
+                    checkFn: checkEnvDiagnostic,
+                    desc: 'فحص إعدادات التخزين المحلي (localStorage) ومتغيرات Firebase المطلوبة.'
+                  }
+                ].map(card => (
+                  <div key={card.id} className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.02)] p-6 flex flex-col justify-between hover:border-white/20 transition duration-300">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                        <span className="font-black text-sm text-white/90">{card.title}</span>
+                        {card.status === 'idle' && <span className="w-2.5 h-2.5 rounded-full bg-white/20 animate-pulse" title="بانتظار الفحص" />}
+                        {card.status === 'checking' && <Loader2 className="w-4 h-4 animate-spin text-[#fbbf24]" />}
+                        {card.status === 'success' && <CheckCircle className="w-5 h-5 text-emerald-400" />}
+                        {card.status === 'error' && <AlertTriangle className="w-5 h-5 text-red-400" />}
+                      </div>
+                      <p className="text-[11px] text-white/40 leading-relaxed text-right">{card.desc}</p>
+                      
+                      {card.status !== 'idle' && (
+                        <div className={`p-3.5 rounded-xl text-xs font-bold text-right leading-relaxed ${
+                          card.status === 'success'
+                            ? 'bg-emerald-500/5 border border-emerald-500/10 text-emerald-300'
+                            : card.status === 'error'
+                              ? 'bg-red-500/5 border border-red-500/10 text-red-300'
+                              : 'bg-white/5 border border-white/5 text-white/50'
+                        }`}>
+                          {card.message}
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={card.checkFn}
+                      disabled={diagRunning || card.status === 'checking'}
+                      className="mt-6 w-full py-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-bold text-white/80 transition active:scale-98 disabled:opacity-40"
+                    >
+                      فحص الخدمة فردياً 🔄
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
           )}
