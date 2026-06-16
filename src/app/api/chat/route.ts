@@ -13,6 +13,7 @@ export async function POST(req: Request) {
 
     const openAiKey = process.env.OPENAI_API_KEY;
     const geminiKey = process.env.GEMINI_API_KEY || process.env.Value || process.env.VALUE;
+    const groqKey = process.env.GROQ_API_KEY;
 
     const userPoints = userData?.totalPoints || userData?.points || 0;
     const userCountry = userData?.country || "غير محدد";
@@ -657,7 +658,93 @@ ${quizArgs.options}
       }
     }
 
-    // ── 2. محاولة استدعاء OpenAI API (Fallback أول) ──
+    // ── 2. محاولة استدعاء Groq API (السرعة الفائقة والبديل الأول لـ Gemini) ──
+    if (groqKey && groqKey !== "YOUR_GROQ_API_KEY_HERE") {
+      try {
+        console.log("🔄 جاري تجربة Groq API...");
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${groqKey}`
+          },
+          body: JSON.stringify({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+              { role: "system", content: systemPrompt },
+              ...apiMessages.map((m: any) => ({
+                role: m.sender === "user" ? "user" : "assistant",
+                content: m.text
+              }))
+            ],
+            tools: openAiTools,
+            tool_choice: "auto",
+            temperature: 0.7,
+            max_tokens: 600
+          })
+        });
+
+        const data = await response.json();
+        if (response.ok && data.choices?.[0]?.message) {
+          const message = data.choices[0].message;
+          console.log("✅ نجح الاتصال بـ Groq");
+
+          if (message.tool_calls && message.tool_calls.length > 0) {
+            const toolCall = message.tool_calls[0];
+            if (toolCall.function.name === "update_user_profile") {
+              const args = JSON.parse(toolCall.function.arguments);
+              const updatedFields = [];
+              if (args.displayName) updatedFields.push(`الاسم إلى: ${args.displayName}`);
+              if (args.country) updatedFields.push(`الدولة إلى: ${args.country}`);
+              if (args.phoneNumber) updatedFields.push(`رقم الهاتف إلى: ${args.phoneNumber}`);
+
+              const replyText = message.content || `لقد قمت بتحديث بيانات ملفك الشخصي بنجاح! 💾 (${updatedFields.join("، ")})`;
+              return NextResponse.json({
+                text: replyText,
+                updateProfile: args
+              });
+            }
+            if (toolCall.function.name === "create_custom_quran_plan") {
+              const args = JSON.parse(toolCall.function.arguments);
+              const replyText = message.content || `لقد قمت بإنشاء خطتك القرآنية المخصصة وتثبيتها بنجاح! 📖\nالخطة: ${args.planName}\nالهدف: ${args.dailyTarget}`;
+              return NextResponse.json({
+                text: replyText,
+                createPlan: args
+              });
+            }
+            if (toolCall.function.name === "generate_islamic_quiz") {
+              const args = JSON.parse(toolCall.function.arguments);
+              const replyText = `🤔✨ **تحدي المسابقة الدينية المولد بالذكاء الاصطناعي (Groq Llama)!** إليك هذا السؤال الممتع:
+              
+**السؤال:** ${args.question}
+
+${args.options}
+
+اكتب لي خيارك الآن **(أ، ب، ج، د)** للإجابة وحصاد الحسنات والنقاط! 🏆`;
+
+              return NextResponse.json({
+                text: replyText,
+                quiz: {
+                  questionId: Date.now(),
+                  correctOption: args.correctOption,
+                  explanation: args.explanation
+                }
+              });
+            }
+          }
+
+          if (message.content) {
+            return NextResponse.json({ text: message.content });
+          }
+        } else {
+          console.error("❌ فشل رد Groq:", data.error?.message || "خطأ غير معروف");
+        }
+      } catch (groqErr) {
+        console.error("💥 خطأ في خوادم Groq:", groqErr);
+      }
+    }
+
+    // ── 3. محاولة استدعاء OpenAI API (Fallback ثانٍ) ──
     if (openAiKey) {
       try {
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
