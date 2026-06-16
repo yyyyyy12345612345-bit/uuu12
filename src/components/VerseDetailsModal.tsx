@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, BookOpen, Languages, Loader2, Star, ChevronLeft } from "lucide-react";
+import { X, BookOpen, Languages, Loader2, Star, ChevronLeft, Sparkles } from "lucide-react";
 import { fetchVerseTafsir, fetchVerseTranslations } from "@/lib/quranUtils";
+import { ReflectionTab } from "./ReflectionTab";
 
 
 interface VerseDetailsModalProps {
@@ -12,7 +13,7 @@ interface VerseDetailsModalProps {
 }
 
 export function VerseDetailsModal({ verseKey, onClose, surahName }: VerseDetailsModalProps) {
-  const [activeTab, setActiveTab] = useState<'tafsir' | 'translation'>('tafsir');
+  const [activeTab, setActiveTab] = useState<'tafsir' | 'translation' | 'reflection'>('tafsir');
   const [loading, setLoading] = useState(true);
   const [tafsir, setTafsir] = useState<any>(null);
   const [verseData, setVerseData] = useState<any>(null);
@@ -75,6 +76,7 @@ export function VerseDetailsModal({ verseKey, onClose, surahName }: VerseDetails
           {[
             { id: 'tafsir', label: 'تفسير السعدي', icon: BookOpen },
             { id: 'translation', label: 'التفسير الميسر', icon: Languages },
+            { id: 'reflection', label: 'تدبر ومشاركة ✨', icon: Sparkles },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -149,6 +151,14 @@ export function VerseDetailsModal({ verseKey, onClose, surahName }: VerseDetails
                         </div>
                       ))}
                     </div>
+                  )}
+
+                  {activeTab === 'reflection' && (
+                    <ReflectionTab
+                      verseText={verseData?.text_uthmani || ""}
+                      verseKey={verseKey}
+                      surahName={surahName}
+                    />
                   )}
               </div>
             </div>

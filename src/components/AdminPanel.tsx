@@ -9,6 +9,7 @@ import {
   query, orderBy, addDoc, serverTimestamp, deleteDoc, setDoc, deleteField
 } from "firebase/firestore";
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { checkAndAwardBadges } from "@/lib/badges";
 
 const ADMIN_EMAIL = "youssefosama@gmail.com";
 
@@ -897,10 +898,21 @@ export function AdminPanel() {
   const handleAdminApproveComment = async (postId: string, commentId: string) => {
     if (!db || !window.confirm("تأكيد اعتماد وعرض التعليق للعامة؟")) return;
     try {
+      const comment = moderatingComments.find(c => c.id === commentId);
+      const commentAuthorId = comment?.userId;
+
       await updateDoc(doc(db, "posts", postId, "comments", commentId), {
         isBlocked: false,
         autoFlagged: false
       });
+
+      if (commentAuthorId) {
+        await updateDoc(doc(db, "users", commentAuthorId), {
+          commentsCount: increment(1)
+        });
+        checkAndAwardBadges(commentAuthorId).catch(console.error);
+      }
+
       setModeratingComments(prev => prev.map(c => c.id === commentId ? { ...c, isBlocked: false, autoFlagged: false } : c));
       alert("✅ تم اعتماد التعليق بنجاح.");
     } catch (e) {

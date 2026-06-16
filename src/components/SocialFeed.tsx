@@ -14,6 +14,7 @@ import {
   setDoc
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+import { checkAndAwardBadges } from "@/lib/badges";
 
 /* ─── Helpers ─── */
 const timeAgo = (date: any) => {
@@ -532,6 +533,17 @@ export function SocialFeed() {
       await updateDoc(postRef, { commentsCount: increment(1) });
       setPosts(prev => prev.map(p => p.id === postId ? { ...p, commentsCount: p.commentsCount + 1 } : p));
 
+      if (user && !isAutoBlocked) {
+        try {
+          await updateDoc(doc(db, "users", user.uid), {
+            commentsCount: increment(1)
+          });
+          checkAndAwardBadges(user.uid).catch(console.error);
+        } catch (err) {
+          console.error("Failed to increment user comment count:", err);
+        }
+      }
+
       if (isAutoBlocked) {
         alert("ℹ️ تم نشر تعليقك وهو قيد مراجعة الإدارة حالياً.");
       }
@@ -867,9 +879,48 @@ export function SocialFeed() {
 
                 {/* Content */}
                 <div className="px-6 py-4">
-                  <p className={`text-base leading-relaxed whitespace-pre-wrap break-words font-medium text-right ${isDarkTheme ? 'text-white/95' : 'text-foreground/90'}`}>
-                    {post.content}
-                  </p>
+                  {post.isReflection ? (
+                    (() => {
+                      const getAccentColor = (themeId: string) => {
+                        switch(themeId) {
+                          case "emerald-gold": return "#d4af37";
+                          case "midnight": return "#38bdf8";
+                          case "royal-purple": return "#c084fc";
+                          case "sunset-crimson": return "#fb7185";
+                          default: return "#a7f3d0";
+                        }
+                      };
+                      const accentColor = getAccentColor(post.theme);
+                      return (
+                        <div 
+                          className="p-6 md:p-8 rounded-[2rem] border relative overflow-hidden text-center bg-black/40"
+                          style={{ borderColor: accentColor + "40" }}
+                        >
+                          {/* Quranic Verse */}
+                          <p className="font-['Amiri'] text-2xl md:text-3xl font-bold text-white leading-relaxed mb-4" dir="rtl">
+                            « {post.verseText} »
+                          </p>
+                          
+                          {/* Verse info */}
+                          <p className="text-[11px] font-bold mb-6" style={{ color: accentColor }}>
+                            [ سورة {post.surahName} • الآية {post.verseKey?.split(":")[1]} ]
+                          </p>
+                          
+                          {/* Divider */}
+                          <div className="w-16 h-px mx-auto my-4 bg-white/10" />
+                          
+                          {/* User Reflection */}
+                          <p className={`text-sm md:text-base leading-relaxed font-bold whitespace-pre-wrap text-right ${isDarkTheme ? 'text-white/80' : 'text-foreground/80'}`} dir="rtl">
+                            💡 {post.reflectionText}
+                          </p>
+                        </div>
+                      );
+                    })()
+                  ) : (
+                    <p className={`text-base leading-relaxed whitespace-pre-wrap break-words font-medium text-right ${isDarkTheme ? 'text-white/95' : 'text-foreground/90'}`}>
+                      {post.content}
+                    </p>
+                  )}
                   {post.isBlocked && (
                     <div className="mt-3 p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-bold flex items-center gap-2 justify-end animate-in fade-in slide-in-from-top-1 duration-200">
                       <span>هذا المنشور قيد مراجعة الإدارة حالياً ولا يظهر للعامة.</span>

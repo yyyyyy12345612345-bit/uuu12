@@ -8,6 +8,7 @@ import {
   serverTimestamp,
   FirestoreError
 } from "firebase/firestore";
+import { checkAndAwardBadges } from "./badges";
 
 /**
  * نتيجة عملية تحديث النقاط
@@ -132,12 +133,46 @@ export async function addPoints(type: string, amount: number = 1): Promise<Point
         updateData.audioSeconds = increment(finalPointsToAdd * 30);
       }
 
+      // --- Streak Calculation ---
+      try {
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          const lastActiveDate = userData.lastActiveDate || "";
+          const streak = userData.streak || 0;
+          
+          const todayStr = new Date().toLocaleDateString('en-CA'); // "YYYY-MM-DD"
+          
+          if (lastActiveDate !== todayStr) {
+            let newStreak = 1;
+            if (lastActiveDate) {
+              const lastDate = new Date(lastActiveDate);
+              const todayDate = new Date(todayStr);
+              const diffTime = Math.abs(todayDate.getTime() - lastDate.getTime());
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              
+              if (diffDays === 1) {
+                newStreak = streak + 1;
+              }
+            }
+            updateData.streak = newStreak;
+            updateData.lastActiveDate = todayStr;
+          }
+        }
+      } catch (e) {
+        console.error("[Points] Streak calculation error:", e);
+      }
+      // --------------------------
+
       await updateDoc(userRef, updateData);
       
       await setDoc(dailyRef, {
         points: increment(finalPointsToAdd),
         lastUpdate: serverTimestamp()
       }, { merge: true });
+
+      // Async check for badges
+      checkAndAwardBadges(user.uid).catch(console.error);
 
       window.dispatchEvent(new CustomEvent('pointsUpdated', { 
         detail: { type, amount: finalPointsToAdd } 
@@ -451,6 +486,10 @@ export async function incrementVideoRenderCount(): Promise<PointUpdateResult> {
     await updateDoc(doc(db, "users", user.uid), {
       videoRendersCount: increment(1)
     });
+    
+    // Async check for badges
+    checkAndAwardBadges(user.uid).catch(console.error);
+    
     return { success: true };
   } catch (error) {
     console.error("[Points] incrementVideoRenderCount error:", error);

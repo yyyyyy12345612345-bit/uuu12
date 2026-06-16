@@ -3,6 +3,7 @@
 import { ATHKAR } from "@/data/athkar";
 import { AthkarLibrary } from "./AthkarLibrary";
 import { QiblaCompass } from "./QiblaCompass";
+import { DailyQuiz } from "./DailyQuiz";
 import { addPoints, addSebhaPoints, startThikrTimer, endThikrTimer, claimQuestPoints, addIstighfarPoints, addSalawatPoints } from "@/lib/points";
 import { useRouter } from "next/navigation";
 import { collection, query, where, getDocs, orderBy, limit, doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
@@ -11,7 +12,7 @@ import {
   CheckCircle2, RotateCcw, Target, Fingerprint, 
   ArrowUpRight, ChevronRight, ChevronLeft, 
   Sun, Moon, Bed, BookOpen, Compass, MapPin, Search, Clock, Star, Video, Crown,
-  Sparkles, Heart, HandHeart
+  Sparkles, Heart, HandHeart, Brain, Trophy
 } from "lucide-react";
 import { db, auth } from "@/lib/firebase";
 import { Capacitor } from '@capacitor/core';
@@ -53,7 +54,7 @@ export function DailyHub() {
     loading: boolean;
   }>({ heading: null, angle: null, distance: null, error: null, loading: false });
   const [scrollState, setScrollState] = useState({ left: false, right: false });
-  const [activeTab, setActiveTab] = useState<"dashboard" | "tasbeeh" | "istighfar" | "salawat" | "morning" | "evening" | "sleep" | "library" | "qibla">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "tasbeeh" | "istighfar" | "salawat" | "morning" | "evening" | "sleep" | "library" | "qibla" | "quiz">("dashboard");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const checkScroll = useCallback(() => {
@@ -509,6 +510,7 @@ export function DailyHub() {
         <div ref={scrollRef} onScroll={checkScroll} className="flex w-full rounded-[2.5rem] p-2 bg-card border border-border overflow-x-auto horizontal-scroll no-scrollbar snap-x">
           {[
             { id: "dashboard", icon: Star, label: "الرئيسية" },
+            { id: "quiz", icon: Brain, label: "التحدي اليومي 🧠" },
             { id: "tasbeeh", icon: Sparkles, label: "التسبيح" },
             { id: "istighfar", icon: Heart, label: "الاستغفار" },
             { id: "salawat", icon: HandHeart, label: "الصلاة على النبي" },
@@ -663,6 +665,27 @@ export function DailyHub() {
                             <MapPin className="w-5 h-5 text-primary" />
                         </div>
                         <span className="font-bold text-xs">مكة المكرمة</span>
+                    </div>
+                </div>
+
+                {/* Daily Quiz Teaser Card */}
+                <div 
+                  onClick={() => setActiveTab('quiz')}
+                  className="bg-card text-foreground border border-border rounded-3xl p-5 md:p-6 relative overflow-hidden shadow-2xl group cursor-pointer hover:border-primary/40 transition-colors"
+                >
+                    <div className="absolute top-0 right-0 p-5 opacity-10 group-hover:scale-110 transition-transform">
+                        <Brain className="w-16 h-16 text-primary" />
+                    </div>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/20 text-primary border border-primary/20 rounded-xl text-[9px] font-black uppercase tracking-wider mb-3">
+                       سؤال اليوم 🧠
+                    </span>
+                    <h3 className="text-xl font-black mb-1.5 relative z-10">تحدي معلومات اليوم</h3>
+                    <p className="text-[#a0a0b0] text-xs mb-6 relative z-10 leading-relaxed text-right">
+                       اختبر معلوماتك الدينية بـ 3 أسئلة سريعة واكسب حتى 15 نقطة إضافية يومياً!
+                    </p>
+                    <div className="flex items-center justify-between">
+                        <span className="text-primary font-black text-xs">تحدي معرفي متجدد</span>
+                        <span className="px-5 py-2 bg-primary/10 hover:bg-primary/20 text-primary font-black rounded-xl text-xs transition-all">ابدأ الآن ←</span>
                     </div>
                 </div>
 
@@ -860,6 +883,12 @@ export function DailyHub() {
           {(activeTab === "morning" || activeTab === "evening" || activeTab === "sleep") && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
                 {renderAthkarList(activeTab as any)}
+            </div>
+          )}
+
+          {activeTab === "quiz" && (
+            <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <DailyQuiz />
             </div>
           )}
 
