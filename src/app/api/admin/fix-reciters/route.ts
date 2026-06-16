@@ -52,7 +52,7 @@ export async function GET() {
         id: "basit_mujawwad",
         name: "عبدالباسط عبدالصمد (مجود)",
         folder: "basit_mjwd",
-        mp3quranServer: "server13.mp3quran.net/basit_mjwd",
+        mp3quranServer: "server7.mp3quran.net/basit/Almusshaf-Al-Mojawwad",
         everyAyahFolder: "Abdul_Basit_Mujawwad_128kbps"
       },
       {
@@ -66,7 +66,7 @@ export async function GET() {
         id: "minsh_mujawwad",
         name: "محمد صديق المنشاوي (مجود)",
         folder: "minsh_mjwd",
-        mp3quranServer: "server11.mp3quran.net/minsh_mjwd",
+        mp3quranServer: "server10.mp3quran.net/minsh/Almusshaf-Al-Mojawwad",
         everyAyahFolder: "Minshawy_Mujawwad_192kbps"
       },
       {
@@ -80,7 +80,7 @@ export async function GET() {
         id: "husr_mujawwad",
         name: "محمود خليل الحصري (مجود)",
         folder: "husr_mjwd",
-        mp3quranServer: "server9.mp3quran.net/husr_mjwd",
+        mp3quranServer: "server13.mp3quran.net/husr/Almusshaf-Al-Mojawwad",
         everyAyahFolder: "Husary_Mujawwad_64kbps"
       },
       {
@@ -306,6 +306,281 @@ export async function GET() {
         folder: "alili",
         mp3quranServer: "server8.mp3quran.net/alili",
         everyAyahFolder: "aziz_alili_128kbps"
+      },
+      {
+        id: "minsh_teacher",
+        name: "محمد صديق المنشاوي (المعلم)",
+        folder: "minsh_teacher",
+        mp3quranServer: "server10.mp3quran.net/minsh/Almusshaf-Al-Mo-lim",
+        everyAyahFolder: "Minshawy_Teacher_128kbps"
+      },
+      {
+        id: "husr_teacher",
+        name: "محمود خليل الحصري (المعلم)",
+        folder: "husr_teacher",
+        mp3quranServer: "server13.mp3quran.net/husr",
+        everyAyahFolder: "Husary_Muallim_128kbps"
+      },
+      // --- Extra Bitrates & Versions ---
+      {
+        id: "basit_murattal_64kbps",
+        name: "عبدالباسط عبدالصمد (مرتل - 64kbps)",
+        folder: "basit",
+        mp3quranServer: "server7.mp3quran.net/basit",
+        everyAyahFolder: "Abdul_Basit_Murattal_64kbps"
+      },
+      {
+        id: "basit_64kbps_explorer",
+        name: "عبدالباسط عبدالصمد (مرتل - 64kbps - QuranExplorer)",
+        folder: "basit",
+        mp3quranServer: "server7.mp3quran.net/basit",
+        everyAyahFolder: "AbdulSamad_64kbps_QuranExplorer.Com"
+      },
+      {
+        id: "basfar_32kbps",
+        name: "عبدالله بصفر (مرتل - 32kbps)",
+        folder: "bsfr",
+        mp3quranServer: "server6.mp3quran.net/bsfr",
+        everyAyahFolder: "Abdullah_Basfar_32kbps"
+      },
+      {
+        id: "basfar_192kbps",
+        name: "عبدالله بصفر (مرتل - 192kbps)",
+        folder: "bsfr",
+        mp3quranServer: "server6.mp3quran.net/bsfr",
+        everyAyahFolder: "Abdullah_Basfar_192kbps"
+      },
+      {
+        id: "sds_64kbps",
+        name: "عبدالرحمن السديس (مرتل - 64kbps)",
+        folder: "sds",
+        mp3quranServer: "server11.mp3quran.net/sds",
+        everyAyahFolder: "Abdurrahmaan_As-Sudais_64kbps"
+      },
+      {
+        id: "shatri_64kbps",
+        name: "أبو بكر الشاطري (مرتل - 64kbps)",
+        folder: "shatri",
+        mp3quranServer: "server11.mp3quran.net/shatri",
+        everyAyahFolder: "Abu_Bakr_Ash-Shaatree_64kbps"
+      },
+      {
+        id: "shatri_128kbps_space",
+        name: "أبو بكر الشاطري (مرتل - 128kbps - مسافات)",
+        folder: "shatri",
+        mp3quranServer: "server11.mp3quran.net/shatri",
+        everyAyahFolder: "Abu Bakr Ash-Shaatree_128kbps"
+      },
+      {
+        id: "ajm_64kbps_explorer",
+        name: "أحمد بن علي العجمي (مرتل - 64kbps - QuranExplorer)",
+        folder: "ajm",
+        mp3quranServer: "server10.mp3quran.net/ajm",
+        everyAyahFolder: "Ahmed_ibn_Ali_al-Ajamy_64kbps_QuranExplorer.Com"
+      },
+      {
+        id: "afasy_64kbps",
+        name: "مشاري العفاسي (مرتل - 64kbps)",
+        folder: "afs",
+        mp3quranServer: "server8.mp3quran.net/afs",
+        everyAyahFolder: "Alafasy_64kbps"
+      },
+      {
+        id: "hani_rifai_64kbps",
+        name: "هاني الرفاعي (مرتل - 64kbps)",
+        folder: "hani",
+        mp3quranServer: "server8.mp3quran.net/hani",
+        everyAyahFolder: "Hani_Rifai_64kbps"
+      },
+      {
+        id: "husr_murattal_64kbps",
+        name: "محمود خليل الحصري (مرتل - 64kbps)",
+        folder: "husr",
+        mp3quranServer: "server13.mp3quran.net/husr",
+        everyAyahFolder: "Husary_64kbps"
+      },
+      {
+        id: "husr_mujawwad_128kbps",
+        name: "محمود خليل الحصري (مجود - 128kbps)",
+        folder: "husr_mjwd",
+        mp3quranServer: "server13.mp3quran.net/husr/Almusshaf-Al-Mojawwad",
+        everyAyahFolder: "Husary_128kbps_Mujawwad"
+      },
+      {
+        id: "hudhaify_32kbps",
+        name: "علي بن عبدالرحمن الحذيفي (مرتل - 32kbps)",
+        folder: "hthfi",
+        mp3quranServer: "server9.mp3quran.net/hthfi",
+        everyAyahFolder: "Hudhaify_32kbps"
+      },
+      {
+        id: "hudhaify_64kbps",
+        name: "علي بن عبدالرحمن الحذيفي (مرتل - 64kbps)",
+        folder: "hthfi",
+        mp3quranServer: "server9.mp3quran.net/hthfi",
+        everyAyahFolder: "Hudhaify_64kbps"
+      },
+      {
+        id: "akdr_32kbps",
+        name: "إبراهيم الأخضر (مرتل - 32kbps)",
+        folder: "akdr",
+        mp3quranServer: "server6.mp3quran.net/akdr",
+        everyAyahFolder: "Ibrahim_Akhdar_32kbps"
+      },
+      {
+        id: "maher_128kbps",
+        name: "ماهر المعيقلي (مرتل - 128kbps)",
+        folder: "maher",
+        mp3quranServer: "server12.mp3quran.net/maher",
+        everyAyahFolder: "MaherAlMuaiqly128kbps"
+      },
+      {
+        id: "minsh_murattal_16kbps",
+        name: "محمد صديق المنشاوي (مرتل - 16kbps)",
+        folder: "minsh",
+        mp3quranServer: "server10.mp3quran.net/minsh",
+        everyAyahFolder: "Menshawi_16kbps"
+      },
+      {
+        id: "minsh_murattal_32kbps",
+        name: "محمد صديق المنشاوي (مرتل - 32kbps)",
+        folder: "minsh",
+        mp3quranServer: "server10.mp3quran.net/minsh",
+        everyAyahFolder: "Menshawi_32kbps"
+      },
+      {
+        id: "minsh_mujawwad_64kbps",
+        name: "محمد صديق المنشاوي (مجود - 64kbps)",
+        folder: "minsh_mjwd",
+        mp3quranServer: "server10.mp3quran.net/minsh/Almusshaf-Al-Mojawwad",
+        everyAyahFolder: "Minshawy_Mujawwad_64kbps"
+      },
+      {
+        id: "tblawi_64kbps",
+        name: "محمد الطبلاوي (مرتل - 64kbps)",
+        folder: "tblawi",
+        mp3quranServer: "server12.mp3quran.net/tblawi",
+        everyAyahFolder: "Mohammad_al_Tablaway_64kbps"
+      },
+      {
+        id: "ayyoub_64kbps",
+        name: "محمد أيوب (مرتل - 64kbps)",
+        folder: "ayyub",
+        mp3quranServer: "server16.mp3quran.net/ayyoub2/Rewayat-Hafs-A-n-Assem",
+        everyAyahFolder: "Muhammad_Ayyoub_64kbps"
+      },
+      {
+        id: "ayyoub_32kbps",
+        name: "محمد أيوب (مرتل - 32kbps)",
+        folder: "ayyub",
+        mp3quranServer: "server16.mp3quran.net/ayyoub2/Rewayat-Hafs-A-n-Assem",
+        everyAyahFolder: "Muhammad_Ayyoub_32kbps"
+      },
+      {
+        id: "jbrl_64kbps",
+        name: "محمد جبريل (مرتل - 64kbps)",
+        folder: "jbrl",
+        mp3quranServer: "server8.mp3quran.net/jbrl",
+        everyAyahFolder: "Muhammad_Jibreel_64kbps"
+      },
+      {
+        id: "shuraim_128kbps_space",
+        name: "سعود الشريم (مرتل - 128kbps - مسافات)",
+        folder: "shur",
+        mp3quranServer: "server7.mp3quran.net/shur",
+        everyAyahFolder: "Saood bin Ibraaheem Ash-Shuraym_128kbps"
+      },
+      {
+        id: "shur_64kbps",
+        name: "سعود الشريم (مرتل - 64kbps)",
+        folder: "shur",
+        mp3quranServer: "server7.mp3quran.net/shur",
+        everyAyahFolder: "Saood_ash-Shuraym_64kbps"
+      },
+      {
+        id: "ajm_128kbps_clean",
+        name: "أحمد بن علي العجمي (مرتل - 128kbps)",
+        folder: "ajm",
+        mp3quranServer: "server10.mp3quran.net/ajm",
+        everyAyahFolder: "ahmed_ibn_ali_al_ajamy_128kbps"
+      },
+      // --- Translations & روايات ---
+      {
+        id: "english_ibrahim_walk",
+        name: "إبراهيم ووك (ترجمة إنجليزية - Sahih International)",
+        folder: "english_walk",
+        mp3quranServer: "server16.mp3quran.net/ayyoub2/Rewayat-Hafs-A-n-Assem",
+        everyAyahFolder: "English/Sahih_Intnl_Ibrahim_Walk_192kbps"
+      },
+      {
+        id: "multilang_basfar_walk",
+        name: "عبدالله بصفر و إبراهيم ووك (متعدد اللغات)",
+        folder: "basfar_walk",
+        mp3quranServer: "server6.mp3quran.net/bsfr",
+        everyAyahFolder: "MultiLanguage/Basfar_Walk_192kbps"
+      },
+      {
+        id: "translation_makarem_kabiri",
+        name: "كابيري (ترجمة فارسية مكرّم)",
+        folder: "persian_kabiri",
+        mp3quranServer: "server8.mp3quran.net/parhizgar",
+        everyAyahFolder: "translations/Makarem_Kabiri_16Kbps"
+      },
+      {
+        id: "translation_fooladvand_hedayatfar",
+        name: "هدايت فار (ترجمة فارسية فولادوند)",
+        folder: "persian_hedayatfar",
+        mp3quranServer: "server8.mp3quran.net/parhizgar",
+        everyAyahFolder: "translations/Fooladvand_Hedayatfar_40Kbps"
+      },
+      {
+        id: "translation_azerbaijani_balayev",
+        name: "بالاييف (ترجمة أذربيجانية)",
+        folder: "azerbaijani_balayev",
+        mp3quranServer: "server6.mp3quran.net/bsfr",
+        everyAyahFolder: "translations/azerbaijani/balayev"
+      },
+      {
+        id: "translation_urdu_shamshad",
+        name: "شمشاد علي خان (ترجمة أردية)",
+        folder: "urdu_shamshad",
+        mp3quranServer: "server6.mp3quran.net/bsfr",
+        everyAyahFolder: "translations/urdu_shamshad_ali_khan_46kbps"
+      },
+      {
+        id: "translation_bosnian_korkut",
+        name: "بشيم كوركوت (ترجمة بوسنية)",
+        folder: "bosnian_korkut",
+        mp3quranServer: "server6.mp3quran.net/bsfr",
+        everyAyahFolder: "translations/besim_korkut_ajet_po_ajet"
+      },
+      {
+        id: "translation_urdu_farhat",
+        name: "فرحت هاشمي (ترجمة أردية كلمة بكلمة)",
+        folder: "urdu_farhat",
+        mp3quranServer: "server6.mp3quran.net/bsfr",
+        everyAyahFolder: "translations/urdu_farhat_hashmi"
+      },
+      {
+        id: "warsh_ibrahim_aldosary",
+        name: "إبراهيم الدوسري (رواية ورش عن نافع)",
+        folder: "warsh_aldosary",
+        mp3quranServer: "server10.mp3quran.net/ibrahim_dosri/Rewayat-Warsh-A-n-Nafi",
+        everyAyahFolder: "warsh/warsh_ibrahim_aldosary_128kbps"
+      },
+      {
+        id: "warsh_yassin_al_jazaery",
+        name: "ياسين الجزائري (رواية ورش عن نافع)",
+        folder: "warsh_yassin",
+        mp3quranServer: "server11.mp3quran.net/qari",
+        everyAyahFolder: "warsh/warsh_yassin_al_jazaery_64kbps"
+      },
+      {
+        id: "warsh_basit",
+        name: "عبدالباسط عبدالصمد (رواية ورش عن نافع)",
+        folder: "warsh_basit",
+        mp3quranServer: "server7.mp3quran.net/basit/Rewayat-Warsh-A-n-Nafi",
+        everyAyahFolder: "warsh/warsh_Abdul_Basit_128kbps"
       }
     ];
 

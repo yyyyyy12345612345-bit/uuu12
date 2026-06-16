@@ -260,11 +260,10 @@ export function AdminPanel() {
       if (!process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN) missingEnv.push("Firebase Auth Domain");
       if (!process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID) missingEnv.push("Firebase Project ID");
       
+      setEnvStatus('success');
       if (missingEnv.length > 0) {
-        setEnvStatus('error');
-        setEnvMessage(`متغيرات بيئة مفقودة: ${missingEnv.join(', ')}`);
+        setEnvMessage(`${checks.join(' | ')} - متصل باستخدام الإعدادات المدمجة بالتطبيق.`);
       } else {
-        setEnvStatus('success');
         setEnvMessage(`${checks.join(' | ')} - تم التحقق من متغيرات البيئة الأساسية بنجاح.`);
       }
     } catch (e: any) {
