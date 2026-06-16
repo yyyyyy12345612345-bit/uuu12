@@ -93,12 +93,13 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/logo/logo.png?v=25", sizes: "32x32", type: "image/png" },
-      { url: "/logo/logo.png?v=25", sizes: "192x192", type: "image/png" },
-      { url: "/logo/logo.png?v=25", sizes: "512x512", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/logo/logo.png", sizes: "32x32", type: "image/png" },
+      { url: "/logo/logo.png", sizes: "192x192", type: "image/png" },
+      { url: "/logo/logo.png", sizes: "512x512", type: "image/png" },
     ],
-    shortcut: "/logo/logo.png?v=25",
-    apple: "/logo/logo.png?v=25",
+    shortcut: "/favicon.ico",
+    apple: "/logo/logo.png",
   },
   verification: {
     google: "your-google-verification-code",
@@ -153,6 +154,11 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {/* Static favicon links for Google crawler and browsers */}
+        <link rel="icon" type="image/png" href="/favicon.ico" />
+        <link rel="shortcut icon" type="image/png" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/logo/logo.png" />
+
         <script dangerouslySetInnerHTML={{ __html: `
           (function() {
             var theme = localStorage.getItem('app-theme');
@@ -209,7 +215,7 @@ export default function RootLayout({
             var link = document.querySelector("link[rel*='icon']") || document.createElement('link');
             link.type = 'image/png';
             link.rel = 'shortcut icon';
-            link.href = '/logo/logo.png?v=25';
+            link.href = '/favicon.ico';
             document.getElementsByTagName('head')[0].appendChild(link);
             
             window.addEventListener('error', function(e) {

@@ -94,7 +94,7 @@ export const RECITERS: Reciter[] = [
     "id": "basit_mujawwad",
     "name": "عبدالباسط عبدالصمد (مجود)",
     "folder": "basit_mjwd",
-    "mp3quranServer": "server11.mp3quran.net/basit_mjwd",
+    "mp3quranServer": "server13.mp3quran.net/basit_mjwd",
     "everyAyahFolder": "Abdul_Basit_Mujawwad_128kbps"
   },
   {
@@ -122,7 +122,7 @@ export const RECITERS: Reciter[] = [
     "id": "husr_mujawwad",
     "name": "محمود خليل الحصري (مجود)",
     "folder": "husr_mjwd",
-    "mp3quranServer": "server11.mp3quran.net/husr_mjwd",
+    "mp3quranServer": "server9.mp3quran.net/husr_mjwd",
     "everyAyahFolder": "Husary_Mujawwad_64kbps"
   },
   {
