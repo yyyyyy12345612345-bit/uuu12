@@ -436,7 +436,7 @@ ${activeQuiz.explanation}
 
 سؤال المستخدم: ${userText}`;
 
-      const res = await fetch("https://youssefosama-groq_api.web.val.run", {
+      const res = await fetch("https://youssefosama--40af2a40698011f1b2fe1607ee4eb77e.web.val.run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
