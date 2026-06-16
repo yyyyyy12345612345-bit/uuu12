@@ -24,6 +24,32 @@ export default function AppInitializer({ children }: { children: React.ReactNode
   const [globalAlert, setGlobalAlert] = useState<{ id: string; title: string; message: string } | null>(null);
   const [mandatoryAnnouncement, setMandatoryAnnouncement] = useState<string | null>(null);
   const [announcementTimer, setAnnouncementTimer] = useState<number>(0);
+  
+  // Custom global dialogs state
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [confirmData, setConfirmData] = useState<{ message: string; resolve: (val: boolean) => void } | null>(null);
+
+  useEffect(() => {
+    // Override window.alert
+    window.alert = (message: string) => {
+      setToast({ message, type: 'info' });
+    };
+
+    // Override window.confirm (returns Promise<boolean>)
+    (window as any).confirm = (message: string) => {
+      return new Promise<boolean>((resolve) => {
+        setConfirmData({ message, resolve });
+      });
+    };
+  }, []);
+
+  // Handle toast auto-dismiss
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   useEffect(() => {
     // Only show splash once per session to avoid annoying re-loads during navigation
@@ -462,6 +488,65 @@ export default function AppInitializer({ children }: { children: React.ReactNode
               <div className="w-1 h-12 bg-gradient-to-b from-primary to-transparent rounded-full animate-bounce" />
               <p className="text-[9px] text-foreground/20 font-bold uppercase tracking-widest italic">بواسطة يوسف أسامة</p>
            </div>
+        </div>
+      )}
+
+      {/* Custom Confirm Modal */}
+      {confirmData && (
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200 font-arabic">
+          <div className="relative w-full max-w-sm bg-zinc-900 border border-white/10 rounded-[2rem] p-6 text-center shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="w-12 h-12 rounded-full bg-[#fbbf24]/10 text-[#fbbf24] flex items-center justify-center mx-auto mb-4 border border-[#fbbf24]/20">
+               <Info className="w-6 h-6 animate-pulse" />
+            </div>
+            
+            <h3 className="text-base font-black text-white mb-2 leading-relaxed">تأكيد الإجراء</h3>
+            <p className="text-white/70 text-xs leading-relaxed mb-6 whitespace-pre-line">
+              {confirmData.message}
+            </p>
+            
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => {
+                  confirmData.resolve(true);
+                  setConfirmData(null);
+                }}
+                className="flex-1 py-3 bg-[#fbbf24] text-black rounded-xl text-xs font-black hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-[#fbbf24]/10"
+              >
+                تأكيد
+              </button>
+              <button
+                onClick={() => {
+                  confirmData.resolve(false);
+                  setConfirmData(null);
+                }}
+                className="flex-1 py-3 bg-white/5 border border-white/10 text-white/80 rounded-xl text-xs font-black hover:bg-white/10 active:scale-95 transition-all"
+              >
+                إلغاء
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Toast Alert */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100000] p-4 w-full max-w-sm animate-in slide-in-from-bottom-5 duration-300 font-arabic">
+          <div className="bg-zinc-900/95 backdrop-blur-xl border border-white/15 rounded-2xl p-4 shadow-2xl flex items-center gap-3 justify-between">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-[#fbbf24]/10 text-[#fbbf24] flex items-center justify-center shrink-0">
+                <CheckCircle2 className="w-4.5 h-4.5" />
+              </div>
+              <p className="text-xs font-bold text-white leading-relaxed truncate">
+                {toast.message}
+              </p>
+            </div>
+            <button
+              onClick={() => setToast(null)}
+              className="text-white/40 hover:text-white p-1 transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       )}
 

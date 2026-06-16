@@ -390,7 +390,7 @@ export function DailyHub() {
   const handleDeleteCustomPlan = async () => {
     const user = auth?.currentUser;
     if (!user || !db) return;
-    if (!window.confirm("هل أنت متأكد من حذف هذه الخطة القرآنية والبدء من جديد مع الذكاء الاصطناعي؟")) return;
+    if (!await window.confirm("هل أنت متأكد من حذف هذه الخطة القرآنية والبدء من جديد مع الذكاء الاصطناعي؟")) return;
 
     try {
       const { deleteField } = await import("firebase/firestore");

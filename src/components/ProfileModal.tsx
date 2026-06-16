@@ -130,7 +130,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
    };
 
     const handleDeleteMyPost = async (postId: string) => {
-      if (!window.confirm("هل أنت متأكد من حذف هذا المنشور؟")) return;
+      if (!await window.confirm("هل أنت متأكد من حذف هذا المنشور؟")) return;
       try {
          await deleteDoc(doc(db, "posts", postId));
          setMyPosts(prev => prev.filter(p => p.id !== postId));
@@ -283,7 +283,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
 
     const handleBlockUser = async (targetUid: string) => {
        if (!auth?.currentUser || !db) return;
-       if (!window.confirm("هل أنت متأكد من رغبتك في حظر هذا المستخدم نهائياً؟ لن يتمكن من إرسال طلبات صداقة لك مجدداً.")) return;
+       if (!await window.confirm("هل أنت متأكد من رغبتك في حظر هذا المستخدم نهائياً؟ لن يتمكن من إرسال طلبات صداقة لك مجدداً.")) return;
        try {
           const myUid = auth.currentUser.uid;
           
@@ -339,7 +339,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
 
     const handleRemoveFriend = async (friendUid: string, friendshipId: string) => {
        if (!db) return;
-       if (!window.confirm("هل أنت متأكد من رغبتك في إزالة هذا الصديق؟")) return;
+       if (!await window.confirm("هل أنت متأكد من رغبتك في إزالة هذا الصديق؟")) return;
        try {
           await deleteDoc(doc(db, "friendships", friendshipId));
           fetchFriends();
@@ -509,7 +509,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       if (!auth?.currentUser || !db) return;
       
       const confirmMessage = "تحذير ⚠️\nهل أنت متأكد من رغبتك في حذف حسابك نهائياً؟ هذا الإجراء سيقوم بحذف جميع بياناتك وإنجازاتك ولا يمكن التراجع عنه أبداً.";
-      if (!window.confirm(confirmMessage)) return;
+      if (!await window.confirm(confirmMessage)) return;
 
       setDeletingAccount(true);
       try {
@@ -855,56 +855,56 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
 
                       {/* Stats Tab */}
                       {activeTab === 'stats' && (
-                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
-                            <div className="grid grid-cols-2 gap-4">
-                               <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col items-center justify-center text-center gap-4 hover:bg-white/10 transition-colors shadow-lg">
-                                  <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center shadow-inner shadow-primary/20">
-                                     <Trophy className="w-6 h-6" />
+                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-4">
+                            <div className="grid grid-cols-2 gap-2.5">
+                               <div className="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-white/10 transition-colors shadow-lg text-right">
+                                  <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shadow-inner shadow-primary/20 shrink-0">
+                                     <Trophy className="w-4 h-4" />
                                   </div>
-                                  <div>
-                                     <span className="block text-3xl font-black text-white">{userStats?.totalPoints || 0}</span>
-                                     <span className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-black mt-2 block">إجمالي النقاط</span>
-                                  </div>
-                               </div>
-                               
-                               <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col items-center justify-center text-center gap-4 hover:bg-white/10 transition-colors shadow-lg">
-                                  <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center shadow-inner shadow-emerald-500/20">
-                                     <BookOpen className="w-6 h-6" />
-                                  </div>
-                                  <div>
-                                     <span className="block text-3xl font-black text-white">{userStats?.readAyahs || 0}</span>
-                                     <span className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-black mt-2 block">آيات قُرئت</span>
+                                  <div className="min-w-0">
+                                     <span className="block text-lg font-black text-white leading-none">{userStats?.totalPoints || 0}</span>
+                                     <span className="text-[8px] text-white/40 font-black mt-1.5 block truncate">إجمالي النقاط</span>
                                   </div>
                                </div>
                                
-                               <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col items-center justify-center text-center gap-4 hover:bg-white/10 transition-colors shadow-lg">
-                                  <div className="w-12 h-12 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center shadow-inner shadow-blue-500/20">
-                                     <Headphones className="w-6 h-6" />
+                               <div className="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-white/10 transition-colors shadow-lg text-right">
+                                  <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shadow-inner shadow-emerald-500/20 shrink-0">
+                                     <BookOpen className="w-4 h-4" />
                                   </div>
-                                  <div>
-                                     <span className="block text-3xl font-black text-white">{Math.floor((userStats?.audioSeconds || 0) / 60)}</span>
-                                     <span className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-black mt-2 block">دقائق استماع</span>
+                                  <div className="min-w-0">
+                                     <span className="block text-lg font-black text-white leading-none">{userStats?.readAyahs || 0}</span>
+                                     <span className="text-[8px] text-white/40 font-black mt-1.5 block truncate">آيات قُرئت</span>
                                   </div>
                                </div>
                                
-                               <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col items-center justify-center text-center gap-4 hover:bg-white/10 transition-colors shadow-lg">
-                                  <div className="w-12 h-12 rounded-full bg-purple-500/10 text-purple-500 flex items-center justify-center shadow-inner shadow-purple-500/20">
-                                     <PlayCircle className="w-6 h-6" />
+                               <div className="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-white/10 transition-colors shadow-lg text-right">
+                                  <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shadow-inner shadow-blue-500/20 shrink-0">
+                                     <Headphones className="w-4 h-4" />
                                   </div>
-                                  <div>
-                                     <span className="block text-3xl font-black text-white">{userStats?.completedSurahsCount || 0}</span>
-                                     <span className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-black mt-2 block">سور مكتملة</span>
+                                  <div className="min-w-0">
+                                     <span className="block text-lg font-black text-white leading-none">{Math.floor((userStats?.audioSeconds || 0) / 60)}</span>
+                                     <span className="text-[8px] text-white/40 font-black mt-1.5 block truncate">دقائق استماع</span>
+                                  </div>
+                               </div>
+                               
+                               <div className="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-white/10 transition-colors shadow-lg text-right">
+                                  <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center shadow-inner shadow-purple-500/20 shrink-0">
+                                     <PlayCircle className="w-4 h-4" />
+                                  </div>
+                                  <div className="min-w-0">
+                                     <span className="block text-lg font-black text-white leading-none">{userStats?.completedSurahsCount || 0}</span>
+                                     <span className="text-[8px] text-white/40 font-black mt-1.5 block truncate">سور مكتملة</span>
                                   </div>
                                </div>
                             </div>
 
                             {/* قسم الأوسمة والشارات */}
-                            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 space-y-6 shadow-lg">
-                               <div className="flex items-center gap-3">
-                                  <Trophy className="w-5 h-5 text-primary animate-pulse" />
-                                  <h4 className="text-white font-black text-sm">الأوسمة والإنجازات 🏆</h4>
+                            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-4 shadow-lg">
+                               <div className="flex items-center gap-2">
+                                  <Trophy className="w-4 h-4 text-primary" />
+                                  <h4 className="text-white font-black text-xs">الأوسمة والإنجازات 🏆</h4>
                                </div>
-                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                                   {BADGES.map((badge) => {
                                      const isUnlocked = userStats?.badges?.includes(badge.id);
                                      
@@ -927,47 +927,47 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                      return (
                                         <div 
                                            key={badge.id}
-                                           className={`relative rounded-2xl border p-4 flex flex-col items-center text-center gap-3 transition-all duration-300 ${
+                                           className={`relative rounded-xl border p-3 flex flex-col items-center text-center gap-2.5 transition-all duration-300 ${
                                               isUnlocked 
-                                                 ? 'bg-primary/5 border-primary/30 shadow-[0_0_20px_rgba(230,190,70,0.1)] hover:scale-[1.03]' 
-                                                 : 'bg-white/[0.02] border-white/5 opacity-60'
+                                                 ? 'bg-primary/5 border-primary/20 shadow-[0_0_15px_rgba(230,190,70,0.05)] hover:scale-[1.02]' 
+                                                 : 'bg-white/[0.01] border-white/5 opacity-60'
                                            }`}
                                         >
                                            {/* Badge Icon */}
-                                           <div className={`w-14 h-14 rounded-full flex items-center justify-center relative ${
+                                           <div className={`w-10 h-10 rounded-full flex items-center justify-center relative ${
                                               isUnlocked 
-                                                 ? 'bg-gradient-to-br from-primary to-amber-500 text-black shadow-lg shadow-primary/20' 
+                                                 ? 'bg-gradient-to-br from-primary to-amber-500 text-black shadow-md' 
                                                  : 'bg-white/5 text-white/30'
                                            }`}>
-                                              {badge.iconType === "quran" && <BookOpen className="w-6 h-6" />}
-                                              {badge.iconType === "community" && <Users className="w-6 h-6" />}
-                                              {badge.iconType === "video" && <Video className="w-6 h-6" />}
+                                              {badge.iconType === "quran" && <BookOpen className="w-5 h-5" />}
+                                              {badge.iconType === "community" && <Users className="w-5 h-5" />}
+                                              {badge.iconType === "video" && <Video className="w-5 h-5" />}
                                               
                                               {isUnlocked && (
-                                                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-[#0a0a0d] flex items-center justify-center text-[10px] text-white font-bold">
+                                                 <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-emerald-500 rounded-full border border-[#0a0a0d] flex items-center justify-center text-[8px] text-white font-bold">
                                                     ✓
                                                  </span>
                                               )}
                                            </div>
 
                                            {/* Badge Info */}
-                                           <div className="space-y-1">
-                                              <span className={`block text-xs font-black ${isUnlocked ? 'text-primary' : 'text-white/60'}`}>
+                                           <div className="space-y-0.5">
+                                              <span className={`block text-[10px] font-black ${isUnlocked ? 'text-primary' : 'text-white/60'}`}>
                                                  {badge.name}
                                               </span>
-                                              <p className="text-[10px] text-white/40 leading-tight text-center">
+                                              <p className="text-[8px] text-white/40 leading-normal text-center">
                                                  {badge.description}
                                               </p>
                                            </div>
 
                                            {/* Progress Bar (if locked) */}
                                            {!isUnlocked && (
-                                              <div className="w-full mt-2 space-y-1">
-                                                 <div className="flex justify-between text-[8px] text-white/30 font-bold font-mono">
+                                              <div className="w-full mt-1 space-y-1">
+                                                 <div className="flex justify-between text-[7px] text-white/30 font-bold font-mono">
                                                     <span>{progress}%</span>
                                                     <span>{currentVal}/{targetVal}</span>
                                                  </div>
-                                                 <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                                 <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
                                                     <div 
                                                        className="h-full bg-white/20 rounded-full transition-all duration-500" 
                                                        style={{ width: `${progress}%` }}
@@ -1302,7 +1302,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                               <button
                                  type="button"
                                  onClick={async () => {
-                                    if (window.confirm("هل أنت متأكد من رغبتك في تسجيل الخروج؟")) {
+                                    if (await window.confirm("هل أنت متأكد من رغبتك في تسجيل الخروج؟")) {
                                        await auth.signOut();
                                        onClose();
                                        window.location.href = "/";

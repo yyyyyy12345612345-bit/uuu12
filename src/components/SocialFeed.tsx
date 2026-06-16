@@ -11,7 +11,7 @@ import { db, auth } from "@/lib/firebase";
 import {
   collection, addDoc, getDocs, query, orderBy, limit, startAfter,
   doc, deleteDoc, updateDoc, increment, serverTimestamp, getDoc,
-  setDoc
+  setDoc, arrayUnion, arrayRemove
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { checkAndAwardBadges } from "@/lib/badges";
@@ -32,7 +32,8 @@ const timeAgo = (date: any) => {
 const SEVERE_PROFANITY = [
   "كسم", "خول", "عرص", "ديوث", "قحبة", "قحبه", "زبي", "طيز", "نيك", 
   "قواد", "عاهرة", "عاهره", "عاهر", "احا", "منيوك", "منيوكة", "منيوكه", 
-  "كسخت", "كس", "كس اختك", "كس امك", "ياعرص", "يا خول", "يا ديوث", "شرموط", "شرموطة", "شرموطه", "شرمو"
+  "كسخت", "كس", "كس اختك", "كس امك", "ياعرص", "يا خول", "يا ديوث", "شرموط", "شرموطة", "شرموطه", "شرمو",
+  "طز", "قرف", "طز فيك"
 ];
 
 const MILD_QUESTIONABLE = [
@@ -150,6 +151,10 @@ interface Comment {
   createdAt: any;
   isBlocked?: boolean;
   autoFlagged?: boolean;
+  parentId?: string | null;
+  replyToName?: string | null;
+  likes?: string[];
+  likesCount?: number;
 }
 
 const CATEGORIES = [
@@ -200,6 +205,7 @@ export function SocialFeed() {
   const [commentText, setCommentText] = useState<Record<string, string>>({});
   const [isAnonymous, setIsAnonymous] = useState<Record<string, boolean>>({});
   const [postingComment, setPostingComment] = useState<string | null>(null);
+  const [replyingTo, setReplyingTo] = useState<{ postId: string; commentId: string; userName: string } | null>(null);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const POSTS_PER_PAGE = 15;
@@ -303,29 +309,36 @@ export function SocialFeed() {
     
     setPosting(true);
     try {
-      // 🛡️ رقابة ذكية عبر Groq (تأكيد العلاقة بالإسلام والمواضيع الدعوية)
+      // 🛡️ رقابة ذكية عبر الذكاء الاصطناعي (تأكيد العلاقة بالإسلام والمواضيع الدعوية وعدم وجود بذاءة)
       let isOffTopic = false;
+      let isProfane = false;
+      let reason = "";
       try {
-        const modRes = await fetch("https://youssefosama--40af2a40698011f1b2fe1607ee4eb77e.web.val.run", {
+        const modRes = await fetch("/api/moderate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            action: "moderate_post",
             content: newPost.trim()
           })
         });
         if (modRes.ok) {
           const modData = await modRes.json();
-          if (modData.isOffTopic) {
-            isOffTopic = true;
-          }
+          isOffTopic = !!modData.isOffTopic;
+          isProfane = !!modData.isProfane;
+          reason = modData.reason || "";
         }
       } catch (err) {
         console.error("Moderation check failed:", err);
       }
 
+      if (isProfane) {
+        alert(`⚠️ عذراً، لا يمكن نشر هذا المحتوى لأنه يحتوي على ألفاظ غير لائقة: ${reason || "محتوى غير لائق"}`);
+        setPosting(false);
+        return;
+      }
+
       if (isOffTopic) {
-        alert("⚠️ عذراً، هذا المنشور غير متعلق بالإسلام أو المواضيع الدعوية. يرجى كتابة منشورات إسلامية أو أدعية أو عبارات طيبة فقط لتعم الفائدة.");
+        alert(`⚠️ عذراً، هذا المنشور غير متعلق بالإسلام أو المواضيع الدعوية. يرجى كتابة منشورات إسلامية أو أدعية أو عبارات طيبة فقط لتعم الفائدة. السبب: ${reason || "محتوى خارج السياق"}`);
         setPosting(false);
         return;
       }
@@ -518,7 +531,7 @@ export function SocialFeed() {
     }
   };
 
-  // Post Comment
+  // Post Comment / Reply
   const handlePostComment = async (postId: string) => {
     const text = commentText[postId]?.trim();
     if (!text || postingComment) return;
@@ -536,31 +549,43 @@ export function SocialFeed() {
       return;
     }
 
+    // Capture parent info if we are replying
+    const activeReply = replyingTo && replyingTo.postId === postId ? replyingTo : null;
+    const parentId = activeReply ? activeReply.commentId : null;
+    const replyToName = activeReply ? activeReply.userName : null;
+
     setPostingComment(postId);
     try {
-      // 🛡️ رقابة ذكية عبر Groq للتعليقات
+      // 🛡️ رقابة ذكية عبر الذكاء الاصطناعي للتعليقات
       let isOffTopic = false;
+      let isProfane = false;
+      let reason = "";
       try {
-        const modRes = await fetch("https://youssefosama--40af2a40698011f1b2fe1607ee4eb77e.web.val.run", {
+        const modRes = await fetch("/api/moderate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            action: "moderate_post",
             content: text
           })
         });
         if (modRes.ok) {
           const modData = await modRes.json();
-          if (modData.isOffTopic) {
-            isOffTopic = true;
-          }
+          isOffTopic = !!modData.isOffTopic;
+          isProfane = !!modData.isProfane;
+          reason = modData.reason || "";
         }
       } catch (err) {
         console.error("Comment moderation check failed:", err);
       }
 
+      if (isProfane) {
+        alert(`⚠️ عذراً، لا يمكن نشر التعليق لأنه يحتوي على ألفاظ غير لائقة: ${reason || "محتوى غير لائق"}`);
+        setPostingComment(null);
+        return;
+      }
+
       if (isOffTopic) {
-        alert("⚠️ عذراً، هذا التعليق غير متعلق بالإسلام أو المواضيع الدعوية والمفيدة.");
+        alert(`⚠️ عذراً، هذا التعليق غير متعلق بالإسلام أو المواضيع الدعوية والمفيدة. السبب: ${reason || "محتوى خارج السياق"}`);
         setPostingComment(null);
         return;
       }
@@ -574,6 +599,10 @@ export function SocialFeed() {
         createdAt: serverTimestamp(),
         isBlocked: isAutoBlocked,
         autoFlagged: isAutoBlocked,
+        parentId: parentId || null,
+        replyToName: replyToName || null,
+        likes: [],
+        likesCount: 0
       };
       const docRef = await addDoc(collection(db, "posts", postId, "comments"), commentData);
 
@@ -582,6 +611,7 @@ export function SocialFeed() {
         [postId]: [...(prev[postId] || []), { id: docRef.id, ...commentData, createdAt: new Date() } as Comment],
       }));
       setCommentText(prev => ({ ...prev, [postId]: "" }));
+      setReplyingTo(null); // Clear replying state
 
       const postRef = doc(db, "posts", postId);
       await updateDoc(postRef, { commentsCount: increment(1) });
@@ -609,9 +639,61 @@ export function SocialFeed() {
     }
   };
 
+  // Like Comment
+  const handleLikeComment = async (postId: string, commentId: string) => {
+    if (!user) {
+      alert("يجب تسجيل الدخول أولاً للتفاعل مع التعليقات");
+      return;
+    }
+
+    const postComments = comments[postId] || [];
+    const cmt = postComments.find(c => c.id === commentId);
+    if (!cmt) return;
+
+    const isLiked = cmt.likes?.includes(user.uid) ?? false;
+
+    // Optimistic Update
+    setComments(prev => {
+      const list = prev[postId] || [];
+      const updated = list.map(c => {
+        if (c.id !== commentId) return c;
+        const currentLikes = c.likes || [];
+        const nextLikes = isLiked
+          ? currentLikes.filter(uid => uid !== user.uid)
+          : [...currentLikes, user.uid];
+        return {
+          ...c,
+          likes: nextLikes,
+          likesCount: nextLikes.length
+        };
+      });
+      return {
+        ...prev,
+        [postId]: updated
+      };
+    });
+
+    try {
+      const commentRef = doc(db, "posts", postId, "comments", commentId);
+      if (isLiked) {
+        await updateDoc(commentRef, {
+          likes: arrayRemove(user.uid),
+          likesCount: increment(-1)
+        });
+      } else {
+        await updateDoc(commentRef, {
+          likes: arrayUnion(user.uid),
+          likesCount: increment(1)
+        });
+      }
+    } catch (e) {
+      console.error("Error updating comment reaction:", e);
+    }
+  };
+
   // Delete Post
   const handleDeletePost = async (postId: string) => {
-    if (!window.confirm("هل أنت متأكد من حذف هذا المنشور؟")) return;
+    if (!await window.confirm("هل أنت متأكد من حذف هذا المنشور؟")) return;
     try {
       await deleteDoc(doc(db, "posts", postId));
       setPosts(prev => prev.filter(p => p.id !== postId));
@@ -1090,52 +1172,216 @@ export function SocialFeed() {
                       transition={{ duration: 0.3 }}
                       className={`border-t overflow-hidden ${isDarkTheme ? 'border-white/10 bg-black/20' : 'border-border/10 bg-foreground/[0.01]'}`}
                     >
-                      <div className="p-4 space-y-3.5 max-h-[300px] overflow-y-auto no-scrollbar">
-                        {(comments[post.id] || [])
-                          .filter(cmt => !cmt.isBlocked || cmt.userId === user?.uid)
-                          .map((cmt) => (
-                          <div key={cmt.id} className="flex gap-3 items-start text-right animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            {cmt.isAnonymous ? (
-                              <div className="w-9 h-9 rounded-full bg-foreground/10 flex items-center justify-center shrink-0 border border-border/30">
-                                <EyeOff className="w-4 h-4 text-foreground/30" />
-                              </div>
-                            ) : (
-                              <img
-                                src={cmt.userAvatar || `https://api.dicebear.com/9.x/avataaars/svg?seed=${cmt.userId}`}
-                                alt=""
-                                className="w-9 h-9 rounded-full border border-border/30 shrink-0 object-cover bg-foreground/5"
-                              />
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <div className={`border rounded-2xl px-4 py-2.5 ${isDarkTheme ? 'bg-white/5 border-white/10' : 'bg-foreground/5 border-border/20'}`}>
-                                <p className={`text-[10px] font-black mb-0.5 flex items-center justify-between gap-2 ${isDarkTheme ? 'text-white/60' : 'text-foreground/60'}`}>
-                                  <span>{cmt.isAnonymous ? "مجهول 🕶️" : cmt.userName}</span>
-                                  {cmt.isBlocked && (
-                                    <span className="text-[8px] bg-rose-500/10 text-rose-400 border border-rose-500/20 px-1.5 py-0.5 rounded-full font-bold">
-                                      قيد المراجعة ⏳
-                                    </span>
-                                  )}
-                                </p>
-                                <p className={`text-xs leading-relaxed break-words font-medium ${isDarkTheme ? 'text-white/90' : 'text-foreground/90'}`}>
-                                  {cmt.content}
-                                </p>
-                              </div>
-                              <p className={`text-[8px] font-bold mt-1 px-2 ${isDarkTheme ? 'text-white/30' : 'text-foreground/20'}`}>
-                                {timeAgo(cmt.createdAt)}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
+                      <div className="p-4 space-y-4 max-h-[400px] overflow-y-auto no-scrollbar">
+                        {(() => {
+                          const allCmts = comments[post.id] || [];
+                          const visibleCmts = allCmts.filter(cmt => !cmt.isBlocked || cmt.userId === user?.uid);
+                          
+                          // Separate parents and replies
+                          const parentCmts = visibleCmts.filter(cmt => !cmt.parentId);
+                          const repliesCmts = visibleCmts.filter(cmt => !!cmt.parentId);
+                          
+                          // Sort parents by likesCount descending, then by createdAt ascending
+                          const sortedParents = [...parentCmts].sort((a, b) => {
+                            const likesA = a.likesCount || 0;
+                            const likesB = b.likesCount || 0;
+                            if (likesB !== likesA) {
+                              return likesB - likesA;
+                            }
+                            const timeA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime();
+                            const timeB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime();
+                            return timeA - timeB;
+                          });
 
-                        {comments[post.id]?.length === 0 && (
-                          <p className="text-center text-xs text-foreground/20 py-4 font-bold">
-                            لا توجد تعليقات بعد — كن أول من يعلّق بكلمة طيبة!
-                          </p>
-                        )}
+                          if (sortedParents.length === 0) {
+                            return (
+                              <p className="text-center text-xs text-foreground/20 py-4 font-bold">
+                                لا توجد تعليقات بعد — كن أول من يعلّق بكلمة طيبة!
+                              </p>
+                            );
+                          }
+
+                          return sortedParents.map((cmt) => {
+                            const commentReplies = repliesCmts.filter(r => r.parentId === cmt.id);
+                            const userLiked = user && cmt.likes?.includes(user.uid);
+                            
+                            return (
+                              <div key={cmt.id} className="space-y-3 border-b border-border/10 pb-3 last:border-b-0 last:pb-0">
+                                {/* Parent Comment */}
+                                <div className="flex gap-3 items-start text-right animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                  {cmt.isAnonymous ? (
+                                    <div className="w-9 h-9 rounded-full bg-foreground/10 flex items-center justify-center shrink-0 border border-border/30">
+                                      <EyeOff className="w-4 h-4 text-foreground/30" />
+                                    </div>
+                                  ) : (
+                                    <img
+                                      src={cmt.userAvatar || `https://api.dicebear.com/9.x/avataaars/svg?seed=${cmt.userId}`}
+                                      alt=""
+                                      className="w-9 h-9 rounded-full border border-border/30 shrink-0 object-cover bg-foreground/5"
+                                    />
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <div className={`border rounded-2xl px-4 py-2.5 ${isDarkTheme ? 'bg-white/5 border-white/10' : 'bg-foreground/5 border-border/20'}`}>
+                                      <p className={`text-[10px] font-black mb-0.5 flex items-center justify-between gap-2 ${isDarkTheme ? 'text-white/60' : 'text-foreground/60'}`}>
+                                        <span>{cmt.isAnonymous ? "مجهول 🕶️" : cmt.userName}</span>
+                                        {cmt.isBlocked && (
+                                          <span className="text-[8px] bg-rose-500/10 text-rose-400 border border-rose-500/20 px-1.5 py-0.5 rounded-full font-bold">
+                                            قيد المراجعة ⏳
+                                          </span>
+                                        )}
+                                      </p>
+                                      <p className={`text-xs leading-relaxed break-words font-medium ${isDarkTheme ? 'text-white/90' : 'text-foreground/90'}`}>
+                                        {cmt.content}
+                                      </p>
+                                    </div>
+                                    
+                                    {/* Action Buttons for comment: Like & Reply */}
+                                    <div className="flex items-center gap-4 mt-1 px-2">
+                                      <span className={`text-[8px] font-bold ${isDarkTheme ? 'text-white/30' : 'text-foreground/20'}`}>
+                                        {timeAgo(cmt.createdAt)}
+                                      </span>
+                                      
+                                      <button
+                                        onClick={() => handleLikeComment(post.id, cmt.id)}
+                                        className={`text-[9px] font-black transition-colors flex items-center gap-1 ${
+                                          userLiked
+                                            ? "text-rose-500"
+                                            : (isDarkTheme ? "text-white/40 hover:text-white" : "text-foreground/45 hover:text-primary")
+                                        }`}
+                                      >
+                                        <Heart className={`w-2.5 h-2.5 ${userLiked ? 'fill-rose-500' : ''}`} />
+                                        <span>أعجبني {cmt.likesCount > 0 ? `(${cmt.likesCount})` : ''}</span>
+                                      </button>
+
+                                      <button
+                                        onClick={() => {
+                                          setReplyingTo({
+                                            postId: post.id,
+                                            commentId: cmt.id,
+                                            userName: cmt.isAnonymous ? "مجهول" : cmt.userName
+                                          });
+                                          const inputEl = document.getElementById(`comment-input-${post.id}`);
+                                          if (inputEl) {
+                                            inputEl.focus();
+                                          }
+                                        }}
+                                        className={`text-[9px] font-black transition-colors ${
+                                          isDarkTheme ? "text-white/40 hover:text-white" : "text-foreground/45 hover:text-primary"
+                                        }`}
+                                      >
+                                        رد
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Replies under this comment */}
+                                {commentReplies.length > 0 && (
+                                  <div className="mr-8 pr-3 border-r border-[#fbbf24]/10 space-y-3 mt-2">
+                                    {commentReplies.map((reply) => {
+                                      const replyLiked = user && reply.likes?.includes(user.uid);
+                                      return (
+                                        <div key={reply.id} className="flex gap-3 items-start text-right animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                          {reply.isAnonymous ? (
+                                            <div className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center shrink-0 border border-border/30">
+                                              <EyeOff className="w-3.5 h-3.5 text-foreground/30" />
+                                            </div>
+                                          ) : (
+                                            <img
+                                              src={reply.userAvatar || `https://api.dicebear.com/9.x/avataaars/svg?seed=${reply.userId}`}
+                                              alt=""
+                                              className="w-8 h-8 rounded-full border border-border/30 shrink-0 object-cover bg-foreground/5"
+                                            />
+                                          )}
+                                          <div className="flex-1 min-w-0">
+                                            <div className={`border rounded-2xl px-3.5 py-2 ${isDarkTheme ? 'bg-white/5 border-white/10' : 'bg-foreground/5 border-border/20'}`}>
+                                              <p className={`text-[9px] font-black mb-0.5 flex items-center justify-between gap-2 ${isDarkTheme ? 'text-white/60' : 'text-foreground/60'}`}>
+                                                <span>
+                                                  {reply.isAnonymous ? "مجهول 🕶️" : reply.userName}
+                                                  {reply.replyToName && (
+                                                    <span className="text-[8px] text-primary font-bold mr-1.5">
+                                                      رداً على @{reply.replyToName}
+                                                    </span>
+                                                  )}
+                                                </span>
+                                                {reply.isBlocked && (
+                                                  <span className="text-[8px] bg-rose-500/10 text-rose-400 border border-rose-500/20 px-1.5 py-0.5 rounded-full font-bold">
+                                                    قيد المراجعة ⏳
+                                                  </span>
+                                                )}
+                                              </p>
+                                              <p className={`text-xs leading-relaxed break-words font-medium ${isDarkTheme ? 'text-white/90' : 'text-foreground/90'}`}>
+                                                {reply.content}
+                                              </p>
+                                            </div>
+                                            
+                                            {/* Action Buttons for reply */}
+                                            <div className="flex items-center gap-4 mt-1 px-2">
+                                              <span className={`text-[8px] font-bold ${isDarkTheme ? 'text-white/30' : 'text-foreground/20'}`}>
+                                                {timeAgo(reply.createdAt)}
+                                              </span>
+                                              
+                                              <button
+                                                onClick={() => handleLikeComment(post.id, reply.id)}
+                                                className={`text-[9px] font-black transition-colors flex items-center gap-1 ${
+                                                  replyLiked
+                                                    ? "text-rose-500"
+                                                    : (isDarkTheme ? "text-white/40 hover:text-white" : "text-foreground/45 hover:text-primary")
+                                                }`}
+                                              >
+                                                <Heart className={`w-2.5 h-2.5 ${replyLiked ? 'fill-rose-500' : ''}`} />
+                                                <span>أعجبني {reply.likesCount > 0 ? `(${reply.likesCount})` : ''}</span>
+                                              </button>
+
+                                              <button
+                                                onClick={() => {
+                                                  setReplyingTo({
+                                                    postId: post.id,
+                                                    commentId: cmt.id, // Group nested replies under parent comment 'cmt.id'
+                                                    userName: reply.isAnonymous ? "مجهول" : reply.userName
+                                                  });
+                                                  const inputEl = document.getElementById(`comment-input-${post.id}`);
+                                                  if (inputEl) {
+                                                    inputEl.focus();
+                                                  }
+                                                }}
+                                                className={`text-[9px] font-black transition-colors ${
+                                                  isDarkTheme ? "text-white/40 hover:text-white" : "text-foreground/45 hover:text-primary"
+                                                }`}
+                                              >
+                                                رد
+                                              </button>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          });
+                        })()}
                       </div>
 
                       {/* Comment Input */}
                       <div className={`p-4 pt-0 border-t ${isDarkTheme ? 'border-white/10' : 'border-border/10'}`}>
+                        {/* Replying banner */}
+                        {replyingTo && replyingTo.postId === post.id && (
+                          <div className="flex items-center justify-between bg-primary/10 border border-primary/20 rounded-xl px-3 py-1.5 mb-2 text-right">
+                            <span className="text-[10px] font-bold text-primary flex items-center gap-1">
+                              <span>الرد على:</span>
+                              <span className="underline font-black">@{replyingTo.userName}</span>
+                            </span>
+                            <button
+                              onClick={() => setReplyingTo(null)}
+                              className="text-foreground/45 hover:text-foreground p-1 transition-colors"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
+
                         {/* Anonymous Toggle */}
                         <div className="flex items-center justify-end gap-2 mb-2 pt-2">
                           <button
@@ -1153,6 +1399,7 @@ export function SocialFeed() {
 
                         <div className="flex gap-2 items-center">
                           <input
+                            id={`comment-input-${post.id}`}
                             value={commentText[post.id] || ""}
                             onChange={(e) => setCommentText(prev => ({ ...prev, [post.id]: e.target.value }))}
                             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handlePostComment(post.id)}

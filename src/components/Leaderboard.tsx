@@ -337,7 +337,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
 
   const handleRejectDuel = async (duelId: string) => {
     if (!auth?.currentUser || !db || actionLoading) return;
-    if (!window.confirm("هل أنت متأكد من رفض هذا التحدي؟")) return;
+    if (!await window.confirm("هل أنت متأكد من رفض هذا التحدي؟")) return;
     setActionLoading(true);
     try {
       await deleteDoc(doc(db, "duels", duelId));
@@ -352,7 +352,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
 
   const handleCancelDuel = async (duelId: string) => {
     if (!auth?.currentUser || !db || actionLoading) return;
-    if (!window.confirm("هل تريد إلغاء طلب التحدي هذا؟")) return;
+    if (!await window.confirm("هل تريد إلغاء طلب التحدي هذا؟")) return;
     setActionLoading(true);
     try {
       await deleteDoc(doc(db, "duels", duelId));

@@ -181,7 +181,7 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
 
   const handleUnfriend = async () => {
     if (!myUid || !userId || !db || actionLoading) return;
-    if (!window.confirm("هل أنت متأكد من رغبتك في إزالة هذا الصديق؟")) return;
+    if (!await window.confirm("هل أنت متأكد من رغبتك في إزالة هذا الصديق؟")) return;
     setActionLoading(true);
     try {
       const friendshipId = getFriendshipId(myUid, userId);
@@ -201,7 +201,7 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
 
   const handleStartDuel = async () => {
     if (!myUid || !userId || !db || actionLoading) return;
-    if (!window.confirm(`هل أنت مستعد لتحدي ${targetUser.displayName} في مبارزة نقاط إيمانية لمدة 3 أيام؟ ⚔️`)) return;
+    if (!await window.confirm(`هل أنت مستعد لتحدي ${targetUser.displayName} في مبارزة نقاط إيمانية لمدة 3 أيام؟ ⚔️`)) return;
     setActionLoading(true);
     try {
       // Check if there is already an active duel between these two users
@@ -270,7 +270,7 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
 
   const handleBlockUser = async () => {
     if (!myUid || !userId || !db || actionLoading) return;
-    if (!window.confirm("هل أنت متأكد من رغبتك في حظر هذا المستخدم نهائياً؟ لن تتمكن من التفاعل معه مجدداً.")) return;
+    if (!await window.confirm("هل أنت متأكد من رغبتك في حظر هذا المستخدم نهائياً؟ لن تتمكن من التفاعل معه مجدداً.")) return;
     setActionLoading(true);
     try {
       const userRef = doc(db, "users", myUid);
