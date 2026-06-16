@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { LayoutDashboard, BellRing, Activity, UserCircle, CreditCard, Swords, Settings, GalleryHorizontalEnd, BarChart3, History, HeadphonesIcon, Megaphone, AlertCircle, BookOpen, FlaskConical, Package, ShieldCheck, Loader2, X, MenuIcon, Users, UserCheck, Mail, TrendingUp, RefreshCw, Bell, Trophy, Ban, CheckCircle, Phone, AlertTriangle, Trash2, Copy, KeyRound, MessageSquare, Sparkles, Volume2, Play, Pause, Database } from "lucide-react";
+import { LayoutDashboard, BellRing, Activity, UserCircle, CreditCard, Swords, Settings, GalleryHorizontalEnd, BarChart3, History, HeadphonesIcon, Megaphone, AlertCircle, BookOpen, FlaskConical, Package, ShieldCheck, Loader2, X, MenuIcon, Users, UserCheck, Mail, TrendingUp, RefreshCw, Bell, Trophy, Ban, CheckCircle, Phone, AlertTriangle, Trash2, Copy, KeyRound, MessageSquare, Sparkles, Volume2, Play, Pause, Database, SkipForward } from "lucide-react";
+import { gsap } from "gsap";
 import surahsData from "@/data/surahs.json";
 import { auth, db, initFirebase } from "@/lib/firebase";
 import {
@@ -154,6 +155,24 @@ export function AdminPanel() {
   const [analyticsData, setAnalyticsData] = useState<any>(null);
   const [isAnalyticsLoading, setIsAnalyticsLoading] = useState(false);
   const [analyticsSubTab, setAnalyticsSubTab] = useState<string>("overview");
+
+  // Admin Intro Animation States & Refs
+  const [showAdminIntro, setShowAdminIntro] = useState(false);
+  const adminIntroOverlayRef = useRef<HTMLDivElement>(null);
+  const adminIntroCardRef = useRef<HTMLDivElement>(null);
+  const adminIntroTextRef = useRef<HTMLDivElement>(null);
+  const adminIntroIconRef = useRef<HTMLDivElement>(null);
+
+  const handleSkipAdminIntro = () => {
+    if (adminIntroOverlayRef.current) {
+      gsap.killTweensOf(adminIntroOverlayRef.current);
+      gsap.killTweensOf(adminIntroCardRef.current);
+      gsap.killTweensOf(adminIntroIconRef.current);
+      gsap.killTweensOf(adminIntroTextRef.current);
+    }
+    setShowAdminIntro(false);
+    sessionStorage.setItem("has_seen_admin_intro", "true");
+  };
 
   // Reciter Diagnostic States
   const [reciterSearch, setReciterSearch] = useState("");
@@ -597,6 +616,72 @@ export function AdminPanel() {
   useEffect(() => { calculateReports(); }, [subRequests]);
 
   useEffect(() => { if (isAdmin) fetchPerformanceMetrics(); }, [alerts, isAdmin]);
+
+  // Trigger Admin Intro on successful login
+  useEffect(() => {
+    if (isAdmin) {
+      const hasSeen = sessionStorage.getItem("has_seen_admin_intro");
+      if (!hasSeen) {
+        setShowAdminIntro(true);
+      }
+    }
+  }, [isAdmin]);
+
+  // GSAP Admin Intro Timeline
+  useEffect(() => {
+    if (!showAdminIntro) return;
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        onComplete: () => {
+          setShowAdminIntro(false);
+          sessionStorage.setItem("has_seen_admin_intro", "true");
+        }
+      });
+
+      // Set initial styles
+      gsap.set(adminIntroCardRef.current, { scale: 0.85, opacity: 0 });
+      gsap.set(adminIntroIconRef.current, { rotate: -45, scale: 0.5, opacity: 0 });
+      gsap.set(adminIntroTextRef.current, { opacity: 0, y: 15 });
+
+      // 1. Zoom in card & icon with elastic back ease
+      tl.to(adminIntroCardRef.current, {
+        scale: 1,
+        opacity: 1,
+        duration: 0.8,
+        ease: "power3.out"
+      })
+      .to(adminIntroIconRef.current, {
+        rotate: 0,
+        scale: 1,
+        opacity: 1,
+        duration: 0.8,
+        ease: "back.out(2)"
+      }, "-=0.4")
+      
+      // 2. Fade in text staggered
+      .to(adminIntroTextRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "power2.out"
+      }, "-=0.2")
+
+      // 3. Pause for progress timeline (delay to make it total 5s)
+      .to({}, { duration: 2.8 })
+
+      // 4. Slide out and fade transition
+      .to(adminIntroOverlayRef.current, {
+        opacity: 0,
+        scale: 1.03,
+        y: -20,
+        duration: 0.6,
+        ease: "power3.inOut"
+      });
+    });
+
+    return () => ctx.revert();
+  }, [showAdminIntro]);
 
   // --- Data Fetching ---
   const fetchDailyStats = async () => {
@@ -1674,6 +1759,73 @@ export function AdminPanel() {
           </button>
           {loginError && <p className="text-xs text-red-400 font-bold">{loginError}</p>}
         </form>
+      </div>
+    );
+  }
+
+  // ==============================
+  // ADMIN INTRO SCREEN
+  // ==============================
+  if (showAdminIntro) {
+    return (
+      <div 
+        ref={adminIntroOverlayRef}
+        className="fixed inset-0 z-[1000] bg-[#070b13] flex flex-col items-center justify-center font-arabic overflow-hidden select-none"
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.04)_0%,transparent_60%)] pointer-events-none" />
+        <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-sky-500/5 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] bg-amber-500/5 blur-[100px] pointer-events-none" />
+
+        <div 
+          ref={adminIntroCardRef}
+          className="relative w-full max-w-md mx-4 bg-white/[0.01] border border-white/5 backdrop-blur-2xl rounded-[2.5rem] p-10 md:p-12 text-center flex flex-col items-center gap-8 shadow-2xl"
+        >
+          {/* Animated Glowing Icon */}
+          <div 
+            ref={adminIntroIconRef}
+            className="w-20 h-20 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 relative group shadow-[0_0_20px_rgba(245,158,11,0.1)]"
+          >
+             <ShieldCheck className="w-10 h-10 text-[#fbbf24] drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]" />
+             {/* Rotating loading border */}
+             <div className="absolute -inset-1 border-2 border-dashed border-[#fbbf24]/30 rounded-3xl animate-[spin_20s_linear_infinite]" />
+          </div>
+
+          {/* Texts */}
+          <div ref={adminIntroTextRef} className="space-y-4">
+             <span className="px-3 py-1 bg-amber-500/10 text-[#fbbf24] border border-[#fbbf24]/20 rounded-full text-[9px] font-black uppercase tracking-widest">
+                بوابة الإدارة الفائقة
+             </span>
+             <h2 className="text-3xl font-black text-white leading-tight font-arabic">
+                مـركـز الـتـحـكّـم 📊
+             </h2>
+             <p className="text-xs text-white/40 leading-relaxed font-bold">
+                تطبيق يقين قران • جاري تهيئة التحليلات المتقدمة وصحة الخدمات التقنية...
+             </p>
+          </div>
+
+          {/* Progress Indicator */}
+          <div className="w-full space-y-3">
+             <div className="w-full bg-white/[0.03] h-1.5 rounded-full overflow-hidden relative">
+                {/* 5-second progress line matching timeline */}
+                <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#fbbf24] to-amber-500 rounded-full animate-[progress_4.5s_linear_forwards]" />
+             </div>
+             <style>{`
+                @keyframes progress {
+                   from { width: 0%; }
+                   to { width: 100%; }
+                }
+             `}</style>
+          </div>
+        </div>
+
+        {/* Skip button at the bottom */}
+        <button
+          onClick={handleSkipAdminIntro}
+          className="absolute bottom-12 px-5 py-2.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition duration-300 text-[10px] font-black text-white/60 active:scale-95 flex items-center gap-2 shadow-lg"
+        >
+          <SkipForward className="w-3.5 h-3.5" />
+          تخطي الفحص والتهيئة ⚡
+        </button>
       </div>
     );
   }
