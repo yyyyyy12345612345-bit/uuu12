@@ -153,6 +153,7 @@ export function AdminPanel() {
   const [activeTab, setActiveTab] = useState<string>("stats");
   const [analyticsData, setAnalyticsData] = useState<any>(null);
   const [isAnalyticsLoading, setIsAnalyticsLoading] = useState(false);
+  const [analyticsSubTab, setAnalyticsSubTab] = useState<string>("overview");
 
   // Reciter Diagnostic States
   const [reciterSearch, setReciterSearch] = useState("");
@@ -624,12 +625,26 @@ export function AdminPanel() {
         await auth.currentUser.getIdToken(true);
       }
       
-      const [usersSnap, emailLogsSnap, chatbotLogsSnap, subsSnap, ticketsSnap] = await Promise.all([
+      const [
+        usersSnap,
+        emailLogsSnap,
+        chatbotLogsSnap,
+        subsSnap,
+        ticketsSnap,
+        postsSnap,
+        friendshipsSnap,
+        duelsSnap,
+        showcaseSnap
+      ] = await Promise.all([
         getDocs(collection(db, "users")),
         getDocs(collection(db, "emailLogs")),
         getDocs(collection(db, "chatbot_logs")),
         getDocs(collection(db, "subscription_requests")),
-        getDocs(collection(db, "support_tickets"))
+        getDocs(collection(db, "support_tickets")),
+        getDocs(collection(db, "posts")),
+        getDocs(collection(db, "friendships")),
+        getDocs(collection(db, "duels")),
+        getDocs(collection(db, "showcase"))
       ]);
 
       const usersList = usersSnap.docs.map(d => ({ uid: d.id, ...d.data() as any }));
@@ -637,6 +652,10 @@ export function AdminPanel() {
       const chatbotLogsList = chatbotLogsSnap.docs.map(d => d.data() as any);
       const subsList = subsSnap.docs.map(d => d.data() as any);
       const ticketsList = ticketsSnap.docs.map(d => d.data() as any);
+      const postsList = postsSnap.docs.map(d => ({ id: d.id, ...d.data() as any }));
+      const friendshipsList = friendshipsSnap.docs.map(d => d.data() as any);
+      const duelsList = duelsSnap.docs.map(d => d.data() as any);
+      const showcaseList = showcaseSnap.docs.map(d => d.data() as any);
 
       // --- 1. KPI Calculations ---
       const totalUsers = usersList.length;
@@ -801,6 +820,53 @@ export function AdminPanel() {
       const pushPercentage = totalUsers > 0 ? ((pushSubscribers / totalUsers) * 100).toFixed(1) : "0.0";
       const missingFcmTokenCount = usersList.filter(u => !u.fcmToken).length;
 
+      // --- 7. Quran Reading Stats ---
+      const totalQuranPoints = usersList.reduce((acc, u) => acc + (u.quranPoints || 0), 0);
+      const totalAyahsRead = usersList.reduce((acc, u) => acc + (u.readAyahs || 0), 0);
+      const activeQuranReaders = usersList.filter(u => (u.readAyahs || 0) > 0 || (u.quranPoints || 0) > 0).length;
+      const avgAyahsReadPerUser = activeQuranReaders > 0 ? (totalAyahsRead / activeQuranReaders).toFixed(1) : "0.0";
+      const activeCustomPlans = usersList.filter(u => u.activeQuranPlan).length;
+
+      // --- 8. Quran Listening Stats ---
+      const totalListenPoints = usersList.reduce((acc, u) => acc + (u.listenPoints || 0), 0);
+      const totalListeningSeconds = usersList.reduce((acc, u) => acc + (u.audioSeconds || 0), 0);
+      const activeListeners = usersList.filter(u => (u.audioSeconds || 0) > 0 || (u.listenPoints || 0) > 0).length;
+      const avgListeningMinutesPerUser = activeListeners > 0 ? Math.round(totalListeningSeconds / activeListeners / 60) : 0;
+
+      // --- 9. Dhikr & Tasbeeh Stats ---
+      const totalAthkarPoints = usersList.reduce((acc, u) => acc + (u.athkarPoints || 0), 0);
+      const totalIstighfarPoints = usersList.reduce((acc, u) => acc + (u.istighfarPoints || 0), 0);
+      const totalSalawatPoints = usersList.reduce((acc, u) => acc + (u.salawatPoints || 0), 0);
+      const activeDhikrUsers = usersList.filter(u => (u.athkarPoints || 0) > 0 || (u.istighfarPoints || 0) > 0 || (u.salawatPoints || 0) > 0).length;
+      const estimatedSebhaClicks = Math.round(totalAthkarPoints * 33);
+      const grandTotalDhikrActions = totalIstighfarPoints + totalSalawatPoints + estimatedSebhaClicks;
+
+      // --- 10. Video Studio Stats ---
+      const totalVideoPoints = usersList.reduce((acc, u) => acc + (u.videoPoints || 0), 0);
+      const totalVideosRendered = usersList.reduce((acc, u) => acc + (u.videoRendersCount || 0), 0);
+      const activeCreators = usersList.filter(u => (u.videoRendersCount || 0) > 0 || (u.videoPoints || 0) > 0).length;
+      const totalShowcaseVideos = showcaseList.length;
+
+      // --- 11. Engagement & Streaks ---
+      const totalStreak = usersList.reduce((acc, u) => acc + (u.streak || 0), 0);
+      const maxStreak = Math.max(...usersList.map(u => u.streak || 0), 0);
+      const usersWithStreak = usersList.filter(u => (u.streak || 0) > 0).length;
+      const avgStreak = usersWithStreak > 0 ? (totalStreak / usersWithStreak).toFixed(1) : "0.0";
+
+      // --- 12. Social Feed (Community) Stats ---
+      const totalPosts = postsList.length;
+      const totalPostLikes = postsList.reduce((acc, p) => acc + (p.likesCount || 0), 0);
+      const totalPostComments = postsList.reduce((acc, p) => acc + (p.commentsCount || 0), 0);
+      const reportedPostsCount = postsList.filter(p => (p.reportsCount || 0) > 0).length;
+      const blockedPostsCount = postsList.filter(p => p.isBlocked).length;
+
+      // --- 13. Worship Duels & Friends Network ---
+      const totalDuels = duelsList.length;
+      const activeDuels = duelsList.filter(d => d.status === "active" || d.status === "pending").length;
+      const completedDuels = duelsList.filter(d => d.status === "completed").length;
+      const totalFriendships = friendshipsList.length;
+      const avgFriendsPerUser = usersList.length > 0 ? ((totalFriendships * 2) / usersList.length).toFixed(1) : "0.0";
+
       setAnalyticsData({
         kpis: {
           totalUsers,
@@ -843,6 +909,54 @@ export function AdminPanel() {
           pushSubscribers,
           pushPercentage,
           missingFcmTokenCount
+        },
+        featuresBreakdown: {
+          quran: {
+            totalQuranPoints,
+            totalAyahsRead,
+            activeQuranReaders,
+            avgAyahsReadPerUser,
+            activeCustomPlans
+          },
+          listen: {
+            totalListenPoints,
+            totalListeningSeconds,
+            activeListeners,
+            avgListeningMinutesPerUser
+          },
+          dhikr: {
+            totalAthkarPoints,
+            totalIstighfarPoints,
+            totalSalawatPoints,
+            activeDhikrUsers,
+            estimatedSebhaClicks,
+            grandTotalDhikrActions
+          },
+          video: {
+            totalVideoPoints,
+            totalVideosRendered,
+            activeCreators,
+            totalShowcaseVideos
+          },
+          social: {
+            totalPosts,
+            totalPostLikes,
+            totalPostComments,
+            reportedPostsCount,
+            blockedPostsCount
+          },
+          duels: {
+            totalDuels,
+            activeDuels,
+            completedDuels,
+            totalFriendships,
+            avgFriendsPerUser
+          },
+          engagement: {
+            totalStreak,
+            maxStreak,
+            avgStreak
+          }
         }
       });
     } catch (error) {
@@ -2892,8 +3006,8 @@ export function AdminPanel() {
               {/* Header section with manual refresh */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/[0.02] border border-white/[0.04] p-6 rounded-3xl">
                 <div>
-                  <h2 className="text-2xl font-black text-white">داش بورد التحليلات المتقدمة</h2>
-                  <p className="text-xs text-white/40 mt-1">تتبع مؤشرات الأداء الحية، التفاعلات، والمبيعات بشكل لحظي</p>
+                  <h2 className="text-2xl font-black text-white">لوحة تحليلات "الفائقة" الشاملة 📊</h2>
+                  <p className="text-xs text-white/40 mt-1">النظام المتكامل لمراقبة أداء ميزات الموقع، التفاعلات، العبادات، والمبيعات بشكل تفصيلي لحظي</p>
                 </div>
                 <button
                   onClick={fetchAnalyticsData}
@@ -2901,419 +3015,827 @@ export function AdminPanel() {
                   className="flex items-center gap-2 px-5 py-3 bg-[#fbbf24] text-black font-black rounded-2xl hover:brightness-110 active:scale-95 transition disabled:opacity-50 text-xs"
                 >
                   <RefreshCw className={`w-4 h-4 ${isAnalyticsLoading ? 'animate-spin' : ''}`} />
-                  تحديث البيانات
+                  تحديث البيانات الشاملة
                 </button>
               </div>
 
               {isAnalyticsLoading && (
                 <div className="flex flex-col items-center justify-center py-20 text-white/50">
                   <Loader2 className="w-10 h-10 animate-spin text-[#fbbf24] mb-4" />
-                  <p className="text-sm font-bold">جاري تحميل وتجميع التحليلات...</p>
+                  <p className="text-sm font-bold">جاري تحميل وتجميع تحليلات "الفائقة" من Firestore...</p>
+                </div>
+              )}
+
+              {!isAnalyticsLoading && !analyticsData && (
+                <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-16 text-center text-white/30">
+                  <Activity className="mx-auto mb-4 h-12 w-12 text-white/10" />
+                  <p className="text-sm font-bold">يرجى الضغط على زر التحديث لتحميل تحليلات "الفائقة".</p>
                 </div>
               )}
 
               {!isAnalyticsLoading && analyticsData && (
                 <>
-                  {/* SECTION 1: KPI CARDS */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {/* Al-Faiqa Sub-tabs navigation bar */}
+                  <div className="flex flex-wrap gap-2 bg-white/[0.02] border border-white/5 p-2 rounded-2xl shrink-0 select-none">
                     {[
-                      { label: 'إجمالي المستخدمين', value: analyticsData.kpis.totalUsers, icon: Users, desc: `معدل نمو أسبوعي +${analyticsData.userGrowth.growthRate}%` },
-                      { label: 'النشطين اليوم', value: analyticsData.kpis.activeToday, icon: UserCheck, desc: `بنسبة ${analyticsData.kpis.totalUsers > 0 ? ((analyticsData.kpis.activeToday / analyticsData.kpis.totalUsers) * 100).toFixed(1) : 0}% من المستخدمين` },
-                      { label: 'إجمالي النقاط', value: analyticsData.kpis.totalPoints, icon: Trophy, desc: 'نقاط تفاعل الأوراد والمصحف' },
-                      { label: 'رسائل الشات بوت', value: analyticsData.kpis.chatbotMessagesCount, icon: MessageSquare, desc: 'إجمالي المحادثات مع البوت' },
-                      { label: 'المشتركون الفعّالون', value: analyticsData.kpis.premiumOrStarterCount, icon: CreditCard, desc: `معدل تحويل: ${analyticsData.kpis.conversionRate}%` },
-                      { label: 'طلبات اشتراك معلقة', value: analyticsData.kpis.pendingSubscriptions, icon: AlertCircle, desc: 'تنتظر التفعيل والمراجعة', highlight: analyticsData.kpis.pendingSubscriptions > 0 },
-                      { label: 'تذاكر الدعم المفتوحة', value: analyticsData.kpis.openSupportTickets, icon: HeadphonesIcon, desc: 'تحتاج استجابة سريعة', highlight: analyticsData.kpis.openSupportTickets > 0 },
-                      { label: 'إجمالي الإيميلات المرسلة', value: analyticsData.emails.totalEmails, icon: Mail, desc: `إيميلات فريدة: ${analyticsData.emails.uniqueEmailsCount}` },
-                    ].map((card, i) => {
-                      const Icon = card.icon;
-                      return (
-                        <div key={i} className={`rounded-2xl border p-5 transition hover:scale-[1.02] duration-300 ${card.highlight ? 'bg-amber-500/10 border-amber-500/30' : 'bg-white/[0.02] border-white/[0.06]'}`}>
-                          <div className="flex justify-between items-start">
-                            <span className="text-xs text-white/30 font-bold">{card.label}</span>
-                            <Icon className={`w-5 h-5 ${card.highlight ? 'text-amber-400' : 'text-[#fbbf24]/75'}`} />
-                          </div>
-                          <p className="text-2xl font-black text-white mt-3 font-mono">{card.value.toLocaleString('ar-EG')}</p>
-                          <p className="text-[10px] text-white/40 mt-1 font-bold">{card.desc}</p>
-                        </div>
-                      );
-                    })}
+                      { id: 'overview', label: '📊 نظرة عامة وصحة النظام' },
+                      { id: 'quran_worship', label: '📖 القرآن والعبادات' },
+                      { id: 'community_duels', label: '🤝 المجتمع والتحديات' },
+                      { id: 'video_studio', label: '🎬 استوديو الفيديو والمعرض' },
+                      { id: 'chatbot', label: '🤖 تحليلات الذكاء الاصطناعي' },
+                      { id: 'growth_sales', label: '💳 النمو والمبيعات' },
+                    ].map(subTab => (
+                      <button
+                        key={subTab.id}
+                        onClick={() => setAnalyticsSubTab(subTab.id)}
+                        className={`px-4 py-2.5 rounded-xl text-xs font-black transition-all ${
+                          analyticsSubTab === subTab.id
+                            ? 'bg-[#fbbf24] text-black shadow-lg shadow-[#fbbf24]/10 scale-102'
+                            : 'text-white/60 hover:bg-white/5 hover:text-white'
+                        }`}
+                      >
+                        {subTab.label}
+                      </button>
+                    ))}
                   </div>
 
-                  {/* SECTION 2: USER GROWTH & PLANS & GEOLOCATIONS */}
-                  <div className="grid lg:grid-cols-3 gap-6">
-                    {/* User Growth SVG line chart */}
-                    <div className="lg:col-span-2 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 flex flex-col justify-between">
-                      <div>
-                        <h3 className="text-lg font-black text-white">تسجيلات المستخدمين الجدد (آخر 14 يوم)</h3>
-                        <p className="text-xs text-white/40 mt-1">منحنى نمو الحسابات اليومية المسجلة عبر التحقق</p>
-                      </div>
-                      
-                      <div className="my-6 relative">
-                        {/* SVG Polyline Chart */}
-                        {(() => {
-                          const list = analyticsData.userGrowth.signupsByDay;
-                          const maxCount = Math.max(...list.map((d: any) => d.count), 2);
-                          const points = list.map((d: any, idx: number) => {
-                            const x = (idx / (list.length - 1)) * 100;
-                            const y = 90 - (d.count / maxCount) * 80;
-                            return `${x},${y}`;
-                          }).join(' ');
-
+                  {/* ────────────────────────────────────────────────────────
+                      SUB-TAB: OVERVIEW
+                      ──────────────────────────────────────────────────────── */}
+                  {analyticsSubTab === 'overview' && (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {[
+                          { label: 'إجمالي الحسابات المسجلة', value: analyticsData.kpis.totalUsers, icon: Users, desc: `معدل نمو أسبوعي +${analyticsData.userGrowth.growthRate}%` },
+                          { label: 'الأعضاء النشطين اليوم', value: analyticsData.kpis.activeToday, icon: UserCheck, desc: `بنسبة ${analyticsData.kpis.totalUsers > 0 ? ((analyticsData.kpis.activeToday / analyticsData.kpis.totalUsers) * 100).toFixed(1) : 0}% من المستخدمين` },
+                          { label: 'نقاط التفاعل الكلية', value: analyticsData.kpis.totalPoints, icon: Trophy, desc: 'النقاط الموزعة عبر الأنشطة' },
+                          { label: 'رسائل الدردشة الذكية', value: analyticsData.kpis.chatbotMessagesCount, icon: MessageSquare, desc: 'إجمالي المحادثات مع يقين' },
+                          { label: 'معدل التحويل (البريميوم)', value: `${analyticsData.kpis.conversionRate}%`, icon: CreditCard, desc: `${analyticsData.kpis.premiumOrStarterCount} مشترك نشط حالياً` },
+                          { label: 'أجهزة مفعلة للإشعارات', value: analyticsData.health.pushSubscribers, icon: BellRing, desc: `نسبة الوصول الكلي: ${analyticsData.health.pushPercentage}%` },
+                          { label: 'طلبات اشتراك معلقة', value: analyticsData.kpis.pendingSubscriptions, icon: AlertCircle, desc: 'تنتظر التنشيط والمراجعة', highlight: analyticsData.kpis.pendingSubscriptions > 0 },
+                          { label: 'تذاكر الدعم المفتوحة', value: analyticsData.kpis.openSupportTickets, icon: HeadphonesIcon, desc: 'تذاكر شكاوى نشطة تحتاج لرد', highlight: analyticsData.kpis.openSupportTickets > 0 },
+                        ].map((card, i) => {
+                          const Icon = card.icon;
                           return (
-                            <div className="w-full">
-                              <svg viewBox="0 0 100 100" className="w-full h-44 overflow-visible" preserveAspectRatio="none">
-                                {/* Grid lines */}
-                                {[0, 25, 50, 75, 100].map(val => (
-                                  <line key={val} x1="0" y1={val} x2="100" y2={val} stroke="white" strokeOpacity="0.04" strokeWidth="0.5" />
-                                ))}
-                                {/* Gradient Area under curve */}
-                                <defs>
-                                  <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.15" />
-                                    <stop offset="100%" stopColor="#fbbf24" stopOpacity="0.0" />
-                                  </linearGradient>
-                                </defs>
-                                <polygon
-                                  fill="url(#chartGrad)"
-                                  points={`0,90 ${points} 100,90`}
-                                />
-                                {/* Sparkline */}
-                                <polyline
-                                  fill="none"
-                                  stroke="#fbbf24"
-                                  strokeWidth="2.5"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  points={points}
-                                />
-                                {/* Render dots for active values */}
-                                {list.map((d: any, idx: number) => {
-                                  const x = (idx / (list.length - 1)) * 100;
-                                  const y = 90 - (d.count / maxCount) * 80;
-                                  return (
-                                    <g key={idx} className="group/dot cursor-pointer">
-                                      <circle cx={x} cy={y} r="1.5" fill="#fbbf24" stroke="#000" strokeWidth="0.5" />
-                                      <circle cx={x} cy={y} r="4" fill="#fbbf24" fillOpacity="0" className="hover:fill-opacity-20 transition" />
-                                    </g>
-                                  );
-                                })}
-                              </svg>
-                              {/* Date labels */}
-                              <div className="flex justify-between text-[8px] text-white/30 font-bold mt-2 font-mono" style={{ direction: 'ltr' }}>
-                                {list.map((d: any, i: number) => {
-                                  // Show only 4 labels to avoid clutter
-                                  if (i === 0 || i === 4 || i === 9 || i === 13) {
-                                    return <span key={i}>{d.date.substring(5)}</span>;
-                                  }
-                                  return <span key={i}></span>;
-                                })}
+                            <div key={i} className={`rounded-2xl border p-5 transition hover:scale-[1.02] duration-300 ${card.highlight ? 'bg-amber-500/10 border-amber-500/30 shadow-[0_10px_30px_rgba(245,158,11,0.05)]' : 'bg-white/[0.02] border-white/[0.06]'}`}>
+                              <div className="flex justify-between items-start">
+                                <span className="text-xs text-white/30 font-bold">{card.label}</span>
+                                <Icon className={`w-5 h-5 ${card.highlight ? 'text-amber-400' : 'text-[#fbbf24]/75'}`} />
                               </div>
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    </div>
-
-                    {/* Plans Distribution & Top Governorates */}
-                    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 flex flex-col justify-between">
-                      <div>
-                        <h3 className="text-lg font-black text-white">توزيع الخطط والاشتراكات</h3>
-                        <p className="text-xs text-white/40 mt-1">نسبة المستخدمين حسب فئات العضوية</p>
-                      </div>
-
-                      <div className="space-y-4 my-4">
-                        {(() => {
-                          const dist = analyticsData.userGrowth.plansDistribution;
-                          const total = dist.free + dist.starter + dist.premium + dist.supporter || 1;
-                          const getPercent = (val: number) => ((val / total) * 100).toFixed(0);
-                          
-                          return (
-                            <>
-                              {[
-                                { name: 'عضوية مجانية', key: 'free', color: 'bg-white/20', count: dist.free },
-                                { name: 'باقة البداية (Starter)', key: 'starter', color: 'bg-blue-400', count: dist.starter },
-                                { name: 'باقة التميز (Premium)', key: 'premium', color: 'bg-amber-400', count: dist.premium },
-                                { name: 'باقة الداعمين (Supporter)', key: 'supporter', color: 'bg-violet-400', count: dist.supporter },
-                              ].map(plan => (
-                                <div key={plan.key} className="space-y-1">
-                                  <div className="flex justify-between text-xs font-bold">
-                                    <span className="text-white/80">{plan.name}</span>
-                                    <span className="text-white/40 font-mono">{plan.count} ({getPercent(plan.count)}%)</span>
-                                  </div>
-                                  <div className="w-full bg-white/[0.03] h-2 rounded-full overflow-hidden">
-                                    <div className={`h-full ${plan.color} rounded-full`} style={{ width: `${getPercent(plan.count)}%` }} />
-                                  </div>
-                                </div>
-                              ))}
-                            </>
-                          );
-                        })()}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid lg:grid-cols-3 gap-6">
-                    {/* Top Governorates */}
-                    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
-                      <h3 className="text-lg font-black text-white mb-4">أكثر 5 محافظات نشاطاً</h3>
-                      <div className="space-y-4">
-                        {analyticsData.userGrowth.sortedGovs.map((gov: any, idx: number) => {
-                          const maxCount = analyticsData.userGrowth.sortedGovs[0]?.count || 1;
-                          const widthPct = ((gov.count / maxCount) * 100).toFixed(0);
-                          return (
-                            <div key={idx} className="space-y-1">
-                              <div className="flex justify-between text-xs font-bold">
-                                <span className="text-white/70">{gov.name}</span>
-                                <span className="text-white/30 font-mono">{gov.count} مستخدم</span>
-                              </div>
-                              <div className="w-full bg-white/[0.02] h-2 rounded-full">
-                                <div className="h-full bg-gradient-to-l from-[#fbbf24] to-[#d4af37] rounded-full" style={{ width: `${widthPct}%` }} />
-                              </div>
+                              <p className="text-2xl font-black text-white mt-3 font-mono">{card.value.toLocaleString('ar-EG')}</p>
+                              <p className="text-[10px] text-white/40 mt-1 font-bold">{card.desc}</p>
                             </div>
                           );
                         })}
-                        {analyticsData.userGrowth.sortedGovs.length === 0 && (
-                          <p className="text-xs text-white/30 text-center py-6">لا توجد بيانات متاحة للمحافظات</p>
-                        )}
+                      </div>
+
+                      {/* Technical Diagnostics Overview card */}
+                      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-4 mb-4">
+                          <div>
+                            <h3 className="text-lg font-black text-white">حالة الاتصال والخدمات التقنية ⚡</h3>
+                            <p className="text-xs text-white/40 mt-0.5">مراقبة الأداء الفني وصحة الخوادم والـ APIs مباشرة</p>
+                          </div>
+                          <button
+                            onClick={runAllDiagnostics}
+                            disabled={diagRunning}
+                            className="px-4 py-2 border border-[#fbbf24]/20 hover:bg-[#fbbf24]/5 text-[#fbbf24] rounded-xl text-xs font-bold transition flex items-center gap-2"
+                          >
+                            {diagRunning ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Activity className="w-3.5 h-3.5" />}
+                            تشغيل فحص التشخيص الشامل
+                          </button>
+                        </div>
+
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                          {[
+                            { id: 'db', title: 'قاعدة Firestore 💾', status: dbStatus, msg: dbMessage },
+                            { id: 'auth', title: 'صلاحية الأدمن 🔑', status: authStatus, msg: authMessage },
+                            { id: 'pexels', title: 'خلفيات Pexels 🖼️', status: pexelsStatus, msg: pexelsMessage },
+                            { id: 'render', title: 'خادم الرندر 🎬', status: renderServerStatus, msg: renderServerMessage },
+                            { id: 'env', title: 'متغيرات البيئة 📦', status: envStatus, msg: envMessage },
+                          ].map(sys => (
+                            <div key={sys.id} className="bg-white/[0.01] border border-white/[0.04] p-4 rounded-xl flex flex-col justify-between h-28">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-white/70">{sys.title}</span>
+                                {sys.status === 'idle' && <div className="w-2 h-2 rounded-full bg-white/20" />}
+                                {sys.status === 'checking' && <Loader2 className="w-3.5 h-3.5 animate-spin text-[#fbbf24]" />}
+                                {sys.status === 'success' && <CheckCircle className="w-4 h-4 text-emerald-400" />}
+                                {sys.status === 'error' && <AlertTriangle className="w-4 h-4 text-red-400" />}
+                              </div>
+                              <p className="text-[9px] text-white/40 truncate leading-relaxed text-right mt-2" title={sys.msg || 'بانتظار تشغيل الفحص'}>
+                                {sys.msg || 'بانتظار تشغيل الفحص...'}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Engagement & Streaks Overview */}
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 text-right">
+                          <h3 className="text-base font-black text-white mb-4">مواظبة والتزام المستخدمين 📅</h3>
+                          <div className="grid grid-cols-3 gap-4 text-center">
+                            <div className="bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl">
+                              <span className="text-[10px] text-white/30 font-bold block">متوسط السلسلة</span>
+                              <p className="text-2xl font-black text-emerald-400 mt-2 font-mono">{analyticsData.featuresBreakdown.engagement.avgStreak} يوم</p>
+                            </div>
+                            <div className="bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl">
+                              <span className="text-[10px] text-white/30 font-bold block">أعلى سلسلة التزام</span>
+                              <p className="text-2xl font-black text-[#fbbf24] mt-2 font-mono">{analyticsData.featuresBreakdown.engagement.maxStreak} يوم</p>
+                            </div>
+                            <div className="bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl">
+                              <span className="text-[10px] text-white/30 font-bold block">إجمالي السلاسل النشطة</span>
+                              <p className="text-2xl font-black text-sky-400 mt-2 font-mono">{analyticsData.featuresBreakdown.engagement.totalStreak}</p>
+                            </div>
+                          </div>
+                          <p className="text-[11px] text-white/30 leading-relaxed mt-4">
+                            * تحسب سلسلة الالتزام (Streak) للأعضاء الذين سجلوا قراءة ورد يومي أو ذكر متواصل دون انقطاع لأكثر من يوم.
+                          </p>
+                        </div>
+
+                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 flex flex-col justify-between">
+                          <div>
+                            <h3 className="text-base font-black text-white">إحصائيات إضافية سريعة</h3>
+                            <p className="text-xs text-white/30 mt-0.5">تفاصيل حول حجم رسائل البريد المرسلة عبر خادم التحقق</p>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 text-center my-3">
+                            <div className="bg-white/[0.01] border border-white/[0.03] p-3.5 rounded-xl">
+                              <span className="text-[9px] text-white/40 block">إيميلات تفعيل التسجيل</span>
+                              <p className="text-lg font-black text-white font-mono mt-1">{analyticsData.emails.signupCount}</p>
+                            </div>
+                            <div className="bg-white/[0.01] border border-white/[0.03] p-3.5 rounded-xl">
+                              <span className="text-[9px] text-white/40 block">إيميلات استعادة الباسورد</span>
+                              <p className="text-lg font-black text-white font-mono mt-1">{analyticsData.emails.resetCount}</p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
+                  )}
 
-                    {/* Chatbot behaviors */}
-                    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 flex flex-col justify-between">
-                      <div>
-                        <h3 className="text-lg font-black text-white">تحليل سلوك ومشاعر الشات بوت</h3>
-                        <p className="text-xs text-white/40 mt-1">توزيع ردود أفعال المستخدمين مع الذكاء الاصطناعي</p>
+                  {/* ────────────────────────────────────────────────────────
+                      SUB-TAB: QURAN & WORSHIP
+                      ──────────────────────────────────────────────────────── */}
+                  {analyticsSubTab === 'quran_worship' && (
+                    <div className="space-y-6">
+                      <div className="grid md:grid-cols-2 gap-6">
+                        {/* Quran Reading Card */}
+                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 relative overflow-hidden group">
+                          <div className="absolute top-4 left-4 opacity-5 group-hover:scale-110 transition-transform">
+                            <BookOpen className="w-16 h-16 text-[#fbbf24]" />
+                          </div>
+                          
+                          <div className="border-b border-white/5 pb-3">
+                            <h3 className="text-lg font-black text-white">تفاعل قراءة القرآن الكريم 📖</h3>
+                            <p className="text-xs text-white/40 mt-0.5">تفاصيل وإحصائيات تلاوة المصحف من قِبل الأعضاء</p>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4 my-6 text-center">
+                            <div className="bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl">
+                              <span className="text-[10px] text-white/30 font-bold block">إجمالي الآيات المقروءة</span>
+                              <p className="text-2xl font-black text-white mt-2 font-mono">{analyticsData.featuresBreakdown.quran.totalAyahsRead.toLocaleString('ar-EG')}</p>
+                            </div>
+                            <div className="bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl">
+                              <span className="text-[10px] text-white/30 font-bold block">النقاط الإجمالية الموزعة</span>
+                              <p className="text-2xl font-black text-[#fbbf24] mt-2 font-mono">+{analyticsData.featuresBreakdown.quran.totalQuranPoints.toLocaleString('ar-EG')}</p>
+                            </div>
+                            <div className="bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl">
+                              <span className="text-[10px] text-white/30 font-bold block">متوسط آيات القارئ الواحد</span>
+                              <p className="text-2xl font-black text-sky-400 mt-2 font-mono">{analyticsData.featuresBreakdown.quran.avgAyahsReadPerUser} آية</p>
+                            </div>
+                            <div className="bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl">
+                              <span className="text-[10px] text-white/30 font-bold block">خطط الأوراد بالذكاء الاصطناعي</span>
+                              <p className="text-2xl font-black text-violet-400 mt-2 font-mono">{analyticsData.featuresBreakdown.quran.activeCustomPlans} خطة</p>
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-xs font-bold">
+                              <span className="text-white/70">قراء القرآن النشطين</span>
+                              <span className="text-[#fbbf24] font-mono">{analyticsData.featuresBreakdown.quran.activeQuranReaders} من أصل {analyticsData.kpis.totalUsers}</span>
+                            </div>
+                            <div className="w-full bg-white/[0.03] h-2 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-l from-[#fbbf24] to-amber-500 rounded-full"
+                                style={{ width: `${analyticsData.kpis.totalUsers > 0 ? ((analyticsData.featuresBreakdown.quran.activeQuranReaders / analyticsData.kpis.totalUsers) * 100) : 0}%` }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Quran Listening Card */}
+                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 relative overflow-hidden group">
+                          <div className="absolute top-4 left-4 opacity-5 group-hover:scale-110 transition-transform">
+                            <Volume2 className="w-16 h-16 text-emerald-400" />
+                          </div>
+
+                          <div className="border-b border-white/5 pb-3">
+                            <h3 className="text-lg font-black text-white">تفاعل الاستماع والصوتيات 🎧</h3>
+                            <p className="text-xs text-white/40 mt-0.5">تتبع فترات وساعات الاستماع لسور وتلاوات القرآن</p>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4 my-6 text-center">
+                            <div className="bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl">
+                              <span className="text-[10px] text-white/30 font-bold block">إجمالي وقت الاستماع</span>
+                              <p className="text-2xl font-black text-emerald-400 mt-2 font-mono">
+                                {Math.floor(analyticsData.featuresBreakdown.listen.totalListeningSeconds / 3600)} ساعة
+                              </p>
+                            </div>
+                            <div className="bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl">
+                              <span className="text-[10px] text-white/30 font-bold block">إجمالي نقاط الاستماع</span>
+                              <p className="text-2xl font-black text-[#fbbf24] mt-2 font-mono">+{analyticsData.featuresBreakdown.listen.totalListenPoints.toLocaleString('ar-EG')}</p>
+                            </div>
+                            <div className="bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl">
+                              <span className="text-[10px] text-white/30 font-bold block">متوسط استماع العضو الواحد</span>
+                              <p className="text-2xl font-black text-sky-400 mt-2 font-mono">
+                                {analyticsData.featuresBreakdown.listen.avgListeningMinutesPerUser} دقيقة
+                              </p>
+                            </div>
+                            <div className="bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl">
+                              <span className="text-[10px] text-white/30 font-bold block">إجمالي ثواني الاستماع الكلية</span>
+                              <p className="text-lg font-black text-white mt-2.5 font-mono">{analyticsData.featuresBreakdown.listen.totalListeningSeconds.toLocaleString('ar-EG')} ثانية</p>
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-xs font-bold">
+                              <span className="text-white/70">المستمعون النشطون في المنصة</span>
+                              <span className="text-emerald-400 font-mono">{analyticsData.featuresBreakdown.listen.activeListeners} من أصل {analyticsData.kpis.totalUsers}</span>
+                            </div>
+                            <div className="w-full bg-white/[0.03] h-2 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-l from-emerald-400 to-teal-500 rounded-full"
+                                style={{ width: `${analyticsData.kpis.totalUsers > 0 ? ((analyticsData.featuresBreakdown.listen.activeListeners / analyticsData.kpis.totalUsers) * 100) : 0}%` }}
+                              />
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
-                      {/* Donut chart */}
-                      {(() => {
-                        const polite = analyticsData.chatbot.politeCount;
-                        const insults = analyticsData.chatbot.insultCount;
-                        const total = polite + insults || 1;
-                        const politePct = Math.round((polite / total) * 100);
-                        const insultPct = Math.round((insults / total) * 100);
-                        
-                        return (
-                          <div className="flex items-center justify-around my-6">
-                            {/* Conic-gradient Donut Chart */}
-                            <div 
-                              className="relative w-28 h-28 rounded-full flex items-center justify-center shadow-lg"
-                              style={{
-                                background: `conic-gradient(#10b981 0% ${politePct}%, #ef4444 ${politePct}% 100%)`
-                              }}
-                            >
-                              <div className="absolute w-20 h-20 rounded-full bg-[#0d111d] flex flex-col items-center justify-center">
-                                <span className="text-lg font-black text-white">{politePct}%</span>
-                                <span className="text-[8px] text-white/40 font-bold">تفاعل إيجابي</span>
+                      {/* Dhikr, Tasbeeh & Counters Community Dashboard */}
+                      <div className="rounded-[2rem] border border-white/[0.06] bg-gradient-to-br from-[#0c101d] to-[#080a13] p-8 relative overflow-hidden shadow-2xl">
+                        <div className="absolute top-6 left-6 opacity-[0.03] pointer-events-none">
+                          <Sparkles className="w-32 h-32 text-amber-400 animate-pulse" />
+                        </div>
+
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-white/5 pb-6">
+                          <div className="text-right">
+                            <span className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/20 text-[#fbbf24] border border-[#fbbf24]/20 rounded-xl text-[10px] font-black uppercase tracking-widest mb-3">
+                              📿 لوحة الذكر الجماعي
+                            </span>
+                            <h3 className="text-2xl font-black text-white">إحصائيات الأذكار والتسبيح الإلكتروني للمجتمع</h3>
+                            <p className="text-xs text-white/40 mt-1">تجميع حركات الذكر الجماعي المنجزة من قِبل جميع أعضاء التطبيق</p>
+                          </div>
+                          
+                          <div className="bg-white/[0.03] border border-white/[0.06] px-6 py-4 rounded-2xl text-center shrink-0">
+                            <span className="text-[10px] text-white/40 font-bold uppercase tracking-wider block">إجمالي عمليات الذكر الجماعية</span>
+                            <p className="text-3xl font-black text-[#fbbf24] mt-1 font-mono">{analyticsData.featuresBreakdown.dhikr.grandTotalDhikrActions.toLocaleString('ar-EG')}</p>
+                          </div>
+                        </div>
+
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mt-6">
+                          {[
+                            { label: 'مرات الاستغفار', value: analyticsData.featuresBreakdown.dhikr.totalIstighfarPoints, color: 'text-rose-400', pct: 100, unit: 'مرة' },
+                            { label: 'الصلوات على النبي', value: analyticsData.featuresBreakdown.dhikr.totalSalawatPoints, color: 'text-blue-400', pct: 100, unit: 'مرة' },
+                            { label: 'مرات التسبيح بالسبحة (تقديري)', value: analyticsData.featuresBreakdown.dhikr.estimatedSebhaClicks, color: 'text-amber-400', pct: 100, unit: 'تسبيحة' },
+                            { label: 'إجمالي نقاط الأذكار المكتسبة', value: analyticsData.featuresBreakdown.dhikr.totalAthkarPoints, color: 'text-purple-400', pct: 100, unit: 'نقطة' }
+                          ].map((dhikr, idx) => (
+                            <div key={idx} className="bg-black/20 border border-white/5 p-5 rounded-2xl flex flex-col justify-between h-32">
+                              <span className="text-xs text-white/40 font-bold">{dhikr.label}</span>
+                              <div className="mt-3">
+                                <p className={`text-2xl font-black ${dhikr.color} font-mono`}>{dhikr.value.toLocaleString('ar-EG')}</p>
+                                <p className="text-[10px] text-white/20 mt-1">{dhikr.unit}</p>
                               </div>
                             </div>
+                          ))}
+                        </div>
+
+                        <div className="mt-6 border-t border-white/5 pt-5 flex justify-between items-center text-xs font-bold text-white/30">
+                          <span>عدد المشاركين الفعليين بالذكر اليوم: {analyticsData.featuresBreakdown.dhikr.activeDhikrUsers} مستخدم</span>
+                          <span>المقاييس تسجل لحظة بلحظة</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ────────────────────────────────────────────────────────
+                      SUB-TAB: COMMUNITY & CHALLENGES (DUELS / FRIENDS)
+                      ──────────────────────────────────────────────────────── */}
+                  {analyticsSubTab === 'community_duels' && (
+                    <div className="space-y-6">
+                      <div className="grid md:grid-cols-3 gap-6">
+                        {/* Social feed card */}
+                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 relative overflow-hidden group">
+                          <div className="border-b border-white/5 pb-3">
+                            <h3 className="text-lg font-black text-white">تفاعل مجتمع التدبر والمنشورات 🤝</h3>
+                            <p className="text-xs text-white/40 mt-0.5">مراقبة منشورات وتفاعلات حائط المشاركة</p>
+                          </div>
+
+                          <div className="space-y-4 my-6 text-xs font-bold">
+                            <div className="flex justify-between bg-white/[0.01] p-3 rounded-xl">
+                              <span className="text-white/60">إجمالي المنشورات المكتوبة</span>
+                              <span className="text-white font-mono">{analyticsData.featuresBreakdown.social.totalPosts} منشور</span>
+                            </div>
+                            <div className="flex justify-between bg-white/[0.01] p-3 rounded-xl">
+                              <span className="text-white/60">إجمالي التفاعلات (الإعجابات)</span>
+                              <span className="text-[#fbbf24] font-mono">{analyticsData.featuresBreakdown.social.totalPostLikes} إعجاب</span>
+                            </div>
+                            <div className="flex justify-between bg-white/[0.01] p-3 rounded-xl">
+                              <span className="text-white/60">إجمالي التعليقات المكتوبة</span>
+                              <span className="text-sky-400 font-mono">{analyticsData.featuresBreakdown.social.totalPostComments} تعليق</span>
+                            </div>
+                            <div className="flex justify-between bg-white/[0.01] p-3 rounded-xl">
+                              <span className="text-white/60">متوسط تفاعل المنشور الواحد</span>
+                              <span className="text-violet-400 font-mono">
+                                {analyticsData.featuresBreakdown.social.totalPosts > 0 
+                                  ? ((analyticsData.featuresBreakdown.social.totalPostLikes + analyticsData.featuresBreakdown.social.totalPostComments) / analyticsData.featuresBreakdown.social.totalPosts).toFixed(1)
+                                  : 0
+                                } تفاعل
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2 text-center text-[10px]">
+                            <div className="bg-red-500/10 border border-red-500/20 p-2.5 rounded-xl text-red-400">
+                              <p className="font-bold">منشورات مُبلّغ عنها</p>
+                              <p className="text-lg font-black mt-1 font-mono">{analyticsData.featuresBreakdown.social.reportedPostsCount}</p>
+                            </div>
+                            <div className="bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl text-rose-400">
+                              <p className="font-bold">منشورات محجوبة</p>
+                              <p className="text-lg font-black mt-1 font-mono">{analyticsData.featuresBreakdown.social.blockedPostsCount}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Worship Duels Card */}
+                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 relative overflow-hidden group">
+                          <div className="border-b border-white/5 pb-3">
+                            <h3 className="text-lg font-black text-white">تحديات ومبارزات العبادات ⚔️</h3>
+                            <p className="text-xs text-white/40 mt-0.5">تتبع التحديات الإيمانية والمنافسة الشريفة بين الأصدقاء</p>
+                          </div>
+
+                          <div className="space-y-4 my-6 text-xs font-bold">
+                            <div className="flex justify-between bg-white/[0.01] p-3 rounded-xl">
+                              <span className="text-white/60">إجمالي المبارزات المقامة</span>
+                              <span className="text-white font-mono">{analyticsData.featuresBreakdown.duels.totalDuels} تحدي</span>
+                            </div>
+                            <div className="flex justify-between bg-white/[0.01] p-3 rounded-xl">
+                              <span className="text-white/60">تحديات مكتملة ومنتهية</span>
+                              <span className="text-emerald-400 font-mono">{analyticsData.featuresBreakdown.duels.completedDuels} مبارزة</span>
+                            </div>
+                            <div className="flex justify-between bg-white/[0.01] p-3 rounded-xl">
+                              <span className="text-white/60">تحديات جارية / معلقة</span>
+                              <span className="text-amber-400 font-mono">{analyticsData.featuresBreakdown.duels.activeDuels} تحدي نشط</span>
+                            </div>
+                          </div>
+
+                          <div className="p-4 bg-white/[0.01] border border-white/[0.03] rounded-xl text-center">
+                            <span className="text-[10px] text-white/40 font-bold block">نسبة إكمال التحديات</span>
+                            <div className="relative w-full h-2 bg-white/5 rounded-full overflow-hidden mt-3">
+                              <div 
+                                className="absolute inset-y-0 left-0 bg-emerald-400 rounded-full"
+                                style={{ width: `${analyticsData.featuresBreakdown.duels.totalDuels > 0 ? ((analyticsData.featuresBreakdown.duels.completedDuels / analyticsData.featuresBreakdown.duels.totalDuels) * 100).toFixed(0) : 0}%` }}
+                              />
+                            </div>
+                            <span className="text-[11px] text-emerald-400 font-mono block mt-2">
+                              {analyticsData.featuresBreakdown.duels.totalDuels > 0 ? ((analyticsData.featuresBreakdown.duels.completedDuels / analyticsData.featuresBreakdown.duels.totalDuels) * 100).toFixed(0) : 0}% من التحديات تمت بنجاح
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Friends Network Card */}
+                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 relative overflow-hidden group">
+                          <div className="border-b border-white/5 pb-3">
+                            <h3 className="text-lg font-black text-white">شبكة الصداقات والترابط الاجتماعي 👥</h3>
+                            <p className="text-xs text-white/40 mt-0.5">تفاصيل الترابط الاجتماعي وإضافة الأصدقاء</p>
+                          </div>
+
+                          <div className="space-y-4 my-6 text-xs font-bold">
+                            <div className="flex justify-between bg-white/[0.01] p-3 rounded-xl">
+                              <span className="text-white/60">إجمالي علاقات الصداقة المفعلة</span>
+                              <span className="text-white font-mono">{analyticsData.featuresBreakdown.duels.totalFriendships} علاقة</span>
+                            </div>
+                            <div className="flex justify-between bg-white/[0.01] p-3 rounded-xl">
+                              <span className="text-white/60">متوسط الأصدقاء لكل مستخدم</span>
+                              <span className="text-[#fbbf24] font-mono">{analyticsData.featuresBreakdown.duels.avgFriendsPerUser} صديق</span>
+                            </div>
+                          </div>
+
+                          <div className="rounded-xl border border-white/5 bg-white/[0.01] p-4 text-center mt-6">
+                            <p className="text-[10px] text-white/30 leading-relaxed">
+                              * تعكس هذه المؤشرات مدى ترابط مستخدمي المنصة والمشاركة الجماعية للأوراد والأدعية وحث بعضهم بعضاً على العبادة.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ────────────────────────────────────────────────────────
+                      SUB-TAB: VIDEO STUDIO
+                      ──────────────────────────────────────────────────────── */}
+                  {analyticsSubTab === 'video_studio' && (
+                    <div className="space-y-6">
+                      <div className="grid md:grid-cols-2 gap-6">
+                        {/* Video Generation stats */}
+                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 relative overflow-hidden group">
+                          <div className="absolute top-4 left-4 opacity-5 group-hover:scale-110 transition-transform">
+                            <Play className="w-16 h-16 text-purple-400" />
+                          </div>
+
+                          <div className="border-b border-white/5 pb-3">
+                            <h3 className="text-lg font-black text-white">تحليلات تصميم الفيديوهات الدعوية 🎬</h3>
+                            <p className="text-xs text-white/40 mt-0.5">تتبع عمليات رندر وتصميم مقاطع الآيات في الاستوديو</p>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4 my-6 text-center">
+                            <div className="bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl">
+                              <span className="text-[10px] text-white/30 font-bold block">إجمالي الفيديوهات المنتجة</span>
+                              <p className="text-2xl font-black text-white mt-2 font-mono">{analyticsData.featuresBreakdown.video.totalVideosRendered}</p>
+                            </div>
+                            <div className="bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl">
+                              <span className="text-[10px] text-white/30 font-bold block">نقاط التصميم الممنوحة</span>
+                              <p className="text-2xl font-black text-[#fbbf24] mt-2 font-mono">+{analyticsData.featuresBreakdown.video.totalVideoPoints}</p>
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-xs font-bold">
+                              <span className="text-white/70">صناع المحتوى النشطين (صمّموا فيديو)</span>
+                              <span className="text-purple-400 font-mono">{analyticsData.featuresBreakdown.video.activeCreators} مصمم</span>
+                            </div>
+                            <div className="w-full bg-white/[0.03] h-2 rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-gradient-to-l from-purple-400 to-indigo-500 rounded-full"
+                                style={{ width: `${analyticsData.kpis.totalUsers > 0 ? ((analyticsData.featuresBreakdown.video.activeCreators / analyticsData.kpis.totalUsers) * 100) : 0}%` }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Showcase stats */}
+                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 relative overflow-hidden group">
+                          <div className="absolute top-4 left-4 opacity-5 group-hover:scale-110 transition-transform">
+                            <GalleryHorizontalEnd className="w-16 h-16 text-indigo-400" />
+                          </div>
+
+                          <div className="border-b border-white/5 pb-3">
+                            <h3 className="text-lg font-black text-white">معرض فيديوهات المجتمع 📱</h3>
+                            <p className="text-xs text-white/40 mt-0.5">مراقبة المقاطع الدعوية المشاركة على المعرض العام للمنصة</p>
+                          </div>
+
+                          <div className="my-6">
+                            <div className="bg-white/[0.01] border border-white/[0.03] p-6 rounded-xl text-center">
+                              <span className="text-xs text-white/40 font-bold block">عدد الفيديوهات المعروضة حالياً</span>
+                              <p className="text-4xl font-black text-indigo-400 mt-2 font-mono">{analyticsData.featuresBreakdown.video.totalShowcaseVideos}</p>
+                            </div>
+                          </div>
+
+                          <div className="rounded-xl border border-white/5 bg-white/[0.01] p-4 text-center">
+                            <p className="text-[10px] text-white/30 leading-relaxed">
+                              * تعبر الفيديوهات المشاركة عن إنتاجات مستخدمي استوديو التصميم التي قرروا نشرها للجمهور لنيل ثواب الأجر الجاري ونشر الخير.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ────────────────────────────────────────────────────────
+                      SUB-TAB: CHATBOT ANALYTICS (AI)
+                      ──────────────────────────────────────────────────────── */}
+                  {analyticsSubTab === 'chatbot' && (
+                    <div className="space-y-6">
+                      <div className="grid md:grid-cols-2 gap-6">
+                        {/* Sentiment donut chart */}
+                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 flex flex-col justify-between">
+                          <div>
+                            <h3 className="text-lg font-black text-white">تحليل سلوك ومشاعر الشات بوت</h3>
+                            <p className="text-xs text-white/40 mt-1">توزيع ردود أفعال ومشاعر المستخدمين في حواراتهم مع يقين</p>
+                          </div>
+
+                          {/* Donut chart */}
+                          {(() => {
+                            const polite = analyticsData.chatbot.politeCount;
+                            const insults = analyticsData.chatbot.insultCount;
+                            const total = polite + insults || 1;
+                            const politePct = Math.round((polite / total) * 100);
+                            const insultPct = Math.round((insults / total) * 100);
                             
-                            <div className="space-y-2 text-xs font-bold">
-                              <div className="flex items-center gap-2">
-                                <div className="w-3 h-3 bg-emerald-500 rounded" />
-                                <span className="text-white/70">لطيف / إيجابي ({polite})</span>
+                            return (
+                              <div className="flex items-center justify-around my-6">
+                                {/* Conic-gradient Donut Chart */}
+                                <div 
+                                  className="relative w-28 h-28 rounded-full flex items-center justify-center shadow-lg"
+                                  style={{
+                                    background: `conic-gradient(#10b981 0% ${politePct}%, #ef4444 ${politePct}% 100%)`
+                                  }}
+                                >
+                                  <div className="absolute w-20 h-20 rounded-full bg-[#0d111d] flex flex-col items-center justify-center">
+                                    <span className="text-lg font-black text-white">{politePct}%</span>
+                                    <span className="text-[8px] text-white/40 font-bold">تفاعل إيجابي</span>
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-2 text-xs font-bold">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-3 h-3 bg-emerald-500 rounded" />
+                                    <span className="text-white/70">لطيف / إيجابي ({polite})</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-3 h-3 bg-red-500 rounded" />
+                                    <span className="text-white/70">مسيء / غضب ({insults})</span>
+                                  </div>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <div className="w-3 h-3 bg-red-500 rounded" />
-                                <span className="text-white/70">مسيء / تنمر ({insults})</span>
+                            );
+                          })()}
+                        </div>
+
+                        {/* Chatbot Message Volume (7 days) */}
+                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 flex flex-col justify-between">
+                          <div>
+                            <h3 className="text-lg font-black text-white">نشاط الشات بوت الأسبوعي</h3>
+                            <p className="text-xs text-white/40 mt-1">حجم الرسائل المتبادلة يومياً (آخر 7 أيام)</p>
+                          </div>
+
+                          <div className="my-4">
+                            {(() => {
+                              const list = analyticsData.chatbot.chatbotMsgsByDay;
+                              const maxCount = Math.max(...list.map((d: any) => d.count), 2);
+                              
+                              return (
+                                <div className="flex items-end justify-between h-28 pt-4">
+                                  {list.map((d: any, idx: number) => {
+                                    const heightPct = ((d.count / maxCount) * 100).toFixed(0);
+                                    return (
+                                      <div key={idx} className="flex flex-col items-center gap-2 flex-1 group">
+                                        <div className="relative w-4 bg-white/5 rounded-t hover:bg-[#fbbf24]/20 transition-all duration-300 h-20 flex items-end">
+                                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-[9px] text-white px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none font-mono">
+                                            {d.count}
+                                          </div>
+                                          <div className="w-full bg-gradient-to-t from-[#fbbf24] to-amber-400 rounded-t" style={{ height: `${heightPct}%` }} />
+                                        </div>
+                                        <span className="text-[8px] text-white/30 font-bold font-mono">{d.date.substring(5)}</span>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Top 10 Repeated Questions */}
+                      {(() => {
+                        // Gather logs client-side to calculate repeated questions if not fetched.
+                        // Since fetchChatbotLogs runs on tab activation, we might use chatbotStats calculated list if available.
+                        // Let's display the top questions list.
+                        return (
+                          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 text-right">
+                            <h3 className="text-base font-black text-white mb-4">🔥 الأسئلة الأكثر تكراراً للدردشة الذكية</h3>
+                            {chatbotStats.topQuestions.length === 0 ? (
+                              <p className="text-xs text-white/30 text-center py-6">يرجى زيارة تبويب "تحليلات الشات بوت" لتجميع الأسئلة الكلية، أو لا توجد سجلات بعد.</p>
+                            ) : (
+                              <div className="grid gap-3 sm:grid-cols-2">
+                                {chatbotStats.topQuestions.slice(0, 10).map((q, idx) => (
+                                  <div key={idx} className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.01] border border-white/[0.03]">
+                                    <div className="flex items-center gap-3">
+                                      <span className="w-5 h-5 rounded-lg bg-white/5 flex items-center justify-center text-[10px] text-white/40 font-bold">{idx + 1}</span>
+                                      <p className="text-xs text-white/80 font-bold truncate max-w-[180px] sm:max-w-[240px]" title={q.text}>{q.text}</p>
+                                    </div>
+                                    <span className="text-xs font-black bg-amber-400/10 text-amber-400 px-2 py-1 rounded-md">{q.count} تكرار</span>
+                                  </div>
+                                ))}
                               </div>
-                            </div>
+                            )}
                           </div>
                         );
                       })()}
                     </div>
+                  )}
 
-                    {/* Chatbot Message Volume (7 days) */}
-                    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 flex flex-col justify-between">
-                      <div>
-                        <h3 className="text-lg font-black text-white">نشاط الشات بوت الأسبوعي</h3>
-                        <p className="text-xs text-white/40 mt-1">حجم الرسائل المتبادلة يومياً</p>
-                      </div>
-
-                      <div className="my-4">
-                        {(() => {
-                          const list = analyticsData.chatbot.chatbotMsgsByDay;
-                          const maxCount = Math.max(...list.map((d: any) => d.count), 2);
-                          
-                          return (
-                            <div className="flex items-end justify-between h-28 pt-4">
-                              {list.map((d: any, idx: number) => {
-                                const heightPct = ((d.count / maxCount) * 100).toFixed(0);
-                                return (
-                                  <div key={idx} className="flex flex-col items-center gap-2 flex-1 group">
-                                    <div className="relative w-4 bg-white/5 rounded-t hover:bg-[#fbbf24]/20 transition-all duration-300 h-20 flex items-end">
-                                      <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-[9px] text-white px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none font-mono">
-                                        {d.count}
-                                      </div>
-                                      <div className="w-full bg-gradient-to-t from-[#fbbf24] to-amber-400 rounded-t" style={{ height: `${heightPct}%` }} />
-                                    </div>
-                                    <span className="text-[8px] text-white/30 font-bold font-mono">{d.date.substring(5)}</span>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* SECTION 4: SALES, REVENUE & SUBSCRIPTION REQUESTS */}
-                  <div className="grid lg:grid-cols-3 gap-6">
-                    {/* Sales Metrics & Status Distribution */}
-                    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 flex flex-col justify-between">
-                      <div>
-                        <h3 className="text-lg font-black text-white">إحصائيات المبيعات والإيرادات</h3>
-                        <p className="text-xs text-white/40 mt-1">قيمة المبيعات التقديرية بالجنيه المصري (EGP)</p>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-2 my-4">
-                        {[
-                          { label: 'اليوم', value: analyticsData.sales.revenueToday, color: 'text-emerald-400' },
-                          { label: 'هذا الأسبوع', value: analyticsData.sales.revenueWeek, color: 'text-amber-400' },
-                          { label: 'هذا الشهر', value: analyticsData.sales.revenueMonth, color: 'text-sky-400' },
-                        ].map((rev, i) => (
-                          <div key={i} className="bg-white/[0.02] border border-white/[0.04] p-3.5 rounded-xl text-center">
-                            <span className="text-[10px] text-white/40 font-bold">{rev.label}</span>
-                            <p className={`text-sm font-black mt-2 font-mono ${rev.color}`}>{rev.value} EGP</p>
+                  {/* ────────────────────────────────────────────────────────
+                      SUB-TAB: GROWTH & SALES (FINANCIALS)
+                      ──────────────────────────────────────────────────────── */}
+                  {analyticsSubTab === 'growth_sales' && (
+                    <div className="space-y-6">
+                      <div className="grid lg:grid-cols-3 gap-6">
+                        {/* SVG Growth chart */}
+                        <div className="lg:col-span-2 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 flex flex-col justify-between">
+                          <div>
+                            <h3 className="text-lg font-black text-white">تسجيلات المستخدمين الجدد (آخر 14 يوم)</h3>
+                            <p className="text-xs text-white/40 mt-1">منحنى نمو الحسابات اليومية المسجلة عبر التحقق</p>
                           </div>
-                        ))}
-                      </div>
-
-                      <div className="space-y-3">
-                        <span className="text-xs font-bold text-white/40">حالة طلبات الاشتراكات</span>
-                        {(() => {
-                          const counts = analyticsData.sales.subsStatusCounts;
-                          const total = counts.approved + counts.pending + counts.rejected || 1;
-                          const getPct = (val: number) => ((val / total) * 100).toFixed(0);
                           
-                          return (
-                            <div className="space-y-2 text-xs font-bold">
-                              {[
-                                { label: 'مفعّلة / مقبولة', val: counts.approved, color: 'bg-emerald-500', pct: getPct(counts.approved) },
-                                { label: 'قيد الانتظار', val: counts.pending, color: 'bg-amber-500', pct: getPct(counts.pending) },
-                                { label: 'مرفوضة / ملغية', val: counts.rejected, color: 'bg-red-500', pct: getPct(counts.rejected) },
-                              ].map((item, idx) => (
-                                <div key={idx} className="flex justify-between items-center bg-white/[0.01] border border-white/[0.02] p-2 rounded-lg">
-                                  <div className="flex items-center gap-2">
-                                    <div className={`w-2 h-2 ${item.color} rounded-full`} />
-                                    <span className="text-white/70">{item.label}</span>
+                          <div className="my-6 relative">
+                            {(() => {
+                              const list = analyticsData.userGrowth.signupsByDay;
+                              const maxCount = Math.max(...list.map((d: any) => d.count), 2);
+                              const points = list.map((d: any, idx: number) => {
+                                const x = (idx / (list.length - 1)) * 100;
+                                const y = 90 - (d.count / maxCount) * 80;
+                                return `${x},${y}`;
+                              }).join(' ');
+
+                              return (
+                                <div className="w-full">
+                                  <svg viewBox="0 0 100 100" className="w-full h-44 overflow-visible" preserveAspectRatio="none">
+                                    {[0, 25, 50, 75, 100].map(val => (
+                                      <line key={val} x1="0" y1={val} x2="100" y2={val} stroke="white" strokeOpacity="0.04" strokeWidth="0.5" />
+                                    ))}
+                                    <defs>
+                                      <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.15" />
+                                        <stop offset="100%" stopColor="#fbbf24" stopOpacity="0.0" />
+                                      </linearGradient>
+                                    </defs>
+                                    <polygon
+                                      fill="url(#chartGrad)"
+                                      points={`0,90 ${points} 100,90`}
+                                    />
+                                    <polyline
+                                      fill="none"
+                                      stroke="#fbbf24"
+                                      strokeWidth="2.5"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      points={points}
+                                    />
+                                    {list.map((d: any, idx: number) => {
+                                      const x = (idx / (list.length - 1)) * 100;
+                                      const y = 90 - (d.count / maxCount) * 80;
+                                      return (
+                                        <g key={idx} className="group/dot cursor-pointer">
+                                          <circle cx={x} cy={y} r="1.5" fill="#fbbf24" stroke="#000" strokeWidth="0.5" />
+                                          <circle cx={x} cy={y} r="4" fill="#fbbf24" fillOpacity="0" className="hover:fill-opacity-20 transition" />
+                                        </g>
+                                      );
+                                    })}
+                                  </svg>
+                                  <div className="flex justify-between text-[8px] text-white/30 font-bold mt-2 font-mono" style={{ direction: 'ltr' }}>
+                                    {list.map((d: any, i: number) => {
+                                      if (i === 0 || i === 4 || i === 9 || i === 13) {
+                                        return <span key={i}>{d.date.substring(5)}</span>;
+                                      }
+                                      return <span key={i}></span>;
+                                    })}
                                   </div>
-                                  <span className="text-white/40 font-mono">{item.val} ({item.pct}%)</span>
                                 </div>
-                              ))}
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    </div>
+                              );
+                            })()}
+                          </div>
+                        </div>
 
-                    {/* Subscription requests timeline (last 5) */}
-                    <div className="lg:col-span-2 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
-                      <h3 className="text-lg font-black text-white mb-4">آخر الاشتراكات المفعّلة</h3>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-right border-collapse text-xs font-bold">
-                          <thead>
-                            <tr className="border-b border-white/5 text-white/30">
-                              <th className="pb-3">الباقة</th>
-                              <th className="pb-3">القيمة المدفوعة</th>
-                              <th className="pb-3">التاريخ</th>
-                              <th className="pb-3">معرف المستخدم</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-white/[0.03]">
-                            {analyticsData.sales.lastSubscriptions.map((sub: any, idx: number) => (
-                              <tr key={idx} className="hover:bg-white/[0.01]">
-                                <td className="py-3">
-                                  <span className="inline-flex rounded-full bg-[#fbbf24]/10 border border-[#fbbf24]/20 px-2.5 py-0.5 text-[10px] text-[#fbbf24]">
-                                    {sub.plan}
-                                  </span>
-                                </td>
-                                <td className="py-3 font-mono text-emerald-400">+{sub.amount} EGP</td>
-                                <td className="py-3 text-white/50">{sub.date}</td>
-                                <td className="py-3 font-mono text-white/30">{sub.userId ? sub.userId.substring(0, 12) + '...' : '—'}</td>
-                              </tr>
-                            ))}
-                            {analyticsData.sales.lastSubscriptions.length === 0 && (
-                              <tr>
-                                <td colSpan={4} className="text-center py-6 text-white/20">لا توجد اشتراكات مفعّلة مؤخراً</td>
-                              </tr>
+                        {/* Plans distribution */}
+                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 flex flex-col justify-between">
+                          <div>
+                            <h3 className="text-lg font-black text-white">توزيع الخطط والاشتراكات</h3>
+                            <p className="text-xs text-white/40 mt-1">نسبة المستخدمين حسب فئات العضوية</p>
+                          </div>
+
+                          <div className="space-y-4 my-4">
+                            {(() => {
+                              const dist = analyticsData.userGrowth.plansDistribution;
+                              const total = dist.free + dist.starter + dist.premium + dist.supporter || 1;
+                              const getPercent = (val: number) => ((val / total) * 100).toFixed(0);
+                              
+                              return (
+                                <>
+                                  {[
+                                    { name: 'عضوية مجانية', key: 'free', color: 'bg-white/20', count: dist.free },
+                                    { name: 'باقة البداية (Starter)', key: 'starter', color: 'bg-blue-400', count: dist.starter },
+                                    { name: 'باقة التميز (Premium)', key: 'premium', color: 'bg-amber-400', count: dist.premium },
+                                    { name: 'باقة الداعمين (Supporter)', key: 'supporter', color: 'bg-violet-400', count: dist.supporter },
+                                  ].map(plan => (
+                                    <div key={plan.key} className="space-y-1">
+                                      <div className="flex justify-between text-xs font-bold">
+                                        <span className="text-white/80">{plan.name}</span>
+                                        <span className="text-white/40 font-mono">{plan.count} ({getPercent(plan.count)}%)</span>
+                                      </div>
+                                      <div className="w-full bg-white/[0.03] h-2 rounded-full overflow-hidden">
+                                        <div className={`h-full ${plan.color} rounded-full`} style={{ width: `${getPercent(plan.count)}%` }} />
+                                      </div>
+                                    </div>
+                                  ))}
+                                </>
+                              );
+                            })()}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid lg:grid-cols-3 gap-6">
+                        {/* Top Governorates */}
+                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
+                          <h3 className="text-lg font-black text-white mb-4">أكثر 5 محافظات نشاطاً</h3>
+                          <div className="space-y-4">
+                            {analyticsData.userGrowth.sortedGovs.map((gov: any, idx: number) => {
+                              const maxCount = analyticsData.userGrowth.sortedGovs[0]?.count || 1;
+                              const widthPct = ((gov.count / maxCount) * 100).toFixed(0);
+                              return (
+                                <div key={idx} className="space-y-1">
+                                  <div className="flex justify-between text-xs font-bold">
+                                    <span className="text-white/70">{gov.name}</span>
+                                    <span className="text-white/30 font-mono">{gov.count} مستخدم</span>
+                                  </div>
+                                  <div className="w-full bg-white/[0.02] h-2 rounded-full">
+                                    <div className="h-full bg-gradient-to-l from-[#fbbf24] to-[#d4af37] rounded-full" style={{ width: `${widthPct}%` }} />
+                                  </div>
+                                </div>
+                              );
+                            })}
+                            {analyticsData.userGrowth.sortedGovs.length === 0 && (
+                              <p className="text-xs text-white/30 text-center py-6">لا توجد بيانات متاحة للمحافظات</p>
                             )}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* SECTION 5: EMAIL LOGS & SECTION 6: SYSTEM HEALTH */}
-                  <div className="grid lg:grid-cols-2 gap-6">
-                    {/* Emails Analytics */}
-                    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
-                      <h3 className="text-lg font-black text-white mb-4">تحليلات رسائل البريد الإلكتروني (Logs)</h3>
-                      <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div className="bg-white/[0.02] border border-white/[0.04] p-4 rounded-2xl">
-                          <span className="text-xs text-white/30">إجمالي رسائل البريد</span>
-                          <p className="text-xl font-black text-white mt-2 font-mono">{analyticsData.emails.totalEmails}</p>
-                        </div>
-                        <div className="bg-white/[0.02] border border-white/[0.04] p-4 rounded-2xl">
-                          <span className="text-xs text-white/30">إيميلات فريدة</span>
-                          <p className="text-xl font-black text-[#fbbf24] mt-2 font-mono">{analyticsData.emails.uniqueEmailsCount}</p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center text-xs font-bold">
-                          <span className="text-white/60">تفعيل حسابات (Signup Verifications)</span>
-                          <span className="text-white/40 font-mono">{analyticsData.emails.signupCount} إيميل</span>
-                        </div>
-                        <div className="w-full bg-white/[0.02] h-2 rounded-full overflow-hidden">
-                          <div className="h-full bg-gradient-to-l from-blue-400 to-indigo-500" style={{ width: `${(analyticsData.emails.signupCount / (analyticsData.emails.totalEmails || 1)) * 100}%` }} />
-                        </div>
-
-                        <div className="flex justify-between items-center text-xs font-bold pt-1">
-                          <span className="text-white/60">استعادة كلمة المرور (Password Reset)</span>
-                          <span className="text-white/40 font-mono">{analyticsData.emails.resetCount} إيميل</span>
-                        </div>
-                        <div className="w-full bg-white/[0.02] h-2 rounded-full overflow-hidden">
-                          <div className="h-full bg-gradient-to-l from-pink-400 to-rose-500" style={{ width: `${(analyticsData.emails.resetCount / (analyticsData.emails.totalEmails || 1)) * 100}%` }} />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* System Health */}
-                    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
-                      <h3 className="text-lg font-black text-white mb-4">صحة النظام والأداء الفني</h3>
-                      
-                      <div className="space-y-4">
-                        {/* Status elements */}
-                        {[
-                          { label: 'قاعدة بيانات Firestore Cloud', status: 'يعمل بكفاءة', color: 'text-emerald-400', dot: 'bg-emerald-500' },
-                          { label: 'خادم الذكاء الاصطناعي (Chatbot API)', status: 'نشط ومتصل', color: 'text-emerald-400', dot: 'bg-emerald-500' },
-                          { label: 'خدمة إشعارات Push Notifications', status: 'جاهز للإرسال', color: 'text-[#fbbf24]', dot: 'bg-[#fbbf24]' },
-                        ].map((sys, idx) => (
-                          <div key={idx} className="flex justify-between items-center bg-white/[0.01] border border-white/[0.02] p-3 rounded-xl">
-                            <span className="text-xs font-bold text-white/80">{sys.label}</span>
-                            <div className="flex items-center gap-2">
-                              <span className={`text-[10px] font-black ${sys.color}`}>{sys.status}</span>
-                              <div className={`w-2 h-2 ${sys.dot} rounded-full animate-pulse`} />
-                            </div>
-                          </div>
-                        ))}
-
-                        <div className="border-t border-white/5 pt-4 mt-2 space-y-2 text-xs font-bold">
-                          <div className="flex justify-between">
-                            <span className="text-white/40">مشتركين الإشعارات (FCM Token)</span>
-                            <span className="text-white/70">{analyticsData.health.pushSubscribers} مستخدم ({analyticsData.health.pushPercentage}%)</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-white/40">حسابات بدون رمز دفع إشعارات</span>
-                            <span className="text-white/70">{analyticsData.health.missingFcmTokenCount} جهاز</span>
                           </div>
                         </div>
+
+                        {/* Revenue stats */}
+                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 flex flex-col justify-between">
+                          <div>
+                            <h3 className="text-lg font-black text-white">إحصائيات الإيرادات والمبيعات</h3>
+                            <p className="text-xs text-white/40 mt-1">قيمة المبيعات التقديرية بالجنيه المصري (EGP)</p>
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-2 my-4">
+                            {[
+                              { label: 'اليوم', value: analyticsData.sales.revenueToday, color: 'text-emerald-400' },
+                              { label: 'هذا الأسبوع', value: analyticsData.sales.revenueWeek, color: 'text-amber-400' },
+                              { label: 'هذا الشهر', value: analyticsData.sales.revenueMonth, color: 'text-sky-400' },
+                            ].map((rev, i) => (
+                              <div key={i} className="bg-white/[0.02] border border-white/[0.04] p-3.5 rounded-xl text-center">
+                                <span className="text-[10px] text-white/40 font-bold">{rev.label}</span>
+                                <p className={`text-xs font-black mt-2 font-mono ${rev.color}`}>{rev.value} EGP</p>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="space-y-3">
+                            <span className="text-xs font-bold text-white/40">حالة طلبات الاشتراكات</span>
+                            {(() => {
+                              const counts = analyticsData.sales.subsStatusCounts;
+                              const total = counts.approved + counts.pending + counts.rejected || 1;
+                              const getPct = (val: number) => ((val / total) * 100).toFixed(0);
+                              
+                              return (
+                                <div className="space-y-2 text-xs font-bold">
+                                  {[
+                                    { label: 'مفعّلة / مقبولة', val: counts.approved, color: 'bg-emerald-500', pct: getPct(counts.approved) },
+                                    { label: 'قيد الانتظار', val: counts.pending, color: 'bg-amber-500', pct: getPct(counts.pending) },
+                                    { label: 'مرفوضة / ملغية', val: counts.rejected, color: 'bg-red-500', pct: getPct(counts.rejected) },
+                                  ].map((item, idx) => (
+                                    <div key={idx} className="flex justify-between items-center bg-white/[0.01] border border-white/[0.02] p-2 rounded-lg">
+                                      <div className="flex items-center gap-2">
+                                        <div className={`w-2 h-2 ${item.color} rounded-full`} />
+                                        <span className="text-white/70">{item.label}</span>
+                                      </div>
+                                      <span className="text-white/40 font-mono">{item.val} ({item.pct}%)</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        </div>
+
+                        {/* Last subscriptions timeline */}
+                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
+                          <h3 className="text-lg font-black text-white mb-4">آخر الاشتراكات المقبولة</h3>
+                          <div className="overflow-y-auto max-h-[200px] no-scrollbar">
+                            <table className="w-full text-right border-collapse text-xs font-bold">
+                              <thead>
+                                <tr className="border-b border-white/5 text-white/30">
+                                  <th className="pb-2">الباقة</th>
+                                  <th className="pb-2">القيمة</th>
+                                  <th className="pb-2 text-left">التاريخ</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-white/[0.03]">
+                                {analyticsData.sales.lastSubscriptions.map((sub: any, idx: number) => (
+                                  <tr key={idx} className="hover:bg-white/[0.01]">
+                                    <td className="py-2.5">
+                                      <span className="inline-flex rounded-full bg-[#fbbf24]/10 border border-[#fbbf24]/20 px-2 py-0.5 text-[9px] text-[#fbbf24]">
+                                        {sub.plan}
+                                      </span>
+                                    </td>
+                                    <td className="py-2.5 font-mono text-emerald-400">+{sub.amount} EGP</td>
+                                    <td className="py-2.5 text-white/40 text-left font-mono">{sub.date}</td>
+                                  </tr>
+                                ))}
+                                {analyticsData.sales.lastSubscriptions.length === 0 && (
+                                  <tr>
+                                    <td colSpan={3} className="text-center py-6 text-white/20">لا توجد اشتراكات مفعّلة مؤخراً</td>
+                                  </tr>
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </>
               )}
             </div>
