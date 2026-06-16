@@ -105,6 +105,8 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
    const [loadingFriends, setLoadingFriends] = useState(false);
    const [blockedList, setBlockedList] = useState<any[]>([]);
    const [loadingBlocked, setLoadingBlocked] = useState(false);
+   const [showSearchSection, setShowSearchSection] = useState(false);
+   const [showRequestsSection, setShowRequestsSection] = useState(false);
 
    const fetchMyPosts = async () => {
       if (!auth?.currentUser || !db) return;
@@ -856,44 +858,44 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                       {/* Stats Tab */}
                       {activeTab === 'stats' && (
                          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-4">
-                            <div className="grid grid-cols-2 gap-2.5">
-                               <div className="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-white/10 transition-colors shadow-lg text-right">
-                                  <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shadow-inner shadow-primary/20 shrink-0">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                               <div className="bg-white/5 border border-white/10 rounded-xl p-2.5 flex items-center gap-2 hover:bg-white/10 transition-colors shadow-lg text-right">
+                                  <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shadow-inner shadow-primary/20 shrink-0">
                                      <Trophy className="w-4 h-4" />
                                   </div>
                                   <div className="min-w-0">
-                                     <span className="block text-lg font-black text-white leading-none">{userStats?.totalPoints || 0}</span>
-                                     <span className="text-[8px] text-white/40 font-black mt-1.5 block truncate">إجمالي النقاط</span>
+                                     <span className="block text-sm font-black text-white leading-none">{userStats?.totalPoints || 0}</span>
+                                     <span className="text-[8px] text-white/40 font-black mt-1 block truncate">إجمالي النقاط</span>
                                   </div>
                                </div>
                                
-                               <div className="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-white/10 transition-colors shadow-lg text-right">
-                                  <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shadow-inner shadow-emerald-500/20 shrink-0">
+                               <div className="bg-white/5 border border-white/10 rounded-xl p-2.5 flex items-center gap-2 hover:bg-white/10 transition-colors shadow-lg text-right">
+                                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center shadow-inner shadow-emerald-500/20 shrink-0">
                                      <BookOpen className="w-4 h-4" />
                                   </div>
                                   <div className="min-w-0">
-                                     <span className="block text-lg font-black text-white leading-none">{userStats?.readAyahs || 0}</span>
-                                     <span className="text-[8px] text-white/40 font-black mt-1.5 block truncate">آيات قُرئت</span>
+                                     <span className="block text-sm font-black text-white leading-none">{userStats?.readAyahs || 0}</span>
+                                     <span className="text-[8px] text-white/40 font-black mt-1 block truncate">آيات قُرئت</span>
                                   </div>
                                </div>
                                
-                               <div className="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-white/10 transition-colors shadow-lg text-right">
-                                  <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shadow-inner shadow-blue-500/20 shrink-0">
+                               <div className="bg-white/5 border border-white/10 rounded-xl p-2.5 flex items-center gap-2 hover:bg-white/10 transition-colors shadow-lg text-right">
+                                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center shadow-inner shadow-blue-500/20 shrink-0">
                                      <Headphones className="w-4 h-4" />
                                   </div>
                                   <div className="min-w-0">
-                                     <span className="block text-lg font-black text-white leading-none">{Math.floor((userStats?.audioSeconds || 0) / 60)}</span>
-                                     <span className="text-[8px] text-white/40 font-black mt-1.5 block truncate">دقائق استماع</span>
+                                     <span className="block text-sm font-black text-white leading-none">{Math.floor((userStats?.audioSeconds || 0) / 60)}</span>
+                                     <span className="text-[8px] text-white/40 font-black mt-1 block truncate">دقائق استماع</span>
                                   </div>
                                </div>
                                
-                               <div className="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-white/10 transition-colors shadow-lg text-right">
-                                  <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center shadow-inner shadow-purple-500/20 shrink-0">
+                               <div className="bg-white/5 border border-white/10 rounded-xl p-2.5 flex items-center gap-2 hover:bg-white/10 transition-colors shadow-lg text-right">
+                                  <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center shadow-inner shadow-purple-500/20 shrink-0">
                                      <PlayCircle className="w-4 h-4" />
                                   </div>
                                   <div className="min-w-0">
-                                     <span className="block text-lg font-black text-white leading-none">{userStats?.completedSurahsCount || 0}</span>
-                                     <span className="text-[8px] text-white/40 font-black mt-1.5 block truncate">سور مكتملة</span>
+                                     <span className="block text-sm font-black text-white leading-none">{userStats?.completedSurahsCount || 0}</span>
+                                     <span className="text-[8px] text-white/40 font-black mt-1 block truncate">سور مكتملة</span>
                                   </div>
                                </div>
                             </div>
@@ -1036,141 +1038,183 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
 
                       {/* Social Tab */}
                       {activeTab === 'social' && (
-                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
+                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
                             
-                            {/* Search for Friends */}
-                            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 space-y-4 shadow-lg">
-                               <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-3">
-                                     <Search className="w-5 h-5 text-primary animate-pulse" />
-                                     <h4 className="text-white font-black text-sm">البحث عن صديق جديد</h4>
-                                  </div>
-                                  <span className="text-[9px] font-black text-primary bg-primary/10 px-2.5 py-1 rounded-full uppercase tracking-wider">المجتمع</span>
-                               </div>
-                               
-                               <div className="relative">
-                                  <input
-                                     type="text"
-                                     value={searchQuery}
-                                     onChange={(e) => handleSearchFriends(e.target.value)}
-                                     placeholder="ابحث باسم المستخدم (مثال: ahmad)..."
-                                     className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pr-12 pl-6 text-right outline-none focus:border-primary/50 transition-all text-sm font-bold text-white shadow-inner placeholder:text-white/20"
-                                  />
-                                  <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-white/20 w-5 h-5" />
-                               </div>
+                            {/* Toggle Toolbar */}
+                            <div className="flex items-center justify-start gap-4 mb-2">
+                               {/* Search Toggle Icon */}
+                               <button
+                                  type="button"
+                                  onClick={() => setShowSearchSection(!showSearchSection)}
+                                  className={`p-3 rounded-2xl border transition-all flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 ${
+                                     showSearchSection
+                                        ? 'bg-primary text-black border-primary shadow-lg shadow-primary/20 scale-105'
+                                        : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
+                                  }`}
+                                  title="البحث عن أصدقاء"
+                               >
+                                  <Search className="w-5 h-5" />
+                               </button>
 
-                               {searching ? (
-                                  <div className="flex items-center justify-center py-6 gap-2">
-                                     <Loader2 className="w-5 h-5 text-primary animate-spin" />
-                                     <span className="text-white/40 text-xs font-bold">جاري البحث عن رفقاء الدرب...</span>
-                                  </div>
-                               ) : searchQuery.trim() !== "" && searchResults.length === 0 ? (
-                                  <div className="text-center text-white/30 text-xs py-4 font-bold bg-white/5 rounded-2xl">
-                                     لا توجد نتائج مطابقة لمصطلح البحث
-                                  </div>
-                               ) : searchResults.length > 0 ? (
-                                  <div className="space-y-3 max-h-56 overflow-y-auto no-scrollbar pt-2">
-                                     {searchResults.map((user: any) => (
-                                        <div key={user.uid} className="flex items-center justify-between p-3.5 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 transition-colors shadow-sm">
-                                           <div className="flex items-center gap-2">
-                                              <button
-                                                 type="button"
-                                                 onClick={() => handleBlockUser(user.uid)}
-                                                 className="px-3 py-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white rounded-xl transition-all text-xs font-black flex items-center gap-1.5 border border-red-500/15"
-                                                 title="حظر نهائي"
-                                              >
-                                                 <ShieldAlert className="w-3.5 h-3.5" />
-                                                 <span>حظر</span>
-                                              </button>
-                                              <button
-                                                 type="button"
-                                                 onClick={() => {
-                                                    window.dispatchEvent(new CustomEvent("show_user_profile", { detail: { userId: user.uid } }));
-                                                 }}
-                                                 className="px-3 py-2 bg-primary/10 hover:bg-primary text-primary hover:text-black rounded-xl transition-all text-xs font-black flex items-center gap-1.5 border border-primary/20"
-                                              >
-                                                 <User className="w-3.5 h-3.5" />
-                                                 <span>الملف الشخصي</span>
-                                              </button>
-                                           </div>
-                                           <div className="flex items-center gap-3">
-                                              <div className="text-right">
-                                                 <span className="block text-sm font-bold text-white leading-tight">{user.displayName || "مستمع قرآن"}</span>
-                                                 <span className="block text-[10px] text-primary font-mono mt-0.5">@{user.username}</span>
-                                              </div>
-                                              <img
-                                                 src={user.photoURL || AVATARS[user.gender || 'male'][0]}
-                                                 alt="Avatar"
-                                                 className="w-10 h-10 rounded-full border-2 border-white/5 bg-[#0c0d10] object-cover shadow-md"
-                                              />
-                                           </div>
-                                        </div>
-                                     ))}
-                                  </div>
-                               ) : null}
+                               {/* Friend Requests Toggle Icon */}
+                               <button
+                                  type="button"
+                                  onClick={() => setShowRequestsSection(!showRequestsSection)}
+                                  className={`relative p-3 rounded-2xl border transition-all flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 ${
+                                     showRequestsSection
+                                        ? 'bg-primary text-black border-primary shadow-lg shadow-primary/20 scale-105'
+                                        : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
+                                  }`}
+                                  title="طلبات الصداقة"
+                               >
+                                  <UserCheck className="w-5 h-5" />
+                                  <span className={`absolute -top-1.5 -left-1.5 text-[9px] font-black w-5.5 h-5.5 rounded-full flex items-center justify-center border-2 border-[#0a0a0d] shadow-md transition-colors ${
+                                     friendRequests.length > 0 
+                                        ? 'bg-red-500 text-white font-mono animate-bounce' 
+                                        : 'bg-white/15 text-white/40'
+                                  }`}>
+                                     {friendRequests.length}
+                                  </span>
+                               </button>
                             </div>
+
+                            {/* Search for Friends */}
+                            {showSearchSection && (
+                               <div className="bg-white/5 border border-white/10 rounded-3xl p-6 space-y-4 shadow-lg animate-in slide-in-from-top-2 duration-300">
+                                  <div className="flex items-center justify-between">
+                                     <div className="flex items-center gap-3">
+                                        <Search className="w-5 h-5 text-primary animate-pulse" />
+                                        <h4 className="text-white font-black text-sm">البحث عن صديق جديد</h4>
+                                     </div>
+                                     <span className="text-[9px] font-black text-primary bg-primary/10 px-2.5 py-1 rounded-full uppercase tracking-wider">المجتمع</span>
+                                  </div>
+                                  
+                                  <div className="relative">
+                                     <input
+                                        type="text"
+                                        value={searchQuery}
+                                        onChange={(e) => handleSearchFriends(e.target.value)}
+                                        placeholder="ابحث باسم المستخدم (مثال: ahmad)..."
+                                        className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pr-12 pl-6 text-right outline-none focus:border-primary/50 transition-all text-sm font-bold text-white shadow-inner placeholder:text-white/20"
+                                     />
+                                     <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-white/20 w-5 h-5" />
+                                  </div>
+
+                                  {searching ? (
+                                     <div className="flex items-center justify-center py-6 gap-2">
+                                        <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                                        <span className="text-white/40 text-xs font-bold">جاري البحث عن رفقاء الدرب...</span>
+                                     </div>
+                                  ) : searchQuery.trim() !== "" && searchResults.length === 0 ? (
+                                     <div className="text-center text-white/30 text-xs py-4 font-bold bg-white/5 rounded-2xl">
+                                        لا توجد نتائج مطابقة لمصطلح البحث
+                                     </div>
+                                  ) : searchResults.length > 0 ? (
+                                     <div className="space-y-3 max-h-56 overflow-y-auto no-scrollbar pt-2">
+                                        {searchResults.map((user: any) => (
+                                           <div key={user.uid} className="flex items-center justify-between p-3.5 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 transition-colors shadow-sm">
+                                              <div className="flex items-center gap-2">
+                                                 <button
+                                                    type="button"
+                                                    onClick={() => handleBlockUser(user.uid)}
+                                                    className="px-3 py-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white rounded-xl transition-all text-xs font-black flex items-center gap-1.5 border border-red-500/15"
+                                                    title="حظر نهائي"
+                                                 >
+                                                    <ShieldAlert className="w-3.5 h-3.5" />
+                                                    <span>حظر</span>
+                                                 </button>
+                                                 <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                       window.dispatchEvent(new CustomEvent("show_user_profile", { detail: { userId: user.uid } }));
+                                                    }}
+                                                    className="px-3 py-2 bg-primary/10 hover:bg-primary text-primary hover:text-black rounded-xl transition-all text-xs font-black flex items-center gap-1.5 border border-primary/20"
+                                                 >
+                                                    <User className="w-3.5 h-3.5" />
+                                                    <span>الملف الشخصي</span>
+                                                 </button>
+                                              </div>
+                                              <div className="flex items-center gap-3">
+                                                 <div className="text-right">
+                                                    <span className="block text-sm font-bold text-white leading-tight">{user.displayName || "مستمع قرآن"}</span>
+                                                    <span className="block text-[10px] text-primary font-mono mt-0.5">@{user.username}</span>
+                                                 </div>
+                                                 <img
+                                                    src={user.photoURL || AVATARS[user.gender || 'male'][0]}
+                                                    alt="Avatar"
+                                                    className="w-10 h-10 rounded-full border-2 border-white/5 bg-[#0c0d10] object-cover shadow-md"
+                                                 />
+                                              </div>
+                                           </div>
+                                        ))}
+                                     </div>
+                                  ) : null}
+                               </div>
+                            )}
 
                             {/* Friend Requests */}
-                            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 space-y-4 shadow-lg">
-                               <div className="flex items-center gap-3">
-                                  <UserCheck className="w-5 h-5 text-emerald-400" />
-                                  <h4 className="text-white font-black text-sm">طلبات الصداقة الواردة ({friendRequests.length})</h4>
-                               </div>
+                            {showRequestsSection && (
+                               <div className="bg-white/5 border border-white/10 rounded-3xl p-6 space-y-4 shadow-lg animate-in slide-in-from-top-2 duration-300">
+                                  <div className="flex items-center gap-3">
+                                     <UserCheck className="w-5 h-5 text-emerald-400" />
+                                     <h4 className="text-white font-black text-sm">طلبات الصداقة الواردة ({friendRequests.length})</h4>
+                                  </div>
 
-                               {loadingRequests ? (
-                                  <div className="flex items-center justify-center py-6">
-                                     <Loader2 className="w-6 h-6 text-primary animate-spin" />
-                                  </div>
-                               ) : friendRequests.length === 0 ? (
-                                  <div className="text-center text-white/20 text-xs py-8 font-bold bg-white/5 border border-dashed border-white/5 rounded-2xl">
-                                     لا توجد طلبات صداقة معلقة حالياً
-                                  </div>
-                               ) : (
-                                  <div className="space-y-3">
-                                     {friendRequests.map((request: any) => (
-                                        <div key={request.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-[#0e0e12] border border-white/5 rounded-2xl gap-3 shadow-md">
-                                           <div className="flex items-center gap-2">
-                                              <button
-                                                 type="button"
-                                                 onClick={() => handleAcceptFriendRequest(request)}
-                                                 className="flex-1 sm:flex-initial px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-500/10"
-                                              >
-                                                 <UserCheck className="w-3.5 h-3.5" />
-                                                 قبول
-                                              </button>
-                                              <button
-                                                 type="button"
-                                                 onClick={() => handleRejectFriendRequest(request.id)}
-                                                 className="flex-1 sm:flex-initial px-4 py-2 bg-white/5 border border-white/10 hover:bg-white/10 text-white/70 rounded-xl font-bold text-xs transition-all flex items-center justify-center"
-                                              >
-                                                 رفض
-                                              </button>
-                                              <button
-                                                 type="button"
-                                                 onClick={() => handleBlockUser(request.senderId)}
-                                                 className="px-3 py-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white rounded-xl transition-all text-xs font-black border border-red-500/10"
-                                                 title="حظر نهائي لمنع إرسال طلبات أخرى"
-                                              >
-                                                 حظر نهائي
-                                              </button>
-                                           </div>
-                                           
-                                           <div className="flex items-center justify-end gap-3">
-                                              <div className="text-right">
-                                                 <span className="block text-sm font-bold text-white">{request.senderName || "قارئ جديد"}</span>
-                                                 <span className="block text-[10px] text-white/40 mt-0.5">يرغب في أن يكون صديقاً لك</span>
+                                  {loadingRequests ? (
+                                     <div className="flex items-center justify-center py-6">
+                                        <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                                     </div>
+                                  ) : friendRequests.length === 0 ? (
+                                     <div className="text-center text-white/20 text-xs py-8 font-bold bg-white/5 border border-dashed border-white/5 rounded-2xl">
+                                        لا توجد طلبات صداقة معلقة حالياً
+                                     </div>
+                                  ) : (
+                                     <div className="space-y-3">
+                                        {friendRequests.map((request: any) => (
+                                           <div key={request.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-[#0e0e12] border border-white/5 rounded-2xl gap-3 shadow-md">
+                                              <div className="flex items-center gap-2">
+                                                 <button
+                                                    type="button"
+                                                    onClick={() => handleAcceptFriendRequest(request)}
+                                                    className="flex-1 sm:flex-initial px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-500/10"
+                                                 >
+                                                    <UserCheck className="w-3.5 h-3.5" />
+                                                    قبول
+                                                 </button>
+                                                 <button
+                                                    type="button"
+                                                    onClick={() => handleRejectFriendRequest(request.id)}
+                                                    className="flex-1 sm:flex-initial px-4 py-2 bg-white/5 border border-white/10 hover:bg-white/10 text-white/70 rounded-xl font-bold text-xs transition-all flex items-center justify-center"
+                                                 >
+                                                    رفض
+                                                 </button>
+                                                 <button
+                                                    type="button"
+                                                    onClick={() => handleBlockUser(request.senderId)}
+                                                    className="px-3 py-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white rounded-xl transition-all text-xs font-black border border-red-500/10"
+                                                    title="حظر نهائي لمنع إرسال طلبات أخرى"
+                                                 >
+                                                    حظر نهائي
+                                                 </button>
                                               </div>
-                                              <img
-                                                 src={request.senderAvatar || AVATARS['male'][0]}
-                                                 alt="Avatar"
-                                                 className="w-10 h-10 rounded-full border-2 border-white/5 bg-[#0c0d10] object-cover shadow-md"
-                                              />
+                                              
+                                              <div className="flex items-center justify-end gap-3">
+                                                 <div className="text-right">
+                                                    <span className="block text-sm font-bold text-white">{request.senderName || "قارئ جديد"}</span>
+                                                    <span className="block text-[10px] text-white/40 mt-0.5">يرغب في أن يكون صديقاً لك</span>
+                                                 </div>
+                                                 <img
+                                                    src={request.senderAvatar || AVATARS['male'][0]}
+                                                    alt="Avatar"
+                                                    className="w-10 h-10 rounded-full border-2 border-white/5 bg-[#0c0d10] object-cover shadow-md"
+                                                 />
+                                              </div>
                                            </div>
-                                        </div>
-                                     ))}
-                                  </div>
-                               )}
-                            </div>
+                                        ))}
+                                     </div>
+                                  )}
+                               </div>
+                            )}
 
                             {/* Friends List */}
                             <div className="bg-white/5 border border-white/10 rounded-3xl p-6 space-y-4 shadow-lg">
