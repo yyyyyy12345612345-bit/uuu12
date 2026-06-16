@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import {
-   X, Camera, User, Phone, Calendar,
+   X, Camera, User, Phone, Calendar, Eye, EyeOff,
    MapPin, Save, Loader2, CheckCircle, Image as ImageIcon, LogOut, ShieldCheck,
    BookOpen, Headphones, Trophy, PlayCircle, Compass, Settings, AlertTriangle, Trash2,
    FileText, Crown, MessageCircle, Heart, Users, UserPlus, UserMinus, UserCheck, ShieldAlert, Search, Video
@@ -13,6 +13,61 @@ import { doc, getDoc, updateDoc, collection, getDocs, deleteDoc, query, where, o
 import { deleteUser } from "firebase/auth";
 import { BADGES } from "@/lib/badges";
 
+function HalfEyeIcon({ className = "w-4 h-4" }: { className?: string }) {
+   return (
+      <svg 
+         xmlns="http://www.w3.org/2000/svg" 
+         viewBox="0 0 24 24" 
+         fill="none" 
+         stroke="currentColor" 
+         strokeWidth="2" 
+         strokeLinecap="round" 
+         strokeLinejoin="round" 
+         className={className}
+      >
+         <path d="M2 12c3-3 7-3 10-3s7 0 10 3c0 0-3 7-10 7S2 12 2 12Z" />
+         <circle cx="12" cy="13" r="2.5" />
+         <path d="M5 8c1-1.5 3-2.5 7-2.5s6 1 7 2.5" strokeDasharray="3 3" />
+      </svg>
+   );
+}
+
+interface PrivacySelectorProps {
+   value: "public" | "friends" | "private";
+   onChange: (val: "public" | "friends" | "private") => void;
+}
+
+function PrivacySelector({ value, onChange }: PrivacySelectorProps) {
+   return (
+      <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-full p-1 shadow-inner">
+         <button
+            type="button"
+            onClick={() => onChange("private")}
+            title="خاص (أنا فقط)"
+            className={`p-1.5 rounded-full transition-all ${value === "private" ? "bg-red-500/20 text-red-400 shadow-md shadow-red-500/10 scale-105" : "text-white/40 hover:text-white/70"}`}
+         >
+            <EyeOff className="w-3.5 h-3.5" />
+         </button>
+         <button
+            type="button"
+            onClick={() => onChange("friends")}
+            title="الأصدقاء فقط"
+            className={`p-1.5 rounded-full transition-all ${value === "friends" ? "bg-amber-500/20 text-amber-400 shadow-md shadow-amber-500/10 scale-105" : "text-white/40 hover:text-white/70"}`}
+         >
+            <HalfEyeIcon className="w-3.5 h-3.5" />
+         </button>
+         <button
+            type="button"
+            onClick={() => onChange("public")}
+            title="عام (للجميع)"
+            className={`p-1.5 rounded-full transition-all ${value === "public" ? "bg-emerald-500/20 text-emerald-400 shadow-md shadow-emerald-500/10 scale-105" : "text-white/40 hover:text-white/70"}`}
+         >
+            <Eye className="w-3.5 h-3.5" />
+         </button>
+      </div>
+   );
+}
+
 interface ProfileModalProps {
    isOpen: boolean;
    onClose: () => void;
@@ -20,6 +75,7 @@ interface ProfileModalProps {
 
 export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
    const [activeTab, setActiveTab] = useState<"identity" | "stats" | "posts" | "social" | "account">("identity");
+   const [showAllAvatars, setShowAllAvatars] = useState(false);
    const [formData, setFormData] = useState({
       displayName: "",
       username: "",
@@ -580,7 +636,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                  <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">اختر الشخصية الرقمية</label>
                               </div>
                               <div className="flex flex-wrap gap-4 justify-center">
-                                 {AVATARS[formData.gender].map((url) => (
+                                 {(showAllAvatars ? AVATARS[formData.gender] : AVATARS[formData.gender].slice(0, 5)).map((url) => (
                                     <button
                                        key={url}
                                        type="button"
@@ -595,6 +651,25 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                        )}
                                     </button>
                                  ))}
+                              </div>
+                              <div className="text-center mt-2">
+                                 <button
+                                    type="button"
+                                    onClick={() => setShowAllAvatars(!showAllAvatars)}
+                                    className="px-4 py-1.5 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-full text-xs font-bold transition-all border border-white/5 inline-flex items-center gap-1.5"
+                                 >
+                                    {showAllAvatars ? (
+                                       <>
+                                          <span>إخفاء</span>
+                                          <span>🔼</span>
+                                       </>
+                                    ) : (
+                                       <>
+                                          <span>مزيد</span>
+                                          <span>🔽</span>
+                                       </>
+                                    )}
+                                 </button>
                               </div>
                            </div>
 
@@ -637,9 +712,15 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                               {/* Phone */}
                               <div className="space-y-3">
-                                 <div className="flex items-center gap-3 px-2">
-                                    <div className="w-1 h-1 rounded-full bg-primary" />
-                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">رقم التواصل</label>
+                                 <div className="flex items-center justify-between px-2">
+                                    <div className="flex items-center gap-3">
+                                       <div className="w-1 h-1 rounded-full bg-primary" />
+                                       <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">رقم التواصل</label>
+                                    </div>
+                                    <PrivacySelector 
+                                       value={formData.privacyPhone} 
+                                       onChange={(val) => setFormData(prev => ({ ...prev, privacyPhone: val }))} 
+                                    />
                                  </div>
                                  <div className="relative">
                                     <input
@@ -653,56 +734,54 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                  </div>
                               </div>
 
-                              {/* Phone Privacy */}
-                              <div className="space-y-3">
-                                 <div className="flex items-center gap-3 px-2">
-                                    <div className="w-1 h-1 rounded-full bg-primary" />
-                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">خصوصية رقم الهاتف</label>
-                                 </div>
-                                 <select 
-                                    value={formData.privacyPhone}
-                                    onChange={e => setFormData({...formData, privacyPhone: e.target.value as any})}
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-sm font-bold text-white shadow-xl appearance-none"
-                                 >
-                                    <option value="public" className="bg-[#0c0d10] text-white">عام (للجميع) 🌍</option>
-                                    <option value="friends" className="bg-[#0c0d10] text-white">الأصدقاء فقط 👥</option>
-                                    <option value="private" className="bg-[#0c0d10] text-white">خاص (أنا فقط) 🔒</option>
-                                 </select>
-                              </div>
-                           </div>
-
-                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                               {/* Birthdate */}
                               <div className="space-y-3">
-                                 <div className="flex items-center gap-3 px-2">
-                                    <div className="w-1 h-1 rounded-full bg-primary" />
-                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">تاريخ الميلاد</label>
+                                 <div className="flex items-center justify-between px-2">
+                                    <div className="flex items-center gap-3">
+                                       <div className="w-1 h-1 rounded-full bg-primary" />
+                                       <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">تاريخ الميلاد</label>
+                                    </div>
+                                    <PrivacySelector 
+                                       value={formData.privacyBirthDate} 
+                                       onChange={(val) => setFormData(prev => ({ ...prev, privacyBirthDate: val }))} 
+                                    />
                                  </div>
                                  <div className="relative">
                                     <input
                                        type="date"
                                        value={formData.birthDate}
                                        onChange={e => setFormData({ ...formData, birthDate: e.target.value })}
-                                       className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-sm font-bold text-white shadow-xl placeholder:text-white/20"
+                                       className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-sm font-bold text-white shadow-xl placeholder:text-white/20 [color-scheme:dark]"
                                     />
                                  </div>
                               </div>
+                           </div>
 
-                              {/* Birthdate Privacy */}
-                              <div className="space-y-3">
-                                 <div className="flex items-center gap-3 px-2">
-                                    <div className="w-1 h-1 rounded-full bg-primary" />
-                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">خصوصية تاريخ الميلاد</label>
+                           {/* Privacy Legend */}
+                           <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-5 text-right space-y-3 shadow-lg">
+                              <p className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2">
+                                 <ShieldCheck className="w-3.5 h-3.5" />
+                                 <span>دليل رموز خصوصية البيانات:</span>
+                              </p>
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                 <div className="flex items-center gap-2.5 text-xs text-white/60">
+                                    <div className="p-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/10 shrink-0">
+                                       <Eye className="w-3.5 h-3.5" />
+                                    </div>
+                                    <span className="font-bold">العين المفتوحة: عام للجميع 🌍</span>
                                  </div>
-                                 <select 
-                                    value={formData.privacyBirthDate}
-                                    onChange={e => setFormData({...formData, privacyBirthDate: e.target.value as any})}
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-sm font-bold text-white shadow-xl appearance-none"
-                                 >
-                                    <option value="public" className="bg-[#0c0d10] text-white">عام (للجميع) 🌍</option>
-                                    <option value="friends" className="bg-[#0c0d10] text-white">الأصدقاء فقط 👥</option>
-                                    <option value="private" className="bg-[#0c0d10] text-white">خاص (أنا فقط) 🔒</option>
-                                 </select>
+                                 <div className="flex items-center gap-2.5 text-xs text-white/60">
+                                    <div className="p-1.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/10 shrink-0">
+                                       <HalfEyeIcon className="w-3.5 h-3.5" />
+                                    </div>
+                                    <span className="font-bold">نصف العين: الأصدقاء فقط 👥</span>
+                                 </div>
+                                 <div className="flex items-center gap-2.5 text-xs text-white/60">
+                                    <div className="p-1.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/10 shrink-0">
+                                       <EyeOff className="w-3.5 h-3.5" />
+                                    </div>
+                                    <span className="font-bold">العين المغلقة: خاص بك فقط 🔒</span>
+                                 </div>
                               </div>
                            </div>
 
