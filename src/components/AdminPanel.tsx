@@ -162,6 +162,7 @@ export function AdminPanel() {
   const adminIntroCardRef = useRef<HTMLDivElement>(null);
   const adminIntroTextRef = useRef<HTMLDivElement>(null);
   const adminIntroIconRef = useRef<HTMLDivElement>(null);
+  const particlesRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const handleSkipAdminIntro = () => {
     if (adminIntroOverlayRef.current) {
@@ -169,6 +170,10 @@ export function AdminPanel() {
       gsap.killTweensOf(adminIntroCardRef.current);
       gsap.killTweensOf(adminIntroIconRef.current);
       gsap.killTweensOf(adminIntroTextRef.current);
+      particlesRefs.current.forEach(p => p && gsap.killTweensOf(p));
+      gsap.killTweensOf(".admin-pulse-ring");
+      gsap.killTweensOf(".admin-pulse-ring-2");
+      gsap.killTweensOf(".admin-light-sweep");
     }
     setShowAdminIntro(false);
     sessionStorage.setItem("has_seen_admin_intro", "true");
@@ -644,7 +649,38 @@ export function AdminPanel() {
       gsap.set(adminIntroIconRef.current, { rotate: -45, scale: 0.5, opacity: 0 });
       gsap.set(adminIntroTextRef.current, { opacity: 0, y: 15 });
 
-      // 1. Zoom in card & icon with elastic back ease
+      // 1. Stardust particle rise loop
+      particlesRefs.current.forEach((p, idx) => {
+        if (!p) return;
+        gsap.set(p, { y: 0, opacity: 0, scale: Math.random() * 1.2 + 0.4 });
+        gsap.to(p, {
+          y: -window.innerHeight * 0.85,
+          x: `+=${Math.random() * 120 - 60}`,
+          opacity: Math.random() * 0.6 + 0.1,
+          duration: Math.random() * 3.5 + 2.5,
+          repeat: -1,
+          delay: Math.random() * 3,
+          ease: "power1.out"
+        });
+      });
+
+      // 2. Continuous card light sweep loop
+      gsap.fromTo(".admin-light-sweep",
+        { xPercent: -100 },
+        { xPercent: 100, duration: 2.5, repeat: -1, repeatDelay: 1.5, ease: "power2.inOut" }
+      );
+
+      // 3. Expanding icon ripples loop
+      gsap.fromTo(".admin-pulse-ring",
+        { scale: 1, opacity: 0.8 },
+        { scale: 1.7, opacity: 0, duration: 2.2, repeat: -1, ease: "power1.out" }
+      );
+      gsap.fromTo(".admin-pulse-ring-2",
+        { scale: 1, opacity: 0.5 },
+        { scale: 2.3, opacity: 0, duration: 2.2, delay: 0.8, repeat: -1, ease: "power1.out" }
+      );
+
+      // 4. Zoom in card & icon with elastic back ease
       tl.to(adminIntroCardRef.current, {
         scale: 1,
         opacity: 1,
@@ -659,7 +695,7 @@ export function AdminPanel() {
         ease: "back.out(2)"
       }, "-=0.4")
       
-      // 2. Fade in text staggered
+      // 5. Fade in text staggered
       .to(adminIntroTextRef.current, {
         opacity: 1,
         y: 0,
@@ -667,15 +703,15 @@ export function AdminPanel() {
         ease: "power2.out"
       }, "-=0.2")
 
-      // 3. Pause for progress timeline (delay to make it total 5s)
+      // 6. Pause for progress timeline (delay to make it total 5s)
       .to({}, { duration: 2.8 })
 
-      // 4. Slide out and fade transition
+      // 7. Slide out and fade transition
       .to(adminIntroOverlayRef.current, {
         opacity: 0,
-        scale: 1.03,
-        y: -20,
-        duration: 0.6,
+        scale: 1.05,
+        y: -35,
+        duration: 0.7,
         ease: "power3.inOut"
       });
     });
@@ -1770,44 +1806,71 @@ export function AdminPanel() {
     return (
       <div 
         ref={adminIntroOverlayRef}
-        className="fixed inset-0 z-[1000] bg-[#070b13] flex flex-col items-center justify-center font-arabic overflow-hidden select-none"
+        className="fixed inset-0 z-[1000] bg-[#05070c] flex flex-col items-center justify-center font-arabic overflow-hidden select-none"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.04)_0%,transparent_60%)] pointer-events-none" />
-        <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-sky-500/5 blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] bg-amber-500/5 blur-[100px] pointer-events-none" />
+        {/* Legendary Ambient Glows */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.05)_0%,transparent_65%)] pointer-events-none" />
+        <div className="absolute top-1/10 left-1/10 w-[500px] h-[500px] bg-sky-500/5 blur-[130px] pointer-events-none" />
+        <div className="absolute bottom-1/10 right-1/10 w-[450px] h-[450px] bg-[#fbbf24]/5 blur-[120px] pointer-events-none" />
+        
+        {/* Floating stardust/stars background - only on desktop */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none md:block hidden">
+          {Array.from({ length: 20 }).map((_, i) => (
+             <div 
+                key={i}
+                className="absolute w-1 h-1 bg-[#fbbf24] rounded-full opacity-0 filter drop-shadow-[0_0_4px_rgba(251,191,36,0.8)]"
+                style={{
+                   left: `${Math.random() * 100}%`,
+                   bottom: `-${Math.random() * 15 + 5}%`,
+                }}
+                ref={el => { particlesRefs.current[i] = el; }}
+             />
+          ))}
+        </div>
 
+        {/* Center Card */}
         <div 
           ref={adminIntroCardRef}
-          className="relative w-full max-w-md mx-4 bg-white/[0.01] border border-white/5 backdrop-blur-2xl rounded-[2.5rem] p-10 md:p-12 text-center flex flex-col items-center gap-8 shadow-2xl"
+          className="relative w-full max-w-md mx-4 bg-[#0a0f1c]/70 border border-white/5 backdrop-blur-3xl rounded-[3rem] p-10 md:p-12 text-center flex flex-col items-center gap-8 shadow-[0_25px_60px_rgba(0,0,0,0.8)] overflow-hidden"
         >
-          {/* Animated Glowing Icon */}
-          <div 
-            ref={adminIntroIconRef}
-            className="w-20 h-20 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 relative group shadow-[0_0_20px_rgba(245,158,11,0.1)]"
-          >
-             <ShieldCheck className="w-10 h-10 text-[#fbbf24] drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]" />
-             {/* Rotating loading border */}
-             <div className="absolute -inset-1 border-2 border-dashed border-[#fbbf24]/30 rounded-3xl animate-[spin_20s_linear_infinite]" />
+          {/* Glowing Border Sweep */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#fbbf24]/10 to-transparent -translate-x-full admin-light-sweep" />
+
+          {/* Animated Glowing Icon container */}
+          <div className="relative">
+            <div 
+              ref={adminIntroIconRef}
+              className="w-24 h-24 rounded-3xl bg-gradient-to-tr from-[#fbbf24]/15 to-amber-500/5 flex items-center justify-center border border-[#fbbf24]/30 relative group shadow-[0_0_25px_rgba(245,158,11,0.15)]"
+            >
+               <ShieldCheck className="w-12 h-12 text-[#fbbf24] drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" />
+               {/* Multi-layered rotating loading rings */}
+               <div className="absolute -inset-1.5 border border-dashed border-[#fbbf24]/40 rounded-[2rem] animate-[spin_15s_linear_infinite]" />
+               <div className="absolute -inset-3.5 border border-solid border-[#fbbf24]/10 rounded-[2.2rem] animate-[spin_25s_linear_infinite_reverse]" />
+            </div>
+            
+            {/* Rippling expansion rings */}
+            <div className="absolute inset-0 rounded-3xl border border-[#fbbf24]/40 scale-100 opacity-0 admin-pulse-ring" />
+            <div className="absolute inset-0 rounded-3xl border border-[#fbbf24]/20 scale-100 opacity-0 admin-pulse-ring-2" />
           </div>
 
-          {/* Texts */}
-          <div ref={adminIntroTextRef} className="space-y-4">
-             <span className="px-3 py-1 bg-amber-500/10 text-[#fbbf24] border border-[#fbbf24]/20 rounded-full text-[9px] font-black uppercase tracking-widest">
+          {/* Texts staggered container */}
+          <div ref={adminIntroTextRef} className="space-y-4 z-10">
+             <span className="inline-flex px-3 py-1 bg-amber-500/10 text-[#fbbf24] border border-[#fbbf24]/20 rounded-full text-[9px] font-black uppercase tracking-widest">
                 بوابة الإدارة الفائقة
              </span>
-             <h2 className="text-3xl font-black text-white leading-tight font-arabic">
+             <h2 className="text-3xl font-black text-white leading-tight font-arabic drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
                 مـركـز الـتـحـكّـم 📊
              </h2>
-             <p className="text-xs text-white/40 leading-relaxed font-bold">
+             <p className="text-[11px] text-white/40 leading-relaxed font-bold max-w-xs mx-auto">
                 تطبيق يقين قران • جاري تهيئة التحليلات المتقدمة وصحة الخدمات التقنية...
              </p>
           </div>
 
-          {/* Progress Indicator */}
-          <div className="w-full space-y-3">
-             <div className="w-full bg-white/[0.03] h-1.5 rounded-full overflow-hidden relative">
-                {/* 5-second progress line matching timeline */}
-                <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#fbbf24] to-amber-500 rounded-full animate-[progress_4.5s_linear_forwards]" />
+          {/* Progress Loading Bar */}
+          <div className="w-full space-y-3 z-10">
+             <div className="w-full bg-white/[0.02] h-1.5 rounded-full overflow-hidden relative">
+                {/* 4.5s progress line */}
+                <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#fbbf24] via-amber-400 to-[#fbbf24] rounded-full animate-[progress_4.5s_linear_forwards]" />
              </div>
              <style>{`
                 @keyframes progress {
@@ -1818,10 +1881,10 @@ export function AdminPanel() {
           </div>
         </div>
 
-        {/* Skip button at the bottom */}
+        {/* Skip button */}
         <button
           onClick={handleSkipAdminIntro}
-          className="absolute bottom-12 px-5 py-2.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition duration-300 text-[10px] font-black text-white/60 active:scale-95 flex items-center gap-2 shadow-lg"
+          className="absolute bottom-12 px-6 py-3 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition duration-300 text-[10px] font-black text-white/60 hover:text-white active:scale-95 flex items-center gap-2 shadow-xl backdrop-blur-md"
         >
           <SkipForward className="w-3.5 h-3.5" />
           تخطي الفحص والتهيئة ⚡
