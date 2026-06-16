@@ -1242,7 +1242,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                     <div className="bg-red-500/20 p-3 rounded-xl shrink-0">
                                        <AlertTriangle className="w-6 h-6 text-red-500" />
                                     </div>
-  
+                                    <div className="flex-1 text-right">
                                        <h4 className="text-red-400 font-black text-sm">منطقة الخطر</h4>
                                        <p className="text-red-400/60 text-xs mt-2 leading-relaxed">
                                           حذف حسابك سيؤدي إلى إزالة جميع بياناتك الشخصية، إنجازاتك، ونقاطك بشكل نهائي من خوادمنا. لا يمكن التراجع عن هذه الخطوة أبداً.
