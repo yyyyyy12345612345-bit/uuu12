@@ -303,6 +303,33 @@ export function SocialFeed() {
     
     setPosting(true);
     try {
+      // 🛡️ رقابة ذكية عبر Groq (تأكيد العلاقة بالإسلام والمواضيع الدعوية)
+      let isOffTopic = false;
+      try {
+        const modRes = await fetch("https://youssefosama--40af2a40698011f1b2fe1607ee4eb77e.web.val.run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "moderate_post",
+            content: newPost.trim()
+          })
+        });
+        if (modRes.ok) {
+          const modData = await modRes.json();
+          if (modData.isOffTopic) {
+            isOffTopic = true;
+          }
+        }
+      } catch (err) {
+        console.error("Moderation check failed:", err);
+      }
+
+      if (isOffTopic) {
+        alert("⚠️ عذراً، هذا المنشور غير متعلق بالإسلام أو المواضيع الدعوية. يرجى كتابة منشورات إسلامية أو أدعية أو عبارات طيبة فقط لتعم الفائدة.");
+        setPosting(false);
+        return;
+      }
+
       const postData = {
         userId: user.uid,
         userName: userData?.displayName || user.displayName || "مستخدم",
