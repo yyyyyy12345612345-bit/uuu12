@@ -183,6 +183,58 @@ export async function GET() {
         id = finalId;
       }
 
+      // Auto-populate everyAyahFolder for supported sheikhs on everyayah.com if not already set
+      if (!everyAyahFolder) {
+        const lowerName = name.toLowerCase();
+        const lowerId = id.toLowerCase();
+        
+        if (lowerId === "maher" || lowerName.includes("المعيقلي")) {
+          everyAyahFolder = "Maher_AlMuaiqly_64kbps";
+        } else if (lowerId === "sds" || lowerName.includes("السديس")) {
+          everyAyahFolder = "Abdurrahmaan_As-Sudais_192kbps";
+        } else if (lowerId === "shur" || lowerName.includes("الشريم")) {
+          everyAyahFolder = "Saood_ash-Shuraym_128kbps";
+        } else if (lowerId === "afasy" || lowerName.includes("العفاسي")) {
+          everyAyahFolder = "Alafasy_128kbps";
+        } else if (lowerId === "qtm" || lowerName.includes("القطامي")) {
+          everyAyahFolder = "Nasser_Alqatami_128kbps";
+        } else if (lowerId === "s_gmd" || lowerName.includes("سعد الغامدي")) {
+          everyAyahFolder = "Ghamadi_40kbps";
+        } else if (lowerId === "yasser" || lowerName.includes("ياسر الدوسري")) {
+          everyAyahFolder = "Yasser_Ad-Dussary_128kbps";
+        } else if (lowerId === "shatree" || lowerName.includes("الشاطري")) {
+          everyAyahFolder = "Abu_Bakr_Ash-Shaatree_128kbps";
+        } else if (lowerId === "ayyub" || lowerName.includes("محمد أيوب")) {
+          everyAyahFolder = "Muhammad_Ayyoub_128kbps";
+        } else if (lowerId === "jbrl" || lowerName.includes("محمد جبريل")) {
+          everyAyahFolder = "Muhammad_Jibreel_128kbps";
+        } else if (lowerId === "basfar" || lowerName.includes("بصفر")) {
+          everyAyahFolder = "Abdullah_Basfar_64kbps";
+        } else if (lowerId === "frs_a" || lowerId === "fares" || lowerName.includes("فارس عباد")) {
+          everyAyahFolder = "Fares_Abbad_64kbps";
+        } else if (lowerId === "hthfi" || lowerName.includes("الحذيفي")) {
+          everyAyahFolder = "Hudhaify_128kbps";
+        } else if (lowerId === "ali_jbr" || lowerName.includes("علي جابر")) {
+          everyAyahFolder = "Ali_Jaber_64kbps";
+        } else if (lowerId === "bna" || lowerId === "albana" || lowerName.includes("البنا")) {
+          everyAyahFolder = "mahmoud_ali_al_banna_32kbps";
+        } else if (lowerId === "mustafa" || lowerName.includes("مصطفى إسماعيل")) {
+          everyAyahFolder = "Mustafa_Ismail_48kbps";
+        } else if (lowerId === "nabil" || lowerName.includes("نبيل الرفاعي")) {
+          everyAyahFolder = "Nabil_Rifa3i_48kbps";
+        } else if (lowerId === "s_bud" || lowerName.includes("البدير")) {
+          everyAyahFolder = "Salah_Al_Budair_128kbps";
+        } else if (lowerId === "ahmad_nu" || lowerName.includes("نعينع")) {
+          everyAyahFolder = "Ahmed_Neana_128kbps";
+        } else if (lowerId === "soufi" || lowerName.includes("عبدالرشيد صوفي")) {
+          everyAyahFolder = "Abdurrashid_Sufi_128kbps";
+        } else if (lowerId === "qht" || lowerName.includes("خالد القحطاني")) {
+          everyAyahFolder = "khalid_alqahtani_128kbps";
+        } else if (lowerId === "tnjy" || lowerName.includes("خليفة الطنيجي")) {
+          everyAyahFolder = "khalefa_al_tunaiji_64kbps";
+        }
+      }
+
       seenIds.add(id);
       updatedReciters.push({
         id,
