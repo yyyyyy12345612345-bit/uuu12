@@ -11,6 +11,7 @@ interface Question {
   correctAnswerIndex: number;
   explanation: string;
   difficulty?: "easy" | "medium" | "hard" | "very_hard";
+  isFallback?: boolean;
 }
 
 const STATIC_POOL: Question[] = [
@@ -323,7 +324,7 @@ const STATIC_POOL: Question[] = [
     difficulty: "very_hard"
   },
   {
-    question: "ما معنى كلمة 'الحطمة' في سورة الهمزة؟",
+    question: "ما معنى كلمة 'الحطمة' في سورة الهمزة? ",
     options: ["الصاعقة الشديدة", "المطر الغزير المتلف", "اسم من أسماء النار التي تحطم وتكسر كل ما يلقى فيها", "الحجارة الملتهبة"],
     correctAnswerIndex: 2,
     explanation: "الحطمة اسم من أسماء جهنم وسميت بذلك لأنها تحطم العظام وتأكل اللحوم وتكسر كل شيء بداخلها من شدة حرارتها.",
@@ -868,7 +869,9 @@ export function DailyQuiz() {
                 <Brain className="w-4 h-4 text-primary animate-pulse" />
                 <span className="text-xs text-white/80 font-bold">
                   {mode === "ai" 
-                    ? `تحدي الذكاء الاصطناعي (${playedCount + 1}/20)` 
+                    ? currentQ?.isFallback 
+                      ? `نمط الذكاء الاصطناعي - الاحتياطي ⚠️ (${playedCount + 1}/20)` 
+                      : `تحدي الذكاء الاصطناعي (Gemini AI) 🧠✨ (${playedCount + 1}/20)`
                     : `السؤال ${currentIdx + 1} من 20 (إجمالي اليوم: ${playedCount + 1}/20)`}
                 </span>
               </div>

@@ -17,7 +17,7 @@ const TOPICS = [
   "الزكاة ومصارفها الثمانية وشروط وجوبها",
   "قصة أصحاب الكهف والفتية والدروس الإيمانية المستفادة منها",
   "أحكام الصيام ومبطلاته وسنن السحور والإفطار",
-  "سورة يوسف والدروس التربوية والاجتماعية المستخلصة منها",
+  "سورة يوسف والدروس التربوية والاجتماعية المستخلصصة منها",
   "أخلاق النبي صلى الله عليه وسلم وشمائله الكريمة ومعاملته للناس",
   "الإسراء والمعراج وتفاصيل هذه المعجزة العظيمة وفرض الصلاة",
   "فضائل الصدقة والعمل الصالح والإنفاق في سبيل الله",
@@ -199,7 +199,7 @@ const FALLBACK_POOL = [
     difficulty: "medium"
   },
   {
-    question: "ما هي السورة الملقبة بـ 'المنجية' من عذاب القبر? ",
+    question: "ما هي السورة الملقبة بـ 'المنجية' من عذاب القبر؟",
     options: ["سورة الكهف", "سورة الواقعة", "سورة الملك", "سورة السجدة"],
     correctAnswerIndex: 2,
     explanation: "سورة الملك (تبارك الذي بيده الملك) هي المنجية والمانعة من عذاب القبر كما ورد في الأثر عن شفاعتها لقارئها.",
@@ -339,7 +339,7 @@ const FALLBACK_POOL = [
     question: "ما هي السورة التي تسمى سورة 'القِتال'؟",
     options: ["سورة الأنفال", "سورة التوبة", "سورة محمد", "سورة الأحزاب"],
     correctAnswerIndex: 2,
-    explanation: "تسمى سورة محمد بسورة القتال لورود فرض القتال وأحكامه فيها في مطلب السورة.",
+    explanation: "تسمى سورة محمد بسورة القتال لورود فرض القتال وأحكامه فيها في مطلع السورة.",
     difficulty: "very_hard"
   },
   {
@@ -483,6 +483,7 @@ export async function POST(req: Request) {
               const parsed = JSON.parse(cleanText);
               if (parsed.question && Array.isArray(parsed.options) && parsed.options.length === 4) {
                 parsed.correctAnswerIndex = Number(parsed.correctAnswerIndex);
+                parsed.isFallback = false; // Add success flag for API
                 console.log(`[QUIZ API] Successfully generated question via Gemini model ${model} at difficulty ${difficulty}`);
                 return NextResponse.json(parsed);
               }
@@ -528,6 +529,7 @@ export async function POST(req: Request) {
             const parsed = JSON.parse(cleanContent);
             if (parsed.question && Array.isArray(parsed.options) && parsed.options.length === 4) {
               parsed.correctAnswerIndex = Number(parsed.correctAnswerIndex);
+              parsed.isFallback = false; // Add success flag for API
               console.log(`[QUIZ API] Successfully generated question via OpenAI at difficulty ${difficulty}`);
               return NextResponse.json(parsed);
             }
@@ -553,7 +555,10 @@ export async function POST(req: Request) {
       eligibleQuestions = FALLBACK_POOL;
     }
     const randomQ = eligibleQuestions[Math.floor(Math.random() * eligibleQuestions.length)];
-    return NextResponse.json(randomQ);
+    return NextResponse.json({
+      ...randomQ,
+      isFallback: true // Add fallback indicator
+    });
 
   } catch (err: any) {
     console.error("[QUIZ API] Critical Error:", err);
