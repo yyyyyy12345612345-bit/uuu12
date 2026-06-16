@@ -174,9 +174,11 @@ export function AdminPanel() {
       gsap.killTweensOf(".admin-pulse-ring");
       gsap.killTweensOf(".admin-pulse-ring-2");
       gsap.killTweensOf(".admin-light-sweep");
+      gsap.killTweensOf(".admin-firework");
+      gsap.killTweensOf(".admin-firework-spark");
+      gsap.killTweensOf(".admin-orbiting-ball");
     }
     setShowAdminIntro(false);
-    sessionStorage.setItem("has_seen_admin_intro", "true");
   };
 
   // Reciter Diagnostic States
@@ -622,17 +624,14 @@ export function AdminPanel() {
 
   useEffect(() => { if (isAdmin) fetchPerformanceMetrics(); }, [alerts, isAdmin]);
 
-  // Trigger Admin Intro on successful login
+  // Trigger Admin Intro on successful login (runs on every mount/refresh)
   useEffect(() => {
     if (isAdmin) {
-      const hasSeen = sessionStorage.getItem("has_seen_admin_intro");
-      if (!hasSeen) {
-        setShowAdminIntro(true);
-      }
+      setShowAdminIntro(true);
     }
   }, [isAdmin]);
 
-  // GSAP Admin Intro Timeline
+  // GSAP Admin Intro Timeline (World Cup Legend Upgrade)
   useEffect(() => {
     if (!showAdminIntro) return;
 
@@ -640,16 +639,90 @@ export function AdminPanel() {
       const tl = gsap.timeline({
         onComplete: () => {
           setShowAdminIntro(false);
-          sessionStorage.setItem("has_seen_admin_intro", "true");
         }
       });
 
       // Set initial styles
       gsap.set(adminIntroCardRef.current, { scale: 0.85, opacity: 0 });
-      gsap.set(adminIntroIconRef.current, { rotate: -45, scale: 0.5, opacity: 0 });
+      gsap.set(adminIntroIconRef.current, { scale: 0.5, opacity: 0, y: 30 });
       gsap.set(adminIntroTextRef.current, { opacity: 0, y: 15 });
 
-      // 1. Stardust particle rise loop
+      // 1. Orbiting soccer balls (3D Ellipse simulation loops)
+      const orbitObj1 = { angle: 0 };
+      gsap.to(orbitObj1, {
+        angle: Math.PI * 2,
+        duration: 3.5,
+        ease: "none",
+        repeat: -1,
+        onUpdate: () => {
+          const a = orbitObj1.angle;
+          const x = Math.cos(a) * 150;
+          const y = Math.sin(a) * 20;
+          const factor = Math.sin(a);
+          const scale = 1 + factor * 0.35;
+          const zIndex = factor > 0 ? 25 : 5;
+          gsap.set(".admin-orbiting-ball-1", { x, y, scale, zIndex });
+        }
+      });
+
+      const orbitObj2 = { angle: Math.PI * 0.6 }; // Offset phase
+      gsap.to(orbitObj2, {
+        angle: Math.PI * 2.6,
+        duration: 4.2,
+        ease: "none",
+        repeat: -1,
+        onUpdate: () => {
+          const a = orbitObj2.angle;
+          const x_raw = Math.cos(a) * 130;
+          const y_raw = Math.sin(a) * 30;
+          const x = (x_raw - y_raw) * 0.707;
+          const y = (x_raw + y_raw) * 0.707;
+          const factor = Math.sin(a);
+          const scale = 1 + factor * 0.35;
+          const zIndex = factor > 0 ? 25 : 5;
+          gsap.set(".admin-orbiting-ball-2", { x, y, scale, zIndex });
+        }
+      });
+
+      const orbitObj3 = { angle: Math.PI * 1.3 }; // Offset phase
+      gsap.to(orbitObj3, {
+        angle: Math.PI * 3.3,
+        duration: 3.8,
+        ease: "none",
+        repeat: -1,
+        onUpdate: () => {
+          const a = orbitObj3.angle;
+          const x_raw = Math.cos(a) * 140;
+          const y_raw = Math.sin(a) * 25;
+          const x = (x_raw + y_raw) * 0.707;
+          const y = (-x_raw + y_raw) * 0.707;
+          const factor = Math.sin(a);
+          const scale = 1 + factor * 0.35;
+          const zIndex = factor > 0 ? 25 : 5;
+          gsap.set(".admin-orbiting-ball-3", { x, y, scale, zIndex });
+        }
+      });
+
+      // 2. SVG Firework radial explosion loops
+      const fireworks = [".admin-firework-1", ".admin-firework-2", ".admin-firework-3"];
+      fireworks.forEach((fwSelector, fwIdx) => {
+        const sparks = gsap.utils.toArray(`${fwSelector} .admin-firework-spark`);
+        const fwTimeline = gsap.timeline({ repeat: -1, repeatDelay: 1.2, delay: fwIdx * 0.8 });
+        
+        fwTimeline.add(() => {
+          gsap.set(sparks, { x: 0, y: 0, scale: 0, opacity: 1 });
+        })
+        .to(sparks, {
+          x: (i) => Math.cos(i * Math.PI / 6) * 55,
+          y: (i) => Math.sin(i * Math.PI / 6) * 55,
+          scale: 1.5,
+          opacity: 0,
+          duration: 1.1,
+          ease: "power2.out"
+        });
+      });
+
+      // 3. Stardust particle rise loop
       particlesRefs.current.forEach((p, idx) => {
         if (!p) return;
         gsap.set(p, { y: 0, opacity: 0, scale: Math.random() * 1.2 + 0.4 });
@@ -664,23 +737,23 @@ export function AdminPanel() {
         });
       });
 
-      // 2. Continuous card light sweep loop
+      // 4. Continuous card light sweep loop
       gsap.fromTo(".admin-light-sweep",
         { xPercent: -100 },
         { xPercent: 100, duration: 2.5, repeat: -1, repeatDelay: 1.5, ease: "power2.inOut" }
       );
 
-      // 3. Expanding icon ripples loop
+      // 5. Expanding trophy ripples loop
       gsap.fromTo(".admin-pulse-ring",
         { scale: 1, opacity: 0.8 },
-        { scale: 1.7, opacity: 0, duration: 2.2, repeat: -1, ease: "power1.out" }
+        { scale: 1.6, opacity: 0, duration: 2.0, repeat: -1, ease: "power1.out" }
       );
       gsap.fromTo(".admin-pulse-ring-2",
         { scale: 1, opacity: 0.5 },
-        { scale: 2.3, opacity: 0, duration: 2.2, delay: 0.8, repeat: -1, ease: "power1.out" }
+        { scale: 2.2, opacity: 0, duration: 2.0, delay: 0.7, repeat: -1, ease: "power1.out" }
       );
 
-      // 4. Zoom in card & icon with elastic back ease
+      // 6. Trophy entrance zoom + bounce
       tl.to(adminIntroCardRef.current, {
         scale: 1,
         opacity: 1,
@@ -688,25 +761,25 @@ export function AdminPanel() {
         ease: "power3.out"
       })
       .to(adminIntroIconRef.current, {
-        rotate: 0,
+        y: 0,
         scale: 1,
         opacity: 1,
-        duration: 0.8,
+        duration: 0.9,
         ease: "back.out(2)"
       }, "-=0.4")
       
-      // 5. Fade in text staggered
+      // 7. Fade in text staggered
       .to(adminIntroTextRef.current, {
         opacity: 1,
         y: 0,
         duration: 0.6,
         ease: "power2.out"
-      }, "-=0.2")
+      }, "-=0.3")
 
-      // 6. Pause for progress timeline (delay to make it total 5s)
-      .to({}, { duration: 2.8 })
+      // 8. Progress duration hold (stretching total to 5 seconds)
+      .to({}, { duration: 2.7 })
 
-      // 7. Slide out and fade transition
+      // 9. Premium exit slide & zoom
       .to(adminIntroOverlayRef.current, {
         opacity: 0,
         scale: 1.05,
@@ -1813,6 +1886,31 @@ export function AdminPanel() {
         <div className="absolute top-1/10 left-1/10 w-[500px] h-[500px] bg-sky-500/5 blur-[130px] pointer-events-none" />
         <div className="absolute bottom-1/10 right-1/10 w-[450px] h-[450px] bg-[#fbbf24]/5 blur-[120px] pointer-events-none" />
         
+        {/* Fireworks containers in the background */}
+        <div className="absolute inset-0 pointer-events-none z-0">
+          <div className="absolute left-[10%] top-[15%] w-48 h-48 admin-firework admin-firework-1">
+            <svg viewBox="0 0 100 100" className="w-full h-full">
+              {Array.from({ length: 12 }).map((_, idx) => (
+                <circle key={idx} cx="50" cy="50" r="1.8" className="admin-firework-spark fill-[#fbbf24] filter drop-shadow-[0_0_2px_rgba(251,191,36,0.8)]" />
+              ))}
+            </svg>
+          </div>
+          <div className="absolute right-[10%] top-[20%] w-52 h-52 admin-firework admin-firework-2">
+            <svg viewBox="0 0 100 100" className="w-full h-full">
+              {Array.from({ length: 12 }).map((_, idx) => (
+                <circle key={idx} cx="50" cy="50" r="1.8" className="admin-firework-spark fill-[#34d399] filter drop-shadow-[0_0_2px_rgba(52,211,153,0.8)]" />
+              ))}
+            </svg>
+          </div>
+          <div className="absolute left-[40%] top-[5%] w-56 h-56 admin-firework admin-firework-3">
+            <svg viewBox="0 0 100 100" className="w-full h-full">
+              {Array.from({ length: 12 }).map((_, idx) => (
+                <circle key={idx} cx="50" cy="50" r="2" className="admin-firework-spark fill-[#38bdf8] filter drop-shadow-[0_0_2px_rgba(56,189,248,0.8)]" />
+              ))}
+            </svg>
+          </div>
+        </div>
+
         {/* Floating stardust/stars background - only on desktop */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none md:block hidden">
           {Array.from({ length: 20 }).map((_, i) => (
@@ -1831,26 +1929,86 @@ export function AdminPanel() {
         {/* Center Card */}
         <div 
           ref={adminIntroCardRef}
-          className="relative w-full max-w-md mx-4 bg-[#0a0f1c]/70 border border-white/5 backdrop-blur-3xl rounded-[3rem] p-10 md:p-12 text-center flex flex-col items-center gap-8 shadow-[0_25px_60px_rgba(0,0,0,0.8)] overflow-hidden"
+          className="relative z-10 w-full max-w-md mx-4 bg-[#0a0f1c]/70 border border-white/5 backdrop-blur-3xl rounded-[3rem] p-10 md:p-12 text-center flex flex-col items-center gap-8 shadow-[0_25px_60px_rgba(0,0,0,0.8)] overflow-hidden"
         >
           {/* Glowing Border Sweep */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#fbbf24]/10 to-transparent -translate-x-full admin-light-sweep" />
 
-          {/* Animated Glowing Icon container */}
-          <div className="relative">
-            <div 
-              ref={adminIntroIconRef}
-              className="w-24 h-24 rounded-3xl bg-gradient-to-tr from-[#fbbf24]/15 to-amber-500/5 flex items-center justify-center border border-[#fbbf24]/30 relative group shadow-[0_0_25px_rgba(245,158,11,0.15)]"
-            >
-               <ShieldCheck className="w-12 h-12 text-[#fbbf24] drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" />
-               {/* Multi-layered rotating loading rings */}
-               <div className="absolute -inset-1.5 border border-dashed border-[#fbbf24]/40 rounded-[2rem] animate-[spin_15s_linear_infinite]" />
-               <div className="absolute -inset-3.5 border border-solid border-[#fbbf24]/10 rounded-[2.2rem] animate-[spin_25s_linear_infinite_reverse]" />
-            </div>
-            
-            {/* Rippling expansion rings */}
-            <div className="absolute inset-0 rounded-3xl border border-[#fbbf24]/40 scale-100 opacity-0 admin-pulse-ring" />
-            <div className="absolute inset-0 rounded-3xl border border-[#fbbf24]/20 scale-100 opacity-0 admin-pulse-ring-2" />
+          {/* Animated Trophy and Orbiting Balls Container */}
+          <div className="relative w-64 h-44 flex items-center justify-center">
+             
+             {/* Orbiting Soccer Spheres */}
+             <div className="absolute w-6 h-6 rounded-full bg-gradient-to-tr from-[#fbbf24] via-yellow-300 to-[#78350f] border border-[#fbbf24]/50 shadow-[0_0_15px_rgba(251,191,36,0.8)] flex items-center justify-center pointer-events-none admin-orbiting-ball-1 select-none">
+                <svg viewBox="0 0 24 24" className="w-full h-full opacity-40 stroke-amber-950" strokeWidth="1.5" fill="none">
+                   <path d="M12 2v20M2 12h20M5 5l14 14M5 19L19 5" />
+                   <circle cx="12" cy="12" r="5" />
+                </svg>
+             </div>
+             
+             <div className="absolute w-5 h-5 rounded-full bg-gradient-to-tr from-[#fbbf24] via-yellow-200 to-[#b45309] border border-[#fbbf24]/50 shadow-[0_0_12px_rgba(251,191,36,0.7)] flex items-center justify-center pointer-events-none admin-orbiting-ball-2 select-none">
+                <svg viewBox="0 0 24 24" className="w-full h-full opacity-40 stroke-amber-950" strokeWidth="1.5" fill="none">
+                   <path d="M12 2v20M2 12h20M5 5l14 14M5 19L19 5" />
+                   <circle cx="12" cy="12" r="5" />
+                </svg>
+             </div>
+             
+             <div className="absolute w-7 h-7 rounded-full bg-gradient-to-tr from-[#fbbf24] via-amber-300 to-[#451a03] border border-[#fbbf24]/50 shadow-[0_0_18px_rgba(251,191,36,0.9)] flex items-center justify-center pointer-events-none admin-orbiting-ball-3 select-none">
+                <svg viewBox="0 0 24 24" className="w-full h-full opacity-40 stroke-amber-950" strokeWidth="1.5" fill="none">
+                   <path d="M12 2v20M2 12h20M5 5l14 14M5 19L19 5" />
+                   <circle cx="12" cy="12" r="5" />
+                </svg>
+             </div>
+
+             {/* World Cup Trophy SVG */}
+             <div 
+               ref={adminIntroIconRef}
+               className="relative z-10 flex items-center justify-center transition-transform"
+             >
+                <svg viewBox="0 0 100 130" className="w-28 h-36 drop-shadow-[0_0_25px_rgba(251,191,36,0.6)]">
+                  <defs>
+                    <linearGradient id="goldLight" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#fff3b0" />
+                      <stop offset="30%" stopColor="#fbbf24" />
+                      <stop offset="70%" stopColor="#d97706" />
+                      <stop offset="100%" stopColor="#78350f" />
+                    </linearGradient>
+                    <linearGradient id="goldDark" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#fbbf24" />
+                      <stop offset="50%" stopColor="#b45309" />
+                      <stop offset="100%" stopColor="#451a03" />
+                    </linearGradient>
+                    <linearGradient id="malachite" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#047857" />
+                      <stop offset="50%" stopColor="#10b981" />
+                      <stop offset="100%" stopColor="#064e3b" />
+                    </linearGradient>
+                  </defs>
+
+                  <ellipse cx="50" cy="120" rx="28" ry="8" fill="url(#goldDark)" />
+                  <rect x="22" y="112" width="56" height="8" fill="url(#goldLight)" />
+                  <rect x="23" y="106" width="54" height="6" fill="url(#malachite)" />
+                  <rect x="22" y="98" width="56" height="8" fill="url(#goldLight)" />
+                  <rect x="24" y="92" width="52" height="6" fill="url(#malachite)" />
+
+                  <path d="M42 92 C42 80, 45 70, 36 55 C34 52, 38 48, 41 50 C46 54, 48 68, 50 78 C52 68, 54 54, 59 50 C62 48, 66 52, 64 55 C55 70, 58 80, 58 92 Z" fill="url(#goldLight)" />
+                  <path d="M36 55 C30 45, 30 35, 42 28 C43 27, 44 29, 43 30 C36 38, 38 48, 42 55 Z" fill="url(#goldLight)" />
+                  <path d="M64 55 C70 45, 70 35, 58 28 C57 27, 56 29, 57 30 C64 38, 62 48, 58 55 Z" fill="url(#goldLight)" />
+
+                  <circle cx="50" cy="28" r="16" fill="url(#goldLight)" />
+                  <path d="M38 22 C42 25, 45 20, 50 21 C55 22, 58 17, 62 20 C64 22, 64 26, 61 28 C58 30, 55 35, 50 36 C45 37, 40 33, 36 29 C34 27, 36 24, 38 22 Z" fill="url(#goldDark)" opacity="0.8" />
+                  <path d="M40 28 C45 30, 55 30, 60 28" stroke="#78350f" strokeWidth="1" fill="none" opacity="0.6" />
+                  <path d="M50 12 C50 18, 50 38, 50 44" stroke="#78350f" strokeWidth="1" fill="none" opacity="0.6" />
+                  <circle cx="50" cy="28" r="16" fill="#fbbf24" opacity="0.1" mixBlendMode="screen" />
+                </svg>
+
+                {/* Rotating accent rings around the trophy */}
+                <div className="absolute -inset-4 border border-dashed border-[#fbbf24]/30 rounded-full animate-[spin_12s_linear_infinite] pointer-events-none" />
+                <div className="absolute -inset-8 border border-dotted border-[#fbbf24]/10 rounded-full animate-[spin_20s_linear_infinite_reverse] pointer-events-none" />
+             </div>
+             
+             {/* Rippling expansion rings behind the trophy */}
+             <div className="absolute w-32 h-32 rounded-full border border-[#fbbf24]/40 scale-100 opacity-0 admin-pulse-ring" />
+             <div className="absolute w-32 h-32 rounded-full border border-[#fbbf24]/20 scale-100 opacity-0 admin-pulse-ring-2" />
           </div>
 
           {/* Texts staggered container */}
