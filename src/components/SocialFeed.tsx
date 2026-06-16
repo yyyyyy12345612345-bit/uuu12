@@ -538,6 +538,33 @@ export function SocialFeed() {
 
     setPostingComment(postId);
     try {
+      // 🛡️ رقابة ذكية عبر Groq للتعليقات
+      let isOffTopic = false;
+      try {
+        const modRes = await fetch("https://youssefosama--40af2a40698011f1b2fe1607ee4eb77e.web.val.run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "moderate_post",
+            content: text
+          })
+        });
+        if (modRes.ok) {
+          const modData = await modRes.json();
+          if (modData.isOffTopic) {
+            isOffTopic = true;
+          }
+        }
+      } catch (err) {
+        console.error("Comment moderation check failed:", err);
+      }
+
+      if (isOffTopic) {
+        alert("⚠️ عذراً، هذا التعليق غير متعلق بالإسلام أو المواضيع الدعوية والمفيدة.");
+        setPostingComment(null);
+        return;
+      }
+
       const commentData = {
         userId: anon ? null : user?.uid || null,
         userName: anon ? "مجهول" : (userData?.displayName || user?.displayName || "مستخدم"),

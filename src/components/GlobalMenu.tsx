@@ -137,7 +137,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
                     </div>
                     <div className="flex flex-col justify-center">
                       <h3 className="text-sm font-black text-foreground/90 group-hover:text-primary transition-colors">{userData.displayName || userData.username}</h3>
-                      <p className="text-[10px] text-foreground/40 font-bold">تعديل الملف الشخصي</p>
+                      <p className="text-[10px] text-foreground/40 font-bold">تصفح ملفك الشخصي</p>
                     </div>
                   </div>
                   <ChevronLeft className="w-4 h-4 text-foreground/30 group-hover:text-primary group-hover:-translate-x-1 transition-all" />

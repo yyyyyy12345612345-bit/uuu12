@@ -479,7 +479,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                           <p className="text-xl font-black text-primary">{Math.round(userData.totalPoints)}</p>
                       </div>
                       <div className="w-[1px] h-8 bg-border" />
-                      <button onClick={onEditProfile} className="px-5 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg font-black text-xs transition-all">تعديل الملف</button>
+                      <button onClick={onEditProfile} className="px-5 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg font-black text-xs transition-all">تصفح ملفك</button>
                   </div>
               </div>
           ) : (
