@@ -280,34 +280,6 @@ export async function GET() {
     // Add new reciters if they don't already exist in the list
     const extraReciters = [
       {
-        id: "ayman_sowaid",
-        name: "أيمن سويد",
-        folder: "ayman_sowaid",
-        mp3quranServer: "server8.mp3quran.net/sowaid",
-        everyAyahFolder: "Ayman_Sowaid_64kbps"
-      },
-      {
-        id: "karim_mansoori",
-        name: "كريم منصوري",
-        folder: "mansoori",
-        mp3quranServer: "server8.mp3quran.net/mansoori",
-        everyAyahFolder: "Karim_Mansoori_40kbps"
-      },
-      {
-        id: "parhizgar",
-        name: "شهريار برهيزكار",
-        folder: "parhizgar",
-        mp3quranServer: "server8.mp3quran.net/parhizgar",
-        everyAyahFolder: "Parhizgar_48kbps"
-      },
-      {
-        id: "aziz_alili",
-        name: "عزيز عليلي",
-        folder: "alili",
-        mp3quranServer: "server8.mp3quran.net/alili",
-        everyAyahFolder: "aziz_alili_128kbps"
-      },
-      {
         id: "minsh_teacher",
         name: "محمد صديق المنشاوي (المعلم)",
         folder: "minsh_teacher",
@@ -506,74 +478,11 @@ export async function GET() {
       },
       // --- Translations & روايات ---
       {
-        id: "english_ibrahim_walk",
-        name: "إبراهيم ووك (ترجمة إنجليزية - Sahih International)",
-        folder: "english_walk",
-        mp3quranServer: "server16.mp3quran.net/ayyoub2/Rewayat-Hafs-A-n-Assem",
-        everyAyahFolder: "English/Sahih_Intnl_Ibrahim_Walk_192kbps"
-      },
-      {
-        id: "multilang_basfar_walk",
-        name: "عبدالله بصفر و إبراهيم ووك (متعدد اللغات)",
-        folder: "basfar_walk",
-        mp3quranServer: "server6.mp3quran.net/bsfr",
-        everyAyahFolder: "MultiLanguage/Basfar_Walk_192kbps"
-      },
-      {
-        id: "translation_makarem_kabiri",
-        name: "كابيري (ترجمة فارسية مكرّم)",
-        folder: "persian_kabiri",
-        mp3quranServer: "server8.mp3quran.net/parhizgar",
-        everyAyahFolder: "translations/Makarem_Kabiri_16Kbps"
-      },
-      {
-        id: "translation_fooladvand_hedayatfar",
-        name: "هدايت فار (ترجمة فارسية فولادوند)",
-        folder: "persian_hedayatfar",
-        mp3quranServer: "server8.mp3quran.net/parhizgar",
-        everyAyahFolder: "translations/Fooladvand_Hedayatfar_40Kbps"
-      },
-      {
-        id: "translation_azerbaijani_balayev",
-        name: "بالاييف (ترجمة أذربيجانية)",
-        folder: "azerbaijani_balayev",
-        mp3quranServer: "server6.mp3quran.net/bsfr",
-        everyAyahFolder: "translations/azerbaijani/balayev"
-      },
-      {
-        id: "translation_urdu_shamshad",
-        name: "شمشاد علي خان (ترجمة أردية)",
-        folder: "urdu_shamshad",
-        mp3quranServer: "server6.mp3quran.net/bsfr",
-        everyAyahFolder: "translations/urdu_shamshad_ali_khan_46kbps"
-      },
-      {
-        id: "translation_bosnian_korkut",
-        name: "بشيم كوركوت (ترجمة بوسنية)",
-        folder: "bosnian_korkut",
-        mp3quranServer: "server6.mp3quran.net/bsfr",
-        everyAyahFolder: "translations/besim_korkut_ajet_po_ajet"
-      },
-      {
-        id: "translation_urdu_farhat",
-        name: "فرحت هاشمي (ترجمة أردية كلمة بكلمة)",
-        folder: "urdu_farhat",
-        mp3quranServer: "server6.mp3quran.net/bsfr",
-        everyAyahFolder: "translations/urdu_farhat_hashmi"
-      },
-      {
         id: "warsh_ibrahim_aldosary",
         name: "إبراهيم الدوسري (رواية ورش عن نافع)",
         folder: "warsh_aldosary",
         mp3quranServer: "server10.mp3quran.net/ibrahim_dosri/Rewayat-Warsh-A-n-Nafi",
         everyAyahFolder: "warsh/warsh_ibrahim_aldosary_128kbps"
-      },
-      {
-        id: "warsh_yassin_al_jazaery",
-        name: "ياسين الجزائري (رواية ورش عن نافع)",
-        folder: "warsh_yassin",
-        mp3quranServer: "server11.mp3quran.net/qari",
-        everyAyahFolder: "warsh/warsh_yassin_al_jazaery_64kbps"
       },
       {
         id: "warsh_basit",
