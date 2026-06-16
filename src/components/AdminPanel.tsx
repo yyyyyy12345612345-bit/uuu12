@@ -178,8 +178,13 @@ export function AdminPanel() {
       const res = await fetch("/api/admin/fix-reciters");
       const data = await res.json();
       if (data.success) {
-        setReciterFixResult(`✅ تم الإصلاح بنجاح! العدد الأصلي: ${data.originalCount}، العدد النهائي: ${data.fixedCount}`);
-        alert("✅ تم إصلاح وتحديث بيانات القراء بنجاح! يرجى إعادة تحميل الصفحة لرؤية التحديثات.");
+        if (data.readOnly) {
+          setReciterFixResult(`⚠️ بيئة قراءة فقط (Vercel): تم تجميع البيانات بنجاح ولكن لم يتم تعديل الملف البرمجي. يرجى تشغيل الأداة محلياً (Localhost) وتحديث الملف ثم رفعه إلى GitHub.`);
+          alert("⚠️ تم تشغيل الأداة في الذاكرة بنجاح (بيئة Vercel للقراءة فقط).\n\nلتثبيت التحديثات بشكل دائم على الموقع، يرجى فتح المشروع وتشغيل الأداة محلياً على جهازك ثم عمل git push.");
+        } else {
+          setReciterFixResult(`✅ تم الإصلاح بنجاح! العدد الأصلي: ${data.originalCount}، العدد النهائي: ${data.fixedCount}`);
+          alert("✅ تم إصلاح وتحديث بيانات القراء بنجاح! يرجى إعادة تحميل الصفحة لرؤية التحديثات.");
+        }
       } else {
         setReciterFixResult(`❌ فشل الإصلاح: ${data.error || 'خطأ غير معروف'}`);
       }

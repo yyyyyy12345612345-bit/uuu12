@@ -206,15 +206,23 @@ export const RECITERS: Reciter[] = ${JSON.stringify(updatedReciters, null, 2)};
 `;
 
     // Write file back
-    fs.writeFileSync(filePath, newContent, "utf8");
-
-    console.log(`[FIX RECITERS] Successfully wrote ${updatedReciters.length} reciters to ${filePath}.`);
+    let readOnly = false;
+    try {
+      fs.writeFileSync(filePath, newContent, "utf8");
+      console.log(`[FIX RECITERS] Successfully wrote ${updatedReciters.length} reciters to ${filePath}.`);
+    } catch (writeError: any) {
+      console.warn("[FIX RECITERS] Read-only filesystem detected, skipping write:", writeError.message);
+      readOnly = true;
+    }
 
     return NextResponse.json({
       success: true,
+      readOnly,
       originalCount: reciters.length,
       fixedCount: updatedReciters.length,
-      message: "Successfully fixed duplicate IDs, mismatched names, and added Minshawi/Abdul Basit/Husary Murattal and Mujawwad versions!"
+      message: readOnly 
+        ? "بيئة التشغيل للقراءة فقط (مثل Vercel). تم معالجة البيانات بنجاح في الذاكرة ولكن لم يتم كتابتها على القرص. يرجى تشغيل هذه الأداة محلياً (Localhost) وتحديث الملف ثم رفعه إلى GitHub."
+        : "Successfully fixed duplicate IDs, mismatched names, and added Minshawi/Abdul Basit/Husary Murattal and Mujawwad versions!"
     });
 
   } catch (error: any) {
