@@ -1,0 +1,224 @@
+import { NextResponse } from "next/server";
+import * as fs from "fs";
+import * as path from "path";
+
+export async function GET() {
+  try {
+    const filePath = path.join(process.cwd(), "src", "data", "reciters.ts");
+    if (!fs.existsSync(filePath)) {
+      return NextResponse.json({ error: `File not found at ${filePath}` }, { status: 404 });
+    }
+
+    const content = fs.readFileSync(filePath, "utf8");
+
+    // Extract the array using match
+    const arrayMatch = content.match(/export const RECITERS: Reciter\[\] = (\[[\s\S]*?\]);/);
+    if (!arrayMatch) {
+      return NextResponse.json({ error: "Could not find RECITERS array in file" }, { status: 400 });
+    }
+
+    const arrayStr = arrayMatch[1];
+    // Safely evaluate or parse the array
+    let reciters: any[];
+    try {
+      // Use Function constructor instead of eval for safety in Next.js environment
+      reciters = new Function(`return ${arrayStr}`)();
+    } catch (e: any) {
+      return NextResponse.json({ error: `Failed to parse array: ${e.message}` }, { status: 400 });
+    }
+
+    console.log(`[FIX RECITERS] Loaded ${reciters.length} reciters.`);
+
+    // 1. We will rebuild the list of reciters, fixing mismatches and adding Murattal/Mujawwad versions
+    const updatedReciters: any[] = [];
+    const seenIds = new Set<string>();
+
+    // We will define standard templates for the main reciters to ensure they are 100% correct
+    const mainReciters = [
+      {
+        id: "basit_murattal",
+        name: "عبدالباسط عبدالصمد (مرتل)",
+        folder: "basit",
+        mp3quranServer: "server7.mp3quran.net/basit",
+        everyAyahFolder: "Abdul_Basit_Murattal_192kbps"
+      },
+      {
+        id: "basit_mujawwad",
+        name: "عبدالباسط عبدالصمد (مجود)",
+        folder: "basit_mjwd",
+        mp3quranServer: "server11.mp3quran.net/basit_mjwd",
+        everyAyahFolder: "Abdul_Basit_Mujawwad_128kbps"
+      },
+      {
+        id: "minsh_murattal",
+        name: "محمد صديق المنشاوي (مرتل)",
+        folder: "minsh",
+        mp3quranServer: "server10.mp3quran.net/minsh",
+        everyAyahFolder: "Minshawy_Murattal_128kbps"
+      },
+      {
+        id: "minsh_mujawwad",
+        name: "محمد صديق المنشاوي (مجود)",
+        folder: "minsh_mjwd",
+        mp3quranServer: "server11.mp3quran.net/minsh_mjwd",
+        everyAyahFolder: "Minshawy_Mujawwad_128kbps"
+      },
+      {
+        id: "husr_murattal",
+        name: "محمود خليل الحصري (مرتل)",
+        folder: "husr",
+        mp3quranServer: "server13.mp3quran.net/husr",
+        everyAyahFolder: "Husary_128kbps"
+      },
+      {
+        id: "husr_mujawwad",
+        name: "محمود خليل الحصري (مجود)",
+        folder: "husr_mjwd",
+        mp3quranServer: "server11.mp3quran.net/husr_mjwd",
+        everyAyahFolder: "Husary_Mujawwad_64kbps"
+      },
+      {
+        id: "hani_rifai",
+        name: "هاني الرفاعي",
+        folder: "hani",
+        mp3quranServer: "server8.mp3quran.net/hani",
+        everyAyahFolder: "Hani_Rifai_192kbps"
+      },
+      {
+        id: "juhani",
+        name: "عبدالله عواد الجهني",
+        folder: "jhn",
+        mp3quranServer: "server13.mp3quran.net/jhn",
+        everyAyahFolder: "Abdullaah_3awwaad_Al-Juhaynee_128kbps"
+      }
+    ];
+
+    // Add main reciters first so they have priority and clean IDs
+    for (const r of mainReciters) {
+      updatedReciters.push(r);
+      seenIds.add(r.id);
+    }
+
+    // Now process all other reciters in the list
+    for (let r of reciters) {
+      // Skip the old basit, minsh, husr, juhani entries to avoid duplicates of the main ones we just added
+      const oldSkipIds = ["basit", "minsh", "husr", "juhani"];
+      if (oldSkipIds.includes(r.id)) continue;
+      
+      // Skip if the name matches the main ones we manually added
+      const mainNames = [
+        "عبدالباسط عبدالصمد", "محمد صديق المنشاوي", "محمود خليل الحصري", 
+        "هاني الرفاعي", "عبدالله عواد الجهني"
+      ];
+      if (mainNames.some(name => r.name.includes(name))) continue;
+
+      let id = r.id;
+      let name = r.name;
+      let folder = r.folder;
+      let mp3quranServer = r.mp3quranServer;
+      let everyAyahFolder = r.everyAyahFolder;
+
+      // Fix known ID-Name mismatches from original list
+      if (id === "mohammad_rifaat" && name === "حمد الدغريري") {
+        id = "hamad_daghriri";
+      } else if (id === "sayed_nakashibandi" && name === "صلاح الهاشم") {
+        id = "salah_hashim";
+      } else if (id === "abdurrahman_musaab" && name === "أحمد نعينع") {
+        id = "ahmed_naina";
+      } else if (id === "ahmed_kasab" && name === "عبدالعزيز الأحمد") {
+        id = "abdulaziz_alahmed";
+      } else if (id === "kamel_yousef_albahtimi" && name === "يوسف الشويعي") {
+        id = "yousef_shohaee";
+      } else if (id === "taha_alfashny" && name === "أحمد الحواشي") {
+        id = "ahmed_hawashi";
+      } else if (id === "abu_alaneen_shaishaa" && name === "أحمد الطرابلسي") {
+        id = "ahmed_trabulsi";
+      } else if (id === "adel_kalbani" && name === "عبدالولي الأركاني") {
+        id = "abdulwali_arkani";
+      } else if (id === "abdullah_almatrouk" && name === "عبدالله الكندري") {
+        id = "abdullah_kandari";
+      } else if (id === "mohammed_ismail" && name === "خالد الغامدي") {
+        id = "khalid_ghamdi";
+      } else if (id === "saleh_alorman" && name === "سلمان العتيبي") {
+        id = "salman_alotaibi";
+      } else if (id === "fadhel_alqahtani" && name === "مصطفى اللاهوني") {
+        id = "mustafa_lahoni";
+      } else if (id === "mohammed_alzaidi" && name === "داود حمزة") {
+        id = "dawood_hamza";
+      } else if (id === "fahd_alqadi" && name === "الزين محمد أحمد") {
+        id = "alzain_mohammad";
+      } else if (id === "mohammed_alsharif" && name === "عبدالمحسن الحارثي") {
+        id = "abdulmohsen_harthi";
+      } else if (id === "ahmed_alhameidi" && name === "وليد الدليمي") {
+        id = "waleed_dulyami";
+      } else if (id === "ahmad_alsaeed" && name === "عبدالرحمن الماجد") {
+        id = "abdurrahman_majed";
+      } else if (id === "majid_alqadi" && name === "محمد خليل القارئ") {
+        id = "mohammad_khalil_qari";
+      } else if (id === "mohammad_albanna" && name === "خالد المهنا") {
+        id = "khalid_mohna";
+      } else if (id === "akram_alraisi" && name === "أكرم الرايسي") {
+        id = "akram_raisi";
+      } else if (id === "omar_alnasser" && name === "العشري عمران") {
+        id = "alashri_omran";
+      } else if (id === "mohammed_alqarny" && name === "صالح الهبدان") {
+        id = "saleh_habdan";
+      } else if (id === "mohamed_alsaeed" && name === "محمد السعيد") {
+        id = "mohammed_alsaeed";
+      }
+
+      // If ID is a duplicate, rename it based on folder name to ensure uniqueness
+      if (seenIds.has(id) || id === "Rewayat-Hafs-A-n-Assem" || !id) {
+        // Clean folder name to make a nice ID
+        const cleanFolder = folder.replace(/[^a-zA-Z0-9_]/g, "");
+        let newId = cleanFolder || "reciter";
+        
+        // Resolve collissions
+        let counter = 1;
+        let finalId = newId;
+        while (seenIds.has(finalId)) {
+          finalId = `${newId}_${counter}`;
+          counter++;
+        }
+        id = finalId;
+      }
+
+      seenIds.add(id);
+      updatedReciters.push({
+        id,
+        name,
+        folder,
+        mp3quranServer,
+        ...(everyAyahFolder ? { everyAyahFolder } : {})
+      });
+    }
+
+    // Construct the file content
+    const newContent = `export interface Reciter {
+  id: string;
+  name: string;
+  folder: string;
+  mp3quranServer: string;
+  everyAyahFolder?: string; // Standard EveryAyah folder name
+}
+
+export const RECITERS: Reciter[] = ${JSON.stringify(updatedReciters, null, 2)};
+`;
+
+    // Write file back
+    fs.writeFileSync(filePath, newContent, "utf8");
+
+    console.log(`[FIX RECITERS] Successfully wrote ${updatedReciters.length} reciters to ${filePath}.`);
+
+    return NextResponse.json({
+      success: true,
+      originalCount: reciters.length,
+      fixedCount: updatedReciters.length,
+      message: "Successfully fixed duplicate IDs, mismatched names, and added Minshawi/Abdul Basit/Husary Murattal and Mujawwad versions!"
+    });
+
+  } catch (error: any) {
+    console.error("[FIX RECITERS] Error:", error);
+    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+  }
+}
