@@ -751,7 +751,7 @@ export function AudioLibrary() {
                   </div>
                 ) : (
                   filteredReciters.map(r => {
-                    const sel = selectedReciter.id === r.id;
+                    const sel = selectedReciter.id === r.id && selectedReciter.name === r.name;
                     return (
                       <button
                         key={r.id}
