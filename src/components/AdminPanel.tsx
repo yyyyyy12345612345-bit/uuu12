@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { LayoutDashboard, BellRing, Activity, UserCircle, CreditCard, Swords, Settings, GalleryHorizontalEnd, BarChart3, History, HeadphonesIcon, Megaphone, AlertCircle, BookOpen, FlaskConical, Package, ShieldCheck, Loader2, X, MenuIcon, Users, UserCheck, Mail, TrendingUp, RefreshCw, Bell, Trophy, Ban, CheckCircle, Phone, AlertTriangle, Trash2, Copy, KeyRound, MessageSquare, Sparkles } from "lucide-react";
+import { LayoutDashboard, BellRing, Activity, UserCircle, CreditCard, Swords, Settings, GalleryHorizontalEnd, BarChart3, History, HeadphonesIcon, Megaphone, AlertCircle, BookOpen, FlaskConical, Package, ShieldCheck, Loader2, X, MenuIcon, Users, UserCheck, Mail, TrendingUp, RefreshCw, Bell, Trophy, Ban, CheckCircle, Phone, AlertTriangle, Trash2, Copy, KeyRound, MessageSquare, Sparkles, Volume2, Play, Pause, Database } from "lucide-react";
 import surahsData from "@/data/surahs.json";
 import { auth, db, initFirebase } from "@/lib/firebase";
 import {
@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { checkAndAwardBadges } from "@/lib/badges";
+import { RECITERS } from "@/data/reciters";
 
 const ADMIN_EMAIL = "youssefosama@gmail.com";
 
@@ -17,6 +18,7 @@ const NAV_ITEMS = [
   { id: 'stats', label: 'الإحصائيات', icon: LayoutDashboard },
   { id: 'push', label: 'الإشعارات', icon: BellRing },
   { id: 'performance', label: 'الأداء', icon: Activity },
+  { id: 'reciters', label: 'مراجعة القراء 🎙️', icon: Volume2 },
   { id: 'users', label: 'المستخدمين', icon: UserCircle },
   { id: 'subs', label: 'الاشتراكات', icon: CreditCard },
   { id: 'chatbot', label: 'تحليلات الشات بوت', icon: MessageSquare },
@@ -150,6 +152,117 @@ export function AdminPanel() {
   const [activeTab, setActiveTab] = useState<string>("stats");
   const [analyticsData, setAnalyticsData] = useState<any>(null);
   const [isAnalyticsLoading, setIsAnalyticsLoading] = useState(false);
+
+  // Reciter Diagnostic States
+  const [reciterSearch, setReciterSearch] = useState("");
+  const [reciterStatuses, setReciterStatuses] = useState<Record<string, { status: 'success' | 'error' | 'checking' | 'idle'; code?: number; error?: string }>>({});
+  const [reciterAudioPlaying, setReciterAudioPlaying] = useState<string | null>(null);
+  const [reciterFixing, setReciterFixing] = useState(false);
+  const [reciterFixResult, setReciterFixResult] = useState<string | null>(null);
+  const [reciterCheckingAll, setReciterCheckingAll] = useState(false);
+  const reciterAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (reciterAudioRef.current) {
+        reciterAudioRef.current.pause();
+      }
+    };
+  }, []);
+
+  const handleFixReciters = async () => {
+    if (!window.confirm("هل أنت متأكد من تشغيل أداة إصلاح بيانات القراء؟ سيقوم هذا بحذف التكرارات وتصحيح المسميات وإضافة النسخ المجودة والمرتلة لشيوخ المنشاوي وعبدالباسط والحصري.")) return;
+    setReciterFixing(true);
+    setReciterFixResult(null);
+    try {
+      const res = await fetch("/api/admin/fix-reciters");
+      const data = await res.json();
+      if (data.success) {
+        setReciterFixResult(`✅ تم الإصلاح بنجاح! العدد الأصلي: ${data.originalCount}، العدد النهائي: ${data.fixedCount}`);
+        alert("✅ تم إصلاح وتحديث بيانات القراء بنجاح! يرجى إعادة تحميل الصفحة لرؤية التحديثات.");
+      } else {
+        setReciterFixResult(`❌ فشل الإصلاح: ${data.error || 'خطأ غير معروف'}`);
+      }
+    } catch (e: any) {
+      setReciterFixResult(`❌ خطأ في الاتصال: ${e.message}`);
+    } finally {
+      setReciterFixing(false);
+    }
+  };
+
+  const checkSingleReciter = async (reciter: any) => {
+    let server = reciter.mp3quranServer;
+    if (!server.startsWith("http://") && !server.startsWith("https://")) {
+      server = `https://${server}`;
+    }
+    if (server.endsWith("/")) {
+      server = server.slice(0, -1);
+    }
+    const audioUrl = `${server}/001.mp3`;
+
+    setReciterStatuses(prev => ({ ...prev, [reciter.id]: { status: 'checking' } }));
+
+    try {
+      const res = await fetch(`/api/admin/check-audio?url=${encodeURIComponent(audioUrl)}`);
+      const data = await res.json();
+      if (data.ok) {
+        setReciterStatuses(prev => ({ ...prev, [reciter.id]: { status: 'success', code: data.status } }));
+      } else {
+        setReciterStatuses(prev => ({ ...prev, [reciter.id]: { status: 'error', code: data.status, error: data.error || "خطأ في تشغيل الصوت" } }));
+      }
+    } catch (e: any) {
+      setReciterStatuses(prev => ({ ...prev, [reciter.id]: { status: 'error', error: e.message } }));
+    }
+  };
+
+  const handleCheckAllReciters = async () => {
+    if (reciterCheckingAll) return;
+    setReciterCheckingAll(true);
+    const list = RECITERS;
+    for (const r of list) {
+      await checkSingleReciter(r);
+    }
+    setReciterCheckingAll(false);
+  };
+
+  const togglePlayReciterAudio = (reciter: any) => {
+    let server = reciter.mp3quranServer;
+    if (!server.startsWith("http://") && !server.startsWith("https://")) {
+      server = `https://${server}`;
+    }
+    if (server.endsWith("/")) {
+      server = server.slice(0, -1);
+    }
+    const audioUrl = `${server}/001.mp3`;
+
+    if (reciterAudioPlaying === reciter.id) {
+      if (reciterAudioRef.current) {
+        reciterAudioRef.current.pause();
+      }
+      setReciterAudioPlaying(null);
+    } else {
+      if (reciterAudioRef.current) {
+        reciterAudioRef.current.pause();
+      }
+      const audio = new Audio(audioUrl);
+      reciterAudioRef.current = audio;
+      setReciterAudioPlaying(reciter.id);
+      audio.play().catch(err => {
+        console.error("Playback error:", err);
+        setReciterAudioPlaying(null);
+        alert("فشل تشغيل الصوت: تأكد من رابط السيرفر أو اتصال الإنترنت.");
+      });
+      audio.onended = () => {
+        setReciterAudioPlaying(null);
+      };
+    }
+  };
+
+  const filteredReciters = useMemo(() => {
+    const s = reciterSearch.trim().toLowerCase();
+    if (!s) return RECITERS;
+    return RECITERS.filter(r => r.name.toLowerCase().includes(s) || r.id.toLowerCase().includes(s));
+  }, [reciterSearch]);
 
   const [pushTitle, setPushTitle] = useState("");
   const [pushBody, setPushBody] = useState("");
@@ -3275,6 +3388,194 @@ export function AdminPanel() {
                       <button onClick={() => handleDeleteQuest(q.id)} className="rounded-xl border border-red-500/20 px-4 py-2 text-red-400 transition hover:bg-red-500/10">حذف</button>
                     </div>
                   ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ========== RECITERS DIAGNOSTICS TAB ========== */}
+          {activeTab === 'reciters' && (
+            <div className="space-y-6">
+              {/* Header and Fix Action */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/[0.02] border border-white/[0.06] p-6 rounded-3xl">
+                <div className="text-right flex-1">
+                  <h2 className="text-2xl font-black text-white">مراجعة وتدقيق قراء الصوتيات 🎙️</h2>
+                  <p className="text-xs text-white/40 mt-1">تأكد من سلامة روابط سيرفرات mp3quran لجميع القراء وتشغيل عينة صوتية لكل قارئ</p>
+                </div>
+                <div className="flex flex-wrap gap-2.5">
+                  <button
+                    onClick={handleCheckAllReciters}
+                    disabled={reciterCheckingAll}
+                    className="flex items-center gap-2 px-5 py-3 bg-[#fbbf24] text-black font-black rounded-xl hover:brightness-110 active:scale-95 transition disabled:opacity-50 text-xs"
+                  >
+                    {reciterCheckingAll ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        جاري فحص الجميع...
+                      </>
+                    ) : (
+                      <>
+                        <Activity className="w-4 h-4" />
+                        فحص جميع القراء تلقائياً ⚡
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={handleFixReciters}
+                    disabled={reciterFixing}
+                    className="flex items-center gap-2 px-5 py-3 bg-violet-600 hover:bg-violet-500 text-white font-black rounded-xl active:scale-95 transition disabled:opacity-50 text-xs border border-violet-500/30"
+                  >
+                    {reciterFixing ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        جاري إصلاح البيانات...
+                      </>
+                    ) : (
+                      <>
+                        <Database className="w-4 h-4" />
+                        إصلاح وتحديث بيانات القراء 🛠️
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {reciterFixResult && (
+                <div className="p-4 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-bold text-center">
+                  {reciterFixResult}
+                </div>
+              )}
+
+              {/* Stats Counters */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                {[
+                  { label: 'إجمالي القراء', value: RECITERS.length, color: 'text-[#fbbf24]', bg: 'bg-white/[0.02]' },
+                  {
+                    label: 'سيرفرات سليمة',
+                    value: Object.values(reciterStatuses).filter(s => s.status === 'success').length,
+                    color: 'text-emerald-400',
+                    bg: 'bg-emerald-500/5 border border-emerald-500/10'
+                  },
+                  {
+                    label: 'سيرفرات معطلة',
+                    value: Object.values(reciterStatuses).filter(s => s.status === 'error').length,
+                    color: 'text-red-400',
+                    bg: 'bg-red-500/5 border border-red-500/10'
+                  },
+                  {
+                    label: 'بانتظار الفحص',
+                    value: RECITERS.length - Object.keys(reciterStatuses).length,
+                    color: 'text-white/40',
+                    bg: 'bg-white/[0.02]'
+                  }
+                ].map(card => (
+                  <div key={card.label} className={`rounded-2xl p-5 text-center ${card.bg}`}>
+                    <p className={`text-2xl font-black ${card.color}`}>{card.value}</p>
+                    <p className="text-[11px] text-white/40 font-bold mt-1">{card.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Search and Table */}
+              <div className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.02)] p-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-5 mb-5">
+                  <div className="text-right">
+                    <h3 className="text-lg font-black text-white/95">قائمة القراء المتاحة</h3>
+                    <p className="text-xs text-white/40 mt-0.5">اضغط على زر الفحص للتحقق من الاتصال، أو زر التشغيل لسماع عينة الفاتحة</p>
+                  </div>
+                  <input
+                    value={reciterSearch}
+                    onChange={e => setReciterSearch(e.target.value)}
+                    className="rounded-xl border border-white/10 bg-white/[0.02] p-3 text-right outline-none text-xs text-white placeholder:text-white/20 w-full sm:w-64 focus:border-[#fbbf24]/30"
+                    placeholder="ابحث عن قارئ بالاسم أو المعرّف..."
+                  />
+                </div>
+
+                <div className="overflow-x-auto font-arabic">
+                  <table className="w-full text-right border-collapse text-xs font-bold min-w-[700px]">
+                    <thead>
+                      <tr className="border-b border-white/5 text-white/30 text-[10px] uppercase tracking-wider">
+                        <th className="pb-3 text-right p-3">اسم القارئ</th>
+                        <th className="pb-3 text-right p-3">رابط السيرفر</th>
+                        <th className="pb-3 text-right p-3">رابط الآيات (EveryAyah)</th>
+                        <th className="pb-3 text-center p-3">الحالة الفنية</th>
+                        <th className="pb-3 text-center p-3">التجربة والتشغيل</th>
+                        <th className="pb-3 text-left p-3">الإجراء</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/[0.03]">
+                      {filteredReciters.map((reciter) => {
+                        const statusObj = reciterStatuses[reciter.id] || { status: 'idle' };
+                        const isPlaying = reciterAudioPlaying === reciter.id;
+
+                        return (
+                          <tr key={reciter.id} className="hover:bg-white/[0.01] transition-colors">
+                            <td className="py-3.5 p-3">
+                              <div>
+                                <p className="font-black text-white/90 text-sm">{reciter.name}</p>
+                                <p className="text-[10px] text-white/20 font-mono mt-0.5">ID: {reciter.id}</p>
+                              </div>
+                            </td>
+                            <td className="py-3.5 p-3 text-white/40 font-mono text-[11px] truncate max-w-[200px]" title={reciter.mp3quranServer}>
+                              {reciter.mp3quranServer}
+                            </td>
+                            <td className="py-3.5 p-3 text-white/30 font-mono text-[11px] truncate max-w-[150px]" title={reciter.everyAyahFolder || 'لا يوجد'}>
+                              {reciter.everyAyahFolder || '—'}
+                            </td>
+                            <td className="py-3.5 p-3 text-center">
+                              {statusObj.status === 'idle' && (
+                                <span className="text-white/30 bg-white/5 px-2.5 py-1 rounded-lg">لم يفحص</span>
+                              )}
+                              {statusObj.status === 'checking' && (
+                                <span className="text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded-lg flex items-center justify-center gap-1.5 w-24 mx-auto">
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                  جاري...
+                                </span>
+                              )}
+                              {statusObj.status === 'success' && (
+                                <span className="text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg">
+                                  سليم ({statusObj.code})
+                                </span>
+                              )}
+                              {statusObj.status === 'error' && (
+                                <span className="text-red-400 bg-red-500/10 px-2.5 py-1 rounded-lg" title={statusObj.error}>
+                                  معطل ({statusObj.code || 'خطأ'})
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3.5 p-3 text-center">
+                              <button
+                                onClick={() => togglePlayReciterAudio(reciter)}
+                                className={`w-8 h-8 rounded-lg flex items-center justify-center mx-auto transition-all ${
+                                  isPlaying
+                                    ? 'bg-amber-400 text-black shadow-lg shadow-amber-400/20'
+                                    : 'bg-white/5 hover:bg-white/10 text-white/70'
+                                }`}
+                                title={isPlaying ? "إيقاف التشغيل" : "تشغيل عينة الفاتحة"}
+                              >
+                                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                              </button>
+                            </td>
+                            <td className="py-3.5 p-3 text-left">
+                              <button
+                                onClick={() => checkSingleReciter(reciter)}
+                                className="px-3.5 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-white/80 transition text-[11px]"
+                              >
+                                فحص الرابط 🔄
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                      {filteredReciters.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="text-center py-12 text-sm text-white/20 font-bold">
+                            لا يوجد قراء يطابقون البحث
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
