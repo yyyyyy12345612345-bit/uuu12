@@ -237,14 +237,22 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
     setActionLoading(true);
     try {
       const myUid = auth.currentUser.uid;
-      const alreadyDueling = duels.some(d => d.status === "active" && d.participants.includes(myUid) && d.participants.includes(friendId));
-      if (alreadyDueling) {
-        alert("توجد مبارزة نشطة بالفعل بينكما حالياً!");
+      const existingDuel = duels.find(d => 
+        (d.status === "active" || d.status === "pending") && 
+        d.participants.includes(myUid) && 
+        d.participants.includes(friendId)
+      );
+
+      if (existingDuel) {
+        if (existingDuel.status === "active") {
+          alert("توجد مبارزة نشطة بالفعل بينكما حالياً!");
+        } else {
+          alert("لقد قمت بالفعل بإرسال دعوة تحدي لهذا الصديق، بانتظار قبوله.");
+        }
         setActionLoading(false);
         return;
       }
 
-      const endsAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
       const duelData = {
         participants: [myUid, friendId],
         names: {
@@ -256,9 +264,9 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
           [friendId]: friend.photoURL || ""
         },
         creatorId: myUid,
-        status: "active",
+        status: "pending",
         createdAt: serverTimestamp(),
-        endsAt: endsAt.toISOString(),
+        endsAt: null,
         startPoints: {
           [myUid]: userData?.totalPoints || 0,
           [friendId]: friend.totalPoints || 0
@@ -278,11 +286,80 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
       };
 
       await addDoc(collection(db, "duels"), duelData);
-      alert("⚔️ تم بدء المبارزة بنجاح! سابق صديقك الآن في لوحة الشرف!");
+      alert("⚔️ تم إرسال طلب التحدي بنجاح! بانتظار قبول صديقك لتنطلق المبارزة.");
       setShowChallengeModal(false);
     } catch (e) {
       console.error(e);
       alert("حدث خطأ أثناء بدء التحدي");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleAcceptDuel = async (duelId: string) => {
+    if (!auth?.currentUser || !db || actionLoading) return;
+    setActionLoading(true);
+    try {
+      const duel = duels.find(d => d.id === duelId);
+      if (!duel) {
+        setActionLoading(false);
+        return;
+      }
+      
+      const p1Ref = doc(db, "users", duel.participants[0]);
+      const p2Ref = doc(db, "users", duel.participants[1]);
+      const [p1Snap, p2Snap] = await Promise.all([getDoc(p1Ref), getDoc(p2Ref)]);
+      const p1Points = p1Snap.exists() ? (p1Snap.data().totalPoints || 0) : 0;
+      const p2Points = p2Snap.exists() ? (p2Snap.data().totalPoints || 0) : 0;
+      
+      const endsAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+      await updateDoc(doc(db, "duels", duelId), {
+        status: "active",
+        createdAt: serverTimestamp(),
+        endsAt: endsAt.toISOString(),
+        startPoints: {
+          [duel.participants[0]]: p1Points,
+          [duel.participants[1]]: p2Points
+        },
+        currentPoints: {
+          [duel.participants[0]]: p1Points,
+          [duel.participants[1]]: p2Points
+        }
+      });
+      alert("⚔️ تم قبول التحدي بنجاح! لتبدأ المنافسة الآن!");
+    } catch (e) {
+      console.error(e);
+      alert("حدث خطأ أثناء قبول التحدي");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleRejectDuel = async (duelId: string) => {
+    if (!auth?.currentUser || !db || actionLoading) return;
+    if (!window.confirm("هل أنت متأكد من رفض هذا التحدي؟")) return;
+    setActionLoading(true);
+    try {
+      await deleteDoc(doc(db, "duels", duelId));
+      alert("تم رفض وإلغاء التحدي 🚫");
+    } catch (e) {
+      console.error(e);
+      alert("حدث خطأ أثناء رفض التحدي");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleCancelDuel = async (duelId: string) => {
+    if (!auth?.currentUser || !db || actionLoading) return;
+    if (!window.confirm("هل تريد إلغاء طلب التحدي هذا؟")) return;
+    setActionLoading(true);
+    try {
+      await deleteDoc(doc(db, "duels", duelId));
+      alert("تم إلغاء طلب التحدي ❌");
+    } catch (e) {
+      console.error(e);
+      alert("حدث خطأ أثناء إلغاء التحدي");
     } finally {
       setActionLoading(false);
     }
@@ -746,7 +823,13 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                   </div>
               ) : (
                   <div className="space-y-4">
-                      {duels.map(duel => {
+                       {duels.map(duel => {
+                          const isPending = duel.status === 'pending';
+                          const myUid = auth?.currentUser?.uid;
+                          const isParticipant = duel.participants.includes(myUid);
+                          
+                          if (isPending && !isParticipant) return null;
+
                           const isActive = duel.status === 'active';
                           const p1 = duel.participants[0];
                           const p2 = duel.participants[1];
@@ -756,6 +839,80 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                           const isExpired = endsAt && endsAt < new Date();
                           const timeRemaining = endsAt ? Math.max(0, Math.ceil((endsAt.getTime() - Date.now()) / (1000 * 60 * 60))) : 0;
                           const winner = isExpired ? (p1Gained > p2Gained ? p1 : p2Gained > p1Gained ? p2 : null) : null;
+
+                          if (isPending) {
+                              const isCreator = duel.creatorId === myUid;
+                              return (
+                                  <div key={duel.id} className="bg-card border-2 border-dashed border-primary/20 rounded-[2rem] p-5 md:p-6 shadow-xl transition-all relative overflow-hidden">
+                                      <div className="absolute inset-0 bg-primary/5 opacity-40 pointer-events-none" />
+                                      
+                                      {/* Header */}
+                                      <div className="flex items-center justify-between mb-4 relative z-10">
+                                          <div className={`flex items-center gap-1.5 text-[10px] font-black px-3 py-1 rounded-lg ${isCreator ? 'bg-amber-500/10 text-amber-400' : 'bg-primary/10 text-primary'}`}>
+                                              <div className={`w-1.5 h-1.5 rounded-full ${isCreator ? 'bg-amber-400' : 'bg-primary animate-pulse'}`} />
+                                              {isCreator ? 'بانتظار قبول صديقك ⏳' : 'تحدي جديد وارد ⚔️'}
+                                          </div>
+                                          <span className="text-[9px] font-black text-foreground/30">تحدي متبادل</span>
+                                      </div>
+
+                                      {/* VS Display */}
+                                      <div className="flex items-center justify-between gap-3 relative z-10 mb-6">
+                                          {/* Player 1 */}
+                                          <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
+                                              <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-border p-0.5 overflow-hidden bg-card">
+                                                  <img src={duel.avatars?.[p1] || '/logo/logo.png'} alt="" className="w-full h-full object-cover rounded-full" />
+                                              </div>
+                                              <p className="text-xs font-black text-foreground truncate max-w-[80px]">{duel.names?.[p1]}</p>
+                                          </div>
+
+                                          {/* VS Icon */}
+                                          <div className="flex flex-col items-center gap-1 shrink-0">
+                                              <div className="w-9 h-9 rounded-full bg-foreground/5 flex items-center justify-center border border-white/5">
+                                                  <Swords className="w-4 h-4 text-primary" />
+                                              </div>
+                                          </div>
+
+                                          {/* Player 2 */}
+                                          <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
+                                              <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-border p-0.5 overflow-hidden bg-card">
+                                                  <img src={duel.avatars?.[p2] || '/logo/logo.png'} alt="" className="w-full h-full object-cover rounded-full" />
+                                              </div>
+                                              <p className="text-xs font-black text-foreground truncate max-w-[80px]">{duel.names?.[p2]}</p>
+                                          </div>
+                                      </div>
+
+                                      {/* Actions */}
+                                      <div className="flex items-center gap-3 relative z-10">
+                                          {isCreator ? (
+                                              <button
+                                                  onClick={() => handleCancelDuel(duel.id)}
+                                                  className="w-full py-2.5 rounded-xl border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 font-black text-xs transition-all flex items-center justify-center gap-1.5"
+                                              >
+                                                  <span>إلغاء طلب التحدي</span>
+                                                  <span>❌</span>
+                                              </button>
+                                          ) : (
+                                              <>
+                                                  <button
+                                                      onClick={() => handleAcceptDuel(duel.id)}
+                                                      className="flex-1 py-2.5 rounded-xl bg-primary text-black hover:scale-[1.02] active:scale-95 font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-primary/10"
+                                                  >
+                                                      <span>قبول التحدي</span>
+                                                      <span>⚔️</span>
+                                                  </button>
+                                                  <button
+                                                      onClick={() => handleRejectDuel(duel.id)}
+                                                      className="flex-1 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white font-black text-xs transition-all flex items-center justify-center gap-1.5"
+                                                  >
+                                                      <span>رفض</span>
+                                                      <span>🚫</span>
+                                                  </button>
+                                              </>
+                                          )}
+                                      </div>
+                                  </div>
+                              );
+                          }
 
                           return (
                               <div key={duel.id} className={`bg-card border rounded-[2rem] p-5 md:p-6 shadow-xl transition-all ${isActive && !isExpired ? 'border-primary/30 shadow-primary/5' : 'border-border opacity-80'}`}>
