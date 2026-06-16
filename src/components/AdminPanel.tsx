@@ -263,10 +263,76 @@ export function AdminPanel() {
     }
   };
 
+  // States for adding a new reciter
+  const [newReciterName, setNewReciterName] = useState("");
+  const [newReciterServer, setNewReciterServer] = useState("");
+  const [newReciterEveryAyah, setNewReciterEveryAyah] = useState("");
+  const [newReciterCustomId, setNewReciterCustomId] = useState("");
+  const [isAddingReciter, setIsAddingReciter] = useState(false);
+  const [addReciterResult, setAddReciterResult] = useState<string | null>(null);
+
+  const handleAddReciter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newReciterName.trim() || !newReciterServer.trim()) {
+      alert("يرجى ملء اسم القارئ ورابط خادم الصوت");
+      return;
+    }
+    setIsAddingReciter(true);
+    setAddReciterResult(null);
+    try {
+      const res = await fetch("/api/admin/add-reciter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newReciterName.trim(),
+          mp3quranServer: newReciterServer.trim(),
+          everyAyahFolder: newReciterEveryAyah.trim() || undefined,
+          customId: newReciterCustomId.trim() || undefined,
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (data.readOnly) {
+          setAddReciterResult(`⚠️ تم الإضافة في الذاكرة ولكن لم يتم الحفظ على القرص (بيئة Vercel للقراءة فقط). يرجى إجراء ذلك محلياً.`);
+          alert("⚠️ تم إضافة القارئ مؤقتاً في الذاكرة!\n\nلحفظه بشكل دائم في الكود ومشاركتها مع الجميع، يرجى تشغيل المشروع محلياً وإضافته من هناك ثم عمل git push.");
+        } else {
+          setAddReciterResult(`✅ تم إضافة القارئ "${data.reciter.name}" بنجاح!`);
+          alert("✅ تم إضافة القارئ بنجاح وتحديث ملف القراء! يرجى إعادة تحميل الصفحة لرؤية التحديثات.");
+        }
+        // Clear fields
+        setNewReciterName("");
+        setNewReciterServer("");
+        setNewReciterEveryAyah("");
+        setNewReciterCustomId("");
+      } else {
+        setAddReciterResult(`❌ فشل الإضافة: ${data.error || 'خطأ غير معروف'}`);
+      }
+    } catch (err: any) {
+      setAddReciterResult(`❌ خطأ في الاتصال: ${err.message}`);
+    } finally {
+      setIsAddingReciter(false);
+    }
+  };
+
+  const normalizeReciterText = (text: string) => {
+    if (!text) return "";
+    return text.toLowerCase()
+      .replace(/[أإآٱ]/g, "ا")
+      .replace(/ة/g, "ه")
+      .replace(/ى/g, "ي")
+      .replace(/[ؤئ]/g, "ء")
+      .replace(/[ًٌٍَُِّْ]/g, "")
+      .replace(/\s+/g, "")
+      .trim();
+  };
+
   const filteredReciters = useMemo(() => {
-    const s = reciterSearch.trim().toLowerCase();
+    const s = normalizeReciterText(reciterSearch);
     if (!s) return RECITERS;
-    return RECITERS.filter(r => r.name.toLowerCase().includes(s) || r.id.toLowerCase().includes(s));
+    return RECITERS.filter(r => 
+      normalizeReciterText(r.name).includes(s) || 
+      r.id.toLowerCase().includes(s)
+    );
   }, [reciterSearch]);
 
   const [pushTitle, setPushTitle] = useState("");
@@ -3479,6 +3545,69 @@ export function AdminPanel() {
                     <p className="text-[11px] text-white/40 font-bold mt-1">{card.label}</p>
                   </div>
                 ))}
+              </div>
+
+              {/* Add New Reciter Form */}
+              <div className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.02)] p-6 text-right">
+                <h3 className="text-lg font-black text-white mb-4">إضافة قارئ جديد ➕</h3>
+                <form onSubmit={handleAddReciter} className="space-y-4">
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="space-y-2">
+                      <label className={LABEL}>اسم القارئ</label>
+                      <input 
+                        type="text" 
+                        required 
+                        value={newReciterName} 
+                        onChange={e => setNewReciterName(e.target.value)} 
+                        className={INPUT_CLASS} 
+                        placeholder="مثال: أحمد ديبان" 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className={LABEL}>رابط خادم الصوت (mp3quranServer)</label>
+                      <input 
+                        type="text" 
+                        required 
+                        value={newReciterServer} 
+                        onChange={e => setNewReciterServer(e.target.value)} 
+                        className={INPUT_CLASS} 
+                        placeholder="مثال: server16.mp3quran.net/deban/Rewayat-Hafs-A-n-Assem" 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className={LABEL}>مجلد الآيات - اختياري (everyAyahFolder)</label>
+                      <input 
+                        type="text" 
+                        value={newReciterEveryAyah} 
+                        onChange={e => setNewReciterEveryAyah(e.target.value)} 
+                        className={INPUT_CLASS} 
+                        placeholder="مثال: deban" 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className={LABEL}>معرف مخصص - اختياري (customId)</label>
+                      <input 
+                        type="text" 
+                        value={newReciterCustomId} 
+                        onChange={e => setNewReciterCustomId(e.target.value)} 
+                        className={INPUT_CLASS} 
+                        placeholder="مثال: ahmed_deban" 
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center gap-4 pt-2">
+                    <div className="text-xs text-white/30 font-bold">
+                      {addReciterResult && <span>{addReciterResult}</span>}
+                    </div>
+                    <button 
+                      type="submit" 
+                      disabled={isAddingReciter} 
+                      className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-3 text-black font-black transition hover:shadow-xl hover:shadow-emerald-500/20 text-xs disabled:opacity-50"
+                    >
+                      {isAddingReciter ? <Loader2 className="inline-block h-4 w-4 animate-spin" /> : 'إضافة القارئ الجديد'}
+                    </button>
+                  </div>
+                </form>
               </div>
 
               {/* Search and Table */}
