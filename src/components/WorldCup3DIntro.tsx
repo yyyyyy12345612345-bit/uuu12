@@ -291,6 +291,9 @@ function SceneContent({ stage, progress, timelineRef, onComplete, mouse }: Scene
   const particlesRef = useRef<THREE.Points>(null);
   const shockwaveRef = useRef<THREE.Mesh>(null);
 
+  // Correct Hook Usage: Declare geometry memoization at the top of the component, not in JSX
+  const footballGeometry = useMemo(() => new THREE.IcosahedronGeometry(1.8, 3), []);
+
   // Uniform hooks
   const uniforms = useRef({
     football: {
@@ -542,7 +545,7 @@ function SceneContent({ stage, progress, timelineRef, onComplete, mouse }: Scene
   return (
     <>
       {/* 3D Football Mesh */}
-      <mesh ref={footballRef} geometry={useMemo(() => new THREE.IcosahedronGeometry(1.8, 3), [])}>
+      <mesh ref={footballRef} geometry={footballGeometry}>
         <shaderMaterial
           vertexShader={footballVertexShader}
           fragmentShader={footballFragmentShader}
@@ -609,7 +612,7 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const activeTimeline = useRef<gsap.core.Timeline | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // States
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -690,9 +693,7 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
       canvasAnimFrame = requestAnimationFrame(renderLoadingText);
     };
 
-    if (ctx) {
-      renderLoadingText();
-    }
+    renderLoadingText();
 
     const interval = setInterval(() => {
       currentProgress += Math.floor(Math.random() * 8) + 5;
