@@ -609,6 +609,7 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const activeTimeline = useRef<gsap.core.Timeline | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // States
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -624,19 +625,24 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
     let currentProgress = 0;
     let time = 0;
     let canvasAnimFrame: number;
-
-    const ctx = overlayCanvasRef.current?.getContext('2d');
     const width = 400;
     const height = 150;
 
-    if (overlayCanvasRef.current) {
-      overlayCanvasRef.current.width = width;
-      overlayCanvasRef.current.height = height;
-    }
-
     // 2D Liquid Gold text rendering loop
     const renderLoadingText = () => {
-      if (!ctx) return;
+      const canvas = overlayCanvasRef.current;
+      if (!canvas) {
+        canvasAnimFrame = requestAnimationFrame(renderLoadingText);
+        return;
+      }
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        canvasAnimFrame = requestAnimationFrame(renderLoadingText);
+        return;
+      }
+
+      if (canvas.width !== width) canvas.width = width;
+      if (canvas.height !== height) canvas.height = height;
       time += 0.02;
 
       ctx.clearRect(0, 0, width, height);
@@ -722,13 +728,15 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
       mouseRef.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
     };
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
   }, []);
 
   // 4s timeout before automatic hyper-drive trigger
-  let timeoutId: NodeJS.Timeout;
   const triggerHyperDriveTimeout = () => {
-    timeoutId = setTimeout(() => {
+    timeoutRef.current = setTimeout(() => {
       triggerHyperDrive();
     }, 4500);
   };
@@ -746,7 +754,9 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
     if (activeTimeline.current) {
       activeTimeline.current.kill();
     }
-    clearTimeout(timeoutId);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
     setCinematicStage(4);
     setIsLoaded(true);
     onComplete();
@@ -754,7 +764,9 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
 
   // Trigger Hyper-Drive Zoom and Explosion cinematic sequence
   const triggerHyperDrive = () => {
-    clearTimeout(timeoutId);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
     if (cinematicStage !== 0) return;
 
     setCinematicStage(1); // Start zoom
@@ -779,12 +791,18 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
   };
 
   // Prefers Reduced Motion check
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (mediaQuery.matches) {
-      onComplete(); // Skip directly
-    }
+  const prefersReducedMotion = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }, []);
+
+  useEffect(() => {
+    if (prefersReducedMotion && isIntroActive) {
+      onComplete();
+    }
+  }, [prefersReducedMotion, isIntroActive, onComplete]);
+
+  if (prefersReducedMotion) return null;
 
   if (!isIntroActive && !hasBeenActive) return null;
 
