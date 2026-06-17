@@ -10,11 +10,18 @@ class WorldCupAudioSynth {
   private initialized = false;
   private noiseNode: AudioBufferSourceNode | null = null;
   private breathingInterval: ReturnType<typeof setInterval> | null = null;
+  private shouldPlayBreathing = false;
+  private shouldPlayCrowdRoar = false;
 
   constructor() {}
 
   init() {
-    if (this.initialized) return;
+    if (this.initialized) {
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
+      return;
+    }
     try {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioCtx) return;
@@ -25,7 +32,7 @@ class WorldCupAudioSynth {
       const t = this.ctx.currentTime;
       const listener = this.ctx.listener;
       if (listener.positionX) {
-        listener.positionX.setValueAtTime(0, 5, t);
+        listener.positionX.setValueAtTime(0, t);
         listener.positionY.setValueAtTime(5, t);
         listener.positionZ.setValueAtTime(13.5, t);
       } else {
@@ -33,14 +40,20 @@ class WorldCupAudioSynth {
       }
 
       this.setupCrowd();
+
+      if (this.shouldPlayBreathing) {
+        this.startBreathing();
+      }
+      if (this.shouldPlayCrowdRoar) {
+        this.startCrowdRoar();
+      }
     } catch (e) {
       console.warn("Failed to initialize Web Audio API:", e);
     }
   }
 
   updateListener(pos: THREE.Vector3, quaternion: THREE.Quaternion) {
-    this.init();
-    if (!this.ctx) return;
+    if (!this.initialized || !this.ctx) return;
     const t = this.ctx.currentTime;
     const listener = this.ctx.listener;
 
@@ -70,8 +83,7 @@ class WorldCupAudioSynth {
   }
 
   createPanner(position: [number, number, number]): PannerNode | null {
-    this.init();
-    if (!this.ctx) return null;
+    if (!this.initialized || !this.ctx) return null;
     const panner = this.ctx.createPanner();
     panner.panningModel = 'HRTF';
     panner.distanceModel = 'inverse';
@@ -123,11 +135,18 @@ class WorldCupAudioSynth {
     this.crowdGain.gain.setValueAtTime(0.0001, this.ctx.currentTime);
 
     // Chain
-    this.noiseNode.connect(this.crowdFilter);
-    this.crowdFilter.connect(lowpass);
-    lowpass.connect(this.crowdPanner);
-    this.crowdPanner.connect(this.crowdGain);
-    this.crowdGain.connect(this.ctx.destination);
+    if (this.crowdPanner) {
+      this.noiseNode.connect(this.crowdFilter);
+      this.crowdFilter.connect(lowpass);
+      lowpass.connect(this.crowdPanner);
+      this.crowdPanner.connect(this.crowdGain);
+      this.crowdGain.connect(this.ctx.destination);
+    } else {
+      this.noiseNode.connect(this.crowdFilter);
+      this.crowdFilter.connect(lowpass);
+      lowpass.connect(this.crowdGain);
+      this.crowdGain.connect(this.ctx.destination);
+    }
 
     this.noiseNode.start(0);
 
@@ -143,8 +162,7 @@ class WorldCupAudioSynth {
   }
 
   playTick() {
-    this.init();
-    if (!this.ctx) return;
+    if (!this.initialized || !this.ctx) return;
     if (this.ctx.state === 'suspended') {
       this.ctx.resume().catch(() => {});
     }
@@ -173,8 +191,8 @@ class WorldCupAudioSynth {
   }
 
   startBreathing() {
-    this.init();
-    if (!this.ctx) return;
+    this.shouldPlayBreathing = true;
+    if (!this.initialized || !this.ctx) return;
 
     if (this.ctx.state === 'suspended') {
       this.ctx.resume().catch(() => {});
@@ -244,6 +262,7 @@ class WorldCupAudioSynth {
   }
 
   stopBreathing() {
+    this.shouldPlayBreathing = false;
     if (this.breathingInterval) {
       clearInterval(this.breathingInterval);
       this.breathingInterval = null;
@@ -251,12 +270,12 @@ class WorldCupAudioSynth {
   }
 
   playKick() {
-    this.init();
-    if (!this.ctx) return;
+    if (!this.initialized || !this.ctx) return;
 
     const t = this.ctx.currentTime;
     const panner = this.createPanner([0, 0, 0])!; // localized at kickoff center
-    panner.connect(this.ctx.destination);
+    const targetNode = panner ? panner : this.ctx.destination;
+    if (panner) panner.connect(this.ctx.destination);
 
     // Kicking low frequency pitch drop
     const osc = this.ctx.createOscillator();
@@ -269,7 +288,7 @@ class WorldCupAudioSynth {
     oscGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
 
     osc.connect(oscGain);
-    oscGain.connect(panner);
+    oscGain.connect(targetNode);
     osc.start(t);
     osc.stop(t + 0.25);
 
@@ -284,14 +303,13 @@ class WorldCupAudioSynth {
     popGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
 
     pop.connect(popGain);
-    popGain.connect(panner);
+    popGain.connect(targetNode);
     pop.start(t);
     pop.stop(t + 0.06);
   }
 
   playFirework(position: [number, number, number]) {
-    this.init();
-    if (!this.ctx) return;
+    if (!this.initialized || !this.ctx) return;
 
     const t = this.ctx.currentTime;
     const panner = this.createPanner(position);
@@ -338,8 +356,8 @@ class WorldCupAudioSynth {
   }
 
   startCrowdRoar() {
-    this.init();
-    if (!this.ctx || !this.crowdGain) return;
+    this.shouldPlayCrowdRoar = true;
+    if (!this.initialized || !this.ctx || !this.crowdGain) return;
 
     if (this.ctx.state === 'suspended') {
       this.ctx.resume().catch(() => {});
@@ -351,14 +369,15 @@ class WorldCupAudioSynth {
   }
 
   boostCrowdRoar() {
-    if (!this.ctx || !this.crowdGain) return;
+    if (!this.initialized || !this.ctx || !this.crowdGain) return;
     const t = this.ctx.currentTime;
     this.crowdGain.gain.setValueAtTime(this.crowdGain.gain.value, t);
     this.crowdGain.gain.linearRampToValueAtTime(0.65, t + 0.4);
   }
 
   fadeCrowdRoar() {
-    if (!this.ctx || !this.crowdGain) return;
+    this.shouldPlayCrowdRoar = false;
+    if (!this.initialized || !this.ctx || !this.crowdGain) return;
     const t = this.ctx.currentTime;
     this.crowdGain.gain.setValueAtTime(this.crowdGain.gain.value, t);
     this.crowdGain.gain.linearRampToValueAtTime(0.0001, t + 2.5);
@@ -366,3 +385,4 @@ class WorldCupAudioSynth {
 }
 
 export const audioSynth = new WorldCupAudioSynth();
+

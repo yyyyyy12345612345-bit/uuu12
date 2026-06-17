@@ -15,7 +15,7 @@ interface WorldCup3DIntroProps {
 // ---------------------------------------------------------------------
 // 1. Procedural Texture Generators (AAA PBR Packings)
 // ---------------------------------------------------------------------
-function createConcreteTexture(): THREE.CanvasTexture | null {
+const createConcreteTexture = (): THREE.CanvasTexture | null => {
   if (typeof document === 'undefined') return null;
   const canvas = document.createElement('canvas');
   canvas.width = 512;
@@ -50,9 +50,9 @@ function createConcreteTexture(): THREE.CanvasTexture | null {
   texture.wrapT = THREE.RepeatWrapping;
   texture.repeat.set(2, 4);
   return texture;
-}
+};
 
-function createPitchTexture(): THREE.CanvasTexture | null {
+const createPitchTexture = (): THREE.CanvasTexture | null => {
   if (typeof document === 'undefined') return null;
   const canvas = document.createElement('canvas');
   canvas.width = 1024;
@@ -98,10 +98,32 @@ function createPitchTexture(): THREE.CanvasTexture | null {
   ctx.strokeRect(canvas.width - 70, canvas.height / 2 - 60, 50, 120);
 
   return new THREE.CanvasTexture(canvas);
-}
+};
+
+const createTextTexture = (text: string): THREE.CanvasTexture | null => {
+  if (typeof document === 'undefined') return null;
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  ctx.fillStyle = 'rgba(0,0,0,0)';
+  ctx.fillRect(0, 0, 512, 128);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '900 64px "Outfit", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, 256, 64);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.minFilter = THREE.LinearFilter;
+  return texture;
+};
 
 // ---------------------------------------------------------------------
-// 2. Custom Volumetric Spotlight Shaders
+// 2. Custom GLSL Shaders
 // ---------------------------------------------------------------------
 const volumetricVertexShader = `
   varying vec3 vNormal;
@@ -120,18 +142,12 @@ const volumetricFragmentShader = `
   uniform vec3 uColor;
 
   void main() {
-    // Fade out down the length of the volumetric cone
     float distFade = smoothstep(12.0, 0.0, -vPosition.y);
-    // Soft outer boundaries
     float edgeFade = pow(1.0 - max(dot(vNormal, vec3(0.0, 0.0, 1.0)), 0.0), 3.0);
-
     gl_FragColor = vec4(uColor * uGlow, distFade * edgeFade * 0.22);
   }
 `;
 
-// ---------------------------------------------------------------------
-// 3. Custom Skin Subsurface Scattering (SSS) & Sweat Shaders
-// ---------------------------------------------------------------------
 const skinVertexShader = `
   varying vec3 vNormal;
   varying vec3 vViewPosition;
@@ -162,14 +178,13 @@ const skinFragmentShader = `
     vec3 viewDir = normalize(vViewPosition);
     vec3 lightDir = normalize(uLightPos - vPosition);
 
-    // Standard diffuse light
     float diffuse = max(dot(normal, lightDir), 0.0);
 
-    // Subsurface scattering (SSS) approximation: red light bleeding when backlit
+    // Subsurface scattering (SSS) approximation
     float sss = pow(max(dot(viewDir, -lightDir), 0.0), 4.0) * 0.45;
     vec3 sssColor = vec3(0.95, 0.18, 0.12) * sss;
 
-    // Specular sweat glisten (high specular, low roughness)
+    // Specular sweat glisten
     vec3 halfDir = normalize(lightDir + viewDir);
     float specular = pow(max(dot(normal, halfDir), 0.0), 64.0) * uSweatGlisten;
 
@@ -180,9 +195,6 @@ const skinFragmentShader = `
   }
 `;
 
-// ---------------------------------------------------------------------
-// 4. Neon Football Shaders
-// ---------------------------------------------------------------------
 const footballVertexShader = `
   varying vec3 vNormal;
   varying vec3 vViewPosition;
@@ -260,9 +272,6 @@ const footballFragmentShader = `
   }
 `;
 
-// ---------------------------------------------------------------------
-// 5. Crowd & Fireworks Shaders
-// ---------------------------------------------------------------------
 const crowdVertexShader = `
   attribute vec3 aRandoms; // x: speed, y: phase, z: seed
   uniform float uTime;
@@ -386,7 +395,19 @@ const particleVertexShader = `
     }
     else if (uStage < 4.5) {
       vec3 targetPos = mix(aTrophyPos, aLogoPos, step(0.5, aRandomVal.x));
-      currentPos = mix(currentPos, targetPos, clamp(uReassemblyTime, 0.0, 1.0));
+      
+      // Calculate a vortex spiral path
+      float angle = (1.0 - uReassemblyTime) * 3.5 * (1.0 + aRandomVal.y);
+      float c = cos(angle);
+      float s = sin(angle);
+      
+      // Interpolate position
+      vec3 lerped = mix(currentPos, targetPos, clamp(uReassemblyTime, 0.0, 1.0));
+      
+      // Apply spiral rotation around the Y axis
+      float spiralX = lerped.x * c - lerped.z * s;
+      float spiralZ = lerped.x * s + lerped.z * c;
+      currentPos = vec3(spiralX, lerped.y, spiralZ);
     }
     else {
       vec3 targetPos = mix(aTrophyPos, aLogoPos, step(0.5, aRandomVal.x));
@@ -429,8 +450,124 @@ const particleFragmentShader = `
   }
 `;
 
+// Volumetric cloud sky dome shaders
+const skyVertexShader = `
+  varying vec3 vWorldPosition;
+  void main() {
+    vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+    vWorldPosition = worldPosition.xyz;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const skyFragmentShader = `
+  varying vec3 vWorldPosition;
+  uniform float uTime;
+
+  float hash(vec3 p) {
+    p = fract(p * 0.3183099 + .1);
+    p *= 17.0;
+    return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+  }
+  
+  float noise(vec3 x) {
+    vec3 i = floor(x);
+    vec3 f = fract(x);
+    f = f*f*(3.0-2.0*f);
+    return mix(mix(mix(hash(i+vec3(0,0,0)), hash(i+vec3(1,0,0)),f.x),
+                   mix(hash(i+vec3(0,1,0)), hash(i+vec3(1,1,0)),f.x),f.y),
+               mix(mix(hash(i+vec3(0,0,1)), hash(i+vec3(1,0,1)),f.x),
+                   mix(hash(i+vec3(0,1,1)), hash(i+vec3(1,1,1)),f.x),f.y),f.z);
+  }
+
+  float fbm(vec3 p) {
+    float v = 0.0;
+    float a = 0.5;
+    vec3 shift = vec3(100.0);
+    for (int i = 0; i < 4; ++i) {
+      v += a * noise(p);
+      p = p * 2.0 + shift;
+      a *= 0.5;
+    }
+    return v;
+  }
+
+  void main() {
+    vec3 dir = normalize(vWorldPosition);
+    vec3 skyColor = mix(vec3(0.01, 0.02, 0.05), vec3(0.04, 0.07, 0.15), max(dir.y, 0.0));
+    
+    vec3 cloudCoord = dir * 3.5 + vec3(uTime * 0.02, 0.0, uTime * 0.01);
+    float cloudNoise = fbm(cloudCoord);
+    float density = smoothstep(0.4, 0.8, cloudNoise) * 0.45;
+    
+    vec3 glowColor = vec3(0.98, 0.75, 0.2) * 0.18;
+    vec3 finalColor = mix(skyColor, skyColor + glowColor, density);
+    
+    gl_FragColor = vec4(finalColor, 1.0);
+  }
+`;
+
+// 3D molten gold liquid preloader text shader
+const textLoadingFragmentShader = `
+  uniform sampler2D uTextTex;
+  uniform float uProgress;
+  uniform float uTime;
+  varying vec2 vUv;
+
+  float noise2d(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+  }
+
+  float smoothNoise2d(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = noise2d(i + vec2(0.0, 0.0));
+    float b = noise2d(i + vec2(1.0, 0.0));
+    float c = noise2d(i + vec2(0.0, 1.0));
+    float d = noise2d(i + vec2(1.0, 1.0));
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+  }
+
+  float fbm2d(vec2 p) {
+    float v = 0.0;
+    float a = 0.5;
+    for (int i = 0; i < 3; i++) {
+      v += a * smoothNoise2d(p);
+      p *= 2.0;
+      a *= 0.5;
+    }
+    return v;
+  }
+
+  void main() {
+    vec2 flippedUv = vec2(1.0 - vUv.x, vUv.y);
+    vec4 textAlpha = texture2D(uTextTex, flippedUv);
+    if (textAlpha.a < 0.1) discard;
+
+    float wave = sin(vUv.x * 12.0 + uTime * 5.0) * 0.04;
+    float threshold = uProgress + wave;
+    float fill = step(vUv.y, threshold);
+
+    vec3 goldColor = vec3(1.0, 0.82, 0.2);
+    vec3 darkGold = vec3(0.42, 0.25, 0.05);
+
+    float n = fbm2d(vUv * 15.0 + vec2(0.0, -uTime * 1.5));
+    vec3 liquidColor = mix(darkGold, goldColor, n * 1.4);
+
+    float borderDist = abs(vUv.y - threshold);
+    float glow = smoothstep(0.07, 0.0, borderDist) * 1.5;
+    vec3 glowColor = vec3(1.0, 0.95, 0.6) * glow;
+
+    vec3 emptyColor = vec3(1.0) * 0.12;
+    vec3 finalColor = mix(emptyColor, liquidColor + glowColor, fill);
+    
+    gl_FragColor = vec4(finalColor, textAlpha.a * (fill * 0.95 + 0.15));
+  }
+`;
+
 // ---------------------------------------------------------------------
-// 6. Volumetric Spotlights & Geometries
+// 3. Sub-Components (Arrow Functions to Eliminate Hoisting Issues)
 // ---------------------------------------------------------------------
 interface SpotlightProps {
   position: [number, number, number];
@@ -439,13 +576,12 @@ interface SpotlightProps {
   glow: number;
 }
 
-function VolumetricSpotlight({ position, targetPos, color, glow }: SpotlightProps) {
+const VolumetricSpotlight = ({ position, targetPos, color, glow }: SpotlightProps) => {
   const lightRef = useRef<THREE.SpotLight>(null);
   const beamRef = useRef<THREE.Mesh>(null);
 
   const beamColor = useMemo(() => new THREE.Color(color), [color]);
   const beamGeometry = useMemo(() => {
-    // Open cone for volumetric beam
     const geom = new THREE.CylinderGeometry(0.1, 3.5, 12.0, 16, 1, true);
     geom.translate(0, -6.0, 0); // origin at top vertex
     return geom;
@@ -462,11 +598,9 @@ function VolumetricSpotlight({ position, targetPos, color, glow }: SpotlightProp
 
   useFrame(() => {
     if (lightRef.current && beamRef.current) {
-      // Look at target position
       lightRef.current.target.position.set(...targetPos);
       lightRef.current.target.updateMatrixWorld();
 
-      // Align volumetric cone mesh rotation with spotlight vector
       const dir = new THREE.Vector3().set(...targetPos).sub(lightRef.current.position).normalize();
       const up = new THREE.Vector3(0, 1, 0);
       const quat = new THREE.Quaternion().setFromUnitVectors(up, dir);
@@ -485,7 +619,6 @@ function VolumetricSpotlight({ position, targetPos, color, glow }: SpotlightProp
         penumbra={0.6}
         castShadow
       />
-      {/* Volumetric mesh beam */}
       <mesh ref={beamRef} position={position} geometry={beamGeometry}>
         <shaderMaterial
           vertexShader={volumetricVertexShader}
@@ -499,9 +632,9 @@ function VolumetricSpotlight({ position, targetPos, color, glow }: SpotlightProp
       </mesh>
     </group>
   );
-}
+};
 
-function StadiumStands() {
+const StadiumStands = () => {
   const standsGroup = useMemo(() => {
     const group = new THREE.Group();
     for (let i = 0; i < 4; i++) {
@@ -523,9 +656,50 @@ function StadiumStands() {
   }, []);
 
   return <primitive object={standsGroup} />;
-}
+};
 
-function PlayerTunnel() {
+const GoalPosts = () => {
+  const postMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.4 }), []);
+  const netMaterial = useMemo(() => new THREE.MeshBasicMaterial({ color: '#ffffff', wireframe: true, transparent: true, opacity: 0.12 }), []);
+
+  return (
+    <group>
+      {/* Left goal (X = -10.5) */}
+      <group position={[-10.5, 0, 11.0]} rotation={[0, Math.PI / 2, 0]}>
+        <mesh position={[0, 1.0, -1.8]} material={postMaterial}>
+          <cylinderGeometry args={[0.06, 0.06, 2.0, 8]} />
+        </mesh>
+        <mesh position={[0, 1.0, 1.8]} material={postMaterial}>
+          <cylinderGeometry args={[0.06, 0.06, 2.0, 8]} />
+        </mesh>
+        <mesh position={[0, 2.0, 0]} rotation={[Math.PI / 2, 0, 0]} material={postMaterial}>
+          <cylinderGeometry args={[0.06, 0.06, 3.6, 8]} />
+        </mesh>
+        <mesh position={[-0.6, 1.0, 0]} material={netMaterial}>
+          <boxGeometry args={[1.2, 2.0, 3.6]} />
+        </mesh>
+      </group>
+
+      {/* Right goal (X = 10.5) */}
+      <group position={[10.5, 0, 11.0]} rotation={[0, -Math.PI / 2, 0]}>
+        <mesh position={[0, 1.0, -1.8]} material={postMaterial}>
+          <cylinderGeometry args={[0.06, 0.06, 2.0, 8]} />
+        </mesh>
+        <mesh position={[0, 1.0, 1.8]} material={postMaterial}>
+          <cylinderGeometry args={[0.06, 0.06, 2.0, 8]} />
+        </mesh>
+        <mesh position={[0, 2.0, 0]} rotation={[Math.PI / 2, 0, 0]} material={postMaterial}>
+          <cylinderGeometry args={[0.06, 0.06, 3.6, 8]} />
+        </mesh>
+        <mesh position={[-0.6, 1.0, 0]} material={netMaterial}>
+          <boxGeometry args={[1.2, 2.0, 3.6]} />
+        </mesh>
+      </group>
+    </group>
+  );
+};
+
+const PlayerTunnel = () => {
   const wallMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#18181b',
     roughness: 0.8,
@@ -535,39 +709,31 @@ function PlayerTunnel() {
 
   const puddleMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#09090b',
-    roughness: 0.02, // ultra shiny reflecting puddles
+    roughness: 0.02,
     metalness: 0.85
   }), []);
 
   return (
     <group>
-      {/* Tunnel walls positioned behind stadium Z < 0 */}
-      {/* Tunnel Floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, -7.5]} material={puddleMat}>
         <planeGeometry args={[5.5, 15]} />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, -7.5]} material={wallMat}>
         <planeGeometry args={[6.5, 15]} />
       </mesh>
-      {/* Tunnel Left Wall */}
       <mesh position={[-3.0, 1.6, -7.5]} rotation={[0, Math.PI / 2, 0]} material={wallMat}>
         <planeGeometry args={[15, 3.2]} />
       </mesh>
-      {/* Tunnel Right Wall */}
       <mesh position={[3.0, 1.6, -7.5]} rotation={[0, -Math.PI / 2, 0]} material={wallMat}>
         <planeGeometry args={[15, 3.2]} />
       </mesh>
-      {/* Tunnel Ceiling */}
       <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 3.2, -7.5]} material={wallMat}>
         <planeGeometry args={[6.5, 15]} />
       </mesh>
     </group>
   );
-}
+};
 
-// ---------------------------------------------------------------------
-// 7. High-Fidelity Procedural Player Mesh (Sweat & SSS skin shaders)
-// ---------------------------------------------------------------------
 interface PlayerProps {
   position: [number, number, number];
   isKicker?: boolean;
@@ -576,7 +742,7 @@ interface PlayerProps {
   rotationY?: number;
 }
 
-function PlayerModel({ position, isKicker, runningOffset = 0, kickProgress = 0, rotationY = 0 }: PlayerProps) {
+const PlayerModel = ({ position, isKicker, runningOffset = 0, kickProgress = 0, rotationY = 0 }: PlayerProps) => {
   const groupRef = useRef<THREE.Group>(null);
   const leftLegRef = useRef<THREE.Group>(null);
   const rightLegRef = useRef<THREE.Group>(null);
@@ -587,15 +753,14 @@ function PlayerModel({ position, isKicker, runningOffset = 0, kickProgress = 0, 
   const shirtMat = useMemo(() => new THREE.MeshStandardMaterial({ color: isKicker ? '#e11d48' : '#2563eb', roughness: 0.55 }), [isKicker]);
   const shortsMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#0f172a', roughness: 0.6 }), []);
 
-  // Custom Skin Material using Subsurface Scattering and sweat glisten
   const skinMaterial = useMemo(() => {
     return new THREE.ShaderMaterial({
       vertexShader: skinVertexShader,
       fragmentShader: skinFragmentShader,
       uniforms: {
-        uSkinColor: { value: new THREE.Color('#fca5a5') }, // pinkish skin
+        uSkinColor: { value: new THREE.Color('#fca5a5') },
         uSweatGlisten: { value: 0.8 },
-        uLightPos: { value: new THREE.Vector3(0, 10, 11) } // stadium light center
+        uLightPos: { value: new THREE.Vector3(0, 10, 11) }
       }
     });
   }, []);
@@ -617,7 +782,6 @@ function PlayerModel({ position, isKicker, runningOffset = 0, kickProgress = 0, 
         torsoRef.current.position.y = 1.35 + Math.abs(Math.sin(t * 2.0)) * 0.08;
       }
     } else {
-      // Bicycle flip kick interpolation
       const p = kickProgress;
       if (groupRef.current) {
         groupRef.current.position.y = position[1] + Math.sin(p * Math.PI) * 2.5;
@@ -634,33 +798,27 @@ function PlayerModel({ position, isKicker, runningOffset = 0, kickProgress = 0, 
 
   return (
     <group ref={groupRef} position={position} rotation={[0, rotationY, 0]}>
-      {/* Torso */}
       <mesh ref={torsoRef} position={[0, 1.35, 0]} material={shirtMat}>
         <cylinderGeometry args={[0.22, 0.18, 0.7, 8]} />
       </mesh>
-      {/* Head with SSS skin */}
       <mesh position={[0, 1.85, 0]} material={skinMaterial}>
         <sphereGeometry args={[0.16, 8, 8]} />
       </mesh>
-      {/* Left leg */}
       <group ref={leftLegRef} position={[-0.12, 1.0, 0]}>
         <mesh position={[0, -0.35, 0]} material={shortsMat}>
           <cylinderGeometry args={[0.08, 0.06, 0.7, 8]} />
         </mesh>
       </group>
-      {/* Right leg */}
       <group ref={rightLegRef} position={[0.12, 1.0, 0]}>
         <mesh position={[0, -0.35, 0]} material={shortsMat}>
           <cylinderGeometry args={[0.08, 0.06, 0.7, 8]} />
         </mesh>
       </group>
-      {/* Left arm */}
       <group ref={leftArmRef} position={[-0.26, 1.6, 0]}>
         <mesh position={[0, -0.25, 0]} material={shirtMat}>
           <cylinderGeometry args={[0.06, 0.05, 0.5, 8]} />
         </mesh>
       </group>
-      {/* Right arm */}
       <group ref={rightArmRef} position={[0.26, 1.6, 0]}>
         <mesh position={[0, -0.25, 0]} material={shirtMat}>
           <cylinderGeometry args={[0.06, 0.05, 0.5, 8]} />
@@ -668,22 +826,19 @@ function PlayerModel({ position, isKicker, runningOffset = 0, kickProgress = 0, 
       </group>
     </group>
   );
-}
+};
 
-// ---------------------------------------------------------------------
-// 8. 24K Gold Lathe Trophy
-// ---------------------------------------------------------------------
 interface TrophyProps {
   position: [number, number, number];
   riseProgress: number;
 }
 
-function WorldCupTrophy({ position, riseProgress }: TrophyProps) {
+const WorldCupTrophy = ({ position, riseProgress }: TrophyProps) => {
   const trophyRef = useRef<THREE.Group>(null);
 
   const goldMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#fbbf24',
-    metalness: 0.95, // high reflective gold
+    metalness: 0.95,
     roughness: 0.08,
     emissive: '#78350f',
     emissiveIntensity: 0.15
@@ -730,10 +885,92 @@ function WorldCupTrophy({ position, riseProgress }: TrophyProps) {
       </mesh>
     </group>
   );
+};
+
+const SkyDome = ({ stage }: { stage: number }) => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const uniforms = useRef({
+    uTime: { value: 0 }
+  });
+
+  useFrame((state) => {
+    uniforms.current.uTime.value = state.clock.getElapsedTime();
+    if (meshRef.current) {
+      meshRef.current.position.copy(state.camera.position);
+    }
+  });
+
+  if (stage === 0) return null;
+
+  return (
+    <mesh ref={meshRef} scale={[-1, 1, 1]}>
+      <sphereGeometry args={[45, 32, 15]} />
+      <shaderMaterial
+        vertexShader={skyVertexShader}
+        fragmentShader={skyFragmentShader}
+        uniforms={uniforms.current}
+        depthWrite={false}
+      />
+    </mesh>
+  );
+};
+
+interface VolumetricLoadingTextProps {
+  progress: number;
+  stage: number;
 }
 
+const VolumetricLoadingText = ({ progress, stage }: VolumetricLoadingTextProps) => {
+  const textTexture = useMemo(() => createTextTexture('LOADING'), []);
+  const uniforms = useRef({
+    uTextTex: { value: textTexture },
+    uProgress: { value: 0.0 },
+    uTime: { value: 0.0 }
+  });
+
+  useFrame((state) => {
+    uniforms.current.uTime.value = state.clock.getElapsedTime();
+    uniforms.current.uProgress.value = progress / 100;
+  });
+
+  if (stage !== 0) return null;
+
+  return (
+    <mesh position={[0, 1.6, -8.0]} rotation={[0, Math.PI, 0]}>
+      <planeGeometry args={[4.5, 1.125]} />
+      <shaderMaterial
+        vertexShader={`
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `}
+        fragmentShader={textLoadingFragmentShader}
+        uniforms={uniforms.current}
+        transparent={true}
+        depthWrite={false}
+      />
+    </mesh>
+  );
+};
+
+const StadiumPitch = () => {
+  const pitchTexture = useMemo(() => createPitchTexture(), []);
+  return (
+    <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0.01, 11.0]}>
+      <planeGeometry args={[22, 16]} />
+      {pitchTexture ? (
+        <meshStandardMaterial map={pitchTexture} roughness={0.7} />
+      ) : (
+        <meshStandardMaterial color="#166534" roughness={0.7} />
+      )}
+    </mesh>
+  );
+};
+
 // ---------------------------------------------------------------------
-// 9. Interactive Scene Coordinator (with 30FPS throttling in background)
+// 4. Interactive Scene Coordinator (with 30FPS throttling in background)
 // ---------------------------------------------------------------------
 interface SceneContentProps {
   stage: number;
@@ -745,9 +982,11 @@ interface SceneContentProps {
   shockwaveScale: number;
   shockwaveGlow: number;
   particlesReassembly: number;
+  cameraTargetPos: React.MutableRefObject<THREE.Vector3>;
+  cameraLookAtTarget: React.MutableRefObject<THREE.Vector3>;
 }
 
-function SceneContent({
+const SceneContent = ({
   stage,
   mouse,
   kickProgress,
@@ -756,8 +995,10 @@ function SceneContent({
   fireworksActive,
   shockwaveScale,
   shockwaveGlow,
-  particlesReassembly
-}: SceneContentProps) {
+  particlesReassembly,
+  cameraTargetPos,
+  cameraLookAtTarget
+}: SceneContentProps) => {
   const { camera } = useThree();
   const footballRef = useRef<THREE.Mesh>(null);
   const particlesRef = useRef<THREE.Points>(null);
@@ -787,7 +1028,6 @@ function SceneContent({
     }
   });
 
-  // Calculate Crowd coordinates
   const { crowdPositions, crowdColors, crowdRandoms } = useMemo(() => {
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
     const count = isMobile ? 2500 : 7000;
@@ -811,7 +1051,7 @@ function SceneContent({
       if (rVal < 0.25) colorVal.set('#fbbf24');
       else if (rVal < 0.50) colorVal.set('#f43f5e');
       else if (rVal < 0.75) colorVal.set('#3b82f6');
-      else colorVal.set(1.7, 1.7, 1.7); // Phone flash bulbs
+      else colorVal.set(1.7, 1.7, 1.7); // Phone flashes
 
       col[i * 3] = colorVal.r;
       col[i * 3 + 1] = colorVal.g;
@@ -825,7 +1065,6 @@ function SceneContent({
     return { crowdPositions: pos, crowdColors: col, crowdRandoms: rnd };
   }, []);
 
-  // Calculate Fireworks coordinates
   const { fireworksPos, fireworksVel, fireworksCol, fireworksData } = useMemo(() => {
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
     const count = isMobile ? 1200 : 3500;
@@ -868,7 +1107,6 @@ function SceneContent({
     return { fireworksPos: pos, fireworksVel: vel, fireworksCol: col, fireworksData: dat };
   }, []);
 
-  // Calculate GPU Reassembly coordinates
   const { positions, randomDirs, trophyPositions, logoPositions, randomVals } = useMemo(() => {
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
     const count = isMobile ? 15000 : 50000;
@@ -933,7 +1171,7 @@ function SceneContent({
   useFrame((state) => {
     const elapsed = state.clock.getElapsedTime();
 
-    // R3F Render Throttling Lifecycle (Limit background rendering to 30 FPS at Stage 5 to save CPU/GPU)
+    // R3F Render Throttling (30 FPS at Stage 5 to save CPU/GPU)
     if (stage === 5) {
       const delta = elapsed - lastFrameTime.current;
       if (delta < 0.033) {
@@ -943,7 +1181,6 @@ function SceneContent({
       lastFrameTime.current = elapsed;
     }
 
-    // Update Spatial Audio listener coordinates to follow camera position and rotation quaternions
     audioSynth.updateListener(camera.position, camera.quaternion);
 
     uniforms.current.football.uTime.value = elapsed;
@@ -959,40 +1196,34 @@ function SceneContent({
     uniforms.current.particles.uZoomProgress.value = ballZoom;
 
     // Cinematic Camera tracking per stage
-    if (stage === 0) {
-      // Tunnel View
-      camera.position.set(0, 1.6, -11.0);
-      camera.lookAt(0, 1.6, 0);
-    } 
-    else if (stage === 1) {
-      // Sweep sweep 360-degree orbit
-      const sweepAngle = elapsed * 0.38;
-      camera.position.x = Math.sin(sweepAngle) * 13.5;
-      camera.position.z = Math.cos(sweepAngle) * 13.5 + 11.0;
-      camera.position.y = 5.0 + Math.sin(elapsed * 0.6) * 1.4;
-      camera.lookAt(0, 1.2, 11.0);
+    if (stage === 0 || stage === 1) {
+      camera.position.copy(cameraTargetPos.current);
+      camera.lookAt(cameraLookAtTarget.current);
     } 
     else if (stage === 2) {
-      // Interactive close look around the trophy/ball
-      camera.position.x += (mouse.current.x * 2.2 - camera.position.x) * 0.05;
-      camera.position.y += (2.2 + mouse.current.y * 0.8 - camera.position.y) * 0.05;
-      camera.position.z += (15.5 - camera.position.z) * 0.05;
-      camera.lookAt(0, 1.5, 11.0);
+      const targetCamX = mouse.current.x * 2.2;
+      const targetCamY = 2.2 + mouse.current.y * 0.8;
+      const targetCamZ = 15.5;
+
+      camera.position.x += (targetCamX - camera.position.x) * 0.05;
+      camera.position.y += (targetCamY - camera.position.y) * 0.05;
+      camera.position.z += (targetCamZ - camera.position.z) * 0.05;
+
+      const lookAtTarget = new THREE.Vector3(mouse.current.x * 0.8, 1.5 + mouse.current.y * 0.3, 11.0);
+      camera.lookAt(lookAtTarget);
     } 
     else if (stage === 3) {
-      // Locked camera focus point
       camera.position.set(0, 2.3, 15.5);
       camera.lookAt(0, 1.6, 11.0);
     } 
     else if (stage >= 4) {
-      // Pull back layout drift
       camera.position.x += (Math.sin(elapsed * 0.25) * 1.2 - camera.position.x) * 0.03;
       camera.position.y += (2.8 + Math.cos(elapsed * 0.2) * 0.6 - camera.position.y) * 0.03;
       camera.position.z += (18.5 - camera.position.z) * 0.03;
       camera.lookAt(0, 1.4, 11.0);
     }
 
-    // Ball movement calculations
+    // Ball movement
     if (footballRef.current) {
       if (stage === 0 || stage === 1) {
         footballRef.current.position.set(0, 1.6 + Math.sin(elapsed * 2.0) * 0.15, 11.0);
@@ -1003,7 +1234,6 @@ function SceneContent({
         footballRef.current.rotation.y = elapsed * 0.45;
       } 
       else if (stage === 3) {
-        // Bicycle kick zoom past camera (starts at Z=11.0, hits camera around Z=15.5)
         const zPos = 11.0 + ballZoom * 8.5;
         const yPos = 2.2 - Math.sin(ballZoom * Math.PI) * 0.3 + ballZoom * 0.3;
         footballRef.current.position.set(0, yPos, zPos);
@@ -1035,22 +1265,24 @@ function SceneContent({
       </mesh>
 
       {/* Cheering Instanced Crowd */}
-      <points>
-        <bufferGeometry>
-          <bufferAttribute attach="attributes-position" args={[crowdPositions, 3]} />
-          <bufferAttribute attach="attributes-color" args={[crowdColors, 3]} />
-          <bufferAttribute attach="attributes-aRandoms" args={[crowdRandoms, 3]} />
-        </bufferGeometry>
-        <shaderMaterial
-          vertexShader={crowdVertexShader}
-          fragmentShader={crowdFragmentShader}
-          uniforms={uniforms.current.crowd}
-          transparent={true}
-          vertexColors={true}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </points>
+      {stage > 0 && (
+        <points>
+          <bufferGeometry>
+            <bufferAttribute attach="attributes-position" args={[crowdPositions, 3]} />
+            <bufferAttribute attach="attributes-color" args={[crowdColors, 3]} />
+            <bufferAttribute attach="attributes-aRandoms" args={[crowdRandoms, 3]} />
+          </bufferGeometry>
+          <shaderMaterial
+            vertexShader={crowdVertexShader}
+            fragmentShader={crowdFragmentShader}
+            uniforms={uniforms.current.crowd}
+            transparent={true}
+            vertexColors={true}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </points>
+      )}
 
       {/* Volumetric Spotlights */}
       <VolumetricSpotlight position={[-12, 10, 2]} targetPos={[0, 0, 11]} color="#fbbf24" glow={stage === 2 ? 1.0 : 0.4} />
@@ -1113,10 +1345,10 @@ function SceneContent({
       </mesh>
     </>
   );
-}
+};
 
 // ---------------------------------------------------------------------
-// 10. Main Component Wrapper (with Visibility Lifecycle Throttling)
+// 5. Main Component Wrapper
 // ---------------------------------------------------------------------
 export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3DIntroProps) {
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -1141,6 +1373,8 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
   const [triggerChromatic, setTriggerChromatic] = useState(false);
 
   const mouseRef = useRef({ x: 0, y: 0 });
+  const cameraTargetPos = useRef(new THREE.Vector3(0, 1.6, -11.0));
+  const cameraLookAtTarget = useRef(new THREE.Vector3(0, 1.6, 0));
   const hasBeenActiveRef = useRef(false);
 
   if (isIntroActive) {
@@ -1166,6 +1400,24 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       audioSynth.stopBreathing();
+    };
+  }, []);
+
+  // User gesture AudioContext activation listener
+  useEffect(() => {
+    const resumeAudio = () => {
+      audioSynth.init();
+      const ctx = (audioSynth as any).ctx;
+      if (ctx && ctx.state === 'suspended') {
+        console.log("[WorldCup3DIntro] First user gesture detected. Resuming AudioContext...");
+        ctx.resume().catch((e: any) => console.log("Failed to resume AudioContext:", e));
+      }
+    };
+    window.addEventListener('click', resumeAudio);
+    window.addEventListener('touchstart', resumeAudio);
+    return () => {
+      window.removeEventListener('click', resumeAudio);
+      window.removeEventListener('touchstart', resumeAudio);
     };
   }, []);
 
@@ -1292,9 +1544,34 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
     const tl = gsap.timeline();
     activeTimeline.current = tl;
 
-    // Stage 1 (Stadium Reveal / 360-degree sweep)
-    tl.to({}, {
-      duration: 5.0,
+    // Reset camera positions inside the tunnel
+    cameraTargetPos.current.set(0, 1.6, -11.0);
+    cameraLookAtTarget.current.set(0, 1.6, 0);
+
+    // 1. Sprint from tunnel mouth (Aggressive Exponential Ease-In)
+    tl.to(cameraTargetPos.current, {
+      x: 0,
+      y: 1.8,
+      z: 5.5,
+      duration: 1.3,
+      ease: 'power3.in',
+      onUpdate: () => {
+        cameraLookAtTarget.current.set(0, 1.2, 11.0);
+      }
+    });
+
+    // 2. Swooping 360-degree orbital sweep around the pitch
+    const orbitObj = { angle: 0 };
+    tl.to(orbitObj, {
+      angle: Math.PI * 2,
+      duration: 5.2,
+      ease: 'power1.inOut',
+      onUpdate: () => {
+        cameraTargetPos.current.x = Math.sin(orbitObj.angle) * 13.5;
+        cameraTargetPos.current.z = Math.cos(orbitObj.angle) * 13.5 + 11.0;
+        cameraTargetPos.current.y = 4.5 + Math.sin(orbitObj.angle * 2.0) * 1.2;
+        cameraLookAtTarget.current.set(0, 1.2, 11.0);
+      },
       onComplete: () => {
         triggerTrophyRise();
       }
@@ -1337,32 +1614,48 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
     const tl = gsap.timeline();
     activeTimeline.current = tl;
 
-    // 1. Kicker joints backflip rotation
+    // Start timeline at speed 1.0
+    tl.timeScale(1.0);
+
+    // Kicking flip starts
     const kickObj = { val: 0 };
     tl.to(kickObj, {
       val: 1.0,
-      duration: 0.7,
-      ease: 'power1.inOut',
+      duration: 1.6, // Longer duration to allow timeScale to breathe
+      ease: 'power2.inOut',
       onUpdate: () => setKickProgress(kickObj.val)
-    })
-    // 2. Ball zooms to camera (hits camera lens at t = 0.5s)
+    });
+
+    // Slow down timescale to 0.18 during the flip (Bullet Time)
+    tl.to(tl, {
+      timeScale: 0.18,
+      duration: 0.6,
+      ease: 'power1.out'
+    }, 0.1); // trigger early during the kick
+
+    // Zoom the ball to camera
     const zoomObj = { val: 0 };
     tl.to(zoomObj, {
       val: 1.0,
-      duration: 0.5,
+      duration: 0.8,
       ease: 'power4.in',
       onStart: () => {
         audioSynth.playKick();
         audioSynth.boostCrowdRoar();
         setFireworksActive(true);
-
-        // Localized firework explosions in 3D Space (Left/Right/Center)
         setTimeout(() => audioSynth.playFirework([-8, 8, 8]), 50);
         setTimeout(() => audioSynth.playFirework([8, 8, 8]), 150);
         setTimeout(() => audioSynth.playFirework([0, 10, 5]), 250);
       },
       onUpdate: () => setBallZoom(zoomObj.val)
-    }, '-=0.45')
+    }, '>-=0.3'); // start Zooming as the kick reaches contact
+
+    // Rapidly speed up timeScale back to 2.2x for high speed impact!
+    tl.to(tl, {
+      timeScale: 2.2,
+      duration: 0.4,
+      ease: 'power2.in'
+    }, '>-=0.6')
     // 3. Screen Hit: Explosion -> Volumetric Shockwave -> Shake -> Chromatic Aberration
     .to({}, {
       duration: 0.1,
@@ -1432,75 +1725,85 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
       } ${triggerShake ? 'animate-screen-shake' : ''}`}
     >
       {/* 3D WebGL Canvas */}
-      {isLoaded && (
-        <div
-          onClick={cinematicStage === 2 ? triggerKickoff : undefined}
-          className={`absolute inset-0 w-full h-full z-10 ${cinematicStage === 2 ? 'cursor-pointer' : 'cursor-default'}`}
-          title={cinematicStage === 2 ? "Click to kick off! ⚽" : undefined}
+      <div
+        onClick={cinematicStage === 2 ? triggerKickoff : undefined}
+        className={`absolute inset-0 w-full h-full z-10 ${cinematicStage === 2 ? 'cursor-pointer' : 'cursor-default'}`}
+        title={cinematicStage === 2 ? "Click to kick off! ⚽" : undefined}
+      >
+        <Canvas
+          gl={{ antialias: true, alpha: true }}
+          camera={{ position: [0, 1.6, -11.0], fov: 60 }}
+          dpr={[1, typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 2) : 1]}
         >
-          <Canvas
-            gl={{ antialias: true, alpha: true }}
-            camera={{ position: [0, 1.6, -11.0], fov: 60 }}
-            dpr={[1, typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 2) : 1]}
-          >
-            <ambientLight intensity={0.25} />
-            <directionalLight position={[-6, 8, 4]} intensity={1.2} />
+          <ambientLight intensity={0.25} />
+          <directionalLight position={[-6, 8, 4]} intensity={1.2} />
 
-            {/* Stadium Pitch */}
-            <StadiumPitch />
+          {/* Volumetric Clouds Sky Dome */}
+          <SkyDome stage={cinematicStage} />
 
-            {/* Goal Posts */}
-            <GoalPosts />
+          {/* Stadium Pitch */}
+          {cinematicStage > 0 && <StadiumPitch />}
 
-            {/* Tunnel preloader mesh walls */}
-            <PlayerTunnel />
+          {/* Goal Posts */}
+          {cinematicStage > 0 && <GoalPosts />}
 
-            {/* Procedural stands */}
-            <StadiumStands />
+          {/* Tunnel preloader mesh walls */}
+          <PlayerTunnel />
 
-            {/* Stadium Cheering Players */}
-            {/* Team A (Red) */}
-            <PlayerModel position={[-3.5, 0, 8.5]} rotationY={1.2} />
-            <PlayerModel position={[-7.0, 0, 12.0]} rotationY={0.9} />
-            
-            {/* Team B (Blue) */}
-            <PlayerModel position={[4.0, 0, 9.5]} rotationY={-1.1} />
-            <PlayerModel position={[6.5, 0, 13.5]} rotationY={-0.8} />
+          {/* 3D Molten Gold Liquid Dissolution Text */}
+          <VolumetricLoadingText progress={loadingProgress} stage={cinematicStage} />
 
-            {/* Kicker Player at Center Spot */}
-            <PlayerModel
-              position={[0, 0, 10.35]}
-              isKicker={true}
-              kickProgress={kickProgress}
-              rotationY={0.0}
-            />
+          {/* Procedural stands */}
+          {cinematicStage > 0 && <StadiumStands />}
 
-            {/* World Cup Trophy */}
-            {cinematicStage >= 2 && (
-              <WorldCupTrophy position={[0, 0, 9.0]} riseProgress={trophyRise} />
-            )}
+          {/* Stadium Cheering Players */}
+          {cinematicStage > 0 && (
+            <>
+              {/* Team A (Red) */}
+              <PlayerModel position={[-3.5, 0, 8.5]} rotationY={1.2} />
+              <PlayerModel position={[-7.0, 0, 12.0]} rotationY={0.9} />
+              
+              {/* Team B (Blue) */}
+              <PlayerModel position={[4.0, 0, 9.5]} rotationY={-1.1} />
+              <PlayerModel position={[6.5, 0, 13.5]} rotationY={-0.8} />
 
-            {/* Custom Scene Logic & Particles */}
-            <SceneContent
-              stage={cinematicStage}
-              mouse={mouseRef}
-              kickProgress={kickProgress}
-              trophyRise={trophyRise}
-              ballZoom={ballZoom}
-              fireworksActive={fireworksActive}
-              shockwaveScale={shockwaveScale}
-              shockwaveGlow={shockwaveGlow}
-              particlesReassembly={particlesReassembly}
-            />
-          </Canvas>
-        </div>
-      )}
+              {/* Kicker Player at Center Spot */}
+              <PlayerModel
+                position={[0, 0, 10.35]}
+                isKicker={true}
+                kickProgress={kickProgress}
+                rotationY={0.0}
+              />
+            </>
+          )}
+
+          {/* World Cup Trophy */}
+          {cinematicStage >= 2 && (
+            <WorldCupTrophy position={[0, 0, 9.0]} riseProgress={trophyRise} />
+          )}
+
+          {/* Custom Scene Logic & Particles */}
+          <SceneContent
+            stage={cinematicStage}
+            mouse={mouseRef}
+            kickProgress={kickProgress}
+            trophyRise={trophyRise}
+            ballZoom={ballZoom}
+            fireworksActive={fireworksActive}
+            shockwaveScale={shockwaveScale}
+            shockwaveGlow={shockwaveGlow}
+            particlesReassembly={particlesReassembly}
+            cameraTargetPos={cameraTargetPos}
+            cameraLookAtTarget={cameraLookAtTarget}
+          />
+        </Canvas>
+      </div>
 
       {/* Loading Overlay */}
       {!isLoaded && (
         <div
           ref={preloaderRef}
-          className="relative z-20 flex flex-col items-center justify-center text-center p-6"
+          className="relative z-20 flex flex-col items-center justify-center text-center p-6 pointer-events-none"
         >
           <canvas ref={overlayCanvasRef} className="max-w-full drop-shadow-[0_0_20px_rgba(251,191,36,0.35)]" />
           <div className="text-[#fbbf24] font-mono text-sm tracking-widest uppercase mt-4 font-bold">
@@ -1549,19 +1852,5 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
         }
       `}} />
     </div>
-  );
-}
-
-function StadiumPitch() {
-  const pitchTexture = useMemo(() => createPitchTexture(), []);
-  return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0.01, 11.0]}>
-      <planeGeometry args={[22, 16]} />
-      {pitchTexture ? (
-        <meshStandardMaterial map={pitchTexture} roughness={0.7} />
-      ) : (
-        <meshStandardMaterial color="#166534" roughness={0.7} />
-      )}
-    </mesh>
   );
 }
