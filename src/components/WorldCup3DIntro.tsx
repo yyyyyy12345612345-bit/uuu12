@@ -294,6 +294,13 @@ function SceneContent({ stage, progress, timelineRef, onComplete, mouse }: Scene
   // Correct Hook Usage: Declare geometry memoization at the top of the component, not in JSX
   const footballGeometry = useMemo(() => new THREE.IcosahedronGeometry(1.8, 3), []);
 
+  useEffect(() => {
+    console.log("[WorldCup3DIntro - SceneContent] Mounted in R3F Canvas. Camera FOV:", camera.fov);
+    return () => {
+      console.log("[WorldCup3DIntro - SceneContent] Unmounted from R3F Canvas");
+    };
+  }, [camera]);
+
   // Uniform hooks
   const uniforms = useRef({
     football: {
@@ -613,6 +620,7 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
   const containerRef = useRef<HTMLDivElement>(null);
   const activeTimeline = useRef<gsap.core.Timeline | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const preloaderRef = useRef<HTMLDivElement>(null);
 
   // States
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -623,8 +631,12 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
 
   // 1. Loading Text Screen Simulator
   useEffect(() => {
-    if (!isIntroActive) return;
+    if (!isIntroActive) {
+      console.log("[WorldCup3DIntro] Loading simulator returned early because isIntroActive is false");
+      return;
+    }
 
+    console.log("[WorldCup3DIntro] Preloader simulation starting. isIntroActive = true");
     let currentProgress = 0;
     let time = 0;
     let canvasAnimFrame: number;
@@ -701,13 +713,15 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
         currentProgress = 100;
         clearInterval(interval);
         
-        // Loading complete animation
-        gsap.to('#preloader-overlay', {
+        console.log("[WorldCup3DIntro] Loading reached 100%. Animating preloader exit...");
+        // Loading complete animation using ref instead of DOM selector
+        gsap.to(preloaderRef.current, {
           opacity: 0,
           scale: 0.95,
           duration: 0.8,
           ease: 'power2.inOut',
           onComplete: () => {
+            console.log("[WorldCup3DIntro] Preloader exit complete. Setting isLoaded to true and starting hyper-drive timer");
             setIsLoaded(true);
             triggerHyperDriveTimeout();
           }
@@ -717,6 +731,7 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
     }, 180);
 
     return () => {
+      console.log("[WorldCup3DIntro] Preloader useEffect cleanup called");
       clearInterval(interval);
       cancelAnimationFrame(canvasAnimFrame);
     };
@@ -794,18 +809,21 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
   // Prefers Reduced Motion check
   const prefersReducedMotion = useMemo(() => {
     if (typeof window === 'undefined') return false;
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const matched = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    console.log("[WorldCup3DIntro] prefers-reduced-motion matches:", matched, "(forced to false for debugging)");
+    return false; // Force false to bypass skipping the animation
   }, []);
 
   useEffect(() => {
-    if (prefersReducedMotion && isIntroActive) {
-      onComplete();
-    }
-  }, [prefersReducedMotion, isIntroActive, onComplete]);
+    console.log("[WorldCup3DIntro] mount / prop change: isIntroActive =", isIntroActive, "hasBeenActive =", hasBeenActive);
+  }, [isIntroActive, hasBeenActive]);
 
   if (prefersReducedMotion) return null;
 
-  if (!isIntroActive && !hasBeenActive) return null;
+  if (!isIntroActive && !hasBeenActive) {
+    console.log("[WorldCup3DIntro] Returning null because isIntroActive is false and has not been active yet.");
+    return null;
+  }
 
   const isBackgroundMode = cinematicStage === 4 || !isIntroActive;
 
@@ -815,7 +833,7 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
       className={`fixed inset-0 w-full h-full flex items-center justify-center font-sans overflow-hidden transition-all duration-1000 ${
         isBackgroundMode
           ? 'z-[0] pointer-events-none bg-transparent'
-          : 'z-[1000] pointer-events-auto bg-[#03050a]'
+          : 'z-[9999] pointer-events-auto bg-[#03050a]'
       }`}
     >
       {/* 3D R3F Canvas target */}
@@ -828,7 +846,7 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
           <Canvas
             gl={{ antialias: true, alpha: true }}
             camera={{ position: [0, 0, 7.5], fov: 60 }}
-            dpr={[1, Math.min(window.devicePixelRatio, 2)]}
+            dpr={[1, typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 2) : 1]}
           >
             <ambientLight intensity={0.4} />
             <pointLight position={[6, 6, 6]} intensity={1.5} color="#fbbf24" />
@@ -848,6 +866,7 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
       {/* Custom CSS/Canvas preloader overlay */}
       {!isLoaded && (
         <div
+          ref={preloaderRef}
           id="preloader-overlay"
           className="relative z-20 flex flex-col items-center justify-center text-center p-6"
         >

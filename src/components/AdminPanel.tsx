@@ -164,6 +164,7 @@ export function AdminPanel() {
   const [dashboardVisible, setDashboardVisible] = useState(false);
 
   const handleAdminIntroComplete = useCallback(() => {
+    console.log("[AdminPanel] handleAdminIntroComplete called: showAdminIntro -> false, dashboardVisible -> true");
     setShowAdminIntro(false);
     setDashboardVisible(true);
     // Smoothly stagger cards and navigation elements
@@ -619,10 +620,13 @@ export function AdminPanel() {
 
   // Trigger Admin Intro on successful login (runs on every mount/refresh)
   useEffect(() => {
+    console.log("[AdminPanel] isAdmin changed:", isAdmin);
     if (isAdmin) {
+      console.log("[AdminPanel] Triggering Intro: showAdminIntro -> true, dashboardVisible -> false");
       setShowAdminIntro(true);
       setDashboardVisible(false);
     } else {
+      console.log("[AdminPanel] Admin not logged in: dashboardVisible -> false");
       setDashboardVisible(false);
     }
   }, [isAdmin]);
