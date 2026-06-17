@@ -13,8 +13,45 @@ interface WorldCup3DIntroProps {
 }
 
 // ---------------------------------------------------------------------
-// 1. Procedural Pitch Marks Texture Generator
+// 1. Procedural Texture Generators (AAA PBR Packings)
 // ---------------------------------------------------------------------
+function createConcreteTexture(): THREE.CanvasTexture | null {
+  if (typeof document === 'undefined') return null;
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  ctx.fillStyle = '#27272a';
+  ctx.fillRect(0, 0, 512, 512);
+
+  // Concrete noise
+  for (let i = 0; i < 8000; i++) {
+    const x = Math.random() * 512;
+    const y = Math.random() * 512;
+    const size = Math.random() * 2 + 1;
+    ctx.fillStyle = Math.random() < 0.5 ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.06)';
+    ctx.fillRect(x, y, size, size);
+  }
+
+  // Cracks and lines
+  ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath();
+    ctx.moveTo(Math.random() * 512, 0);
+    ctx.lineTo(Math.random() * 512, 512);
+    ctx.stroke();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(2, 4);
+  return texture;
+}
+
 function createPitchTexture(): THREE.CanvasTexture | null {
   if (typeof document === 'undefined') return null;
   const canvas = document.createElement('canvas');
@@ -23,67 +60,128 @@ function createPitchTexture(): THREE.CanvasTexture | null {
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
 
-  // Turf base
-  ctx.fillStyle = '#15803d'; // deep grass green
+  ctx.fillStyle = '#15803d'; // turf green
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Mowed stripes
-  ctx.fillStyle = '#166534';
-  const stripeWidth = 64;
-  for (let x = 0; x < canvas.width; x += stripeWidth) {
-    if ((x / stripeWidth) % 2 === 0) {
-      ctx.fillRect(x, 0, stripeWidth, canvas.height);
+  ctx.fillStyle = '#166534'; // darker grass stripes
+  const stripeW = 64;
+  for (let x = 0; x < canvas.width; x += stripeW) {
+    if ((x / stripeW) % 2 === 0) {
+      ctx.fillRect(x, 0, stripeW, canvas.height);
     }
   }
 
-  // Draw white markers
+  // White markings
   ctx.strokeStyle = 'rgba(255,255,255,0.7)';
   ctx.lineWidth = 5;
 
-  // Pitch boundary border
   ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
 
-  // Half-way line
   ctx.beginPath();
   ctx.moveTo(canvas.width / 2, 20);
   ctx.lineTo(canvas.width / 2, canvas.height - 20);
   ctx.stroke();
 
-  // Center circle
   ctx.beginPath();
   ctx.arc(canvas.width / 2, canvas.height / 2, 85, 0, Math.PI * 2);
   ctx.stroke();
 
-  // Kickoff dot
   ctx.fillStyle = 'rgba(255,255,255,0.9)';
   ctx.beginPath();
   ctx.arc(canvas.width / 2, canvas.height / 2, 8, 0, Math.PI * 2);
   ctx.fill();
 
-  // Penalty areas (Left / Right)
-  // Left Box
+  // Penalty Boxes
   ctx.strokeRect(20, canvas.height / 2 - 120, 160, 240);
   ctx.strokeRect(20, canvas.height / 2 - 60, 50, 120);
-  // Right Box
   ctx.strokeRect(canvas.width - 180, canvas.height / 2 - 120, 160, 240);
   ctx.strokeRect(canvas.width - 70, canvas.height / 2 - 60, 50, 120);
 
-  // Penalty spots
-  ctx.beginPath();
-  ctx.arc(130, canvas.height / 2, 6, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(canvas.width - 130, canvas.height / 2, 6, 0, Math.PI * 2);
-  ctx.fill();
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.wrapS = THREE.ClampToEdgeWrapping;
-  texture.wrapT = THREE.ClampToEdgeWrapping;
-  return texture;
+  return new THREE.CanvasTexture(canvas);
 }
 
 // ---------------------------------------------------------------------
-// 2. Custom Neon Football Shaders
+// 2. Custom Volumetric Spotlight Shaders
+// ---------------------------------------------------------------------
+const volumetricVertexShader = `
+  varying vec3 vNormal;
+  varying vec3 vPosition;
+  void main() {
+    vNormal = normalize(normalMatrix * normal);
+    vPosition = position;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const volumetricFragmentShader = `
+  varying vec3 vNormal;
+  varying vec3 vPosition;
+  uniform float uGlow;
+  uniform vec3 uColor;
+
+  void main() {
+    // Fade out down the length of the volumetric cone
+    float distFade = smoothstep(12.0, 0.0, -vPosition.y);
+    // Soft outer boundaries
+    float edgeFade = pow(1.0 - max(dot(vNormal, vec3(0.0, 0.0, 1.0)), 0.0), 3.0);
+
+    gl_FragColor = vec4(uColor * uGlow, distFade * edgeFade * 0.22);
+  }
+`;
+
+// ---------------------------------------------------------------------
+// 3. Custom Skin Subsurface Scattering (SSS) & Sweat Shaders
+// ---------------------------------------------------------------------
+const skinVertexShader = `
+  varying vec3 vNormal;
+  varying vec3 vViewPosition;
+  varying vec3 vPosition;
+  varying vec2 vUv;
+  void main() {
+    vNormal = normalize(normalMatrix * normal);
+    vUv = uv;
+    vPosition = position;
+    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+    vViewPosition = -mvPosition.xyz;
+    gl_Position = projectionMatrix * mvPosition;
+  }
+`;
+
+const skinFragmentShader = `
+  varying vec3 vNormal;
+  varying vec3 vViewPosition;
+  varying vec3 vPosition;
+  varying vec2 vUv;
+
+  uniform vec3 uSkinColor;
+  uniform float uSweatGlisten;
+  uniform vec3 uLightPos;
+
+  void main() {
+    vec3 normal = normalize(vNormal);
+    vec3 viewDir = normalize(vViewPosition);
+    vec3 lightDir = normalize(uLightPos - vPosition);
+
+    // Standard diffuse light
+    float diffuse = max(dot(normal, lightDir), 0.0);
+
+    // Subsurface scattering (SSS) approximation: red light bleeding when backlit
+    float sss = pow(max(dot(viewDir, -lightDir), 0.0), 4.0) * 0.45;
+    vec3 sssColor = vec3(0.95, 0.18, 0.12) * sss;
+
+    // Specular sweat glisten (high specular, low roughness)
+    vec3 halfDir = normalize(lightDir + viewDir);
+    float specular = pow(max(dot(normal, halfDir), 0.0), 64.0) * uSweatGlisten;
+
+    vec3 baseColor = uSkinColor * (diffuse + 0.15) + sssColor;
+    baseColor += vec3(0.9, 0.95, 1.0) * specular * 0.8;
+
+    gl_FragColor = vec4(baseColor, 1.0);
+  }
+`;
+
+// ---------------------------------------------------------------------
+// 4. Neon Football Shaders
 // ---------------------------------------------------------------------
 const footballVertexShader = `
   varying vec3 vNormal;
@@ -108,7 +206,7 @@ const footballVertexShader = `
     vec3 displacedPosition = position;
     if (uDisplacementFactor > 0.0) {
       float noiseVal = hash(position + vec3(uTime * 10.0));
-      displacedPosition += normal * noiseVal * uDisplacementFactor * 0.12;
+      displacedPosition += normal * noiseVal * uDisplacementFactor * 0.15;
     }
 
     vec4 mvPosition = modelViewMatrix * vec4(displacedPosition, 1.0);
@@ -129,31 +227,30 @@ const footballFragmentShader = `
   void main() {
     vec3 p = normalize(vPosition);
 
-    // Carbon fiber panel texture
+    // Carbon weave panel base texture
     vec2 weaveUv = vUv * 90.0;
     float wave1 = step(0.5, fract(weaveUv.x));
     float wave2 = step(0.5, fract(weaveUv.y));
     float weave = mix(0.04, 0.12, abs(wave1 - wave2));
 
-    // Panel grid seams
+    // Seam outline
     float pattern = sin(p.x * 6.5) * sin(p.y * 6.5) * sin(p.z * 6.5);
     float seam = smoothstep(0.0, 0.05, abs(pattern - 0.1));
     float seamMask = 1.0 - seam;
 
-    // Glowing seam cycle colors
     vec3 gold = vec3(1.0, 0.75, 0.15);
     vec3 crimson = vec3(0.95, 0.05, 0.22);
     vec3 blue = vec3(0.12, 0.5, 0.98);
 
     float colorCycle = sin(uTime * 2.8 + p.y * 3.5) * 0.5 + 0.5;
     vec3 glowColor = mix(gold, mix(crimson, blue, step(0.5, colorCycle)), colorCycle);
-    glowColor *= (1.0 + sin(uTime * 5.0) * 0.3); // pulse neon
+    glowColor *= (1.0 + sin(uTime * 5.0) * 0.3);
     glowColor *= uGlowIntensity;
 
     vec3 panelColor = vec3(weave);
     vec3 finalColor = mix(panelColor, glowColor, seamMask * 0.95);
 
-    // Fresnel Rim light
+    // Fresnel Rim reflection
     vec3 normal = normalize(vNormal);
     vec3 viewDir = normalize(vViewPosition);
     float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 3.0);
@@ -164,10 +261,10 @@ const footballFragmentShader = `
 `;
 
 // ---------------------------------------------------------------------
-// 3. Cheering Crowd Shaders
+// 5. Crowd & Fireworks Shaders
 // ---------------------------------------------------------------------
 const crowdVertexShader = `
-  attribute vec3 aRandoms; // x: speed, y: phase offset, z: seed
+  attribute vec3 aRandoms; // x: speed, y: phase, z: seed
   uniform float uTime;
   varying vec3 vColor;
   varying float vFlash;
@@ -176,16 +273,15 @@ const crowdVertexShader = `
     vColor = color;
     vec3 pos = position;
 
-    // Flag wave/cheering oscillation
+    // Flag wave swing
     pos.y += sin(uTime * 4.0 * aRandoms.x + aRandoms.y) * 0.15;
     pos.x += cos(uTime * 2.5 * aRandoms.x + aRandoms.y) * 0.08;
 
-    // Camera light flashes
+    // Mobile/Flash bulb simulations
     vFlash = sin(uTime * 12.0 * aRandoms.z + aRandoms.y) * 0.5 + 0.5;
 
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
-
     gl_PointSize = (4.0 + aRandoms.z * 5.0) * (300.0 / -mvPosition.z);
   }
 `;
@@ -200,23 +296,19 @@ const crowdFragmentShader = `
 
     vec3 finalColor = vColor;
     if (vColor.r > 1.2) {
-      // Flashing phone lights
+      // Mobile flashes
       finalColor *= (0.3 + vFlash * 1.7);
     } else {
-      // Regular waving fans
+      // Colors wave
       finalColor *= (0.75 + vFlash * 0.25);
     }
-
     gl_FragColor = vec4(finalColor, 1.0);
   }
 `;
 
-// ---------------------------------------------------------------------
-// 4. Fireworks Sparks Shaders
-// ---------------------------------------------------------------------
 const fireworksVertexShader = `
   attribute vec3 aVelocity;
-  attribute vec3 aData; // x: delay, y: lifetime, z: initial size
+  attribute vec3 aData; // x: delay, y: life, z: size
   uniform float uTime;
   varying vec3 vColor;
   varying float vFade;
@@ -239,15 +331,13 @@ const fireworksVertexShader = `
       return;
     }
 
-    // Motion with physics (air drag + gravity)
     pos += aVelocity * t;
-    pos.y -= 4.9 * t * t; // gravity drop
+    pos.y -= 4.9 * t * t; // gravity
 
-    vFade = 1.0 - progress; // Linear fade
+    vFade = 1.0 - progress;
 
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
-
     gl_PointSize = aData.z * vFade * (250.0 / -mvPosition.z);
   }
 `;
@@ -259,15 +349,11 @@ const fireworksFragmentShader = `
   void main() {
     vec2 coord = gl_PointCoord - vec2(0.5);
     if (dot(coord, coord) > 0.25) discard;
-
     float glow = smoothstep(0.5, 0.0, length(coord));
     gl_FragColor = vec4(vColor, glow * vFade);
   }
 `;
 
-// ---------------------------------------------------------------------
-// 5. GPU Reassembly Particle Shaders (Website Logo / Trophy point cloud)
-// ---------------------------------------------------------------------
 const particleVertexShader = `
   attribute vec3 aRandomDir;
   attribute vec3 aTrophyPos;
@@ -275,8 +361,7 @@ const particleVertexShader = `
   attribute vec4 aRandomVal; // x: target ratio, y: speed, z: seed, w: edge divider
 
   uniform float uTime;
-  uniform vec2 uMouse;
-  uniform float uStage; // 0-2: Stadium Orbit, 3: Kickoff Zoom, 4: Reassembly, 5: UI Outline
+  uniform float uStage; // 0-2: Tunnel/Reveal, 3: Kick, 4: Reassembly, 5: UI outline
   uniform float uReassemblyTime;
   uniform float uZoomProgress;
 
@@ -286,7 +371,6 @@ const particleVertexShader = `
   void main() {
     vec3 currentPos = position;
 
-    // Stage 0-2: Orbital drifting particles
     if (uStage < 2.5) {
       float angle = uTime * 0.12 * (1.0 + aRandomVal.y);
       float cosA = cos(angle);
@@ -297,31 +381,25 @@ const particleVertexShader = `
       currentPos.z = newZ;
       currentPos.y += sin(uTime * 0.5 + aRandomVal.y * 10.0) * 0.3;
     }
-    // Stage 3: Speed lines zoom
     else if (uStage < 3.5) {
       currentPos.z += aRandomVal.z * uZoomProgress * 30.0;
     }
-    // Stage 4: Reassembly into Star Logo or Trophy silhouette
     else if (uStage < 4.5) {
       vec3 targetPos = mix(aTrophyPos, aLogoPos, step(0.5, aRandomVal.x));
-      // Interpolate from drift position to target reassembly coordinate
       currentPos = mix(currentPos, targetPos, clamp(uReassemblyTime, 0.0, 1.0));
     }
-    // Stage 5: Draw UI Layout boundaries
     else {
       vec3 targetPos = mix(aTrophyPos, aLogoPos, step(0.5, aRandomVal.x));
-      
       vec3 edgePos = vec3(0.0);
-      if (aRandomVal.w < 0.25) { // Top nav outline
+      if (aRandomVal.w < 0.25) {
         edgePos = vec3(aRandomVal.z * 16.0 - 8.0, 4.5, 0.0);
-      } else if (aRandomVal.w < 0.50) { // Left sidebar outline
+      } else if (aRandomVal.w < 0.50) {
         edgePos = vec3(-8.2, aRandomVal.z * 10.0 - 5.0, 0.0);
-      } else if (aRandomVal.w < 0.75) { // Right outline
+      } else if (aRandomVal.w < 0.75) {
         edgePos = vec3(8.2, aRandomVal.z * 10.0 - 5.0, 0.0);
-      } else { // Cards divider
+      } else {
         edgePos = vec3(aRandomVal.z * 16.0 - 8.0, -4.5, 0.0);
       }
-
       vec3 boundaryPos = mix(targetPos, edgePos, step(0.55, aRandomVal.z));
       currentPos = boundaryPos + vec3(
         sin(uTime * 0.2 + aRandomVal.x * 10.0) * 0.15,
@@ -333,7 +411,7 @@ const particleVertexShader = `
     vec4 mvPosition = modelViewMatrix * vec4(currentPos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
 
-    vColor = vec3(0.98, 0.78, 0.15); // Rich Golden Spark
+    vColor = vec3(0.98, 0.78, 0.15);
     float pSize = aRandomVal.y * 0.065 + 0.015;
     gl_PointSize = pSize * (350.0 / -mvPosition.z);
     vAlpha = clamp(1.0 + mvPosition.z * 0.02, 0.15, 1.0);
@@ -343,7 +421,6 @@ const particleVertexShader = `
 const particleFragmentShader = `
   varying vec3 vColor;
   varying float vAlpha;
-
   void main() {
     vec2 coord = gl_PointCoord - vec2(0.5);
     if (dot(coord, coord) > 0.25) discard;
@@ -353,21 +430,89 @@ const particleFragmentShader = `
 `;
 
 // ---------------------------------------------------------------------
-// 6. 3D Stadium stands and goals
+// 6. Volumetric Spotlights & Geometries
 // ---------------------------------------------------------------------
+interface SpotlightProps {
+  position: [number, number, number];
+  targetPos: [number, number, number];
+  color: string;
+  glow: number;
+}
+
+function VolumetricSpotlight({ position, targetPos, color, glow }: SpotlightProps) {
+  const lightRef = useRef<THREE.SpotLight>(null);
+  const beamRef = useRef<THREE.Mesh>(null);
+
+  const beamColor = useMemo(() => new THREE.Color(color), [color]);
+  const beamGeometry = useMemo(() => {
+    // Open cone for volumetric beam
+    const geom = new THREE.CylinderGeometry(0.1, 3.5, 12.0, 16, 1, true);
+    geom.translate(0, -6.0, 0); // origin at top vertex
+    return geom;
+  }, []);
+
+  const uniforms = useRef({
+    uGlow: { value: 0.0 },
+    uColor: { value: beamColor }
+  });
+
+  useEffect(() => {
+    uniforms.current.uGlow.value = glow;
+  }, [glow]);
+
+  useFrame(() => {
+    if (lightRef.current && beamRef.current) {
+      // Look at target position
+      lightRef.current.target.position.set(...targetPos);
+      lightRef.current.target.updateMatrixWorld();
+
+      // Align volumetric cone mesh rotation with spotlight vector
+      const dir = new THREE.Vector3().set(...targetPos).sub(lightRef.current.position).normalize();
+      const up = new THREE.Vector3(0, 1, 0);
+      const quat = new THREE.Quaternion().setFromUnitVectors(up, dir);
+      beamRef.current.quaternion.copy(quat);
+    }
+  });
+
+  return (
+    <group>
+      <spotLight
+        ref={lightRef}
+        position={position}
+        intensity={glow * 4.0}
+        color={color}
+        angle={0.45}
+        penumbra={0.6}
+        castShadow
+      />
+      {/* Volumetric mesh beam */}
+      <mesh ref={beamRef} position={position} geometry={beamGeometry}>
+        <shaderMaterial
+          vertexShader={volumetricVertexShader}
+          fragmentShader={volumetricFragmentShader}
+          uniforms={uniforms.current}
+          transparent={true}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+    </group>
+  );
+}
+
 function StadiumStands() {
-  // Nested cylinder rings flaring out representing stands tiers
-  const stands = useMemo(() => {
+  const standsGroup = useMemo(() => {
     const group = new THREE.Group();
     for (let i = 0; i < 4; i++) {
-      const radiusInner = 14.0 + i * 2.6;
-      const radiusOuter = 16.2 + i * 2.6;
+      const radiusInner = 14.5 + i * 2.6;
+      const radiusOuter = 16.5 + i * 2.6;
       const height = 0.5 + i * 1.5;
       const cylinder = new THREE.CylinderGeometry(radiusOuter, radiusInner, 1.2, 32, 1, true);
       cylinder.translate(0, height, 0);
 
       const mat = new THREE.MeshStandardMaterial({
-        color: '#0a0f1d',
+        color: '#090d18',
         roughness: 0.85,
         metalness: 0.2,
         side: THREE.DoubleSide
@@ -377,52 +522,51 @@ function StadiumStands() {
     return group;
   }, []);
 
-  return <primitive object={stands} />;
+  return <primitive object={standsGroup} />;
 }
 
-function GoalPosts() {
-  const postMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.4 }), []);
-  const netMaterial = useMemo(() => new THREE.MeshBasicMaterial({ color: '#ffffff', wireframe: true, transparent: true, opacity: 0.12 }), []);
+function PlayerTunnel() {
+  const wallMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: '#18181b',
+    roughness: 0.8,
+    metalness: 0.1,
+    map: createConcreteTexture()
+  }), []);
+
+  const puddleMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: '#09090b',
+    roughness: 0.02, // ultra shiny reflecting puddles
+    metalness: 0.85
+  }), []);
 
   return (
     <group>
-      {/* Left goal (X = -10.5) */}
-      <group position={[-10.5, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
-        <mesh position={[0, 1.0, -1.8]} material={postMaterial}>
-          <cylinderGeometry args={[0.06, 0.06, 2.0, 8]} />
-        </mesh>
-        <mesh position={[0, 1.0, 1.8]} material={postMaterial}>
-          <cylinderGeometry args={[0.06, 0.06, 2.0, 8]} />
-        </mesh>
-        <mesh position={[0, 2.0, 0]} rotation={[Math.PI / 2, 0, 0]} material={postMaterial}>
-          <cylinderGeometry args={[0.06, 0.06, 3.6, 8]} />
-        </mesh>
-        <mesh position={[-0.6, 1.0, 0]} material={netMaterial}>
-          <boxGeometry args={[1.2, 2.0, 3.6]} />
-        </mesh>
-      </group>
-
-      {/* Right goal (X = 10.5) */}
-      <group position={[10.5, 0, 0]} rotation={[0, -Math.PI / 2, 0]}>
-        <mesh position={[0, 1.0, -1.8]} material={postMaterial}>
-          <cylinderGeometry args={[0.06, 0.06, 2.0, 8]} />
-        </mesh>
-        <mesh position={[0, 1.0, 1.8]} material={postMaterial}>
-          <cylinderGeometry args={[0.06, 0.06, 2.0, 8]} />
-        </mesh>
-        <mesh position={[0, 2.0, 0]} rotation={[Math.PI / 2, 0, 0]} material={postMaterial}>
-          <cylinderGeometry args={[0.06, 0.06, 3.6, 8]} />
-        </mesh>
-        <mesh position={[-0.6, 1.0, 0]} material={netMaterial}>
-          <boxGeometry args={[1.2, 2.0, 3.6]} />
-        </mesh>
-      </group>
+      {/* Tunnel walls positioned behind stadium Z < 0 */}
+      {/* Tunnel Floor */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, -7.5]} material={puddleMat}>
+        <planeGeometry args={[5.5, 15]} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, -7.5]} material={wallMat}>
+        <planeGeometry args={[6.5, 15]} />
+      </mesh>
+      {/* Tunnel Left Wall */}
+      <mesh position={[-3.0, 1.6, -7.5]} rotation={[0, Math.PI / 2, 0]} material={wallMat}>
+        <planeGeometry args={[15, 3.2]} />
+      </mesh>
+      {/* Tunnel Right Wall */}
+      <mesh position={[3.0, 1.6, -7.5]} rotation={[0, -Math.PI / 2, 0]} material={wallMat}>
+        <planeGeometry args={[15, 3.2]} />
+      </mesh>
+      {/* Tunnel Ceiling */}
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 3.2, -7.5]} material={wallMat}>
+        <planeGeometry args={[6.5, 15]} />
+      </mesh>
     </group>
   );
 }
 
 // ---------------------------------------------------------------------
-// 7. Stylized Low-Poly Player
+// 7. High-Fidelity Procedural Player Mesh (Sweat & SSS skin shaders)
 // ---------------------------------------------------------------------
 interface PlayerProps {
   position: [number, number, number];
@@ -440,36 +584,47 @@ function PlayerModel({ position, isKicker, runningOffset = 0, kickProgress = 0, 
   const rightArmRef = useRef<THREE.Group>(null);
   const torsoRef = useRef<THREE.Mesh>(null);
 
-  const shirtMat = useMemo(() => new THREE.MeshStandardMaterial({ color: isKicker ? '#e11d48' : '#2563eb', roughness: 0.5 }), [isKicker]);
-  const skinMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#fbcfe8', roughness: 0.6 }), []);
+  const shirtMat = useMemo(() => new THREE.MeshStandardMaterial({ color: isKicker ? '#e11d48' : '#2563eb', roughness: 0.55 }), [isKicker]);
   const shortsMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#0f172a', roughness: 0.6 }), []);
+
+  // Custom Skin Material using Subsurface Scattering and sweat glisten
+  const skinMaterial = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      vertexShader: skinVertexShader,
+      fragmentShader: skinFragmentShader,
+      uniforms: {
+        uSkinColor: { value: new THREE.Color('#fca5a5') }, // pinkish skin
+        uSweatGlisten: { value: 0.8 },
+        uLightPos: { value: new THREE.Vector3(0, 10, 11) } // stadium light center
+      }
+    });
+  }, []);
 
   useFrame((state) => {
     const elapsed = state.clock.getElapsedTime();
 
     if (!isKicker || kickProgress === 0) {
-      // running leg swing loop
-      const runSpeed = 11.0;
+      const runSpeed = 11.5;
       const t = elapsed * runSpeed + runningOffset;
-      const swingAngle = Math.sin(t) * 0.75;
+      const swingAngle = Math.sin(t) * 0.72;
 
       if (leftLegRef.current) leftLegRef.current.rotation.x = swingAngle;
       if (rightLegRef.current) rightLegRef.current.rotation.x = -swingAngle;
-      if (leftArmRef.current) leftArmRef.current.rotation.x = -swingAngle * 0.8;
-      if (rightArmRef.current) rightArmRef.current.rotation.x = swingAngle * 0.8;
+      if (leftArmRef.current) leftArmRef.current.rotation.x = -swingAngle * 0.85;
+      if (rightArmRef.current) rightArmRef.current.rotation.x = swingAngle * 0.85;
 
       if (torsoRef.current) {
         torsoRef.current.position.y = 1.35 + Math.abs(Math.sin(t * 2.0)) * 0.08;
       }
     } else {
-      // Kick impact flip interpolation (kProgress 0 -> 1)
+      // Bicycle flip kick interpolation
       const p = kickProgress;
       if (groupRef.current) {
-        groupRef.current.position.y = position[1] + Math.sin(p * Math.PI) * 2.4;
-        groupRef.current.rotation.x = -p * Math.PI * 1.5; // bicycle backflip
+        groupRef.current.position.y = position[1] + Math.sin(p * Math.PI) * 2.5;
+        groupRef.current.rotation.x = -p * Math.PI * 1.5; // backflip
       }
       if (rightLegRef.current) {
-        rightLegRef.current.rotation.x = -Math.sin(p * Math.PI) * 2.0; // kicking kick forward
+        rightLegRef.current.rotation.x = -Math.sin(p * Math.PI) * 2.0; // kicking foot
       }
       if (leftLegRef.current) {
         leftLegRef.current.rotation.x = Math.sin(p * Math.PI) * 0.8;
@@ -483,8 +638,8 @@ function PlayerModel({ position, isKicker, runningOffset = 0, kickProgress = 0, 
       <mesh ref={torsoRef} position={[0, 1.35, 0]} material={shirtMat}>
         <cylinderGeometry args={[0.22, 0.18, 0.7, 8]} />
       </mesh>
-      {/* Head */}
-      <mesh position={[0, 1.85, 0]} material={skinMat}>
+      {/* Head with SSS skin */}
+      <mesh position={[0, 1.85, 0]} material={skinMaterial}>
         <sphereGeometry args={[0.16, 8, 8]} />
       </mesh>
       {/* Left leg */}
@@ -516,7 +671,7 @@ function PlayerModel({ position, isKicker, runningOffset = 0, kickProgress = 0, 
 }
 
 // ---------------------------------------------------------------------
-// 8. World Cup Lathe Trophy
+// 8. 24K Gold Lathe Trophy
 // ---------------------------------------------------------------------
 interface TrophyProps {
   position: [number, number, number];
@@ -527,11 +682,11 @@ function WorldCupTrophy({ position, riseProgress }: TrophyProps) {
   const trophyRef = useRef<THREE.Group>(null);
 
   const goldMat = useMemo(() => new THREE.MeshStandardMaterial({
-    color: '#d97706',
-    metalness: 0.9,
-    roughness: 0.15,
+    color: '#fbbf24',
+    metalness: 0.95, // high reflective gold
+    roughness: 0.08,
     emissive: '#78350f',
-    emissiveIntensity: 0.2
+    emissiveIntensity: 0.15
   }), []);
 
   const greenMat = useMemo(() => new THREE.MeshStandardMaterial({
@@ -548,7 +703,6 @@ function WorldCupTrophy({ position, riseProgress }: TrophyProps) {
 
   return (
     <group ref={trophyRef} position={position}>
-      {/* base */}
       <mesh position={[0, 0.15, 0]} material={goldMat}>
         <cylinderGeometry args={[0.6, 0.7, 0.3, 16]} />
       </mesh>
@@ -561,15 +715,12 @@ function WorldCupTrophy({ position, riseProgress }: TrophyProps) {
       <mesh position={[0, 0.65, 0]} material={greenMat}>
         <cylinderGeometry args={[0.48, 0.48, 0.1, 16]} />
       </mesh>
-      {/* stem */}
       <mesh position={[0, 1.25, 0]} material={goldMat}>
         <cylinderGeometry args={[0.3, 0.45, 1.0, 16]} />
       </mesh>
-      {/* cup support */}
       <mesh position={[0, 1.8, 0]} material={goldMat}>
         <cylinderGeometry args={[0.55, 0.28, 0.3, 16]} />
       </mesh>
-      {/* top sphere globe */}
       <mesh position={[0, 2.3, 0]} material={goldMat}>
         <sphereGeometry args={[0.5, 16, 16]} />
       </mesh>
@@ -577,17 +728,12 @@ function WorldCupTrophy({ position, riseProgress }: TrophyProps) {
         <sphereGeometry args={[0.52, 16, 16]} />
         <meshBasicMaterial color="#fef08a" wireframe transparent opacity={0.35} />
       </mesh>
-      {/* aura band */}
-      <mesh position={[0, 1.25, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.7, 0.75, 32]} />
-        <meshBasicMaterial color="#047857" transparent opacity={0.4} side={THREE.DoubleSide} />
-      </mesh>
     </group>
   );
 }
 
 // ---------------------------------------------------------------------
-// 9. Interactive Scene Content Coordinator
+// 9. Interactive Scene Coordinator (with 30FPS throttling in background)
 // ---------------------------------------------------------------------
 interface SceneContentProps {
   stage: number;
@@ -618,11 +764,6 @@ function SceneContent({
   const shockwaveRef = useRef<THREE.Mesh>(null);
   const fireworksRef = useRef<THREE.Points>(null);
 
-  const spotlight1Ref = useRef<THREE.SpotLight>(null);
-  const spotlight2Ref = useRef<THREE.SpotLight>(null);
-  const spotlight3Ref = useRef<THREE.SpotLight>(null);
-  const spotlight4Ref = useRef<THREE.SpotLight>(null);
-
   const footballGeometry = useMemo(() => new THREE.IcosahedronGeometry(1.6, 3), []);
 
   const uniforms = useRef({
@@ -643,14 +784,10 @@ function SceneContent({
       uStage: { value: 0.0 },
       uReassemblyTime: { value: 0.0 },
       uZoomProgress: { value: 0.0 }
-    },
-    shockwave: {
-      uColor: { value: new THREE.Color('#fbbf24') },
-      uGlow: { value: 0.0 }
     }
   });
 
-  // Calculate Crowd System Coordinates
+  // Calculate Crowd coordinates
   const { crowdPositions, crowdColors, crowdRandoms } = useMemo(() => {
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
     const count = isMobile ? 2500 : 7000;
@@ -667,29 +804,28 @@ function SceneContent({
 
       pos[i * 3] = Math.cos(angle) * radius;
       pos[i * 3 + 1] = height;
-      pos[i * 3 + 2] = Math.sin(angle) * radius * 0.76; // Squeezed oval rings
+      pos[i * 3 + 2] = Math.sin(angle) * radius * 0.76;
 
-      // Color tags: Gold, Crimson, Blue, White (Phone flashes)
       const rVal = Math.random();
       let colorVal = new THREE.Color('#fbbf24');
       if (rVal < 0.25) colorVal.set('#fbbf24');
       else if (rVal < 0.50) colorVal.set('#f43f5e');
       else if (rVal < 0.75) colorVal.set('#3b82f6');
-      else colorVal.set(1.7, 1.7, 1.7); // Bright white flashes
+      else colorVal.set(1.7, 1.7, 1.7); // Phone flash bulbs
 
       col[i * 3] = colorVal.r;
       col[i * 3 + 1] = colorVal.g;
       col[i * 3 + 2] = colorVal.b;
 
-      rnd[i * 3] = Math.random(); // speed
-      rnd[i * 3 + 1] = Math.random() * Math.PI * 2; // phase offset
-      rnd[i * 3 + 2] = Math.random(); // seed
+      rnd[i * 3] = Math.random();
+      rnd[i * 3 + 1] = Math.random() * Math.PI * 2;
+      rnd[i * 3 + 2] = Math.random();
     }
 
     return { crowdPositions: pos, crowdColors: col, crowdRandoms: rnd };
   }, []);
 
-  // Calculate Fireworks Coordinates
+  // Calculate Fireworks coordinates
   const { fireworksPos, fireworksVel, fireworksCol, fireworksData } = useMemo(() => {
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
     const count = isMobile ? 1200 : 3500;
@@ -700,7 +836,6 @@ function SceneContent({
     const dat = new Float32Array(count * 3);
 
     for (let i = 0; i < count; i++) {
-      // Spawn low on pitch or high in sky
       const isSky = Math.random() < 0.55;
       pos[i * 3] = 0;
       pos[i * 3 + 1] = isSky ? 6.0 + Math.random() * 4.0 : 0.2;
@@ -725,15 +860,15 @@ function SceneContent({
       col[i * 3 + 1] = colorVal.g;
       col[i * 3 + 2] = colorVal.b;
 
-      dat[i * 3] = Math.random() * 0.8; // delay
-      dat[i * 3 + 1] = 1.0 + Math.random() * 1.5; // life
-      dat[i * 3 + 2] = 4.0 + Math.random() * 5.0; // size
+      dat[i * 3] = Math.random() * 0.8;
+      dat[i * 3 + 1] = 1.0 + Math.random() * 1.5;
+      dat[i * 3 + 2] = 4.0 + Math.random() * 5.0;
     }
 
     return { fireworksPos: pos, fireworksVel: vel, fireworksCol: col, fireworksData: dat };
   }, []);
 
-  // Calculate GPU Reassembly System Coordinates
+  // Calculate GPU Reassembly coordinates
   const { positions, randomDirs, trophyPositions, logoPositions, randomVals } = useMemo(() => {
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
     const count = isMobile ? 15000 : 50000;
@@ -748,7 +883,6 @@ function SceneContent({
       const i3 = i * 3;
       const i4 = i * 4;
 
-      // Orbit Initial Position
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(Math.random() * 2 - 1);
       const r = Math.random() * 6.0 + 1.2;
@@ -756,14 +890,11 @@ function SceneContent({
       pos[i3 + 1] = r * Math.sin(phi) * Math.sin(theta);
       pos[i3 + 2] = r * Math.cos(phi);
 
-      // Random Velocity
       dirs[i3] = (Math.random() - 0.5) * 8.0;
       dirs[i3 + 1] = (Math.random() - 0.5) * 8.0;
       dirs[i3 + 2] = (Math.random() - 0.5) * 8.0;
 
-      // Trophy point map
       if (i < count * 0.6) {
-        // stem cylinder
         const h = Math.random() * 3.0 - 1.5;
         const cyR = 0.4 + Math.sin((h + 1.5) * 0.9) * 0.25;
         const a = Math.random() * Math.PI * 2;
@@ -771,7 +902,6 @@ function SceneContent({
         trophy[i3 + 1] = h + 1.5;
         trophy[i3 + 2] = Math.sin(a) * cyR;
       } else {
-        // top globe
         const th = Math.random() * Math.PI * 2;
         const ph = Math.acos(Math.random() * 2 - 1);
         const rGlob = 0.8;
@@ -780,7 +910,6 @@ function SceneContent({
         trophy[i3 + 2] = rGlob * Math.cos(ph);
       }
 
-      // Islamic 8-pointed star star map
       const starAngle = Math.random() * Math.PI * 2;
       const numPoints = 8.0;
       const subAngle = Math.PI / numPoints;
@@ -790,7 +919,6 @@ function SceneContent({
       logo[i3 + 1] = Math.sin(starAngle) * starRadius + 1.2;
       logo[i3 + 2] = (Math.random() - 0.5) * 0.12;
 
-      // Random metadata values
       rVals[i4] = Math.random();
       rVals[i4 + 1] = Math.random() * 0.8 + 0.2;
       rVals[i4 + 2] = Math.random();
@@ -800,8 +928,24 @@ function SceneContent({
     return { positions: pos, randomDirs: dirs, trophyPositions: trophy, logoPositions: logo, randomVals: rVals };
   }, []);
 
+  const lastFrameTime = useRef(0);
+
   useFrame((state) => {
     const elapsed = state.clock.getElapsedTime();
+
+    // R3F Render Throttling Lifecycle (Limit background rendering to 30 FPS at Stage 5 to save CPU/GPU)
+    if (stage === 5) {
+      const delta = elapsed - lastFrameTime.current;
+      if (delta < 0.033) {
+        state.gl.render(state.scene, state.camera);
+        return;
+      }
+      lastFrameTime.current = elapsed;
+    }
+
+    // Update Spatial Audio listener coordinates to follow camera position and rotation quaternions
+    audioSynth.updateListener(camera.position, camera.quaternion);
+
     uniforms.current.football.uTime.value = elapsed;
     uniforms.current.crowd.uTime.value = elapsed;
     uniforms.current.particles.uTime.value = elapsed;
@@ -810,77 +954,62 @@ function SceneContent({
       uniforms.current.fireworks.uTime.value += state.clock.getDelta();
     }
 
-    // Update uniform stages
     uniforms.current.particles.uStage.value = stage;
     uniforms.current.particles.uReassemblyTime.value = particlesReassembly;
     uniforms.current.particles.uZoomProgress.value = ballZoom;
 
-    // Spotlight mouse tracking targets
-    if (stage === 2) {
-      const targetX = mouse.current.x * 6.5;
-      const targetZ = mouse.current.y * 4.5;
-      if (spotlight1Ref.current) spotlight1Ref.current.target.position.set(targetX, 0, targetZ);
-      if (spotlight2Ref.current) spotlight2Ref.current.target.position.set(-targetX, 0, -targetZ);
-      if (spotlight3Ref.current) spotlight3Ref.current.target.position.set(-targetX, 0, targetZ);
-      if (spotlight4Ref.current) spotlight4Ref.current.target.position.set(targetX, 0, -targetZ);
-
-      spotlight1Ref.current?.target.updateMatrixWorld();
-      spotlight2Ref.current?.target.updateMatrixWorld();
-      spotlight3Ref.current?.target.updateMatrixWorld();
-      spotlight4Ref.current?.target.updateMatrixWorld();
-    }
-
-    // Phase Camera Movement Controls
-    if (stage === 1) {
-      // Slow 360-sweep
-      const sweepAngle = elapsed * 0.38;
-      camera.position.x = Math.sin(sweepAngle) * 13.5;
-      camera.position.z = Math.cos(sweepAngle) * 13.5;
-      camera.position.y = 5.0 + Math.sin(elapsed * 0.6) * 1.4;
-      camera.lookAt(0, 1.2, 0);
-    } 
-    else if (stage === 2) {
-      // Close hover look
-      camera.position.x += (mouse.current.x * 2.2 - camera.position.x) * 0.05;
-      camera.position.y += (2.2 + mouse.current.y * 0.8 - camera.position.y) * 0.05;
-      camera.position.z += (4.6 - camera.position.z) * 0.05;
-      camera.lookAt(0, 1.5, 0);
-    } 
-    else if (stage === 3) {
-      // Locked camera perspective for Kick
-      camera.position.set(0, 2.3, 4.4);
+    // Cinematic Camera tracking per stage
+    if (stage === 0) {
+      // Tunnel View
+      camera.position.set(0, 1.6, -11.0);
       camera.lookAt(0, 1.6, 0);
     } 
+    else if (stage === 1) {
+      // Sweep sweep 360-degree orbit
+      const sweepAngle = elapsed * 0.38;
+      camera.position.x = Math.sin(sweepAngle) * 13.5;
+      camera.position.z = Math.cos(sweepAngle) * 13.5 + 11.0;
+      camera.position.y = 5.0 + Math.sin(elapsed * 0.6) * 1.4;
+      camera.lookAt(0, 1.2, 11.0);
+    } 
+    else if (stage === 2) {
+      // Interactive close look around the trophy/ball
+      camera.position.x += (mouse.current.x * 2.2 - camera.position.x) * 0.05;
+      camera.position.y += (2.2 + mouse.current.y * 0.8 - camera.position.y) * 0.05;
+      camera.position.z += (15.5 - camera.position.z) * 0.05;
+      camera.lookAt(0, 1.5, 11.0);
+    } 
+    else if (stage === 3) {
+      // Locked camera focus point
+      camera.position.set(0, 2.3, 15.5);
+      camera.lookAt(0, 1.6, 11.0);
+    } 
     else if (stage >= 4) {
-      // Pull back ambient drift
+      // Pull back layout drift
       camera.position.x += (Math.sin(elapsed * 0.25) * 1.2 - camera.position.x) * 0.03;
       camera.position.y += (2.8 + Math.cos(elapsed * 0.2) * 0.6 - camera.position.y) * 0.03;
-      camera.position.z += (8.2 - camera.position.z) * 0.03;
-      camera.lookAt(0, 1.4, 0);
+      camera.position.z += (18.5 - camera.position.z) * 0.03;
+      camera.lookAt(0, 1.4, 11.0);
     }
 
-    // Animate Football mesh coordinates
+    // Ball movement calculations
     if (footballRef.current) {
-      if (stage === 1) {
-        // Slow idle float
-        footballRef.current.position.set(0, 1.6 + Math.sin(elapsed * 2.0) * 0.15, 0);
+      if (stage === 0 || stage === 1) {
+        footballRef.current.position.set(0, 1.6 + Math.sin(elapsed * 2.0) * 0.15, 11.0);
         footballRef.current.rotation.y = elapsed * 0.35;
       } 
       else if (stage === 2) {
-        // Hovering right above the trophy
-        footballRef.current.position.set(0, 2.3 + Math.sin(elapsed * 2.5) * 0.08, 0);
+        footballRef.current.position.set(0, 2.3 + Math.sin(elapsed * 2.5) * 0.08, 11.0);
         footballRef.current.rotation.y = elapsed * 0.45;
       } 
       else if (stage === 3) {
-        // Kicked and flying towards the camera
-        // Start at [0, 2.2, 0] (kicker foot) and zoom past camera [0, 2.5, 8.5]
-        const zPos = ballZoom * 8.5;
+        // Bicycle kick zoom past camera (starts at Z=11.0, hits camera around Z=15.5)
+        const zPos = 11.0 + ballZoom * 8.5;
         const yPos = 2.2 - Math.sin(ballZoom * Math.PI) * 0.3 + ballZoom * 0.3;
         footballRef.current.position.set(0, yPos, zPos);
-        footballRef.current.rotation.x = elapsed * 24.0; // Rapid spin
+        footballRef.current.rotation.x = elapsed * 24.0;
         footballRef.current.rotation.y = elapsed * 8.0;
-        
-        // Vibrate ball before strike
+
         if (ballZoom < 0.05) {
           uniforms.current.football.uDisplacementFactor.value = 1.2;
         } else {
@@ -888,7 +1017,6 @@ function SceneContent({
         }
       } 
       else {
-        // Ball exploded, hide
         footballRef.current.visible = false;
       }
     }
@@ -909,18 +1037,9 @@ function SceneContent({
       {/* Cheering Instanced Crowd */}
       <points>
         <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[crowdPositions, 3]}
-          />
-          <bufferAttribute
-            attach="attributes-color"
-            args={[crowdColors, 3]}
-          />
-          <bufferAttribute
-            attach="attributes-aRandoms"
-            args={[crowdRandoms, 3]}
-          />
+          <bufferAttribute attach="attributes-position" args={[crowdPositions, 3]} />
+          <bufferAttribute attach="attributes-color" args={[crowdColors, 3]} />
+          <bufferAttribute attach="attributes-aRandoms" args={[crowdRandoms, 3]} />
         </bufferGeometry>
         <shaderMaterial
           vertexShader={crowdVertexShader}
@@ -933,26 +1052,20 @@ function SceneContent({
         />
       </points>
 
+      {/* Volumetric Spotlights */}
+      <VolumetricSpotlight position={[-12, 10, 2]} targetPos={[0, 0, 11]} color="#fbbf24" glow={stage === 2 ? 1.0 : 0.4} />
+      <VolumetricSpotlight position={[12, 10, 2]} targetPos={[0, 0, 11]} color="#f43f5e" glow={stage === 2 ? 1.0 : 0.4} />
+      <VolumetricSpotlight position={[-12, 10, 20]} targetPos={[0, 0, 11]} color="#3b82f6" glow={stage === 2 ? 1.0 : 0.4} />
+      <VolumetricSpotlight position={[12, 10, 20]} targetPos={[0, 0, 11]} color="#fbbf24" glow={stage === 2 ? 1.0 : 0.4} />
+
       {/* Fireworks Sparks system */}
       {fireworksActive && (
         <points ref={fireworksRef}>
           <bufferGeometry>
-            <bufferAttribute
-              attach="attributes-position"
-              args={[fireworksPos, 3]}
-            />
-            <bufferAttribute
-              attach="attributes-aVelocity"
-              args={[fireworksVel, 3]}
-            />
-            <bufferAttribute
-              attach="attributes-color"
-              args={[fireworksCol, 3]}
-            />
-            <bufferAttribute
-              attach="attributes-aData"
-              args={[fireworksData, 3]}
-            />
+            <bufferAttribute attach="attributes-position" args={[fireworksPos, 3]} />
+            <bufferAttribute attach="attributes-aVelocity" args={[fireworksVel, 3]} />
+            <bufferAttribute attach="attributes-color" args={[fireworksCol, 3]} />
+            <bufferAttribute attach="attributes-aData" args={[fireworksData, 3]} />
           </bufferGeometry>
           <shaderMaterial
             vertexShader={fireworksVertexShader}
@@ -966,30 +1079,15 @@ function SceneContent({
         </points>
       )}
 
-      {/* GPU Reassembly/Outline Nebula */}
+      {/* GPU Reassembly System */}
       {stage >= 3 && (
         <points ref={particlesRef}>
           <bufferGeometry>
-            <bufferAttribute
-              attach="attributes-position"
-              args={[positions, 3]}
-            />
-            <bufferAttribute
-              attach="attributes-aRandomDir"
-              args={[randomDirs, 3]}
-            />
-            <bufferAttribute
-              attach="attributes-aTrophyPos"
-              args={[trophyPositions, 3]}
-            />
-            <bufferAttribute
-              attach="attributes-aLogoPos"
-              args={[logoPositions, 3]}
-            />
-            <bufferAttribute
-              attach="attributes-aRandomVal"
-              args={[randomVals, 4]}
-            />
+            <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+            <bufferAttribute attach="attributes-aRandomDir" args={[randomDirs, 3]} />
+            <bufferAttribute attach="attributes-aTrophyPos" args={[trophyPositions, 3]} />
+            <bufferAttribute attach="attributes-aLogoPos" args={[logoPositions, 3]} />
+            <bufferAttribute attach="attributes-aRandomVal" args={[randomVals, 4]} />
           </bufferGeometry>
           <shaderMaterial
             vertexShader={particleVertexShader}
@@ -1002,8 +1100,8 @@ function SceneContent({
         </points>
       )}
 
-      {/* Shockwave Expansive ring */}
-      <mesh ref={shockwaveRef} position={[0, 2.5, 4.4]} scale={[shockwaveScale, shockwaveScale, 1]} visible={shockwaveGlow > 0}>
+      {/* Volumetric Golden Shockwave Ring */}
+      <mesh ref={shockwaveRef} position={[0, 2.5, 15.4]} scale={[shockwaveScale, shockwaveScale, 1]} visible={shockwaveGlow > 0}>
         <ringGeometry args={[0.08, 1.4, 32]} />
         <meshBasicMaterial
           color="#fbbf24"
@@ -1013,18 +1111,12 @@ function SceneContent({
           blending={THREE.AdditiveBlending}
         />
       </mesh>
-
-      {/* Spotlights */}
-      <spotLight ref={spotlight1Ref} position={[-12, 10, -9]} intensity={stage === 2 ? 6.5 : 2.5} color="#fbbf24" angle={0.4} penumbra={0.6} />
-      <spotLight ref={spotlight2Ref} position={[12, 10, -9]} intensity={stage === 2 ? 6.5 : 2.5} color="#f43f5e" angle={0.4} penumbra={0.6} />
-      <spotLight ref={spotlight3Ref} position={[-12, 10, 9]} intensity={stage === 2 ? 6.5 : 2.5} color="#3b82f6" angle={0.4} penumbra={0.6} />
-      <spotLight ref={spotlight4Ref} position={[12, 10, 9]} intensity={stage === 2 ? 6.5 : 2.5} color="#fbbf24" angle={0.4} penumbra={0.6} />
     </>
   );
 }
 
 // ---------------------------------------------------------------------
-// 10. Main Interactive Wrapper Component
+// 10. Main Component Wrapper (with Visibility Lifecycle Throttling)
 // ---------------------------------------------------------------------
 export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3DIntroProps) {
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -1032,13 +1124,11 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
   const preloaderRef = useRef<HTMLDivElement>(null);
   const activeTimeline = useRef<gsap.core.Timeline | null>(null);
 
-  // Loading States
+  // States
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [cinematicStage, setCinematicStage] = useState(0); 
-  // 0: Preloader/Black, 1: 360 Reveal, 2: Trophy Rise, 3: Kickoff / Fireworks, 4: Explosion / Reassembly, 5: Faded Background
+  const [cinematicStage, setCinematicStage] = useState(0);
 
-  // Dynamic values animated by GSAP
   const [kickProgress, setKickProgress] = useState(0);
   const [trophyRise, setTrophyRise] = useState(0);
   const [ballZoom, setBallZoom] = useState(0);
@@ -1047,7 +1137,6 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
   const [shockwaveGlow, setShockwaveGlow] = useState(0);
   const [particlesReassembly, setParticlesReassembly] = useState(0);
 
-  // Screen effect state triggers
   const [triggerShake, setTriggerShake] = useState(false);
   const [triggerChromatic, setTriggerChromatic] = useState(false);
 
@@ -1058,12 +1147,34 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
     hasBeenActiveRef.current = true;
   }
 
-  // 1. Preloader Liquid Loading Text Simulator
+  // Page Visibility API lifecycle listener
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        console.log("[WorldCup3DIntro] Tab hidden: Suspending context.");
+        if (audioSynth.init && (audioSynth as any).ctx) {
+          (audioSynth as any).ctx.suspend().catch(() => {});
+        }
+      } else {
+        console.log("[WorldCup3DIntro] Tab visible: Resuming context.");
+        if (audioSynth.init && (audioSynth as any).ctx) {
+          (audioSynth as any).ctx.resume().catch(() => {});
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      audioSynth.stopBreathing();
+    };
+  }, []);
+
+  // Preloader Liquid Molten Gold text fill loop
   useEffect(() => {
     if (!isIntroActive) return;
 
-    console.log("[WorldCup3DIntro] Preloader starting. Initializing Crowd noise.");
-    audioSynth.startCrowdRoar();
+    console.log("[WorldCup3DIntro] Cinematic tunnel started. Breathing procedural triggers.");
+    audioSynth.startBreathing();
 
     let currentProgress = 0;
     let time = 0;
@@ -1089,14 +1200,14 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
 
       ctx.clearRect(0, 0, width, height);
 
-      // Draw background text
+      // Background loading text
       ctx.fillStyle = 'rgba(255,255,255,0.06)';
       ctx.font = '900 68px "Outfit", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('LOADING', width / 2, height / 2);
 
-      // Liquid golden fill mask
+      // Molten liquid glow fill mask
       ctx.save();
       ctx.beginPath();
       const waveHeight = height - (currentProgress / 100) * height;
@@ -1109,7 +1220,6 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
       ctx.closePath();
       ctx.clip();
 
-      // Shiny golden gradient text
       const grad = ctx.createLinearGradient(0, 0, 0, height);
       grad.addColorStop(0, '#fff6c2');
       grad.addColorStop(0.3, '#fbbf24');
@@ -1118,7 +1228,6 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
       ctx.fillStyle = grad;
       ctx.fillText('LOADING', width / 2, height / 2);
 
-      // Sweep light reflection
       const sweepX = (time * 180) % (width * 2) - width;
       const sweepGrad = ctx.createLinearGradient(sweepX, 0, sweepX + 100, 0);
       sweepGrad.addColorStop(0, 'rgba(251,191,36,0)');
@@ -1139,8 +1248,9 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
         currentProgress = 100;
         clearInterval(interval);
 
-        console.log("[WorldCup3DIntro] Preloader loading complete. Transitioning to reveal.");
-        audioSynth.boostCrowdRoar();
+        console.log("[WorldCup3DIntro] Preloader loading complete. Sprinting from tunnel mouth...");
+        audioSynth.stopBreathing();
+        audioSynth.startCrowdRoar();
 
         gsap.to(preloaderRef.current, {
           opacity: 0,
@@ -1177,16 +1287,15 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
     };
   }, []);
 
-  // 2. Orchestrated GSAP Timelines
+  // Orchestrated GSAP Sequence
   const startSequenceTimeline = () => {
     const tl = gsap.timeline();
     activeTimeline.current = tl;
 
-    // Stage 1 (360 Reveal) runs for 5 seconds
+    // Stage 1 (Stadium Reveal / 360-degree sweep)
     tl.to({}, {
       duration: 5.0,
       onComplete: () => {
-        // Advance to Stage 2: Trophy & Ball rise
         triggerTrophyRise();
       }
     });
@@ -1194,12 +1303,11 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
 
   const triggerTrophyRise = () => {
     setCinematicStage(2);
-    console.log("[WorldCup3DIntro] Entering Stage 2: World Cup Trophy & Ball rising...");
+    console.log("[WorldCup3DIntro] Stage 2: Trophy rising from pitch center circle.");
 
     const tl = gsap.timeline();
     activeTimeline.current = tl;
 
-    // Trophy rises from grass
     const riseObj = { val: 0 };
     tl.to(riseObj, {
       val: 1.0,
@@ -1207,7 +1315,6 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
       ease: 'power2.out',
       onUpdate: () => setTrophyRise(riseObj.val)
     })
-    // Maintain trophy view for 4.5 seconds before automatic kickoff
     .to({}, {
       duration: 4.5,
       onComplete: () => {
@@ -1224,13 +1331,13 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
 
     if (activeTimeline.current) activeTimeline.current.kill();
 
-    setCinematicStage(3); // Kickoff / Zoom
-    console.log("[WorldCup3DIntro] KICKOFF TRIGGERED! Launching Kick and Fireworks...");
+    setCinematicStage(3); // Kickoff & Volumetric Fireworks
+    console.log("[WorldCup3DIntro] Kickoff strike triggered. Slow-motion bicycle kick starting.");
 
     const tl = gsap.timeline();
     activeTimeline.current = tl;
 
-    // 1. Kicker plays bicycle kick rotation
+    // 1. Kicker joints backflip rotation
     const kickObj = { val: 0 };
     tl.to(kickObj, {
       val: 1.0,
@@ -1238,7 +1345,7 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
       ease: 'power1.inOut',
       onUpdate: () => setKickProgress(kickObj.val)
     })
-    // 2. Ball zooms to camera (hits at t = 0.5s of the kick)
+    // 2. Ball zooms to camera (hits camera lens at t = 0.5s)
     const zoomObj = { val: 0 };
     tl.to(zoomObj, {
       val: 1.0,
@@ -1248,23 +1355,25 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
         audioSynth.playKick();
         audioSynth.boostCrowdRoar();
         setFireworksActive(true);
+
+        // Localized firework explosions in 3D Space (Left/Right/Center)
+        setTimeout(() => audioSynth.playFirework([-8, 8, 8]), 50);
+        setTimeout(() => audioSynth.playFirework([8, 8, 8]), 150);
+        setTimeout(() => audioSynth.playFirework([0, 10, 5]), 250);
       },
       onUpdate: () => setBallZoom(zoomObj.val)
     }, '-=0.45')
-    // 3. Screen Hit: Explosion -> Shockwave -> Camera Shake -> Chromatic aberration
+    // 3. Screen Hit: Explosion -> Volumetric Shockwave -> Shake -> Chromatic Aberration
     .to({}, {
       duration: 0.1,
       onStart: () => {
         setCinematicStage(4);
         setTriggerShake(true);
         setTriggerChromatic(true);
-        console.log("[WorldCup3DIntro] Screen impact! Supernova shockwave active.");
-
-        // disable shake after 600ms
         setTimeout(() => setTriggerShake(false), 650);
       }
     })
-    // Expand golden shockwave ring
+    // Golden shockwave expands
     const scaleObj = { val: 0.01 };
     const glowObj = { val: 1.5 };
     tl.to(scaleObj, {
@@ -1295,22 +1404,21 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
         setTriggerChromatic(false);
       },
       onComplete: () => {
-        setCinematicStage(5); // Ambient particle background mode
+        setCinematicStage(5); // Throttle R3F render loop to 30 FPS
         onComplete();
       }
     });
   }, [kickoffTriggered, onComplete]);
 
   const handleSkip = () => {
-    console.log("[WorldCup3DIntro] User clicked SKIP. Terminating timelines.");
+    console.log("[WorldCup3DIntro] Skip Intro triggered.");
     if (activeTimeline.current) activeTimeline.current.kill();
     audioSynth.fadeCrowdRoar();
+    audioSynth.stopBreathing();
     setCinematicStage(5);
     setIsLoaded(true);
     onComplete();
   };
-
-  if (!isIntroActive && !hasBeenActiveRef.current) return null;
 
   const isBackgroundMode = cinematicStage === 5 || !isIntroActive;
 
@@ -1332,7 +1440,7 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
         >
           <Canvas
             gl={{ antialias: true, alpha: true }}
-            camera={{ position: [0, 5, 13.5], fov: 60 }}
+            camera={{ position: [0, 1.6, -11.0], fov: 60 }}
             dpr={[1, typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 2) : 1]}
           >
             <ambientLight intensity={0.25} />
@@ -1344,21 +1452,24 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
             {/* Goal Posts */}
             <GoalPosts />
 
+            {/* Tunnel preloader mesh walls */}
+            <PlayerTunnel />
+
             {/* Procedural stands */}
             <StadiumStands />
 
             {/* Stadium Cheering Players */}
-            {/* Team A (Crimson shirt) */}
-            <PlayerModel position={[-3.5, 0, -2.5]} rotationY={1.2} />
-            <PlayerModel position={[-7.0, 0, 1.0]} rotationY={0.9} />
+            {/* Team A (Red) */}
+            <PlayerModel position={[-3.5, 0, 8.5]} rotationY={1.2} />
+            <PlayerModel position={[-7.0, 0, 12.0]} rotationY={0.9} />
             
-            {/* Team B (Blue shirt) */}
-            <PlayerModel position={[4.0, 0, -1.5]} rotationY={-1.1} />
-            <PlayerModel position={[6.5, 0, 2.5]} rotationY={-0.8} />
+            {/* Team B (Blue) */}
+            <PlayerModel position={[4.0, 0, 9.5]} rotationY={-1.1} />
+            <PlayerModel position={[6.5, 0, 13.5]} rotationY={-0.8} />
 
-            {/* Kicker Kicking Player at Center Spot */}
+            {/* Kicker Player at Center Spot */}
             <PlayerModel
-              position={[0, 0, -0.65]}
+              position={[0, 0, 10.35]}
               isKicker={true}
               kickProgress={kickProgress}
               rotationY={0.0}
@@ -1366,7 +1477,7 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
 
             {/* World Cup Trophy */}
             {cinematicStage >= 2 && (
-              <WorldCupTrophy position={[0, 0, -2.0]} riseProgress={trophyRise} />
+              <WorldCupTrophy position={[0, 0, 9.0]} riseProgress={trophyRise} />
             )}
 
             {/* Custom Scene Logic & Particles */}
@@ -1444,7 +1555,7 @@ export default function WorldCup3DIntro({ onComplete, isIntroActive }: WorldCup3
 function StadiumPitch() {
   const pitchTexture = useMemo(() => createPitchTexture(), []);
   return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0.01, 0]}>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0.01, 11.0]}>
       <planeGeometry args={[22, 16]} />
       {pitchTexture ? (
         <meshStandardMaterial map={pitchTexture} roughness={0.7} />
