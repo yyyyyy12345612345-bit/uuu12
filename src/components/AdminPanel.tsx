@@ -14,7 +14,6 @@ import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { checkAndAwardBadges } from "@/lib/badges";
 import { RECITERS } from "@/data/reciters";
 
-const WorldCup3DIntro = dynamic(() => import("./WorldCup3DIntro"), { ssr: false });
 
 const ADMIN_EMAIL = "youssefosama@gmail.com";
 
@@ -159,21 +158,6 @@ export function AdminPanel() {
   const [isAnalyticsLoading, setIsAnalyticsLoading] = useState(false);
   const [analyticsSubTab, setAnalyticsSubTab] = useState<string>("overview");
 
-  // Admin Intro Animation States
-  const [showAdminIntro, setShowAdminIntro] = useState(false);
-  const [dashboardVisible, setDashboardVisible] = useState(false);
-
-  const handleAdminIntroComplete = useCallback(() => {
-    console.log("[AdminPanel] handleAdminIntroComplete called: showAdminIntro -> false, dashboardVisible -> true");
-    setShowAdminIntro(false);
-    setDashboardVisible(true);
-    // Smoothly stagger cards and navigation elements
-    gsap.fromTo(
-      ".admin-stagger-card",
-      { y: 35, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.7, ease: "power2.out", stagger: 0.05, clearProps: "all" }
-    );
-  }, []);
 
   // Reciter Diagnostic States
   const [reciterSearch, setReciterSearch] = useState("");
@@ -618,16 +602,14 @@ export function AdminPanel() {
 
   useEffect(() => { if (isAdmin) fetchPerformanceMetrics(); }, [alerts, isAdmin]);
 
-  // Trigger Admin Intro on successful login (runs on every mount/refresh)
+  // Trigger card stagger animation when admin becomes logged in
   useEffect(() => {
-    console.log("[AdminPanel] isAdmin changed:", isAdmin);
     if (isAdmin) {
-      console.log("[AdminPanel] Triggering Intro: showAdminIntro -> true, dashboardVisible -> false");
-      setShowAdminIntro(true);
-      setDashboardVisible(false);
-    } else {
-      console.log("[AdminPanel] Admin not logged in: dashboardVisible -> false");
-      setDashboardVisible(false);
+      gsap.fromTo(
+        ".admin-stagger-card",
+        { y: 35, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.7, ease: "power2.out", stagger: 0.05, clearProps: "all" }
+      );
     }
   }, [isAdmin]);
 
@@ -1716,15 +1698,8 @@ export function AdminPanel() {
   // ==============================
   return (
     <div className="relative min-h-screen w-full bg-[#05070c] text-white font-arabic overflow-hidden">
-      {/* 3D WebGL World Cup Intro (persistent canvas) */}
-      <WorldCup3DIntro isIntroActive={showAdminIntro} onComplete={handleAdminIntroComplete} />
-
       {/* Main Dashboard Layout */}
-      <div 
-        className={`h-screen w-full flex overflow-hidden transition-opacity duration-1000 ${
-          dashboardVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-      >
+      <div className="h-screen w-full flex overflow-hidden">
       {/* Sidebar Overlay for Mobile */}
       {sidebarOpen && <div className="fixed inset-0 bg-black/60 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />}
 
