@@ -1,53 +1,60 @@
-# Page Animation Spec - Admin Panel World Cup Intro
+# Page Animation Spec - Admin Panel 3D World Cup WebGL Intro
 
 ## Page
 
 - Page Route: `/admin` (Admin Panel)
 - Source File: `src/components/AdminPanel.tsx`
-- Page Status: Completed (Upgraded to Legendary)
+- Component File: `src/components/WorldCup3DIntro.tsx`
+- Page Status: In Progress (Upgrading to 3D WebGL)
 
-## Resume State
+## Cinematic Stages
 
-- Next Agent Action: None (Upgraded to Legendary)
-- Blocking Questions: None
-- Discovery Confidence: High
-- Active Phase: Phase 2 (Completed)
+### 1. Preloader Stage
+- Background: Pitch-black (`#000000`).
+- Text: Bold, futuristic "LOADING" text in the center.
+- Effect: Custom liquid golden glow shader filling the text from 0% to 100% based on simulated assets load.
 
-## Sections
+### 2. Interactive Football Stage
+- Object: Procedural 3D Football Mesh.
+- Materials:
+  - Panels: Matte Black Carbon Fiber (via high-frequency sine/step shader).
+  - Seams: Custom GLSL Shader creating pulsing neon glow blending Gold, Crimson, and Blue (World Cup theme).
+  - Animation: Slow, steady rotation on its axis.
+- Environment: Dynamic particle system (100,000 dust/nebula particles).
+- Interaction:
+  - Mouse Tracking: Particles are repelled/attracted by the cursor (fluid-dynamics simulation on GPU).
+  - Parallax: Camera translates slightly in response to mouse coordinates.
 
-### Admin Intro Overlay
-- Type: Overlay entrance and transition
-- Elements: Outer wrapper div with dark radial gold gradient background, containing background firework emitters.
-- Animation: Fades out and slides up on completion or skip.
-- Status: Completed (Runs on every page F5 refresh)
+### 3. Hyper-Drive Stage
+- Trigger: User click, scroll, or automatic timeout after 4 seconds.
+- Animation:
+  - Ball rotation pauses for 0.5s.
+  - Seam glow flashes to maximum intensity (emissive boost).
+  - Camera pulls back slightly, then zooms forward through the ball at high velocity.
+  - Particles stretch into radial "speed lines" along their velocity vectors on the GPU.
+  - Screen-space Chromatic Aberration & Vignette effects overlay to simulate extreme velocity.
 
-### World Cup Trophy
-- Type: Centerpiece graphic SVG
-- Elements: High-fidelity custom SVG World Cup Trophy with metallic gold gradients and malachite green bands, plus double-layered rotating accent rings.
-- Animation: Entrance zoom and bounce (`y: [30, 0], scale: [0.5, 1], opacity: [0, 1]`).
-- Status: Completed
+### 4. Supernova Explosion Stage
+- Timing: Triggered milliseconds before the ball hits the camera view.
+- Animation:
+  - The football mesh is hidden.
+  - Radial shockwave ring expands from the center, applying a temporary refraction/blur post-processing distortion.
+  - Explode millions of golden particles into 3D space, decelerating smoothly via damping forces on the GPU.
 
-### Orbiting Soccer Spheres
-- Type: 3D Elliptical Orbit Simulation
-- Elements: 3 golden spheres representing mini soccer balls.
-- Animation: Traced elliptical paths computed via trigonometric GSAP loops:
-  - Ball 1: Horizontal orbit (`x = cos(a)*150, y = sin(a)*20`).
-  - Ball 2: 45-degree rotated orbit (`x_raw = cos(a)*130, y_raw = sin(a)*30`).
-  - Ball 3: -45-degree rotated orbit (`x_raw = cos(a)*140, y_raw = sin(a)*25`).
-  - 3D Depth: Automatically toggles scale (from 0.65 to 1.35) and zIndex (5 when behind, 25 when in front) using `Math.sin(a)`.
-- Status: Completed
+### 5. Vortex Reassembly & UI Transition
+- Animation:
+  - Particles undergo a gravity-vortex pull and reassemble to form the Website Logo (3D Islamic 8-pointed geometric star) and a World Cup trophy silhouette.
+  - Stray particles drift to the edges of the viewport, highlighting the borders of the dashboard UI layout (Navbar, cards).
+  - Trigger GSAP timeline to animate the HTML/CSS dashboard cards from bottom to top (Y-axis transition, opacity fade-in, staggered delay).
+  - The Canvas transitions to `pointer-events-none` but remains in the background as a slow-moving, ambient floating particle system.
 
-### Fireworks Backdrops
-- Type: Celebrative fireworks
-- Elements: 3 background SVGs positioned left, right, and top-center.
-- Animation: Staggered loops generating radial explosion lines that expand outward (`x = cos(i*pi/6)*55, y = sin(i*pi/6)*55`) and fade to `opacity: 0` inside an infinite loop.
-- Status: Completed
+## UI Elements
+- Skip Button: Top-right corner, instantly skips all 3D stages, fades out the loading/intro layers, and transitions directly to the final dashboard UI.
 
 ## Mobile Rules
-
-- Simplifications: Remove fireworks and orbiting spheres for performance. Keep only the central trophy zoom and text stagger.
-- Disabled Effects: Glow drop-shadow filters on mobile width.
+- Downgrade: Reduce particle count to 20,000.
+- Disabled Effects: Turn off Chromatic Aberration, Vignette, and heavy shockwave refraction filter.
+- Shaders: Simplify the carbon-fiber texture calculation.
 
 ## Reduced Motion
-
-- Fallback Behavior: Immediate fade and skip transition.
+- Fallback: Instantly skips the 3D Canvas rendering, fading in the admin dashboard panel directly over 500ms.
