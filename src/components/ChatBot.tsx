@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { MessageSquare, X, Send, User, Bot, Loader2 } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { auth, db } from "../lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { motion } from "framer-motion";
@@ -23,6 +23,7 @@ export function ChatBot() {
   const [userData, setUserData] = useState({ name: "", points: 0, rank: "" });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
 
   // Load user data
   useEffect(() => {
@@ -172,6 +173,64 @@ export function ChatBot() {
     }
   };
 
+  // Helper to parse markdown links [Text](url) and bold text **text**
+  const renderMessageContent = (text: string) => {
+    if (!text) return null;
+
+    const regex = /(\[.*?\]\s*\(.*?\))|(\*\*.*?\*\*)/g;
+    const parts = text.split(regex);
+
+    return parts.map((part, index) => {
+      if (!part) return null;
+
+      const linkMatch = part.match(/^\[(.*?)\]\s*\((.*?)\)$/);
+      if (linkMatch) {
+        const linkText = linkMatch[1];
+        const linkUrl = linkMatch[2];
+        const isExternal = linkUrl.startsWith("http://") || linkUrl.startsWith("https://");
+
+        if (isExternal) {
+          return (
+            <a
+              key={index}
+              href={linkUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-emerald-600 dark:text-emerald-400 font-bold underline hover:text-emerald-700 dark:hover:text-emerald-300 mx-1 transition-colors"
+            >
+              {linkText}
+            </a>
+          );
+        } else {
+          return (
+            <button
+              key={index}
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                router.push(linkUrl);
+              }}
+              className="text-emerald-600 dark:text-emerald-400 font-bold underline hover:text-emerald-700 dark:hover:text-emerald-300 cursor-pointer mx-1 transition-colors bg-transparent border-none p-0 inline"
+            >
+              {linkText}
+            </button>
+          );
+        }
+      }
+
+      const boldMatch = part.match(/^\*\*(.*?)\*\*$/);
+      if (boldMatch) {
+        return (
+          <strong key={index} className="font-extrabold text-teal-600 dark:text-teal-400">
+            {boldMatch[1]}
+          </strong>
+        );
+      }
+
+      return <span key={index}>{part}</span>;
+    });
+  };
+
   if (pathname === "/video") return null; // Hide in video editor
 
   return (
@@ -211,7 +270,9 @@ export function ChatBot() {
           {messages.map((msg, idx) => (
             <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
               <div className={`max-w-[85%] rounded-2xl p-3 shadow-sm ${msg.role === "user" ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-br-sm" : "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-bl-sm"}`}>
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                  {msg.role === "assistant" ? renderMessageContent(msg.content) : msg.content}
+                </p>
                 {msg.content === "" && msg.role === "assistant" && (
                   <div className="flex gap-1 items-center h-5">
                     <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
