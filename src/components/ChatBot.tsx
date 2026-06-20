@@ -5,6 +5,7 @@ import { MessageSquare, X, Send, User, Bot, Loader2 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { auth } from "../lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import { motion } from "framer-motion";
 
 interface Message {
   id: string;
@@ -163,15 +164,17 @@ export function ChatBot() {
   return (
     <>
       {/* Floating Button */}
-      <button
+      <motion.button
+        drag
+        dragMomentum={false}
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 z-50 p-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100 animate-bounce'}`}
+        className={`fixed bottom-28 right-6 z-50 p-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100 animate-bounce'}`}
       >
         <MessageSquare size={24} />
-      </button>
+      </motion.button>
 
       {/* Chat Modal */}
-      <div className={`fixed bottom-6 right-6 z-50 w-[350px] sm:w-[400px] max-h-[600px] flex flex-col bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl transition-all duration-500 origin-bottom-right ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'}`}>
+      <div className={`fixed bottom-28 right-6 z-50 w-[350px] sm:w-[400px] max-h-[600px] flex flex-col bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl transition-all duration-500 origin-bottom-right ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'}`}>
         
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-emerald-500/10 to-teal-600/10 rounded-t-2xl">

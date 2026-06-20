@@ -1,27 +1,16 @@
-const geminiKey = "AIzaSyB4zgYjKPmy_al4nH2zNqh1g9IbMHHk5Ew";
-const model = "gemini-1.5-flash";
+const key = process.env.GEMINI_API_KEY || "AIzaSyB4zgYjKPmy_al4nH2zNqh1g9IbMHHk5Ew";
+const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?key=${key}`;
 
-async function test() {
-  const requestBody = {
-    contents: [{ role: "user", parts: [{ text: "السلام عليكم" }] }]
-  };
+const SYSTEM_PROMPT = "You are a helpful assistant.";
+const geminiContents = [
+  { role: "user", parts: [{ text: "ازيك" }] }
+];
 
-  try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody)
-      }
-    );
-
-    const data = await response.json();
-    console.log("Status:", response.status);
-    console.log("Data:", JSON.stringify(data, null, 2));
-  } catch (err) {
-    console.error("Error:", err);
-  }
-}
-
-test();
+fetch(url, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+    contents: geminiContents,
+  })
+}).then(res => res.text().then(text => console.log(res.status, text))).catch(console.error);
