@@ -37,7 +37,8 @@ export async function POST(request: Request) {
         uid: doc.id,
         username: data.username || "",
         displayName: data.displayName || "",
-        photoURL: data.photoURL || ""
+        photoURL: data.photoURL || "",
+        registrationType: data.registrationType || "direct"
       };
     });
 

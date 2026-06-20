@@ -99,12 +99,13 @@ export function AuthGate({ children }: AuthGateProps) {
   const [signupForm, setSignupForm] = useState({
     displayName: "", username: "", email: "", phone: "",
     password: "", gender: "male" as "male" | "female", country: "مصر", avatar: AVATARS.male[0],
+    registrationType: "direct" as "direct" | "indirect",
   });
   const [otpCode, setOtpCode] = useState("");
   const [emailVerified, setEmailVerified] = useState(false);
   const [showWeakPwWarn, setShowWeakPwWarn] = useState(false);
-  const [forgotAccounts, setForgotAccounts] = useState<{ uid: string; username: string; displayName: string; photoURL: string }[]>([]);
-  const [selectedAccount, setSelectedAccount] = useState<{ uid: string; username: string; displayName: string; photoURL: string } | null>(null);
+  const [forgotAccounts, setForgotAccounts] = useState<{ uid: string; username: string; displayName: string; photoURL: string; registrationType?: string }[]>([]);
+  const [selectedAccount, setSelectedAccount] = useState<{ uid: string; username: string; displayName: string; photoURL: string; registrationType?: string } | null>(null);
   const [forgotOtp, setForgotOtp] = useState("");
   const [forgotNewPassword, setForgotNewPassword] = useState("");
   const [resetToken, setResetToken] = useState("");
@@ -258,6 +259,11 @@ export function AuthGate({ children }: AuthGateProps) {
       setForgotAccounts(data.accounts);
       if (data.accounts.length === 1) {
         const acc = data.accounts[0];
+        if (acc.registrationType === "indirect") {
+          setError(`عذراً، هذا الحساب (@${acc.username}) تم إنشاؤه كحساب غير مباشر ولا يدعم استعادة كلمة المرور.`);
+          setIsLoading(false);
+          return;
+        }
         setSelectedAccount(acc);
         await triggerSendForgotOtp(email, acc);
       } else {
@@ -296,8 +302,12 @@ export function AuthGate({ children }: AuthGateProps) {
     }
   }
 
-  async function handleSelectAccount(account: { uid: string; username: string; displayName: string; photoURL: string }) {
+  async function handleSelectAccount(account: { uid: string; username: string; displayName: string; photoURL: string; registrationType?: string }) {
     clearError();
+    if (account.registrationType === "indirect") {
+      setError(`عذراً، هذا الحساب (@${account.username}) تم إنشاؤه كحساب غير مباشر ولا يدعم استعادة كلمة المرور.`);
+      return;
+    }
     setIsLoading(true);
     setSelectedAccount(account);
     await triggerSendForgotOtp(forgotEmail.trim().toLowerCase(), account);
@@ -358,7 +368,7 @@ export function AuthGate({ children }: AuthGateProps) {
 
   async function handleSignupNext(e: React.FormEvent) {
     e.preventDefault(); clearError(); setShowWeakPwWarn(false);
-    const { displayName, username, email, password, phone } = signupForm;
+    const { displayName, username, email, password, phone, registrationType } = signupForm;
     if (displayName.trim().length < 2) return setError("الاسم يجب أن يكون حرفين على الأقل");
     if (username.trim().length < 3) return setError("اسم المستخدم 3 أحرف على الأقل");
     if (!email.trim().includes("@")) return setError("يرجى إدخال بريد إلكتروني صحيح");
@@ -378,6 +388,13 @@ export function AuthGate({ children }: AuthGateProps) {
         const uSnap = await getDocs(uq);
         if (!uSnap.empty) { setError("اسم المستخدم محجوز، جرب اسماً آخر"); setIsLoading(false); return; }
       } catch { /* skip if firestore rules block */ }
+
+      if (registrationType === "indirect") {
+        setEmailVerified(false);
+        setView("signupAvatar");
+        setIsLoading(false);
+        return;
+      }
 
       const res = await fetch(getApiUrl("/api/send-otp/"), {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -424,48 +441,27 @@ export function AuthGate({ children }: AuthGateProps) {
         country: signupForm.country, photoURL: signupForm.avatar,
         totalPoints: 0, createdAt: new Date().toISOString(), lastActive: new Date().toISOString(),
         isBanned: false, encP: btoa(signupForm.password),
+        registrationType: signupForm.registrationType || "direct",
       });
       window.location.reload();
     } catch (err: any) {
       const code = err?.code || "";
       if (code === "auth/email-already-in-use") {
-        const rnd2 = Math.random().toString(36).slice(2,8);
-        const authEmail2 = origEmail.replace("@", `+${rnd2}@`);
-        try {
-          const cred2 = await createUserWithEmailAndPassword(auth, authEmail2, signupForm.password);
-          await setDoc(doc(db, "users", cred2.user.uid), {
-            uid: cred2.user.uid, username: signupForm.username.trim().toLowerCase(),
-            displayName: signupForm.displayName.trim(), email: origEmail, authEmail: authEmail2, emailVerified,
-            phoneNumber: signupForm.phone.trim(), gender: signupForm.gender,
-            country: signupForm.country, photoURL: signupForm.avatar,
-            totalPoints: 0, createdAt: new Date().toISOString(), lastActive: new Date().toISOString(),
-            isBanned: false, encP: btoa(signupForm.password),
-          });
-          window.location.reload();
-          return;
-        } catch { setError("هذا البريد مسجل بالفعل. يرجى تسجيل الدخول."); }
-      }
-      else if (code === "auth/weak-password") setError("كلمة المرور ضعيفة جداً");
-      else setError(err.message || "حدث خطأ أثناء إنشاء الحساب");
-      setIsLoading(false);
-    }
-  }
-
-  // ── Guards ──
+        const rnd2 = Math.random().toString(36)  // ── Guards ──
   const isAdminRoute = pathname?.includes("admin");
 
   if (maintenance?.enabled && !isAdminRoute) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center p-6 z-[9999]" style={{ background: "linear-gradient(135deg,#07090f,#0d0a17,#060c10)" }}>
+      <div className="fixed inset-0 flex items-center justify-center p-6 z-[9999]" style={{ background: "linear-gradient(135deg,#f8fafc,#f1f5f9,#e2e8f0)" }}>
         <div className="max-w-sm w-full text-center space-y-4">
-          <div className="w-20 h-20 mx-auto rounded-3xl flex items-center justify-center border border-amber-500/20" style={{ background: "rgba(245,158,11,0.08)" }}>
-            <Wrench className="w-10 h-10 text-amber-400" />
+          <div className="w-20 h-20 mx-auto rounded-3xl flex items-center justify-center border border-blue-500/20" style={{ background: "rgba(59,130,246,0.08)" }}>
+            <Wrench className="w-10 h-10 text-blue-500" />
           </div>
-          <h1 className="text-2xl font-black text-white">وضع الصيانة</h1>
-          <p className="text-amber-400 font-bold">{maintenance.reason || "نعمل على تحسين التطبيق"}</p>
-          {maintenance.message && <p className="text-white/40 text-sm leading-relaxed">{maintenance.message}</p>}
-          {maintenance.duration && <p className="text-white/25 text-xs">المدة المتوقعة: {maintenance.duration}</p>}
-          <a href="/admin" className="inline-block mt-6 px-5 py-2.5 text-white/30 rounded-xl border border-white/8 text-xs font-bold hover:bg-white/5 transition">دخول الإدارة</a>
+          <h1 className="text-2xl font-black text-slate-900">وضع الصيانة</h1>
+          <p className="text-blue-600 font-bold">{maintenance.reason || "نعمل على تحسين التطبيق"}</p>
+          {maintenance.message && <p className="text-slate-500 text-sm leading-relaxed">{maintenance.message}</p>}
+          {maintenance.duration && <p className="text-slate-400 text-xs">المدة المتوقعة: {maintenance.duration}</p>}
+          <a href="/admin" className="inline-block mt-6 px-5 py-2.5 text-slate-500 rounded-xl border border-slate-200 text-xs font-bold hover:bg-slate-50 transition">دخول الإدارة</a>
         </div>
       </div>
     );
@@ -475,13 +471,13 @@ export function AuthGate({ children }: AuthGateProps) {
 
   if (user === undefined) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center z-[9999]" style={{ background: "linear-gradient(135deg,#07090f,#0d0a17,#060c10)" }}>
+      <div className="fixed inset-0 flex items-center justify-center z-[9999]" style={{ background: "linear-gradient(135deg,#f8fafc,#f1f5f9,#e2e8f0)" }}>
         <div className="flex flex-col items-center gap-4">
           <div className="relative w-12 h-12">
-            <div className="absolute inset-0 rounded-full border-2 border-[#f59e0b]/15 animate-ping" />
-            <div className="absolute inset-1 rounded-full border-2 border-t-[#fbbf24] border-r-[#f59e0b] border-b-transparent border-l-transparent animate-spin" />
+            <div className="absolute inset-0 rounded-full border-2 border-[#3b82f6]/15 animate-ping" />
+            <div className="absolute inset-1 rounded-full border-2 border-t-[#3b82f6] border-r-[#4f46e5] border-b-transparent border-l-transparent animate-spin" />
           </div>
-          <p className="text-white/20 text-[11px] tracking-[0.3em] font-bold">جاري التحميل</p>
+          <p className="text-slate-400 text-[11px] tracking-[0.3em] font-bold">جاري التحميل</p>
         </div>
       </div>
     );
@@ -491,23 +487,23 @@ export function AuthGate({ children }: AuthGateProps) {
   const signupStepIdx = signupSteps.indexOf(view);
 
   return (
-    <div className="force-dark fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden"
-      style={{ background: "linear-gradient(135deg,#07090f 0%,#0d0a17 50%,#060c10 100%)" }}>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden"
+      style={{ background: "linear-gradient(135deg,#f8fafc 0%,#f1f5f9 50%,#e2e8f0 100%)" }}>
 
       {/* Animated background orbs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <motion.div animate={{ x: [0, 25, 0], y: [0, -18, 0] }} transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
           className="absolute -top-40 -left-40 w-[550px] h-[550px] rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(251,191,36,0.07) 0%, transparent 65%)" }} />
+          style={{ background: "radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 65%)" }} />
         <motion.div animate={{ x: [0, -20, 0], y: [0, 22, 0] }} transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 4 }}
           className="absolute -bottom-48 -right-40 w-[650px] h-[650px] rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(20,184,166,0.05) 0%, transparent 65%)" }} />
+          style={{ background: "radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 65%)" }} />
         <motion.div animate={{ opacity: [0.3, 0.55, 0.3] }} transition={{ duration: 9, repeat: Infinity }}
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(139,92,246,0.035) 0%, transparent 70%)" }} />
+          style={{ background: "radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 70%)" }} />
         {/* Grid */}
-        <div className="absolute inset-0 opacity-[0.022]"
-          style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.5) 1px,transparent 1px)", backgroundSize: "44px 44px" }} />
+        <div className="absolute inset-0 opacity-[0.035]"
+          style={{ backgroundImage: "linear-gradient(rgba(15,23,42,0.5) 1px,transparent 1px),linear-gradient(90deg,rgba(15,23,42,0.5) 1px,transparent 1px)", backgroundSize: "44px 44px" }} />
       </div>
 
       {/* Card */}
@@ -517,25 +513,25 @@ export function AuthGate({ children }: AuthGateProps) {
 
         {/* Outer glow ring */}
         <div className="absolute -inset-px rounded-[2rem] pointer-events-none"
-          style={{ background: "linear-gradient(135deg,rgba(251,191,36,0.12),transparent 45%,rgba(20,184,166,0.06))", borderRadius: "2rem" }} />
+          style={{ background: "linear-gradient(135deg,rgba(59,130,246,0.15),transparent 45%,rgba(99,102,241,0.1))", borderRadius: "2rem" }} />
 
         <div className="relative overflow-hidden" style={{
           borderRadius: "2rem",
-          background: "rgba(255,255,255,0.027)",
+          background: "rgba(255,255,255,0.85)",
           backdropFilter: "blur(32px)", WebkitBackdropFilter: "blur(32px)",
-          border: "1px solid rgba(255,255,255,0.065)",
-          boxShadow: "0 40px 100px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -1px 0 rgba(0,0,0,0.3)",
+          border: "1px solid rgba(15,23,42,0.08)",
+          boxShadow: "0 40px 100px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -1px 0 rgba(15,23,42,0.04)",
         }}>
 
           {/* Top accent line */}
           <div className="absolute top-0 left-10 right-10 h-px"
-            style={{ background: "linear-gradient(90deg,transparent,rgba(251,191,36,0.45),transparent)" }} />
+            style={{ background: "linear-gradient(90deg,transparent,rgba(59,130,246,0.5),transparent)" }} />
 
           {/* Signup progress bar */}
           {signupStepIdx >= 0 && (
-            <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: "rgba(255,255,255,0.04)" }}>
+            <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: "rgba(15,23,42,0.04)" }}>
               <motion.div className="h-full rounded-full"
-                style={{ background: "linear-gradient(90deg,#f59e0b,#fbbf24,#fde68a)" }}
+                style={{ background: "linear-gradient(90deg,#3b82f6,#6366f1,#818cf8)" }}
                 animate={{ width: `${((signupStepIdx + 1) / signupSteps.length) * 100}%` }}
                 transition={{ duration: 0.45, ease: "easeOut" }} />
             </div>
@@ -550,16 +546,16 @@ export function AuthGate({ children }: AuthGateProps) {
                   <div className="flex justify-center mb-6">
                     <motion.div className="relative" animate={{ y: [0, -4, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
                       <div className="absolute -inset-4 rounded-2xl opacity-50"
-                        style={{ background: "radial-gradient(circle,rgba(251,191,36,0.18),transparent 70%)" }} />
-                      <div className="relative w-16 h-16 rounded-2xl p-3 border border-[#fbbf24]/20"
-                        style={{ background: "linear-gradient(135deg,rgba(251,191,36,0.1),rgba(245,158,11,0.03))" }}>
+                        style={{ background: "radial-gradient(circle,rgba(59,130,246,0.18),transparent 70%)" }} />
+                      <div className="relative w-16 h-16 rounded-2xl p-3 border border-[#3b82f6]/20"
+                        style={{ background: "linear-gradient(135deg,rgba(59,130,246,0.1),rgba(99,102,241,0.03))" }}>
                         <img src="/logo/logo.png" alt="Logo" className="w-full h-full object-contain" />
                       </div>
                     </motion.div>
                   </div>
                   <div className="text-center mb-6">
-                    <h1 className="text-[22px] font-black text-white tracking-tight">أهلاً بك</h1>
-                    <p className="text-white/25 text-[11px] mt-0.5 tracking-[0.25em] font-medium">الاستوديو القرآني</p>
+                    <h1 className="text-[22px] font-black text-slate-900 tracking-tight">أهلاً بك</h1>
+                    <p className="text-slate-400 text-[11px] mt-0.5 tracking-[0.25em] font-medium">الاستوديو القرآني</p>
                   </div>
                   <form onSubmit={handleLogin} className="space-y-3">
                     <FancyInput icon={<User />} type="text" value={loginId} onChange={setLoginId} placeholder="اسم المستخدم أو البريد الإلكتروني" />
@@ -569,14 +565,14 @@ export function AuthGate({ children }: AuthGateProps) {
                   </form>
                   <div className="flex items-center justify-between mt-5 px-1">
                     <button type="button" onClick={() => { setView("forgotPassword"); clearError(); }}
-                      className="text-[11px] text-white/30 hover:text-[#fbbf24] transition-colors font-medium">نسيت كلمة المرور؟</button>
+                      className="text-[11px] text-slate-500 hover:text-[#3b82f6] transition-colors font-medium">نسيت كلمة المرور؟</button>
                     <button type="button" onClick={() => { setView("signupInfo"); clearError(); }}
-                      className="text-[11px] font-black text-[#fbbf24] flex items-center gap-1 hover:gap-2 transition-all">
+                      className="text-[11px] font-black text-[#3b82f6] flex items-center gap-1 hover:gap-2 transition-all">
                       حساب جديد <ArrowLeft className="w-3 h-3" />
                     </button>
                   </div>
                   <button type="button" onClick={() => { setIsSkipped(true); localStorage.setItem("auth_skipped", "true"); }}
-                    className="w-full mt-4 py-2.5 text-[11px] text-white/15 hover:text-white/35 transition-colors border border-white/[0.05] rounded-xl font-medium">
+                    className="w-full mt-4 py-2.5 text-[11px] text-slate-400 hover:text-slate-700 hover:bg-slate-50/50 transition-colors border border-slate-200/80 rounded-xl font-medium">
                     تخطي لاحقاً ←
                   </button>
                 </Slide>
@@ -585,10 +581,10 @@ export function AuthGate({ children }: AuthGateProps) {
               {/* ── FORGOT PASSWORD ── */}
               {view === "forgotPassword" && (
                 <Slide key="forgotPw">
-                  <CircleIcon color="#fbbf24"><KeyRound className="w-6 h-6" /></CircleIcon>
+                  <CircleIcon color="#3b82f6"><KeyRound className="w-6 h-6" /></CircleIcon>
                   <div className="text-center mb-6">
-                    <h2 className="text-xl font-black text-white">نسيت كلمة المرور؟</h2>
-                    <p className="text-white/30 text-xs mt-2 leading-relaxed">أدخل بريدك الإلكتروني وسنرسل كود تحقق لاستعادة حسابك</p>
+                    <h2 className="text-xl font-black text-slate-900 font-bold">نسيت كلمة المرور؟</h2>
+                    <p className="text-slate-500 text-xs mt-2 leading-relaxed">أدخل بريدك الإلكتروني وسنرسل كود تحقق لاستعادة حسابك</p>
                   </div>
                   <form onSubmit={handleForgotPassword} className="space-y-3">
                     <FancyInput icon={<Mail />} type="email" value={forgotEmail} onChange={setForgotEmail} placeholder="البريد الإلكتروني" dir="ltr" />
@@ -602,20 +598,25 @@ export function AuthGate({ children }: AuthGateProps) {
               {/* ── FORGOT CHOOSE ACCOUNT ── */}
               {view === "forgotChooseAccount" && (
                 <Slide key="forgotChoose">
-                  <CircleIcon color="#fbbf24"><User className="w-6 h-6" /></CircleIcon>
+                  <CircleIcon color="#3b82f6"><User className="w-6 h-6" /></CircleIcon>
                   <div className="text-center mb-4">
-                    <h2 className="text-xl font-black text-white">اختر الحساب</h2>
-                    <p className="text-white/30 text-[11px] mt-1">هذا البريد الإلكتروني مرتبط بأكثر من حساب، اختر الحساب الذي تود استعادة كلمة المرور له:</p>
+                    <h2 className="text-xl font-black text-slate-900">اختر الحساب</h2>
+                    <p className="text-slate-500 text-[11px] mt-1">هذا البريد الإلكتروني مرتبط بأكثر من حساب، اختر الحساب الذي تود استعادة كلمة المرور له:</p>
                   </div>
                   <div className="max-h-48 overflow-y-auto space-y-2 mb-4 custom-scrollbar">
                     {forgotAccounts.map((acc) => (
                       <button key={acc.uid} type="button" onClick={() => handleSelectAccount(acc)}
-                        className="w-full flex items-center gap-3 p-3 rounded-xl border border-white/[0.04] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/[0.08] transition-all text-right">
-                        <img src={acc.photoURL || AVATARS.male[0]} alt="" className="w-10 h-10 rounded-lg object-cover bg-black/20" />
-                        <div>
-                          <div className="text-sm font-bold text-white">{acc.displayName}</div>
-                          <div className="text-xs text-white/40">@{acc.username}</div>
+                        className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-slate-100/80 hover:border-slate-300/80 transition-all text-right">
+                        <div className="flex items-center gap-3">
+                          <img src={acc.photoURL || AVATARS.male[0]} alt="" className="w-10 h-10 rounded-lg object-cover bg-slate-200" />
+                          <div>
+                            <div className="text-sm font-bold text-slate-900">{acc.displayName}</div>
+                            <div className="text-xs text-slate-400">@{acc.username}</div>
+                          </div>
                         </div>
+                        {acc.registrationType === "indirect" && (
+                          <span className="text-[9px] bg-red-500/10 text-red-500 px-2 py-0.5 rounded-lg border border-red-200/60 font-bold">غير مباشر</span>
+                        )}
                       </button>
                     ))}
                   </div>
@@ -627,10 +628,10 @@ export function AuthGate({ children }: AuthGateProps) {
               {/* ── FORGOT OTP ── */}
               {view === "forgotOtp" && (
                 <Slide key="forgotOtp">
-                  <CircleIcon color="#fbbf24"><Mail className="w-6 h-6" /></CircleIcon>
+                  <CircleIcon color="#3b82f6"><Mail className="w-6 h-6" /></CircleIcon>
                   <div className="text-center mb-6">
-                    <h2 className="text-xl font-black text-white">كود التحقق</h2>
-                    <p className="text-white/30 text-xs mt-2 leading-relaxed">أدخل كود التحقق المرسل إلى بريدك الإلكتروني<br />لحساب <span className="text-[#fbbf24] font-bold">@{selectedAccount?.username}</span></p>
+                    <h2 className="text-xl font-black text-slate-900 font-bold">كود التحقق</h2>
+                    <p className="text-slate-500 text-xs mt-2 leading-relaxed">أدخل كود التحقق المرسل إلى بريدك الإلكتروني<br />لحساب <span className="text-[#3b82f6] font-bold">@{selectedAccount?.username}</span></p>
                   </div>
                   <form onSubmit={handleVerifyForgotOtp} className="space-y-4">
                     <OtpBoxes value={forgotOtp} onChange={setForgotOtp} />
@@ -652,10 +653,10 @@ export function AuthGate({ children }: AuthGateProps) {
               {/* ── FORGOT RESET ── */}
               {view === "forgotReset" && (
                 <Slide key="forgotReset">
-                  <CircleIcon color="#fbbf24"><KeyRound className="w-6 h-6" /></CircleIcon>
+                  <CircleIcon color="#3b82f6"><KeyRound className="w-6 h-6" /></CircleIcon>
                   <div className="text-center mb-6">
-                    <h2 className="text-xl font-black text-white font-bold">كلمة مرور جديدة</h2>
-                    <p className="text-white/30 text-xs mt-2">قم بتعيين كلمة مرور جديدة لحسابك</p>
+                    <h2 className="text-xl font-black text-slate-900 font-bold">كلمة مرور جديدة</h2>
+                    <p className="text-slate-500 text-xs mt-2">قم بتعيين كلمة مرور جديدة لحسابك</p>
                   </div>
                   <form onSubmit={handleResetPassword} className="space-y-4">
                     <FancyInput icon={<KeyRound />} type="password" value={forgotNewPassword} onChange={setForgotNewPassword} placeholder="كلمة المرور الجديدة" showEye showPassword={showPassword} setShowPassword={setShowPassword} />
@@ -671,14 +672,14 @@ export function AuthGate({ children }: AuthGateProps) {
                   <div className="flex flex-col items-center py-4 text-center">
                     <motion.div initial={{ scale: 0, rotate: -15 }} animate={{ scale: 1, rotate: 0 }}
                       transition={{ type: "spring", stiffness: 260, damping: 18 }}
-                      className="w-20 h-20 rounded-[2rem] flex items-center justify-center mb-5 border border-emerald-500/20"
-                      style={{ background: "rgba(16,185,129,0.08)" }}>
-                      <Check className="w-10 h-10 text-emerald-400" />
+                      className="w-20 h-20 rounded-[2rem] flex items-center justify-center mb-5 border border-emerald-200"
+                      style={{ background: "rgba(16,185,129,0.06)" }}>
+                      <Check className="w-10 h-10 text-emerald-500" />
                     </motion.div>
-                    <h2 className="text-xl font-black text-white mb-2">تم التغيير ✓</h2>
-                    <p className="text-white/40 text-sm mb-5">تمت إعادة تعيين كلمة المرور لحسابك بنجاح</p>
+                    <h2 className="text-xl font-black text-slate-900 mb-2 font-bold">تم التغيير ✓</h2>
+                    <p className="text-slate-500 text-sm mb-5">تمت إعادة تعيين كلمة المرور لحسابك بنجاح</p>
                     <button onClick={() => { setView("login"); clearError(); setForgotEmail(""); setForgotOtp(""); setForgotNewPassword(""); setResetToken(""); setSelectedAccount(null); }}
-                      className="text-[#fbbf24] font-bold text-sm hover:underline">العودة لتسجيل الدخول</button>
+                      className="text-[#3b82f6] font-bold text-sm hover:underline">العودة لتسجيل الدخول</button>
                   </div>
                 </Slide>
               )}
@@ -689,12 +690,38 @@ export function AuthGate({ children }: AuthGateProps) {
                   <Dots total={3} current={0} />
                   <div className="text-center mb-5">
                     <div className="inline-flex items-center gap-1.5 mb-2">
-                      <Sparkles className="w-4 h-4 text-[#fbbf24]" />
-                      <h2 className="text-lg font-black text-white">إنشاء حساب جديد</h2>
+                      <Sparkles className="w-4 h-4 text-[#3b82f6]" />
+                      <h2 className="text-lg font-black text-slate-900 font-bold">إنشاء حساب جديد</h2>
                     </div>
-                    <p className="text-white/25 text-[11px]">المعلومات الأساسية · الخطوة 1 من 3</p>
+                    <p className="text-slate-400 text-[11px]">المعلومات الأساسية · الخطوة 1 من 3</p>
                   </div>
                   <form onSubmit={handleSignupNext} className="space-y-2.5">
+                    {/* نوع التسجيل: مباشر أم غير مباشر */}
+                    <div className="grid grid-cols-2 gap-2 mb-2">
+                      <button
+                        type="button"
+                        onClick={() => setSignupForm({ ...signupForm, registrationType: "direct" })}
+                        className="py-2.5 px-1.5 rounded-xl text-xs font-black transition-all border flex flex-col items-center justify-center gap-1"
+                        style={signupForm.registrationType === "direct"
+                          ? { borderColor: "rgba(59,130,246,0.45)", color: "#2563eb", background: "rgba(59,130,246,0.08)" }
+                          : { borderColor: "rgba(15,23,42,0.08)", color: "rgba(15,23,42,0.4)", background: "rgba(15,23,42,0.02)" }}
+                      >
+                        <span className="text-[11px] font-black">✨ تسجيل مباشر</span>
+                        <span className="text-[8px] opacity-75 font-bold">كود تحقق (استرجاع متاح)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSignupForm({ ...signupForm, registrationType: "indirect" })}
+                        className="py-2.5 px-1.5 rounded-xl text-xs font-black transition-all border flex flex-col items-center justify-center gap-1"
+                        style={signupForm.registrationType === "indirect"
+                          ? { borderColor: "rgba(59,130,246,0.45)", color: "#2563eb", background: "rgba(59,130,246,0.08)" }
+                          : { borderColor: "rgba(15,23,42,0.08)", color: "rgba(15,23,42,0.4)", background: "rgba(15,23,42,0.02)" }}
+                      >
+                        <span className="text-[11px] font-black">👤 تسجيل غير مباشر</span>
+                        <span className="text-[8px] opacity-75 font-bold">بيانات عادية (بدون استرجاع)</span>
+                      </button>
+                    </div>
+
                     <FancyInput icon={<User />} type="text" value={signupForm.displayName} onChange={(v: string) => setSignupForm({ ...signupForm, displayName: v })} placeholder="الاسم الكامل" />
                     <div className="grid grid-cols-2 gap-2">
                       <FancyInput icon={<User />} type="text" value={signupForm.username} onChange={(v: string) => setSignupForm({ ...signupForm, username: v.toLowerCase().replace(/[^a-z0-9_]/g, "") })} placeholder="اسم_المستخدم" dir="ltr" />
@@ -703,23 +730,31 @@ export function AuthGate({ children }: AuthGateProps) {
                     <FancyInput icon={<Mail />} type="email" value={signupForm.email} onChange={(v: string) => { setSignupForm({ ...signupForm, email: v }); setShowWeakPwWarn(false); }} placeholder="البريد الإلكتروني" dir="ltr" />
                     <FancyInput icon={<KeyRound />} type="password" value={signupForm.password} onChange={(v: string) => { setSignupForm({ ...signupForm, password: v }); setShowWeakPwWarn(false); if (error.includes("ضعيف")) clearError(); }} placeholder="كلمة المرور" showEye showPassword={showPassword} setShowPassword={setShowPassword} />
                     <StrengthBar pw={signupForm.password} />
-                    <div className="rounded-xl border border-amber-500/15 p-3 text-right" style={{ background: "rgba(245,158,11,0.04)" }}>
-                      <p className="text-[10px] text-amber-400/75 leading-relaxed">⚠️ احفظ كلمة المرور — لا يمكن استعادتها إلا عبر البريد الإلكتروني</p>
-                    </div>
+                    
+                    {signupForm.registrationType === "direct" ? (
+                      <div className="rounded-xl border border-blue-500/15 p-3 text-right" style={{ background: "rgba(59,130,246,0.04)" }}>
+                        <p className="text-[10px] text-blue-600 leading-relaxed font-bold">⚠️ احفظ كلمة المرور — يمكنك استعادتها في أي وقت عبر بريدك الإلكتروني المفعل.</p>
+                      </div>
+                    ) : (
+                      <div className="rounded-xl border border-red-500/15 p-3 text-right" style={{ background: "rgba(239,68,68,0.04)" }}>
+                        <p className="text-[10px] text-red-600 leading-relaxed font-bold">🚫 تنبيه: هذا الحساب غير مباشر ولا يدعم استعادة كلمة المرور إذا فقدتها.</p>
+                      </div>
+                    )}
+
                     <div className="relative z-50"><CountryPicker value={signupForm.country} onChange={(v) => setSignupForm({ ...signupForm, country: v })} /></div>
                     <div className="grid grid-cols-2 gap-2">
                       {(["male", "female"] as const).map((g) => (
                         <button key={g} type="button" onClick={() => setSignupForm({ ...signupForm, gender: g, avatar: AVATARS[g][0] })}
                           className="py-3 rounded-xl text-sm font-bold transition-all border"
                           style={signupForm.gender === g
-                            ? { borderColor: "rgba(251,191,36,0.45)", color: "#fbbf24", background: "rgba(251,191,36,0.08)" }
-                            : { borderColor: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.3)" }}>
+                            ? { borderColor: "rgba(59,130,246,0.45)", color: "#2563eb", background: "rgba(59,130,246,0.08)" }
+                            : { borderColor: "rgba(15,23,42,0.08)", color: "rgba(15,23,42,0.4)", background: "transparent" }}>
                           {g === "male" ? "👨 ذكر" : "👩 أنثى"}
                         </button>
                       ))}
                     </div>
                     <ErrorBox text={error} />
-                    <GoldBtn type="submit" loading={isLoading} label="التالي — إرسال كود التحقق" />
+                    <GoldBtn type="submit" loading={isLoading} label={signupForm.registrationType === "direct" ? "التالي — إرسال كود التحقق" : "التالي — اختيار الصورة الرمزية"} />
                     <SubBtn onClick={() => { setView("login"); clearError(); }} label="العودة لتسجيل الدخول" />
                   </form>
                 </Slide>
@@ -729,12 +764,12 @@ export function AuthGate({ children }: AuthGateProps) {
               {view === "signupOtp" && (
                 <Slide key="signupOtp">
                   <Dots total={3} current={1} />
-                  <CircleIcon color="#fbbf24"><ShieldCheck className="w-6 h-6" /></CircleIcon>
+                  <CircleIcon color="#3b82f6"><ShieldCheck className="w-6 h-6" /></CircleIcon>
                   <div className="text-center mb-6">
-                    <h2 className="text-xl font-black text-white">تأكيد البريد الإلكتروني</h2>
-                    <p className="text-white/30 text-xs mt-2">أدخل الرمز المكوّن من 6 أرقام</p>
-                    <p className="text-[#fbbf24] text-xs font-bold mt-1">{signupForm.email}</p>
-                    <p className="text-[10px] text-white/20 leading-relaxed mt-2">💡 لم يصلك الكود؟ تحقق من <span className="text-white/40 font-bold">البريد غير المرغوب فيه (Spam)</span> — قد يظهر هناك. ارجع واضغط على النقاط الثلاث ⋮ واختر "ليس بريداً عشوائياً"</p>
+                    <h2 className="text-xl font-black text-slate-900 font-bold">تأكيد البريد الإلكتروني</h2>
+                    <p className="text-slate-500 text-xs mt-2">أدخل الرمز المكوّن من 6 أرقام</p>
+                    <p className="text-[#3b82f6] text-xs font-bold mt-1">{signupForm.email}</p>
+                    <p className="text-[10px] text-slate-400 leading-relaxed mt-2">💡 لم يصلك الكود؟ تحقق من <span className="text-slate-600 font-bold">البريد غير المرغوب فيه (Spam)</span> — قد يظهر هناك. ارجع واضغط على النقاط الثلاث ⋮ واختر "ليس بريداً عشوائياً"</p>
                   </div>
                   <form onSubmit={handleVerifyOtp} className="space-y-4">
                     <OtpBoxes value={otpCode} onChange={setOtpCode} />
@@ -747,7 +782,7 @@ export function AuthGate({ children }: AuthGateProps) {
                         const data = await res.json();
                         if (!res.ok || !data.success) setError(data.error || "فشل إعادة الإرسال");
                       } catch { setError("فشل الاتصال"); } finally { setIsLoading(false); }
-                    }} className="w-full flex items-center justify-center gap-1.5 text-xs text-white/25 hover:text-white/55 transition-colors py-1">
+                    }} className="w-full flex items-center justify-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition-colors py-1">
                       <RefreshCw className="w-3 h-3" /> إعادة إرسال الكود
                     </button>
                     <SubBtn onClick={() => { setView("signupInfo"); clearError(); setOtpCode(""); }} />
@@ -760,8 +795,8 @@ export function AuthGate({ children }: AuthGateProps) {
                 <Slide key="signupAvatar">
                   <Dots total={3} current={2} />
                   <div className="text-center mb-5">
-                    <h2 className="text-xl font-black text-white">الصورة الرمزية</h2>
-                    <p className="text-white/25 text-[11px] mt-1">الخطوة الأخيرة — اختر ما يعبر عنك</p>
+                    <h2 className="text-xl font-black text-slate-900 font-bold">الصورة الرمزية</h2>
+                    <p className="text-slate-400 text-[11px] mt-1">الخطوة الأخيرة — اختر ما يعبر عنك</p>
                   </div>
                   <div className="grid grid-cols-5 gap-2 mb-5">
                     {AVATARS[signupForm.gender].map((url, i) => (
@@ -769,14 +804,14 @@ export function AuthGate({ children }: AuthGateProps) {
                         onClick={() => setSignupForm({ ...signupForm, avatar: url })}
                         className="relative w-full aspect-square rounded-xl overflow-hidden border-2 transition-all duration-200"
                         style={signupForm.avatar === url
-                          ? { borderColor: "#fbbf24", boxShadow: "0 0 18px rgba(251,191,36,0.4)" }
-                          : { borderColor: "rgba(255,255,255,0.06)", filter: "grayscale(55%)", opacity: 0.5 }}>
-                        <img src={url} alt="" className="w-full h-full object-cover" style={{ background: "#0d0d14" }} />
+                          ? { borderColor: "#3b82f6", boxShadow: "0 0 18px rgba(59,130,246,0.3)" }
+                          : { borderColor: "rgba(15,23,42,0.08)", filter: "grayscale(55%)", opacity: 0.5 }}>
+                        <img src={url} alt="" className="w-full h-full object-cover" style={{ background: "#f8fafc" }} />
                         {signupForm.avatar === url && (
                           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 300 }}
-                            className="absolute -top-1 -right-1 w-4 h-4 rounded-full border border-[#fbbf24] flex items-center justify-center"
-                            style={{ background: "#0b0f1a" }}>
-                            <Check className="w-2.5 h-2.5 text-[#fbbf24]" />
+                            className="absolute -top-1 -right-1 w-4 h-4 rounded-full border border-[#3b82f6] flex items-center justify-center"
+                            style={{ background: "#ffffff" }}>
+                            <Check className="w-2.5 h-2.5 text-[#3b82f6]" />
                           </motion.div>
                         )}
                       </motion.button>
@@ -784,9 +819,9 @@ export function AuthGate({ children }: AuthGateProps) {
                   </div>
                   <ErrorBox text={error} />
                   <div className="flex gap-2.5">
-                    <button onClick={() => { setView(emailVerified ? "signupInfo" : "signupOtp"); clearError(); }}
+                    <button onClick={() => { setView(emailVerified ? "signupInfo" : (signupForm.registrationType === "indirect" ? "signupInfo" : "signupOtp")); clearError(); }}
                       className="w-11 h-11 rounded-xl flex items-center justify-center border flex-shrink-0 transition-colors"
-                      style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.35)" }}>
+                      style={{ background: "rgba(15,23,42,0.03)", borderColor: "rgba(15,23,42,0.07)", color: "rgba(15,23,42,0.5)" }}>
                       <ArrowLeft className="w-4 h-4 rotate-180" />
                     </button>
                     <div className="flex-1"><GoldBtn type="button" loading={isLoading} label="انطلق 🚀" onClick={handleCreateAccount} /></div>
@@ -799,7 +834,7 @@ export function AuthGate({ children }: AuthGateProps) {
 
           {/* Bottom shimmer */}
           <div className="absolute bottom-0 left-10 right-10 h-px"
-            style={{ background: "linear-gradient(90deg,transparent,rgba(255,255,255,0.035),transparent)" }} />
+            style={{ background: "linear-gradient(90deg,transparent,rgba(15,23,42,0.035),transparent)" }} />
         </div>
       </motion.div>
     </div>
@@ -841,7 +876,7 @@ function Dots({ total, current }: { total: number; current: number }) {
         <motion.div key={i} className="h-1.5 rounded-full"
           animate={{ width: i === current ? 22 : 6, opacity: i <= current ? 1 : 0.2 }}
           transition={{ duration: 0.3 }}
-          style={{ background: i <= current ? "linear-gradient(90deg,#f59e0b,#fbbf24)" : "rgba(255,255,255,0.2)" }} />
+          style={{ background: i <= current ? "linear-gradient(90deg,#3b82f6,#4f46e5)" : "rgba(15,23,42,0.15)" }} />
       ))}
     </div>
   );
@@ -858,14 +893,14 @@ function OtpBoxes({ value, onChange }: { value: string; onChange: (v: string) =>
       <div className="flex gap-2 justify-center">
         {digits.map((d, i) => (
           <motion.div key={i}
-            animate={{ borderColor: d ? "#fbbf24" : value.length === i ? "rgba(251,191,36,0.4)" : "rgba(255,255,255,0.08)" }}
+            animate={{ borderColor: d ? "#3b82f6" : value.length === i ? "rgba(59,130,246,0.5)" : "rgba(15,23,42,0.08)" }}
             transition={{ duration: 0.15 }}
-            className="flex-1 h-12 rounded-xl flex items-center justify-center text-xl font-black text-white border-2 relative select-none"
-            style={{ background: d ? "rgba(251,191,36,0.07)" : "rgba(255,255,255,0.03)", maxWidth: 48 }}>
-            {d || <span className="text-white/15 text-base font-light">·</span>}
+            className="flex-1 h-12 rounded-xl flex items-center justify-center text-xl font-black text-slate-900 border-2 relative select-none"
+            style={{ background: d ? "rgba(59,130,246,0.05)" : "rgba(15,23,42,0.02)", maxWidth: 48 }}>
+            {d || <span className="text-slate-300 text-base font-light">·</span>}
             {value.length === i && (
               <motion.div animate={{ opacity: [1, 0, 1] }} transition={{ duration: 0.85, repeat: Infinity }}
-                className="absolute bottom-2 left-1/2 -translate-x-1/2 w-0.5 h-4 rounded-full bg-[#fbbf24]" />
+                className="absolute bottom-2 left-1/2 -translate-x-1/2 w-0.5 h-4 rounded-full bg-[#3b82f6]" />
             )}
           </motion.div>
         ))}
@@ -879,7 +914,7 @@ function FancyInput({ icon, type, value, onChange, placeholder, dir = "rtl", sho
   return (
     <div className="relative group">
       <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10 transition-colors duration-200"
-        style={{ color: focused ? "rgba(251,191,36,0.65)" : "rgba(255,255,255,0.2)" }}>
+        style={{ color: focused ? "rgba(59,130,246,0.85)" : "rgba(15,23,42,0.3)" }}>
         <div className="[&>svg]:w-4 [&>svg]:h-4">{icon}</div>
       </div>
       <input required
@@ -890,16 +925,16 @@ function FancyInput({ icon, type, value, onChange, placeholder, dir = "rtl", sho
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         dir={dir}
-        className="w-full py-3.5 pr-10 pl-10 text-sm text-white/90 outline-none placeholder:text-white/20 rounded-xl [direction:inherit] transition-all duration-200"
+        className="w-full py-3.5 pr-10 pl-10 text-sm text-slate-900 outline-none placeholder:text-slate-400 rounded-xl [direction:inherit] transition-all duration-200"
         style={{
-          background: focused ? "rgba(255,255,255,0.055)" : "rgba(255,255,255,0.03)",
-          border: `1.5px solid ${focused ? "rgba(251,191,36,0.38)" : "rgba(255,255,255,0.07)"}`,
-          boxShadow: focused ? "0 0 0 3px rgba(251,191,36,0.07)" : "none",
+          background: focused ? "rgba(0,0,0,0.01)" : "#ffffff",
+          border: `1.5px solid ${focused ? "rgba(59,130,246,0.5)" : "rgba(15,23,42,0.08)"}`,
+          boxShadow: focused ? "0 0 0 3px rgba(59,130,246,0.05)" : "none",
         }}
       />
       {showEye && (
         <button type="button" onClick={() => setShowPassword(!showPassword)}
-          className="absolute left-3 top-1/2 -translate-y-1/2 z-10 text-white/25 hover:text-white/55 transition-colors">
+          className="absolute left-3 top-1/2 -translate-y-1/2 z-10 text-slate-400 hover:text-slate-700 transition-colors">
           {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
         </button>
       )}
@@ -911,8 +946,8 @@ function GoldBtn({ type, onClick, loading, label }: { type: "submit" | "button";
   return (
     <motion.button type={type} onClick={onClick} disabled={loading}
       whileHover={{ scale: loading ? 1 : 1.016 }} whileTap={{ scale: loading ? 1 : 0.97 }}
-      className="w-full py-3.5 rounded-xl font-black text-[13px] text-[#07090f] flex items-center justify-center gap-2 disabled:opacity-50"
-      style={{ background: "linear-gradient(135deg,#f59e0b,#fcd34d,#f59e0b)", backgroundSize: "200%", boxShadow: "0 4px 22px rgba(251,191,36,0.28)" }}>
+      className="w-full py-3.5 rounded-xl font-black text-[13px] text-white flex items-center justify-center gap-2 disabled:opacity-50"
+      style={{ background: "linear-gradient(135deg,#3b82f6,#4f46e5,#3b82f6)", backgroundSize: "200%", boxShadow: "0 4px 22px rgba(59,130,246,0.2)" }}>
       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : label}
     </motion.button>
   );
@@ -921,7 +956,7 @@ function GoldBtn({ type, onClick, loading, label }: { type: "submit" | "button";
 function SubBtn({ onClick, label = "العودة" }: { onClick: () => void; label?: string }) {
   return (
     <button type="button" onClick={onClick}
-      className="w-full py-1.5 text-xs text-white/25 hover:text-white/50 transition-colors font-medium">
+      className="w-full py-1.5 text-xs text-slate-400 hover:text-slate-600 transition-colors font-medium">
       {label}
     </button>
   );
@@ -931,12 +966,12 @@ function ErrorBox({ text }: { text: string }) {
   if (!text) return null;
   return (
     <motion.div initial={{ opacity: 0, y: -6, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }}
-      className="flex items-start gap-2.5 rounded-xl p-3 border border-red-500/15"
-      style={{ background: "rgba(239,68,68,0.07)" }}>
-      <span className="mt-0.5 w-4 h-4 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
-        <span className="text-red-400 text-[10px] font-black leading-none">!</span>
+      className="flex items-start gap-2.5 rounded-xl p-3 border border-red-200"
+      style={{ background: "rgba(239,68,68,0.04)" }}>
+      <span className="mt-0.5 w-4 h-4 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+        <span className="text-red-500 text-[10px] font-black leading-none">!</span>
       </span>
-      <p className="text-red-400 text-xs font-bold leading-relaxed">{text}</p>
+      <p className="text-red-500 text-xs font-bold leading-relaxed">{text}</p>
     </motion.div>
   );
 }
@@ -955,14 +990,14 @@ function StrengthBar({ pw }: { pw: string }) {
       <div className="flex gap-1">
         {[1, 2, 3, 4].map((s) => (
           <motion.div key={s} className="flex-1 h-1 rounded-full"
-            animate={{ background: score >= s ? colors[score] : "rgba(255,255,255,0.07)" }}
+            animate={{ background: score >= s ? colors[score] : "rgba(15,23,42,0.06)" }}
             transition={{ duration: 0.3 }} />
         ))}
       </div>
       <div className="flex justify-between px-0.5">
         {checks.map(({ ok, label }) => (
           <span key={label} className="text-[10px] flex items-center gap-0.5 font-mono transition-colors"
-            style={{ color: ok ? "#34d399" : "rgba(255,255,255,0.18)" }}>
+            style={{ color: ok ? "#10b981" : "rgba(15,23,42,0.25)" }}>
             {ok && <Check className="w-2.5 h-2.5" />}{label}
           </span>
         ))}
@@ -979,26 +1014,26 @@ function CountryPicker({ value, onChange }: { value: string; onChange: (v: strin
       <button type="button" onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between py-3.5 px-3.5 rounded-xl text-sm border transition-all duration-200"
         style={{
-          background: open ? "rgba(255,255,255,0.055)" : "rgba(255,255,255,0.03)",
-          borderColor: open ? "rgba(251,191,36,0.38)" : "rgba(255,255,255,0.07)",
+          background: open ? "rgba(0,0,0,0.01)" : "#ffffff",
+          borderColor: open ? "rgba(59,130,246,0.5)" : "rgba(15,23,42,0.08)",
         }}>
-        <span className="flex items-center gap-2 font-medium" style={{ color: "rgba(255,255,255,0.7)" }}>
+        <span className="flex items-center gap-2 font-medium" style={{ color: "rgba(15,23,42,0.8)" }}>
           <span className="text-lg">{selected.flag}</span>{selected.name}
         </span>
         <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}
-          className="text-[10px]" style={{ color: "rgba(255,255,255,0.2)" }}>▼</motion.span>
+          className="text-[10px]" style={{ color: "rgba(15,23,42,0.3)" }}>▼</motion.span>
       </button>
       <AnimatePresence>
         {open && (
           <motion.div initial={{ opacity: 0, y: -6, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.97 }} transition={{ duration: 0.18 }}
-            className="absolute top-full left-0 right-0 mt-1.5 rounded-xl overflow-hidden border border-white/[0.07] z-[999]"
-            style={{ background: "rgba(10,9,16,0.97)", backdropFilter: "blur(24px)", maxHeight: 176, overflowY: "auto", scrollbarWidth: "none" }}>
+            className="absolute top-full left-0 right-0 mt-1.5 rounded-xl overflow-hidden border border-slate-200 z-[999]"
+            style={{ background: "rgba(255,255,255,0.98)", backdropFilter: "blur(24px)", maxHeight: 176, overflowY: "auto", scrollbarWidth: "none" }}>
             {ARAB_COUNTRIES.map((c) => (
               <button key={c.name} type="button" onClick={() => { onChange(c.name); setOpen(false); }}
                 className="w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors text-left"
-                style={{ color: value === c.name ? "#fbbf24" : "rgba(255,255,255,0.5)", background: "transparent" }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.04)"; }}
+                style={{ color: value === c.name ? "#3b82f6" : "rgba(15,23,42,0.7)", background: "transparent" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(15,23,42,0.04)"; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
                 <span className="font-medium">{c.name}</span>
                 <span className="text-base">{c.flag}</span>
