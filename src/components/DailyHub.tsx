@@ -540,7 +540,7 @@ export function DailyHub() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
                 {/* AI Custom Quran Plan Widget */}
                 {userData?.activeQuranPlan && (
-                  <div className="md:col-span-2 bg-[#0c0d10] border border-primary/30 rounded-[3rem] p-8 relative overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.4)] group">
+                  <div className="md:col-span-2 bg-card text-foreground border border-primary/30 rounded-[3rem] p-8 relative overflow-hidden shadow-xl group">
                     <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
                       <Star className="w-24 h-24 text-primary animate-pulse" />
                     </div>
@@ -549,8 +549,8 @@ export function DailyHub() {
                         <span className="inline-flex items-center gap-2 px-3 py-1 bg-primary/20 text-primary border border-primary/20 rounded-xl text-[10px] font-black tracking-widest uppercase mb-2">
                           <Crown className="w-3 h-3 text-primary" /> خطة الورد المخصصة بالذكاء الاصطناعي
                         </span>
-                        <h3 className="text-2xl font-black text-white">{userData.activeQuranPlan.planName}</h3>
-                        <p className="text-white/40 text-sm mt-1">الهدف اليومي: <span className="text-primary font-black">{userData.activeQuranPlan.dailyTarget}</span></p>
+                        <h3 className="text-2xl font-black text-foreground">{userData.activeQuranPlan.planName}</h3>
+                        <p className="text-foreground/40 text-sm mt-1">الهدف اليومي: <span className="text-primary font-black">{userData.activeQuranPlan.dailyTarget}</span></p>
                       </div>
                       <button 
                         onClick={handleDeleteCustomPlan} 
@@ -561,16 +561,16 @@ export function DailyHub() {
                     </div>
 
                     {/* Progress tracking */}
-                    <div className="bg-black/20 rounded-[2rem] p-6 border border-white/5 mb-6">
+                    <div className="bg-foreground/5 rounded-[2rem] p-6 border border-border/10 mb-6">
                       <div className="flex justify-between items-center mb-3">
-                        <span className="text-xs font-bold text-white/50">تقدم الخطة الكلي:</span>
+                        <span className="text-xs font-bold text-foreground/50">تقدم الخطة الكلي:</span>
                         <span className="text-xs font-black text-primary" style={{ direction: 'ltr' }}>
                           {userData.activeQuranPlan.completedDays?.length || 0} / {userData.activeQuranPlan.durationDays} يوم
                         </span>
                       </div>
-                      <div className="relative w-full h-3 bg-white/5 rounded-full overflow-hidden">
+                      <div className="relative w-full h-3 bg-foreground/5 rounded-full overflow-hidden">
                         <div 
-                          className="absolute inset-y-0 left-0 bg-primary transition-all duration-1000" 
+                           className="absolute inset-y-0 left-0 bg-primary transition-all duration-1000" 
                           style={{ width: `${Math.round(((userData.activeQuranPlan.completedDays?.length || 0) / userData.activeQuranPlan.durationDays) * 100)}%` }} 
                         />
                       </div>
@@ -578,7 +578,7 @@ export function DailyHub() {
 
                     {/* Day-by-Day step checklist */}
                     <div className="space-y-4">
-                      <h4 className="text-xs font-black text-white/40 uppercase tracking-[0.2em] px-2 mb-2">جدول الأيام والمهام:</h4>
+                      <h4 className="text-xs font-black text-foreground/40 uppercase tracking-[0.2em] px-2 mb-2">جدول الأيام والمهام:</h4>
                       <div className="grid grid-cols-1 gap-3 max-h-[250px] overflow-y-auto pr-1 no-scrollbar">
                         {userData.activeQuranPlan.dayByDayBreakdown?.map((task: string, index: number) => {
                           const dayNum = index + 1;
@@ -593,8 +593,8 @@ export function DailyHub() {
                                 isDayCompleted 
                                   ? 'bg-primary/5 border-primary/20 opacity-60' 
                                   : isCurrentActiveDay 
-                                    ? 'bg-white/5 border-primary shadow-[0_10px_30px_rgba(212,175,55,0.05)]' 
-                                    : 'bg-black/10 border-white/5 opacity-40'
+                                    ? 'bg-foreground/5 border-primary shadow-[0_10px_30px_rgba(212,175,55,0.05)]' 
+                                    : 'bg-foreground/[0.02] border-border/10 opacity-40'
                               }`}
                             >
                               <div className="flex items-center gap-3">
@@ -602,13 +602,13 @@ export function DailyHub() {
                                   isDayCompleted 
                                     ? 'bg-primary/20 text-primary' 
                                     : isCurrentActiveDay 
-                                      ? 'bg-primary text-black' 
-                                      : 'bg-white/5 text-white/40'
+                                      ? 'bg-primary text-primary-foreground' 
+                                      : 'bg-foreground/5 text-foreground/40'
                                 }`}>
                                   يوم {dayNum}
                                 </span>
                                 <span className={`text-xs md:text-sm font-bold ${
-                                  isDayCompleted ? 'text-white/40 line-through' : 'text-white'
+                                  isDayCompleted ? 'text-foreground/40 line-through' : 'text-foreground'
                                 }`}>
                                   {task}
                                 </span>
@@ -618,7 +618,7 @@ export function DailyHub() {
                               {isCurrentActiveDay && !isDayCompleted ? (
                                 <button 
                                   onClick={() => handleCompletePlanDay(userData.activeQuranPlan)}
-                                  className="flex items-center gap-1.5 px-4 py-1.5 bg-primary hover:bg-primary/90 text-black font-black rounded-xl text-[10px] transition-all shadow-md"
+                                  className="flex items-center gap-1.5 px-4 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground font-black rounded-xl text-[10px] transition-all shadow-md"
                                 >
                                   <CheckCircle2 className="w-3.5 h-3.5 stroke-[3px]" /> إنجاز
                                 </button>
@@ -627,7 +627,7 @@ export function DailyHub() {
                                   <CheckCircle2 className="w-3.5 h-3.5" /> تم بنجاح
                                 </span>
                               ) : (
-                                <span className="text-white/20 font-black text-[10px]">مغلق</span>
+                                <span className="text-foreground/20 font-black text-[10px]">مغلق</span>
                               )}
                             </div>
                           );

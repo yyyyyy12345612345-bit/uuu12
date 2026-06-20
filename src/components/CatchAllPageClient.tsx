@@ -178,7 +178,7 @@ function CatchAllContent() {
   if (!isClient || !state.isHydrated) return <LoadingShell />;
 
   return (
-    <div className={`fixed inset-0 text-foreground flex flex-col w-full h-[100dvh] font-arabic overflow-hidden bg-black`}>
+    <div className={`fixed inset-0 text-foreground flex flex-col w-full h-[100dvh] font-arabic overflow-hidden bg-background`}>
       
       {/* Global Top Bar - Logo + Install + Feedback */}
       <header className="h-14 shrink-0 bg-transparent px-4 md:px-8 flex items-center justify-between z-[200]">
