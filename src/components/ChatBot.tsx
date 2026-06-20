@@ -155,10 +155,11 @@ export function ChatBot() {
       <motion.button
         drag
         dragMomentum={false}
+        whileDrag={{ scale: 1.1, cursor: "grabbing" }}
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-28 right-6 z-50 p-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100 animate-bounce'}`}
+        className={`fixed bottom-28 right-6 z-50 p-3 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100'}`}
       >
-        <MessageSquare size={24} />
+        <Bot size={20} />
       </motion.button>
 
       {/* Chat Modal */}
