@@ -16,7 +16,6 @@ export type ViewType =
   | "mushaf-tafseer"
   | "mushaf-choice"
   | "rank"
-  | "showcase"
   | "admin";
 
 /**

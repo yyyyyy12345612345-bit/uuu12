@@ -13,7 +13,7 @@ interface OnboardingOverlayProps {
   onClose: () => void;
 }
 
-type ManualTab = "mushaf" | "video" | "daily" | "library" | "prayers" | "chatbot" | "leaderboard" | "showcase" | "subscriptions";
+type ManualTab = "mushaf" | "video" | "daily" | "library" | "prayers" | "chatbot" | "leaderboard" | "subscriptions";
 
 export function OnboardingOverlay({ onClose }: OnboardingOverlayProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -217,25 +217,7 @@ export function OnboardingOverlay({ onClose }: OnboardingOverlayProps) {
       path: "/rank",
       btnLabel: "شاهد لوحة الشرف والترتيب 🏆"
     },
-    showcase: {
-      title: "معرض المبدعين",
-      icon: Star,
-      color: "#059669", // Emerald
-      bgColor: "rgba(5,150,105,0.06)",
-      desc: "معرض مجتمعي لعرض ومشاركة فيديوهات القرآن المصممة بأيدي الأعضاء لنشر الخير والتشجيع على التلاوة.",
-      steps: [
-        "افتح صفحة المعرض لتصفح أحدث وأكثر الفيديوهات تميزاً المصممة بواسطة مستخدمي التطبيق.",
-        "اضغط على زر (مشاهدة الفيديو) لفتح الفيديو والاستماع للآية والتأثيرات المصممة.",
-        "اضغط على زر (إضافة فيديو للمعرض) لتفتح نافذة النشر وتضيف رابط الفيديو الخاص بك وسورة الآية لتظهر للجميع."
-      ],
-      features: [
-        "منصة مثالية لتشجيع مبدعي التصاميم القرآنية وزيادة وصول منشوراتهم الدعوية.",
-        "تفاعل مجتمعي كامل مع فيديوهاتك المنشورة من خلال الإعجابات والتعليقات والتحميل."
-      ],
-      rules: "يشترط تسجيل حساب لنشر فيديوهات جديدة بالمعرض. تخضع الفيديوهات لمراجعة سريعة من الإدارة.",
-      path: "/showcase",
-      btnLabel: "تصفح معرض المبدعين 🌟"
-    },
+
     subscriptions: {
       title: "التبرع ودعم الموقع",
       icon: ShieldCheck,

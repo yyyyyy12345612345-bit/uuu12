@@ -57,8 +57,6 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
     },
     {
       title: "التفاعلات",
-      items: [
-        { id: "showcase", label: "معرض المبدعين", icon: Star, path: "/showcase" },
         { id: "feedback", label: "أخبرنا برأيك", icon: MessageCircle, onClick: onOpenFeedback },
         { id: "share", label: "شارك التطبيق", icon: Share2, onClick: () => {
           if (navigator.share) {

@@ -27,7 +27,6 @@ const NAV_ITEMS = [
   { id: 'chatbot', label: 'تحليلات الشات بوت', icon: MessageSquare },
   { id: 'quests', label: 'المهام', icon: Swords },
   { id: 'settings', label: 'الإعدادات', icon: Settings },
-  { id: 'showcase', label: 'المعرض', icon: GalleryHorizontalEnd },
   { id: 'reports', label: 'التقارير', icon: BarChart3 },
   { id: 'activity', label: 'النشاط', icon: History },
   { id: 'support', label: 'الدعم', icon: HeadphonesIcon },
@@ -1190,6 +1189,11 @@ export function AdminPanel() {
     if (!db) return; try { await updateDoc(doc(db, "support_tickets", id), { status }); fetchSupportTickets(); } catch (e) { console.error(e); }
   };
 
+  const handleDeleteTicket = async (id: string) => {
+    if (!db || !window.confirm("هل أنت متأكد من حذف هذه الشكوى نهائياً؟")) return;
+    try { await deleteDoc(doc(db, "support_tickets", id)); fetchSupportTickets(); } catch (e) { console.error(e); }
+  };
+
   const fetchActivityLog = async () => {
     if (!db) return;
     try { const q = query(collection(db, "admin_logs"), orderBy("createdAt", "desc")); const snapshot = await getDocs(q); setActivityLog(snapshot.docs.map(d => ({ id: d.id, ...d.data() }))); }
@@ -2092,23 +2096,72 @@ export function AdminPanel() {
                   <thead>
                     <tr className="text-[10px] uppercase tracking-[0.18em] text-white/30 border-b border-white/10">
                       <th className="p-4">المستخدم</th>
-                      <th className="p-4">الموضوع</th>
+                      <th className="p-4">الهاتف</th>
+                      <th className="p-4">الشكوى/الرسالة</th>
+                      <th className="p-4">التاريخ</th>
                       <th className="p-4">الحالة</th>
-                      <th className="p-4">الإجراء</th>
+                      <th className="p-4 text-left">الإجراء</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/10">
-                    {supportTickets.map(ticket => (
-                      <tr key={ticket.id} className="hover:bg-white/5 transition-colors">
-                        <td className="p-4 text-sm">{ticket.userName || 'مجهول'}</td>
-                        <td className="p-4 text-sm">{ticket.subject || 'بدون موضوع'}</td>
-                        <td className="p-4 text-sm"><span className="rounded-full bg-white/5 px-3 py-1 text-xs font-black text-white/60">{ticket.status || 'جديد'}</span></td>
-                        <td className="p-4 flex flex-wrap gap-2 justify-end">
-                          <button onClick={() => handleUpdateTicketStatus(ticket.id, 'in_progress')} className="rounded-xl bg-sky-500 px-3 py-2 text-[11px] font-black text-black">قيد المعالجة</button>
-                          <button onClick={() => handleUpdateTicketStatus(ticket.id, 'resolved')} className="rounded-xl bg-emerald-500 px-3 py-2 text-[11px] font-black text-black">تم الحل</button>
-                        </td>
-                      </tr>
-                    ))}
+                    {supportTickets.map(ticket => {
+                      const ticketDate = ticket.createdAt?.toDate 
+                        ? ticket.createdAt.toDate().toLocaleString("ar-EG") 
+                        : (ticket.createdAt ? new Date(ticket.createdAt).toLocaleString("ar-EG") : "غير محدد");
+                        
+                      const statusClass = 
+                        ticket.status === 'resolved' 
+                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                          : ticket.status === 'in_progress'
+                            ? 'bg-sky-500/10 text-sky-400 border border-sky-500/20'
+                            : 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+
+                      const statusLabel = 
+                        ticket.status === 'resolved' 
+                          ? 'تم الحل' 
+                          : ticket.status === 'in_progress'
+                            ? 'قيد المعالجة'
+                            : 'جديد';
+
+                      return (
+                        <tr key={ticket.id} className="hover:bg-white/5 transition-colors">
+                          <td className="p-4 text-sm font-black text-white">{ticket.userName || 'مجهول'}</td>
+                          <td className="p-4 text-sm font-mono text-white/70" dir="ltr">{ticket.phone || 'غير محدد'}</td>
+                          <td className="p-4 text-xs text-white/80 max-w-sm whitespace-pre-wrap break-words leading-relaxed">{ticket.message || ticket.subject || 'بدون نص'}</td>
+                          <td className="p-4 text-xs text-white/40">{ticketDate}</td>
+                          <td className="p-4 text-sm">
+                            <span className={`inline-block rounded-full px-3 py-1 text-xs font-black ${statusClass}`}>
+                              {statusLabel}
+                            </span>
+                          </td>
+                          <td className="p-4 flex flex-wrap gap-2 justify-end items-center">
+                            {ticket.status !== 'in_progress' && ticket.status !== 'resolved' && (
+                              <button 
+                                onClick={() => handleUpdateTicketStatus(ticket.id, 'in_progress')} 
+                                className="rounded-xl bg-sky-500 px-3 py-2 text-[10px] font-black text-black hover:brightness-110 active:scale-95 transition-all"
+                              >
+                                قيد المعالجة
+                              </button>
+                            )}
+                            {ticket.status !== 'resolved' && (
+                              <button 
+                                onClick={() => handleUpdateTicketStatus(ticket.id, 'resolved')} 
+                                className="rounded-xl bg-emerald-500 px-3 py-2 text-[10px] font-black text-black hover:brightness-110 active:scale-95 transition-all"
+                              >
+                                تم الحل
+                              </button>
+                            )}
+                            <button 
+                              onClick={() => handleDeleteTicket(ticket.id)} 
+                              className="rounded-xl bg-red-500/10 hover:bg-red-500/20 px-3 py-2 text-red-400 transition hover:scale-105 active:scale-95 flex items-center justify-center"
+                              title="حذف الشكوى"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -2388,40 +2441,7 @@ export function AdminPanel() {
             </div>
           )}
 
-          {/* ========== SHOWCASE TAB ========== */}
-          {activeTab === 'showcase' && (
-            <div className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.02)] p-6">
-              <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-6">
-                <div>
-                  <h2 className="text-xl font-black">معرض المجتمع</h2>
-                  <p className="text-sm text-white/30">تحكم في محتوى العرض، أضف أو احذف العناصر.</p>
-                </div>
-                <button onClick={fetchShowcaseItems} className={BTN_GHOST}>تحديث</button>
-              </div>
-              <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {showcaseItems.length === 0 ? (
-                  <div className="col-span-full rounded-xl border border-dashed border-white/10 bg-white/[0.02] p-16 text-center text-white/30">لا يوجد عناصر في المعرض.</div>
-                ) : (
-                  showcaseItems.map(item => (
-                    <div key={item.id} className="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden">
-                      <div className="aspect-video bg-black/50 p-4 flex items-center justify-center">
-                        <a href={item.videoUrl} target="_blank" rel="noreferrer" className="text-[#fbbf24] font-black hover:underline">{item.surahName}</a>
-                      </div>
-                      <div className="p-5 flex items-center justify-between gap-4">
-                        <div>
-                          <p className="font-black">{item.userName}</p>
-                          <p className="text-xs text-white/30">{item.surahName}</p>
-                        </div>
-                        <button onClick={() => handleDeleteShowcaseItem(item.id)} className="rounded-xl bg-red-500/10 px-3 py-2 text-red-400 transition hover:bg-red-500/20">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
+
 
           {/* ========== SETTINGS TAB ========== */}
           {activeTab === 'settings' && (
@@ -3490,30 +3510,6 @@ export function AdminPanel() {
                           </div>
                         </div>
 
-                        {/* Showcase stats */}
-                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 relative overflow-hidden group">
-                          <div className="absolute top-4 left-4 opacity-5 group-hover:scale-110 transition-transform">
-                            <GalleryHorizontalEnd className="w-16 h-16 text-indigo-400" />
-                          </div>
-
-                          <div className="border-b border-white/5 pb-3">
-                            <h3 className="text-lg font-black text-white">معرض فيديوهات المجتمع 📱</h3>
-                            <p className="text-xs text-white/40 mt-0.5">مراقبة المقاطع الدعوية المشاركة على المعرض العام للمنصة</p>
-                          </div>
-
-                          <div className="my-6">
-                            <div className="bg-white/[0.01] border border-white/[0.03] p-6 rounded-xl text-center">
-                              <span className="text-xs text-white/40 font-bold block">عدد الفيديوهات المعروضة حالياً</span>
-                              <p className="text-4xl font-black text-indigo-400 mt-2 font-mono">{analyticsData.featuresBreakdown.video.totalShowcaseVideos}</p>
-                            </div>
-                          </div>
-
-                          <div className="rounded-xl border border-white/5 bg-white/[0.01] p-4 text-center">
-                            <p className="text-[10px] text-white/30 leading-relaxed">
-                              * تعبر الفيديوهات المشاركة عن إنتاجات مستخدمي استوديو التصميم التي قرروا نشرها للجمهور لنيل ثواب الأجر الجاري ونشر الخير.
-                            </p>
-                          </div>
-                        </div>
                       </div>
                     </div>
                   )}

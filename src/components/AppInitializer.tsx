@@ -406,7 +406,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     <>
       {/* Mandatory Announcement - Premium Top Bar Version */}
       {mandatoryAnnouncement && announcementTimer > 0 && (
-        <div className="fixed top-0 left-0 right-0 z-[10000] p-4 animate-in slide-in-from-top duration-700">
+        <div className="force-dark fixed top-0 left-0 right-0 z-[10000] p-4 animate-in slide-in-from-top duration-700">
            <div className="max-w-xl mx-auto bg-[#0a0a0a]/90 backdrop-blur-xl border border-[#d4af37]/30 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden relative group">
               {/* Progress Bar (Background) */}
               <div 
@@ -449,7 +449,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
       {/* Permission Request Modal (First Run Only) */}
       {showPermissionModal && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6 bg-black font-arabic overflow-hidden">
+        <div className="force-dark fixed inset-0 z-[10000] flex items-center justify-center p-6 bg-black font-arabic overflow-hidden">
            {/* Decorative BG */}
            <div className="absolute inset-0 bg-[#0a0a0a]">
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-primary/5" />
@@ -512,7 +512,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
       {/* Global Announcement Banner */}
       {globalAlert && (
-        <div className="fixed top-0 left-0 right-0 z-[4000] p-4 animate-in slide-in-from-top duration-700">
+        <div className="force-dark fixed top-0 left-0 right-0 z-[4000] p-4 animate-in slide-in-from-top duration-700">
            <div className="max-w-xl mx-auto bg-[#0a0a0a]/95 backdrop-blur-xl border border-amber-500/30 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.6)] overflow-hidden relative group">
               <div className="flex items-center gap-4 px-6 py-4">
                  {/* Icon */}
@@ -599,7 +599,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
       {showSplash && (
         <div 
           ref={overlayRef}
-          className="fixed inset-0 z-[5000] bg-[#05060a] flex flex-col items-center justify-center font-arabic overflow-hidden select-none"
+          className="force-dark fixed inset-0 z-[5000] bg-[#05060a] flex flex-col items-center justify-center font-arabic overflow-hidden select-none"
         >
            {/* Decorative Background Glows */}
            <div className="absolute inset-0 bg-gradient-to-b from-[#0e1424] via-[#090b11] to-[#05060a]" />
@@ -674,7 +674,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
       {/* Custom Confirm Modal */}
       {confirmData && (
-        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200 font-arabic">
+        <div className="force-dark fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200 font-arabic">
           <div className="relative w-full max-w-sm bg-zinc-900 border border-white/10 rounded-[2rem] p-6 text-center shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="w-12 h-12 rounded-full bg-[#fbbf24]/10 text-[#fbbf24] flex items-center justify-center mx-auto mb-4 border border-[#fbbf24]/20">
                <Info className="w-6 h-6 animate-pulse" />
@@ -711,7 +711,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
       {/* Custom Toast Alert */}
       {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100000] p-4 w-full max-w-sm animate-in slide-in-from-bottom-5 duration-300 font-arabic">
+        <div className="force-dark fixed bottom-6 left-1/2 -translate-x-1/2 z-[100000] p-4 w-full max-w-sm animate-in slide-in-from-bottom-5 duration-300 font-arabic">
           <div className="bg-zinc-900/95 backdrop-blur-xl border border-white/15 rounded-2xl p-4 shadow-2xl flex items-center gap-3 justify-between">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-8 h-8 rounded-lg bg-[#fbbf24]/10 text-[#fbbf24] flex items-center justify-center shrink-0">

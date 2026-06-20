@@ -201,7 +201,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
     : null;
 
   return (
-    <div className="fixed inset-0 z-[2000] flex items-center justify-center p-0 md:p-6 bg-black/95 backdrop-blur-3xl font-['Tajawal'] overflow-y-auto no-scrollbar">
+    <div className="force-dark fixed inset-0 z-[2000] flex items-center justify-center p-0 md:p-6 bg-black/95 backdrop-blur-3xl font-['Tajawal'] overflow-y-auto no-scrollbar">
       <div className="fixed inset-0" onClick={onClose} />
 
       <div className="relative w-full max-w-7xl bg-gradient-to-br from-[#0a0b0e] via-[#0c0d10] to-[#0a0b0e] border border-white/10 rounded-[3rem] shadow-[0_50px_150px_rgba(0,0,0,0.8)] flex flex-col lg:flex-row h-full lg:h-auto lg:max-h-[90vh] animate-in zoom-in-95 duration-500 overflow-hidden">

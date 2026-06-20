@@ -58,19 +58,7 @@ export function ChatBot() {
   const chatY = useMotionValue(0);
   const isDragging = useRef(false);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('chatbot_btn_pos');
-      if (saved) {
-        try {
-          const { x, y } = JSON.parse(saved);
-          chatX.set(x);
-          chatY.set(y);
-        } catch {}
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
   
   // استعادة الرسائل من جلسة العمل الحالية إن وجدت
   const [messages, setMessages] = useState<any[]>(() => {
@@ -440,9 +428,6 @@ ${isOwner ? `[تنبيه حرج جداً]
    - **ترتيب المتصدرين**: ترتيب عالمي ومحلي (حسب المحافظة/البلد) للمستخدمين الأكثر تجميعاً للنقاط، يُحدث بالوقت الفعلي.
    - **طرق كسب النقاط**: قراءة صفحة قرآنية (+5)، قراءة آية (+0.2)، استماع 30 ثانية (+1)، ختم سورة استماعاً (+10)، قراءة ذكر (+1)، سبحة 99 (+3)، إجابة سؤال ديني (+15).
 
-8. 🌟 معرض المجتمع (معرض المبدعين) (/showcase):
-   - **نشر وتصفح الفيديوهات**: معرض تفاعلي يتيح للأعضاء مشاركة الفيديوهات القرآنية المصممة ونشر روابطها.
-   - **طريقة الإضافة**: الضغط على زر "+ إضافة فيديو للمعرض"، إدخال اسم الفيديو، الرابط، واختيار السورة لنشره، ويمكن للمجتمع التعليق والإعجاب وتحميل الفيديوهات.
 
 9. 💳 التبرع ودعم الموقع لدعم الاستمرارية:
    - **بدون تبرع**: تمنح 5 رندرز لتجربة استوديو المونتاج.
@@ -459,7 +444,6 @@ ${isOwner ? `[تنبيه حرج جداً]
 - /daily: أذكار الصباح والمساء والنوم + سبحة إلكترونية
 - /rank: لوحة الشرف والترتيب العام
 - /profile: الملف الشخصي — الاسم، البلد، النقاط، الإحصائيات
-- /showcase: معرض فيديوهات المجتمع
 
 [نظام النقاط]
 - قراءة صفحة (+5 نقاط) | آية (+0.2) | استماع 30ث (+1) | ختم سورة استماع (+10)
@@ -494,15 +478,14 @@ ${isOwner ? `[تنبيه حرج جداً]
 10. إذا تكرر سؤال خارج النطاق، اعتذر بلطف وأعد التوجيه لسؤال عن القرآن أو الموقع
 11. [مهم جداً وحرج] يمنع منعاً باتاً كتابة أو اقتباس نص أي آية قرآنية في الشات تحت أي ظرف من الظروف. إذا سألك المستخدم عن آية، أو موضع آية، أو تلاوة شيخ لآية معينة، لا تكتب نص الآية (ممنوع كتابة كلمات الآية نفسها)، بل قم فقط بالإشارة إليها بذكر اسم السورة ورقم الآية واسم الشيخ القارئ إن وجد (مثال: سورة البقرة، الآية 12، بتلاوة الشيخ عبد الباسط عبد الصمد).`;
 
-      const res = await fetch("https://youssefosama--40af2a40698011f1b2fe1607ee4eb77e.web.val.run", {
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          messages: updatedMessages.map((m: any) => ({
-            role: m.sender === "user" ? "user" : "assistant",
-            content: m.text
-          })),
-          systemContext: systemContext
+          messages: updatedMessages,
+          userData: dbUser,
+          pathname: pathname,
+          leaderboard: leaderboardUsers
         })
       });
 
@@ -639,10 +622,6 @@ ${isOwner ? `[تنبيه حرج جداً]
         style={{ x: chatX, y: chatY }}
         onDragStart={() => { isDragging.current = true; }}
         onDragEnd={() => {
-          localStorage.setItem('chatbot_btn_pos', JSON.stringify({
-            x: chatX.get(),
-            y: chatY.get()
-          }));
           setTimeout(() => { isDragging.current = false; }, 150);
         }}
         initial={{ scale: 0 }}

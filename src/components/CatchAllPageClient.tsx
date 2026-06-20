@@ -35,10 +35,10 @@ const ProfileModal = nextDynamic(() => import("@/components/ProfileModal").then(
 const AuthGate = nextDynamic(() => import("@/components/AuthGate").then(mod => mod.AuthGate), { ssr: false });
 const MushafChoice = nextDynamic(() => import("@/components/MushafChoice").then(mod => mod.MushafChoice), { ssr: false });
 const SubscriptionModal = nextDynamic(() => import("@/components/SubscriptionModal").then(mod => mod.SubscriptionModal), { ssr: false });
-const CommunityShowcase = nextDynamic(() => import("@/components/CommunityShowcase").then(mod => mod.CommunityShowcase), { ssr: false });
 const SocialFeed = nextDynamic(() => import("@/components/SocialFeed").then(mod => mod.SocialFeed), { ssr: false });
 const PointsGuideModal = nextDynamic(() => import("@/components/PointsGuideModal").then(mod => mod.PointsGuideModal), { ssr: false });
 const ChatBot = nextDynamic(() => import("@/components/ChatBot").then(mod => mod.ChatBot), { ssr: false });
+const FeedbackButton = nextDynamic(() => import("@/components/FeedbackButton").then(mod => mod.FeedbackButton), { ssr: false });
 const SettingsModal = nextDynamic(() => import("@/components/SettingsModal").then(mod => mod.SettingsModal), { ssr: false });
 const AppSettingsModal = nextDynamic(() => import("@/components/AppSettingsModal").then(mod => mod.AppSettingsModal), { ssr: false });
 const UserProfileModal = nextDynamic(() => import("@/components/UserProfileModal").then(mod => mod.UserProfileModal), { ssr: false });
@@ -245,7 +245,6 @@ function CatchAllContent() {
         {visited['mushaf-choice'] && (
           <div key="mushaf-choice" className={`h-full w-full relative pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'mushaf-choice' ? 'block view-transition' : 'hidden'}`}>
             <MushafChoice />
-            <CommunityShowcase />
           </div>
         )}
         {visited.daily && (
@@ -268,11 +267,7 @@ function CatchAllContent() {
             <Leaderboard onEditProfile={() => setIsProfileOpen(true)} />
           </div>
         )}
-        {visited.showcase && (
-          <div key="showcase" className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'showcase' ? 'block view-transition' : 'hidden'}`}>
-            <CommunityShowcase />
-          </div>
-        )}
+
         {visited.feed && (
           <div key="feed" className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'feed' ? 'block view-transition' : 'hidden'}`}>
             <SocialFeed />
@@ -406,6 +401,9 @@ function CatchAllContent() {
       
       {/* Global AI ChatBot */}
       <ChatBot />
+
+      {/* Floating Complaints/Feedback Button */}
+      <FeedbackButton />
     </div>
   );
 }
