@@ -447,7 +447,30 @@ export function AuthGate({ children }: AuthGateProps) {
     } catch (err: any) {
       const code = err?.code || "";
       if (code === "auth/email-already-in-use") {
-        const rnd2 = Math.random().toString(36)  // ── Guards ──
+        const rnd2 = Math.random().toString(36).slice(2, 8);
+        const authEmail2 = origEmail.replace("@", `+${rnd2}@`);
+        try {
+          const cred2 = await createUserWithEmailAndPassword(auth, authEmail2, signupForm.password);
+          await setDoc(doc(db, "users", cred2.user.uid), {
+            uid: cred2.user.uid, username: signupForm.username.trim().toLowerCase(),
+            displayName: signupForm.displayName.trim(), email: origEmail, authEmail: authEmail2, emailVerified,
+            phoneNumber: signupForm.phone.trim(), gender: signupForm.gender,
+            country: signupForm.country, photoURL: signupForm.avatar,
+            totalPoints: 0, createdAt: new Date().toISOString(), lastActive: new Date().toISOString(),
+            isBanned: false, encP: btoa(signupForm.password),
+            registrationType: signupForm.registrationType || "direct",
+          });
+          window.location.reload();
+          return;
+        } catch { setError("هذا البريد مسجل بالفعل. يرجى تسجيل الدخول."); }
+      }
+      else if (code === "auth/weak-password") setError("كلمة المرور ضعيفة جداً");
+      else setError(err.message || "حدث خطأ أثناء إنشاء الحساب");
+      setIsLoading(false);
+    }
+  }
+
+  // ── Guards ──
   const isAdminRoute = pathname?.includes("admin");
 
   if (maintenance?.enabled && !isAdminRoute) {
