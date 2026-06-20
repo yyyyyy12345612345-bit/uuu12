@@ -139,6 +139,9 @@ export function AdminPanel() {
   });
   const [activityLog, setActivityLog] = useState<any[]>([]);
   const [supportTickets, setSupportTickets] = useState<any[]>([]);
+  const [selectedTicket, setSelectedTicket] = useState<any | null>(null);
+  const [selectedTicketUser, setSelectedTicketUser] = useState<any | null>(null);
+  const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
   const [chatbotLogs, setChatbotLogs] = useState<any[]>([]);
   const [isChatbotLoading, setIsChatbotLoading] = useState(false);
   const [selectedUserChat, setSelectedUserChat] = useState<any[] | null>(null);
@@ -1194,6 +1197,34 @@ export function AdminPanel() {
     try { await deleteDoc(doc(db, "support_tickets", id)); fetchSupportTickets(); } catch (e) { console.error(e); }
   };
 
+  const handleOpenTicketDetails = async (ticket: any) => {
+    setSelectedTicket(ticket);
+    setIsTicketModalOpen(true);
+    setSelectedTicketUser("loading");
+
+    if (ticket.userId && ticket.userId !== "guest" && ticket.userId !== "guest_unknown") {
+      const localUser = users.find(u => u.uid === ticket.userId || u.id === ticket.userId);
+      if (localUser) {
+        setSelectedTicketUser(localUser);
+      } else {
+        try {
+          await initFirebase();
+          const docSnap = await getDoc(doc(db, "users", ticket.userId));
+          if (docSnap.exists()) {
+            setSelectedTicketUser({ uid: ticket.userId, ...docSnap.data() });
+          } else {
+            setSelectedTicketUser(null);
+          }
+        } catch (e) {
+          console.error("Error fetching ticket user:", e);
+          setSelectedTicketUser(null);
+        }
+      }
+    } else {
+      setSelectedTicketUser(null);
+    }
+  };
+
   const fetchActivityLog = async () => {
     if (!db) return;
     try { const q = query(collection(db, "admin_logs"), orderBy("createdAt", "desc")); const snapshot = await getDocs(q); setActivityLog(snapshot.docs.map(d => ({ id: d.id, ...d.data() }))); }
@@ -2124,7 +2155,14 @@ export function AdminPanel() {
                             : 'جديد';
 
                       return (
-                        <tr key={ticket.id} className="hover:bg-white/5 transition-colors">
+                        <tr 
+                          key={ticket.id} 
+                          className="hover:bg-white/5 transition-colors cursor-pointer"
+                          onClick={(e) => {
+                            if ((e.target as HTMLElement).closest('button')) return;
+                            handleOpenTicketDetails(ticket);
+                          }}
+                        >
                           <td className="p-4 text-sm font-black text-white">{ticket.userName || 'مجهول'}</td>
                           <td className="p-4 text-sm font-mono text-white/70" dir="ltr">{ticket.phone || 'غير محدد'}</td>
                           <td className="p-4 text-xs text-white/80 max-w-sm whitespace-pre-wrap break-words leading-relaxed">{ticket.message || ticket.subject || 'بدون نص'}</td>
@@ -4560,6 +4598,185 @@ export function AdminPanel() {
         </div>
       </div>
     </div>
+      {/* Support Ticket Details Modal */}
+      {isTicketModalOpen && selectedTicket && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md" dir="rtl">
+          <div className="relative w-full max-w-2xl bg-[#0b0f1a] border border-white/10 rounded-3xl p-6 shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+              <div className="text-right">
+                <h3 className="text-lg font-black text-white">تفاصيل الشكوى / طلب الدعم</h3>
+                <p className="text-xs text-white/40 mt-1">المعرف: {selectedTicket.id}</p>
+              </div>
+              <button 
+                onClick={() => { setIsTicketModalOpen(false); setSelectedTicket(null); setSelectedTicketUser(null); }}
+                className="p-2 text-white/40 hover:text-white transition-colors hover:bg-white/5 rounded-xl"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-right">
+              {/* Left Column: Complaint details */}
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-white/5 bg-white/[0.01] p-4 space-y-3">
+                  <h4 className="text-xs font-black text-[#fbbf24] uppercase tracking-wider">محتوى الرسالة</h4>
+                  <div className="text-sm text-white/90 bg-white/[0.02] border border-white/5 rounded-xl p-3.5 min-h-[120px] whitespace-pre-wrap break-words leading-relaxed select-text" dir="rtl">
+                    {selectedTicket.message || 'لا يوجد نص'}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-white/5 bg-white/[0.01] p-4 space-y-3">
+                  <h4 className="text-xs font-black text-[#fbbf24] uppercase tracking-wider">تفاصيل التذكرة</h4>
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <span className="text-white/40 block">حالة الطلب</span>
+                      <span className={`inline-block mt-1.5 rounded-full px-2.5 py-0.5 font-bold ${
+                        selectedTicket.status === 'resolved' 
+                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                          : selectedTicket.status === 'in_progress'
+                            ? 'bg-sky-500/10 text-sky-400 border border-sky-500/20'
+                            : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                      }`}>
+                        {selectedTicket.status === 'resolved' 
+                          ? 'تم الحل' 
+                          : selectedTicket.status === 'in_progress'
+                            ? 'قيد المعالجة'
+                            : 'جديد'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-white/40 block">تاريخ الإرسال</span>
+                      <span className="text-white/80 block mt-1.5 font-sans" dir="ltr">
+                        {selectedTicket.createdAt?.toDate 
+                          ? selectedTicket.createdAt.toDate().toLocaleString("ar-EG") 
+                          : (selectedTicket.createdAt ? new Date(selectedTicket.createdAt).toLocaleString("ar-EG") : "غير محدد")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: User Details */}
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-white/5 bg-white/[0.01] p-4 space-y-3">
+                  <h4 className="text-xs font-black text-[#fbbf24] uppercase tracking-wider">بيانات مرسل الشكوى</h4>
+                  
+                  {selectedTicketUser === "loading" ? (
+                    <div className="flex flex-col items-center justify-center py-8 gap-2">
+                      <Loader2 className="w-6 h-6 text-[#fbbf24] animate-spin" />
+                      <span className="text-xs text-white/30">جاري تحميل بيانات المستخدم...</span>
+                    </div>
+                  ) : selectedTicketUser ? (
+                    <div className="space-y-3 text-xs">
+                      <div className="flex items-center gap-3 bg-white/[0.02] p-2.5 rounded-xl border border-white/5">
+                        <img 
+                          src={selectedTicketUser.photoURL || selectedTicketUser.avatar || "https://api.dicebear.com/9.x/avataaars/svg?seed=youssef"} 
+                          alt="" 
+                          className="w-10 h-10 rounded-lg bg-white/5 object-cover" 
+                        />
+                        <div className="text-right">
+                          <div className="text-sm font-black text-white">{selectedTicketUser.displayName || selectedTicketUser.name || 'مستخدم قرآني'}</div>
+                          <div className="text-white/40">@{selectedTicketUser.username || 'بدون_يوزر'}</div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 pt-2">
+                        <div>
+                          <span className="text-white/40 block">البريد الإلكتروني</span>
+                          <span className="text-white/80 block mt-0.5 select-all font-mono" dir="ltr">{selectedTicketUser.email || 'غير مسجل'}</span>
+                        </div>
+                        <div>
+                          <span className="text-white/40 block">رقم الهاتف</span>
+                          <span className="text-white/80 block mt-0.5 select-all font-mono" dir="ltr">{selectedTicketUser.phoneNumber || selectedTicketUser.phone || selectedTicket.phone || 'غير مسجل'}</span>
+                        </div>
+                        <div>
+                          <span className="text-white/40 block">البلد المسجل</span>
+                          <span className="text-white/80 block mt-0.5">{selectedTicketUser.country || 'غير محدد'}</span>
+                        </div>
+                        <div>
+                          <span className="text-white/40 block">نوع الحساب / الباقة</span>
+                          <span className="text-white/80 block mt-0.5 font-bold text-amber-400">{selectedTicketUser.plan === 'premium' ? 'مساهم مميز 💎' : 'مجاني'}</span>
+                        </div>
+                        <div>
+                          <span className="text-white/40 block">مجموع النقاط</span>
+                          <span className="text-white/80 block mt-0.5 font-bold text-emerald-400">{selectedTicketUser.totalPoints || selectedTicketUser.points || 0} نقطة</span>
+                        </div>
+                        <div>
+                          <span className="text-white/40 block">رقم المستخدم (UID)</span>
+                          <span className="text-[10px] text-white/60 block mt-0.5 select-all font-mono truncate" dir="ltr" title={selectedTicketUser.uid || selectedTicketUser.id}>
+                            {selectedTicketUser.uid || selectedTicketUser.id || 'غير معروف'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 text-xs">
+                      <div className="bg-red-500/5 border border-red-500/10 rounded-xl p-3 text-center text-red-400 font-bold">
+                        لم يتم العثور على حساب مسجل لهذا المرسل (قد يكون تم إرسالها كحساب زائر)
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 pt-1 text-xs">
+                        <div>
+                          <span className="text-white/40 block">الاسم المدخل</span>
+                          <span className="text-white/80 block mt-0.5">{selectedTicket.userName || 'غير معروف'}</span>
+                        </div>
+                        <div>
+                          <span className="text-white/40 block">الهاتف المدخل</span>
+                          <span className="text-white/80 block mt-0.5 select-all font-mono" dir="ltr">{selectedTicket.phone || 'غير محدد'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Actions Footer */}
+            <div className="mt-6 pt-4 border-t border-white/10 flex flex-wrap gap-3 justify-end">
+              {selectedTicket.status !== 'in_progress' && selectedTicket.status !== 'resolved' && (
+                <button 
+                  onClick={async () => {
+                    await handleUpdateTicketStatus(selectedTicket.id, 'in_progress');
+                    setSelectedTicket(prev => prev ? { ...prev, status: 'in_progress' } : null);
+                  }} 
+                  className="rounded-xl bg-sky-500 px-4 py-2.5 text-xs font-black text-black hover:brightness-110 active:scale-95 transition-all"
+                >
+                  تغيير إلى: قيد المعالجة
+                </button>
+              )}
+              {selectedTicket.status !== 'resolved' && (
+                <button 
+                  onClick={async () => {
+                    await handleUpdateTicketStatus(selectedTicket.id, 'resolved');
+                    setSelectedTicket(prev => prev ? { ...prev, status: 'resolved' } : null);
+                  }} 
+                  className="rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-black text-black hover:brightness-110 active:scale-95 transition-all"
+                >
+                  تغيير إلى: تم الحل
+                </button>
+              )}
+              <button 
+                onClick={async () => {
+                  if (window.confirm("حذف هذه الشكوى نهائياً؟")) {
+                    await handleDeleteTicket(selectedTicket.id);
+                    setIsTicketModalOpen(false);
+                    setSelectedTicket(null);
+                    setSelectedTicketUser(null);
+                  }
+                }} 
+                className="rounded-xl bg-red-600 px-4 py-2.5 text-xs font-black text-white hover:brightness-110 active:scale-95 transition-all"
+              >
+                حذف الشكوى
+              </button>
+              <button 
+                onClick={() => { setIsTicketModalOpen(false); setSelectedTicket(null); setSelectedTicketUser(null); }}
+                className="rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 px-4 py-2.5 text-xs font-black text-white active:scale-95 transition-all"
+              >
+                إغلاق
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

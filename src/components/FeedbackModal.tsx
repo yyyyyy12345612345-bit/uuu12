@@ -18,7 +18,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
         onClick={onClose} 
       />
       
-      <div className="relative w-full max-w-sm bg-[#050505] border border-white/10 rounded-[2.5rem] p-8 shadow-2xl animate-in zoom-in-95 duration-500 overflow-hidden">
+      <div className="relative w-full max-w-sm bg-[#050505] border border-white/10 rounded-[2.5rem] p-8 shadow-2xl animate-in zoom-in-95 duration-500 overflow-hidden force-dark">
         {/* Decorative background */}
         <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-[60px] -translate-y-10 translate-x-10 pointer-events-none" />
         

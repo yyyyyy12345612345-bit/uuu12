@@ -83,7 +83,7 @@ export function PointsGuideModal({ isOpen, onClose }: PointsGuideModalProps) {
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="relative w-full max-w-2xl bg-[#0c0d10] border border-primary/20 rounded-[3rem] shadow-[0_0_100px_rgba(212,175,55,0.15)] overflow-hidden flex flex-col h-[85vh] md:h-auto md:max-h-[90vh]"
+            className="relative w-full max-w-2xl bg-[#0c0d10] border border-primary/20 rounded-[3rem] shadow-[0_0_100px_rgba(212,175,55,0.15)] overflow-hidden flex flex-col h-[85vh] md:h-auto md:max-h-[90vh] force-dark"
           >
             {/* Background Pattern */}
             <div className="absolute inset-0 islamic-pattern opacity-[0.05] pointer-events-none" />

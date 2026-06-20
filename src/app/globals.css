@@ -437,27 +437,60 @@ tajweed.idgham_without_ghunnah {
 }
 
 /* Light Mode Overrides for Hardcoded Dark Themes */
-/* Exempt elements with .force-dark — they manage their own dark background */
-html:not(.dark) :not(.force-dark):not(.force-dark *).text-white { color: hsl(var(--foreground)) !important; }
-html:not(.dark) :not(.force-dark):not(.force-dark *).text-white\/10 { color: hsl(var(--foreground) / 0.3) !important; }
-html:not(.dark) :not(.force-dark):not(.force-dark *).text-white\/20 { color: hsl(var(--foreground) / 0.4) !important; }
-html:not(.dark) :not(.force-dark):not(.force-dark *).text-white\/30 { color: hsl(var(--foreground) / 0.5) !important; }
-html:not(.dark) :not(.force-dark):not(.force-dark *).text-white\/40 { color: hsl(var(--foreground) / 0.6) !important; }
-html:not(.dark) :not(.force-dark):not(.force-dark *).text-white\/50 { color: hsl(var(--foreground) / 0.7) !important; }
-html:not(.dark) :not(.force-dark):not(.force-dark *).text-white\/60 { color: hsl(var(--foreground) / 0.8) !important; }
-html:not(.dark) :not(.force-dark):not(.force-dark *).text-white\/70 { color: hsl(var(--foreground) / 0.9) !important; }
-html:not(.dark) :not(.force-dark):not(.force-dark *).text-white\/80 { color: hsl(var(--foreground)) !important; }
-html:not(.dark) :not(.force-dark):not(.force-dark *).text-white\/90 { color: hsl(var(--foreground)) !important; }
+html:not(.dark) .text-white { color: hsl(var(--foreground)) !important; }
+html:not(.dark) .text-white\/10 { color: hsl(var(--foreground) / 0.3) !important; }
+html:not(.dark) .text-white\/20 { color: hsl(var(--foreground) / 0.4) !important; }
+html:not(.dark) .text-white\/30 { color: hsl(var(--foreground) / 0.5) !important; }
+html:not(.dark) .text-white\/40 { color: hsl(var(--foreground) / 0.6) !important; }
+html:not(.dark) .text-white\/50 { color: hsl(var(--foreground) / 0.7) !important; }
+html:not(.dark) .text-white\/60 { color: hsl(var(--foreground) / 0.8) !important; }
+html:not(.dark) .text-white\/70 { color: hsl(var(--foreground) / 0.9) !important; }
+html:not(.dark) .text-white\/80 { color: hsl(var(--foreground)) !important; }
+html:not(.dark) .text-white\/90 { color: hsl(var(--foreground)) !important; }
 
-html:not(.dark) :not(.force-dark):not(.force-dark *).bg-white\/5 { background-color: rgba(0,0,0,0.05) !important; }
-html:not(.dark) :not(.force-dark):not(.force-dark *).bg-white\/10 { background-color: rgba(0,0,0,0.1) !important; }
-html:not(.dark) :not(.force-dark):not(.force-dark *).bg-white\/20 { background-color: rgba(0,0,0,0.2) !important; }
-html:not(.dark) :not(.force-dark):not(.force-dark *).border-white\/5 { border-color: rgba(0,0,0,0.1) !important; }
-html:not(.dark) :not(.force-dark):not(.force-dark *).border-white\/10 { border-color: rgba(0,0,0,0.2) !important; }
-html:not(.dark) :not(.force-dark):not(.force-dark *).border-white\/20 { border-color: rgba(0,0,0,0.3) !important; }
+html:not(.dark) .bg-white\/5 { background-color: rgba(0,0,0,0.05) !important; }
+html:not(.dark) .bg-white\/10 { background-color: rgba(0,0,0,0.1) !important; }
+html:not(.dark) .bg-white\/20 { background-color: rgba(0,0,0,0.2) !important; }
+html:not(.dark) .border-white\/5 { border-color: rgba(0,0,0,0.1) !important; }
+html:not(.dark) .border-white\/10 { border-color: rgba(0,0,0,0.2) !important; }
+html:not(.dark) .border-white\/20 { border-color: rgba(0,0,0,0.3) !important; }
 
 /* force-dark: Use this class on containers with hard-coded dark backgrounds */
-.force-dark { color-scheme: dark; }
+.force-dark {
+  color-scheme: dark;
+  --background: 220 25% 4%;
+  --foreground: 210 20% 98%;
+  --card: 220 25% 6%;
+  --card-foreground: 210 20% 98%;
+  --primary: 43 66% 52%;
+  --primary-foreground: 220 25% 4%;
+  --secondary: 43 30% 15%;
+  --secondary-foreground: 210 20% 98%;
+  --accent: 215 25% 12%;
+  --accent-foreground: 43 66% 52%;
+  --border: 215 25% 12%;
+  --input: 215 25% 12%;
+  --ring: 43 66% 52%;
+}
+
+/* Exempt elements with .force-dark and their children — keep/restore original dark theme styling */
+.force-dark .text-white, .force-dark.text-white { color: #ffffff !important; }
+.force-dark .text-white\/10, .force-dark.text-white\/10 { color: rgba(255, 255, 255, 0.1) !important; }
+.force-dark .text-white\/20, .force-dark.text-white\/20 { color: rgba(255, 255, 255, 0.2) !important; }
+.force-dark .text-white\/30, .force-dark.text-white\/30 { color: rgba(255, 255, 255, 0.3) !important; }
+.force-dark .text-white\/40, .force-dark.text-white\/40 { color: rgba(255, 255, 255, 0.4) !important; }
+.force-dark .text-white\/50, .force-dark.text-white\/50 { color: rgba(255, 255, 255, 0.5) !important; }
+.force-dark .text-white\/60, .force-dark.text-white\/60 { color: rgba(255, 255, 255, 0.6) !important; }
+.force-dark .text-white\/70, .force-dark.text-white\/70 { color: rgba(255, 255, 255, 0.7) !important; }
+.force-dark .text-white\/80, .force-dark.text-white\/80 { color: rgba(255, 255, 255, 0.8) !important; }
+.force-dark .text-white\/90, .force-dark.text-white\/90 { color: rgba(255, 255, 255, 0.9) !important; }
+
+.force-dark .bg-white\/5, .force-dark.bg-white\/5 { background-color: rgba(255, 255, 255, 0.05) !important; }
+.force-dark .bg-white\/10, .force-dark.bg-white\/10 { background-color: rgba(255, 255, 255, 0.1) !important; }
+.force-dark .bg-white\/20, .force-dark.bg-white\/20 { background-color: rgba(255, 255, 255, 0.2) !important; }
+.force-dark .border-white\/5, .force-dark.border-white\/5 { border-color: rgba(255, 255, 255, 0.05) !important; }
+.force-dark .border-white\/10, .force-dark.border-white\/10 { border-color: rgba(255, 255, 255, 0.1) !important; }
+.force-dark .border-white\/20, .force-dark.border-white\/20 { border-color: rgba(255, 255, 255, 0.2) !important; }
 
 @keyframes float-up-fade {
   0% {

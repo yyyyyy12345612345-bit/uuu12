@@ -154,7 +154,7 @@ export function DirectChatModal({ partnerId, onClose }: DirectChatModalProps) {
     <div className="fixed inset-0 z-[3100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 font-['Tajawal'] select-none">
       <div className="absolute inset-0" onClick={onClose} />
       
-      <div className="relative w-full max-w-lg h-[80vh] bg-[#0c0d10] border border-white/10 rounded-[3rem] shadow-[0_30px_70px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col animate-in zoom-in-95 duration-500">
+      <div className="relative w-full max-w-lg h-[80vh] bg-[#0c0d10] border border-white/10 rounded-[3rem] shadow-[0_30px_70px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col animate-in zoom-in-95 duration-500 force-dark">
         <div className="absolute inset-0 islamic-pattern opacity-[0.02] pointer-events-none" />
         
         {/* Chat Header */}
