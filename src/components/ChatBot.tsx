@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { MessageSquare, X, Send, User, Bot, Loader2 } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { auth } from "../lib/firebase";
+import { auth, db } from "../lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { motion } from "framer-motion";
 
@@ -26,17 +26,42 @@ export function ChatBot() {
 
   // Load user data
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
+    let unsubFirestore: (() => void) | undefined;
+
+    const unsubAuth = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const pts = localStorage.getItem("cached_total_points") || "0";
-        setUserData({ 
-          name: user.displayName || "يا غالي", 
-          points: parseInt(pts), 
-          rank: "بطل قرآني" 
-        });
+        setUserData(prev => ({
+          ...prev,
+          name: user.displayName || "يا غالي",
+          points: parseInt(pts),
+          rank: "بطل قرآني"
+        }));
+
+        try {
+          const { doc, onSnapshot } = await import("firebase/firestore");
+          if (db) {
+            unsubFirestore = onSnapshot(doc(db, "users", user.uid), (snap) => {
+              if (snap.exists()) {
+                const data = snap.data();
+                setUserData({
+                  name: data.displayName || data.username || user.displayName || "يا غالي",
+                  points: data.points || parseInt(pts),
+                  rank: data.rank || "بطل قرآني"
+                });
+              }
+            });
+          }
+        } catch (e) {
+          console.error("Error loading user data from Firestore in ChatBot:", e);
+        }
       }
     });
-    return () => unsub();
+
+    return () => {
+      unsubAuth();
+      if (unsubFirestore) unsubFirestore();
+    };
   }, []);
 
   // Auto-scroll to bottom
