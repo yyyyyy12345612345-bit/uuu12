@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { navigateInstantly } from '@/lib/navigation';
+import { useTheme } from '@/components/ThemeProvider';
 
 // GSAP - ensure you've run: npm install gsap
 let gsap: any;
@@ -45,6 +46,7 @@ const MODES = [
     glow: "rgba(212,175,55,0.35)",
     dimGlow: "rgba(212,175,55,0.08)",
     gradient: "linear-gradient(135deg, #1a1300 0%, #0c0e18 60%, #050810 100%)",
+    lightGradient: "linear-gradient(135deg, #fefce8 0%, #ffffff 100%)",
     borderGrad: "linear-gradient(135deg, rgba(212,175,55,0.6), rgba(212,175,55,0.05))",
     num: "01",
   },
@@ -52,10 +54,11 @@ const MODES = [
     href: "/mushaf-full",
     title: "المصحف الرقمي",
     desc: "تصفح المصحف بالرسم العثماني التقليدي كما في النسخ الورقية مع إمكانية التنقل السريع بين الصفحات.",
-    color: "#7dd3fc",
-    glow: "rgba(125,211,252,0.35)",
-    dimGlow: "rgba(125,211,252,0.07)",
+    color: "#0284c7",
+    glow: "rgba(2,132,199,0.35)",
+    dimGlow: "rgba(2,132,199,0.07)",
     gradient: "linear-gradient(135deg, #001320 0%, #050e1a 60%, #050810 100%)",
+    lightGradient: "linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%)",
     borderGrad: "linear-gradient(135deg, rgba(125,211,252,0.5), rgba(125,211,252,0.05))",
     num: "02",
   },
@@ -63,10 +66,11 @@ const MODES = [
     href: "/mushaf-tafseer",
     title: "مصحف بالتفسير",
     desc: "القراءة المعمقة مع عرض التفسير الميسر بجانب كل صفحة، مثالي لطلبة العلم والباحثين.",
-    color: "#86efac",
-    glow: "rgba(134,239,172,0.3)",
-    dimGlow: "rgba(134,239,172,0.07)",
+    color: "#16a34a",
+    glow: "rgba(22,163,74,0.3)",
+    dimGlow: "rgba(22,163,74,0.07)",
     gradient: "linear-gradient(135deg, #001306 0%, #050e0a 60%, #050810 100%)",
+    lightGradient: "linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%)",
     borderGrad: "linear-gradient(135deg, rgba(134,239,172,0.5), rgba(134,239,172,0.05))",
     num: "03",
   }
@@ -94,6 +98,8 @@ function FloatingParticles({ color }: { color: string }) {
 }
 
 export function MushafChoice() {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const containerRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
@@ -242,7 +248,9 @@ export function MushafChoice() {
     if (entering) {
       gsap.to(card, {
         scale: 1.015,
-        boxShadow: `0 0 60px ${mode.glow}, 0 20px 50px rgba(0,0,0,0.5)`,
+        boxShadow: isDark 
+          ? `0 0 60px ${mode.glow}, 0 20px 50px rgba(0,0,0,0.5)`
+          : `0 0 40px ${mode.glow}, 0 10px 30px rgba(0,0,0,0.05)`,
         borderColor: mode.color + '80',
         duration: 0.4, ease: 'power2.out'
       });
@@ -253,12 +261,14 @@ export function MushafChoice() {
     } else {
       gsap.to(card, {
         scale: 1,
-        boxShadow: `0 0 0px rgba(0,0,0,0), 0 8px 30px rgba(0,0,0,0.3)`,
-        borderColor: 'rgba(255,255,255,0.06)',
+        boxShadow: isDark 
+          ? `0 0 0px rgba(0,0,0,0), 0 8px 30px rgba(0,0,0,0.3)`
+          : `0 0 0px rgba(0,0,0,0), 0 8px 30px rgba(0,0,0,0.05)`,
+        borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
         duration: 0.4, ease: 'power2.out'
       });
       if (iconEl) gsap.to(iconEl, { scale: 1, rotate: 0, duration: 0.4, ease: 'power2.out' });
-      if (numEl) gsap.to(numEl, { color: 'rgba(255,255,255,0.1)', scale: 1, duration: 0.3 });
+      if (numEl) gsap.to(numEl, { color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', scale: 1, duration: 0.3 });
       if (arrowEl) gsap.to(arrowEl, { x: 0, opacity: 0.4, duration: 0.3 });
       if (glowEl) gsap.to(glowEl, { opacity: 0, duration: 0.4 });
     }
@@ -272,21 +282,25 @@ export function MushafChoice() {
     >
       {/* ── Animated Background ── */}
       <div ref={bgRef} className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[#04050d]" />
+        <div className="absolute inset-0 bg-background" />
         {/* Star field */}
         <div ref={starsRef} className="absolute inset-0" style={{
-          background: 'radial-gradient(ellipse at 20% 20%, rgba(212,175,55,0.04) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(125,211,252,0.03) 0%, transparent 50%)'
+          background: isDark
+            ? 'radial-gradient(ellipse at 20% 20%, rgba(212,175,55,0.04) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(125,211,252,0.03) 0%, transparent 50%)'
+            : 'radial-gradient(ellipse at 20% 20%, rgba(212,175,55,0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(2,132,199,0.05) 0%, transparent 50%)'
         }}/>
         {/* Ambient orbs */}
         <div ref={orb1Ref} className="absolute top-1/4 right-1/4 w-96 h-96 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%)', filter: 'blur(40px)' }}/>
+          style={{ background: isDark ? 'radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(212,175,55,0.04) 0%, transparent 70%)', filter: 'blur(40px)' }}/>
         <div ref={orb2Ref} className="absolute bottom-1/3 left-1/4 w-80 h-80 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(125,211,252,0.05) 0%, transparent 70%)', filter: 'blur(50px)' }}/>
+          style={{ background: isDark ? 'radial-gradient(circle, rgba(125,211,252,0.05) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(2,132,199,0.03) 0%, transparent 70%)', filter: 'blur(50px)' }}/>
         <div ref={orb3Ref} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(134,239,172,0.03) 0%, transparent 60%)', filter: 'blur(60px)' }}/>
+          style={{ background: isDark ? 'radial-gradient(circle, rgba(134,239,172,0.03) 0%, transparent 60%)' : 'radial-gradient(circle, rgba(22,163,74,0.02) 0%, transparent 60%)', filter: 'blur(60px)' }}/>
         {/* Grid lines */}
         <div className="absolute inset-0 opacity-[0.025]" style={{
-          backgroundImage: 'linear-gradient(rgba(212,175,55,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(212,175,55,0.5) 1px, transparent 1px)',
+          backgroundImage: isDark
+            ? 'linear-gradient(rgba(212,175,55,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(212,175,55,0.5) 1px, transparent 1px)'
+            : 'linear-gradient(rgba(212,175,55,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(212,175,55,0.2) 1px, transparent 1px)',
           backgroundSize: '80px 80px'
         }}/>
       </div>
@@ -300,7 +314,7 @@ export function MushafChoice() {
             style={{
               width: `${Math.random() * 3 + 1.5}px`,
               height: `${Math.random() * 3 + 1.5}px`,
-              background: i % 3 === 0 ? '#d4af37' : i % 3 === 1 ? '#7dd3fc' : '#86efac',
+              background: i % 3 === 0 ? '#d4af37' : i % 3 === 1 ? '#0284c7' : '#16a34a',
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
               opacity: 0
@@ -320,7 +334,7 @@ export function MushafChoice() {
             <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z"
               fill="#d4af37" opacity="0.9"/>
           </svg>
-          <span className="text-[10px] font-black text-amber-400/80 tracking-[0.25em] uppercase font-arabic">
+          <span className="text-[10px] font-black text-amber-500/80 tracking-[0.25em] uppercase font-arabic">
             رحلتك الإيمانية
           </span>
           <div className="w-1.5 h-1.5 rounded-full bg-amber-400/60 animate-pulse"/>
@@ -330,12 +344,14 @@ export function MushafChoice() {
         <div ref={titleRef} className="text-center">
           <h1 className="text-[32px] md:text-[46px] font-black font-arabic leading-none tracking-tight"
             style={{
-              background: 'linear-gradient(180deg, #ffffff 20%, #d4af37 60%, #a08020 100%)',
+              background: isDark
+                ? 'linear-gradient(180deg, #ffffff 20%, #d4af37 60%, #a08020 100%)'
+                : 'linear-gradient(180deg, #1e293b 20%, #b45309 60%, #78350f 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
               textShadow: 'none',
-              filter: 'drop-shadow(0 0 20px rgba(212,175,55,0.3))'
+              filter: isDark ? 'drop-shadow(0 0 20px rgba(212,175,55,0.3))' : 'none'
             }}>
             اختر طريقة التلاوة
           </h1>
@@ -350,8 +366,7 @@ export function MushafChoice() {
         </div>
 
         {/* ── Subtitle ── */}
-        <p ref={subtitleRef} className="text-center font-arabic text-sm font-bold leading-loose max-w-sm"
-          style={{ color: 'rgba(255,255,255,0.38)' }}>
+        <p ref={subtitleRef} className="text-center font-arabic text-sm font-bold leading-loose max-w-sm text-foreground/45">
           صمّمنا لك ثلاثة أوضاع متكاملة لرحلتك مع القرآن الكريم
         </p>
 
@@ -366,9 +381,9 @@ export function MushafChoice() {
               onMouseLeave={() => handleCardHover(i, false)}
               className="block relative rounded-3xl overflow-hidden cursor-pointer"
               style={{
-                background: mode.gradient,
-                border: '1px solid rgba(255,255,255,0.06)',
-                boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
+                background: isDark ? mode.gradient : mode.lightGradient,
+                border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)',
+                boxShadow: isDark ? '0 8px 30px rgba(0,0,0,0.3)' : '0 8px 30px rgba(0,0,0,0.03)',
                 opacity: 0
               }}
             >
@@ -386,7 +401,7 @@ export function MushafChoice() {
               <div className="relative flex items-center gap-4 p-4 md:p-5">
                 {/* Number */}
                 <div className="mc-num absolute top-3 right-4 text-[10px] font-black font-mono"
-                  style={{ color: 'rgba(255,255,255,0.1)', letterSpacing: '0.1em' }}>
+                  style={{ color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', letterSpacing: '0.1em' }}>
                   {mode.num}
                 </div>
 
@@ -406,12 +421,11 @@ export function MushafChoice() {
                 {/* Text content */}
                 <div className="flex-1 text-right min-w-0 pt-1 md:pt-2">
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-black font-arabic text-lg md:text-xl text-white leading-none">
+                    <h3 className="font-black font-arabic text-lg md:text-xl text-foreground leading-none">
                       {mode.title}
                     </h3>
                   </div>
-                  <p className="text-[11px] md:text-xs font-arabic font-bold leading-relaxed"
-                    style={{ color: 'rgba(255,255,255,0.38)' }}>
+                  <p className="text-[11px] md:text-xs font-arabic font-bold leading-relaxed text-foreground/45">
                     {mode.desc}
                   </p>
                 </div>
@@ -438,7 +452,7 @@ export function MushafChoice() {
           <p className="font-arabic text-xs" style={{ color: 'rgba(212,175,55,0.3)', lineHeight: 2 }}>
             ﴿ إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ ﴾
           </p>
-          <p className="text-[10px] font-arabic" style={{ color: 'rgba(255,255,255,0.15)' }}>
+          <p className="text-[10px] font-arabic text-foreground/20">
             الإسراء: ٩
           </p>
         </div>
