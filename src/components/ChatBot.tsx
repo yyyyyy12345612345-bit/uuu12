@@ -39,20 +39,8 @@ export function ChatBot() {
     return () => unsub();
   }, []);
 
-  // Load history
+  // Auto-scroll to bottom
   useEffect(() => {
-    const saved = localStorage.getItem("chatbot_history");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.length > 0) setMessages(parsed);
-      } catch (e) {}
-    }
-  }, []);
-
-  // Save history
-  useEffect(() => {
-    localStorage.setItem("chatbot_history", JSON.stringify(messages));
     scrollToBottom();
   }, [messages]);
 
