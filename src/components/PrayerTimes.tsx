@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
 import { usePrayerNotifications } from "@/hooks/usePrayerNotifications";
+import { useTheme } from "@/components/ThemeProvider";
 import { PrayerSettingsSheet, MUEZZINS } from "@/components/PrayerSettingsSheet";
 import { PrayerYearCalendarView } from "@/components/PrayerYearCalendarView";
 import { Capacitor } from "@capacitor/core";
@@ -73,7 +74,7 @@ const PRAYER_ICONS: Record<string, React.ReactNode> = {
       <path d="M24 6 L24 11" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
       <path d="M38 22 L43 22" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
       <path d="M34 12 L38 8" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-      <path d="M4 38 L44 38" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.6"/>
+      <path d="M4 38 L44 38" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" opacity="0.6"/>
       <path d="M4 42 L44 42" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.25"/>
     </svg>
   ),
@@ -101,6 +102,8 @@ const PRAYER_ICONS: Record<string, React.ReactNode> = {
 /* ─── Countdown Component ─── */
 function PrayerCountdown({ calendar, settings }: { calendar: PrayerYearCalendar; settings: PrayerSettingsMap }) {
   const [next, setNext] = useState<NextPrayerInfo | null>(null);
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   useEffect(() => {
     const tick = () => setNext(getNextPrayerFromCalendar(calendar, settings));
@@ -114,12 +117,12 @@ function PrayerCountdown({ calendar, settings }: { calendar: PrayerYearCalendar;
   return (
     <div className="flex flex-col items-center gap-3">
       <span className="text-xs font-black uppercase tracking-[0.3em]" style={{ color: 'rgba(212,175,55,0.7)' }}>الصلاة القادمة</span>
-      <h3 className="text-2xl font-black font-arabic" style={{ color: '#fefefe' }}>{next.nameAr}</h3>
-      <div className="font-mono text-5xl md:text-6xl font-black tracking-widest" dir="ltr"
-        style={{ color: '#fefefe', textShadow: "0 0 40px rgba(212,175,55,0.4)" }}>
+      <h3 className="text-2xl font-black font-arabic text-foreground">{next.nameAr}</h3>
+      <div className="font-mono text-5xl md:text-6xl font-black tracking-widest text-foreground" dir="ltr"
+        style={{ textShadow: isDark ? "0 0 40px rgba(212,175,55,0.4)" : "none" }}>
         {next.inLabel}
       </div>
-      <p className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.3)' }}>
+      <p className="text-xs font-bold text-foreground/40">
         في تمام الساعة {next.date.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" })}
       </p>
     </div>
@@ -128,6 +131,8 @@ function PrayerCountdown({ calendar, settings }: { calendar: PrayerYearCalendar;
 
 /* ─── Main Component ─── */
 export function PrayerTimes() {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const [calendar, setCalendar] = useState<PrayerYearCalendar | null>(null);
   const [times, setTimes] = useState<PrayerTimesData | null>(null);
   const [clockLabel, setClockLabel] = useState("");
@@ -363,12 +368,14 @@ export function PrayerTimes() {
           className={`relative flex flex-col items-center gap-3 p-5 rounded-[2rem] border transition-all duration-500 overflow-hidden group w-full ${
             isNext
               ? "border-white/20 scale-[1.03] z-10 shadow-2xl"
-              : "border-white/[0.06] hover:-translate-y-1 hover:border-white/15"
+              : "border-border/10 hover:-translate-y-1 hover:border-border"
           }`}
           style={{
             background: isNext
               ? `radial-gradient(ellipse at top, ${colors.glow} -20%, ${colors.bg} 70%)`
-              : `radial-gradient(ellipse at top, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.3) 100%)`,
+              : isDark
+                ? `radial-gradient(ellipse at top, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.3) 100%)`
+                : `linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%)`,
             boxShadow: isNext ? `0 0 50px ${colors.glow}` : "none",
           }}
         >
@@ -379,33 +386,33 @@ export function PrayerTimes() {
           {/* Icon */}
           <div
             className="w-10 h-10 transition-transform duration-500 group-hover:scale-110"
-            style={{ color: isNext ? colors.icon : "rgba(255,255,255,0.25)" }}
+            style={{ color: isNext ? colors.icon : isDark ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.25)" }}
           >
             {PRAYER_ICONS[id] || <div className="w-full h-full rounded-full bg-white/10" />}
           </div>
           {/* Name */}
-          <span className={`text-sm font-black font-arabic ${isNext ? "text-white" : "text-white/50"}`}>
+          <span className={`text-sm font-black font-arabic ${isNext ? "text-white" : "text-foreground/50"}`}>
             {name}
           </span>
           {/* Time */}
           <span
             className="text-2xl font-black font-mono tracking-tight"
             dir="ltr"
-            style={{ color: isNext ? colors.icon : "rgba(255,255,255,0.85)", textShadow: isNext ? `0 0 20px ${colors.icon}` : "none" }}
+            style={{ color: isNext ? colors.icon : "hsl(var(--foreground))", textShadow: isNext ? `0 0 20px ${colors.icon}` : "none" }}
           >
             {formatTimeDisplay(time)}
           </span>
           {/* Bell */}
           <div className="flex items-center gap-1">
             {enabled
-              ? <Bell className={`w-3 h-3 ${isNext ? "" : "text-white/30"}`} style={{ color: isNext ? colors.icon : undefined }} />
-              : <BellOff className="w-3 h-3 text-white/20" />
+              ? <Bell className={`w-3 h-3 ${isNext ? "" : "text-foreground/30"}`} style={{ color: isNext ? colors.icon : undefined }} />
+              : <BellOff className="w-3 h-3 text-foreground/20" />
             }
           </div>
         </button>
       );
     });
-  }, [times, nextPrayerId, prayerSettings]);
+  }, [times, nextPrayerId, prayerSettings, isDark]);
 
   return (
     <div className="force-dark relative flex flex-col h-full overflow-y-auto overflow-x-hidden no-scrollbar font-arabic" style={{ background: "#06080f", colorScheme: "dark" }}>
