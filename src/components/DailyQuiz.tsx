@@ -700,20 +700,20 @@ export function DailyQuiz() {
             <Trophy className="w-12 h-12" />
           </div>
           <div className="space-y-3">
-            <h3 className="text-3xl font-black text-white">أتممت تحدي المعرفة اليوم!</h3>
+            <h3 className="text-3xl font-black text-foreground dark:text-white">أتممت تحدي المعرفة اليوم!</h3>
             <p className="text-foreground/60 text-sm max-w-sm mx-auto">
               الحمد لله، لقد أجبت على تحديات اليوم المعرفية (20 سؤالاً كاملاً) وحصدت النقاط لتزيين ملفك الشخصي.
             </p>
           </div>
 
-          <div className="bg-[#0c0d10] border border-white/5 rounded-3xl p-6 max-w-md mx-auto grid grid-cols-2 gap-4">
-            <div className="text-center border-l border-white/5">
+          <div className="bg-foreground/[0.03] dark:bg-[#0c0d10] border border-border dark:border-white/5 rounded-3xl p-6 max-w-md mx-auto grid grid-cols-2 gap-4">
+            <div className="text-center border-l border-border dark:border-white/5">
               <span className="block text-4xl font-black text-primary font-mono">{score}/20</span>
-              <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1 block">الإجابات الصحيحة</span>
+              <span className="text-[10px] text-foreground/40 dark:text-white/30 font-bold uppercase tracking-widest mt-1 block">الإجابات الصحيحة</span>
             </div>
             <div className="text-center">
               <span className="block text-4xl font-black text-emerald-400 font-mono">+{score * 5}</span>
-              <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1 block">نقاط مكتسبة</span>
+              <span className="text-[10px] text-foreground/40 dark:text-white/30 font-bold uppercase tracking-widest mt-1 block">نقاط مكتسبة</span>
             </div>
           </div>
 
@@ -722,7 +722,7 @@ export function DailyQuiz() {
               onClick={() => {
                 setMode(null);
               }}
-              className="w-full py-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-black text-xs rounded-2xl transition-all"
+              className="w-full py-4 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 hover:bg-foreground/10 dark:hover:bg-white/10 text-foreground dark:text-white font-black text-xs rounded-2xl transition-all"
             >
               الرجوع للقائمة الرئيسية
             </button>
@@ -732,7 +732,7 @@ export function DailyQuiz() {
         // Selection Mode Screen
         <div className="text-center py-6 space-y-8 relative z-10 animate-in fade-in duration-500">
           <div className="space-y-3">
-            <h3 className="text-3xl font-black text-white">
+            <h3 className="text-3xl font-black text-foreground dark:text-white">
               {quizCompletedToday ? "لقد أكملت تحدي اليوم! 🎉" : "اختر نمط التحدي اليومي"}
             </h3>
             <p className="text-foreground/40 text-sm max-w-md mx-auto">
@@ -749,23 +749,23 @@ export function DailyQuiz() {
               className={`p-6 rounded-[2.5rem] border text-right transition-all duration-300 relative group flex flex-col justify-between min-h-[180px] ${
                 quizCompletedToday 
                   ? "bg-foreground/[0.02] border-border/40 opacity-50 cursor-not-allowed" 
-                  : "bg-black/20 border-white/5 hover:border-primary/30 cursor-pointer"
+                  : "bg-foreground/[0.03] dark:bg-black/20 border-border dark:border-white/5 hover:border-primary/30 cursor-pointer"
               }`}
             >
               <div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/5 border border-white/10 rounded-xl text-[9px] font-black uppercase text-white/50 tracking-wider mb-3">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-foreground/5 dark:bg-white/5 border border-border dark:border-white/10 rounded-xl text-[9px] font-black uppercase text-foreground/60 dark:text-white/50 tracking-wider mb-3">
                   تحدي أسئلة اليوم (20 سؤالاً) 📅
                 </span>
-                <h4 className="text-lg font-black text-white group-hover:text-primary transition-colors">التحدي اليومي المعتاد</h4>
-                <p className="text-white/40 text-xs mt-1 leading-relaxed">
+                <h4 className="text-lg font-black text-foreground dark:text-white group-hover:text-primary transition-colors">التحدي اليومي المعتاد</h4>
+                <p className="text-foreground/50 dark:text-white/40 text-xs mt-1 leading-relaxed">
                   20 سؤالاً عشوائياً تتصاعد في الصعوبة من السهل إلى أصعب المستويات، تختلف من شخص لآخر ومن يوم ليوم.
                 </p>
               </div>
-              <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3">
+              <div className="mt-4 flex items-center justify-between border-t border-border dark:border-white/5 pt-3">
                 <span className="text-[10px] text-primary font-black">
                   {quizCompletedToday ? "تم إنجازه اليوم بنجاح ✅" : `التقدم اليومي: ${playedCount}/20 سؤالاً`}
                 </span>
-                {!quizCompletedToday && <span className="text-xs text-white/20 group-hover:text-primary transition-colors">←</span>}
+                {!quizCompletedToday && <span className="text-xs text-foreground/20 dark:text-white/20 group-hover:text-primary transition-colors">←</span>}
               </div>
             </div>
 
@@ -775,7 +775,7 @@ export function DailyQuiz() {
               className={`p-6 rounded-[2.5rem] border text-right transition-all duration-300 relative group flex flex-col justify-between min-h-[180px] ${
                 quizCompletedToday 
                   ? "bg-foreground/[0.02] border-border/40 opacity-50 cursor-not-allowed" 
-                  : "bg-black/20 border-white/5 hover:border-primary/30 cursor-pointer shadow-lg shadow-primary/5"
+                  : "bg-foreground/[0.03] dark:bg-black/20 border-border dark:border-white/5 hover:border-primary/30 cursor-pointer shadow-lg shadow-primary/5"
               }`}
             >
               <div className="absolute top-0 right-0 p-6 opacity-[0.02] group-hover:opacity-[0.05] transition-opacity">
@@ -785,16 +785,16 @@ export function DailyQuiz() {
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/20 text-primary border border-primary/20 rounded-xl text-[9px] font-black uppercase tracking-wider mb-3">
                   توليد فوري بالذكاء الاصطناعي 🧠✨
                 </span>
-                <h4 className="text-lg font-black text-white group-hover:text-primary transition-colors">تحدي الذكاء الاصطناعي</h4>
-                <p className="text-white/40 text-xs mt-1 leading-relaxed">
+                <h4 className="text-lg font-black text-foreground dark:text-white group-hover:text-primary transition-colors">تحدي الذكاء الاصطناعي</h4>
+                <p className="text-foreground/50 dark:text-white/40 text-xs mt-1 leading-relaxed">
                   أسئلة تفاعلية فورية تصاغ لك وتزداد صعوبة تدريجياً مع كل سؤال تجيب عليه لتصل لمستوى العلماء في السؤال الأخير!
                 </p>
               </div>
-              <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3">
+              <div className="mt-4 flex items-center justify-between border-t border-border dark:border-white/5 pt-3">
                 <span className="text-[10px] text-primary font-black">
                   {quizCompletedToday ? "تم إنجازه اليوم بنجاح ✅" : `التقدم اليومي: ${playedCount}/20 سؤالاً`}
                 </span>
-                {!quizCompletedToday && <span className="text-xs text-white/20 group-hover:text-primary transition-colors">←</span>}
+                {!quizCompletedToday && <span className="text-xs text-foreground/20 dark:text-white/20 group-hover:text-primary transition-colors">←</span>}
               </div>
             </div>
           </div>
@@ -821,13 +821,13 @@ export function DailyQuiz() {
         // Question Render Screen (Static or AI Mode)
         <div className="space-y-6 animate-in fade-in duration-500 relative z-10">
           {/* Top progress bar & Timer */}
-          <div className="flex items-center justify-between border-b border-white/5 pb-4">
+          <div className="flex items-center justify-between border-b border-border dark:border-white/5 pb-4">
             <button 
               onClick={() => {
                 setMode(null);
                 setTimerActive(false);
               }}
-              className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white transition-colors"
+              className="flex items-center gap-1.5 text-xs text-foreground/60 dark:text-white/40 hover:text-foreground dark:hover:text-white transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>الرجوع</span>
@@ -857,7 +857,7 @@ export function DailyQuiz() {
               <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition-all duration-300 ${
                 timer <= 5 
                   ? "bg-red-500/10 border-red-500/30 text-red-500 scale-105 animate-pulse" 
-                  : "bg-white/5 border-white/10 text-primary"
+                  : "bg-foreground/5 dark:bg-white/5 border-border dark:border-white/10 text-primary"
               }`}>
                 <Clock className="w-4 h-4 shrink-0" />
                 <span className="text-xs font-black font-mono">
@@ -865,9 +865,9 @@ export function DailyQuiz() {
                 </span>
               </div>
 
-              <div className="flex items-center gap-2 border-r border-white/10 pr-4">
+              <div className="flex items-center gap-2 border-r border-border dark:border-white/10 pr-4">
                 <Brain className="w-4 h-4 text-primary animate-pulse" />
-                <span className="text-xs text-white/80 font-bold">
+                <span className="text-xs text-foreground/80 dark:text-white/80 font-bold">
                   {mode === "ai" 
                     ? currentQ?.isFallback 
                       ? `نمط الذكاء الاصطناعي - الاحتياطي ⚠️ (${playedCount + 1}/20)` 
@@ -880,7 +880,7 @@ export function DailyQuiz() {
 
           {/* Visual countdown progress bar */}
           {timerActive && (
-            <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden mt-1 relative">
+            <div className="w-full h-1 bg-foreground/5 dark:bg-white/5 rounded-full overflow-hidden mt-1 relative">
               <div 
                 className={`absolute inset-y-0 right-0 transition-all duration-1000 ease-linear ${
                   timer <= 5 ? "bg-red-500 animate-pulse" : "bg-gradient-to-l from-primary to-amber-500"
@@ -892,7 +892,7 @@ export function DailyQuiz() {
 
           {/* Question text */}
           <div className="py-4 text-center min-h-[90px] flex items-center justify-center">
-            <h4 className="text-xl md:text-2xl font-black text-white leading-relaxed">
+            <h4 className="text-xl md:text-2xl font-black text-foreground dark:text-white leading-relaxed">
               {currentQ?.question}
             </h4>
           </div>
@@ -903,14 +903,14 @@ export function DailyQuiz() {
               const isSelected = selectedOpt === idx;
               const isCorrect = idx === currentQ.correctAnswerIndex;
               
-              let btnClass = "bg-[#0c0d10] border-white/5 text-white/80 hover:bg-white/5 hover:border-white/10";
+              let btnClass = "bg-foreground/[0.03] dark:bg-[#0c0d10] border-border dark:border-white/5 text-foreground/80 dark:text-white/80 hover:bg-foreground/[0.06] dark:hover:bg-white/5 hover:border-border dark:hover:border-white/10";
               if (isAnswered) {
                 if (isCorrect) {
                   btnClass = "bg-emerald-500/10 border-emerald-500/50 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.1)] scale-[1.02]";
                 } else if (isSelected) {
                   btnClass = "bg-red-500/10 border-red-500/50 text-red-400 scale-[0.98]";
                 } else {
-                  btnClass = "bg-[#0c0d10]/50 border-white/5 text-white/20 opacity-40";
+                  btnClass = "bg-foreground/[0.015] dark:bg-[#0c0d10]/50 border-border dark:border-white/5 text-foreground/20 dark:text-white/20 opacity-40";
                 }
               }
 
@@ -931,7 +931,7 @@ export function DailyQuiz() {
 
           {/* Explanation / Feedback block */}
           {showExplanation && (
-            <div className="bg-[#0c0d10] border border-white/5 rounded-2xl p-5 space-y-2 animate-in slide-in-from-bottom-2 duration-300 text-right">
+            <div className="bg-foreground/[0.03] dark:bg-[#0c0d10] border border-border dark:border-white/5 rounded-2xl p-5 space-y-2 animate-in slide-in-from-bottom-2 duration-300 text-right">
               <span className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-1.5 justify-end">
                 <Sparkles className="w-3.5 h-3.5 text-primary" />
                 <span>
@@ -942,7 +942,7 @@ export function DailyQuiz() {
                       : "إجابة خاطئة! 💡"}
                 </span>
               </span>
-              <p className="text-xs text-white/60 leading-relaxed font-medium">
+              <p className="text-xs text-foreground/60 dark:text-white/60 leading-relaxed font-medium">
                 {currentQ?.explanation}
               </p>
             </div>
