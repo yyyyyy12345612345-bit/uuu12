@@ -888,14 +888,18 @@ ${args.options}
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout
 
+      const formattedMessages = apiMessages.map((m: any) => ({
+        role: m.sender === "user" ? "user" : "model",
+        content: m.text || ""
+      }));
+
       const valTownRes = await fetch("https://youssefosama--40af2a40698011f1b2fe1607ee4eb77e.web.val.run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         signal: controller.signal,
         body: JSON.stringify({ 
-          messages: apiMessages,
-          message: lastUserMessage,
-          history: apiMessages,
+          messages: formattedMessages,
+          systemContext: systemPrompt,
           userData,
           pathname,
           leaderboard

@@ -583,13 +583,17 @@ ${isOwner ? `[تنبيه حرج جداً]
         }
         apiMessages = mergedMessages;
 
+        const formattedMessages = apiMessages.map((m: any) => ({
+          role: m.sender === "user" ? "user" : "model",
+          content: m.text || ""
+        }));
+
         const valTownRes = await fetch("https://youssefosama--40af2a40698011f1b2fe1607ee4eb77e.web.val.run", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            messages: apiMessages,
-            message: userText,
-            history: apiMessages,
+            messages: formattedMessages,
+            systemContext: systemContext,
             userData: dbUser,
             pathname: pathname,
             leaderboard: leaderboardUsers
