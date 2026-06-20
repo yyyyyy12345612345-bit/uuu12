@@ -415,11 +415,11 @@ export function PrayerTimes() {
   }, [times, nextPrayerId, prayerSettings, isDark]);
 
   return (
-    <div className="force-dark relative flex flex-col h-full overflow-y-auto overflow-x-hidden no-scrollbar font-arabic" style={{ background: "#06080f", colorScheme: "dark" }}>
+    <div className={`relative flex flex-col h-full overflow-y-auto overflow-x-hidden no-scrollbar font-arabic bg-background text-foreground ${isDark ? 'force-dark' : ''}`} style={{ colorScheme: isDark ? "dark" : "light" }}>
       {/* ─── Animated celestial background ─── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         {/* Stars */}
-        {Array.from({ length: 60 }).map((_, i) => (
+        {isDark && Array.from({ length: 60 }).map((_, i) => (
           <div
             key={i}
             className="absolute rounded-full"
@@ -437,11 +437,11 @@ export function PrayerTimes() {
         ))}
         {/* Nebula gradient blobs */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full blur-[120px]"
-          style={{ background: `radial-gradient(ellipse, ${nextPrayerColor.glow} 0%, transparent 70%)`, opacity: 0.3, transition: "background 2s ease" }} />
+          style={{ background: `radial-gradient(ellipse, ${nextPrayerColor.glow} 0%, transparent 70%)`, opacity: isDark ? 0.3 : 0.15, transition: "background 2s ease" }} />
         <div className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full blur-[150px]"
-          style={{ background: "radial-gradient(ellipse, rgba(139,92,246,0.15) 0%, transparent 70%)" }} />
+          style={{ background: isDark ? "radial-gradient(ellipse, rgba(139,92,246,0.15) 0%, transparent 70%)" : "radial-gradient(ellipse, rgba(139,92,246,0.04) 0%, transparent 70%)" }} />
         <div className="absolute top-1/2 left-0 w-[300px] h-[300px] rounded-full blur-[120px]"
-          style={{ background: "radial-gradient(ellipse, rgba(212,175,55,0.08) 0%, transparent 70%)" }} />
+          style={{ background: isDark ? "radial-gradient(ellipse, rgba(212,175,55,0.08) 0%, transparent 70%)" : "radial-gradient(ellipse, rgba(212,175,55,0.03) 0%, transparent 70%)" }} />
       </div>
 
       <div className="relative z-10 flex flex-col gap-6 p-4 md:p-6 pt-6 pb-24 max-w-2xl mx-auto w-full">
@@ -451,7 +451,7 @@ export function PrayerTimes() {
           <button
             onClick={() => detectLocation()}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-white/60 hover:text-white hover:border-white/20 transition-all text-xs font-bold disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-full border border-border/40 bg-foreground/[0.03] text-foreground/60 hover:text-foreground hover:border-border transition-all text-xs font-bold disabled:opacity-50"
           >
             {loading
               ? <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
@@ -460,10 +460,10 @@ export function PrayerTimes() {
             <span className="font-arabic text-sm">{locationLabel}</span>
           </button>
 
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/[0.06] bg-white/[0.03] text-xs text-white/30">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border/20 bg-foreground/[0.02] text-xs text-foreground/40">
             {isOfflineReady
-              ? <WifiOff className="w-3 h-3 text-emerald-400" />
-              : <Wifi className="w-3 h-3 text-amber-400 animate-pulse" />
+              ? <WifiOff className="w-3 h-3 text-emerald-500" />
+              : <Wifi className="w-3 h-3 text-amber-500 animate-pulse" />
             }
             <span className="font-bold">{dayCount} يوم</span>
           </div>
@@ -472,8 +472,8 @@ export function PrayerTimes() {
         {/* ─── HERO: Celestial Clock ─── */}
         <div className="relative flex flex-col items-center justify-center py-8">
           {/* Outer decorative ring */}
-          <div className="absolute w-64 h-64 md:w-80 md:h-80 rounded-full border border-white/[0.04]" />
-          <div className="absolute w-56 h-56 md:w-72 md:h-72 rounded-full border border-white/[0.03]"
+          <div className="absolute w-64 h-64 md:w-80 md:h-80 rounded-full border border-foreground/[0.04]" />
+          <div className="absolute w-56 h-56 md:w-72 md:h-72 rounded-full border border-foreground/[0.03]"
             style={{ borderStyle: "dashed", animation: "spin 60s linear infinite" }} />
           
           {/* Degree ticks */}
@@ -489,7 +489,7 @@ export function PrayerTimes() {
                   style={{
                     width: i % 5 === 0 ? "2px" : "1px",
                     height: i % 5 === 0 ? "10px" : "5px",
-                    background: i % 5 === 0 ? "rgba(212,175,55,0.5)" : "rgba(255,255,255,0.1)",
+                    background: i % 5 === 0 ? "rgba(212,175,55,0.5)" : "rgba(120,120,120,0.15)",
                     borderRadius: "2px",
                   }}
                 />
@@ -500,24 +500,24 @@ export function PrayerTimes() {
           {/* Center content */}
           <div className="relative z-10 flex flex-col items-center gap-2 text-center">
             {/* Arabic date */}
-            <span className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.35)' }}>
+            <span className="text-xs font-bold text-foreground/45">
               {new Date().toLocaleDateString("ar-EG", { weekday: "long", day: "numeric", month: "long" })}
             </span>
 
             {/* Big clock */}
             <div className="flex items-end gap-1 my-1" dir="ltr">
-              <span className="text-6xl md:text-7xl font-black font-mono leading-none"
-                style={{ color: '#fefefe', textShadow: `0 0 60px ${nextPrayerColor.glow}` }}>
+              <span className="text-6xl md:text-7xl font-black font-mono leading-none text-foreground"
+                style={{ textShadow: isDark ? `0 0 60px ${nextPrayerColor.glow}` : "none" }}>
                 {clockParts.hh}
               </span>
-              <span className="text-4xl font-black mb-1 font-mono animate-pulse" style={{ color: 'rgba(255,255,255,0.4)' }}>:</span>
-              <span className="text-6xl md:text-7xl font-black font-mono leading-none"
-                style={{ color: '#fefefe', textShadow: `0 0 60px ${nextPrayerColor.glow}` }}>
+              <span className="text-4xl font-black mb-1 font-mono animate-pulse text-foreground/40">:</span>
+              <span className="text-6xl md:text-7xl font-black font-mono leading-none text-foreground"
+                style={{ textShadow: isDark ? `0 0 60px ${nextPrayerColor.glow}` : "none" }}>
                 {clockParts.mm}
               </span>
-              <span className="text-4xl font-black mb-1 font-mono animate-pulse" style={{ color: 'rgba(255,255,255,0.4)' }}>:</span>
+              <span className="text-4xl font-black mb-1 font-mono animate-pulse text-foreground/40">:</span>
               <span className="text-3xl md:text-4xl font-black font-mono mb-1 leading-none"
-                style={{ color: nextPrayerColor.icon, textShadow: `0 0 30px ${nextPrayerColor.glow}` }}>
+                style={{ color: nextPrayerColor.icon, textShadow: isDark ? `0 0 30px ${nextPrayerColor.glow}` : "none" }}>
                 {clockParts.ss}
               </span>
             </div>
@@ -526,7 +526,7 @@ export function PrayerTimes() {
             {calendar ? (
               <PrayerCountdown calendar={calendar} settings={prayerSettings} />
             ) : (
-              <div className="flex items-center gap-2 text-white/30 text-xs">
+              <div className="flex items-center gap-2 text-foreground/30 text-xs">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span>جاري التحميل...</span>
               </div>
@@ -539,7 +539,7 @@ export function PrayerTimes() {
           <button
             onClick={() => calendar && syncCalendar(calendar.meta)}
             disabled={loading}
-            className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-white/10 bg-white/[0.04] text-white/60 hover:text-white hover:border-white/20 transition-all text-xs font-black disabled:opacity-40"
+            className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-border/40 bg-foreground/[0.03] text-foreground/60 hover:text-foreground hover:border-border transition-all text-xs font-black disabled:opacity-40"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-amber-400" : ""}`} />
             تحديث
@@ -547,7 +547,7 @@ export function PrayerTimes() {
           <button
             onClick={() => detectLocation()}
             disabled={loading}
-            className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-white/10 bg-white/[0.04] text-white/60 hover:text-white hover:border-white/20 transition-all text-xs font-black disabled:opacity-40"
+            className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-border/40 bg-foreground/[0.03] text-foreground/60 hover:text-foreground hover:border-border transition-all text-xs font-black disabled:opacity-40"
           >
             <MapPin className="w-4 h-4 text-amber-400" />
             موقعي
@@ -590,12 +590,11 @@ export function PrayerTimes() {
       {showAthanSettings && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
           <div className="absolute inset-0" onClick={() => setShowAthanSettings(false)} />
-          <div className="relative w-full max-w-sm rounded-[2.5rem] border border-white/10 p-6 max-h-[80vh] overflow-y-auto shadow-2xl"
-            style={{ background: "#0a0c15" }}>
-            <button onClick={() => setShowAthanSettings(false)} className="absolute top-7 left-6 text-white/30 hover:text-white transition">
+          <div className="relative w-full max-w-sm rounded-[2.5rem] border border-border/10 p-6 max-h-[80vh] overflow-y-auto shadow-2xl bg-card text-foreground">
+            <button onClick={() => setShowAthanSettings(false)} className="absolute top-7 left-6 text-foreground/30 hover:text-foreground transition">
               <X className="w-5 h-5" />
             </button>
-            <h3 className="text-lg font-black text-white mb-5 text-right">اختر المؤذن</h3>
+            <h3 className="text-lg font-black text-foreground mb-5 text-right">اختر المؤذن</h3>
             <div className="space-y-2">
               {MUEZZINS.map((m) => (
                 <button key={m.id} type="button"
@@ -608,7 +607,7 @@ export function PrayerTimes() {
                   className={`w-full p-4 rounded-xl text-right font-black text-sm transition-all flex items-center justify-between ${
                     prayerSettings.Fajr?.muezzinId === m.id
                       ? "text-black"
-                      : "bg-white/[0.04] border border-white/[0.06] text-white/70 hover:bg-white/[0.08]"
+                      : "bg-foreground/[0.03] border border-border/10 text-foreground/70 hover:bg-foreground/[0.06]"
                   }`}
                   style={prayerSettings.Fajr?.muezzinId === m.id
                     ? { background: "linear-gradient(135deg,#d4af37,#f59e0b)", boxShadow: "0 8px 25px rgba(212,175,55,0.3)" }
@@ -627,20 +626,19 @@ export function PrayerTimes() {
       {showLocationPicker && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
           <div className="absolute inset-0" onClick={() => setShowLocationPicker(false)} />
-          <div className="relative w-full max-w-sm rounded-[2.5rem] border border-white/10 p-6 shadow-2xl"
-            style={{ background: "#0a0c15" }}>
-            <button onClick={() => setShowLocationPicker(false)} className="absolute top-7 left-6 text-white/30 hover:text-white transition">
+          <div className="relative w-full max-w-sm rounded-[2.5rem] border border-border/10 p-6 shadow-2xl bg-card text-foreground">
+            <button onClick={() => setShowLocationPicker(false)} className="absolute top-7 left-6 text-foreground/30 hover:text-foreground transition">
               <X className="w-5 h-5" />
             </button>
-            <h3 className="text-lg font-black text-white mb-1 text-right">تغيير المنطقة يدوياً</h3>
-            <p className="text-[11px] text-white/30 mb-5 text-right">سيُحمَّل تقويم السنة ويُحفظ محلياً</p>
+            <h3 className="text-lg font-black text-foreground mb-1 text-right">تغيير المنطقة يدوياً</h3>
+            <p className="text-[11px] text-foreground/30 mb-5 text-right">سيُحمَّل تقويم السنة ويُحفظ محلياً</p>
             <div className="space-y-3">
               {[
                 { val: customCity, set: setCustomCity, placeholder: "المدينة (مثال: Banha)" },
                 { val: customCountry, set: setCustomCountry, placeholder: "الدولة (مثال: Egypt)" },
               ].map(({ val, set, placeholder }) => (
                 <input key={placeholder} value={val} onChange={e => set(e.target.value)} placeholder={placeholder}
-                  className="w-full bg-white/[0.04] border border-white/10 rounded-xl p-3.5 text-sm text-white outline-none placeholder:text-white/20 text-right focus:border-amber-400/40 transition" />
+                  className="w-full bg-foreground/[0.03] border border-border/10 rounded-xl p-3.5 text-sm text-foreground outline-none placeholder:text-foreground/20 text-right focus:border-amber-400/40 transition" />
               ))}
               <button
                 onClick={() => { void syncCalendar({ city: customCity, country: customCountry, label: `${customCity}، ${customCountry}` }); setShowLocationPicker(false); }}

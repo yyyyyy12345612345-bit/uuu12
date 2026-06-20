@@ -449,7 +449,7 @@ export function MushafChoice() {
 
         {/* ── Footer Verse ── */}
         <div className="mt-4 text-center">
-          <p className="font-arabic text-xs" style={{ color: 'rgba(212,175,55,0.3)', lineHeight: 2 }}>
+          <p className="font-arabic text-xs text-foreground" style={{ lineHeight: 2 }}>
             ﴿ إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ ﴾
           </p>
           <p className="text-[10px] font-arabic text-foreground/20">
