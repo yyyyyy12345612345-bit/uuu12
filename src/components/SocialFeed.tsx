@@ -871,9 +871,15 @@ export function SocialFeed() {
             );
           })()
         ) : (
-          <div className="bg-card/40 backdrop-blur-xl border border-border/40 rounded-[2rem] p-6 text-center shadow-xl">
-            <User className="w-8 h-8 text-foreground/20 mx-auto mb-3" />
-            <p className="text-sm text-foreground/40 font-bold">سجّل دخولك لنشر منشور دعوي جديد في المجتمع</p>
+          <div className="bg-card/40 backdrop-blur-xl border border-border/40 rounded-[2.5rem] p-8 text-center shadow-xl flex flex-col items-center gap-4">
+            <User className="w-10 h-10 text-foreground/25" />
+            <p className="text-sm text-foreground/50 font-bold leading-relaxed">سجّل دخولك الآن لنشر منشور دعوي جديد أو مشاركة الأدعية وتدبرات الآيات في مجتمع يقين.</p>
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent("show_auth_gate"))}
+              className="px-6 py-2.5 bg-primary hover:brightness-110 text-primary-foreground font-black text-xs rounded-xl transition-all hover:scale-105 active:scale-95 shadow-md shadow-primary/10 cursor-pointer"
+            >
+              تسجيل الدخول / إنشاء حساب 🔐
+            </button>
           </div>
         )}
 

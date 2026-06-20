@@ -492,8 +492,16 @@ export function classifyQueryWithML(
   const textClean = queryText.trim();
   const userName = userData?.name || userData?.displayName || "أخي الكريم";
   const userPoints = userData?.points || userData?.totalPoints || 0;
-  const userCountry = userData?.country || "غير محدد";
+  const userCountry = userData?.country || "غير حدد";
   const userMinutes = userData?.stats?.audioMinutes || 0;
+  const userEmail = userData?.email || "";
+  const userUsername = userData?.username || "";
+
+  const isOwner = 
+    userEmail === "youssefosama@gmail.com" || 
+    userName.trim().toLowerCase() === "youssef" || 
+    userName.trim() === "يوسف" ||
+    userUsername.trim().toLowerCase() === "youssef";
 
   // 1. فحص أسئلة المسابقة الدينية (Islamic Quiz Request Interception)
   const isQuizReq = /(?:سؤال|اسالني|مسابقه|مسابقة|اختبار|تحدي|مسابقات|اسئله|أسئلة|اختبرني|امتحان|امتحن|كويز)/i.test(textClean);
@@ -504,9 +512,9 @@ export function classifyQueryWithML(
       reply: `🤔✨ **تحدي المسابقة الدينية!** إليك هذا السؤال الممتع:
       
 **السؤال:** ${quiz.question}
-
+ 
 ${quiz.options}
-
+ 
 اكتب لي خيارك الآن **(أ، ب، ج، د)** للإجابة وحصاد الحسنات والنقاط! 🏆`,
       score: 1.0,
       category: "مسابقة دينية",
@@ -521,7 +529,9 @@ ${quiz.options}
   const smallTalkMatch = /(?:تجربتك اليوم|تجربت?ك|نني إثراء تجربتك اليوم|مساء+|صباح+|اهلا|أهلاً|ازيك|كيف حالك|ايه اخبارك|كيفك|عامل ايه|طمني|قوللي|مساء النور|صباح الخير)/i.test(textClean);
   if (smallTalkMatch) {
     return {
-      reply: `مساء/صباح الخير يا ${userName}! 🌟 أنا موجود هنا دائماً لأساعدك داخل التطبيق. ممكن تسألني عن أي صفحة، قراءة قرآن، فيديو، صلاة، أو أي شيء تاني داخل المشروع.`,
+      reply: isOwner 
+        ? `أهلاً بك يا باشمهندس يوسف، مطورنا العبقري وصاحب هذا الصرح! 🧑‍💻✨ منور موقعك يا غالي. كيف يمكنني مساعدتك اليوم في اختبار أو تطوير الموقع؟`
+        : `مساء/صباح الخير يا ${userName}! 🌟 أنا موجود هنا دائماً لأساعدك داخل التطبيق. ممكن تسألني عن أي صفحة، قراءة قرآن، فيديو، صلاة، أو أي شيء تاني داخل المشروع.`,
       score: 1.0,
       category: "تحية"
     };
@@ -700,14 +710,12 @@ ${quiz.options}
     };
   }
 
-  const subscriptionQueryMatch = /(?:سعر اشتراك|اسعار اشتراك|باقة|خطط الاشتراك|اشتراك|subscription|plan)/i.test(textClean);
+  const subscriptionQueryMatch = /(?:سعر اشتراك|اسعار اشتراك|باقة|خطط الاشتراك|اشتراك|تبرع|تبرع للموقع|دعم الموقع|مساهمة|مساهمه|subscription|plan|donation)/i.test(textClean);
   if (subscriptionQueryMatch) {
     return {
-      reply: `يا ${userName}, التطبيق يقدم عادة باقات مجانية وأخرى مدفوعة بميزات إضافية. لمعرفة أسعار الاشتراك الدقيقة، ادخل على صفحة الاشتراك أو إعدادات الحساب داخل التطبيق.
-
-إذا كنت تريد، يمكنني الآن أن أشرح لك الفرق بين الباقة المجانية والباقة المدفوعة وأي واحدة مناسبة لك.`,
+      reply: `يا ${userName}، الموقع ليس مشروعاً تجارياً، بل يتيح نظام مساهمة وتبرع اختياري لدعم استمرارية التطبيق وتغطية تكاليف السيرفرات والرندر (دعم أساسي بـ 100 ج.م لـ 50 فيديو، ودعم مميز بـ 250 ج.م لفيديوهات غير محدودة). كما يمكنك الحصول على جميع الميزات المميزة مجاناً مدى الحياة بمجرد جمع 10,000 نقطة في لوحة الشرف تشجيعاً على العبادات والطاعات!`,
       score: 1.0,
-      category: "الاشتراك"
+      category: "التبرع والدعم"
     };
   }
 
@@ -1070,8 +1078,12 @@ ${quiz.options}
 
   if (bestMatchIdx !== -1 && highestSimilarity >= SIMILARITY_THRESHOLD) {
     const bestDoc = TRAINING_CORPUS[bestMatchIdx];
+    let replyText = bestDoc.getReply(userName, userPoints, userCountry, userMinutes);
+    if (bestDoc.id === "greetings" && isOwner) {
+      replyText = `أهلاً بك يا باشمهندس يوسف، مطورنا العبقري وصاحب هذا الصرح! 🧑‍💻✨ منور موقعك يا غالي. كيف يمكنني مساعدتك اليوم في اختبار أو تطوير الموقع؟`;
+    }
     return {
-      reply: bestDoc.getReply(userName, userPoints, userCountry, userMinutes),
+      reply: replyText,
       score: highestSimilarity,
       category: bestDoc.category
     };

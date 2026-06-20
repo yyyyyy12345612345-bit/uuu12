@@ -230,8 +230,8 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
               <div className={`mt-4 p-3 rounded-2xl border flex items-center gap-3 ${daysRemaining > 7 ? 'bg-emerald-500/10 border-emerald-500/20' : daysRemaining > 0 ? 'bg-amber-500/10 border-amber-500/20' : 'bg-red-500/10 border-red-500/20'}`}>
                 <div className={`w-2 h-2 rounded-full animate-pulse ${daysRemaining > 7 ? 'bg-emerald-400' : daysRemaining > 0 ? 'bg-amber-400' : 'bg-red-400'}`} />
                 <p className={`text-xs font-black ${daysRemaining > 7 ? 'text-emerald-400' : daysRemaining > 0 ? 'text-amber-400' : 'text-red-400'}`}>
-                  اشتراكك الحالي: <span className="capitalize">{currentPlanData.plan}</span>
-                  {daysRemaining > 0 ? ` · باقي ${daysRemaining} يوم` : ' · انتهى الاشتراك'}
+                  مستوى دعمك الحالي: <span className="capitalize">{currentPlanData.plan}</span>
+                  {daysRemaining > 0 ? ` · باقي ${daysRemaining} يوم` : ' · انتهى الدعم'}
                 </p>
               </div>
             )}
@@ -261,10 +261,10 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                     <div className="text-right">
                       <div className="flex items-center gap-2">
                         <span className={`font-black text-lg ${isSelected ? 'text-white' : 'text-white/60'}`}>{p.name}</span>
-                        {isCurrent && <span className="text-[9px] font-black px-3 py-1 bg-primary text-black rounded-full shadow-lg shadow-primary/30">الحالية</span>}
+                        {isCurrent && <span className="text-[9px] font-black px-3 py-1 bg-primary text-black rounded-full shadow-lg shadow-primary/30">المفعّلة</span>}
                       </div>
                       <span className="text-[11px] text-primary/50 font-black uppercase tracking-widest mt-1 block">
-                        {p.price === 0 ? "مجانية" : `${p.price} ج.م / شهرياً`}
+                        {p.price === 0 ? "بدون تبرع" : `مساهمة بقيمة ${p.price} ج.م`}
                       </span>
                     </div>
                   </div>
@@ -282,7 +282,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
             <div className="mt-10 p-8 rounded-[2rem] bg-gradient-to-br from-white/[0.05] to-white/[0.02] border border-white/10 animate-in fade-in duration-700 shadow-2xl">
               <div className="flex items-center gap-3 mb-6">
                 <Crown className="w-5 h-5 text-primary" />
-                <h4 className="text-[11px] font-black text-white/40 uppercase tracking-[0.4em]">مميزات الباقة</h4>
+                <h4 className="text-[11px] font-black text-white/40 uppercase tracking-[0.4em]">مميزات مستوى الدعم</h4>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 {currentSelected.features.map((f, i) => (
@@ -392,7 +392,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                   className="w-full py-6 bg-gradient-to-r from-primary via-yellow-400 to-primary text-black rounded-[2rem] font-black text-lg shadow-[0_20px_60px_rgba(212,175,55,0.4)] hover:scale-[1.03] active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed relative overflow-hidden group"
                 >
                   <span className="relative z-10">
-                    {currentPlanData?.plan === selectedPlan ? 'باقة مفعّلة حالياً' : 'تأكيد الدفع وإرسال الإثبات'}
+                    {currentPlanData?.plan === selectedPlan ? 'مستوى مفعّل حالياً' : 'تأكيد الدعم وإرسال إثبات التحويل'}
                   </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 </button>
