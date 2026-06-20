@@ -136,8 +136,11 @@ export async function POST(req: NextRequest) {
     });
 
     if (!response.ok) {
-      console.error("Val Town API failed with status:", response.status);
-      return NextResponse.json({ reply: "عذراً، حدث خطأ أثناء الاتصال بخوادم الـ AI الخاصة بـ Val Town." });
+      const errText = await response.text();
+      console.error("Val Town API failed with status:", response.status, errText);
+      return NextResponse.json({ 
+        reply: `عذراً، حدث خطأ في الاتصال بـ Val Town (الحالة: ${response.status}).\nالسبب: ${errText || "لا توجد تفاصيل"}` 
+      });
     }
 
     const data = await response.json();
@@ -151,6 +154,6 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
     console.error("[Chat API Error]:", error);
-    return NextResponse.json({ reply: "حدث خطأ في الاتصال بالسيرفر. يرجى المحاولة لاحقاً." });
+    return NextResponse.json({ reply: `حدث خطأ في الاتصال بالسيرفر المحلي. التفاصيل: ${error.message || error}` });
   }
 }
