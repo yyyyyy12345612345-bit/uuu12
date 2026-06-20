@@ -367,7 +367,7 @@ export function PrayerTimes() {
           onClick={() => setActiveSettingsPrayer(id)}
           className={`relative flex flex-col items-center gap-3 p-5 rounded-[2rem] border transition-all duration-500 overflow-hidden group w-full ${
             isNext
-              ? "border-white/20 scale-[1.03] z-10 shadow-2xl"
+              ? "force-dark border-white/20 scale-[1.03] z-10 shadow-2xl"
               : "border-border/10 hover:-translate-y-1 hover:border-border"
           }`}
           style={{
@@ -415,7 +415,7 @@ export function PrayerTimes() {
   }, [times, nextPrayerId, prayerSettings, isDark]);
 
   return (
-    <div className={`relative flex flex-col h-full overflow-y-auto overflow-x-hidden no-scrollbar font-arabic bg-background text-foreground ${isDark ? 'force-dark' : ''}`} style={{ colorScheme: isDark ? "dark" : "light" }}>
+    <div className={`relative flex flex-col h-full overflow-y-auto overflow-x-hidden no-scrollbar font-arabic text-foreground ${isDark ? 'force-dark' : ''}`} style={{ background: isDark ? "#06080f" : "hsl(var(--background))", colorScheme: isDark ? "dark" : "light" }}>
       {/* ─── Animated celestial background ─── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         {/* Stars */}
@@ -449,7 +449,7 @@ export function PrayerTimes() {
         {/* ─── Header: Location + Date ─── */}
         <div className="flex items-center justify-between">
           <button
-            onClick={() => detectLocation()}
+            onClick={() => setShowLocationPicker(true)}
             disabled={loading}
             className="flex items-center gap-2 px-4 py-2 rounded-full border border-border/40 bg-foreground/[0.03] text-foreground/60 hover:text-foreground hover:border-border transition-all text-xs font-bold disabled:opacity-50"
           >
@@ -517,7 +517,7 @@ export function PrayerTimes() {
               </span>
               <span className="text-4xl font-black mb-1 font-mono animate-pulse text-foreground/40">:</span>
               <span className="text-3xl md:text-4xl font-black font-mono mb-1 leading-none"
-                style={{ color: nextPrayerColor.icon, textShadow: isDark ? `0 0 30px ${nextPrayerColor.glow}` : "none" }}>
+                style={{ color: isDark ? nextPrayerColor.icon : "hsl(var(--primary))", textShadow: isDark ? `0 0 30px ${nextPrayerColor.glow}` : "none" }}>
                 {clockParts.ss}
               </span>
             </div>

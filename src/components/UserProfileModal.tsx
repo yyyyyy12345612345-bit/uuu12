@@ -351,17 +351,17 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-[3000] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 overflow-y-auto no-scrollbar font-['Tajawal']">
+    <div className="fixed inset-0 z-[3000] bg-black/50 dark:bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto no-scrollbar font-['Tajawal']">
       <div className="absolute inset-0" onClick={onClose} />
       
-      <div className="relative w-full max-w-lg bg-[#0a0a0d] border border-white/10 rounded-[3rem] shadow-[0_30px_70px_rgba(0,0,0,0.8)] overflow-hidden animate-in zoom-in-95 duration-500">
+      <div className="relative w-full max-w-lg bg-card border border-border rounded-[3rem] shadow-xl overflow-hidden animate-in zoom-in-95 duration-500">
         <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
         
         {/* Cover Backdrop */}
         <div className="h-28 bg-gradient-to-r from-primary/30 to-purple-500/20 relative">
           <button 
             onClick={onClose} 
-            className="absolute top-4 left-4 w-10 h-10 rounded-xl bg-black/40 hover:bg-black/60 text-white/70 hover:text-white flex items-center justify-center transition-all z-20"
+            className="absolute top-4 left-4 w-10 h-10 rounded-xl bg-foreground/10 hover:bg-foreground/20 text-foreground/70 hover:text-foreground flex items-center justify-center transition-all z-20"
           >
             <X className="w-5 h-5" />
           </button>
@@ -372,10 +372,10 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
           <img 
             src={targetUser?.photoURL || "https://api.dicebear.com/9.x/avataaars/svg?seed=Yaqeen"} 
             alt="Avatar" 
-            className="w-24 h-24 rounded-full border-4 border-[#0a0a0d] bg-[#0c0d10] shadow-2xl object-cover mb-4" 
+            className="w-24 h-24 rounded-full border-4 border-card bg-card shadow-2xl object-cover mb-4" 
           />
 
-          <h3 className="text-2xl font-black text-white flex items-center gap-2">
+          <h3 className="text-2xl font-black text-foreground flex items-center gap-2">
             {targetUser?.displayName || "قارئ يقين"}
             {targetUser?.plan && targetUser.plan !== 'free' && (
               <Crown className="w-5 h-5 text-primary fill-current animate-pulse" />
@@ -389,55 +389,55 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
           </div>
 
           {/* Quick Stats Grid */}
-          <div className="grid grid-cols-3 gap-3 w-full max-w-sm mt-6 p-4 rounded-2xl bg-white/5 border border-white/5 shadow-inner">
+          <div className="grid grid-cols-3 gap-3 w-full max-w-sm mt-6 p-4 rounded-2xl bg-foreground/5 border border-border shadow-inner">
             <div className="text-center">
-              <span className="block text-lg font-black text-white">{targetUser?.totalPoints ? Math.round(targetUser.totalPoints) : 0}</span>
-              <span className="text-[8px] text-white/30 font-bold uppercase tracking-widest">إجمالي النقاط</span>
+              <span className="block text-lg font-black text-foreground">{targetUser?.totalPoints ? Math.round(targetUser.totalPoints) : 0}</span>
+              <span className="text-[8px] text-foreground/35 font-bold uppercase tracking-widest">إجمالي النقاط</span>
             </div>
-            <div className="w-[1px] h-8 bg-white/10 self-center justify-self-center" />
+            <div className="w-[1px] h-8 bg-border self-center justify-self-center" />
             <div className="text-center">
-              <span className="block text-lg font-black text-white">{targetUser?.readAyahs || 0}</span>
-              <span className="text-[8px] text-white/30 font-bold uppercase tracking-widest">آية مقروءة</span>
+              <span className="block text-lg font-black text-foreground">{targetUser?.readAyahs || 0}</span>
+              <span className="text-[8px] text-foreground/35 font-bold uppercase tracking-widest">آية مقروءة</span>
             </div>
           </div>
 
           {/* Personal details with privacy */}
           <div className="w-full max-w-sm space-y-3 mt-6">
             {/* Phone */}
-            <div className="flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-2xl">
+            <div className="flex items-center justify-between p-4 bg-foreground/5 border border-border rounded-2xl">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                   <Phone className="w-4 h-4" />
                 </div>
-                <span className="text-xs text-white/40 font-bold">رقم الهاتف</span>
+                <span className="text-xs text-foreground/45 font-bold">رقم الهاتف</span>
               </div>
-              <span className="text-sm font-mono font-bold text-white flex items-center gap-1.5">
+              <span className="text-sm font-mono font-bold text-foreground flex items-center gap-1.5">
                 {canSeePhone() ? (
                   targetUser?.phoneNumber || "غير متوفر"
                 ) : (
                   <>
-                    <Lock className="w-3.5 h-3.5 text-white/20" />
-                    <span className="text-white/20 text-xs">خاص</span>
+                    <Lock className="w-3.5 h-3.5 text-foreground/20" />
+                    <span className="text-foreground/20 text-xs">خاص</span>
                   </>
                 )}
               </span>
             </div>
 
             {/* BirthDate */}
-            <div className="flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-2xl">
+            <div className="flex items-center justify-between p-4 bg-foreground/5 border border-border rounded-2xl">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center">
                   <Calendar className="w-4 h-4" />
                 </div>
-                <span className="text-xs text-white/40 font-bold">تاريخ الميلاد</span>
+                <span className="text-xs text-foreground/45 font-bold">تاريخ الميلاد</span>
               </div>
-              <span className="text-sm font-mono font-bold text-white flex items-center gap-1.5">
+              <span className="text-sm font-mono font-bold text-foreground flex items-center gap-1.5">
                 {canSeeBirthDate() ? (
                   targetUser?.birthDate || "غير متوفر"
                 ) : (
                   <>
-                    <Lock className="w-3.5 h-3.5 text-white/20" />
-                    <span className="text-white/20 text-xs">خاص</span>
+                    <Lock className="w-3.5 h-3.5 text-foreground/20" />
+                    <span className="text-foreground/20 text-xs">خاص</span>
                   </>
                 )}
               </span>
@@ -466,13 +466,13 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
                     <button
                       onClick={handleUnblockUser}
                       disabled={actionLoading}
-                      className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                      className="force-dark w-full py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
                     >
                       إلغاء الحظر ✅
                     </button>
                   </div>
                 ) : targetUser?.blockedUsers?.includes(myUid) ? (
-                  <div className="w-full py-4 bg-white/5 border border-white/10 text-white/40 rounded-2xl font-black text-sm text-center">
+                  <div className="w-full py-4 bg-foreground/5 border border-border text-foreground/45 rounded-2xl font-black text-sm text-center">
                     التفاعل غير متاح
                   </div>
                 ) : (
@@ -493,7 +493,7 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
                       <button
                         onClick={handleCancelRequest}
                         disabled={actionLoading}
-                        className="w-full py-4 bg-white/5 border border-white/10 text-white/60 rounded-2xl font-black text-sm hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center gap-2"
+                        className="w-full py-4 bg-foreground/5 border border-border text-foreground/75 rounded-2xl font-black text-sm hover:bg-foreground/10 active:scale-95 transition-all flex items-center justify-center gap-2"
                       >
                         {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Loader2 className="w-4 h-4 animate-pulse" />}
                         طلب الصداقة معلق (إلغاء ❌)
@@ -505,7 +505,7 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
                         <button
                           onClick={handleAcceptFriend}
                           disabled={actionLoading}
-                          className="flex-1 py-4 bg-emerald-500 text-white rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2"
+                          className="force-dark flex-1 py-4 bg-emerald-500 text-white rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2"
                         >
                           {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserCheck className="w-4 h-4" />}
                           قبول
@@ -536,7 +536,7 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
                           <button
                             onClick={handleStartDuel}
                             disabled={actionLoading}
-                            className="flex-1 py-4 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2 border border-purple-500/30"
+                            className="force-dark flex-1 py-4 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2 border border-purple-500/30"
                           >
                             <Swords className="w-4 h-4" />
                             مبارزة
@@ -547,7 +547,7 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
                           <button
                             onClick={handleUnfriend}
                             disabled={actionLoading}
-                            className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white/60 rounded-2xl font-black text-xs active:scale-95 transition-all border border-white/10 flex items-center justify-center gap-2"
+                            className="flex-1 py-3 bg-foreground/5 hover:bg-foreground/10 text-foreground/75 rounded-2xl font-black text-xs active:scale-95 transition-all border border-border flex items-center justify-center gap-2"
                           >
                             <UserMinus className="w-3.5 h-3.5" />
                             إزالة الصداقة

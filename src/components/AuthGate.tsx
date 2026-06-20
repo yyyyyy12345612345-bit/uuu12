@@ -159,7 +159,17 @@ export function AuthGate({ children }: AuthGateProps) {
       setEmailVerified(true); setView("signupAvatar");
       window.history.replaceState({}, "", "/");
     }
-    const onShowAuth = () => { setIsSkipped(false); localStorage.removeItem("auth_skipped"); };
+    const onShowAuth = (e: Event) => {
+      setIsSkipped(false);
+      localStorage.removeItem("auth_skipped");
+      const detail = (e as CustomEvent)?.detail;
+      if (detail?.view) {
+        setView(detail.view);
+      }
+      if (detail?.registrationType) {
+        setSignupForm(prev => ({ ...prev, registrationType: detail.registrationType }));
+      }
+    };
     window.addEventListener("show_auth_gate", onShowAuth);
     return () => window.removeEventListener("show_auth_gate", onShowAuth);
   }, []);

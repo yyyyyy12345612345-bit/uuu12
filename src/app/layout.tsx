@@ -159,17 +159,6 @@ export default function RootLayout({
         <link rel="shortcut icon" type="image/png" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/logo/logo.png" />
 
-        <script dangerouslySetInnerHTML={{ __html: `
-          (function() {
-            var theme = localStorage.getItem('app-theme');
-            if (!theme || theme === 'dark') {
-              document.documentElement.classList.add('dark');
-            } else {
-              document.documentElement.classList.remove('dark');
-            }
-          })();
-        ` }} />
-        
         {/* Structured Data for SEO */}
         <script
           type="application/ld+json"
@@ -210,14 +199,8 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Scheherazade+New:wght@400;500;600;700&family=Lateef:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700;800&display=block" rel="stylesheet" />
 
-        <script dangerouslySetInnerHTML={{ __html: `
-          (function() {
-            var link = document.querySelector("link[rel*='icon']") || document.createElement('link');
-            link.type = 'image/png';
-            link.rel = 'shortcut icon';
-            link.href = '/favicon.ico';
-            document.getElementsByTagName('head')[0].appendChild(link);
-            
+        <Script id="global-errors" strategy="afterInteractive">
+          {`
             window.addEventListener('error', function(e) {
               if (e.message && e.message.includes('ChunkLoadError')) {
                 window.location.reload();
@@ -228,8 +211,8 @@ export default function RootLayout({
                 window.location.reload();
               }
             });
-          })();
-        ` }} />
+          `}
+        </Script>
 
 
         <ThemeProvider>

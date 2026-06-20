@@ -220,7 +220,7 @@ export function Mushaf() {
             <header className="shrink-0 p-6 md:p-8 flex items-center justify-between z-40 bg-background/80 backdrop-blur-xl border-b border-border">
                 <button
                     onClick={() => setSelectedSurah(null)}
-                    className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all border border-white/5"
+                    className="w-12 h-12 rounded-2xl bg-foreground/5 dark:bg-white/5 flex items-center justify-center text-foreground/45 dark:text-white/40 hover:text-foreground dark:hover:text-white hover:bg-foreground/10 dark:hover:bg-white/10 transition-all border border-border dark:border-white/5"
                 >
                     <ChevronRight className="w-7 h-7" />
                 </button>
@@ -280,7 +280,7 @@ export function Mushaf() {
                                     className={`group relative p-6 md:p-14 rounded-[3rem] border transition-all duration-700 cursor-pointer backdrop-blur-sm ${
                                         playingAyah === verse.id 
                                         ? 'bg-primary/5 border-primary shadow-[0_0_80px_rgba(212,175,55,0.15)] scale-[1.02]' 
-                                        : 'bg-white/[0.03] border-white/5 hover:border-white/10 hover:bg-white/[0.05]'
+                                        : 'bg-foreground/[0.03] dark:bg-white/[0.03] border-border dark:border-white/5 hover:bg-foreground/[0.05] dark:hover:bg-white/[0.05] hover:border-border dark:hover:border-white/10'
                                     }`}
                                 >
                                     {/* Verse Actions */}
@@ -329,12 +329,12 @@ export function Mushaf() {
                                                     surahName: surahContent.name 
                                                 });
                                             }}
-                                            className="p-5 px-6 rounded-2xl bg-black/20 border border-white/5 relative text-right hover:bg-black/30 transition-all group/tafsir"
+                                            className="p-5 px-6 rounded-2xl bg-foreground/[0.03] dark:bg-black/20 border border-border dark:border-white/5 relative text-right hover:bg-foreground/[0.06] dark:hover:bg-black/30 transition-all group/tafsir"
                                         >
-                                            <p className="text-sm md:text-base text-white/40 leading-relaxed font-arabic font-medium group-hover:text-white/60 transition-colors">
+                                            <p className="text-sm md:text-base text-foreground/60 leading-relaxed font-arabic font-medium group-hover:text-foreground/80 transition-colors">
                                                 {verse.translation}
                                             </p>
-                                            <div className="mt-3 flex items-center justify-end gap-3 text-primary/40 group-hover/tafsir:text-primary transition-colors">
+                                            <div className="mt-3 flex items-center justify-end gap-3 text-primary/60 group-hover/tafsir:text-primary transition-colors">
                                                 <span className="text-[10px] font-black uppercase tracking-[0.2em]">إظهار التفسير الكامل</span>
                                                 <ChevronLeft className="w-4 h-4" />
                                             </div>

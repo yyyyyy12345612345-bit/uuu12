@@ -13,12 +13,14 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { registerPlugin } from '@capacitor/core';
 import { AppBanner } from '@/components/AppBanner';
 import { initSmartNotifications, cleanupSmartNotifications } from '@/lib/smartNotifications';
+import { OnboardingOverlay } from "@/components/OnboardingOverlay";
 
 // Custom Native Plugin for Battery Optimization
 
 
 export default function AppInitializer({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState(true);
+  const [mounted, setMounted] = useState(false);
   
   // GSAP animation refs
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -49,12 +51,14 @@ export default function AppInitializer({ children }: { children: React.ReactNode
   const [globalAlert, setGlobalAlert] = useState<{ id: string; title: string; message: string } | null>(null);
   const [mandatoryAnnouncement, setMandatoryAnnouncement] = useState<string | null>(null);
   const [announcementTimer, setAnnouncementTimer] = useState<number>(0);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   
   // Custom global dialogs state
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [confirmData, setConfirmData] = useState<{ message: string; resolve: (val: boolean) => void } | null>(null);
 
   useEffect(() => {
+    setMounted(true);
     // Override window.alert
     window.alert = (message: string) => {
       setToast({ message, type: 'info' });
@@ -66,6 +70,17 @@ export default function AppInitializer({ children }: { children: React.ReactNode
         setConfirmData({ message, resolve });
       });
     };
+
+    const hasSeenOnboarding = localStorage.getItem("has_seen_onboarding");
+    if (!hasSeenOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleShowOnboarding = () => setShowOnboarding(true);
+    window.addEventListener("show_onboarding", handleShowOnboarding);
+    return () => window.removeEventListener("show_onboarding", handleShowOnboarding);
   }, []);
 
   // Handle toast auto-dismiss
@@ -714,6 +729,10 @@ export default function AppInitializer({ children }: { children: React.ReactNode
             </button>
           </div>
         </div>
+      )}
+
+      {showOnboarding && (
+        <OnboardingOverlay onClose={() => setShowOnboarding(false)} />
       )}
 
       {children}

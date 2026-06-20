@@ -69,6 +69,10 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
           window.open('https://yaqeen-app.vercel.app/download/', '_blank');
         }},
         { id: "points-guide", label: "دليل النقاط", icon: MapIcon, onClick: onOpenPointsGuide },
+        { id: "user-guide", label: "دليل استخدام المنصة 📖", icon: Info, onClick: () => {
+          onClose();
+          window.dispatchEvent(new CustomEvent("show_onboarding"));
+        }},
       ]
     },
     {

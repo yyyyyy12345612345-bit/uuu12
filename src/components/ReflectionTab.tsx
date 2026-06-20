@@ -78,7 +78,7 @@ export function ReflectionTab({ verseText, verseKey, surahName }: ReflectionTabP
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <Loader2 className="w-8 h-8 text-primary animate-spin" />
-        <span className="text-xs text-white/20 font-bold tracking-widest uppercase">جاري تحميل مذكرتك...</span>
+        <span className="text-xs text-foreground/20 font-bold tracking-widest uppercase">جاري تحميل مذكرتك...</span>
       </div>
     );
   }
@@ -86,12 +86,12 @@ export function ReflectionTab({ verseText, verseKey, surahName }: ReflectionTabP
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center gap-6 max-w-md mx-auto">
-        <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center border border-white/5">
-          <BookOpen className="w-6 h-6 text-white/20" />
+        <div className="w-16 h-16 rounded-full bg-foreground/5 flex items-center justify-center border border-border">
+          <BookOpen className="w-6 h-6 text-foreground/20" />
         </div>
         <div>
-          <h4 className="text-lg font-black text-white">تحتاج لتسجيل الدخول</h4>
-          <p className="text-xs text-white/40 font-bold mt-2 leading-relaxed">
+          <h4 className="text-lg font-black text-foreground">تحتاج لتسجيل الدخول</h4>
+          <p className="text-xs text-foreground/45 font-bold mt-2 leading-relaxed">
             مذكرات التدبر والخواطر تُحفظ سحابياً في حسابك. يرجى تسجيل الدخول لتتمكن من تدوين أورادك وصناعة بطاقاتك الخاصة.
           </p>
         </div>
@@ -106,21 +106,21 @@ export function ReflectionTab({ verseText, verseKey, surahName }: ReflectionTabP
           <PenTool className="w-6 h-6" />
         </div>
         <div>
-          <h3 className="text-xl font-black text-white">تدبر ومشاركة</h3>
+          <h3 className="text-xl font-black text-foreground">تدبر ومشاركة</h3>
           <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest">مذكرتك الشخصية في آيات القرآن الكريم</p>
         </div>
       </div>
 
-      <div className="bg-white/[0.02] border border-white/5 p-6 rounded-[2.5rem] space-y-6">
+      <div className="bg-foreground/[0.02] border border-border p-6 rounded-[2.5rem] space-y-6">
         <div>
-          <label className="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-3">ماذا فهمت أو تدبرت من هذه الآية؟</label>
+          <label className="text-[10px] font-black text-foreground/35 uppercase tracking-widest block mb-3">ماذا فهمت أو تدبرت من هذه الآية؟</label>
           <textarea
             value={reflectionText}
             onChange={(e) => setReflectionText(e.target.value.slice(0, 350))}
             placeholder="اكتب خاطرتك، تدبرك، أو الأثر الذي تركته هذه الآية في قلبك هنا..."
-            className="w-full min-h-[140px] bg-black/35 border border-white/5 rounded-2xl p-5 text-base md:text-lg text-white/95 placeholder:text-white/20 outline-none focus:border-primary/50 transition-all font-bold resize-none leading-relaxed"
+            className="w-full min-h-[140px] bg-foreground/[0.03] dark:bg-black/35 border border-border rounded-2xl p-5 text-base md:text-lg text-foreground placeholder:text-foreground/20 outline-none focus:border-primary/50 transition-all font-bold resize-none leading-relaxed"
           />
-          <div className="flex justify-between items-center mt-2 text-[10px] text-white/30 font-bold px-2">
+          <div className="flex justify-between items-center mt-2 text-[10px] text-foreground/35 font-bold px-2">
             <span>الحد الأقصى الموصى به: 350 حرفاً (للبطاقة الدعوية)</span>
             <span className={reflectionText.length >= 350 ? "text-primary" : ""}>
               {reflectionText.length} / 350 حرف
@@ -136,7 +136,7 @@ export function ReflectionTab({ verseText, verseKey, surahName }: ReflectionTabP
             className={`flex-1 py-4 rounded-xl font-black text-sm flex items-center justify-center gap-3 transition-all border ${
               savedSuccess
                 ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                : "bg-white/5 border-white/5 text-white/60 hover:bg-white/10 hover:text-white disabled:opacity-40 disabled:hover:bg-white/[0.02]"
+                : "bg-foreground/5 border-border text-foreground/75 hover:bg-foreground/10 hover:text-foreground disabled:opacity-40 disabled:hover:bg-foreground/[0.02]"
             }`}
           >
             {saving ? (

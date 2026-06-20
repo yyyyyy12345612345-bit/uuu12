@@ -309,7 +309,7 @@ export function ReflectionCardGenerator({
       <div className="absolute inset-0 bg-black/90 backdrop-blur-xl" onClick={onClose} />
 
       {/* Main Modal Container */}
-      <div className="relative w-full max-w-4xl bg-[#090a0d] border border-white/10 rounded-[3.5rem] overflow-hidden shadow-2xl flex flex-col lg:flex-row max-h-[90vh] animate-in zoom-in-95 duration-300">
+      <div className="force-dark relative w-full max-w-4xl bg-[#090a0d] border border-white/10 rounded-[3.5rem] overflow-hidden shadow-2xl flex flex-col lg:flex-row max-h-[90vh] animate-in zoom-in-95 duration-300">
         
         {/* Left/Top: Live Canvas preview */}
         <div className="flex-1 flex items-center justify-center p-6 bg-black/20 border-b lg:border-b-0 lg:border-l border-white/5 overflow-hidden">

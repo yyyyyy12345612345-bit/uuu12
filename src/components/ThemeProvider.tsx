@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useServerInsertedHTML } from "next/navigation";
 
 type Theme = "dark" | "light";
 
@@ -14,6 +15,26 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>("dark");
   const [mounted, setMounted] = useState(false);
+
+  useServerInsertedHTML(() => {
+    return (
+      <script
+        id="theme-initializer"
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              var theme = localStorage.getItem('app-theme');
+              if (!theme || theme === 'dark') {
+                document.documentElement.classList.add('dark');
+              } else {
+                document.documentElement.classList.remove('dark');
+              }
+            })();
+          `,
+        }}
+      />
+    );
+  });
 
   useEffect(() => {
     setMounted(true);

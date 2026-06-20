@@ -344,7 +344,7 @@ export function MushafChoice() {
         <div ref={titleRef} className="text-center">
           <h1 className="text-[32px] md:text-[46px] font-black font-arabic leading-none tracking-tight"
             style={{
-              background: isDark
+              backgroundImage: isDark
                 ? 'linear-gradient(180deg, #ffffff 20%, #d4af37 60%, #a08020 100%)'
                 : 'linear-gradient(180deg, #1e293b 20%, #b45309 60%, #78350f 100%)',
               WebkitBackgroundClip: 'text',
