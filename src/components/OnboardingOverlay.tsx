@@ -28,7 +28,8 @@ export function OnboardingOverlay({ onClose }: OnboardingOverlayProps) {
 
   const handleSkipAuth = () => {
     localStorage.setItem("auth_skipped", "true");
-    window.dispatchEvent(new CustomEvent("show_auth_gate", { detail: { view: "login" } }));
+    localStorage.setItem("has_seen_onboarding", "true");
+    onClose();
     window.location.reload();
   };
 

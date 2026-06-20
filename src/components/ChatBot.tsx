@@ -134,9 +134,22 @@ export function ChatBot() {
     sessionStorage.setItem("quran_chat_messages", JSON.stringify(messages));
   }, [messages]);
 
-  // إغلاق نافذة الشات تلقائياً عند الانتقال لصفحة أخرى (مع الحفاظ على محتوى الشات)
-  useEffect(() => {
+  const closeChat = () => {
     setIsOpen(false);
+    const prev = sessionStorage.getItem("prev_chat_path") || "/";
+    sessionStorage.removeItem("prev_chat_path");
+    if (pathname === "/chat") {
+      navigateInstantly(prev === "/chat" ? "/" : prev);
+    }
+  };
+
+  // تزامن حالة فتح الشات مع المسار /chat
+  useEffect(() => {
+    if (pathname === "/chat") {
+      setIsOpen(true);
+    } else {
+      setIsOpen(false);
+    }
   }, [pathname]);
 
   useEffect(() => {
@@ -550,61 +563,154 @@ ${isOwner ? `[تنبيه حرج جداً]
         }
       }
     } catch (error: any) {
-      console.warn("⚠️ API Call failed. Activating client-side Machine Learning Model Fallback...", error);
+      console.warn("⚠️ API Call failed. Attempting direct fetch to Val Town proxy...", error);
       
-      const mlClassification = classifyQueryWithML(userText, userData);
-      
-      setMessages(prev => [
-        ...prev,
-        { id: Date.now() + 1, text: mlClassification.reply, sender: "bot" }
-      ]);
-
-      // Log bot response to Firestore
-      logMessageToFirestore(mlClassification.reply, "bot");
-
-      if (mlClassification.quiz) {
-        setActiveQuiz(mlClassification.quiz);
-      }
-
-      if (mlClassification.updateProfile && auth?.currentUser && db) {
-        const updateFields: any = {};
-        if (mlClassification.updateProfile.displayName) updateFields.displayName = mlClassification.updateProfile.displayName.trim();
-        if (mlClassification.updateProfile.country) {
-          updateFields.country = mlClassification.updateProfile.country;
-          updateFields.governorate = mlClassification.updateProfile.country;
+      try {
+        let apiMessages = updatedMessages.filter((m: any) => m.text && m.text.trim().length > 0);
+        while (apiMessages.length > 0 && apiMessages[0].sender === "bot") {
+          apiMessages = apiMessages.slice(1);
         }
-        if (mlClassification.updateProfile.phoneNumber) {
-          updateFields.phoneNumber = mlClassification.updateProfile.phoneNumber.trim();
-          updateFields.phone = mlClassification.updateProfile.phoneNumber.trim();
-        }
-
-        try {
-          await updateDoc(doc(db, "users", auth.currentUser.uid), updateFields);
-          console.log("👤 [ChatBot Fallback]: AI successfully updated profile in Firestore!", updateFields);
-        } catch (dbErr) {
-          console.error("❌ [ChatBot Fallback]: Failed to write AI profile update to Firestore:", dbErr);
-        }
-      }
-
-      if (mlClassification.createPlan && auth?.currentUser && db) {
-        const planData = {
-          activeQuranPlan: {
-            planName: mlClassification.createPlan.planName,
-            durationDays: Number(mlClassification.createPlan.durationDays) || 7,
-            dailyTarget: mlClassification.createPlan.dailyTarget,
-            targetPagesPerDay: Number(mlClassification.createPlan.targetPagesPerDay) || 1,
-            dayByDayBreakdown: Array.isArray(mlClassification.createPlan.dayByDayBreakdown) ? mlClassification.createPlan.dayByDayBreakdown : [],
-            currentDay: 1,
-            completedDays: [],
-            createdAt: new Date().toISOString()
+        const mergedMessages: any[] = [];
+        for (const msg of apiMessages) {
+          if (mergedMessages.length > 0 && mergedMessages[mergedMessages.length - 1].sender === msg.sender) {
+            mergedMessages[mergedMessages.length - 1] = {
+              ...mergedMessages[mergedMessages.length - 1],
+              text: mergedMessages[mergedMessages.length - 1].text + "\n" + msg.text
+            };
+          } else {
+            mergedMessages.push({ ...msg });
           }
-        };
+        }
+        apiMessages = mergedMessages;
 
-        try {
-          await updateDoc(doc(db, "users", auth.currentUser.uid), planData);
-          console.log("📖 [ChatBot Fallback]: AI successfully created and saved Custom Quran Plan in Firestore!", planData);
-        } catch (dbErr) {
-          console.error("❌ [ChatBot Fallback]: Failed to save custom Quran plan in Firestore:", dbErr);
+        const valTownRes = await fetch("https://youssefosama--40af2a40698011f1b2fe1607ee4eb77e.web.val.run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: apiMessages,
+            message: userText,
+            history: apiMessages,
+            userData: dbUser,
+            pathname: pathname,
+            leaderboard: leaderboardUsers
+          })
+        });
+
+        if (!valTownRes.ok) {
+          throw new Error("Val Town proxy failed");
+        }
+
+        const data = await valTownRes.json();
+        const replyText = data.text || data.reply || "";
+
+        setMessages(prev => [
+          ...prev,
+          { id: Date.now() + 1, text: replyText, sender: "bot" }
+        ]);
+
+        logMessageToFirestore(replyText, "bot");
+
+        if (data.quiz) {
+          setActiveQuiz(data.quiz);
+        }
+
+        if (data.updateProfile && auth?.currentUser && db) {
+          const updateFields: any = {};
+          if (data.updateProfile.displayName) updateFields.displayName = data.updateProfile.displayName.trim();
+          if (data.updateProfile.country) {
+            updateFields.country = data.updateProfile.country;
+            updateFields.governorate = data.updateProfile.country;
+          }
+          if (data.updateProfile.phoneNumber) {
+            updateFields.phoneNumber = data.updateProfile.phoneNumber.trim();
+            updateFields.phone = data.updateProfile.phoneNumber.trim();
+          }
+
+          try {
+            await updateDoc(doc(db, "users", auth.currentUser.uid), updateFields);
+            console.log("👤 [ChatBot ValTown]: AI successfully updated profile in Firestore!", updateFields);
+          } catch (dbErr) {
+            console.error("❌ [ChatBot ValTown]: Failed to write AI profile update to Firestore:", dbErr);
+          }
+        }
+
+        if (data.createPlan && auth?.currentUser && db) {
+          const planData = {
+            activeQuranPlan: {
+              planName: data.createPlan.planName,
+              durationDays: Number(data.createPlan.durationDays) || 7,
+              dailyTarget: data.createPlan.dailyTarget,
+              targetPagesPerDay: Number(data.createPlan.targetPagesPerDay) || 1,
+              dayByDayBreakdown: Array.isArray(data.createPlan.dayByDayBreakdown) ? data.createPlan.dayByDayBreakdown : [],
+              currentDay: 1,
+              completedDays: [],
+              createdAt: new Date().toISOString()
+            }
+          };
+
+          try {
+            await updateDoc(doc(db, "users", auth.currentUser.uid), planData);
+            console.log("📖 [ChatBot ValTown]: AI successfully created and saved Custom Quran Plan in Firestore!", planData);
+          } catch (dbErr) {
+            console.error("❌ [ChatBot ValTown]: Failed to save custom Quran plan in Firestore:", dbErr);
+          }
+        }
+      } catch (valErr: any) {
+        console.warn("⚠️ Val Town API also failed. Activating client-side Machine Learning Model Fallback...", valErr);
+        
+        const mlClassification = classifyQueryWithML(userText, userData);
+        
+        setMessages(prev => [
+          ...prev,
+          { id: Date.now() + 1, text: mlClassification.reply, sender: "bot" }
+        ]);
+
+        logMessageToFirestore(mlClassification.reply, "bot");
+
+        if (mlClassification.quiz) {
+          setActiveQuiz(mlClassification.quiz);
+        }
+
+        if (mlClassification.updateProfile && auth?.currentUser && db) {
+          const updateFields: any = {};
+          if (mlClassification.updateProfile.displayName) updateFields.displayName = mlClassification.updateProfile.displayName.trim();
+          if (mlClassification.updateProfile.country) {
+            updateFields.country = mlClassification.updateProfile.country;
+            updateFields.governorate = mlClassification.updateProfile.country;
+          }
+          if (mlClassification.updateProfile.phoneNumber) {
+            updateFields.phoneNumber = mlClassification.updateProfile.phoneNumber.trim();
+            updateFields.phone = mlClassification.updateProfile.phoneNumber.trim();
+          }
+
+          try {
+            await updateDoc(doc(db, "users", auth.currentUser.uid), updateFields);
+            console.log("👤 [ChatBot Fallback]: AI successfully updated profile in Firestore!", updateFields);
+          } catch (dbErr) {
+            console.error("❌ [ChatBot Fallback]: Failed to write AI profile update to Firestore:", dbErr);
+          }
+        }
+
+        if (mlClassification.createPlan && auth?.currentUser && db) {
+          const planData = {
+            activeQuranPlan: {
+              planName: mlClassification.createPlan.planName,
+              durationDays: Number(mlClassification.createPlan.durationDays) || 7,
+              dailyTarget: mlClassification.createPlan.dailyTarget,
+              targetPagesPerDay: Number(mlClassification.createPlan.targetPagesPerDay) || 1,
+              dayByDayBreakdown: Array.isArray(mlClassification.createPlan.dayByDayBreakdown) ? mlClassification.createPlan.dayByDayBreakdown : [],
+              currentDay: 1,
+              completedDays: [],
+              createdAt: new Date().toISOString()
+            }
+          };
+
+          try {
+            await updateDoc(doc(db, "users", auth.currentUser.uid), planData);
+            console.log("📖 [ChatBot Fallback]: AI successfully created and saved Custom Quran Plan in Firestore!", planData);
+          } catch (dbErr) {
+            console.error("❌ [ChatBot Fallback]: Failed to save custom Quran plan in Firestore:", dbErr);
+          }
         }
       }
     } finally {
@@ -629,7 +735,12 @@ ${isOwner ? `[تنبيه حرج جداً]
         whileHover={{ scale: isOpen ? 0 : 1.1 }}
         whileTap={{ scale: isOpen ? 0 : 0.9 }}
         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-        onClick={() => { if (!isDragging.current) setIsOpen(true); }}
+        onClick={() => {
+          if (!isDragging.current) {
+            sessionStorage.setItem("prev_chat_path", pathname || "/");
+            navigateInstantly("/chat");
+          }
+        }}
         className={`fixed bottom-20 left-4 sm:left-6 z-[400] w-12 h-12 rounded-full flex items-center justify-center group cursor-grab active:cursor-grabbing ${isOpen ? 'pointer-events-none' : ''}`}
       >
         <div className="relative w-full h-full bg-gradient-to-br from-[#1a1a1a] to-[#000] border border-[#d4af37]/50 rounded-full flex items-center justify-center overflow-hidden shadow-[0_0_15px_rgba(212,175,55,0.3)]">
@@ -661,7 +772,7 @@ ${isOwner ? `[تنبيه حرج جداً]
                   </div>
                 </div>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-white/40 hover:text-white transition-colors p-2 rounded-xl hover:bg-white/5">
+              <button onClick={closeChat} className="text-white/40 hover:text-white transition-colors p-2 rounded-xl hover:bg-white/5">
                 <X className="w-4 h-4" />
               </button>
             </div>

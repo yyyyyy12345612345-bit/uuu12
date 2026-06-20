@@ -882,7 +882,47 @@ ${args.options}
       }
     }
 
-    // ── 3. الـ Fallback النهائي بذكاء الآلة المحلي (Machine Learning TF-IDF) ──
+    // ── 3. محاولة استدعاء Val Town API (كبوابة للـ APIs الخارجية المخزنة هناك) ──
+    try {
+      console.log("🔄 جاري تجربة Val Town API...");
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout
+
+      const valTownRes = await fetch("https://youssefosama--40af2a40698011f1b2fe1607ee4eb77e.web.val.run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+        body: JSON.stringify({ 
+          messages: apiMessages,
+          message: lastUserMessage,
+          history: apiMessages,
+          userData,
+          pathname,
+          leaderboard
+        })
+      });
+
+      clearTimeout(timeoutId);
+
+      if (valTownRes.ok) {
+        const valData = await valTownRes.json();
+        console.log("✅ نجح الاتصال بـ Val Town API");
+        if (valData.text || valData.reply) {
+          return NextResponse.json({
+            text: valData.text || valData.reply,
+            updateProfile: valData.updateProfile,
+            createPlan: valData.createPlan,
+            quiz: valData.quiz
+          });
+        }
+      } else {
+        console.error("❌ فشل رد Val Town:", valTownRes.status);
+      }
+    } catch (valTownErr) {
+      console.error("💥 خطأ في الاتصال بـ Val Town:", valTownErr);
+    }
+
+    // ── 4. الـ Fallback النهائي بذكاء الآلة المحلي (Machine Learning TF-IDF) ──
     console.log("🚀 تفعيل محرك الذكاء الاصطناعي وتعلم الآلة المحلي (ML Cosine Similarity)...");
     const mlClassification = classifyQueryWithML(lastUserMessage, userData);
     console.log(`🎯 تم تصنيف السؤال إلى قسم [${mlClassification.category}] بدرجة ثقة: ${mlClassification.score}`);

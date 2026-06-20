@@ -18,6 +18,7 @@ export function getViewFromPathname(path: string): string {
     'leaderboard': 'rank',
     'security': 'mushaf-choice',
     'admin': 'admin',
+    'chat': 'mushaf-choice',
     'prayers': 'prayers',
     'profile': 'mushaf-choice'
   };
