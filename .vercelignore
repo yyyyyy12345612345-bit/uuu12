@@ -1,1 +1,19 @@
-# Empty files
+node_modules
+.next
+.open-next
+out
+android
+public
+.git
+.idea
+.cursor
+*.log
+*.zip
+*.tar.gz
+*.mp3
+*.mp4
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
