@@ -20,7 +20,18 @@ export function ChatBot() {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [userData, setUserData] = useState({ name: "", points: 0, rank: "" });
+  const [userData, setUserData] = useState<any>({
+    name: "",
+    points: 0,
+    rank: "",
+    country: "",
+    gender: "",
+    createdAt: "",
+    registrationType: "",
+    plan: "",
+    videoRendersCount: 0,
+    activeQuranPlan: null
+  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
@@ -32,7 +43,7 @@ export function ChatBot() {
     const unsubAuth = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const pts = localStorage.getItem("cached_total_points") || "0";
-        setUserData(prev => ({
+        setUserData((prev: any) => ({
           ...prev,
           name: user.displayName || "يا غالي",
           points: parseInt(pts),
@@ -47,8 +58,15 @@ export function ChatBot() {
                 const data = snap.data();
                 setUserData({
                   name: data.displayName || data.username || user.displayName || "يا غالي",
-                  points: data.points || parseInt(pts),
-                  rank: data.rank || "بطل قرآني"
+                  points: data.points || data.totalPoints || parseInt(pts),
+                  rank: data.rank || "بطل قرآني",
+                  country: data.country || "",
+                  gender: data.gender || "",
+                  createdAt: data.createdAt || "",
+                  registrationType: data.registrationType || "direct",
+                  plan: data.plan || "free",
+                  videoRendersCount: data.videoRendersCount || 0,
+                  activeQuranPlan: data.activeQuranPlan || null
                 });
               }
             });
