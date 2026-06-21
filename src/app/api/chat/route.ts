@@ -284,13 +284,16 @@ export async function POST(req: NextRequest) {
     let replyText = "";
     let useFallback = false;
 
+    // Keep only last 8 messages to avoid token limit errors
+    const trimmedMessages = messages.slice(-8);
+
     // 1. Try to fetch from Val Town
     try {
       const response = await fetch(VAL_TOWN_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages,
+          messages: trimmedMessages,
           systemContext: systemPrompt
         })
       });
@@ -303,9 +306,13 @@ export async function POST(req: NextRequest) {
         const data = await response.json();
         replyText = data.text || data.reply || "";
         
-        // Check if the reply returned indicates an internal AI error
-        if (!replyText || replyText.includes("جميع محاولات الاتصال بالذكاء الاصطناعي فشلت")) {
-          console.warn("Val Town response contains AI connection failure message. Triggering fallback.");
+        // Check if Val Town itself returned an error
+        if (data.error) {
+          console.warn("Val Town returned error:", data.error);
+          useFallback = true;
+          replyText = "";
+        } else if (!replyText || replyText.includes("جميع محاولات الاتصال بالذكاء الاصطناعي فشلت")) {
+          console.warn("Val Town response empty or contains AI failure message. Triggering fallback.");
           useFallback = true;
         }
       }
