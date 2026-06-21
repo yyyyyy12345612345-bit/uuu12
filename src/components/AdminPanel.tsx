@@ -991,9 +991,14 @@ export function AdminPanel() {
       if (auth.currentUser) {
         await auth.currentUser.getIdToken(true);
       }
-      const q = query(collection(db, "chatbot_logs"), orderBy("timestamp", "desc"));
-      const snapshot = await getDocs(q);
-      const logs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      const snapshot = await getDocs(collection(db, "chatbot_logs"));
+      const logs = snapshot.docs.map(d => ({ id: d.id, ...d.data() as any }));
+      // Sort client-side to prevent Firestore query failures if timestamp index is missing
+      logs.sort((a, b) => {
+        const timeA = a.timestamp?.toDate ? a.timestamp.toDate().getTime() : new Date(a.timestamp || 0).getTime();
+        const timeB = b.timestamp?.toDate ? b.timestamp.toDate().getTime() : new Date(b.timestamp || 0).getTime();
+        return timeB - timeA;
+      });
       setChatbotLogs(logs);
     } catch (e) {
       console.error("Failed to fetch chatbot logs:", e);
@@ -1554,25 +1559,25 @@ export function AdminPanel() {
     let insultCount = 0;
 
     chatbotLogs.forEach(log => {
-      const uid = log.userId;
+      const uid = log.userId || log.uid;
       if (!uid) return;
       if (!userSessions[uid]) {
         userSessions[uid] = {
-          userName: log.userName || "زائر",
+          userName: log.userName || log.displayName || log.name || "زائر",
           lastActive: log.timestamp,
           messages: [],
           textMessages: []
         };
       }
       
-      // Keep track of the user's display name if it's set
-      if (log.userName && log.userName !== "يقين (البوت)" && log.userName !== "زائر") {
-        userSessions[uid].userName = log.userName;
+      const uName = log.userName || log.displayName || log.name;
+      if (uName && uName !== "يقين (البوت)" && uName !== "زائر") {
+        userSessions[uid].userName = uName;
       }
       
       userSessions[uid].messages.push(log);
       if (log.sender === "user") {
-        userSessions[uid].textMessages.push(log.text);
+        userSessions[uid].textMessages.push(log.text || log.message || "");
         if (log.isInsult) {
           insultCount++;
         } else if (log.sentiment === "positive") {
@@ -1632,7 +1637,8 @@ export function AdminPanel() {
     const questionCounts: Record<string, number> = {};
     chatbotLogs.forEach(log => {
       if (log.sender === "user") {
-        let qText = log.text.trim()
+        const textVal = log.text || log.message || "";
+        let qText = textVal.trim()
           .replace(/[أإآ]/g, "ا")
           .replace(/ة/g, "ه")
           .replace(/ى/g, "ي")
@@ -1651,7 +1657,8 @@ export function AdminPanel() {
         // Find original question for display
         const original = chatbotLogs.find(l => {
           if (l.sender !== "user") return false;
-          let norm = l.text.trim()
+          const textVal = l.text || l.message || "";
+          let norm = textVal.trim()
             .replace(/[أإآ]/g, "ا")
             .replace(/ة/g, "ه")
             .replace(/ى/g, "ي")
