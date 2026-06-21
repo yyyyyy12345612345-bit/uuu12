@@ -321,17 +321,11 @@ export async function POST(req: NextRequest) {
       useFallback = true;
     }
 
-    // 2. If Val Town fails, use local Gemini API direct call fallback
+    // 2. If Val Town fails, return friendly retry message
     if (useFallback) {
-      console.log("Initiating direct Gemini API fallback...");
-      try {
-        replyText = await callAIDirectly(messages, systemPrompt);
-      } catch (geminiError: any) {
-        console.error("Direct Gemini API fallback also failed:", geminiError);
-        return NextResponse.json({
-          reply: `عذراً، حدث خطأ في الاتصال بالذكاء الاصطناعي.\nالسبب: ${geminiError.message || geminiError}`
-        });
-      }
+      return NextResponse.json({
+        reply: "عذراً، الخدمة مشغولة حالياً. يرجى المحاولة مرة أخرى بعد لحظة 🙏"
+      });
     }
 
     return NextResponse.json({
