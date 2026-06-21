@@ -263,6 +263,39 @@ export function ChatBot() {
   const isDraggingRef = useRef(false);
   const dragStartPos = useRef({ x: 0, y: 0 });
 
+  const modalRef = useRef<HTMLDivElement>(null);
+  const [modalOffset, setModalOffset] = useState({ x: 0, y: 0 });
+
+  const clampModalPosition = () => {
+    if (!modalRef.current) return;
+
+    const rect = modalRef.current.getBoundingClientRect();
+    const modalWidth = rect.width || 380;
+    const modalHeight = rect.height || 550;
+
+    const currentX = dragX.get();
+    const currentY = dragY.get();
+
+    // Default starting positions relative to viewport
+    // bottom-28 (112px from bottom) and right-6 (24px from right)
+    const defaultRight = window.innerWidth - 24;
+    const defaultLeft = defaultRight - modalWidth;
+    const defaultBottom = window.innerHeight - 112;
+    const defaultTop = defaultBottom - modalHeight;
+
+    // Calculate limits for x and y translations
+    const minX = 16 - defaultLeft;
+    const maxX = (window.innerWidth - 16) - defaultRight;
+
+    const minY = 16 - defaultTop;
+    const maxY = (window.innerHeight - 16) - defaultBottom;
+
+    const clampedX = Math.max(minX, Math.min(maxX, currentX));
+    const clampedY = Math.max(minY, Math.min(maxY, currentY));
+
+    setModalOffset({ x: clampedX, y: clampedY });
+  };
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     const checkMobile = () => {
@@ -279,6 +312,38 @@ export function ChatBot() {
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  // Clamp modal position on resize/drag coordinates changes when open
+  useEffect(() => {
+    if (typeof window === "undefined" || !isOpen || isFullPage || isMobile) return;
+
+    // Run after a short timeout to let the modal mount and get its correct height
+    const timer = setTimeout(clampModalPosition, 50);
+
+    window.addEventListener("resize", clampModalPosition);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", clampModalPosition);
+    };
+  }, [isOpen, isFullPage, isMobile, dragX, dragY]);
+
+  // Click outside to close chatbot
+  useEffect(() => {
+    if (!isOpen || isFullPage) return;
+
+    const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
+      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick, true);
+    document.addEventListener("touchstart", handleOutsideClick, true);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick, true);
+      document.removeEventListener("touchstart", handleOutsideClick, true);
+    };
+  }, [isOpen, isFullPage]);
 
   const handleDragStart = (e: any, info: any) => {
     isDraggingRef.current = false;
@@ -302,11 +367,13 @@ export function ChatBot() {
   };
 
   const handleButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (isDraggingRef.current) {
       e.preventDefault();
-      e.stopPropagation();
       return;
     }
+    // Clamp coordinates immediately to avoid layout jumps
+    clampModalPosition();
     setIsOpen(true);
   };
 
@@ -344,7 +411,8 @@ export function ChatBot() {
       )}
 
       <motion.div
-        style={{ x: (!isFullPage && !isMobile) ? dragX : 0, y: (!isFullPage && !isMobile) ? dragY : 0 }}
+        ref={modalRef}
+        style={{ x: (!isFullPage && !isMobile) ? modalOffset.x : 0, y: (!isFullPage && !isMobile) ? modalOffset.y : 0 }}
         className={modalClassName}
       >
         
