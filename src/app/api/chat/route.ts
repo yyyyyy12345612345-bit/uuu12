@@ -168,58 +168,107 @@ const getSystemPrompt = (userData: any) => `أنت "يقين"، المساعد �
 
 تنبيه حاسم: تذكر دائماً ألا تكتب أي آية قرآنية بنصها الكامل تحت أي ظرف من الظروف. هذا خط أحمر وممنوع تماماً!`;
 
-async function callGeminiDirectly(messages: any[], systemPrompt: string): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not defined in environment");
-  }
+async function callAIDirectly(messages: any[], systemPrompt: string): Promise<string> {
+  const groqKey = process.env.GROQ_API_KEY;
+  const geminiKey = process.env.GEMINI_API_KEY;
 
-  // Sequentially try different models
-  const models = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-2.5-flash"];
-  let lastError: any = null;
+  // 1. Try Groq first (faster, higher context limit with large models)
+  if (groqKey && groqKey !== "YOUR_GROQ_API_KEY_HERE") {
+    const groqModels = ["llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "mixtral-8x7b-32768"];
+    for (const gModel of groqModels) {
+      try {
+        const groqMessages = [
+          { role: "system", content: systemPrompt },
+          ...messages.filter((m: any) => m.content && m.content.trim() !== "")
+        ];
 
-  for (const model of models) {
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-      
-      const contents = messages
-        .filter((m: any) => m.content && m.content.trim() !== "")
-        .map((m: any) => ({
-          role: m.role === "assistant" ? "model" : "user",
-          parts: [{ text: m.content }]
-        }));
+        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${groqKey}`
+          },
+          body: JSON.stringify({ model: gModel, messages: groqMessages, max_tokens: 512 })
+        });
 
-      const body = {
-        systemInstruction: {
-          parts: [{ text: systemPrompt }]
-        },
-        contents
-      };
+        if (!res.ok) {
+          const errText = await res.text();
+          console.error(`Groq ${gModel} failed: ${res.status}`, errText);
+          continue;
+        }
 
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      });
-
-      if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(`Gemini API (${model}) returned status ${response.status}: ${errText}`);
+        const data = await res.json();
+        const text = data.choices?.[0]?.message?.content;
+        if (text) {
+          console.log(`Groq ${gModel} responded successfully.`);
+          return text;
+        }
+      } catch (e: any) {
+        console.error(`Groq ${gModel} error:`, e.message);
       }
-
-      const data = await response.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (text) {
-        return text;
-      }
-      throw new Error(`Empty content returned from Gemini model ${model}`);
-    } catch (err: any) {
-      console.error(`Fallback model ${model} failed:`, err.message || err);
-      lastError = err;
     }
   }
 
-  throw lastError || new Error("All fallback Gemini models failed");
+  // 2. Fallback: Gemini
+  if (!geminiKey) {
+    throw new Error("GEMINI_API_KEY is not defined in environment");
+  }
+
+  // gemini-2.0-flash: 1500 RPD free — highest quota, try first
+  // gemini-2.5-flash: 25 RPD free — try last
+  const geminiModels = ["gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-2.5-flash"];
+  let lastError: any = null;
+
+  for (const model of geminiModels) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
+
+        const contents = messages
+          .filter((m: any) => m.content && m.content.trim() !== "")
+          .map((m: any) => ({
+            role: m.role === "assistant" ? "model" : "user",
+            parts: [{ text: m.content }]
+          }));
+
+        const body = {
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents
+        };
+
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+
+        if (response.status === 429 && attempt === 0) {
+          console.warn(`Gemini ${model} rate limited (429). Retrying in 12s...`);
+          await new Promise(r => setTimeout(r, 12000));
+          continue;
+        }
+
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error(`Gemini API (${model}) returned status ${response.status}: ${errText}`);
+        }
+
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) {
+          console.log(`Gemini ${model} responded successfully.`);
+          return text;
+        }
+        throw new Error(`Empty content from Gemini model ${model}`);
+      } catch (err: any) {
+        console.error(`Gemini ${model} attempt ${attempt} failed:`, err.message || err);
+        lastError = err;
+        break;
+      }
+    }
+  }
+
+  throw lastError || new Error("All AI providers failed (Groq + Gemini)");
 }
 
 export async function POST(req: NextRequest) {
@@ -269,7 +318,7 @@ export async function POST(req: NextRequest) {
     if (useFallback) {
       console.log("Initiating direct Gemini API fallback...");
       try {
-        replyText = await callGeminiDirectly(messages, systemPrompt);
+        replyText = await callAIDirectly(messages, systemPrompt);
       } catch (geminiError: any) {
         console.error("Direct Gemini API fallback also failed:", geminiError);
         return NextResponse.json({
