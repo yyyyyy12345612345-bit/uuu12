@@ -23,6 +23,8 @@ export async function generateStaticParams() {
     { slug: ['rank'] },
     { slug: ['profile'] },
     { slug: ['feed'] },
+    { slug: ['chat'] },
+    { slug: ['chatbot'] },
   ];
 }
 

@@ -273,6 +273,11 @@ function CatchAllContent() {
             <SocialFeed />
           </div>
         )}
+        {visited.chat && (
+          <div key="chat" className={`h-full w-full pb-20 bg-transparent ${activeView === 'chat' ? 'block view-transition' : 'hidden'}`}>
+            <ChatBot />
+          </div>
+        )}
         {visited.video && (
           <div key="video" className={`h-full w-full ${activeView === 'video' ? 'block view-transition' : 'hidden'}`}>
              <div className="flex h-full w-full overflow-hidden bg-[#0c0d10]">
@@ -400,7 +405,7 @@ function CatchAllContent() {
       )}
       
       {/* Global AI ChatBot */}
-      <ChatBot />
+      {activeView !== 'chat' && <ChatBot />}
 
       {/* Floating Complaints/Feedback Button */}
       <FeedbackButton />
