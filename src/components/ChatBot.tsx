@@ -343,9 +343,8 @@ export function ChatBot() {
         </motion.button>
       )}
 
-      {/* Chat Modal */}
       <motion.div
-        style={(!isFullPage && !isMobile) ? { x: dragX, y: dragY } : undefined}
+        style={{ x: (!isFullPage && !isMobile) ? dragX : 0, y: (!isFullPage && !isMobile) ? dragY : 0 }}
         className={modalClassName}
       >
         
