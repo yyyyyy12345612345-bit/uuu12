@@ -268,6 +268,13 @@ export default function AppInitializer({ children }: { children: React.ReactNode
   const checkForUpdates = async (isManual = false) => {
     try {
       const response = await fetch('/version.json?t=' + Date.now());
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Response is not valid JSON");
+      }
       const data = await response.json();
       const LOCAL_VERSION = "22.0";
       
@@ -278,7 +285,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
         alert("أنت تستخدم أحدث نسخة بالفعل!");
       }
     } catch (e) {
-      console.error("Update check failed", e);
+      console.warn("Update check bypassed:", e instanceof Error ? e.message : e);
     }
   };
 
