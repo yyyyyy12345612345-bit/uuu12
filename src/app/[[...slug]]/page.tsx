@@ -25,6 +25,7 @@ export async function generateStaticParams() {
     { slug: ['feed'] },
     { slug: ['chat'] },
     { slug: ['chatbot'] },
+    { slug: ['mushaf-choice'] },
   ];
 }
 

@@ -5,9 +5,10 @@ import { usePathname } from "next/navigation";
  * Maps a URL path segment to the corresponding component view ID
  */
 export function getViewFromPathname(path: string): string {
-  if (!path || path === "/") return "mushaf-choice";
+  if (!path || path === "/") return "landing";
   const segment = path.split('/').filter(Boolean)[0];
   const mapping: Record<string, string> = {
+    'landing': 'landing',
     'audio': 'library',
     'mushaf-full': 'mushaf-full',
     'mushaf-tafseer': 'mushaf-tafseer',
@@ -23,7 +24,7 @@ export function getViewFromPathname(path: string): string {
     'prayers': 'prayers',
     'profile': 'mushaf-choice'
   };
-  return mapping[segment] || segment || "mushaf-choice";
+  return mapping[segment] || segment || "landing";
 }
 
 /**
