@@ -268,11 +268,11 @@ export function Mushaf() {
                 <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
                     <div 
                       className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-500 opacity-100 dark:opacity-0"
-                      style={{ backgroundImage: "url('/backgrounds/light.jpg.png')" }}
+                      style={{ backgroundImage: "url('https://res.cloudinary.com/dwxrjggkj/image/upload/v1782144601/light.jpg_x6zmwk.png')" }}
                     />
                     <div 
                       className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-500 opacity-0 dark:opacity-100"
-                      style={{ backgroundImage: "url('/backgrounds/dark.jpg.png')" }}
+                      style={{ backgroundImage: "url('https://res.cloudinary.com/dwxrjggkj/image/upload/v1782144599/dark.jpg_jeabil.png')" }}
                     />
                     <div className="absolute inset-0 bg-black/[0.01] dark:bg-black/25 transition-colors duration-300" />
                 </div>
@@ -435,11 +435,11 @@ export function Mushaf() {
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
                 <div 
                   className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-500 opacity-100 dark:opacity-0"
-                  style={{ backgroundImage: "url('/backgrounds/light.jpg.png')" }}
+                  style={{ backgroundImage: "url('https://res.cloudinary.com/dwxrjggkj/image/upload/v1782144601/light.jpg_x6zmwk.png')" }}
                 />
                 <div 
                   className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-500 opacity-0 dark:opacity-100"
-                  style={{ backgroundImage: "url('/backgrounds/dark.jpg.png')" }}
+                  style={{ backgroundImage: "url('https://res.cloudinary.com/dwxrjggkj/image/upload/v1782144599/dark.jpg_jeabil.png')" }}
                 />
                 <div className="absolute inset-0 bg-black/[0.01] dark:bg-black/25 transition-colors duration-300" />
             </div>
