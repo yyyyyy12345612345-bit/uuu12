@@ -3,7 +3,6 @@ node_modules
 .open-next
 out
 android
-public
 .git
 .idea
 .cursor
@@ -12,8 +11,15 @@ public
 *.tar.gz
 *.mp3
 *.mp4
-*.png
-*.jpg
-*.jpeg
-*.webp
-*.gif
+
+# Ignore heavy directories in public
+public/audio/
+public/adhan/
+public/download/
+
+# Ignore root-level temp/screenshot files
+/*.png
+/*.jpg
+/*.jpeg
+/*.webp
+/*.gif
