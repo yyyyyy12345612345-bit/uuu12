@@ -34,7 +34,6 @@ const Leaderboard = nextDynamic(() => import("@/components/Leaderboard").then(mo
 const ProfileModal = nextDynamic(() => import("@/components/ProfileModal").then(mod => mod.ProfileModal), { ssr: false });
 const AuthGate = nextDynamic(() => import("@/components/AuthGate").then(mod => mod.AuthGate), { ssr: false });
 const MushafChoice = nextDynamic(() => import("@/components/MushafChoice").then(mod => mod.MushafChoice), { ssr: false });
-const LandingPage = nextDynamic(() => import("@/components/LandingPage").then(mod => mod.LandingPage), { ssr: false });
 const SubscriptionModal = nextDynamic(() => import("@/components/SubscriptionModal").then(mod => mod.SubscriptionModal), { ssr: false });
 const SocialFeed = nextDynamic(() => import("@/components/SocialFeed").then(mod => mod.SocialFeed), { ssr: false });
 const PointsGuideModal = nextDynamic(() => import("@/components/PointsGuideModal").then(mod => mod.PointsGuideModal), { ssr: false });
@@ -147,7 +146,7 @@ function CatchAllContent() {
     }
   }, [pathname]);
 
-  const [visited, setVisited] = useState<Record<string, boolean>>({ 'landing': true, 'mushaf-choice': true });
+  const [visited, setVisited] = useState<Record<string, boolean>>({ 'mushaf-choice': true });
 
   useEffect(() => {
     if (activeView && !visited[activeView]) {
@@ -228,11 +227,7 @@ function CatchAllContent() {
             <span className="pointer-events-none">تغيير المصحف</span>
           </motion.button>
         )}
-        {visited.landing && (
-          <div key="landing" className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'landing' ? 'block view-transition' : 'hidden'}`}>
-            <LandingPage />
-          </div>
-        )}
+
         {visited.mushaf && (
           <div key="mushaf" className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'mushaf' ? 'block view-transition' : 'hidden'}`}>
             <Mushaf />
