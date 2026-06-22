@@ -8,7 +8,7 @@ import { useTheme } from "@/components/ThemeProvider";
 
 // Premium detailed custom SVGs for the exact look of the image
 const BookOpenIcon = ({ color }: { color: string }) => (
-  <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-14 h-14">
+  <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-16 h-16">
     <path d="M32 18 Q20 16 8 20 L8 52 Q20 48 32 50 Z" fill={`${color}08`} stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     <path d="M32 18 Q44 16 56 20 L56 52 Q44 48 32 50 Z" fill={`${color}08`} stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     <line x1="32" y1="18" x2="32" y2="50" stroke={color} strokeWidth="3" strokeLinecap="round" />
@@ -260,7 +260,7 @@ export function MushafChoice() {
 
                 {/* Icon (right side) */}
                 <div 
-                  className="shrink-0 w-18 h-18 rounded-full border flex items-center justify-center relative overflow-hidden transition-all duration-500 group-hover:rotate-6 group-hover:scale-105"
+                  className="shrink-0 w-24 h-24 rounded-full border flex items-center justify-center relative overflow-hidden transition-all duration-500 group-hover:rotate-6 group-hover:scale-105"
                   style={{
                     borderColor: `${mode.iconColor}25`,
                     backgroundColor: `${mode.iconColor}06`,
