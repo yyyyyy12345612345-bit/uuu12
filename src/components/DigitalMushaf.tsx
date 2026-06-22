@@ -177,7 +177,19 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
         setSelectedVerseForDetail({ verseKey: verse.verse_key, surahName: sName });
         return;
     }
+
+    const isSameVerse = currentPlayingVerse?.pageIndex === pIdx && currentPlayingVerse?.verseIndex === vIdx;
+    if (isSameVerse && isPlayingPage) {
+        setIsPlayingPage(false);
+        if (audioRef.current) {
+            audioRef.current.pause();
+        }
+        setPlaybackState('paused');
+        return;
+    }
+
     setCurrentPlayingVerse({ pageIndex: pIdx, verseIndex: vIdx });
+    setIsPlayingPage(true);
     if (audioRef.current) {
         const [sura, ayah] = verse.verse_key.split(':');
         const audioUrl = getAudioUrl(parseInt(sura), parseInt(ayah), state.reciterId, verse.id);
