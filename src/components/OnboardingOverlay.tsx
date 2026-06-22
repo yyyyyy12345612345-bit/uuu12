@@ -51,7 +51,7 @@ export function OnboardingOverlay({ onClose }: OnboardingOverlayProps) {
 
   const slideVariants = {
     enter: (direction: number) => ({
-      x: direction > 0 ? 300 : -300,
+      x: direction > 0 ? 30 : -30,
       opacity: 0
     }),
     center: {
@@ -59,7 +59,7 @@ export function OnboardingOverlay({ onClose }: OnboardingOverlayProps) {
       opacity: 1
     },
     exit: (direction: number) => ({
-      x: direction < 0 ? 300 : -300,
+      x: direction < 0 ? 30 : -30,
       opacity: 0
     })
   };
@@ -242,14 +242,12 @@ export function OnboardingOverlay({ onClose }: OnboardingOverlayProps) {
   return (
     <div className="fixed inset-0 z-[10005] bg-black/40 backdrop-blur-md flex items-center justify-center font-arabic p-3 md:p-6" dir="rtl">
       {/* Background Decorative Elements */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-10 right-10 w-96 h-96 rounded-full bg-[#d4af37]/5 blur-[80px]" />
-        <div className="absolute bottom-10 left-10 w-[30rem] h-[30rem] rounded-full bg-blue-500/5 blur-[120px]" />
+      <div className="absolute inset-0 pointer-events-none overflow-hidden bg-[radial-gradient(circle_at_top_right,rgba(212,175,55,0.04),transparent_45%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.04),transparent_50%)]">
         <div className="absolute inset-0 islamic-pattern opacity-[0.02] scale-110" />
       </div>
 
       {/* Main Container - PREMIUM LIGHT THEME (ويت مود) */}
-      <div className="relative w-full max-w-4xl bg-white border border-zinc-200 rounded-[2.5rem] shadow-[0_30px_80px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col backdrop-blur-2xl">
+      <div className="relative w-full max-w-4xl bg-white border border-zinc-200 rounded-[2.5rem] shadow-[0_30px_80px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col">
         {/* Top gold bar */}
         <div className="absolute top-0 left-10 right-10 h-[2px] bg-gradient-to-r from-transparent via-[#d4af37] to-transparent" />
 
@@ -283,7 +281,8 @@ export function OnboardingOverlay({ onClose }: OnboardingOverlayProps) {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.4, ease: "easeInOut" }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                style={{ willChange: "transform, opacity" }}
                 className="flex flex-col items-center text-center gap-5 py-4"
               >
                 <div className="relative w-18 h-18 bg-gradient-to-br from-[#d4af37]/10 to-transparent p-4 rounded-2xl border border-[#d4af37]/25 shadow-md flex items-center justify-center">
@@ -317,7 +316,6 @@ export function OnboardingOverlay({ onClose }: OnboardingOverlayProps) {
               </motion.div>
             )}
 
-            {/* Slide 2: Interactive Feature Tour (Detailed User Manual with 9 tabs) */}
             {currentSlide === 1 && (
               <motion.div
                 key="slide1"
@@ -326,7 +324,8 @@ export function OnboardingOverlay({ onClose }: OnboardingOverlayProps) {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.4, ease: "easeInOut" }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                style={{ willChange: "transform, opacity" }}
                 className="flex flex-col md:flex-row gap-6 h-full text-right"
               >
                 {/* Vertical Tabs Sidebar - Grid style on mobile, Sidebar on desktop */}
@@ -357,7 +356,7 @@ export function OnboardingOverlay({ onClose }: OnboardingOverlayProps) {
                   {(() => {
                     const item = MANUAL_CONTENTS[activeManualTab];
                     return (
-                      <div className="space-y-4 animate-in fade-in duration-300">
+                      <div key={activeManualTab} className="space-y-4 animate-in fade-in duration-300">
                         {/* Header Details */}
                         <div className="flex items-center gap-3 justify-start">
                           <div className="w-10 h-10 rounded-xl flex items-center justify-center border shrink-0"
@@ -431,7 +430,8 @@ export function OnboardingOverlay({ onClose }: OnboardingOverlayProps) {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.4, ease: "easeInOut" }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                style={{ willChange: "transform, opacity" }}
                 className="space-y-5"
               >
                 <div className="text-center">

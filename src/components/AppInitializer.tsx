@@ -13,7 +13,12 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { registerPlugin } from '@capacitor/core';
 import { AppBanner } from '@/components/AppBanner';
 import { initSmartNotifications, cleanupSmartNotifications } from '@/lib/smartNotifications';
-import { OnboardingOverlay } from "@/components/OnboardingOverlay";
+import dynamic from "next/dynamic";
+
+const OnboardingOverlay = dynamic(
+  () => import("@/components/OnboardingOverlay").then((mod) => mod.OnboardingOverlay),
+  { ssr: false }
+);
 
 // Custom Native Plugin for Battery Optimization
 
