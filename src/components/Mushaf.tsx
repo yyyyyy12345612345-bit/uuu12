@@ -541,7 +541,10 @@ export function Mushaf() {
                                 </div>
 
                                 {/* Arabic text - Flex-1 Scrollable to handle very long verses gracefully */}
-                                <div className="flex-1 flex items-center justify-center overflow-y-auto no-scrollbar py-4 px-2 min-h-0 text-center">
+                                <div 
+                                    onClick={() => toggleAudio(currentVerse.id)}
+                                    className="flex-1 flex items-center justify-center overflow-y-auto no-scrollbar py-4 px-2 min-h-0 text-center cursor-pointer hover:opacity-90 transition-opacity"
+                                >
                                     <div className="flex flex-wrap justify-center gap-x-3 gap-y-4 text-center leading-relaxed">
                                         {currentVerse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => {
                                             const isAllah = word.text_uthmani?.includes('للَّ') || word.text_uthmani?.includes('اللَّ');
