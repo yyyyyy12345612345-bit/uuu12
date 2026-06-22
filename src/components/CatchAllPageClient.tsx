@@ -34,7 +34,6 @@ const Leaderboard = nextDynamic(() => import("@/components/Leaderboard").then(mo
 const ProfileModal = nextDynamic(() => import("@/components/ProfileModal").then(mod => mod.ProfileModal), { ssr: false });
 const AuthGate = nextDynamic(() => import("@/components/AuthGate").then(mod => mod.AuthGate), { ssr: false });
 const MushafChoice = nextDynamic(() => import("@/components/MushafChoice").then(mod => mod.MushafChoice), { ssr: false });
-const LandingPage = nextDynamic(() => import("@/components/LandingPage").then(mod => mod.LandingPage), { ssr: false });
 const SubscriptionModal = nextDynamic(() => import("@/components/SubscriptionModal").then(mod => mod.SubscriptionModal), { ssr: false });
 const SocialFeed = nextDynamic(() => import("@/components/SocialFeed").then(mod => mod.SocialFeed), { ssr: false });
 const PointsGuideModal = nextDynamic(() => import("@/components/PointsGuideModal").then(mod => mod.PointsGuideModal), { ssr: false });
@@ -147,7 +146,7 @@ function CatchAllContent() {
     }
   }, [pathname]);
 
-  const [visited, setVisited] = useState<Record<string, boolean>>({ 'landing': true, 'mushaf-choice': true });
+  const [visited, setVisited] = useState<Record<string, boolean>>({ 'mushaf-choice': true });
 
   useEffect(() => {
     if (activeView && !visited[activeView]) {
@@ -182,34 +181,36 @@ function CatchAllContent() {
     <div className={`fixed inset-0 text-foreground flex flex-col w-full h-[100dvh] font-arabic overflow-hidden bg-background`}>
       
       {/* Global Top Bar - Logo + Install + Feedback */}
-      <header className="h-14 shrink-0 bg-transparent px-4 md:px-8 flex items-center justify-between z-[200]">
-        <div className="flex items-center gap-2">
-          <img src="/logo/logo.png?v=25" alt="قرآن" className="w-7 h-7 rounded-full border border-primary/20 p-0.5" />
-          <span className="text-xs font-bold font-arabic text-primary hidden sm:block">قرآن</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <PWAInstallButton />
-          {activeView === 'video' && (
+      {activeView !== 'mushaf' && activeView !== 'mushaf-full' && activeView !== 'mushaf-tafseer' && (
+        <header className="h-14 shrink-0 bg-transparent px-4 md:px-8 flex items-center justify-between z-[200]">
+          <div className="flex items-center gap-2">
+            <img src="/logo/logo.png?v=25" alt="قرآن" className="w-7 h-7 rounded-full border border-primary/20 p-0.5" />
+            <span className="text-xs font-bold font-arabic text-primary hidden sm:block">قرآن</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <PWAInstallButton />
+            {activeView === 'video' && (
+              <button 
+                onClick={() => setIsRenderOpen(true)}
+                className="hidden lg:flex items-center gap-2 bg-primary text-black px-6 py-2.5 rounded-2xl font-bold text-[11px] hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20"
+              >
+                <Download className="w-4 h-4" />
+                <span className="font-arabic">تصدير الفيديو</span>
+              </button>
+            )}
             <button 
-              onClick={() => setIsRenderOpen(true)}
-              className="hidden lg:flex items-center gap-2 bg-primary text-black px-6 py-2.5 rounded-2xl font-bold text-[11px] hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20"
+              onClick={() => {
+                window.location.hash = 'menu';
+                setIsMenuOpen(true);
+              }}
+              className="flex items-center gap-2 bg-foreground/5 hover:bg-foreground/10 border border-border px-4 py-2 rounded-2xl transition-all text-foreground/40 hover:text-foreground group"
             >
-              <Download className="w-4 h-4" />
-              <span className="font-arabic">تصدير الفيديو</span>
+              <Menu className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
+              <span className="font-bold text-[11px] font-arabic hidden sm:block">القائمة</span>
             </button>
-          )}
-          <button 
-            onClick={() => {
-              window.location.hash = 'menu';
-              setIsMenuOpen(true);
-            }}
-            className="flex items-center gap-2 bg-foreground/5 hover:bg-foreground/10 border border-border px-4 py-2 rounded-2xl transition-all text-foreground/40 hover:text-foreground group"
-          >
-            <Menu className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
-            <span className="font-bold text-[11px] font-arabic hidden sm:block">القائمة</span>
-          </button>
-        </div>
-      </header>
+          </div>
+        </header>
+      )}
 
 
 
@@ -228,11 +229,7 @@ function CatchAllContent() {
             <span className="pointer-events-none">تغيير المصحف</span>
           </motion.button>
         )}
-        {visited.landing && (
-          <div key="landing" className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'landing' ? 'block view-transition' : 'hidden'}`}>
-            <LandingPage />
-          </div>
-        )}
+
         {visited.mushaf && (
           <div key="mushaf" className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'mushaf' ? 'block view-transition' : 'hidden'}`}>
             <Mushaf />

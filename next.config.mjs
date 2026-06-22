@@ -23,8 +23,10 @@ const nextConfig = {
     },
     optimizePackageImports: ['lucide-react', 'framer-motion', '@capacitor/core'],
   },
+  turbopack: {
+    root: __dirname,
+  },
   compress: true,
-  swcMinify: true,
   // These heavy Node.js-only packages cannot run on Cloudflare Workers edge.
   // Marking them external prevents them from being bundled into the CF worker.
   serverExternalPackages: process.env.CAPACITOR_BUILD === 'true' ? [] : [

@@ -1,461 +1,313 @@
 "use client";
 
-import React, { useEffect, useRef } from 'react';
-import { navigateInstantly } from '@/lib/navigation';
-import { useTheme } from '@/components/ThemeProvider';
+import React from "react";
+import { motion } from "framer-motion";
+import { ChevronLeft, Star } from "lucide-react";
+import { navigateInstantly } from "@/lib/navigation";
+import { useTheme } from "@/components/ThemeProvider";
 
-// GSAP - ensure you've run: npm install gsap
-let gsap: any;
-let ScrollTrigger: any;
-
-const MushafIcon = ({ color }: { color: string }) => (
-  <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-    {/* Open Mushaf - left page */}
-    <path d="M40 20 Q26 18 12 22 L12 62 Q26 58 40 60 Z"
-      fill={`${color}10`} stroke={color} strokeWidth="1.2" strokeOpacity="0.45"/>
-    {/* Open Mushaf - right page */}
-    <path d="M40 20 Q54 18 68 22 L68 62 Q54 58 40 60 Z"
-      fill={`${color}10`} stroke={color} strokeWidth="1.2" strokeOpacity="0.45"/>
-    {/* Spine */}
-    <line x1="40" y1="20" x2="40" y2="60" stroke={color} strokeWidth="2" strokeOpacity="0.6"/>
-    {/* Left page lines */}
-    <rect x="16" y="30" width="18" height="1.4" rx="0.7" fill={color} fillOpacity="0.55"/>
-    <rect x="16" y="35" width="20" height="1.4" rx="0.7" fill={color} fillOpacity="0.4"/>
-    <rect x="16" y="40" width="14" height="1.4" rx="0.7" fill={color} fillOpacity="0.4"/>
-    <rect x="16" y="45" width="19" height="1.4" rx="0.7" fill={color} fillOpacity="0.3"/>
-    <rect x="16" y="50" width="16" height="1.4" rx="0.7" fill={color} fillOpacity="0.25"/>
-    {/* Right page lines */}
-    <rect x="46" y="30" width="18" height="1.4" rx="0.7" fill={color} fillOpacity="0.55"/>
-    <rect x="46" y="35" width="20" height="1.4" rx="0.7" fill={color} fillOpacity="0.4"/>
-    <rect x="46" y="40" width="14" height="1.4" rx="0.7" fill={color} fillOpacity="0.4"/>
-    <rect x="46" y="45" width="19" height="1.4" rx="0.7" fill={color} fillOpacity="0.3"/>
-    <rect x="46" y="50" width="16" height="1.4" rx="0.7" fill={color} fillOpacity="0.25"/>
-    {/* Top ornament dots */}
-    <circle cx="24" cy="25" r="1.5" fill={color} fillOpacity="0.5"/>
-    <circle cx="40" cy="22" r="1.5" fill={color} fillOpacity="0.7"/>
-    <circle cx="56" cy="25" r="1.5" fill={color} fillOpacity="0.5"/>
+// Premium detailed custom SVGs for the exact look of the image
+const BookOpenIcon = ({ color }: { color: string }) => (
+  <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-14 h-14">
+    <path d="M32 18 Q20 16 8 20 L8 52 Q20 48 32 50 Z" fill={`${color}08`} stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M32 18 Q44 16 56 20 L56 52 Q44 48 32 50 Z" fill={`${color}08`} stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <line x1="32" y1="18" x2="32" y2="50" stroke={color} strokeWidth="3" strokeLinecap="round" />
+    <path d="M14 28 H26 M14 34 H26 M14 40 H24" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeOpacity="0.5" />
+    <path d="M50 28 H38 M50 34 H38 M50 40 H40" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeOpacity="0.5" />
   </svg>
 );
 
-const MODES = [
+const VerticalBookIcon = ({ color }: { color: string }) => (
+  <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-14 h-14">
+    <rect x="16" y="10" width="32" height="44" rx="4" fill={`${color}08`} stroke={color} strokeWidth="2" />
+    <line x1="22" y1="10" x2="22" y2="54" stroke={color} strokeWidth="2" />
+    <circle cx="34" cy="32" r="8" stroke={color} strokeWidth="1.5" strokeDasharray="3 3" />
+    {/* Geometric center design */}
+    <path d="M34 28 L38 32 L34 36 L30 32 Z" fill={`${color}20`} stroke={color} strokeWidth="1.5" />
+    <line x1="26" y1="20" x2="42" y2="20" stroke={color} strokeWidth="1.5" strokeOpacity="0.5" />
+    <line x1="26" y1="44" x2="42" y2="44" stroke={color} strokeWidth="1.5" strokeOpacity="0.5" />
+  </svg>
+);
+
+const TafseerDocIcon = ({ color }: { color: string }) => (
+  <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-14 h-14">
+    <rect x="14" y="10" width="36" height="44" rx="4" fill={`${color}08`} stroke={color} strokeWidth="2" />
+    <path d="M20 20 H44 M20 26 H44 M20 32 H34" stroke={color} strokeWidth="2" strokeLinecap="round" strokeOpacity="0.6" />
+    {/* Small badge inside with chat bubble style */}
+    <rect x="36" y="34" width="16" height="12" rx="3" fill={`${color}15`} stroke={color} strokeWidth="1.5" />
+    <circle cx="41" cy="40" r="1.5" fill={color} />
+    <circle cx="47" cy="40" r="1.5" fill={color} />
+    <path d="M40 46 L38 49 V46 Z" fill={color} />
+  </svg>
+);
+
+// High-fidelity vector SVG for the resting gold lantern (left side)
+const LeftLanternSVG = () => (
+  <svg viewBox="0 0 160 300" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full text-[#d4af37] dark:text-[#d4af37]/60 drop-shadow-[0_10px_20px_rgba(212,175,55,0.2)]">
+    {/* Top Ring */}
+    <circle cx="80" cy="40" r="12" stroke="currentColor" strokeWidth="3" />
+    {/* Top Cap */}
+    <path d="M50 70 C 50 45, 110 45, 110 70 Z" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="2" />
+    <path d="M35 90 L125 90 L110 70 L50 70 Z" fill="currentColor" fillOpacity="0.15" stroke="currentColor" strokeWidth="2" />
+    
+    {/* Glass Chamber */}
+    <path d="M40 90 L30 190 L130 190 L120 90 Z" fill="currentColor" fillOpacity="0.05" stroke="currentColor" strokeWidth="2" />
+    {/* Glass chamber panes details */}
+    <path d="M60 90 L52 190 M80 90 V190 M100 90 L108 190" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.4" />
+    
+    {/* Glowing Candle Light Inside */}
+    <ellipse cx="80" cy="155" rx="14" ry="22" fill="url(#lanternGlow)" className="animate-pulse" />
+    <path d="M80 135 C 75 145, 75 155, 80 165 C 85 155, 85 145, 80 135 Z" fill="#fff" className="animate-pulse" />
+
+    {/* Bottom Base */}
+    <path d="M25 190 L135 190 L125 215 L35 215 Z" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="2" />
+    <rect x="45" y="215" width="70" height="10" rx="3" fill="currentColor" />
+
+    <defs>
+      <radialGradient id="lanternGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stopColor="#fff" />
+        <stop offset="50%" stopColor="#f59e0b" stopOpacity="0.8" />
+        <stop offset="100%" stopColor="#d4af37" stopOpacity="0" />
+      </radialGradient>
+    </defs>
+  </svg>
+);
+
+// High-fidelity vector SVG for the mosque silhouette background (right side)
+const MosqueBackgroundSVG = () => (
+  <svg viewBox="0 0 350 300" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full text-[#d4af37] dark:text-[#d4af37]/30 opacity-[0.06] dark:opacity-[0.04]">
+    {/* Big Dome */}
+    <path d="M120 250 C 120 170, 200 170, 200 250 Z" fill="currentColor" />
+    <path d="M160 173 L160 140 M160 140 L155 148 M160 140 L165 148" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <circle cx="160" cy="136" r="3" fill="currentColor" />
+    
+    {/* Small Left Dome */}
+    <path d="M60 250 C 60 200, 110 200, 110 250 Z" fill="currentColor" />
+    
+    {/* Minaret 1 (Right) */}
+    <rect x="230" y="80" width="16" height="170" fill="currentColor" />
+    <path d="M224 80 L246 80 L238 60 L238 40" stroke="currentColor" strokeWidth="2" />
+    <path d="M220 120 H256" stroke="currentColor" strokeWidth="3" />
+    <path d="M220 170 H256" stroke="currentColor" strokeWidth="3" />
+
+    {/* Minaret 2 (Far Right) */}
+    <rect x="280" y="110" width="12" height="140" fill="currentColor" />
+    <path d="M276 110 L296 110 L286 95" stroke="currentColor" strokeWidth="2" />
+
+    {/* Arch shapes along bottom */}
+    <path d="M10 250 C 10 230, 30 230, 30 250" stroke="currentColor" strokeWidth="2" />
+    <path d="M30 250 C 30 230, 50 230, 50 250" stroke="currentColor" strokeWidth="2" />
+    <path d="M310 250 C 310 230, 330 230, 330 250" stroke="currentColor" strokeWidth="2" />
+  </svg>
+);
+
+interface ChoiceMode {
+  href: string;
+  title: string;
+  desc: string;
+  colorClass: string; // Tailwind text color class
+  bgGradientClass: string; // Tailwind bg gradient class
+  borderClass: string; // Tailwind border class
+  shadowClass: string; // Tailwind shadow class
+  hoverBorderClass: string;
+  icon: React.ComponentType<{ color: string }>;
+  iconColor: string;
+}
+
+const MODES: ChoiceMode[] = [
   {
     href: "/mushaf",
     title: "آية بآية",
     desc: "تجربة تلاوة مركزة تتيح لك الاستماع لكل آية على حدة مع عرض التفسير والترجمة الفورية.",
-    color: "#d4af37",
-    glow: "rgba(212,175,55,0.35)",
-    dimGlow: "rgba(212,175,55,0.08)",
-    gradient: "linear-gradient(135deg, #1a1300 0%, #0c0e18 60%, #050810 100%)",
-    lightGradient: "linear-gradient(135deg, #fefce8 0%, #ffffff 100%)",
-    borderGrad: "linear-gradient(135deg, rgba(212,175,55,0.6), rgba(212,175,55,0.05))",
-    num: "01",
+    colorClass: "text-[#B8860B] dark:text-[#E9C46A]",
+    bgGradientClass: "from-[#faf6ee] to-white dark:from-zinc-900/60 dark:to-zinc-950/40",
+    borderClass: "border-[#D4AF37]/35 dark:border-[#D4AF37]/20",
+    hoverBorderClass: "hover:border-[#D4AF37]/70 dark:hover:border-[#D4AF37]/50",
+    shadowClass: "shadow-[0_15px_45px_-10px_rgba(212,175,55,0.08)] hover:shadow-[0_20px_50px_-5px_rgba(212,175,55,0.15)]",
+    icon: BookOpenIcon,
+    iconColor: "#B8860B"
   },
   {
     href: "/mushaf-full",
-    title: "المصحف الرقمي",
-    desc: "تصفح المصحف بالرسم العثماني التقليدي كما في النسخ الورقية مع إمكانية التنقل السريع بين الصفحات.",
-    color: "#0284c7",
-    glow: "rgba(2,132,199,0.35)",
-    dimGlow: "rgba(2,132,199,0.07)",
-    gradient: "linear-gradient(135deg, #001320 0%, #050e1a 60%, #050810 100%)",
-    lightGradient: "linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%)",
-    borderGrad: "linear-gradient(135deg, rgba(125,211,252,0.5), rgba(125,211,252,0.05))",
-    num: "02",
+    title: "المصحف المرئي",
+    desc: "تصفح المصحف بالترتيب التقليدي مع إمكانية التنقل السريع بين الصفحات.",
+    colorClass: "text-[#16423C] dark:text-[#52B788]",
+    bgGradientClass: "from-[#f4fbf7] to-white dark:from-zinc-900/60 dark:to-zinc-950/40",
+    borderClass: "border-[#16423C]/20 dark:border-[#16423C]/15",
+    hoverBorderClass: "hover:border-[#16423C]/50 dark:hover:border-[#16423C]/40",
+    shadowClass: "shadow-[0_15px_45px_-10px_rgba(22,66,60,0.06)] hover:shadow-[0_20px_50px_-5px_rgba(22,66,60,0.12)]",
+    icon: BookOpenIcon,
+    iconColor: "#16423C"
   },
   {
     href: "/mushaf-tafseer",
     title: "مصحف بالتفسير",
-    desc: "القراءة المعمقة مع عرض التفسير الميسر بجانب كل صفحة، مثالي لطلبة العلم والباحثين.",
-    color: "#16a34a",
-    glow: "rgba(22,163,74,0.3)",
-    dimGlow: "rgba(22,163,74,0.07)",
-    gradient: "linear-gradient(135deg, #001306 0%, #050e0a 60%, #050810 100%)",
-    lightGradient: "linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%)",
-    borderGrad: "linear-gradient(135deg, rgba(134,239,172,0.5), rgba(134,239,172,0.05))",
-    num: "03",
+    desc: "قراءة ممتعة مع عرض التفسير بجانب كل صفحة، مثالي لطلبة العلم والباحثين.",
+    colorClass: "text-[#1d4ed8] dark:text-[#60a5fa]",
+    bgGradientClass: "from-[#f0f7ff] to-white dark:from-zinc-900/60 dark:to-zinc-950/40",
+    borderClass: "border-[#1d4ed8]/20 dark:border-[#1d4ed8]/15",
+    hoverBorderClass: "hover:border-[#1d4ed8]/50 dark:hover:border-[#1d4ed8]/40",
+    shadowClass: "shadow-[0_15px_45px_-10px_rgba(29,78,216,0.06)] hover:shadow-[0_20px_50px_-5px_rgba(29,78,216,0.12)]",
+    icon: BookOpenIcon,
+    iconColor: "#1d4ed8"
   }
 ];
-
-// Floating particle component
-function FloatingParticles({ color }: { color: string }) {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {[...Array(12)].map((_, i) => (
-        <div
-          key={i}
-          className="mc-particle absolute rounded-full opacity-0"
-          style={{
-            width: `${Math.random() * 4 + 2}px`,
-            height: `${Math.random() * 4 + 2}px`,
-            background: color,
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
 
 export function MushafChoice() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const containerRef = useRef<HTMLDivElement>(null);
-  const badgeRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLDivElement>(null);
-  const subtitleRef = useRef<HTMLParagraphElement>(null);
-  const cardsRef = useRef<HTMLDivElement[]>([]);
-  const bgRef = useRef<HTMLDivElement>(null);
-  const orb1Ref = useRef<HTMLDivElement>(null);
-  const orb2Ref = useRef<HTMLDivElement>(null);
-  const orb3Ref = useRef<HTMLDivElement>(null);
-  const starsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    let ctx: any;
-    let mounted = true;
-
-    const initGSAP = async () => {
-      try {
-        const gsapModule = await import('gsap');
-        gsap = gsapModule.gsap || gsapModule.default;
-        const STModule = await import('gsap/ScrollTrigger');
-        ScrollTrigger = STModule.ScrollTrigger;
-        gsap.registerPlugin(ScrollTrigger);
-
-        if (!mounted || !containerRef.current) return;
-
-        ctx = gsap.context(() => {
-          // ── Timeline master ──
-          const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
-
-          // Fade in the outer container
-          tl.to(containerRef.current, { opacity: 1, duration: 0.3 });
-
-          // Background fade-in
-          tl.fromTo(bgRef.current,
-            { opacity: 0 },
-            { opacity: 1, duration: 0.8 },
-            "<"
-          );
-
-          // Ambient orbs float in
-          if (orb1Ref.current) {
-            gsap.to(orb1Ref.current, {
-              y: -30, x: 20,
-              duration: 8, repeat: -1, yoyo: true,
-              ease: 'sine.inOut'
-            });
-          }
-          if (orb2Ref.current) {
-            gsap.to(orb2Ref.current, {
-              y: 25, x: -15,
-              duration: 10, repeat: -1, yoyo: true,
-              ease: 'sine.inOut', delay: 2
-            });
-          }
-          if (orb3Ref.current) {
-            gsap.to(orb3Ref.current, {
-              y: -20, x: 10,
-              duration: 7, repeat: -1, yoyo: true,
-              ease: 'sine.inOut', delay: 1
-            });
-          }
-
-          // Particles floating animation
-          const particles = document.querySelectorAll('.mc-particle');
-          particles.forEach((p) => {
-            gsap.to(p, {
-              opacity: Math.random() * 0.6 + 0.1,
-              y: -(Math.random() * 60 + 30),
-              x: (Math.random() - 0.5) * 40,
-              duration: Math.random() * 4 + 3,
-              repeat: -1, yoyo: true,
-              ease: 'sine.inOut',
-              delay: Math.random() * 3
-            });
-          });
-
-          // Badge entrance
-          tl.fromTo(badgeRef.current,
-            { opacity: 0, y: -20, scale: 0.8 },
-            { opacity: 1, y: 0, scale: 1, duration: 0.7 },
-            0.3
-          );
-
-          // Title dramatic entrance
-          tl.fromTo(titleRef.current,
-            { opacity: 0, y: 40, filter: 'blur(12px)' },
-            { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1 },
-            0.5
-          );
-
-          // Subtitle
-          tl.fromTo(subtitleRef.current,
-            { opacity: 0, y: 20 },
-            { opacity: 1, y: 0, duration: 0.8 },
-            0.8
-          );
-
-          // Cards staggered entrance
-          cardsRef.current.forEach((card, i) => {
-            if (!card) return;
-            tl.fromTo(card,
-              { opacity: 0, y: 60, scale: 0.95, rotateX: 5 },
-              { opacity: 1, y: 0, scale: 1, rotateX: 0, duration: 0.9 },
-              0.9 + i * 0.15
-            );
-          });
-
-          // Continuous subtle title pulse
-          gsap.to(titleRef.current, {
-            textShadow: '0 0 40px rgba(212,175,55,0.6)',
-            duration: 2,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut',
-            delay: 2
-          });
-
-        }, containerRef);
-
-      } catch (e) {
-        // GSAP not installed yet — fallback CSS animations used
-        console.warn('GSAP not found. Run: npm install gsap');
-        if (containerRef.current) {
-          containerRef.current.style.opacity = '1';
-        }
-      }
-    };
-
-    initGSAP();
-
-    return () => {
-      mounted = false;
-      if (ctx) ctx.revert();
-    };
-  }, []);
-
-  const handleCardHover = async (index: number, entering: boolean) => {
-    const card = cardsRef.current[index];
-    if (!card || !gsap) return;
-    const mode = MODES[index];
-    const iconEl = card.querySelector('.mc-icon-container');
-    const numEl = card.querySelector('.mc-num');
-    const arrowEl = card.querySelector('.mc-arrow');
-    const glowEl = card.querySelector('.mc-glow');
-
-    if (entering) {
-      gsap.to(card, {
-        scale: 1.015,
-        boxShadow: isDark 
-          ? `0 0 60px ${mode.glow}, 0 20px 50px rgba(0,0,0,0.5)`
-          : `0 0 40px ${mode.glow}, 0 10px 30px rgba(0,0,0,0.05)`,
-        borderColor: mode.color + '80',
-        duration: 0.4, ease: 'power2.out'
-      });
-      if (iconEl) gsap.to(iconEl, { scale: 1.1, rotate: 5, duration: 0.5, ease: 'back.out(2)' });
-      if (numEl) gsap.to(numEl, { color: mode.color, scale: 1.1, duration: 0.3 });
-      if (arrowEl) gsap.to(arrowEl, { x: -6, opacity: 1, duration: 0.4, ease: 'power2.out' });
-      if (glowEl) gsap.to(glowEl, { opacity: 1, duration: 0.5 });
-    } else {
-      gsap.to(card, {
-        scale: 1,
-        boxShadow: isDark 
-          ? `0 0 0px rgba(0,0,0,0), 0 8px 30px rgba(0,0,0,0.3)`
-          : `0 0 0px rgba(0,0,0,0), 0 8px 30px rgba(0,0,0,0.05)`,
-        borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
-        duration: 0.4, ease: 'power2.out'
-      });
-      if (iconEl) gsap.to(iconEl, { scale: 1, rotate: 0, duration: 0.4, ease: 'power2.out' });
-      if (numEl) gsap.to(numEl, { color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', scale: 1, duration: 0.3 });
-      if (arrowEl) gsap.to(arrowEl, { x: 0, opacity: 0.4, duration: 0.3 });
-      if (glowEl) gsap.to(glowEl, { opacity: 0, duration: 0.4 });
-    }
-  };
 
   return (
-    <div
-      ref={containerRef}
-      style={{ opacity: 0 }}
-      className="relative w-full h-full overflow-y-auto no-scrollbar pb-24 flex flex-col items-center"
-    >
-      {/* ── Animated Background ── */}
-      <div ref={bgRef} className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-background" />
-        {/* Star field */}
-        <div ref={starsRef} className="absolute inset-0" style={{
-          background: isDark
-            ? 'radial-gradient(ellipse at 20% 20%, rgba(212,175,55,0.04) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(125,211,252,0.03) 0%, transparent 50%)'
-            : 'radial-gradient(ellipse at 20% 20%, rgba(212,175,55,0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(2,132,199,0.05) 0%, transparent 50%)'
-        }}/>
-        {/* Ambient orbs */}
-        <div ref={orb1Ref} className="absolute top-1/4 right-1/4 w-96 h-96 rounded-full pointer-events-none"
-          style={{ background: isDark ? 'radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(212,175,55,0.04) 0%, transparent 70%)', filter: 'blur(40px)' }}/>
-        <div ref={orb2Ref} className="absolute bottom-1/3 left-1/4 w-80 h-80 rounded-full pointer-events-none"
-          style={{ background: isDark ? 'radial-gradient(circle, rgba(125,211,252,0.05) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(2,132,199,0.03) 0%, transparent 70%)', filter: 'blur(50px)' }}/>
-        <div ref={orb3Ref} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none"
-          style={{ background: isDark ? 'radial-gradient(circle, rgba(134,239,172,0.03) 0%, transparent 60%)' : 'radial-gradient(circle, rgba(22,163,74,0.02) 0%, transparent 60%)', filter: 'blur(60px)' }}/>
-        {/* Grid lines */}
-        <div className="absolute inset-0 opacity-[0.025]" style={{
-          backgroundImage: isDark
-            ? 'linear-gradient(rgba(212,175,55,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(212,175,55,0.5) 1px, transparent 1px)'
-            : 'linear-gradient(rgba(212,175,55,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(212,175,55,0.2) 1px, transparent 1px)',
-          backgroundSize: '80px 80px'
-        }}/>
+    <div className="relative w-full h-full overflow-hidden flex flex-col items-center justify-between px-4 md:px-6 py-2.5">
+      
+      {/* ── Custom Theme Background Images ── */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        {/* Light Mode Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-500 opacity-100 dark:opacity-0"
+          style={{ backgroundImage: "url('/backgrounds/mushaf_choice_light.png')" }}
+        />
+        {/* Dark Mode Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-500 opacity-0 dark:opacity-100"
+          style={{ backgroundImage: "url('/backgrounds/mushaf_choice_dark.png')" }}
+        />
+        <div className="absolute inset-0 bg-black/[0.01] dark:bg-black/25 transition-colors duration-300" />
+        <div className="absolute inset-0 islamic-pattern opacity-[0.01] dark:opacity-[0.02] scale-110" />
       </div>
 
-      {/* ── Floating particles (gold) ── */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="mc-particle absolute rounded-full"
-            style={{
-              width: `${Math.random() * 3 + 1.5}px`,
-              height: `${Math.random() * 3 + 1.5}px`,
-              background: i % 3 === 0 ? '#d4af37' : i % 3 === 1 ? '#0284c7' : '#16a34a',
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              opacity: 0
-            }}
-          />
-        ))}
-      </div>
+      {/* ── Main Content Container ── */}
+      <div className="relative z-10 w-full max-w-2xl flex flex-col items-center gap-3 pt-2 md:pt-3 text-center">
+        
+        {/* ── Title Header (Directly matching the image layout) ── */}
+        <div className="space-y-1.5 max-w-2xl">
+          {/* Basmala Badge */}
+          <motion.div 
+            initial={{ opacity: 0, y: -15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-[#D4AF37]/8 border border-[#D4AF37]/20 text-[#B8860B] dark:text-[#D4AF37] font-arabic text-[9px] font-bold"
+          >
+            <span>✦ بسم الله الرحمن الرحيم ✦</span>
+          </motion.div>
 
-      {/* ── Main Content ── */}
-      <div className="relative z-10 w-full max-w-2xl px-5 pt-12 flex flex-col items-center gap-6">
-
-        {/* ── Badge ── */}
-        <div ref={badgeRef} className="flex items-center gap-2.5 px-5 py-2 rounded-full border"
-          style={{ background: 'rgba(212,175,55,0.07)', borderColor: 'rgba(212,175,55,0.2)' }}>
-          {/* Geometric Islamic star icon */}
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z"
-              fill="#d4af37" opacity="0.9"/>
-          </svg>
-          <span className="text-[10px] font-black text-amber-500/80 tracking-[0.25em] uppercase font-arabic">
-            رحلتك الإيمانية
-          </span>
-          <div className="w-1.5 h-1.5 rounded-full bg-amber-400/60 animate-pulse"/>
-        </div>
-
-        {/* ── Title ── */}
-        <div ref={titleRef} className="text-center">
-          <h1 className="text-[32px] md:text-[46px] font-black font-arabic leading-none tracking-tight"
-            style={{
-              backgroundImage: isDark
-                ? 'linear-gradient(180deg, #ffffff 20%, #d4af37 60%, #a08020 100%)'
-                : 'linear-gradient(180deg, #1e293b 20%, #b45309 60%, #78350f 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              textShadow: 'none',
-              filter: isDark ? 'drop-shadow(0 0 20px rgba(212,175,55,0.3))' : 'none'
-            }}>
+          {/* Heading */}
+          <motion.h1 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="text-xl md:text-2xl font-black font-arabic tracking-tight text-zinc-900 dark:text-zinc-50"
+          >
             اختر طريقة التلاوة
-          </h1>
-          {/* Underline ornament */}
-          <div className="flex items-center justify-center gap-3 mt-3">
-            <div className="h-px w-16" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.6))' }}/>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(212,175,55,0.5)">
-              <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z"/>
-            </svg>
-            <div className="h-px w-16" style={{ background: 'linear-gradient(90deg, rgba(212,175,55,0.6), transparent)' }}/>
+          </motion.h1>
+
+          {/* Subtitle */}
+          <motion.p 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.15 }}
+            className="text-zinc-500 dark:text-zinc-400 text-[10px] font-bold font-arabic leading-none"
+          >
+            صمّمت لك ثلاثة أوضاع متكاملة لرحلتك مع القرآن الكريم
+          </motion.p>
+
+          {/* Elegant geometric divider */}
+          <div className="flex items-center justify-center gap-1.5 pt-0.5 scale-75">
+            <div className="h-px w-12 bg-gradient-to-r from-transparent to-[#D4AF37]/35" />
+            <div className="w-3.5 h-3.5 rounded-full border border-[#D4AF37]/45 flex items-center justify-center rotate-45">
+              <div className="w-1 h-1 bg-[#D4AF37]" />
+            </div>
+            <div className="h-px w-12 bg-gradient-to-l from-transparent to-[#D4AF37]/35" />
           </div>
         </div>
 
-        {/* ── Subtitle ── */}
-        <p ref={subtitleRef} className="text-center font-arabic text-sm font-bold leading-loose max-w-sm text-foreground/45">
-          صمّمنا لك ثلاثة أوضاع متكاملة لرحلتك مع القرآن الكريم
-        </p>
-
-        {/* ── Cards ── */}
-        <div className="w-full flex flex-col gap-4 mt-2">
-          {MODES.map((mode, i) => (
-            <div
-              key={mode.href}
-              onClick={() => navigateInstantly(mode.href)}
-              ref={(el) => { if (el) cardsRef.current[i] = el as any; }}
-              onMouseEnter={() => handleCardHover(i, true)}
-              onMouseLeave={() => handleCardHover(i, false)}
-              className="block relative rounded-3xl overflow-hidden cursor-pointer"
-              style={{
-                background: isDark ? mode.gradient : mode.lightGradient,
-                border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)',
-                boxShadow: isDark ? '0 8px 30px rgba(0,0,0,0.3)' : '0 8px 30px rgba(0,0,0,0.03)',
-                opacity: 0
-              }}
-            >
-              {/* Glow overlay (shown on hover) */}
-              <div className="mc-glow absolute inset-0 pointer-events-none rounded-3xl" style={{
-                background: `radial-gradient(ellipse at 30% 50%, ${mode.dimGlow} 0%, transparent 70%)`,
-                opacity: 0
-              }}/>
-
-              {/* Top highlight line */}
-              <div className="absolute top-0 left-8 right-8 h-px" style={{
-                background: `linear-gradient(90deg, transparent, ${mode.color}40, transparent)`
-              }}/>
-
-              <div className="relative flex items-center gap-4 p-4 md:p-5">
-                {/* Number */}
-                <div className="mc-num absolute top-3 right-4 text-[10px] font-black font-mono"
-                  style={{ color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', letterSpacing: '0.1em' }}>
-                  {mode.num}
-                </div>
-
-                {/* Icon container */}
-                <div className="mc-icon-container shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl relative overflow-hidden"
+        {/* ── Three Reading Mode Cards (Stacked Vertically exactly like the image) ── */}
+        <div className="w-full flex flex-col gap-2.5 max-w-2xl">
+          {MODES.map((mode, idx) => {
+            const Icon = mode.icon;
+            
+            return (
+              <motion.div
+                key={mode.href}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 + idx * 0.08 }}
+                whileHover={{ scale: 1.01, y: -1 }}
+                onClick={() => navigateInstantly(mode.href)}
+                className={`relative w-full rounded-[18px] overflow-hidden bg-gradient-to-r ${mode.bgGradientClass} border-2 ${mode.borderClass} ${mode.hoverBorderClass} ${mode.shadowClass} p-3.5 md:p-4 flex items-center justify-between gap-5 cursor-pointer transition-all duration-300 group`}
+              >
+                {/* RTL Arrow button (left side) */}
+                <div 
+                  className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center border transition-all duration-300 group-hover:scale-105 active:scale-95`}
                   style={{
-                    background: `linear-gradient(135deg, ${mode.color}15, ${mode.color}05)`,
-                    border: `1px solid ${mode.color}25`
-                  }}>
-                  {/* Corner dots */}
-                  <div className="absolute top-2 right-2 w-1 h-1 rounded-full" style={{ background: mode.color, opacity: 0.4 }}/>
-                  <div className="absolute bottom-2 left-2 w-1 h-1 rounded-full" style={{ background: mode.color, opacity: 0.4 }}/>
-                  {/* SVG icon */}
-                  <div className="w-full h-full p-2"><MushafIcon color={mode.color} /></div>
+                    borderColor: `${mode.iconColor}25`,
+                    backgroundColor: `${mode.iconColor}06`,
+                    color: mode.iconColor
+                  }}
+                >
+                  <ChevronLeft className="w-5 h-5" />
                 </div>
 
-                {/* Text content */}
-                <div className="flex-1 text-right min-w-0 pt-1 md:pt-2">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-black font-arabic text-lg md:text-xl text-foreground leading-none">
-                      {mode.title}
-                    </h3>
-                  </div>
-                  <p className="text-[11px] md:text-xs font-arabic font-bold leading-relaxed text-foreground/45">
+                {/* Text Content (center, right-aligned) */}
+                <div className="flex-1 text-right space-y-0.5 min-w-0 pr-1">
+                  <h3 className={`text-base font-black font-arabic ${mode.colorClass} leading-none`}>
+                    {mode.title}
+                  </h3>
+                  <p className="text-[10px] md:text-[11px] text-zinc-500 dark:text-zinc-400 font-bold font-arabic leading-relaxed">
                     {mode.desc}
                   </p>
                 </div>
 
-                {/* Arrow indicator */}
-                <div className="mc-arrow shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
-                  style={{ background: mode.color + '15', opacity: 0.4 }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={mode.color} strokeWidth="2.5" strokeLinecap="round">
-                    <path d="M15 18l-6-6 6-6"/>
-                  </svg>
+                {/* Icon (right side) */}
+                <div 
+                  className="shrink-0 w-18 h-18 rounded-full border flex items-center justify-center relative overflow-hidden transition-all duration-500 group-hover:rotate-6 group-hover:scale-105"
+                  style={{
+                    borderColor: `${mode.iconColor}25`,
+                    backgroundColor: `${mode.iconColor}06`,
+                    color: mode.iconColor
+                  }}
+                >
+                  {/* Subtle circular background pattern */}
+                  <div className="absolute inset-0.5 rounded-full border border-dashed opacity-25" style={{ borderColor: mode.iconColor }} />
+                  <Icon color={mode.iconColor} />
                 </div>
-              </div>
-
-              {/* Bottom accent line */}
-              <div className="absolute bottom-0 right-0 w-1/3 h-px" style={{
-                background: `linear-gradient(90deg, transparent, ${mode.color}50)`
-              }}/>
-            </div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
 
-        {/* ── Footer Verse ── */}
-        <div className="mt-4 text-center">
-          <p className="font-arabic text-xs text-foreground" style={{ lineHeight: 2 }}>
-            ﴿ إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ ﴾
-          </p>
-          <p className="text-[10px] font-arabic text-foreground/20">
-            الإسراء: ٩
-          </p>
-        </div>
+        {/* ── Calligraphy Verse Card with Gold Frame (Bottom) ── */}
+        <motion.div 
+          initial={{ opacity: 0, y: 25 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.4 }}
+          className="w-full max-w-lg bg-white/40 dark:bg-zinc-950/20 border border-[#D4AF37]/20 rounded-full px-4 py-1.5 shadow-[0_8px_20px_rgba(212,175,55,0.03)] relative flex flex-col md:flex-row items-center justify-center gap-1.5 mb-1"
+        >
+          {/* Small decorative leaf vector branch graphics on sides */}
+          <div className="absolute right-4 text-[#D4AF37]/35 hidden md:block select-none scale-x-[-1] scale-75">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10V2M14 6c1.1 0 2 .9 2 2s-.9 2-2 2V6m0 6c1.1 0 2 .9 2 2s-.9 2-2 2v-4Z" />
+            </svg>
+          </div>
+          <div className="absolute left-4 text-[#D4AF37]/35 hidden md:block select-none scale-75">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10V2M14 6c1.1 0 2 .9 2 2s-.9 2-2 2V6m0 6c1.1 0 2 .9 2 2s-.9 2-2 2v-4Z" />
+            </svg>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            {/* Tiny open book icon */}
+            <span className="text-[#D4AF37] text-[10px]">📖</span>
+            <p className="text-[10px] md:text-xs font-arabic font-bold text-zinc-800 dark:text-zinc-200">
+              "كِتَابٌ أَنزَلْنَاهُ إِلَيْكَ مُبَارَكٌ لِّيَدَّبَّرُوا آيَاتِهِ وَلِيَتَذَكَّرَ أُولُو الْأَلْبَابِ"
+            </p>
+            <span className="text-[#D4AF37] text-[10px]">📖</span>
+          </div>
+
+          <span className="text-[8px] text-zinc-400 font-black tracking-wide font-arabic shrink-0">
+            (سورة ص - ٢٩)
+          </span>
+        </motion.div>
 
       </div>
     </div>

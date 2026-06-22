@@ -383,10 +383,10 @@ export function ChatBot() {
   const modalClassName = isFullPage
     ? "relative w-full h-full flex flex-col bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-900/50 rounded-none shadow-none"
     : isMobile
-      ? `fixed bottom-0 left-0 right-0 z-50 w-full h-[80vh] flex flex-col bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 rounded-t-3xl shadow-2xl transition-all duration-300 origin-bottom ${
+      ? `fixed bottom-0 left-0 right-0 z-[1100] w-full h-[80vh] flex flex-col bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 rounded-t-3xl shadow-2xl transition-all duration-300 origin-bottom ${
           isOpen ? 'translate-y-0 opacity-100 pointer-events-auto' : 'translate-y-full opacity-0 pointer-events-none'
         }`
-      : `fixed bottom-28 right-6 z-50 w-[350px] sm:w-[400px] max-h-[600px] flex flex-col bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl transition-all duration-500 origin-bottom-right ${
+      : `fixed bottom-28 right-6 z-[1100] w-[350px] sm:w-[400px] max-h-[600px] flex flex-col bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl transition-all duration-500 origin-bottom-right ${
           isOpen ? 'scale-100 opacity-100 pointer-events-auto' : 'scale-0 opacity-0 pointer-events-none'
         }`;
 
@@ -395,7 +395,7 @@ export function ChatBot() {
       {/* Floating Button (Hide in full page mode) */}
       {!isFullPage && (
         <motion.button
-          drag={!isMobile}
+          drag={true}
           dragConstraints={dragConstraints}
           dragMomentum={false}
           onDragStart={handleDragStart}
@@ -462,7 +462,7 @@ export function ChatBot() {
         </div>
 
         {/* Input */}
-        <form onSubmit={handleSubmit} className="p-3 border-t border-gray-200/50 dark:border-gray-800/50 bg-gray-50/50 dark:bg-gray-950/50 rounded-b-2xl shrink-0">
+        <form onSubmit={handleSubmit} className="p-3 pb-[calc(12px+env(safe-area-inset-bottom,0px))] border-t border-gray-200/50 dark:border-gray-800/50 bg-gray-50/50 dark:bg-gray-950/50 rounded-b-2xl shrink-0">
           <div className="relative flex items-center">
             <input
               type="text"
