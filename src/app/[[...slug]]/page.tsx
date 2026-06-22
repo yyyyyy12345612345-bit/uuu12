@@ -23,8 +23,9 @@ export async function generateStaticParams() {
     { slug: ['rank'] },
     { slug: ['profile'] },
     { slug: ['feed'] },
-    {slug: ['chat'] },
+    { slug: ['chat'] },
     { slug: ['chatbot'] },
+    { slug: ['mushaf-choice'] },
   ];
 }
 
