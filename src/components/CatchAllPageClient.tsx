@@ -180,6 +180,23 @@ function CatchAllContent() {
   return (
     <div className={`fixed inset-0 text-foreground flex flex-col w-full h-[100dvh] font-arabic overflow-hidden bg-background`}>
       
+      {/* ── Global Theme Background Images for specific views ── */}
+      {(activeView === 'daily' || activeView === 'feed' || activeView === 'rank') && (
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+          {/* Light Mode Background Image */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-500 opacity-100 dark:opacity-0"
+            style={{ backgroundImage: "url('https://res.cloudinary.com/dwxrjggkj/image/upload/v1782144601/light.jpg_x6zmwk.png')" }}
+          />
+          {/* Dark Mode Background Image */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-500 opacity-0 dark:opacity-100"
+            style={{ backgroundImage: "url('https://res.cloudinary.com/dwxrjggkj/image/upload/v1782144599/dark.jpg_jeabil.png')" }}
+          />
+          <div className="absolute inset-0 bg-black/[0.01] dark:bg-black/25 transition-colors duration-300" />
+        </div>
+      )}
+
       {/* Global Top Bar - Logo + Install + Feedback */}
       {activeView !== 'mushaf' && activeView !== 'mushaf-full' && activeView !== 'mushaf-tafseer' && (
         <header className="h-14 shrink-0 bg-transparent px-4 md:px-8 flex items-center justify-between z-[200]">
