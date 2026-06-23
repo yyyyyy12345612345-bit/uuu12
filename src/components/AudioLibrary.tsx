@@ -226,6 +226,40 @@ const getReciterAvatar = (id: string, name: string) => {
   return `https://mp3quran.net/images/profile/${code}.jpg`;
 };
 
+const ReciterAvatar = ({ src, name, className }: { src: string; name: string; className?: string }) => {
+  const [error, setError] = useState(false);
+
+  const initials = useMemo(() => {
+    if (!name) return "";
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    const filteredParts = parts.filter(p => p !== "الشيخ");
+    const p1 = filteredParts[0] || parts[0] || "";
+    const p2 = filteredParts[1] || parts[1] || "";
+    const char1 = p1 ? p1[0] : "";
+    const char2 = p2 ? p2[0] : "";
+    return (char1 + char2).substring(0, 2);
+  }, [name]);
+
+  const isImgur = src && src.includes("imgur.com");
+
+  if (error || isImgur || !src) {
+    return (
+      <div className={`flex items-center justify-center bg-gradient-to-br from-[#e2b43b]/20 to-[#e2b43b]/5 text-[#e2b43b] font-black text-xs select-none ${className}`}>
+        {initials}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={name}
+      className={`object-cover ${className}`}
+      onError={() => setError(true)}
+    />
+  );
+};
+
 export function AudioLibrary() {
   const [currentSurah, setCurrentSurah] = useState(surahsData[0]);
   const [selectedReciter, setSelectedReciter] = useState(RECITERS[0]);
@@ -613,18 +647,13 @@ export function AudioLibrary() {
                 >
                   <div className="flex items-center gap-2">
                     {/* Avatar */}
-                    <div className={`w-8.5 h-8.5 rounded-full overflow-hidden border transition-all ${
-                      isActive ? "border-[#e2b43b] scale-105" : "border-white/10 group-hover:border-white/20"
-                    }`}>
-                      <img
-                        src={rec.avatar}
-                        alt={rec.name}
-                        className="w-full h-full object-cover animate-fade-in"
-                        onError={(e) => {
-                          e.currentTarget.src = "https://i.imgur.com/b8vN3Kp.jpg";
-                        }}
-                      />
-                    </div>
+                    <ReciterAvatar
+                      src={rec.avatar}
+                      name={rec.name}
+                      className={`w-8.5 h-8.5 rounded-full border transition-all ${
+                        isActive ? "border-[#e2b43b] scale-105" : "border-white/10 group-hover:border-white/20"
+                      }`}
+                    />
 
                     {/* Meta */}
                     <div className="text-right">
@@ -665,146 +694,151 @@ export function AudioLibrary() {
         {/* ── COLUMN 2: CENTER PANEL (المشغل وقائمة السور) ── */}
         <div className="flex flex-col gap-4 overflow-y-auto no-scrollbar min-w-0">
 
-          {/* 1. Large Main Player Widget */}
-          <div className="relative rounded-2xl bg-gradient-to-b from-[#14151a] to-[#0b0c0f] border border-white/5 p-4 lg:p-5 overflow-hidden shadow-2xl flex flex-col md:flex-row items-center gap-4">
-            {/* Background pattern */}
-            <div className="absolute inset-0 islamic-pattern opacity-[0.01] pointer-events-none" />
+          {/* 1. Large Main Player Widget (Sticky) */}
+          <div className="sticky top-0 z-30 bg-[#0c0d10] pb-2 pt-1">
+            <div className="relative rounded-2xl bg-gradient-to-b from-[#14151a] to-[#0b0c0f] border border-white/5 p-4 lg:p-5 overflow-hidden shadow-2xl flex flex-col md:flex-row items-center gap-4">
+              {/* Background pattern */}
+              <div className="absolute inset-0 islamic-pattern opacity-[0.01] pointer-events-none" />
 
-            {/* Album image on the right (RTL) */}
-            <div className="relative w-20 h-20 lg:w-24 lg:h-24 rounded-2xl overflow-hidden border border-white/10 shadow-2xl shrink-0 group">
-              <img
-                src="https://images.unsplash.com/photo-1609599006353-e629ababfeae?auto=format&fit=crop&q=80&w=240&h=240"
-                alt="Quran"
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <Disc className={`w-6 h-6 text-[#e2b43b] ${isPlaying ? "animate-spin-slow" : ""}`} />
-              </div>
-            </div>
-
-            {/* Content info & Waveform player */}
-            <div className="flex-1 w-full text-center md:text-right flex flex-col gap-3">
-              <div>
-                <p className="text-[9px] font-black uppercase tracking-[0.25em] text-white/20 mb-0.5">جاري الاستماع الآن</p>
-                <h2 className="text-lg lg:text-xl font-black font-arabic text-white mb-1.5 leading-none">
-                  سورة {currentSurah.name}
-                </h2>
-                <div className="flex items-center justify-center md:justify-start gap-1.5 text-white/40 text-[10px] font-bold">
-                  <span className="text-[#e2b43b] font-black">{selectedReciter.name}</span>
-                  <span>•</span>
-                  <span>{currentSurah.total_verses} آية</span>
+              {/* Album image on the right (RTL) */}
+              <div className="relative w-20 h-20 lg:w-24 lg:h-24 rounded-2xl overflow-hidden border border-white/10 shadow-2xl shrink-0 group">
+                <img
+                  src="/quran_3d_hero.png"
+                  alt="Quran"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  onError={(e) => {
+                    e.currentTarget.src = "/logo/logo.png";
+                  }}
+                />
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <Disc className={`w-6 h-6 text-[#e2b43b] ${isPlaying ? "animate-spin-slow" : ""}`} />
                 </div>
               </div>
 
-              {/* Progress Slider & Waveform */}
-              <div className="space-y-1.5">
-                {/* Waveform Visualization (height reduced to h-6) */}
-                <div className="flex items-center justify-between gap-[2px] h-6 w-full" dir="ltr">
-                  {Array.from({ length: waveBarCount }).map((_, i) => {
-                    const isActive = (i / waveBarCount) * 100 <= progress;
-                    // Deterministic beautiful wave shape
-                    const height = 8 + Math.sin(i * 0.45) * 8 + (i % 4 === 0 ? 5 : 0);
-                    return (
-                      <div
-                        key={i}
-                        onClick={() => {
-                          const a = audioRef.current;
-                          if (a) {
-                            a.currentTime = (i / waveBarCount) * a.duration;
-                          }
-                        }}
-                        className={`w-[2.5px] rounded-full transition-all duration-300 cursor-pointer ${
-                          isActive
-                            ? "bg-[#e2b43b]"
-                            : "bg-white/10 hover:bg-white/20"
-                        }`}
-                        style={{ height: `${height}px` }}
-                      />
-                    );
-                  })}
+              {/* Content info & Waveform player */}
+              <div className="flex-1 w-full text-center md:text-right flex flex-col gap-3">
+                <div>
+                  <p className="text-[9px] font-black uppercase tracking-[0.25em] text-white/20 mb-0.5">جاري الاستماع الآن</p>
+                  <h2 className="text-lg lg:text-xl font-black font-arabic text-white mb-1.5 leading-none">
+                    سورة {currentSurah.name}
+                  </h2>
+                  <div className="flex items-center justify-center md:justify-start gap-1.5 text-white/40 text-[10px] font-bold">
+                    <span className="text-[#e2b43b] font-black">{selectedReciter.name}</span>
+                    <span>•</span>
+                    <span>{currentSurah.total_verses} آية</span>
+                  </div>
                 </div>
 
-                <div className="flex items-center justify-between text-[10px] font-black text-white/25 tabular-nums">
-                  <span>{fmt(currentTime)}</span>
-                  <span>{fmt(duration)}</span>
+                {/* Progress Slider & Waveform */}
+                <div className="space-y-1.5">
+                  {/* Waveform Visualization (height reduced to h-6) */}
+                  <div className="flex items-center justify-between gap-[2px] h-6 w-full" dir="ltr">
+                    {Array.from({ length: waveBarCount }).map((_, i) => {
+                      const isActive = (i / waveBarCount) * 100 <= progress;
+                      // Deterministic beautiful wave shape
+                      const height = 8 + Math.sin(i * 0.45) * 8 + (i % 4 === 0 ? 5 : 0);
+                      return (
+                        <div
+                          key={i}
+                          onClick={() => {
+                            const a = audioRef.current;
+                            if (a) {
+                              a.currentTime = (i / waveBarCount) * a.duration;
+                            }
+                          }}
+                          className={`w-[2.5px] rounded-full transition-all duration-300 cursor-pointer ${
+                            isActive
+                              ? "bg-[#e2b43b]"
+                              : "bg-white/10 hover:bg-white/20"
+                          }`}
+                          style={{ height: `${height}px` }}
+                        />
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex items-center justify-between text-[10px] font-black text-white/25 tabular-nums">
+                    <span>{fmt(currentTime)}</span>
+                    <span>{fmt(duration)}</span>
+                  </div>
                 </div>
-              </div>
 
-              {/* Actions row (Smaller paddings and icons) */}
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-0.5 border-t border-white/5 pt-3">
-                {/* Play Button */}
-                <button
-                  onClick={() => setIsPlaying(!isPlaying)}
-                  className="w-9 h-9 rounded-full bg-[#e2b43b] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-md shadow-[#e2b43b]/10 shrink-0"
-                >
-                  {isPlaying ? (
-                    <Pause className="w-4 h-4 fill-current" />
-                  ) : (
-                    <Play className="w-4 h-4 fill-current translate-x-[0.5px]" />
-                  )}
-                </button>
+                {/* Actions row (Smaller paddings and icons) */}
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-0.5 border-t border-white/5 pt-3">
+                  {/* Play Button */}
+                  <button
+                    onClick={() => setIsPlaying(!isPlaying)}
+                    className="w-9 h-9 rounded-full bg-[#e2b43b] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-md shadow-[#e2b43b]/10 shrink-0"
+                  >
+                    {isPlaying ? (
+                      <Pause className="w-4 h-4 fill-current" />
+                    ) : (
+                      <Play className="w-4 h-4 fill-current translate-x-[0.5px]" />
+                    )}
+                  </button>
 
-                {/* Controls */}
-                <button
-                  onClick={handlePrev}
-                  className="p-2 text-white/40 hover:text-white hover:bg-white/5 rounded-full transition-all active:scale-95"
-                >
-                  <SkipBack className="w-3.5 h-3.5 fill-current" />
-                </button>
-                <button
-                  onClick={handleNext}
-                  className="p-2 text-white/40 hover:text-white hover:bg-white/5 rounded-full transition-all active:scale-95"
-                >
-                  <SkipForward className="w-3.5 h-3.5 fill-current" />
-                </button>
-                <button
-                  onClick={() => setIsShuffle(!isShuffle)}
-                  className={`p-2 rounded-full transition-all ${isShuffle ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-white/30 hover:text-white"}`}
-                >
-                  <Shuffle className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => setIsRepeat(!isRepeat)}
-                  className={`p-2 rounded-full transition-all ${isRepeat ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-white/30 hover:text-white"}`}
-                >
-                  <Repeat className="w-3.5 h-3.5" />
-                </button>
+                  {/* Controls */}
+                  <button
+                    onClick={handlePrev}
+                    className="p-2 text-white/40 hover:text-white hover:bg-white/5 rounded-full transition-all active:scale-95"
+                  >
+                    <SkipBack className="w-3.5 h-3.5 fill-current" />
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    className="p-2 text-white/40 hover:text-white hover:bg-white/5 rounded-full transition-all active:scale-95"
+                  >
+                    <SkipForward className="w-3.5 h-3.5 fill-current" />
+                  </button>
+                  <button
+                    onClick={() => setIsShuffle(!isShuffle)}
+                    className={`p-2 rounded-full transition-all ${isShuffle ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-white/30 hover:text-white"}`}
+                  >
+                    <Shuffle className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setIsRepeat(!isRepeat)}
+                    className={`p-2 rounded-full transition-all ${isRepeat ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-white/30 hover:text-white"}`}
+                  >
+                    <Repeat className="w-3.5 h-3.5" />
+                  </button>
 
-                <div className="h-5 w-px bg-white/5 mx-1" />
+                  <div className="h-5 w-px bg-white/5 mx-1" />
 
-                {/* Extra actions */}
-                <button
-                  onClick={handleShare}
-                  className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-[10px] font-black transition-all flex items-center gap-1.5 border border-white/5"
-                >
-                  <Share2 className="w-3 h-3" />
-                  <span>مشاركة</span>
-                </button>
+                  {/* Extra actions */}
+                  <button
+                    onClick={handleShare}
+                    className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-[10px] font-black transition-all flex items-center gap-1.5 border border-white/5"
+                  >
+                    <Share2 className="w-3 h-3" />
+                    <span>مشاركة</span>
+                  </button>
 
-                <button
-                  onClick={() => toggleFavorite(currentSurah.id)}
-                  className={`px-2.5 py-1.5 rounded-xl text-[10px] font-black transition-all flex items-center gap-1.5 border ${
-                    favorites.includes(currentSurah.id)
-                      ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
-                      : "bg-white/5 border-white/5 text-white/60 hover:text-white"
-                  }`}
-                >
-                  <Heart className={`w-3 h-3 ${favorites.includes(currentSurah.id) ? "fill-current" : ""}`} />
-                  <span>المفضلة</span>
-                </button>
+                  <button
+                    onClick={() => toggleFavorite(currentSurah.id)}
+                    className={`px-2.5 py-1.5 rounded-xl text-[10px] font-black transition-all flex items-center gap-1.5 border ${
+                      favorites.includes(currentSurah.id)
+                        ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
+                        : "bg-white/5 border-white/5 text-white/60 hover:text-white"
+                    }`}
+                  >
+                    <Heart className={`w-3 h-3 ${favorites.includes(currentSurah.id) ? "fill-current" : ""}`} />
+                    <span>المفضلة</span>
+                  </button>
 
-                <button
-                  onClick={downloadSurah}
-                  className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-[10px] font-black transition-all flex items-center gap-1.5 border border-white/5"
-                >
-                  <Download className="w-3 h-3" />
-                  <span>تحميل</span>
-                </button>
+                  <button
+                    onClick={downloadSurah}
+                    className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-[10px] font-black transition-all flex items-center gap-1.5 border border-white/5"
+                  >
+                    <Download className="w-3 h-3" />
+                    <span>تحميل</span>
+                  </button>
 
-                {/* HQ Indicator */}
-                <div className="mr-auto flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#e2b43b]/10 border border-[#e2b43b]/20 text-[#e2b43b] text-[9px] font-black tracking-wider">
-                  <span>HQ</span>
-                  <ChevronDown className="w-2.5 h-2.5" />
+                  {/* HQ Indicator */}
+                  <div className="mr-auto flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#e2b43b]/10 border border-[#e2b43b]/20 text-[#e2b43b] text-[9px] font-black tracking-wider">
+                    <span>HQ</span>
+                    <ChevronDown className="w-2.5 h-2.5" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -975,10 +1009,10 @@ export function AudioLibrary() {
         <aside className="hidden lg:flex flex-col gap-4 overflow-y-auto no-scrollbar">
 
           {/* 1. Navigation / Filters Card */}
-          <div className="rounded-2xl bg-[#121318]/50 border border-white/5 p-4 flex flex-col gap-1 shadow-xl">
-            <div className="flex items-center justify-end gap-2 px-2 py-1 text-white/40 mb-1 border-b border-white/5 pb-2">
-              <span className="text-[11px] font-black font-arabic">صوتيات القرآن</span>
-              <Headphones className="w-3.5 h-3.5 text-[#e2b43b]" />
+          <div className="rounded-2xl bg-[#121318]/50 border border-white/5 p-3 flex flex-col gap-0.5 shadow-xl">
+            <div className="flex items-center justify-end gap-2 px-2 py-0.5 text-white/40 mb-0.5 border-b border-white/5 pb-1.5">
+              <span className="text-[10px] font-black font-arabic">صوتيات القرآن</span>
+              <Headphones className="w-3 h-3 text-[#e2b43b]" />
             </div>
 
             {[
@@ -996,14 +1030,14 @@ export function AudioLibrary() {
                     if (action) action();
                     else if (key !== "playlist") setActiveTab(key as any);
                   }}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-black transition-all text-right ${
+                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[10px] font-black transition-all text-right ${
                     active
                       ? "bg-[#e2b43b] text-black shadow-md shadow-[#e2b43b]/10"
                       : "text-white/50 hover:text-white hover:bg-white/[0.01]"
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <Icon className="w-3.5 h-3.5 shrink-0" />
+                    <Icon className="w-3 h-3 shrink-0" />
                     <span>{label}</span>
                   </div>
                 </button>
@@ -1137,7 +1171,7 @@ export function AudioLibrary() {
               <div className="w-7 h-7 rounded-full bg-[#e2b43b]/10 flex items-center justify-center text-[#e2b43b] shadow-inner">
                 <Crown className="w-3.5 h-3.5" />
               </div>
-              <span className="text-[9px] font-black text-[#e2b43b] uppercase tracking-[0.25em]">دعم استمرارية يقين</span>
+              <span className="text-[9px] font-black text-[#e2b43b] uppercase">دعم استمرارية يقين</span>
             </div>
 
             <div className="text-right space-y-1">
@@ -1303,18 +1337,13 @@ export function AudioLibrary() {
                         }`}
                       >
                         {/* Sheikh photo/avatar in the selection drawer */}
-                        <div className={`w-8 h-8 rounded-full overflow-hidden border shrink-0 ${
-                          isSel ? "border-[#e2b43b]" : "border-white/10"
-                        }`}>
-                          <img
-                            src={getReciterAvatar(rec.id, rec.name)}
-                            alt={rec.name}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.src = "https://i.imgur.com/b8vN3Kp.jpg";
-                            }}
-                          />
-                        </div>
+                        <ReciterAvatar
+                          src={getReciterAvatar(rec.id, rec.name)}
+                          name={rec.name}
+                          className={`w-8 h-8 rounded-full border shrink-0 ${
+                            isSel ? "border-[#e2b43b]" : "border-white/10"
+                          }`}
+                        />
                         <span className="text-xs font-black flex-1 truncate">{rec.name}</span>
                         {isSel && <div className="w-2 h-2 rounded-full bg-[#e2b43b] shrink-0" />}
                       </button>
