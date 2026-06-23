@@ -618,9 +618,9 @@ export function AudioLibrary() {
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-[250px_1fr_280px] gap-4 p-3 lg:p-4 overflow-hidden h-full">
 
         {/* ── COLUMN 1: LEFT SIDEBAR (الشيوخ) ── */}
-        <aside className="hidden lg:flex flex-col gap-3 p-3 rounded-2xl bg-[#0e0f12]/50 border border-white/5 overflow-y-auto no-scrollbar">
+        <aside className="hidden lg:flex flex-col gap-3 p-3 rounded-2xl bg-[#0e0f12]/50 border border-white/5 h-full overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between py-0.5 relative">
+          <div className="flex items-center justify-between py-0.5 relative shrink-0">
             <div className="absolute right-0 left-0 top-1/2 h-px bg-white/5 -z-10" />
             <div className="bg-[#0f1015] px-3 mx-auto flex items-center gap-1.5 text-white/60">
               <span className="text-[10px] font-black tracking-wider font-arabic">الشيوخ</span>
@@ -628,16 +628,34 @@ export function AudioLibrary() {
             </div>
           </div>
 
-          {/* List */}
-          <div className="flex-col flex gap-1.5 flex-1">
-            {recitersToShow.map((rec) => {
+          {/* Search Input for Reciters */}
+          <div className="relative shrink-0">
+            <Search className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-white/20 pointer-events-none" />
+            <input
+              type="text"
+              value={reciterSearch}
+              onChange={e => setReciterSearch(e.target.value)}
+              placeholder="ابحث عن قارئ..."
+              className="w-full bg-[#121318]/50 border border-white/5 rounded-lg py-1.5 pr-8 pl-3 text-[10px] outline-none focus:border-[#e2b43b]/40 focus:bg-[#121318] transition-all placeholder:text-white/20 text-white font-bold text-right"
+            />
+            {reciterSearch && (
+              <button onClick={() => setReciterSearch("")} className="absolute left-2.5 top-1/2 -translate-y-1/2">
+                <X className="w-3 h-3 text-white/40 hover:text-white" />
+              </button>
+            )}
+          </div>
+
+          {/* Scrollable Reciters List */}
+          <div className="flex-1 overflow-y-auto no-scrollbar flex flex-col gap-1.5 pr-0.5">
+            {filteredReciters.map((rec) => {
               const isActive = selectedReciter.id === rec.id;
+              const popular = POPULAR_RECITERS.find(p => p.id === rec.id);
+              const listens = popular ? popular.listens : "مخصص";
               return (
                 <div
                   key={rec.id}
                   onClick={() => {
-                    const matched = RECITERS.find(r => r.id === rec.id);
-                    if (matched) setSelectedReciter(matched);
+                    setSelectedReciter(rec);
                   }}
                   className={`group flex items-center justify-between p-2 rounded-xl cursor-pointer transition-all duration-300 ${
                     isActive
@@ -648,7 +666,7 @@ export function AudioLibrary() {
                   <div className="flex items-center gap-2">
                     {/* Avatar */}
                     <ReciterAvatar
-                      src={rec.avatar}
+                      src={getReciterAvatar(rec.id, rec.name)}
                       name={rec.name}
                       className={`w-8.5 h-8.5 rounded-full border transition-all ${
                         isActive ? "border-[#e2b43b] scale-105" : "border-white/10 group-hover:border-white/20"
@@ -660,7 +678,9 @@ export function AudioLibrary() {
                       <p className={`text-[11px] font-black transition-colors ${isActive ? "text-[#e2b43b]" : "text-white/80 group-hover:text-white"}`}>
                         {rec.name.split(" ").slice(0, 3).join(" ")}
                       </p>
-                      <p className="text-[9px] text-white/25 font-bold mt-0.5">استماع {rec.listens}</p>
+                      {popular && (
+                        <p className="text-[9px] text-white/25 font-bold mt-0.5">استماع {listens}</p>
+                      )}
                     </div>
                   </div>
 
@@ -680,22 +700,14 @@ export function AudioLibrary() {
               );
             })}
           </div>
-
-          {/* Show More */}
-          <button
-            onClick={() => setShowReciters(true)}
-            className="w-full py-2 bg-white/5 hover:bg-white/10 text-white/50 hover:text-white rounded-xl text-[10px] font-black tracking-wider transition-all flex items-center justify-center gap-1.5 border border-white/5 active:scale-95"
-          >
-            <span>عرض المزيد</span>
-            <ChevronDown className="w-3 h-3" />
-          </button>
         </aside>
 
         {/* ── COLUMN 2: CENTER PANEL (المشغل وقائمة السور) ── */}
         <div className="flex flex-col gap-4 overflow-y-auto no-scrollbar min-w-0">
 
-          {/* 1. Large Main Player Widget (Sticky) */}
-          <div className="sticky top-0 z-30 bg-[#0c0d10] pb-2 pt-1">
+          {/* 1. Sticky Player, Search & Filters Section */}
+          <div className="sticky top-0 z-30 bg-[#0c0d10] pb-3 pt-1 flex flex-col gap-3 shadow-sm">
+            {/* Large Main Player Widget */}
             <div className="relative rounded-2xl bg-gradient-to-b from-[#14151a] to-[#0b0c0f] border border-white/5 p-4 lg:p-5 overflow-hidden shadow-2xl flex flex-col md:flex-row items-center gap-4">
               {/* Background pattern */}
               <div className="absolute inset-0 islamic-pattern opacity-[0.01] pointer-events-none" />
@@ -834,6 +846,30 @@ export function AudioLibrary() {
                     <span>تحميل</span>
                   </button>
 
+                  <button
+                    onClick={toggleSleepTimer}
+                    className={`px-2.5 py-1.5 rounded-xl text-[10px] font-black transition-all flex items-center gap-1.5 border ${
+                      sleepTimeLeft !== null
+                        ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
+                        : "bg-white/5 border-white/5 text-white/60 hover:text-white"
+                    }`}
+                  >
+                    <Timer className="w-3.5 h-3.5" />
+                    <span>{sleepTimeLeft !== null ? fmt(sleepTimeLeft) : "موقت إيقاف"}</span>
+                  </button>
+
+                  <button
+                    onClick={togglePlaybackSpeed}
+                    className={`px-2.5 py-1.5 rounded-xl text-[10px] font-black transition-all flex items-center gap-1.5 border ${
+                      playbackSpeed !== 1.0
+                        ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
+                        : "bg-white/5 border-white/5 text-white/60 hover:text-white"
+                    }`}
+                  >
+                    <Gauge className="w-3.5 h-3.5" />
+                    <span>{playbackSpeed.toFixed(2)}x</span>
+                  </button>
+
                   {/* HQ Indicator */}
                   <div className="mr-auto flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#e2b43b]/10 border border-[#e2b43b]/20 text-[#e2b43b] text-[9px] font-black tracking-wider">
                     <span>HQ</span>
@@ -842,12 +878,9 @@ export function AudioLibrary() {
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* 2. Surah Table & Search Panel */}
-          <div className="flex flex-col gap-3">
             {/* Search and Filters row */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#0c0d10] py-1">
               {/* Search Bar */}
               <div className="relative flex-1">
                 <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20 pointer-events-none" />
@@ -908,7 +941,10 @@ export function AudioLibrary() {
                 </button>
               </div>
             </div>
+          </div>
 
+          {/* 2. Surah Table */}
+          <div className="flex flex-col gap-3">
             {/* Surah List Table (tightened paddings py-2.5) */}
             <div className="rounded-2xl bg-[#121318]/20 border border-white/5 overflow-hidden">
               {/* Header */}
@@ -1045,120 +1081,7 @@ export function AudioLibrary() {
             })}
           </div>
 
-          {/* 2. Mini Player Widget (جاري الاستماع) */}
-          <div className="rounded-2xl bg-[#121318]/50 border border-white/5 p-4 flex flex-col gap-3 shadow-xl text-center">
-            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/20">جاري الاستماع</span>
 
-            {/* Circular Progress & Disc */}
-            <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-              {/* Outer Circular SVG Progress */}
-              <svg className="absolute inset-0 w-full h-full -rotate-90">
-                <circle
-                  cx="40" cy="40" r={miniRadius}
-                  className="stroke-white/5 fill-none"
-                  strokeWidth="3"
-                />
-                <circle
-                  cx="40" cy="40" r={miniRadius}
-                  className="stroke-[#e2b43b] fill-none transition-all duration-300"
-                  strokeWidth="3"
-                  strokeDasharray={miniCircumference}
-                  strokeDashoffset={miniStrokeDashoffset}
-                  strokeLinecap="round"
-                />
-              </svg>
-              {/* Inner CD Disc Cover */}
-              <div className="w-12 h-12 rounded-full bg-[#1c1e24] flex items-center justify-center border border-white/10 shadow-inner overflow-hidden relative">
-                <div className="absolute inset-0 islamic-pattern opacity-10 pointer-events-none" />
-                <Disc className={`w-6 h-6 text-[#e2b43b]/50 ${isPlaying ? "animate-spin-slow" : ""}`} />
-                <div className="absolute w-2.5 h-2.5 bg-[#0c0d10] rounded-full border border-white/10" />
-              </div>
-            </div>
-
-            {/* Info */}
-            <div className="px-1">
-              <h4 className="text-xs font-black font-arabic text-white leading-tight">
-                سورة {currentSurah.name}
-              </h4>
-              <p className="text-[9px] text-white/35 font-bold mt-0.5">{selectedReciter.name}</p>
-            </div>
-
-            {/* Timeline simple bar */}
-            <div className="px-1 space-y-1">
-              <div className="relative w-full h-0.5 bg-white/5 rounded-full overflow-hidden">
-                <div className="absolute inset-y-0 right-0 bg-[#e2b43b] rounded-full" style={{ width: `${progress}%` }} />
-              </div>
-              <div className="flex items-center justify-between text-[9px] font-black text-white/20 tabular-nums">
-                <span>{fmt(currentTime)}</span>
-                <span>{fmt(duration)}</span>
-              </div>
-            </div>
-
-            {/* Mini Player Controls */}
-            <div className="flex items-center justify-center gap-2">
-              <button
-                onClick={() => setIsShuffle(!isShuffle)}
-                className={`p-1.5 rounded-full transition-all ${isShuffle ? "text-[#e2b43b]" : "text-white/25 hover:text-white"}`}
-              >
-                <Shuffle className="w-3 h-3" />
-              </button>
-              <button
-                onClick={handlePrev}
-                className="p-1.5 text-white/40 hover:text-white transition-colors active:scale-95"
-              >
-                <SkipBack className="w-3.5 h-3.5 fill-current" />
-              </button>
-              <button
-                onClick={() => setIsPlaying(!isPlaying)}
-                className="w-8 h-8 rounded-full bg-[#e2b43b] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-md shadow-[#e2b43b]/10 shrink-0"
-              >
-                {isPlaying ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current translate-x-[0.5px]" />}
-              </button>
-              <button
-                onClick={handleNext}
-                className="p-1.5 text-white/40 hover:text-white transition-colors active:scale-95"
-              >
-                <SkipForward className="w-3.5 h-3.5 fill-current" />
-              </button>
-              <button
-                onClick={() => setIsRepeat(!isRepeat)}
-                className={`p-1.5 rounded-full transition-all ${isRepeat ? "text-[#e2b43b]" : "text-white/25 hover:text-white"}`}
-              >
-                <Repeat className="w-3 h-3" />
-              </button>
-            </div>
-
-            {/* Settings Rows */}
-            <div className="border-t border-white/5 pt-2 flex flex-col gap-1.5">
-              {/* Sleep Timer */}
-              <div className="flex items-center justify-between text-[11px] px-1 text-right">
-                <div className="flex items-center gap-1.5 text-white/35 font-bold">
-                  <Timer className="w-3.5 h-3.5" />
-                  <span>موقت إيقاف</span>
-                </div>
-                <button
-                  onClick={toggleSleepTimer}
-                  className="font-black text-[#e2b43b] bg-[#e2b43b]/10 hover:bg-[#e2b43b]/20 px-2 py-1 rounded-lg transition-all border border-[#e2b43b]/10 active:scale-95 text-[10px]"
-                >
-                  {sleepTimeLeft !== null ? fmt(sleepTimeLeft) : "إيقاف"}
-                </button>
-              </div>
-
-              {/* Playback speed */}
-              <div className="flex items-center justify-between text-[11px] px-1 text-right">
-                <div className="flex items-center gap-1.5 text-white/35 font-bold">
-                  <Gauge className="w-3.5 h-3.5" />
-                  <span>سرعة الصوت</span>
-                </div>
-                <button
-                  onClick={togglePlaybackSpeed}
-                  className="font-black text-[#e2b43b] bg-[#e2b43b]/10 hover:bg-[#e2b43b]/20 px-2 py-1 rounded-lg transition-all border border-[#e2b43b]/10 active:scale-95 text-[10px]"
-                >
-                  {playbackSpeed.toFixed(2)}x
-                </button>
-              </div>
-            </div>
-          </div>
 
           {/* 3. Support Card (دعم تطبيق يقين) */}
           <div className="relative rounded-2xl bg-gradient-to-br from-[#1b1712] to-[#0c0d10] border border-[#e2b43b]/20 p-4 flex flex-col gap-3 shadow-xl overflow-hidden group">
