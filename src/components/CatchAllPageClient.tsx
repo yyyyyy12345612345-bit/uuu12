@@ -294,7 +294,7 @@ function CatchAllContent() {
         )}
 
         {visited.feed && (
-          <div key="feed" className={`h-full w-full bg-transparent ${activeView === 'feed' ? 'block view-transition' : 'hidden'}`}>
+          <div key="feed" className={`h-full w-full pb-20 bg-transparent ${activeView === 'feed' ? 'block view-transition' : 'hidden'}`}>
             <SocialFeed />
           </div>
         )}
@@ -351,7 +351,7 @@ function CatchAllContent() {
         )}
       </main>
 
-      {activeView !== 'feed' && <Navigation />}
+      <Navigation />
 
       {isMobileControlsOpen && (
         <div className="fixed inset-0 z-[300] lg:hidden">

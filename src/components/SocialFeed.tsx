@@ -1184,51 +1184,6 @@ export function SocialFeed() {
           </div>
         </div>
 
-        {/* Center: Navigation Tabs (Hidden on small mobile, flex on md+) */}
-        <nav className="hidden md:flex items-center gap-4 lg:gap-6">
-          <button
-            onClick={() => navigateInstantly("/rank")}
-            className="flex items-center gap-2 py-2 px-3 text-xs font-black text-white/40 hover:text-white transition-colors"
-          >
-            <User className="w-4 h-4" />
-            <span>الأصدقاء</span>
-          </button>
-
-          <button
-            onClick={() => {
-              setSelectedGroupId(null);
-              setSelectedCategory("all");
-              setActiveMobileTab("groups");
-            }}
-            className="flex items-center gap-2 py-2 px-3 text-xs font-black text-white/40 hover:text-white transition-colors"
-          >
-            <Folder className="w-4 h-4" />
-            <span>المجموعات</span>
-          </button>
-
-          <button
-            className="flex items-center gap-2 py-2 px-4.5 text-xs font-black text-[#fbbf24] border-b-2 border-[#fbbf24] transition-colors"
-          >
-            <Users className="w-4 h-4 text-[#fbbf24]" />
-            <span>المجتمع</span>
-          </button>
-
-          <button
-            onClick={() => navigateInstantly("/daily")}
-            className="flex items-center gap-2 py-2 px-3 text-xs font-black text-white/40 hover:text-white transition-colors"
-          >
-            <FileText className="w-4 h-4" />
-            <span>المواضيع</span>
-          </button>
-
-          <button
-            onClick={() => navigateInstantly("/")}
-            className="flex items-center gap-2 py-2 px-3 text-xs font-black text-white/40 hover:text-white transition-colors"
-          >
-            <Home className="w-4 h-4" />
-            <span>الرئيسية</span>
-          </button>
-        </nav>
 
         {/* Right: Logo & Branding */}
         <div className="flex items-center gap-2 md:gap-3">
