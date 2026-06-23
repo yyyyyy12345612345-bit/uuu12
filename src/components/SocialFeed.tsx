@@ -2504,7 +2504,7 @@ export function SocialFeed() {
               <p className="text-[9px] text-white/40 font-bold mt-1 leading-relaxed">ساهم في نشر الخير واكسب الأجر</p>
               
               <button
-                onClick={() => alert("ميزة دعم المشروع عبر البوابات المالية ستكون متوفرة قريباً، نسألكم الدعاء بظهر الغيب! 🤲")}
+                onClick={() => window.dispatchEvent(new CustomEvent('open_subscription_modal'))}
                 className="mt-3.5 px-4 py-2 bg-gradient-to-r from-[#fbbf24] to-[#d4af37] text-black rounded-xl text-[10px] font-black hover:scale-105 active:scale-95 transition-all shadow-md"
               >
                 ادعم الآن

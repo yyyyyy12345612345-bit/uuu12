@@ -2680,6 +2680,9 @@ export function AdminPanel() {
                                   {r.platformLink && (
                                     <a href={r.platformLink} target="_blank" rel="noreferrer" className="text-[10px] text-sky-400 hover:underline block text-right truncate max-w-[140px]">🔗 رابط المنصة</a>
                                   )}
+                                  {r.proofLink && (
+                                    <a href={r.proofLink} target="_blank" rel="noreferrer" className="text-[10px] text-emerald-400 hover:underline block text-right truncate max-w-[140px]">📄 ملف إثبات التحويل</a>
+                                  )}
                                   {r.note && (
                                     <p className="text-[10px] text-amber-400/70">📝 {r.note}</p>
                                   )}

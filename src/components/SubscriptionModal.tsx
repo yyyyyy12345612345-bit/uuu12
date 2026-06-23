@@ -584,6 +584,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                   </label>
                   <input
                     required
+                    type="url"
                     value={formData.proofLink}
                     onChange={e => setFormData({ ...formData, proofLink: e.target.value })}
                     className="w-full bg-white/5 border-2 border-white/5 rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/50 transition-all font-bold text-white shadow-xl text-sm hover:bg-white/[0.07]"
