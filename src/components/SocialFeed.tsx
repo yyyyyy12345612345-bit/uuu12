@@ -6,14 +6,14 @@ import {
   Loader2, User, EyeOff, X, AlertCircle, Bookmark, BookmarkCheck,
   Crown, Star, Sparkles, BookOpen, HandHeart, Award, Users, Search,
   Trophy, Shield, Ban, Flag, Check, Image as ImageIcon, Video, HelpCircle,
-  FileText, ArrowRight, Sparkle, UserCheck
+  FileText, ArrowRight, Sparkle, UserCheck, UserPlus, LogOut, Info
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { db, auth } from "@/lib/firebase";
 import {
   collection, addDoc, getDocs, query, orderBy, limit, startAfter,
   doc, deleteDoc, updateDoc, increment, serverTimestamp, getDoc,
-  setDoc, arrayUnion, arrayRemove
+  setDoc, arrayUnion, arrayRemove, onSnapshot, where
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { checkAndAwardBadges } from "@/lib/badges";
@@ -125,6 +125,9 @@ interface Post {
   reactions?: Record<string, number>;
   isBlocked?: boolean;
   
+  // Group association
+  groupId?: string;
+
   // Reflection fields
   isReflection?: boolean;
   verseKey?: string;
@@ -160,6 +163,16 @@ interface Comment {
   likesCount?: number;
 }
 
+interface RealGroup {
+  id: string;
+  name: string;
+  description: string;
+  memberCount: number;
+  category: string;
+  creatorId: string;
+  createdAt: any;
+}
+
 const CATEGORIES = [
   { id: "all", label: "الكل", icon: Users },
   { id: "dua", label: "أدعية 🤲", icon: HandHeart },
@@ -169,13 +182,6 @@ const CATEGORIES = [
   { id: "saved", label: "المحفوظات 🔖", icon: Bookmark }
 ];
 
-const THEMES = [
-  { id: "glass", label: "افتراضي", class: "bg-card/60 backdrop-blur-xl border border-border/50 text-foreground" },
-  { id: "gold", label: "ذهبي فاخر ✨", class: "bg-gradient-to-br from-[#1c160c] via-[#0c0d10] to-[#1c160c] border border-[#fbbf24]/30 shadow-[0_15px_30px_rgba(251,191,36,0.08)] text-white" },
-  { id: "emerald", label: "زمردي إسلامي 🌿", class: "bg-gradient-to-br from-[#0a1c14] via-[#0c0d10] to-[#0a1c14] border border-emerald-500/30 shadow-[0_15px_30px_rgba(16,185,129,0.08)] text-white" },
-  { id: "midnight", label: "ليلي براق 🌙", class: "bg-gradient-to-br from-[#0c1328] via-[#0c0d10] to-[#0c1328] border border-sky-500/30 shadow-[0_15px_30px_rgba(14,165,233,0.08)] text-white" }
-];
-
 const REACTION_EMOJIS = [
   { type: "like", emoji: "❤️", label: "أعجبني" },
   { type: "amin", emoji: "🤲", label: "آمين" },
@@ -183,13 +189,19 @@ const REACTION_EMOJIS = [
   { type: "reflected", emoji: "📖", label: "تدبرت" }
 ];
 
-// Mock database fallbacks matching design images
-const MOCK_GROUPS = [
-  { id: "g1", name: "محبي القرآن الكريم", count: "12.5K عضو", gradient: "from-emerald-500/20 to-teal-500/10 border-emerald-500/30 text-emerald-400", icon: BookOpen },
-  { id: "g2", name: "أذكار وأدعية", count: "8.3K عضو", gradient: "from-cyan-500/20 to-blue-500/10 border-cyan-500/30 text-cyan-400", icon: HandHeart },
-  { id: "g3", name: "تفسير وعلوم القرآن", count: "7.1K عضو", gradient: "from-amber-500/20 to-yellow-500/10 border-amber-500/30 text-amber-400", icon: Award },
-  { id: "g4", name: "المسلمون الجدد", count: "5.4K عضو", gradient: "from-purple-500/20 to-indigo-500/10 border-purple-500/30 text-purple-400", icon: Users }
-];
+// Styling configuration mapping for real group categories
+const getGroupStyle = (category: string) => {
+  switch (category) {
+    case "reflection":
+      return { gradient: "from-emerald-500/20 to-teal-500/10 border-emerald-500/30 text-emerald-400", icon: BookOpen };
+    case "dua":
+      return { gradient: "from-cyan-500/20 to-blue-500/10 border-cyan-500/30 text-cyan-400", icon: HandHeart };
+    case "hadith":
+      return { gradient: "from-amber-500/20 to-yellow-500/10 border-amber-500/30 text-amber-400", icon: Award };
+    default:
+      return { gradient: "from-purple-500/20 to-indigo-500/10 border-purple-500/30 text-purple-400", icon: Users };
+  }
+};
 
 const MOCK_ACTIVE_PEOPLE = [
   { id: "m1", name: "عبدالله محمد", points: "5,820 نقطة", avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Abdullah" },
@@ -214,14 +226,32 @@ export function SocialFeed() {
   const [lastDoc, setLastDoc] = useState<any>(null);
   const [hasMore, setHasMore] = useState(true);
   
-  // Layout and filter controls
+  // Filtration States
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [activeSortTab, setActiveSortTab] = useState("latest"); // latest, interactive, following
   const [activeMobileTab, setActiveMobileTab] = useState("feed"); // feed, groups, dashboard
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  
+  // Real Group States
+  const [groups, setGroups] = useState<RealGroup[]>([]);
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  const [joinedGroupIds, setJoinedGroupIds] = useState<Set<string>>(new Set());
+  
+  // Group creation modal states
+  const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
+  const [newGroupName, setNewGroupName] = useState("");
+  const [newGroupDesc, setNewGroupDesc] = useState("");
+  const [newGroupCat, setNewGroupCat] = useState("reflection");
+
+  // Real Follow States for the logged-in user
+  const [userFollowersCount, setUserFollowersCount] = useState(0);
+  const [userFollowingCount, setUserFollowingCount] = useState(0);
+  const [userPostsCount, setUserPostsCount] = useState(0);
+  const [followingUids, setFollowingUids] = useState<string[]>([]);
 
   // Composer Enhancements
   const [composerMode, setComposerMode] = useState<"text" | "reflection" | "poll" | "image" | "video">("text");
+  const [selectedComposerGroupId, setSelectedComposerGroupId] = useState("");
   // Reflection Composer states
   const [composeVerseText, setComposeVerseText] = useState("");
   const [composeSurahName, setComposeSurahName] = useState("");
@@ -285,8 +315,74 @@ export function SocialFeed() {
     return () => unsub();
   }, []);
 
+  // Fetch / Seed real groups
+  useEffect(() => {
+    if (!db) return;
+    const unsub = onSnapshot(collection(db, "groups"), async (snap) => {
+      if (snap.empty) {
+        // Seed initial groups matching visual aesthetics
+        const initial = [
+          { name: "محبي القرآن الكريم", description: "مجلس تدبر آيات كتاب الله العزيز ومشاركتها.", memberCount: 12500, category: "reflection", creatorId: "system", createdAt: new Date() },
+          { name: "أذكار وأدعية", description: "أدعية من القلوب ومشاركة الأذكار والأوراد اليومية.", memberCount: 8300, category: "dua", creatorId: "system", createdAt: new Date() },
+          { name: "تفسير وعلوم القرآن", description: "مباحث تفسير القرآن الكريم والحديث النبوي الشريف.", memberCount: 7100, category: "hadith", creatorId: "system", createdAt: new Date() },
+          { name: "المسلمون الجدد", description: "نصائح وإرشادات وكلمات طيبة للمسلمين الجدد والمهتمين.", memberCount: 5400, category: "good", creatorId: "system", createdAt: new Date() }
+        ];
+        for (const grp of initial) {
+          await addDoc(collection(db, "groups"), grp);
+        }
+      } else {
+        const grpList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as RealGroup));
+        setGroups(grpList);
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  // Listen to current user's joined groups
+  useEffect(() => {
+    if (!user || !db) return;
+    const qMembers = query(collection(db, "group_members"), where("userId", "==", user.uid));
+    const unsubMembers = onSnapshot(qMembers, (snap) => {
+      const ids = new Set(snap.docs.map(doc => doc.data().groupId));
+      setJoinedGroupIds(ids);
+    });
+    return () => unsubMembers();
+  }, [user]);
+
+  // Listen to current user's followers, following, and posts counts (Real data stats)
+  useEffect(() => {
+    if (!user || !db) return;
+    
+    // Followers query
+    const qFollowers = query(collection(db, "follows"), where("followingId", "==", user.uid));
+    const unsubFollowers = onSnapshot(qFollowers, (snap) => {
+      setUserFollowersCount(snap.size);
+    });
+
+    // Following query
+    const qFollowing = query(collection(db, "follows"), where("followerId", "==", user.uid));
+    const unsubFollowing = onSnapshot(qFollowing, (snap) => {
+      setUserFollowingCount(snap.size);
+      const uids = snap.docs.map(doc => doc.data().followingId);
+      setFollowingUids(uids);
+    });
+
+    // User's own posts count query
+    const qPosts = query(collection(db, "posts"), where("userId", "==", user.uid));
+    const unsubPosts = onSnapshot(qPosts, (snap) => {
+      setUserPostsCount(snap.size);
+    });
+
+    return () => {
+      unsubFollowers();
+      unsubFollowing();
+      unsubPosts();
+    };
+  }, [user]);
+
   // Fetch active people ordered by points dynamically
   useEffect(() => {
+    if (!db) return;
     const fetchActivePeople = async () => {
       try {
         const q = query(collection(db, "users"), orderBy("totalPoints", "desc"), limit(5));
@@ -300,7 +396,7 @@ export function SocialFeed() {
     fetchActivePeople();
   }, [posts]);
 
-  // Load Posts
+  // Load Posts from Firestore
   const loadPosts = useCallback(async (isLoadMore = false) => {
     if (isLoadMore) setLoadingMore(true);
     else setLoadingPosts(true);
@@ -462,6 +558,11 @@ export function SocialFeed() {
         reportsCount: isAutoBlocked ? 1 : 0
       };
 
+      // Add real group association if posted in a group
+      if (selectedComposerGroupId) {
+        postData.groupId = selectedComposerGroupId;
+      }
+
       // Add reflection metadata
       if (isReflectionType) {
         postData.isReflection = true;
@@ -509,6 +610,7 @@ export function SocialFeed() {
       setAttachedVideoUrl("");
       setComposerMode("text");
       setCreatorTheme("glass");
+      setSelectedComposerGroupId("");
 
       if (isAutoBlocked) {
         alert("ℹ️ تم نشر مشاركتك وهي قيد مراجعة الإدارة حالياً ولا تظهر للآخرين.");
@@ -541,6 +643,66 @@ export function SocialFeed() {
       console.error("Error completing challenge:", e);
     } finally {
       setClaimingChallenge(false);
+    }
+  };
+
+  // Real Group Join Toggle Function
+  const handleToggleJoinGroup = async (groupId: string) => {
+    if (!user || !db) {
+      alert("يجب تسجيل الدخول أولاً للانضمام للمجموعة.");
+      return;
+    }
+    const memberDocId = `${groupId}_${user.uid}`;
+    const memberRef = doc(db, "group_members", memberDocId);
+    const grpRef = doc(db, "groups", groupId);
+    const isJoined = joinedGroupIds.has(groupId);
+
+    try {
+      if (isJoined) {
+        await deleteDoc(memberRef);
+        await updateDoc(grpRef, { memberCount: increment(-1) });
+      } else {
+        await setDoc(memberRef, {
+          groupId,
+          userId: user.uid,
+          joinedAt: serverTimestamp()
+        });
+        await updateDoc(grpRef, { memberCount: increment(1) });
+      }
+    } catch (e) {
+      console.error("Error toggling group membership:", e);
+    }
+  };
+
+  // Real Group creation submission
+  const handleCreateGroup = async () => {
+    if (!user || !newGroupName.trim() || !db) return;
+    try {
+      const grpData = {
+        name: newGroupName.trim(),
+        description: newGroupDesc.trim(),
+        memberCount: 1,
+        category: newGroupCat,
+        creatorId: user.uid,
+        createdAt: serverTimestamp()
+      };
+      const grpRef = await addDoc(collection(db, "groups"), grpData);
+      
+      // Auto join creator to the group
+      const memberDocId = `${grpRef.id}_${user.uid}`;
+      await setDoc(doc(db, "group_members", memberDocId), {
+        groupId: grpRef.id,
+        userId: user.uid,
+        joinedAt: serverTimestamp()
+      });
+      
+      setNewGroupName("");
+      setNewGroupDesc("");
+      setShowCreateGroupModal(false);
+      alert("🎉 تم إنشاء المجموعة وانضمامك إليها بنجاح!");
+    } catch (e) {
+      console.error(e);
+      alert("حدث خطأ أثناء إنشاء المجموعة");
     }
   };
 
@@ -937,11 +1099,20 @@ export function SocialFeed() {
       if (!inContent && !inVerse && !inReflection) return false;
     }
 
-    // 2. Category Filter
+    // 2. Real Group Filtration
+    if (selectedGroupId) {
+      return p.groupId === selectedGroupId;
+    }
+
+    // 3. Category Filter
     if (selectedCategory === "saved") {
       return bookmarkedPosts.has(p.id);
     }
     if (selectedCategory === "all") {
+      // 4. Real Follow Tab Filtration
+      if (activeSortTab === "following") {
+        return followingUids.includes(p.userId) || p.userId === user?.uid;
+      }
       return true;
     }
     return p.category === selectedCategory;
@@ -952,7 +1123,7 @@ export function SocialFeed() {
     return 0; // Default uses Firestore desc order
   });
 
-  // Load dynamic active members or fallback to mock
+  // Load dynamic active members
   const displayActivePeople = dbActivePeople.length > 0
     ? dbActivePeople.map((p, index) => ({
         id: p.id,
@@ -962,13 +1133,12 @@ export function SocialFeed() {
       }))
     : MOCK_ACTIVE_PEOPLE;
 
+  const currentActiveGroup = selectedGroupId ? groups.find(g => g.id === selectedGroupId) : null;
+
   return (
     <div
-      ref={scrollRef}
       dir="rtl"
-      className="h-full w-full overflow-y-auto no-scrollbar font-arabic relative"
-      onScroll={handleScroll}
-      style={{ paddingBottom: "80px" }}
+      className="h-full w-full overflow-hidden font-arabic relative flex flex-col"
     >
       {/* Background Aesthetics */}
       <div className="absolute inset-0 z-0 pointer-events-none">
@@ -977,7 +1147,7 @@ export function SocialFeed() {
       </div>
 
       {/* Sticky Header */}
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-2xl border-b border-border/40 px-5 py-4 flex items-center justify-between">
+      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-2xl border-b border-border/40 px-5 py-4 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-[#fbbf24]/10 flex items-center justify-center border border-[#fbbf24]/20 shadow-lg shadow-[#fbbf24]/5">
             <Users className="w-5 h-5 text-[#fbbf24]" />
@@ -988,20 +1158,32 @@ export function SocialFeed() {
           </div>
         </div>
 
-        {/* Filter tags header if tag is active */}
-        {selectedTag && (
-          <button
-            onClick={() => setSelectedTag(null)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#fbbf24]/10 border border-[#fbbf24]/30 text-[#fbbf24] text-xs font-bold rounded-full hover:scale-105 active:scale-95"
-          >
-            <span>وسم: {selectedTag}</span>
-            <X className="w-3.5 h-3.5" />
-          </button>
-        )}
+        {/* Selected filtration status displays */}
+        <div className="flex items-center gap-2">
+          {selectedGroupId && (
+            <button
+              onClick={() => setSelectedGroupId(null)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold rounded-full hover:scale-105 active:scale-95"
+            >
+              <span>مجموعة: {currentActiveGroup?.name}</span>
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          {selectedTag && (
+            <button
+              onClick={() => setSelectedTag(null)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#fbbf24]/10 border border-[#fbbf24]/30 text-[#fbbf24] text-xs font-bold rounded-full hover:scale-105 active:scale-95"
+            >
+              <span>وسم: {selectedTag}</span>
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Mobile Sticky Tab Selector */}
-      <div className="sticky top-[73px] z-40 bg-background/90 backdrop-blur-md border-b border-border/20 flex items-center justify-around py-3 lg:hidden">
+      <div className="sticky top-[73px] z-40 bg-background/90 backdrop-blur-md border-b border-border/20 flex items-center justify-around py-3 lg:hidden shrink-0">
         <button
           onClick={() => setActiveMobileTab("feed")}
           className={`px-4 py-2 text-xs font-black rounded-full transition-all border ${
@@ -1035,19 +1217,19 @@ export function SocialFeed() {
       </div>
 
       {/* Categories Horizontal scrolling bubbles */}
-      <div className="relative w-full overflow-x-auto no-scrollbar flex items-center gap-3 px-5 py-4 z-10 select-none snap-x border-b border-border/20 bg-background/10">
+      <div className="relative w-full overflow-x-auto no-scrollbar flex items-center gap-3 px-5 py-3.5 z-10 select-none snap-x border-b border-border/20 bg-background/10 shrink-0">
         {CATEGORIES.map((cat) => {
           const Icon = cat.icon;
-          const isSelected = selectedCategory === cat.id;
+          const isSelected = selectedCategory === cat.id && !selectedGroupId;
           return (
             <button
               key={cat.id}
               onClick={() => {
+                setSelectedGroupId(null);
                 setSelectedCategory(cat.id);
-                // Switch back to feed on mobile when clicking categories
                 if (activeMobileTab !== "feed") setActiveMobileTab("feed");
               }}
-              className={`flex items-center gap-2 py-2.5 px-4.5 rounded-full transition-all shrink-0 snap-center border font-bold text-xs ${
+              className={`flex items-center gap-2 py-2 px-4 rounded-full transition-all shrink-0 snap-center border font-bold text-xs ${
                 isSelected
                   ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-[1.03]"
                   : "bg-card/40 border-border/50 text-foreground/50 hover:text-foreground hover:bg-card/75"
@@ -1060,59 +1242,83 @@ export function SocialFeed() {
         })}
       </div>
 
-      {/* Main Grid Layout (3 Columns) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-7xl mx-auto px-4 py-6 relative z-10">
+      {/* Main Grid Layout (No general scroll, subcomponents scroll independently) */}
+      <div className="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-7xl mx-auto px-4 py-4 w-full h-full min-h-0">
         
         {/* ===================== COLUMN 1: LEFT SIDEBAR ===================== */}
-        <aside className={`lg:col-span-3 space-y-6 ${activeMobileTab === "groups" ? "block" : "hidden lg:block"}`}>
-          {/* Suggested Groups */}
-          <div className="bg-[#0c0d12]/90 border border-border/30 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden">
+        <aside className={`lg:col-span-3 flex-col h-full overflow-y-auto no-scrollbar pb-6 gap-6 ${activeMobileTab === "groups" ? "flex" : "hidden lg:flex"}`}>
+          {/* Suggested Groups (Real Firestore Data) */}
+          <div className="bg-[#0c0d12]/90 border border-border/30 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden shrink-0">
             <div className="absolute inset-0 islamic-pattern opacity-[0.01] pointer-events-none" />
             <div className="flex items-center justify-between mb-5">
-              <span className="text-[10px] font-bold text-[#fbbf24]/50 hover:text-[#fbbf24] cursor-pointer">عرض الكل</span>
-              <h3 className="text-sm font-black text-white">المجموعات المقترحة</h3>
+              <span className="text-[10px] font-bold text-[#fbbf24]/50 hover:text-[#fbbf24] cursor-pointer">المجموعات</span>
+              <h3 className="text-sm font-black text-white">المجموعات الدعوية</h3>
             </div>
 
             <div className="space-y-4">
-              {MOCK_GROUPS.map((g) => {
-                const GrpIcon = g.icon;
+              {groups.map((g) => {
+                const style = getGroupStyle(g.category);
+                const GrpIcon = style.icon;
+                const isJoined = joinedGroupIds.has(g.id);
+
                 return (
-                  <button
+                  <div
                     key={g.id}
-                    onClick={() => {
-                      // Custom interactive filtration
-                      if (g.id === "g1") setSelectedCategory("reflection");
-                      else if (g.id === "g2") setSelectedCategory("dua");
-                      else if (g.id === "g3") setSelectedCategory("hadith");
-                      else if (g.id === "g4") setSelectedCategory("good");
-                      setActiveMobileTab("feed");
-                    }}
-                    className="w-full flex items-center justify-between p-3.5 rounded-[1.8rem] bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 transition-all text-right group"
+                    className="w-full flex flex-col p-4 rounded-[1.8rem] bg-white/[0.02] border border-white/5 transition-all text-right group gap-3"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${g.gradient} flex items-center justify-center border shadow-lg group-hover:scale-105 transition-transform`}>
-                        <GrpIcon className="w-5 h-5" />
+                    <button
+                      onClick={() => {
+                        setSelectedGroupId(g.id);
+                        setSelectedCategory("all");
+                        setActiveMobileTab("feed");
+                      }}
+                      className="flex items-center gap-3 text-right w-full"
+                    >
+                      <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${style.gradient} flex items-center justify-center border shadow-lg group-hover:scale-105 transition-transform shrink-0`}>
+                        <GrpIcon className="w-4.5 h-4.5" />
                       </div>
-                      <div>
-                        <h4 className="text-xs font-black text-white group-hover:text-primary transition-colors">{g.name}</h4>
-                        <p className="text-[9px] text-white/30 font-bold mt-0.5">{g.count}</p>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-xs font-black text-white group-hover:text-primary transition-colors truncate">{g.name}</h4>
+                        <p className="text-[9px] text-white/30 font-bold mt-0.5">{(g.memberCount || 0).toLocaleString()} عضو</p>
                       </div>
+                    </button>
+
+                    <div className="flex justify-between items-center border-t border-white/5 pt-2">
+                      <p className="text-[8px] text-white/20 truncate max-w-[120px]" title={g.description}>{g.description || "لا يوجد وصف"}</p>
+                      {user && (
+                        <button
+                          onClick={() => handleToggleJoinGroup(g.id)}
+                          className={`px-3 py-1 rounded-full text-[9px] font-black transition-all ${
+                            isJoined 
+                              ? "bg-white/10 text-white/70 hover:bg-red-500/10 hover:text-red-400" 
+                              : "bg-[#fbbf24] text-black hover:scale-105"
+                          }`}
+                        >
+                          {isJoined ? "غادر" : "انضم"}
+                        </button>
+                      )}
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
 
             <button
-              onClick={() => alert("ميزة إنشاء المجموعات الخاصة تحت التطوير حالياً، قريباً ستتمكن من قيادة مجتمعك الدعوي الخاص! 🌟")}
+              onClick={() => {
+                if (!user) {
+                  alert("يرجى تسجيل الدخول أولاً لإنشاء مجموعة.");
+                  return;
+                }
+                setShowCreateGroupModal(true);
+              }}
               className="w-full py-3.5 border border-[#fbbf24]/30 hover:border-[#fbbf24] text-[#fbbf24] hover:bg-[#fbbf24]/5 rounded-2xl text-xs font-black transition-all flex items-center justify-center gap-2 mt-5 active:scale-95"
             >
-              <span>+ إنشاء مجموعة</span>
+              <span>+ إنشاء مجموعة جديدة</span>
             </button>
           </div>
 
           {/* Active Members / Leaderboard */}
-          <div className="bg-[#0c0d12]/90 border border-border/30 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden">
+          <div className="bg-[#0c0d12]/90 border border-border/30 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden shrink-0">
             <div className="flex items-center justify-between mb-5">
               <span 
                 onClick={() => window.dispatchEvent(new CustomEvent('show_user_profile', { detail: { userId: user?.uid } }))}
@@ -1147,7 +1353,7 @@ export function SocialFeed() {
           </div>
 
           {/* Popular Tags */}
-          <div className="bg-[#0c0d12]/90 border border-border/30 rounded-[2.5rem] p-6 shadow-xl">
+          <div className="bg-[#0c0d12]/90 border border-border/30 rounded-[2.5rem] p-6 shadow-xl shrink-0">
             <h3 className="text-sm font-black text-white mb-4">الوسوم الشائعة</h3>
             <div className="flex flex-wrap gap-2">
               {MOCK_TAGS.map((tag) => {
@@ -1173,12 +1379,45 @@ export function SocialFeed() {
           </div>
         </aside>
 
-        {/* ===================== COLUMN 2: MIDDLE MAIN FEED ===================== */}
-        <main className={`lg:col-span-6 space-y-6 ${activeMobileTab === "feed" ? "block" : "hidden lg:block"}`}>
-          
+        {/* ===================== COLUMN 2: MIDDLE MAIN FEED (SCROLLABLE AREA) ===================== */}
+        <main 
+          ref={scrollRef}
+          onScroll={handleScroll}
+          className={`lg:col-span-6 flex flex-col h-full overflow-y-auto no-scrollbar pb-24 gap-6 ${activeMobileTab === "feed" ? "flex" : "hidden lg:flex"}`}
+        >
+          {/* Group Header Info Card in Feed (If a group is selected) */}
+          {selectedGroupId && currentActiveGroup && (
+            <div className="p-6 rounded-[2.5rem] bg-gradient-to-br from-[#0c0d12] to-[#040508] border border-emerald-500/20 text-right space-y-4 shadow-xl shrink-0">
+              <div className="flex justify-between items-start">
+                <div className="flex gap-3 items-center">
+                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${getGroupStyle(currentActiveGroup.category).gradient} flex items-center justify-center border shadow-lg`}>
+                    <BookOpen className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-black text-white leading-snug">{currentActiveGroup.name}</h2>
+                    <p className="text-[9px] text-[#fbbf24] font-bold">{(currentActiveGroup.memberCount || 0).toLocaleString()} عضو نشط</p>
+                  </div>
+                </div>
+                {user && (
+                  <button
+                    onClick={() => handleToggleJoinGroup(currentActiveGroup.id)}
+                    className={`px-4 py-2 rounded-2xl text-xs font-black transition-all ${
+                      joinedGroupIds.has(currentActiveGroup.id)
+                        ? "bg-white/10 text-white/70 border border-white/15"
+                        : "bg-gradient-to-r from-[#fbbf24] to-[#d4af37] text-black"
+                    }`}
+                  >
+                    {joinedGroupIds.has(currentActiveGroup.id) ? "مغادرة المجموعة" : "انضمام للمجموعة"}
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-white/50 leading-relaxed font-bold">{currentActiveGroup.description || "مجلس نقاش ودعوة للأعضاء المباركين."}</p>
+            </div>
+          )}
+
           {/* Post Creator Section */}
           {user ? (
-            <div className="bg-[#0c0d12]/95 border border-[#fbbf24]/10 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden">
+            <div className="bg-[#0c0d12]/95 border border-[#fbbf24]/10 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden shrink-0">
               <div className="absolute inset-0 islamic-pattern opacity-[0.01] pointer-events-none" />
               <div className="flex gap-4 items-start">
                 <img
@@ -1224,7 +1463,7 @@ export function SocialFeed() {
                         onChange={(e) => setComposeReflectionText(e.target.value)}
                         placeholder="خاطرة وتدبر الآية الكريمة أو التفسير..."
                         rows={2}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs outline-none text-white font-bold resize-none"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-xs outline-none text-white font-bold resize-none"
                       />
                       <div className="flex items-center justify-between pt-1">
                         <label className="text-[8px] font-bold text-white/30">قالب الخلفية للتدبر:</label>
@@ -1337,6 +1576,21 @@ export function SocialFeed() {
                     </div>
                   )}
 
+                  {/* Post-in-Group Selection Dropdown */}
+                  <div className="flex items-center justify-between gap-3 bg-white/5 border border-white/10 rounded-2xl p-3">
+                    <span className="text-[10px] font-bold text-white/40">انشر في مجموعة:</span>
+                    <select
+                      value={selectedComposerGroupId}
+                      onChange={(e) => setSelectedComposerGroupId(e.target.value)}
+                      className="bg-[#0c0d12] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white outline-none font-bold"
+                    >
+                      <option value="">الخلاصة العامة 🌐</option>
+                      {groups.filter(g => joinedGroupIds.has(g.id) || g.creatorId === user?.uid).map(g => (
+                        <option key={g.id} value={g.id}>{g.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
                   {/* Composer Categories Selector */}
                   {composerMode !== "reflection" && (
                     <div className="flex flex-col gap-1.5">
@@ -1425,7 +1679,7 @@ export function SocialFeed() {
               </div>
             </div>
           ) : (
-            <div className="bg-[#0c0d12]/95 border border-white/5 rounded-[2.5rem] p-8 text-center shadow-xl flex flex-col items-center gap-4">
+            <div className="bg-[#0c0d12]/95 border border-white/5 rounded-[2.5rem] p-8 text-center shadow-xl flex flex-col items-center gap-4 shrink-0">
               <User className="w-10 h-10 text-white/20" />
               <p className="text-sm text-white/40 font-bold leading-relaxed">سجّل دخولك الآن لنشر منشور دعوي جديد أو مشاركة الأدعية وتدبرات الآيات في مجتمع يقين.</p>
               <button
@@ -1438,7 +1692,7 @@ export function SocialFeed() {
           )}
 
           {/* Sort Tabs Filter Bar (Latest, Interactive, Follows) */}
-          <div className="flex items-center justify-between bg-[#0c0d12]/90 border border-white/5 px-6 py-3.5 rounded-[2rem] shadow-md">
+          <div className="flex items-center justify-between bg-[#0c0d12]/90 border border-white/5 px-6 py-3.5 rounded-[2rem] shadow-md shrink-0">
             <span className="text-[10px] text-white/30 font-bold">فرز المنشورات</span>
             <div className="flex items-center gap-2">
               <button
@@ -1462,8 +1716,18 @@ export function SocialFeed() {
                 الأكثر تفاعلاً
               </button>
               <button
-                onClick={() => alert("ميزة المتابعات تحت المراجعة الفنية، ابحث عن أصدقائك وتفاعل معهم عبر لوحة الشرف! ✨")}
-                className="px-4 py-1.5 text-xs font-black rounded-full text-white/40 hover:text-white border border-transparent"
+                onClick={() => {
+                  if (!user) {
+                    alert("سجّل دخولك لمتابعة الآخرين وتصفح منشوراتهم.");
+                    return;
+                  }
+                  setActiveSortTab("following");
+                }}
+                className={`px-4 py-1.5 text-xs font-black rounded-full transition-all border ${
+                  activeSortTab === "following"
+                    ? "bg-[#fbbf24] text-black border-[#fbbf24] shadow-md"
+                    : "bg-transparent border-transparent text-white/40 hover:text-white"
+                }`}
               >
                 المتابعات
               </button>
@@ -1489,7 +1753,7 @@ export function SocialFeed() {
               const author = authorsData[post.userId];
               const authorPoints = author?.totalPoints || 0;
               const isUserAdmin = author?.email === "youssefosama@gmail.com";
-              const isDarkTheme = true; // Premium forced dark
+              const isDarkTheme = true; 
               const activeReact = userReactions[post.id];
 
               return (
@@ -1498,7 +1762,7 @@ export function SocialFeed() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
-                  className="bg-[#0c0d12]/95 rounded-[2.5rem] overflow-hidden shadow-lg border border-white/5 hover:border-[#fbbf24]/10 transition-all duration-300 relative group/card"
+                  className="bg-[#0c0d12]/95 rounded-[2.5rem] overflow-hidden shadow-lg border border-white/5 hover:border-[#fbbf24]/10 transition-all duration-300 relative group/card shrink-0"
                 >
                   {/* Post Header */}
                   <div className="flex items-center justify-between p-5 pb-2">
@@ -1515,7 +1779,7 @@ export function SocialFeed() {
                         <div className="flex items-center gap-2">
                           <p className="text-sm font-black truncate text-white">{post.userName}</p>
                           
-                          {/* Crown/Star Badges matching design */}
+                          {/* Crown/Star Badges */}
                           {isUserAdmin ? (
                             <span className="inline-flex items-center gap-0.5 text-[8px] font-black bg-red-500/20 text-red-400 border border-red-500/20 px-1.5 py-0.5 rounded-md">
                               <Crown className="w-2.5 h-2.5" /> مشرف
@@ -1602,31 +1866,23 @@ export function SocialFeed() {
 
                   {/* Post Content */}
                   <div className="px-6 py-4">
-                    {/* Calligraphy / Reflection post display - Custom Styled Banner matching design */}
                     {post.isReflection ? (
                       <div className="p-6 md:p-8 rounded-[2rem] border border-[#fbbf24]/20 relative overflow-hidden text-center bg-gradient-to-br from-[#0a0e1c] via-[#05070e] to-[#010204] shadow-inner mt-2">
                         {/* Glow effect */}
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#fbbf24]/5 blur-[70px] rounded-full pointer-events-none" />
-                        
-                        {/* Decorative Quran elements matching calligraphy image */}
                         <div className="absolute top-3 left-4 text-[#fbbf24]/30 text-xs font-serif select-none pointer-events-none">✨</div>
                         
-                        {/* Quranic Calligraphy display */}
-                        <p className="font-arabic text-xl md:text-2xl font-black text-[#fbbf24] leading-relaxed mb-4 text-shadow-md select-text" dir="rtl">
-                          « {post.verseText} »
-                        </p>
-                        
-                        {/* Source label */}
-                        <p className="text-[10px] text-white/40 font-bold mb-4">
-                          [ سورة {post.surahName} ]
-                        </p>
-                        
-                        <div className="w-16 h-px mx-auto my-3 bg-white/10" />
-                        
-                        {/* User Commentary */}
-                        <p className="text-xs md:text-sm leading-relaxed font-bold whitespace-pre-wrap text-right text-white/80" dir="rtl">
-                          💡 {post.reflectionText}
-                        </p>
+                        {/* Calligraphy display styling matching the design image */}
+                        <div className="relative z-10 space-y-4">
+                          <p className="font-arabic text-xl md:text-2xl font-black text-[#fbbf24] leading-relaxed text-shadow-md select-text" dir="rtl">
+                            « {post.verseText} »
+                          </p>
+                          <p className="text-[10px] text-white/40 font-bold">[ سورة {post.surahName} ]</p>
+                          <div className="w-16 h-px mx-auto bg-white/10" />
+                          <p className="text-xs md:text-sm leading-relaxed font-bold whitespace-pre-wrap text-right text-white/80" dir="rtl">
+                            💡 {post.reflectionText}
+                          </p>
+                        </div>
                       </div>
                     ) : (
                       <div className="space-y-4">
@@ -1651,12 +1907,10 @@ export function SocialFeed() {
                                     onClick={() => handleVotePoll(post.id, idx)}
                                     className="w-full relative p-3 rounded-xl border border-white/5 overflow-hidden text-right flex items-center justify-between hover:bg-white/5 active:scale-99 transition-all"
                                   >
-                                    {/* Progress track */}
                                     <div 
                                       className="absolute inset-y-0 right-0 bg-[#fbbf24]/5 border-l border-[#fbbf24]/20 transition-all duration-500"
                                       style={{ width: `${percentage}%` }}
                                     />
-                                    
                                     <span className="relative z-10 text-xs font-bold text-white/80 flex items-center gap-2">
                                       {hasVoted && <Check className="w-3.5 h-3.5 text-[#fbbf24]" />}
                                       <span>{opt}</span>
@@ -1674,7 +1928,7 @@ export function SocialFeed() {
                         {/* Image attachments */}
                         {post.imageUrl && (
                           <div className="rounded-2xl border border-white/5 overflow-hidden shadow-md max-h-[300px] mt-2 relative">
-                            <img src={post.imageUrl} alt="Attached image" className="w-full h-full object-cover" />
+                            <img src={post.imageUrl} alt="" className="w-full h-full object-cover" />
                           </div>
                         )}
 
@@ -1793,7 +2047,7 @@ export function SocialFeed() {
                     </button>
                   </div>
 
-                  {/* Comments Drawer/List Section */}
+                  {/* Comments list/drawer */}
                   <AnimatePresence>
                     {expandedComments === post.id && (
                       <motion.div
@@ -1836,7 +2090,7 @@ export function SocialFeed() {
                               
                               return (
                                 <div key={cmt.id} className="space-y-3 border-b border-white/5 pb-3 last:border-b-0 last:pb-0">
-                                  {/* Parent Comment item */}
+                                  {/* Parent Comment */}
                                   <div className="flex gap-3 items-start text-right animate-in fade-in slide-in-from-bottom-2 duration-300">
                                     {cmt.isAnonymous ? (
                                       <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center shrink-0 border border-white/10">
@@ -1897,7 +2151,7 @@ export function SocialFeed() {
                                     </div>
                                   </div>
 
-                                  {/* Replies list */}
+                                  {/* Nested Replies */}
                                   {commentReplies.length > 0 && (
                                     <div className="mr-8 pr-3 border-r border-[#fbbf24]/10 space-y-3 mt-2">
                                       {commentReplies.map((reply) => {
@@ -1979,7 +2233,7 @@ export function SocialFeed() {
                           })()}
                         </div>
 
-                        {/* Comment composing input */}
+                        {/* Comment compose input */}
                         <div className="p-4 pt-0 border-t border-white/5">
                           {replyingTo && replyingTo.postId === post.id && (
                             <div className="flex items-center justify-between bg-primary/10 border border-primary/20 rounded-xl px-3 py-1.5 mb-2 text-right">
@@ -2034,7 +2288,7 @@ export function SocialFeed() {
             })
           )}
 
-          {/* Load More scroll trigger */}
+          {/* Load More trigger */}
           {loadingMore && (
             <div className="flex justify-center py-6">
               <Loader2 className="w-6 h-6 text-[#fbbf24] animate-spin" />
@@ -2050,16 +2304,15 @@ export function SocialFeed() {
         </main>
 
         {/* ===================== COLUMN 3: RIGHT SIDEBAR ===================== */}
-        <aside className={`lg:col-span-3 space-y-6 ${activeMobileTab === "dashboard" ? "block" : "hidden lg:block"}`}>
-          {/* User Profile Card */}
+        <aside className={`lg:col-span-3 flex-col h-full overflow-y-auto no-scrollbar pb-6 gap-6 ${activeMobileTab === "dashboard" ? "flex" : "hidden lg:flex"}`}>
+          {/* User Profile Card (Dynamic real statistics counts) */}
           {user ? (
-            <div className="bg-gradient-to-b from-[#181a24] to-[#0c0d12] border border-[#fbbf24]/20 rounded-[2.5rem] p-6 shadow-2xl relative overflow-hidden text-center flex flex-col items-center">
-              {/* Gold Ornament Mandala Background behind avatar */}
+            <div className="bg-gradient-to-b from-[#181a24] to-[#0c0d12] border border-[#fbbf24]/20 rounded-[2.5rem] p-6 shadow-2xl relative overflow-hidden text-center flex flex-col items-center shrink-0">
+              {/* Gold Ornament Mandala Background */}
               <div className="absolute top-0 inset-x-0 h-36 bg-[radial-gradient(circle_at_top,rgba(212,175,55,0.15)_0%,transparent_75%)] select-none pointer-events-none" />
               <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 blur-[50px] rounded-full pointer-events-none" />
               
               <div className="relative mt-4">
-                {/* Mandala outline */}
                 <div className="absolute -inset-3 rounded-full border border-dashed border-[#fbbf24]/20 animate-spin-slow" />
                 <img
                   src={userData?.photoURL || user.photoURL || `https://api.dicebear.com/9.x/avataaars/svg?seed=${user.uid}`}
@@ -2079,18 +2332,18 @@ export function SocialFeed() {
                 {(userData?.totalPoints || 0).toLocaleString()} نقطة
               </button>
 
-              {/* Profile Statistics */}
+              {/* Real Profile Statistics (Posts, Followers, Following) */}
               <div className="grid grid-cols-3 gap-1 w-full border-t border-white/5 mt-6 pt-5 text-center">
                 <div>
-                  <span className="block text-sm font-black text-white">{posts.filter(p => p.userId === user.uid).length}</span>
+                  <span className="block text-sm font-black text-white">{userPostsCount}</span>
                   <span className="text-[8px] text-white/30 font-bold uppercase tracking-wider">المنشورات</span>
                 </div>
                 <div className="border-r border-white/5">
-                  <span className="block text-sm font-black text-white">1.2K</span>
+                  <span className="block text-sm font-black text-white">{userFollowersCount.toLocaleString()}</span>
                   <span className="text-[8px] text-white/30 font-bold uppercase tracking-wider">المتابعون</span>
                 </div>
                 <div className="border-r border-white/5">
-                  <span className="block text-sm font-black text-white">230</span>
+                  <span className="block text-sm font-black text-white">{userFollowingCount.toLocaleString()}</span>
                   <span className="text-[8px] text-white/30 font-bold uppercase tracking-wider">يتابع</span>
                 </div>
               </div>
@@ -2104,7 +2357,7 @@ export function SocialFeed() {
               </button>
             </div>
           ) : (
-            <div className="bg-[#0c0d12]/95 border border-white/5 rounded-[2.5rem] p-6 text-center shadow-xl flex flex-col items-center">
+            <div className="bg-[#0c0d12]/95 border border-white/5 rounded-[2.5rem] p-6 text-center shadow-xl flex flex-col items-center shrink-0">
               <User className="w-12 h-12 text-white/10 mb-3" />
               <h3 className="text-xs font-black text-white mb-2">لوحة التحكم الشخصية</h3>
               <p className="text-[10px] text-white/30 mb-4 leading-relaxed">سجّل دخولك لمتابعة تحدياتك اليومية وإحصائيات نقاطك في لوحة الشرف.</p>
@@ -2118,11 +2371,10 @@ export function SocialFeed() {
           )}
 
           {/* Daily Challenge Progress */}
-          <div className="bg-[#0c0d12]/90 border border-border/30 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden">
+          <div className="bg-[#0c0d12]/90 border border-border/30 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden shrink-0">
             <h3 className="text-sm font-black text-white mb-4 text-right">التحدي اليومي</h3>
             
             <div className="flex gap-3.5 items-start text-right">
-              {/* Cup Icon */}
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#fbbf24]/20 to-[#d4af37]/5 flex items-center justify-center border border-[#fbbf24]/30 shrink-0 shadow-lg">
                 <Trophy className="w-5 h-5 text-[#fbbf24]" />
               </div>
@@ -2132,7 +2384,6 @@ export function SocialFeed() {
                   <h4 className="text-xs font-black text-white leading-snug">شارك آية أو حديث نبوي</h4>
                 </div>
                 
-                {/* Progress bar */}
                 <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden mt-2 border border-white/5">
                   <div 
                     className="bg-gradient-to-l from-[#fbbf24] to-[#d4af37] h-full rounded-full transition-all duration-700"
@@ -2142,7 +2393,6 @@ export function SocialFeed() {
               </div>
             </div>
 
-            {/* Complete action button */}
             <button
               onClick={completeDailyChallenge}
               disabled={claimingChallenge || dailyChallengeCompleted}
@@ -2158,7 +2408,7 @@ export function SocialFeed() {
           </div>
 
           {/* Community Rules */}
-          <div className="bg-[#0c0d12]/90 border border-border/30 rounded-[2.5rem] p-6 shadow-xl">
+          <div className="bg-[#0c0d12]/90 border border-border/30 rounded-[2.5rem] p-6 shadow-xl shrink-0">
             <h3 className="text-sm font-black text-white mb-5 text-right">قواعد المجتمع</h3>
             
             <div className="space-y-4">
@@ -2205,9 +2455,8 @@ export function SocialFeed() {
           </div>
 
           {/* Support Banner Card */}
-          <div className="bg-gradient-to-br from-[#0c2a1a] via-[#05110a] to-[#010402] border border-emerald-500/20 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden flex items-center justify-between group">
+          <div className="bg-gradient-to-br from-[#0c2a1a] via-[#05110a] to-[#010402] border border-emerald-500/20 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden flex items-center justify-between group shrink-0">
             <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
-            <div className="absolute top-1/2 left-0 -translate-y-1/2 w-24 h-24 bg-emerald-500/5 blur-3xl rounded-full pointer-events-none" />
             
             <div className="text-right flex-1 min-w-0 pr-2">
               <h4 className="text-xs font-black text-white">ادعم مجتمع يقين</h4>
@@ -2215,13 +2464,12 @@ export function SocialFeed() {
               
               <button
                 onClick={() => alert("ميزة دعم المشروع عبر البوابات المالية ستكون متوفرة قريباً، نسألكم الدعاء بظهر الغيب! 🤲")}
-                className="mt-3.5 px-4 py-2 bg-gradient-to-r from-[#fbbf24] to-[#d4af37] text-black rounded-xl text-[10px] font-black hover:scale-105 active:scale-95 transition-all shadow-md shadow-[#fbbf24]/10"
+                className="mt-3.5 px-4 py-2 bg-gradient-to-r from-[#fbbf24] to-[#d4af37] text-black rounded-xl text-[10px] font-black hover:scale-105 active:scale-95 transition-all shadow-md"
               >
                 ادعم الآن
               </button>
             </div>
 
-            {/* Lantern graphics */}
             <div className="w-12 h-16 shrink-0 relative flex items-center justify-center select-none pointer-events-none">
               <svg viewBox="0 0 100 120" className="w-full h-full fill-current text-primary animate-pulse">
                 <path d="M50 10 C45 25 30 35 30 55 C30 75 40 85 50 85 C60 85 70 75 70 55 C70 35 55 25 50 10 Z" fill="rgba(251,191,36,0.15)" stroke="#fbbf24" strokeWidth="2" />
@@ -2235,6 +2483,76 @@ export function SocialFeed() {
         </aside>
 
       </div>
+
+      {/* ===================== NEW REAL GROUP CREATION MODAL ===================== */}
+      <AnimatePresence>
+        {showCreateGroupModal && (
+          <div className="fixed inset-0 z-[3000] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="absolute inset-0" onClick={() => setShowCreateGroupModal(false)} />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-[#0c0d12] border border-white/10 rounded-[3rem] w-full max-w-md p-8 relative z-10 shadow-2xl"
+            >
+              <button 
+                onClick={() => setShowCreateGroupModal(false)}
+                className="absolute top-6 left-6 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center border border-white/5 text-white/50 hover:text-white transition-all"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <h3 className="text-lg font-black text-white mb-2 leading-none">إنشاء مجموعة دعوية جديدة</h3>
+              <p className="text-[10px] text-white/30 font-bold mb-6">قُد مجلساً جديداً لتبادل الآيات والأدعية وكلم الطيب مع إخوتك.</p>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-bold text-white/40 mb-1.5 pr-1">اسم المجموعة</label>
+                  <input
+                    value={newGroupName}
+                    onChange={(e) => setNewGroupName(e.target.value)}
+                    placeholder="مثال: محبي السنن النبوية"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-4 text-xs text-white outline-none focus:border-[#fbbf24] transition-all font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-white/40 mb-1.5 pr-1">وصف المجموعة</label>
+                  <textarea
+                    value={newGroupDesc}
+                    onChange={(e) => setNewGroupDesc(e.target.value)}
+                    placeholder="اكتب وصفاً موجزاً لأهداف هذه المجموعة..."
+                    rows={3}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-4 text-xs text-white outline-none focus:border-[#fbbf24] transition-all font-bold resize-none leading-relaxed"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-white/40 mb-1.5 pr-1">تصنيف المحتوى الرئيسي</label>
+                  <select
+                    value={newGroupCat}
+                    onChange={(e) => setNewGroupCat(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs text-white outline-none font-bold"
+                  >
+                    <option value="reflection">تدبر آية 📖</option>
+                    <option value="dua">أدعية 🤲</option>
+                    <option value="hadith">حديث شريف 📚</option>
+                    <option value="good">كلمة طيبة 🌟</option>
+                  </select>
+                </div>
+
+                <button
+                  onClick={handleCreateGroup}
+                  disabled={!newGroupName.trim()}
+                  className="w-full py-4.5 bg-gradient-to-r from-[#fbbf24] to-[#d4af37] text-black font-black text-xs rounded-2xl hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-30 mt-6 shadow-xl shadow-[#fbbf24]/10"
+                >
+                  تأكيد وإنشاء المجموعة 🎉
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

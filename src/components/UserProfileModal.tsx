@@ -24,6 +24,10 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
   // Relation state: "none" | "sent_pending" | "received_pending" | "friends"
   const [relation, setRelation] = useState<"none" | "sent_pending" | "received_pending" | "friends">("none");
   const [actionLoading, setActionLoading] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  const [postsCount, setPostsCount] = useState(0);
 
   const myUid = auth?.currentUser?.uid;
 
@@ -89,11 +93,61 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
       setRelation("none");
     }
 
+    // 4. Listen to real followers/following/posts counts
+    const qFollowers = query(collection(db, "follows"), where("followingId", "==", userId));
+    const unsubFollowers = onSnapshot(qFollowers, (snap) => {
+      setFollowersCount(snap.size);
+    });
+
+    const qFollowing = query(collection(db, "follows"), where("followerId", "==", userId));
+    const unsubFollowing = onSnapshot(qFollowing, (snap) => {
+      setFollowingCount(snap.size);
+    });
+
+    const qPosts = query(collection(db, "posts"), where("userId", "==", userId));
+    const unsubPosts = onSnapshot(qPosts, (snap) => {
+      setPostsCount(snap.size);
+    });
+
+    let unsubIsFollowing = () => {};
+    if (myUid) {
+      const followDocId = `${myUid}_${userId}`;
+      unsubIsFollowing = onSnapshot(doc(db, "follows", followDocId), (followSnap) => {
+        setIsFollowing(followSnap.exists());
+      });
+    }
+
     return () => {
       unsubUser();
       unsubFriendship();
+      unsubFollowers();
+      unsubFollowing();
+      unsubPosts();
+      unsubIsFollowing();
     };
   }, [userId, myUid]);
+
+  const handleFollowToggle = async () => {
+    if (!myUid || !userId || !db || actionLoading) return;
+    setActionLoading(true);
+    try {
+      const followDocId = `${myUid}_${userId}`;
+      const followRef = doc(db, "follows", followDocId);
+      if (isFollowing) {
+        await deleteDoc(followRef);
+      } else {
+        await setDoc(followRef, {
+          followerId: myUid,
+          followingId: userId,
+          createdAt: serverTimestamp()
+        });
+      }
+    } catch (e) {
+      console.error("Error toggling follow:", e);
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   // Actions
   const handleAddFriend = async () => {
@@ -389,15 +443,18 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
           </div>
 
           {/* Quick Stats Grid */}
-          <div className="grid grid-cols-3 gap-3 w-full max-w-sm mt-6 p-4 rounded-2xl bg-foreground/5 border border-border shadow-inner">
-            <div className="text-center">
-              <span className="block text-lg font-black text-foreground">{targetUser?.totalPoints ? Math.round(targetUser.totalPoints) : 0}</span>
-              <span className="text-[8px] text-foreground/35 font-bold uppercase tracking-widest">إجمالي النقاط</span>
+          <div className="grid grid-cols-3 gap-1 w-full max-w-sm mt-6 p-4 rounded-2xl bg-foreground/5 border border-border shadow-inner text-center">
+            <div>
+              <span className="block text-lg font-black text-foreground">{postsCount}</span>
+              <span className="text-[8px] text-foreground/35 font-bold uppercase tracking-widest">المنشورات</span>
             </div>
-            <div className="w-[1px] h-8 bg-border self-center justify-self-center" />
-            <div className="text-center">
-              <span className="block text-lg font-black text-foreground">{targetUser?.readAyahs || 0}</span>
-              <span className="text-[8px] text-foreground/35 font-bold uppercase tracking-widest">آية مقروءة</span>
+            <div className="border-r border-border">
+              <span className="block text-lg font-black text-foreground">{followersCount.toLocaleString()}</span>
+              <span className="text-[8px] text-foreground/35 font-bold uppercase tracking-widest">المتابعون</span>
+            </div>
+            <div className="border-r border-border">
+              <span className="block text-lg font-black text-foreground">{followingCount.toLocaleString()}</span>
+              <span className="text-[8px] text-foreground/35 font-bold uppercase tracking-widest">يتابع</span>
             </div>
           </div>
 
@@ -458,6 +515,20 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
               </button>
             ) : (
               <>
+                {myUid && userId !== myUid && (
+                  <button
+                    onClick={handleFollowToggle}
+                    disabled={actionLoading}
+                    className={`w-full py-3.5 rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-2 mb-2 ${
+                      isFollowing 
+                        ? "bg-foreground/10 text-foreground border border-border" 
+                        : "bg-gradient-to-r from-[#fbbf24] to-[#d4af37] text-black shadow-lg shadow-[#fbbf24]/10"
+                    }`}
+                  >
+                    {isFollowing ? <UserCheck className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
+                    {isFollowing ? "متابع" : "متابعة"}
+                  </button>
+                )}
                 {currentUserData?.blockedUsers?.includes(userId) ? (
                   <div className="space-y-3 w-full">
                     <div className="w-full py-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl font-black text-sm text-center">
