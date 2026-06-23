@@ -593,7 +593,7 @@ export function AudioLibrary() {
   return (
     <div
       dir="rtl"
-      className="h-full w-full flex flex-col font-['Tajawal'] overflow-hidden text-foreground relative bg-[#0c0d10]"
+      className="h-full w-full flex flex-col font-['Tajawal'] overflow-hidden text-slate-800 dark:text-foreground relative bg-[#f8fafc] dark:bg-[#0c0d10]"
     >
       <audio
         ref={audioRef}
@@ -618,11 +618,11 @@ export function AudioLibrary() {
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-[250px_1fr_280px] gap-4 p-3 lg:p-4 overflow-hidden h-full">
 
         {/* ── COLUMN 1: LEFT SIDEBAR (الشيوخ) ── */}
-        <aside className="hidden lg:flex flex-col gap-3 p-3 rounded-2xl bg-[#0e0f12]/50 border border-white/5 h-full overflow-hidden">
+        <aside className="hidden lg:flex flex-col gap-3 p-3 rounded-2xl bg-white dark:bg-[#0e0f12]/50 border border-slate-200 dark:border-white/5 h-full overflow-hidden shadow-sm dark:shadow-none">
           {/* Header */}
           <div className="flex items-center justify-between py-0.5 relative shrink-0">
-            <div className="absolute right-0 left-0 top-1/2 h-px bg-white/5 -z-10" />
-            <div className="bg-[#0f1015] px-3 mx-auto flex items-center gap-1.5 text-white/60">
+            <div className="absolute right-0 left-0 top-1/2 h-px bg-slate-200 dark:bg-white/5 -z-10" />
+            <div className="bg-[#f8fafc] dark:bg-[#0f1015] px-3 mx-auto flex items-center gap-1.5 text-slate-500 dark:text-white/60">
               <span className="text-[10px] font-black tracking-wider font-arabic">الشيوخ</span>
               <Headphones className="w-3 h-3 text-[#e2b43b]" />
             </div>
@@ -630,17 +630,17 @@ export function AudioLibrary() {
 
           {/* Search Input for Reciters */}
           <div className="relative shrink-0">
-            <Search className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-white/20 pointer-events-none" />
+            <Search className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 dark:text-white/20 pointer-events-none" />
             <input
               type="text"
               value={reciterSearch}
               onChange={e => setReciterSearch(e.target.value)}
               placeholder="ابحث عن قارئ..."
-              className="w-full bg-[#121318]/50 border border-white/5 rounded-lg py-1.5 pr-8 pl-3 text-[10px] outline-none focus:border-[#e2b43b]/40 focus:bg-[#121318] transition-all placeholder:text-white/20 text-white font-bold text-right"
+              className="w-full bg-slate-100 dark:bg-[#121318]/50 border border-slate-200 dark:border-white/5 rounded-lg py-1.5 pr-8 pl-3 text-[10px] outline-none focus:border-[#e2b43b]/40 focus:bg-white dark:focus:bg-[#121318] transition-all placeholder:text-slate-400 dark:placeholder:text-white/20 text-slate-800 dark:text-white font-bold text-right"
             />
             {reciterSearch && (
               <button onClick={() => setReciterSearch("")} className="absolute left-2.5 top-1/2 -translate-y-1/2">
-                <X className="w-3 h-3 text-white/40 hover:text-white" />
+                <X className="w-3 h-3 text-slate-400 dark:text-white/40 hover:text-slate-700 dark:hover:text-white" />
               </button>
             )}
           </div>
@@ -660,7 +660,7 @@ export function AudioLibrary() {
                   className={`group flex items-center justify-between p-2 rounded-xl cursor-pointer transition-all duration-300 ${
                     isActive
                       ? "bg-gradient-to-r from-[#e2b43b]/10 to-transparent border border-[#e2b43b]/20 shadow-[0_4px_20px_rgba(226,180,59,0.03)]"
-                      : "hover:bg-white/[0.01] border border-transparent"
+                      : "hover:bg-slate-100 dark:hover:bg-white/[0.01] border border-transparent"
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -669,17 +669,17 @@ export function AudioLibrary() {
                       src={getReciterAvatar(rec.id, rec.name)}
                       name={rec.name}
                       className={`w-8.5 h-8.5 rounded-full border transition-all ${
-                        isActive ? "border-[#e2b43b] scale-105" : "border-white/10 group-hover:border-white/20"
+                        isActive ? "border-[#e2b43b] scale-105" : "border-slate-200 dark:border-white/10 group-hover:border-slate-300 dark:group-hover:border-white/20"
                       }`}
                     />
 
                     {/* Meta */}
                     <div className="text-right">
-                      <p className={`text-[11px] font-black transition-colors ${isActive ? "text-[#e2b43b]" : "text-white/80 group-hover:text-white"}`}>
+                      <p className={`text-[11px] font-black transition-colors ${isActive ? "text-[#e2b43b]" : "text-slate-700 dark:text-white/80 group-hover:text-slate-900 dark:group-hover:text-white"}`}>
                         {rec.name.split(" ").slice(0, 3).join(" ")}
                       </p>
                       {popular && (
-                        <p className="text-[9px] text-white/25 font-bold mt-0.5">استماع {listens}</p>
+                        <p className="text-[9px] text-slate-400 dark:text-white/25 font-bold mt-0.5">استماع {listens}</p>
                       )}
                     </div>
                   </div>
@@ -688,7 +688,7 @@ export function AudioLibrary() {
                   <button className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${
                     isActive
                       ? "bg-[#e2b43b] text-black shadow-lg shadow-[#e2b43b]/15 scale-105"
-                      : "bg-white/5 text-white/40 group-hover:bg-white/10 group-hover:text-white"
+                      : "bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-white/40 group-hover:bg-slate-200 dark:group-hover:bg-white/10 group-hover:text-slate-700 dark:group-hover:text-white"
                   }`}>
                     {isActive && isPlaying ? (
                       <Pause className="w-3 h-3 fill-current" />
@@ -706,14 +706,14 @@ export function AudioLibrary() {
         <div className="flex flex-col gap-4 overflow-y-auto no-scrollbar min-w-0">
 
           {/* 1. Sticky Player, Search & Filters Section */}
-          <div className="sticky top-0 z-30 bg-[#0c0d10] pb-3 pt-1 flex flex-col gap-3 shadow-sm">
+          <div className="sticky top-0 z-30 bg-[#f8fafc] dark:bg-[#0c0d10] pb-3 pt-1 flex flex-col gap-3 shadow-sm dark:shadow-none">
             {/* Large Main Player Widget */}
-            <div className="relative rounded-2xl bg-gradient-to-b from-[#14151a] to-[#0b0c0f] border border-white/5 p-4 lg:p-5 overflow-hidden shadow-2xl flex flex-col md:flex-row items-center gap-4">
+            <div className="relative rounded-2xl bg-gradient-to-b from-white to-slate-50/50 dark:from-[#14151a] dark:to-[#0b0c0f] border border-slate-200 dark:border-white/5 p-4 lg:p-5 overflow-hidden shadow-md dark:shadow-2xl flex flex-col md:flex-row items-center gap-4">
               {/* Background pattern */}
               <div className="absolute inset-0 islamic-pattern opacity-[0.01] pointer-events-none" />
 
               {/* Album image on the right (RTL) */}
-              <div className="relative w-20 h-20 lg:w-24 lg:h-24 rounded-2xl overflow-hidden border border-white/10 shadow-2xl shrink-0 group">
+              <div className="relative w-20 h-20 lg:w-24 lg:h-24 rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 shadow-sm dark:shadow-2xl shrink-0 group">
                 <img
                   src="/quran_3d_hero.png"
                   alt="Quran"
@@ -730,11 +730,11 @@ export function AudioLibrary() {
               {/* Content info & Waveform player */}
               <div className="flex-1 w-full text-center md:text-right flex flex-col gap-3">
                 <div>
-                  <p className="text-[9px] font-black uppercase tracking-[0.25em] text-white/20 mb-0.5">جاري الاستماع الآن</p>
-                  <h2 className="text-lg lg:text-xl font-black font-arabic text-white mb-1.5 leading-none">
+                  <p className="text-[9px] font-black uppercase tracking-[0.25em] text-slate-400 dark:text-white/20 mb-0.5">جاري الاستماع الآن</p>
+                  <h2 className="text-lg lg:text-xl font-black font-arabic text-slate-800 dark:text-white mb-1.5 leading-none">
                     سورة {currentSurah.name}
                   </h2>
-                  <div className="flex items-center justify-center md:justify-start gap-1.5 text-white/40 text-[10px] font-bold">
+                  <div className="flex items-center justify-center md:justify-start gap-1.5 text-slate-500 dark:text-white/40 text-[10px] font-bold">
                     <span className="text-[#e2b43b] font-black">{selectedReciter.name}</span>
                     <span>•</span>
                     <span>{currentSurah.total_verses} آية</span>
@@ -761,7 +761,7 @@ export function AudioLibrary() {
                           className={`w-[2.5px] rounded-full transition-all duration-300 cursor-pointer ${
                             isActive
                               ? "bg-[#e2b43b]"
-                              : "bg-white/10 hover:bg-white/20"
+                              : "bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20"
                           }`}
                           style={{ height: `${height}px` }}
                         />
@@ -769,14 +769,14 @@ export function AudioLibrary() {
                     })}
                   </div>
 
-                  <div className="flex items-center justify-between text-[10px] font-black text-white/25 tabular-nums">
+                  <div className="flex items-center justify-between text-[10px] font-black text-slate-400 dark:text-white/25 tabular-nums">
                     <span>{fmt(currentTime)}</span>
                     <span>{fmt(duration)}</span>
                   </div>
                 </div>
 
                 {/* Actions row (Smaller paddings and icons) */}
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-0.5 border-t border-white/5 pt-3">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-0.5 border-t border-slate-100 dark:border-white/5 pt-3">
                   {/* Play Button */}
                   <button
                     onClick={() => setIsPlaying(!isPlaying)}
@@ -789,38 +789,38 @@ export function AudioLibrary() {
                     )}
                   </button>
 
-                  {/* Controls */}
+                  {/* Controls (Swapped for RTL arrow logic: Prev goes right/SkipForward, Next goes left/SkipBack) */}
                   <button
                     onClick={handlePrev}
-                    className="p-2 text-white/40 hover:text-white hover:bg-white/5 rounded-full transition-all active:scale-95"
-                  >
-                    <SkipBack className="w-3.5 h-3.5 fill-current" />
-                  </button>
-                  <button
-                    onClick={handleNext}
-                    className="p-2 text-white/40 hover:text-white hover:bg-white/5 rounded-full transition-all active:scale-95"
+                    className="p-2 text-slate-400 dark:text-white/40 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-all active:scale-95"
                   >
                     <SkipForward className="w-3.5 h-3.5 fill-current" />
                   </button>
                   <button
+                    onClick={handleNext}
+                    className="p-2 text-slate-400 dark:text-white/40 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-all active:scale-95"
+                  >
+                    <SkipBack className="w-3.5 h-3.5 fill-current" />
+                  </button>
+                  <button
                     onClick={() => setIsShuffle(!isShuffle)}
-                    className={`p-2 rounded-full transition-all ${isShuffle ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-white/30 hover:text-white"}`}
+                    className={`p-2 rounded-full transition-all ${isShuffle ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-slate-400 dark:text-white/30 hover:text-slate-700 dark:hover:text-white"}`}
                   >
                     <Shuffle className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => setIsRepeat(!isRepeat)}
-                    className={`p-2 rounded-full transition-all ${isRepeat ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-white/30 hover:text-white"}`}
+                    className={`p-2 rounded-full transition-all ${isRepeat ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-slate-400 dark:text-white/30 hover:text-slate-700 dark:hover:text-white"}`}
                   >
                     <Repeat className="w-3.5 h-3.5" />
                   </button>
 
-                  <div className="h-5 w-px bg-white/5 mx-1" />
+                  <div className="h-5 w-px bg-slate-200 dark:bg-white/5 mx-1" />
 
                   {/* Extra actions */}
                   <button
                     onClick={handleShare}
-                    className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-[10px] font-black transition-all flex items-center gap-1.5 border border-white/5"
+                    className="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-white/60 hover:text-slate-800 dark:hover:text-white text-[10px] font-black transition-all flex items-center gap-1.5 border border-slate-200 dark:border-white/5"
                   >
                     <Share2 className="w-3 h-3" />
                     <span>مشاركة</span>
@@ -831,7 +831,7 @@ export function AudioLibrary() {
                     className={`px-2.5 py-1.5 rounded-xl text-[10px] font-black transition-all flex items-center gap-1.5 border ${
                       favorites.includes(currentSurah.id)
                         ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
-                        : "bg-white/5 border-white/5 text-white/60 hover:text-white"
+                        : "bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-600 dark:text-white/60 hover:text-slate-800 dark:hover:text-white"
                     }`}
                   >
                     <Heart className={`w-3 h-3 ${favorites.includes(currentSurah.id) ? "fill-current" : ""}`} />
@@ -840,7 +840,7 @@ export function AudioLibrary() {
 
                   <button
                     onClick={downloadSurah}
-                    className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-[10px] font-black transition-all flex items-center gap-1.5 border border-white/5"
+                    className="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-white/60 hover:text-slate-800 dark:hover:text-white text-[10px] font-black transition-all flex items-center gap-1.5 border border-slate-200 dark:border-white/5"
                   >
                     <Download className="w-3 h-3" />
                     <span>تحميل</span>
@@ -851,7 +851,7 @@ export function AudioLibrary() {
                     className={`px-2.5 py-1.5 rounded-xl text-[10px] font-black transition-all flex items-center gap-1.5 border ${
                       sleepTimeLeft !== null
                         ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
-                        : "bg-white/5 border-white/5 text-white/60 hover:text-white"
+                        : "bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-600 dark:text-white/60 hover:text-slate-800 dark:hover:text-white"
                     }`}
                   >
                     <Timer className="w-3.5 h-3.5" />
@@ -863,7 +863,7 @@ export function AudioLibrary() {
                     className={`px-2.5 py-1.5 rounded-xl text-[10px] font-black transition-all flex items-center gap-1.5 border ${
                       playbackSpeed !== 1.0
                         ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
-                        : "bg-white/5 border-white/5 text-white/60 hover:text-white"
+                        : "bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-600 dark:text-white/60 hover:text-slate-800 dark:hover:text-white"
                     }`}
                   >
                     <Gauge className="w-3.5 h-3.5" />
@@ -880,20 +880,20 @@ export function AudioLibrary() {
             </div>
 
             {/* Search and Filters row */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#0c0d10] py-1">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#f8fafc] dark:bg-[#0c0d10] py-1">
               {/* Search Bar */}
               <div className="relative flex-1">
-                <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20 pointer-events-none" />
+                <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 dark:text-white/20 pointer-events-none" />
                 <input
                   type="text"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   placeholder="ابحث عن سورة أو شيخ..."
-                  className="w-full bg-[#121318]/50 border border-white/5 rounded-xl py-3 pr-10 pl-4 text-xs outline-none focus:border-[#e2b43b]/40 focus:bg-[#121318] transition-all placeholder:text-white/20 text-white font-bold text-right"
+                  className="w-full bg-white dark:bg-[#121318]/50 border border-slate-200 dark:border-white/5 rounded-xl py-3 pr-10 pl-4 text-xs outline-none focus:border-[#e2b43b]/40 focus:bg-white dark:focus:bg-[#121318] transition-all placeholder:text-slate-400 dark:placeholder:text-white/20 text-slate-800 dark:text-white font-bold text-right"
                 />
                 {search && (
                   <button onClick={() => setSearch("")} className="absolute left-3.5 top-1/2 -translate-y-1/2">
-                    <X className="w-3.5 h-3.5 text-white/40 hover:text-white" />
+                    <X className="w-3.5 h-3.5 text-slate-400 dark:text-white/40 hover:text-slate-700 dark:hover:text-white" />
                   </button>
                 )}
               </div>
@@ -911,7 +911,7 @@ export function AudioLibrary() {
                     className={`px-3 py-2 rounded-xl text-[10px] font-black whitespace-nowrap transition-all ${
                       activeTab === key
                         ? "bg-[#e2b43b] text-black shadow-md shadow-[#e2b43b]/10"
-                        : "bg-[#121318]/50 border border-white/5 text-white/40 hover:text-white hover:bg-white/[0.01]"
+                        : "bg-white dark:bg-[#121318]/50 border border-slate-200 dark:border-white/5 text-slate-500 dark:text-white/40 hover:text-slate-800 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/[0.01]"
                     }`}
                   >
                     {label}
@@ -924,7 +924,7 @@ export function AudioLibrary() {
                   className={`px-3 py-2 rounded-xl text-[10px] font-black whitespace-nowrap transition-all border ${
                     sortOrder === "alphabetical"
                       ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
-                      : "bg-[#121318]/50 border-white/5 text-white/40 hover:text-white"
+                      : "bg-white dark:bg-[#121318]/50 border border-slate-200 dark:border-white/5 text-slate-500 dark:text-white/40 hover:text-slate-800 dark:hover:text-white"
                   }`}
                 >
                   الفهرسات
@@ -934,7 +934,7 @@ export function AudioLibrary() {
                   className={`px-3 py-2 rounded-xl text-[10px] font-black whitespace-nowrap transition-all border ${
                     sortOrder === "verses"
                       ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
-                      : "bg-[#121318]/50 border-white/5 text-white/40 hover:text-white"
+                      : "bg-white dark:bg-[#121318]/50 border border-slate-200 dark:border-white/5 text-slate-500 dark:text-white/40 hover:text-slate-800 dark:hover:text-white"
                   }`}
                 >
                   ترتيب السور
@@ -946,9 +946,9 @@ export function AudioLibrary() {
           {/* 2. Surah Table */}
           <div className="flex flex-col gap-3">
             {/* Surah List Table (tightened paddings py-2.5) */}
-            <div className="rounded-2xl bg-[#121318]/20 border border-white/5 overflow-hidden">
+            <div className="rounded-2xl bg-white dark:bg-[#121318]/20 border border-slate-200 dark:border-white/5 overflow-hidden shadow-sm dark:shadow-none">
               {/* Header */}
-              <div className="flex items-center px-4 py-3 text-[9px] font-black text-white/20 uppercase tracking-[0.2em] border-b border-white/5">
+              <div className="flex items-center px-4 py-3 text-[9px] font-black text-slate-400 dark:text-white/20 uppercase tracking-[0.2em] border-b border-slate-100 dark:border-white/5">
                 <div className="w-8 text-center">#</div>
                 <div className="flex-1 text-right">السورة</div>
                 <div className="w-16 text-center">آيات</div>
@@ -957,7 +957,7 @@ export function AudioLibrary() {
               </div>
 
               {/* Rows */}
-              <div className="divide-y divide-white/5">
+              <div className="divide-y divide-slate-100 dark:divide-white/5">
                 {allFiltered.map((surah) => {
                   const isCurrent = surah.id === currentSurah.id;
                   const isFav = favorites.includes(surah.id);
@@ -968,7 +968,7 @@ export function AudioLibrary() {
                       className={`group flex items-center px-4 py-2.5 cursor-pointer transition-all duration-300 ${
                         isCurrent
                           ? "bg-gradient-to-r from-[#e2b43b]/10 via-[#e2b43b]/5 to-transparent text-[#e2b43b]"
-                          : "hover:bg-white/[0.01]"
+                          : "hover:bg-slate-50 dark:hover:bg-white/[0.01]"
                       }`}
                     >
                       {/* Index / Play status */}
@@ -980,7 +980,7 @@ export function AudioLibrary() {
                             <div className="w-[2.5px] rounded-sm bg-[#e2b43b] animate-music-bar" style={{ animationDelay: "300ms" }} />
                           </div>
                         ) : (
-                          <span className={`text-[11px] font-black tabular-nums transition-colors ${isCurrent ? "text-[#e2b43b]" : "text-white/20 group-hover:text-white/50"}`}>
+                          <span className={`text-[11px] font-black tabular-nums transition-colors ${isCurrent ? "text-[#e2b43b]" : "text-slate-300 dark:text-white/20 group-hover:text-slate-500 dark:group-hover:text-white/50"}`}>
                             {surah.id}
                           </span>
                         )}
@@ -988,19 +988,19 @@ export function AudioLibrary() {
 
                       {/* Name */}
                       <div className="flex-1 text-right min-w-0 px-2.5">
-                        <p className={`text-xs font-black font-arabic leading-tight ${isCurrent ? "text-[#e2b43b]" : "text-white"}`}>
+                        <p className={`text-xs font-black font-arabic leading-tight ${isCurrent ? "text-[#e2b43b]" : "text-slate-800 dark:text-white"}`}>
                           {surah.name}
                         </p>
-                        <p className="text-[9px] text-white/25 font-bold mt-0.5 truncate">{surah.transliteration}</p>
+                        <p className="text-[9px] text-slate-400 dark:text-white/25 font-bold mt-0.5 truncate">{surah.transliteration}</p>
                       </div>
 
                       {/* Verses */}
-                      <div className="w-16 text-center font-bold text-[11px] text-white/30 group-hover:text-white/50">
+                      <div className="w-16 text-center font-bold text-[11px] text-slate-400 dark:text-white/30 group-hover:text-slate-600 dark:group-hover:text-white/50">
                         {surah.total_verses}
                       </div>
 
                       {/* Mock Duration */}
-                      <div className="w-24 text-center font-black text-[11px] text-white/30 group-hover:text-white/50 tabular-nums">
+                      <div className="w-24 text-center font-black text-[11px] text-slate-400 dark:text-white/30 group-hover:text-slate-600 dark:group-hover:text-white/50 tabular-nums">
                         {getSurahDuration(surah.id, surah.total_verses)}
                       </div>
 
@@ -1014,7 +1014,7 @@ export function AudioLibrary() {
                           className={`p-1.5 rounded-full transition-all ${
                             isFav
                               ? "text-[#e2b43b]"
-                              : "text-white/10 opacity-0 group-hover:opacity-100 hover:text-white/50"
+                              : "text-slate-300 dark:text-white/10 opacity-0 group-hover:opacity-100 hover:text-slate-500 dark:hover:text-white/50"
                           }`}
                         >
                           <Heart className={`w-3.5 h-3.5 ${isFav ? "fill-current" : ""}`} />
@@ -1026,15 +1026,15 @@ export function AudioLibrary() {
 
                 {allFiltered.length === 0 && (
                   <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
-                    <Search className="w-8 h-8 text-white/5" />
-                    <p className="text-xs text-white/25 font-bold">لا توجد سور مطابقة لبحثك</p>
+                    <Search className="w-8 h-8 text-slate-200 dark:text-white/5" />
+                    <p className="text-xs text-slate-400 dark:text-white/25 font-bold">لا توجد سور مطابقة لبحثك</p>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Show More */}
-            <button className="w-full py-3 rounded-2xl bg-[#121318]/10 hover:bg-[#121318]/25 text-white/35 hover:text-white border border-white/5 text-[10px] font-black transition-all flex items-center justify-center gap-1.5 active:scale-[0.98]">
+            <button className="w-full py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-[#121318]/10 dark:hover:bg-[#121318]/25 text-slate-500 dark:text-white/35 hover:text-slate-700 dark:hover:text-white border border-slate-200 dark:border-white/5 text-[10px] font-black transition-all flex items-center justify-center gap-1.5 active:scale-[0.98]">
               <span>عرض المزيد</span>
               <ChevronDown className="w-3.5 h-3.5" />
             </button>
@@ -1045,8 +1045,8 @@ export function AudioLibrary() {
         <aside className="hidden lg:flex flex-col gap-4 overflow-y-auto no-scrollbar">
 
           {/* 1. Navigation / Filters Card */}
-          <div className="rounded-2xl bg-[#121318]/50 border border-white/5 p-3 flex flex-col gap-0.5 shadow-xl">
-            <div className="flex items-center justify-end gap-2 px-2 py-0.5 text-white/40 mb-0.5 border-b border-white/5 pb-1.5">
+          <div className="rounded-2xl bg-white dark:bg-[#121318]/50 border border-slate-200 dark:border-white/5 p-3 flex flex-col gap-0.5 shadow-xl">
+            <div className="flex items-center justify-end gap-2 px-2 py-0.5 text-slate-400 dark:text-white/40 mb-0.5 border-b border-slate-100 dark:border-white/5 pb-1.5">
               <span className="text-[10px] font-black font-arabic">صوتيات القرآن</span>
               <Headphones className="w-3 h-3 text-[#e2b43b]" />
             </div>
@@ -1069,7 +1069,7 @@ export function AudioLibrary() {
                   className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[10px] font-black transition-all text-right ${
                     active
                       ? "bg-[#e2b43b] text-black shadow-md shadow-[#e2b43b]/10"
-                      : "text-white/50 hover:text-white hover:bg-white/[0.01]"
+                      : "text-slate-500 dark:text-white/50 hover:text-slate-800 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/[0.01]"
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -1084,7 +1084,7 @@ export function AudioLibrary() {
 
 
           {/* 3. Support Card (دعم تطبيق يقين) */}
-          <div className="relative rounded-2xl bg-gradient-to-br from-[#1b1712] to-[#0c0d10] border border-[#e2b43b]/20 p-4 flex flex-col gap-3 shadow-xl overflow-hidden group">
+          <div className="relative rounded-2xl bg-gradient-to-br from-[#fefaf0] to-[#f8fafc] dark:from-[#1b1712] dark:to-[#0c0d10] border border-[#e2b43b]/30 dark:border-[#e2b43b]/20 p-4 flex flex-col gap-3 shadow-xl overflow-hidden group">
             {/* Shine highlight */}
             <div className="absolute top-0 right-0 w-20 h-20 bg-[#e2b43b]/5 rounded-full blur-2xl pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#e2b43b]/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
@@ -1098,8 +1098,8 @@ export function AudioLibrary() {
             </div>
 
             <div className="text-right space-y-1">
-              <h4 className="text-xs font-black text-white">ادعم تطبيق يقين 👑</h4>
-              <p className="text-[10px] text-white/40 leading-relaxed font-bold">
+              <h4 className="text-xs font-black text-slate-800 dark:text-white">ادعم تطبيق يقين 👑</h4>
+              <p className="text-[10px] text-slate-500 dark:text-white/40 leading-relaxed font-bold">
                 يقين خالي من الإعلانات. دعمك يضمن استمرار السيرفرات لخدمة كتاب الله.
               </p>
             </div>
@@ -1121,12 +1121,12 @@ export function AudioLibrary() {
           MOBILE BOTTOM CONTROLLER BAR
       ══════════════════════════════════════════ */}
       <div
-        className="fixed left-0 right-0 z-[900] bg-[#121318]/95 backdrop-blur-2xl border-t border-white/5 shadow-[0_-8px_32px_rgba(0,0,0,0.4)] lg:hidden flex flex-col"
+        className="fixed left-0 right-0 z-[900] bg-white/95 dark:bg-[#121318]/95 backdrop-blur-2xl border-t border-slate-200 dark:border-t-white/5 shadow-[0_-8px_32px_rgba(0,0,0,0.1)] dark:shadow-[0_-8px_32px_rgba(0,0,0,0.4)] lg:hidden flex flex-col"
         style={{ bottom: `${NAV_H}px` }}
       >
         {/* Progress bar thin */}
         <div
-          className="relative w-full h-1 bg-white/5 cursor-pointer"
+          className="relative w-full h-1 bg-slate-100 dark:bg-white/5 cursor-pointer"
           onClick={(e) => {
             const rect = e.currentTarget.getBoundingClientRect();
             const ratio = 1 - (e.clientX - rect.left) / rect.width;
@@ -1146,43 +1146,43 @@ export function AudioLibrary() {
         <div className="flex items-center px-4 h-16 gap-3">
           {/* Info */}
           <div className="flex items-center gap-3 flex-1 min-w-0 text-right">
-            <div className="w-9 h-9 shrink-0 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 overflow-hidden relative">
+            <div className="w-9 h-9 shrink-0 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center border border-slate-200 dark:border-white/10 overflow-hidden relative">
               <div className="absolute inset-0 islamic-pattern opacity-10 pointer-events-none" />
               <Disc className={`w-4 h-4 text-[#e2b43b]/50 ${isPlaying ? "animate-spin-slow" : ""}`} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-black truncate text-white leading-tight">سورة {currentSurah.name}</p>
-              <p className="text-[9px] text-white/40 truncate font-bold">{selectedReciter.name}</p>
+              <p className="text-xs font-black truncate text-slate-800 dark:text-white leading-tight">سورة {currentSurah.name}</p>
+              <p className="text-[9px] text-slate-500 dark:text-white/40 truncate font-bold">{selectedReciter.name}</p>
             </div>
           </div>
 
           {/* Volume button on mobile */}
           <button
             onClick={() => setIsMuted(!isMuted)}
-            className="p-2 text-white/40 hover:text-white shrink-0"
+            className="p-2 text-slate-400 hover:text-slate-800 dark:text-white/40 dark:hover:text-white shrink-0"
           >
             {isMuted || volume === 0 ? <VolumeX className="w-4 h-4 text-red-500" /> : <Volume2 className="w-4 h-4" />}
           </button>
 
-          {/* Playback Controls */}
+          {/* Playback Controls (Swapped for RTL arrow logic: Prev goes right/SkipForward, Next goes left/SkipBack) */}
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={handlePrev}
-              className="p-2 text-white/50 hover:text-white"
+              className="p-2 text-slate-400 hover:text-slate-800 dark:text-white/50 dark:hover:text-white"
             >
-              <SkipBack className="w-4 h-4 fill-current" />
+              <SkipForward className="w-4 h-4 fill-current" />
             </button>
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className="w-9 h-9 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-md"
+              className="w-9 h-9 rounded-full bg-[#e2b43b] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-md"
             >
-              {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current translate-x-[1px]" />}
+              {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current translate-x-[0.5px]" />}
             </button>
             <button
               onClick={handleNext}
-              className="p-2 text-white/50 hover:text-white"
+              className="p-2 text-slate-400 hover:text-slate-800 dark:text-white/50 dark:hover:text-white"
             >
-              <SkipForward className="w-4 h-4 fill-current" />
+              <SkipBack className="w-4 h-4 fill-current" />
             </button>
           </div>
         </div>
@@ -1202,40 +1202,40 @@ export function AudioLibrary() {
             <motion.div
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="relative w-full max-w-md bg-[#121318] rounded-t-3xl border-t border-white/10 overflow-hidden flex flex-col shadow-2xl"
+              className="relative w-full max-w-md bg-white dark:bg-[#121318] rounded-t-3xl border-t border-slate-200 dark:border-t-white/10 overflow-hidden flex flex-col shadow-2xl"
               style={{ maxHeight: "75dvh" }}
             >
               {/* Handle bar */}
               <div className="flex justify-center pt-3 pb-1 shrink-0">
-                <div className="w-8 h-1 bg-white/10 rounded-full" />
+                <div className="w-8 h-1 bg-slate-200 dark:bg-white/10 rounded-full" />
               </div>
 
               {/* Header */}
-              <div className="px-5 pb-3 pt-1 flex items-center justify-between shrink-0 border-b border-white/5">
+              <div className="px-5 pb-3 pt-1 flex items-center justify-between shrink-0 border-b border-slate-100 dark:border-white/5">
                 <button
                   onClick={() => setShowReciters(false)}
-                  className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+                  className="p-1.5 rounded-full bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
                 >
-                  <X className="w-4 h-4 text-white/40" />
+                  <X className="w-4 h-4 text-slate-400 dark:text-white/40" />
                 </button>
-                <h3 className="text-sm font-black text-white font-arabic">اختر القارئ</h3>
+                <h3 className="text-sm font-black text-slate-800 dark:text-white font-arabic">اختر القارئ</h3>
                 <div className="w-8" />
               </div>
 
               {/* Search input inside drawer */}
-              <div className="px-4 py-3 shrink-0 border-b border-white/5">
+              <div className="px-4 py-3 shrink-0 border-b border-slate-100 dark:border-white/5">
                 <div className="relative">
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 pointer-events-none" />
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-white/20 pointer-events-none" />
                   <input
                     type="text"
                     value={reciterSearch}
                     onChange={e => setReciterSearch(e.target.value)}
                     placeholder="ابحث عن قارئ..."
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pr-9 pl-9 text-xs outline-none focus:border-[#e2b43b]/40 focus:bg-white/[0.07] transition-all placeholder:text-white/20 font-bold text-right text-white"
+                    className="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-2.5 pr-9 pl-9 text-xs outline-none focus:border-[#e2b43b]/40 focus:bg-slate-200 dark:focus:bg-white/[0.07] transition-all placeholder:text-slate-400 dark:placeholder:text-white/20 font-bold text-right text-slate-800 dark:text-white"
                   />
                   {reciterSearch && (
                     <button onClick={() => setReciterSearch("")} className="absolute left-3 top-1/2 -translate-y-1/2">
-                      <X className="w-4 h-4 text-white/40 hover:text-white" />
+                      <X className="w-4 h-4 text-slate-400 dark:text-white/40 hover:text-slate-700 dark:hover:text-white" />
                     </button>
                   )}
                 </div>
@@ -1245,8 +1245,8 @@ export function AudioLibrary() {
               <div className="flex-1 overflow-y-auto no-scrollbar p-2 space-y-0.5">
                 {filteredReciters.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
-                    <Search className="w-8 h-8 text-white/10" />
-                    <p className="text-xs text-white/30 font-bold">لا يوجد قراء بهذا الاسم</p>
+                    <Search className="w-8 h-8 text-slate-300 dark:text-white/10" />
+                    <p className="text-xs text-slate-400 dark:text-white/30 font-bold">لا يوجد قراء بهذا الاسم</p>
                   </div>
                 ) : (
                   filteredReciters.map(rec => {
@@ -1256,7 +1256,7 @@ export function AudioLibrary() {
                         key={rec.id}
                         onClick={() => { setSelectedReciter(rec); setShowReciters(false); }}
                         className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-right ${
-                          isSel ? "bg-[#e2b43b]/10 text-[#e2b43b]" : "hover:bg-white/[0.01] text-white/70"
+                          isSel ? "bg-[#e2b43b]/10 text-[#e2b43b]" : "hover:bg-slate-50 dark:hover:bg-white/[0.01] text-slate-700 dark:text-white/70 hover:text-slate-900 dark:hover:text-white"
                         }`}
                       >
                         {/* Sheikh photo/avatar in the selection drawer */}
@@ -1264,7 +1264,7 @@ export function AudioLibrary() {
                           src={getReciterAvatar(rec.id, rec.name)}
                           name={rec.name}
                           className={`w-8 h-8 rounded-full border shrink-0 ${
-                            isSel ? "border-[#e2b43b]" : "border-white/10"
+                            isSel ? "border-[#e2b43b]" : "border-slate-200 dark:border-white/10"
                           }`}
                         />
                         <span className="text-xs font-black flex-1 truncate">{rec.name}</span>
