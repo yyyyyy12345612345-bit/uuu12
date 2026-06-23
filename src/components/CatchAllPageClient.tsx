@@ -7,7 +7,7 @@ import { useEditor } from "@/store/useEditor";
 import { useRouter } from "next/navigation";
 import { useInstantPathname, getViewFromPathname, navigateInstantly } from "@/lib/navigation";
 import { Settings, X, Download, Menu } from "lucide-react";
-import { db } from "@/lib/firebase";
+import { db, auth } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
 const ComponentLoader = () => (
@@ -120,7 +120,14 @@ function CatchAllContent() {
   useEffect(() => {
     const handleShowProfile = (e: any) => {
       const userId = e.detail?.userId;
-      if (userId) setSelectedProfileUserId(userId);
+      const myUid = auth?.currentUser?.uid;
+      if (userId) {
+        if (myUid && userId === myUid) {
+          setIsProfileOpen(true);
+        } else {
+          setSelectedProfileUserId(userId);
+        }
+      }
     };
     const handleOpenChat = (e: any) => {
       const userId = e.detail?.userId;
@@ -129,13 +136,18 @@ function CatchAllContent() {
     const handleOpenSubscription = () => {
       setIsSubscriptionOpen(true);
     };
+    const handleOpenProfileSettings = () => {
+      setIsProfileOpen(true);
+    };
     window.addEventListener('show_user_profile', handleShowProfile);
     window.addEventListener('open_direct_chat', handleOpenChat);
     window.addEventListener('open_subscription_modal', handleOpenSubscription);
+    window.addEventListener('open_profile_settings', handleOpenProfileSettings);
     return () => {
       window.removeEventListener('show_user_profile', handleShowProfile);
       window.removeEventListener('open_direct_chat', handleOpenChat);
       window.removeEventListener('open_subscription_modal', handleOpenSubscription);
+      window.removeEventListener('open_profile_settings', handleOpenProfileSettings);
     };
   }, []);
 

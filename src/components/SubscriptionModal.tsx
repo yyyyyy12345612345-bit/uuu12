@@ -223,7 +223,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
         initial={{ opacity: 0, scale: 0.96, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-7xl bg-gradient-to-br from-[#0a0b0e] via-[#0c0d10] to-[#0a0b0e] border border-white/10 rounded-[3rem] shadow-[0_50px_150px_rgba(0,0,0,0.8)] flex flex-col lg:flex-row h-full lg:h-auto lg:max-h-[90vh] overflow-hidden"
+        className="relative w-full max-w-7xl bg-gradient-to-br from-[#0a0b0e] via-[#0c0d10] to-[#0a0b0e] border border-white/10 rounded-t-[2.5rem] rounded-b-none md:rounded-[3rem] shadow-[0_50px_150px_rgba(0,0,0,0.8)] flex flex-col lg:flex-row h-full lg:h-auto lg:max-h-[90vh] overflow-y-auto lg:overflow-hidden"
       >
         <div className="absolute inset-0 islamic-pattern opacity-[0.02] pointer-events-none" />
 
@@ -237,7 +237,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
         </button>
 
         {/* ============ LEFT SECTION: Plans ============ */}
-        <div className="w-full lg:w-[45%] p-8 lg:p-10 border-b lg:border-b-0 lg:border-r border-white/5 overflow-y-auto no-scrollbar bg-black/20 backdrop-blur-3xl relative z-10">
+        <div className="w-full lg:w-[45%] p-6 lg:p-10 border-b lg:border-b-0 lg:border-r border-white/5 overflow-visible lg:overflow-y-auto lg:no-scrollbar bg-black/20 backdrop-blur-3xl relative z-10 shrink-0">
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-3">
               <Sparkles className="w-6 h-6 text-primary animate-pulse" />
@@ -330,7 +330,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
         </div>
 
         {/* ============ RIGHT SECTION: Checkout ============ */}
-        <div className="flex-1 p-8 lg:p-14 flex flex-col justify-center relative z-10 bg-gradient-to-br from-black/30 to-transparent overflow-hidden">
+        <div className="flex-1 p-6 lg:p-14 flex flex-col justify-center relative z-10 bg-gradient-to-br from-black/30 to-transparent overflow-visible lg:overflow-y-auto lg:no-scrollbar">
 
           <AnimatePresence mode="wait">
             {activeTab === "plans" ? (
@@ -450,7 +450,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="space-y-5 overflow-y-auto no-scrollbar max-h-[calc(90vh-8rem)] pb-6"
+                className="space-y-5 lg:overflow-y-auto lg:no-scrollbar lg:max-h-[calc(90vh-8rem)] overflow-visible pb-6"
               >
 
               {/* Header */}

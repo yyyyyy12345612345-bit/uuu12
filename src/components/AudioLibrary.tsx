@@ -267,6 +267,16 @@ export function AudioLibrary() {
   const [isRepeat, setIsRepeat] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [localProgress, setLocalProgress] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Sync localProgress with progress when not dragging
+  useEffect(() => {
+    if (!isDragging) {
+      setLocalProgress(progress);
+    }
+  }, [progress, isDragging]);
+
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [search, setSearch] = useState("");
@@ -563,9 +573,23 @@ export function AudioLibrary() {
     else setPlaybackSpeed(1.0);
   };
 
-  const seek = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseFloat(e.target.value);
+    setLocalProgress(val);
+    if (!isDragging) {
+      const a = audioRef.current;
+      if (a && a.duration) {
+        a.currentTime = (val / 100) * a.duration;
+      }
+    }
+  };
+
+  const handleSliderRelease = () => {
+    setIsDragging(false);
     const a = audioRef.current;
-    if (a) a.currentTime = (parseFloat(e.target.value) / 100) * a.duration;
+    if (a && a.duration) {
+      a.currentTime = (localProgress / 100) * a.duration;
+    }
   };
 
   // Mock static surah listen duration matching screenshot
@@ -618,11 +642,11 @@ export function AudioLibrary() {
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-[250px_1fr_280px] gap-4 p-3 lg:p-4 overflow-hidden h-full">
 
         {/* ── COLUMN 1: LEFT SIDEBAR (الشيوخ) ── */}
-        <aside className="hidden lg:flex flex-col gap-3 p-3 rounded-2xl bg-white dark:bg-[#0e0f12]/50 border border-slate-200 dark:border-white/5 h-full overflow-hidden shadow-sm dark:shadow-none">
+        <aside className="hidden lg:flex flex-col gap-3 p-3 rounded-2xl bg-white/40 dark:bg-black/30 backdrop-blur-md border border-slate-200/50 dark:border-white/5 h-full overflow-hidden shadow-sm dark:shadow-none">
           {/* Header */}
           <div className="flex items-center justify-between py-0.5 relative shrink-0">
-            <div className="absolute right-0 left-0 top-1/2 h-px bg-slate-200 dark:bg-white/5 -z-10" />
-            <div className="bg-[#f8fafc] dark:bg-[#0f1015] px-3 mx-auto flex items-center gap-1.5 text-slate-500 dark:text-white/60">
+            <div className="absolute right-0 left-0 top-1/2 h-px bg-slate-200/30 dark:bg-white/5 -z-10" />
+            <div className="bg-[#f8fafc]/50 dark:bg-[#0f1015]/50 px-3 mx-auto flex items-center gap-1.5 text-slate-500 dark:text-white/60">
               <span className="text-[10px] font-black tracking-wider font-arabic">الشيوخ</span>
               <Headphones className="w-3 h-3 text-[#e2b43b]" />
             </div>
@@ -636,7 +660,7 @@ export function AudioLibrary() {
               value={reciterSearch}
               onChange={e => setReciterSearch(e.target.value)}
               placeholder="ابحث عن قارئ..."
-              className="w-full bg-slate-100 dark:bg-[#121318]/50 border border-slate-200 dark:border-white/5 rounded-lg py-1.5 pr-8 pl-3 text-[10px] outline-none focus:border-[#e2b43b]/40 focus:bg-white dark:focus:bg-[#121318] transition-all placeholder:text-slate-400 dark:placeholder:text-white/20 text-slate-800 dark:text-white font-bold text-right"
+              className="w-full bg-slate-100/50 dark:bg-[#121318]/30 backdrop-blur-sm border border-slate-200/50 dark:border-white/5 rounded-lg py-1.5 pr-8 pl-3 text-[10px] outline-none focus:border-[#e2b43b]/40 focus:bg-white/80 dark:focus:bg-[#121318]/60 transition-all placeholder:text-slate-400 dark:placeholder:text-white/20 text-slate-800 dark:text-white font-bold text-right"
             />
             {reciterSearch && (
               <button onClick={() => setReciterSearch("")} className="absolute left-2.5 top-1/2 -translate-y-1/2">
@@ -706,9 +730,9 @@ export function AudioLibrary() {
         <div className="flex flex-col gap-4 overflow-y-auto no-scrollbar min-w-0">
 
           {/* 1. Sticky Player, Search & Filters Section */}
-          <div className="relative lg:sticky lg:top-0 lg:z-30 bg-[#f8fafc] dark:bg-[#0c0d10] pb-3 pt-1 flex flex-col gap-3 shadow-sm dark:shadow-none">
+          <div className="relative lg:sticky lg:top-0 lg:z-30 bg-transparent pb-3 pt-1 flex flex-col gap-3 shadow-sm dark:shadow-none">
             {/* Large Main Player Widget */}
-            <div className="relative rounded-2xl bg-gradient-to-b from-white to-slate-50/50 dark:from-[#14151a] dark:to-[#0b0c0f] border border-slate-200 dark:border-white/5 p-4 lg:p-5 overflow-hidden shadow-md dark:shadow-2xl flex flex-col md:flex-row items-center gap-4">
+            <div className="relative rounded-2xl bg-white/40 dark:bg-black/30 backdrop-blur-md border border-slate-200/50 dark:border-white/5 p-4 lg:p-5 overflow-hidden shadow-md dark:shadow-2xl flex flex-col md:flex-row items-center gap-4">
               {/* Background pattern */}
               <div className="absolute inset-0 islamic-pattern opacity-[0.01] pointer-events-none" />
 
@@ -776,13 +800,13 @@ export function AudioLibrary() {
                       {/* Active progress track */}
                       <div
                         className="absolute inset-y-0 right-0 bg-[#e2b43b] rounded-full"
-                        style={{ width: `${progress}%` }}
+                        style={{ width: `${localProgress}%` }}
                       />
                     </div>
                     {/* Drag thumb/handle */}
                     <div
                       className="absolute w-3.5 h-3.5 rounded-full bg-white border-2 border-[#e2b43b] shadow-md transition-transform scale-100 md:scale-0 group-hover/slider:scale-100 focus-within:scale-100"
-                      style={{ right: `calc(${progress}% - 7px)` }}
+                      style={{ right: `calc(${localProgress}% - 7px)` }}
                     />
                     {/* Native slider input for interaction */}
                     <input
@@ -790,8 +814,12 @@ export function AudioLibrary() {
                       min="0"
                       max="100"
                       step="0.1"
-                      value={progress}
-                      onChange={seek}
+                      value={localProgress}
+                      onChange={handleSliderChange}
+                      onMouseDown={() => setIsDragging(true)}
+                      onTouchStart={() => setIsDragging(true)}
+                      onMouseUp={handleSliderRelease}
+                      onTouchEnd={handleSliderRelease}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     />
                   </div>
@@ -914,7 +942,7 @@ export function AudioLibrary() {
             </div>
 
             {/* Search and Filters row */}
-            <div className="sticky top-0 z-20 lg:relative lg:top-auto lg:z-auto bg-[#f8fafc] dark:bg-[#0c0d10] py-1.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-white/5 lg:border-none">
+            <div className="sticky top-0 z-20 lg:relative lg:top-auto lg:z-auto bg-[#f8fafc]/80 dark:bg-[#0c0d10]/80 backdrop-blur-md py-1.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100/50 dark:border-white/5 lg:border-none">
               {/* Search Bar */}
               <div className="relative flex-1">
                 <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 dark:text-white/20 pointer-events-none" />
@@ -923,7 +951,7 @@ export function AudioLibrary() {
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   placeholder="ابحث عن سورة أو شيخ..."
-                  className="w-full bg-white dark:bg-[#121318]/50 border border-slate-200 dark:border-white/5 rounded-xl py-3 pr-10 pl-4 text-xs outline-none focus:border-[#e2b43b]/40 focus:bg-white dark:focus:bg-[#121318] transition-all placeholder:text-slate-400 dark:placeholder:text-white/20 text-slate-800 dark:text-white font-bold text-right"
+                  className="w-full bg-white/50 dark:bg-[#121318]/30 backdrop-blur-sm border border-slate-200/50 dark:border-white/5 rounded-xl py-3 pr-10 pl-4 text-xs outline-none focus:border-[#e2b43b]/40 focus:bg-white/80 dark:focus:bg-[#121318]/60 transition-all placeholder:text-slate-400 dark:placeholder:text-white/20 text-slate-800 dark:text-white font-bold text-right"
                 />
                 {search && (
                   <button onClick={() => setSearch("")} className="absolute left-3.5 top-1/2 -translate-y-1/2">
@@ -945,7 +973,7 @@ export function AudioLibrary() {
                     className={`px-3 py-2 rounded-xl text-[10px] font-black whitespace-nowrap transition-all ${
                       activeTab === key
                         ? "bg-[#e2b43b] text-black shadow-md shadow-[#e2b43b]/10"
-                        : "bg-white dark:bg-[#121318]/50 border border-slate-200 dark:border-white/5 text-slate-500 dark:text-white/40 hover:text-slate-800 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/[0.01]"
+                        : "bg-white/40 dark:bg-[#121318]/30 border border-slate-200/50 dark:border-white/5 text-slate-500 dark:text-white/40 hover:text-slate-800 dark:hover:text-white hover:bg-white/60 dark:hover:bg-white/50"
                     }`}
                   >
                     {label}
@@ -958,7 +986,7 @@ export function AudioLibrary() {
                   className={`px-3 py-2 rounded-xl text-[10px] font-black whitespace-nowrap transition-all border ${
                     sortOrder === "alphabetical"
                       ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
-                      : "bg-white dark:bg-[#121318]/50 border border-slate-200 dark:border-white/5 text-slate-500 dark:text-white/40 hover:text-slate-800 dark:hover:text-white"
+                      : "bg-white/40 dark:bg-[#121318]/30 border border-slate-200/50 dark:border-white/5 text-slate-500 dark:text-white/40 hover:text-slate-800 dark:hover:text-white"
                   }`}
                 >
                   الفهرسات
@@ -968,7 +996,7 @@ export function AudioLibrary() {
                   className={`px-3 py-2 rounded-xl text-[10px] font-black whitespace-nowrap transition-all border ${
                     sortOrder === "verses"
                       ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
-                      : "bg-white dark:bg-[#121318]/50 border border-slate-200 dark:border-white/5 text-slate-500 dark:text-white/40 hover:text-slate-800 dark:hover:text-white"
+                      : "bg-white/40 dark:bg-[#121318]/30 border border-slate-200/50 dark:border-white/5 text-slate-500 dark:text-white/40 hover:text-slate-800 dark:hover:text-white"
                   }`}
                 >
                   ترتيب السور
@@ -980,7 +1008,7 @@ export function AudioLibrary() {
           {/* 2. Surah Table */}
           <div className="flex flex-col gap-3">
             {/* Surah List Table (tightened paddings py-2.5) */}
-            <div className="rounded-2xl bg-white dark:bg-[#121318]/20 border border-slate-200 dark:border-white/5 overflow-hidden shadow-sm dark:shadow-none">
+            <div className="rounded-2xl bg-white/40 dark:bg-[#121318]/15 backdrop-blur-md border border-slate-200/50 dark:border-white/5 overflow-hidden shadow-sm dark:shadow-none">
               {/* Header */}
               <div className="flex items-center px-4 py-3 text-[9px] font-black text-slate-400 dark:text-white/20 uppercase tracking-[0.2em] border-b border-slate-100 dark:border-white/5">
                 <div className="w-8 text-center">#</div>
@@ -1075,7 +1103,7 @@ export function AudioLibrary() {
 
             {/* Mobile Support Card (Visible only on mobile) */}
             <div className="block lg:hidden mt-2">
-              <div className="relative rounded-2xl bg-gradient-to-br from-[#fefaf0] to-[#f8fafc] dark:from-[#1b1712] dark:to-[#0c0d10] border border-[#e2b43b]/30 dark:border-[#e2b43b]/20 p-4 flex flex-col gap-3 shadow-xl overflow-hidden group">
+              <div className="relative rounded-2xl bg-white/20 dark:bg-black/20 backdrop-blur-md border border-[#e2b43b]/30 dark:border-[#e2b43b]/20 p-4 flex flex-col gap-3 shadow-xl overflow-hidden group">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-[#e2b43b]/5 rounded-full blur-2xl pointer-events-none" />
                 <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#e2b43b]/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 <div className="flex items-center justify-between">
@@ -1107,7 +1135,7 @@ export function AudioLibrary() {
         <aside className="hidden lg:flex flex-col gap-4 overflow-y-auto no-scrollbar">
 
           {/* 1. Navigation / Filters Card */}
-          <div className="rounded-2xl bg-white dark:bg-[#121318]/50 border border-slate-200 dark:border-white/5 p-3 flex flex-col gap-0.5 shadow-xl">
+          <div className="rounded-2xl bg-white/40 dark:bg-black/30 backdrop-blur-md border border-slate-200/50 dark:border-white/5 p-3 flex flex-col gap-0.5 shadow-xl">
             <div className="flex items-center justify-end gap-2 px-2 py-0.5 text-slate-400 dark:text-white/40 mb-0.5 border-b border-slate-100 dark:border-white/5 pb-1.5">
               <span className="text-[10px] font-black font-arabic">صوتيات القرآن</span>
               <Headphones className="w-3 h-3 text-[#e2b43b]" />
@@ -1146,7 +1174,7 @@ export function AudioLibrary() {
 
 
           {/* 3. Support Card (دعم تطبيق يقين) */}
-          <div className="relative rounded-2xl bg-gradient-to-br from-[#fefaf0] to-[#f8fafc] dark:from-[#1b1712] dark:to-[#0c0d10] border border-[#e2b43b]/30 dark:border-[#e2b43b]/20 p-4 flex flex-col gap-3 shadow-xl overflow-hidden group">
+          <div className="relative rounded-2xl bg-white/20 dark:bg-black/20 backdrop-blur-md border border-[#e2b43b]/30 dark:border-[#e2b43b]/20 p-4 flex flex-col gap-3 shadow-xl overflow-hidden group">
             {/* Shine highlight */}
             <div className="absolute top-0 right-0 w-20 h-20 bg-[#e2b43b]/5 rounded-full blur-2xl pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#e2b43b]/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
@@ -1187,19 +1215,19 @@ export function AudioLibrary() {
         style={{ bottom: `${NAV_H}px` }}
       >
         {/* Progress bar thin */}
-        <div
-          className="relative w-full h-1 bg-slate-100 dark:bg-white/5 cursor-pointer"
-          onClick={(e) => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const ratio = 1 - (e.clientX - rect.left) / rect.width;
-            const a = audioRef.current;
-            if (a) a.currentTime = ratio * a.duration;
-          }}
-        >
-          <div className="absolute inset-y-0 right-0 bg-[#e2b43b]" style={{ width: `${progress}%` }} />
+        <div className="relative w-full h-1 bg-slate-100 dark:bg-white/5 cursor-pointer">
+          <div className="absolute inset-y-0 right-0 bg-[#e2b43b]" style={{ width: `${localProgress}%` }} />
           <input
-            type="range" min="0" max="100" value={progress}
-            onChange={seek}
+            type="range"
+            min="0"
+            max="100"
+            step="0.1"
+            value={localProgress}
+            onChange={handleSliderChange}
+            onMouseDown={() => setIsDragging(true)}
+            onTouchStart={() => setIsDragging(true)}
+            onMouseUp={handleSliderRelease}
+            onTouchEnd={handleSliderRelease}
             className="absolute inset-0 w-full opacity-0 cursor-pointer z-10"
           />
         </div>

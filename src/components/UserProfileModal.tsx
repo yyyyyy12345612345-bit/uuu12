@@ -513,6 +513,22 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
               >
                 سجّل دخولك للتفاعل مع هذا القارئ
               </button>
+            ) : userId === myUid ? (
+              <div className="w-full space-y-3">
+                <div className="w-full py-3.5 bg-primary/10 border border-primary/20 text-primary rounded-2xl font-black text-sm text-center flex items-center justify-center gap-2">
+                  <User className="w-4 h-4" />
+                  هذا هو حسابك الشخصي ✨
+                </div>
+                <button
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent("open_profile_settings"));
+                    onClose();
+                  }}
+                  className="w-full py-4 bg-primary text-black rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+                >
+                  تعديل الملف الشخصي وإدارة الأصدقاء ⚙️
+                </button>
+              </div>
             ) : (
               <>
                 {myUid && userId !== myUid && (

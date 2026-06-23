@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "npx @opennextjs/cloudflare build",
-    "build:next": "next build",
+    "build:next": "next build --webpack",
     "build:app": "node build-wrapper.js",
     "cap:sync": "node build-wrapper.js && npx cap sync",
     "start": "next start",

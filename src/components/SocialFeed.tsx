@@ -7,7 +7,7 @@ import {
   Crown, Star, Sparkles, BookOpen, HandHeart, Award, Users, Search,
   Trophy, Shield, Ban, Flag, Check, Image as ImageIcon, Video, HelpCircle,
   FileText, ArrowRight, Sparkle, UserCheck, UserPlus, LogOut, Info,
-  Home, Folder
+  Home, Folder, Menu
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { db, auth } from "@/lib/firebase";
@@ -1135,6 +1135,13 @@ export function SocialFeed() {
     }
     return 0; // Default uses Firestore desc order
   });
+  
+  // Filter Groups by Search Query
+  const filteredGroups = groups.filter(g => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return g.name.toLowerCase().includes(q) || (g.description && g.description.toLowerCase().includes(q));
+  });
 
   // Load dynamic active members
   const displayActivePeople = dbActivePeople.length > 0
@@ -1163,14 +1170,14 @@ export function SocialFeed() {
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#090a0f]/80 backdrop-blur-md border-b border-slate-200 dark:border-white/5 px-6 py-3 flex items-center justify-between shrink-0 select-none">
         
         {/* Left: Search Bar */}
-        <div className="flex items-center gap-2 w-full max-w-[180px] sm:max-w-[240px] md:max-w-[280px]">
+        <div className="flex items-center gap-2 w-full max-w-[130px] sm:max-w-[170px] md:max-w-[200px]">
           <div className="relative w-full">
             <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-white/35" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ابحث في المجتمع..."
+              placeholder="ابحث..."
               className="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-full py-2 pr-10 pl-4 text-[10px] sm:text-xs text-slate-800 dark:text-white outline-none focus:border-[#fbbf24] transition-all font-bold placeholder:text-slate-400 dark:placeholder:text-white/20 text-right"
             />
             {searchQuery && (
@@ -1185,8 +1192,17 @@ export function SocialFeed() {
         </div>
 
 
-        {/* Right: Logo & Branding */}
+        {/* Right: Logo & Branding with Menu Button */}
         <div className="flex items-center gap-2 md:gap-3">
+          <button 
+            onClick={() => {
+              window.location.hash = 'menu';
+              window.dispatchEvent(new HashChangeEvent('hashchange'));
+            }}
+            className="flex items-center justify-center w-8 h-8 md:w-9 h-9 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 dark:text-white/50 hover:text-slate-800 dark:hover:text-white transition-all border border-slate-200 dark:border-white/10 mr-1"
+          >
+            <Menu className="w-4 h-4 text-[#fbbf24]" />
+          </button>
           <div className="text-right">
             <h1 className="text-[10px] md:text-sm font-black text-slate-800 dark:text-white leading-none">مجتمع يقين</h1>
             <span className="text-[6px] md:text-[8px] font-bold text-[#fbbf24] tracking-widest mt-0.5 block">YAQEEN COMMUNITY</span>
@@ -1272,7 +1288,7 @@ export function SocialFeed() {
             </div>
 
             <div className="space-y-4">
-              {groups.map((g) => {
+              {filteredGroups.map((g) => {
                 const style = getGroupStyle(g.category);
                 const GrpIcon = style.icon;
                 const isJoined = joinedGroupIds.has(g.id);
