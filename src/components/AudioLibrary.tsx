@@ -51,6 +51,26 @@ const POPULAR_RECITERS = [
   { id: "basit_murattal", name: "عبدالباسط عبدالصمد", avatar: "https://i1.sndcdn.com/avatars-000078204618-bnghba-t240x240.jpg", listens: "3.8M" }
 ];
 
+// Helper to get image for any sheikh (real SoundCloud image or beautiful custom golden initial fallback)
+const getReciterAvatar = (id: string, name: string) => {
+  const pop = POPULAR_RECITERS.find(r => r.id === id);
+  if (pop) return pop.avatar;
+
+  const extra: Record<string, string> = {
+    "hazza": "https://i1.sndcdn.com/avatars-000455850930-m0b13h-t240x240.jpg",
+    "islam_sobhi": "https://i1.sndcdn.com/avatars-000572834010-09t4q9-t240x240.jpg",
+    "mansor": "https://i1.sndcdn.com/avatars-000305886650-tq3lsq-t240x240.jpg",
+    "jleel": "https://i1.sndcdn.com/avatars-000216174152-jyp76f-t240x240.jpg",
+    "husr_murattal": "https://i1.sndcdn.com/avatars-000181180126-vzw72g-t240x240.jpg",
+    "ayyub": "https://i1.sndcdn.com/avatars-000340776483-3m0o26-t240x240.jpg",
+    "jbrl": "https://i1.sndcdn.com/avatars-000045561009-v0gspg-t240x240.jpg",
+  };
+  if (extra[id]) return extra[id];
+
+  // Beautiful golden initials avatar matching premium theme
+  return `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=b8860b,d4af37&fontFamily=Arial&fontSize=45&bold=true`;
+};
+
 export function AudioLibrary() {
   const [currentSurah, setCurrentSurah] = useState(surahsData[0]);
   const [selectedReciter, setSelectedReciter] = useState(RECITERS[0]);
@@ -190,7 +210,7 @@ export function AudioLibrary() {
       base.unshift({
         id: selectedReciter.id,
         name: selectedReciter.name,
-        avatar: "https://api.dicebear.com/9.x/initials/svg?seed=" + encodeURIComponent(selectedReciter.name),
+        avatar: getReciterAvatar(selectedReciter.id, selectedReciter.name),
         listens: "مخصص"
       });
     }
@@ -371,12 +391,12 @@ export function AudioLibrary() {
   };
 
   // Progress circle configuration for right column mini player
-  const miniRadius = 24;
+  const miniRadius = 18;
   const miniCircumference = 2 * Math.PI * miniRadius;
   const miniStrokeDashoffset = miniCircumference - (progress / 100) * miniCircumference;
 
   // Waveform Bar count
-  const waveBarCount = 45;
+  const waveBarCount = 36;
 
   return (
     <div
@@ -401,23 +421,23 @@ export function AudioLibrary() {
       />
 
       {/* ══════════════════════════════════════════
-          MAIN 3-COLUMN LAYOUT
+          MAIN 3-COLUMN LAYOUT (Tightened gap-4)
       ══════════════════════════════════════════ */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[280px_1fr_320px] gap-6 p-4 lg:p-6 overflow-hidden h-full">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[250px_1fr_280px] gap-4 p-3 lg:p-4 overflow-hidden h-full">
 
         {/* ── COLUMN 1: LEFT SIDEBAR (الشيوخ) ── */}
-        <aside className="hidden lg:flex flex-col gap-5 p-4 rounded-3xl bg-[#0e0f12]/50 border border-white/5 overflow-y-auto no-scrollbar">
+        <aside className="hidden lg:flex flex-col gap-3 p-3 rounded-2xl bg-[#0e0f12]/50 border border-white/5 overflow-y-auto no-scrollbar">
           {/* Header */}
-          <div className="flex items-center justify-between py-1 relative">
+          <div className="flex items-center justify-between py-0.5 relative">
             <div className="absolute right-0 left-0 top-1/2 h-px bg-white/5 -z-10" />
-            <div className="bg-[#0f1015] px-4 mx-auto flex items-center gap-2 text-white/70">
-              <span className="text-xs font-black tracking-wider font-arabic">الشيوخ</span>
-              <Headphones className="w-3.5 h-3.5 text-[#e2b43b]" />
+            <div className="bg-[#0f1015] px-3 mx-auto flex items-center gap-1.5 text-white/60">
+              <span className="text-[10px] font-black tracking-wider font-arabic">الشيوخ</span>
+              <Headphones className="w-3 h-3 text-[#e2b43b]" />
             </div>
           </div>
 
           {/* List */}
-          <div className="flex-col flex gap-2 flex-1">
+          <div className="flex-col flex gap-1.5 flex-1">
             {recitersToShow.map((rec) => {
               const isActive = selectedReciter.id === rec.id;
               return (
@@ -427,15 +447,15 @@ export function AudioLibrary() {
                     const matched = RECITERS.find(r => r.id === rec.id);
                     if (matched) setSelectedReciter(matched);
                   }}
-                  className={`group flex items-center justify-between p-3 rounded-2xl cursor-pointer transition-all duration-300 ${
+                  className={`group flex items-center justify-between p-2 rounded-xl cursor-pointer transition-all duration-300 ${
                     isActive
-                      ? "bg-gradient-to-r from-[#e2b43b]/10 to-transparent border border-[#e2b43b]/20 shadow-[0_4px_20px_rgba(226,180,59,0.05)]"
-                      : "hover:bg-white/[0.02] border border-transparent"
+                      ? "bg-gradient-to-r from-[#e2b43b]/10 to-transparent border border-[#e2b43b]/20 shadow-[0_4px_20px_rgba(226,180,59,0.03)]"
+                      : "hover:bg-white/[0.01] border border-transparent"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     {/* Avatar */}
-                    <div className={`w-10 h-10 rounded-full overflow-hidden border transition-all ${
+                    <div className={`w-8.5 h-8.5 rounded-full overflow-hidden border transition-all ${
                       isActive ? "border-[#e2b43b] scale-105" : "border-white/10 group-hover:border-white/20"
                     }`}>
                       <img src={rec.avatar} alt={rec.name} className="w-full h-full object-cover" />
@@ -443,23 +463,23 @@ export function AudioLibrary() {
 
                     {/* Meta */}
                     <div className="text-right">
-                      <p className={`text-xs font-black transition-colors ${isActive ? "text-[#e2b43b]" : "text-white/80 group-hover:text-white"}`}>
+                      <p className={`text-[11px] font-black transition-colors ${isActive ? "text-[#e2b43b]" : "text-white/80 group-hover:text-white"}`}>
                         {rec.name.split(" ").slice(0, 3).join(" ")}
                       </p>
-                      <p className="text-[10px] text-white/30 font-bold mt-0.5">استماع {rec.listens}</p>
+                      <p className="text-[9px] text-white/25 font-bold mt-0.5">استماع {rec.listens}</p>
                     </div>
                   </div>
 
                   {/* Play Button */}
-                  <button className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+                  <button className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${
                     isActive
-                      ? "bg-[#e2b43b] text-black shadow-lg shadow-[#e2b43b]/20 scale-105"
-                      : "bg-white/5 text-white/50 group-hover:bg-white/10 group-hover:text-white"
+                      ? "bg-[#e2b43b] text-black shadow-lg shadow-[#e2b43b]/15 scale-105"
+                      : "bg-white/5 text-white/40 group-hover:bg-white/10 group-hover:text-white"
                   }`}>
                     {isActive && isPlaying ? (
-                      <Pause className="w-3.5 h-3.5 fill-current" />
+                      <Pause className="w-3 h-3 fill-current" />
                     ) : (
-                      <Play className="w-3.5 h-3.5 fill-current translate-x-[1px]" />
+                      <Play className="w-3 h-3 fill-current translate-x-[0.5px]" />
                     )}
                   </button>
                 </div>
@@ -470,55 +490,55 @@ export function AudioLibrary() {
           {/* Show More */}
           <button
             onClick={() => setShowReciters(true)}
-            className="w-full py-3 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-2xl text-xs font-black tracking-wider transition-all flex items-center justify-center gap-2 border border-white/5 active:scale-95"
+            className="w-full py-2 bg-white/5 hover:bg-white/10 text-white/50 hover:text-white rounded-xl text-[10px] font-black tracking-wider transition-all flex items-center justify-center gap-1.5 border border-white/5 active:scale-95"
           >
             <span>عرض المزيد</span>
-            <ChevronDown className="w-3.5 h-3.5" />
+            <ChevronDown className="w-3 h-3" />
           </button>
         </aside>
 
         {/* ── COLUMN 2: CENTER PANEL (المشغل وقائمة السور) ── */}
-        <div className="flex flex-col gap-6 overflow-y-auto no-scrollbar min-w-0">
+        <div className="flex flex-col gap-4 overflow-y-auto no-scrollbar min-w-0">
 
           {/* 1. Large Main Player Widget */}
-          <div className="relative rounded-[2.5rem] bg-gradient-to-b from-[#14151a] to-[#0b0c0f] border border-white/5 p-6 lg:p-8 overflow-hidden shadow-2xl flex flex-col md:flex-row items-center gap-6">
+          <div className="relative rounded-2xl bg-gradient-to-b from-[#14151a] to-[#0b0c0f] border border-white/5 p-4 lg:p-5 overflow-hidden shadow-2xl flex flex-col md:flex-row items-center gap-4">
             {/* Background pattern */}
-            <div className="absolute inset-0 islamic-pattern opacity-[0.015] pointer-events-none" />
+            <div className="absolute inset-0 islamic-pattern opacity-[0.01] pointer-events-none" />
 
             {/* Album image on the right (RTL) */}
-            <div className="relative w-32 h-32 lg:w-36 lg:h-36 rounded-3xl overflow-hidden border border-white/10 shadow-2xl shrink-0 group">
+            <div className="relative w-20 h-20 lg:w-24 lg:h-24 rounded-2xl overflow-hidden border border-white/10 shadow-2xl shrink-0 group">
               <img
                 src="https://images.unsplash.com/photo-1609599006353-e629ababfeae?auto=format&fit=crop&q=80&w=240&h=240"
                 alt="Quran"
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <Disc className={`w-8 h-8 text-[#e2b43b] ${isPlaying ? "animate-spin-slow" : ""}`} />
+                <Disc className={`w-6 h-6 text-[#e2b43b] ${isPlaying ? "animate-spin-slow" : ""}`} />
               </div>
             </div>
 
             {/* Content info & Waveform player */}
-            <div className="flex-1 w-full text-center md:text-right flex flex-col gap-4">
+            <div className="flex-1 w-full text-center md:text-right flex flex-col gap-3">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-1">جاري الاستماع الآن</p>
-                <h2 className="text-2xl lg:text-3xl font-black font-arabic text-white mb-2 leading-none">
+                <p className="text-[9px] font-black uppercase tracking-[0.25em] text-white/20 mb-0.5">جاري الاستماع الآن</p>
+                <h2 className="text-lg lg:text-xl font-black font-arabic text-white mb-1.5 leading-none">
                   سورة {currentSurah.name}
                 </h2>
-                <div className="flex items-center justify-center md:justify-start gap-2 text-white/50 text-xs font-bold">
+                <div className="flex items-center justify-center md:justify-start gap-1.5 text-white/40 text-[10px] font-bold">
                   <span className="text-[#e2b43b] font-black">{selectedReciter.name}</span>
                   <span>•</span>
                   <span>{currentSurah.total_verses} آية</span>
                 </div>
               </div>
 
-              {/* Progress Slider & Timeline */}
-              <div className="space-y-2.5">
-                {/* Waveform Visualization */}
-                <div className="flex items-center justify-between gap-[2px] h-8 w-full" dir="ltr">
+              {/* Progress Slider & Waveform */}
+              <div className="space-y-1.5">
+                {/* Waveform Visualization (height reduced to h-6) */}
+                <div className="flex items-center justify-between gap-[2px] h-6 w-full" dir="ltr">
                   {Array.from({ length: waveBarCount }).map((_, i) => {
                     const isActive = (i / waveBarCount) * 100 <= progress;
                     // Deterministic beautiful wave shape
-                    const height = 10 + Math.sin(i * 0.45) * 12 + (i % 4 === 0 ? 8 : 0);
+                    const height = 8 + Math.sin(i * 0.45) * 8 + (i % 4 === 0 ? 5 : 0);
                     return (
                       <div
                         key={i}
@@ -528,7 +548,7 @@ export function AudioLibrary() {
                             a.currentTime = (i / waveBarCount) * a.duration;
                           }
                         }}
-                        className={`w-[3px] rounded-full transition-all duration-300 cursor-pointer ${
+                        className={`w-[2.5px] rounded-full transition-all duration-300 cursor-pointer ${
                           isActive
                             ? "bg-[#e2b43b]"
                             : "bg-white/10 hover:bg-white/20"
@@ -539,116 +559,115 @@ export function AudioLibrary() {
                   })}
                 </div>
 
-                {/* Progress bar input (Invisible overlay on wave for smooth touch, or basic time display) */}
-                <div className="flex items-center justify-between text-[11px] font-black text-white/30 tabular-nums">
+                <div className="flex items-center justify-between text-[10px] font-black text-white/25 tabular-nums">
                   <span>{fmt(currentTime)}</span>
                   <span>{fmt(duration)}</span>
                 </div>
               </div>
 
-              {/* Actions row */}
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 mt-1 border-t border-white/5 pt-4">
+              {/* Actions row (Smaller paddings and icons) */}
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-0.5 border-t border-white/5 pt-3">
                 {/* Play Button */}
                 <button
                   onClick={() => setIsPlaying(!isPlaying)}
-                  className="w-12 h-12 rounded-full bg-[#e2b43b] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg shadow-[#e2b43b]/10"
+                  className="w-9 h-9 rounded-full bg-[#e2b43b] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-md shadow-[#e2b43b]/10 shrink-0"
                 >
                   {isPlaying ? (
-                    <Pause className="w-5 h-5 fill-current" />
+                    <Pause className="w-4 h-4 fill-current" />
                   ) : (
-                    <Play className="w-5 h-5 fill-current translate-x-[1px]" />
+                    <Play className="w-4 h-4 fill-current translate-x-[0.5px]" />
                   )}
                 </button>
 
                 {/* Controls */}
                 <button
                   onClick={handlePrev}
-                  className="p-3 text-white/40 hover:text-white hover:bg-white/5 rounded-full transition-all active:scale-95"
+                  className="p-2 text-white/40 hover:text-white hover:bg-white/5 rounded-full transition-all active:scale-95"
                 >
-                  <SkipBack className="w-4 h-4 fill-current" />
+                  <SkipBack className="w-3.5 h-3.5 fill-current" />
                 </button>
                 <button
                   onClick={handleNext}
-                  className="p-3 text-white/40 hover:text-white hover:bg-white/5 rounded-full transition-all active:scale-95"
+                  className="p-2 text-white/40 hover:text-white hover:bg-white/5 rounded-full transition-all active:scale-95"
                 >
-                  <SkipForward className="w-4 h-4 fill-current" />
+                  <SkipForward className="w-3.5 h-3.5 fill-current" />
                 </button>
                 <button
                   onClick={() => setIsShuffle(!isShuffle)}
-                  className={`p-3 rounded-full transition-all ${isShuffle ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-white/30 hover:text-white"}`}
+                  className={`p-2 rounded-full transition-all ${isShuffle ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-white/30 hover:text-white"}`}
                 >
-                  <Shuffle className="w-4 h-4" />
+                  <Shuffle className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={() => setIsRepeat(!isRepeat)}
-                  className={`p-3 rounded-full transition-all ${isRepeat ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-white/30 hover:text-white"}`}
+                  className={`p-2 rounded-full transition-all ${isRepeat ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-white/30 hover:text-white"}`}
                 >
-                  <Repeat className="w-4 h-4" />
+                  <Repeat className="w-3.5 h-3.5" />
                 </button>
 
-                <div className="h-6 w-px bg-white/5 mx-2" />
+                <div className="h-5 w-px bg-white/5 mx-1" />
 
                 {/* Extra actions */}
                 <button
                   onClick={handleShare}
-                  className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-xs font-black transition-all flex items-center gap-2 border border-white/5"
+                  className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-[10px] font-black transition-all flex items-center gap-1.5 border border-white/5"
                 >
-                  <Share2 className="w-3.5 h-3.5" />
+                  <Share2 className="w-3 h-3" />
                   <span>مشاركة</span>
                 </button>
 
                 <button
                   onClick={() => toggleFavorite(currentSurah.id)}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 border ${
+                  className={`px-2.5 py-1.5 rounded-xl text-[10px] font-black transition-all flex items-center gap-1.5 border ${
                     favorites.includes(currentSurah.id)
                       ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
                       : "bg-white/5 border-white/5 text-white/60 hover:text-white"
                   }`}
                 >
-                  <Heart className={`w-3.5 h-3.5 ${favorites.includes(currentSurah.id) ? "fill-current" : ""}`} />
+                  <Heart className={`w-3 h-3 ${favorites.includes(currentSurah.id) ? "fill-current" : ""}`} />
                   <span>المفضلة</span>
                 </button>
 
                 <button
                   onClick={downloadSurah}
-                  className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-xs font-black transition-all flex items-center gap-2 border border-white/5"
+                  className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-[10px] font-black transition-all flex items-center gap-1.5 border border-white/5"
                 >
-                  <Download className="w-3.5 h-3.5" />
+                  <Download className="w-3 h-3" />
                   <span>تحميل</span>
                 </button>
 
                 {/* HQ Indicator */}
-                <div className="mr-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#e2b43b]/10 border border-[#e2b43b]/20 text-[#e2b43b] text-[10px] font-black tracking-wider">
+                <div className="mr-auto flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#e2b43b]/10 border border-[#e2b43b]/20 text-[#e2b43b] text-[9px] font-black tracking-wider">
                   <span>HQ</span>
-                  <ChevronDown className="w-3 h-3" />
+                  <ChevronDown className="w-2.5 h-2.5" />
                 </div>
               </div>
             </div>
           </div>
 
           {/* 2. Surah Table & Search Panel */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
             {/* Search and Filters row */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               {/* Search Bar */}
               <div className="relative flex-1">
-                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 pointer-events-none" />
+                <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20 pointer-events-none" />
                 <input
                   type="text"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   placeholder="ابحث عن سورة أو شيخ..."
-                  className="w-full bg-[#121318]/50 border border-white/5 rounded-2xl py-3.5 pr-11 pl-4 text-sm outline-none focus:border-[#e2b43b]/40 focus:bg-[#121318] transition-all placeholder:text-white/25 text-white font-bold text-right"
+                  className="w-full bg-[#121318]/50 border border-white/5 rounded-xl py-3 pr-10 pl-4 text-xs outline-none focus:border-[#e2b43b]/40 focus:bg-[#121318] transition-all placeholder:text-white/20 text-white font-bold text-right"
                 />
                 {search && (
-                  <button onClick={() => setSearch("")} className="absolute left-4 top-1/2 -translate-y-1/2">
-                    <X className="w-4 h-4 text-white/40 hover:text-white" />
+                  <button onClick={() => setSearch("")} className="absolute left-3.5 top-1/2 -translate-y-1/2">
+                    <X className="w-3.5 h-3.5 text-white/40 hover:text-white" />
                   </button>
                 )}
               </div>
 
               {/* Tabs list */}
-              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
                 {[
                   { key: "all", label: "الكل" },
                   { key: "favorites", label: "المفضلة" },
@@ -657,10 +676,10 @@ export function AudioLibrary() {
                   <button
                     key={key}
                     onClick={() => setActiveTab(key as any)}
-                    className={`px-4 py-2.5 rounded-xl text-xs font-black whitespace-nowrap transition-all ${
+                    className={`px-3 py-2 rounded-xl text-[10px] font-black whitespace-nowrap transition-all ${
                       activeTab === key
-                        ? "bg-[#e2b43b] text-black shadow-lg shadow-[#e2b43b]/10"
-                        : "bg-[#121318]/50 border border-white/5 text-white/40 hover:text-white hover:bg-white/[0.02]"
+                        ? "bg-[#e2b43b] text-black shadow-md shadow-[#e2b43b]/10"
+                        : "bg-[#121318]/50 border border-white/5 text-white/40 hover:text-white hover:bg-white/[0.01]"
                     }`}
                   >
                     {label}
@@ -670,7 +689,7 @@ export function AudioLibrary() {
                 {/* Sort Order Toggles */}
                 <button
                   onClick={() => setSortOrder(sortOrder === "alphabetical" ? "default" : "alphabetical")}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-black whitespace-nowrap transition-all border ${
+                  className={`px-3 py-2 rounded-xl text-[10px] font-black whitespace-nowrap transition-all border ${
                     sortOrder === "alphabetical"
                       ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
                       : "bg-[#121318]/50 border-white/5 text-white/40 hover:text-white"
@@ -680,7 +699,7 @@ export function AudioLibrary() {
                 </button>
                 <button
                   onClick={() => setSortOrder(sortOrder === "verses" ? "default" : "verses")}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-black whitespace-nowrap transition-all border ${
+                  className={`px-3 py-2 rounded-xl text-[10px] font-black whitespace-nowrap transition-all border ${
                     sortOrder === "verses"
                       ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
                       : "bg-[#121318]/50 border-white/5 text-white/40 hover:text-white"
@@ -691,15 +710,15 @@ export function AudioLibrary() {
               </div>
             </div>
 
-            {/* Surah List Table */}
-            <div className="rounded-[2rem] bg-[#121318]/20 border border-white/5 overflow-hidden">
+            {/* Surah List Table (tightened paddings py-2.5) */}
+            <div className="rounded-2xl bg-[#121318]/20 border border-white/5 overflow-hidden">
               {/* Header */}
-              <div className="flex items-center px-6 py-4 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] border-b border-white/5">
-                <div className="w-10 text-center">#</div>
+              <div className="flex items-center px-4 py-3 text-[9px] font-black text-white/20 uppercase tracking-[0.2em] border-b border-white/5">
+                <div className="w-8 text-center">#</div>
                 <div className="flex-1 text-right">السورة</div>
-                <div className="w-20 text-center">آيات</div>
-                <div className="w-28 text-center">مدة الاستماع</div>
-                <div className="w-12" />
+                <div className="w-16 text-center">آيات</div>
+                <div className="w-24 text-center">مدة الاستماع</div>
+                <div className="w-10" />
               </div>
 
               {/* Rows */}
@@ -711,59 +730,59 @@ export function AudioLibrary() {
                     <div
                       key={surah.id}
                       onClick={() => handleSurahSelect(surah)}
-                      className={`group flex items-center px-6 py-4 cursor-pointer transition-all duration-300 ${
+                      className={`group flex items-center px-4 py-2.5 cursor-pointer transition-all duration-300 ${
                         isCurrent
                           ? "bg-gradient-to-r from-[#e2b43b]/10 via-[#e2b43b]/5 to-transparent text-[#e2b43b]"
-                          : "hover:bg-white/[0.02]"
+                          : "hover:bg-white/[0.01]"
                       }`}
                     >
                       {/* Index / Play status */}
-                      <div className="w-10 text-center flex items-center justify-center shrink-0">
+                      <div className="w-8 text-center flex items-center justify-center shrink-0">
                         {isCurrent && isPlaying ? (
-                          <div className="flex items-end justify-center gap-[2.5px] h-4">
-                            <div className="w-[3px] rounded-sm bg-[#e2b43b] animate-music-bar" style={{ animationDelay: "0ms" }} />
-                            <div className="w-[3px] rounded-sm bg-[#e2b43b] animate-music-bar" style={{ animationDelay: "150ms" }} />
-                            <div className="w-[3px] rounded-sm bg-[#e2b43b] animate-music-bar" style={{ animationDelay: "300ms" }} />
+                          <div className="flex items-end justify-center gap-[2px] h-3">
+                            <div className="w-[2.5px] rounded-sm bg-[#e2b43b] animate-music-bar" style={{ animationDelay: "0ms" }} />
+                            <div className="w-[2.5px] rounded-sm bg-[#e2b43b] animate-music-bar" style={{ animationDelay: "150ms" }} />
+                            <div className="w-[2.5px] rounded-sm bg-[#e2b43b] animate-music-bar" style={{ animationDelay: "300ms" }} />
                           </div>
                         ) : (
-                          <span className={`text-xs font-black tabular-nums transition-colors ${isCurrent ? "text-[#e2b43b]" : "text-white/20 group-hover:text-white/50"}`}>
+                          <span className={`text-[11px] font-black tabular-nums transition-colors ${isCurrent ? "text-[#e2b43b]" : "text-white/20 group-hover:text-white/50"}`}>
                             {surah.id}
                           </span>
                         )}
                       </div>
 
                       {/* Name */}
-                      <div className="flex-1 text-right min-w-0 px-3">
-                        <p className={`text-sm font-black font-arabic leading-tight ${isCurrent ? "text-[#e2b43b]" : "text-white"}`}>
+                      <div className="flex-1 text-right min-w-0 px-2.5">
+                        <p className={`text-xs font-black font-arabic leading-tight ${isCurrent ? "text-[#e2b43b]" : "text-white"}`}>
                           {surah.name}
                         </p>
-                        <p className="text-[10px] text-white/30 font-bold mt-0.5 truncate">{surah.transliteration}</p>
+                        <p className="text-[9px] text-white/25 font-bold mt-0.5 truncate">{surah.transliteration}</p>
                       </div>
 
                       {/* Verses */}
-                      <div className="w-20 text-center font-bold text-xs text-white/40 group-hover:text-white/60">
+                      <div className="w-16 text-center font-bold text-[11px] text-white/30 group-hover:text-white/50">
                         {surah.total_verses}
                       </div>
 
                       {/* Mock Duration */}
-                      <div className="w-28 text-center font-black text-xs text-white/40 group-hover:text-white/60 tabular-nums">
+                      <div className="w-24 text-center font-black text-[11px] text-white/30 group-hover:text-white/50 tabular-nums">
                         {getSurahDuration(surah.id, surah.total_verses)}
                       </div>
 
                       {/* Favorite button */}
-                      <div className="w-12 flex items-center justify-center shrink-0">
+                      <div className="w-10 flex items-center justify-center shrink-0">
                         <button
                           onClick={e => {
                             e.stopPropagation();
                             toggleFavorite(surah.id);
                           }}
-                          className={`p-2 rounded-full transition-all ${
+                          className={`p-1.5 rounded-full transition-all ${
                             isFav
                               ? "text-[#e2b43b]"
-                              : "text-white/15 opacity-0 group-hover:opacity-100 hover:text-white/60"
+                              : "text-white/10 opacity-0 group-hover:opacity-100 hover:text-white/50"
                           }`}
                         >
-                          <Heart className={`w-4 h-4 ${isFav ? "fill-current" : ""}`} />
+                          <Heart className={`w-3.5 h-3.5 ${isFav ? "fill-current" : ""}`} />
                         </button>
                       </div>
                     </div>
@@ -771,30 +790,30 @@ export function AudioLibrary() {
                 })}
 
                 {allFiltered.length === 0 && (
-                  <div className="flex flex-col items-center justify-center py-20 text-center gap-3">
-                    <Search className="w-10 h-10 text-white/10" />
-                    <p className="text-sm text-white/35 font-bold">لا توجد سور مطابقة لبحثك</p>
+                  <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
+                    <Search className="w-8 h-8 text-white/5" />
+                    <p className="text-xs text-white/25 font-bold">لا توجد سور مطابقة لبحثك</p>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Show More */}
-            <button className="w-full py-4 rounded-[2rem] bg-[#121318]/10 hover:bg-[#121318]/25 text-white/40 hover:text-white border border-white/5 text-xs font-black transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+            <button className="w-full py-3 rounded-2xl bg-[#121318]/10 hover:bg-[#121318]/25 text-white/35 hover:text-white border border-white/5 text-[10px] font-black transition-all flex items-center justify-center gap-1.5 active:scale-[0.98]">
               <span>عرض المزيد</span>
-              <ChevronDown className="w-4 h-4" />
+              <ChevronDown className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
 
         {/* ── COLUMN 3: RIGHT COLUMN (التنقل والدعم والمصغر) ── */}
-        <aside className="hidden lg:flex flex-col gap-6 overflow-y-auto no-scrollbar">
+        <aside className="hidden lg:flex flex-col gap-4 overflow-y-auto no-scrollbar">
 
           {/* 1. Navigation / Filters Card */}
-          <div className="rounded-[2rem] bg-[#121318]/50 border border-white/5 p-5 flex flex-col gap-1.5 shadow-xl">
-            <div className="flex items-center justify-end gap-2.5 px-3 py-2 text-white/40 mb-2 border-b border-white/5 pb-3">
-              <span className="text-xs font-black font-arabic">صوتيات القرآن</span>
-              <Headphones className="w-4 h-4 text-[#e2b43b]" />
+          <div className="rounded-2xl bg-[#121318]/50 border border-white/5 p-4 flex flex-col gap-1 shadow-xl">
+            <div className="flex items-center justify-end gap-2 px-2 py-1 text-white/40 mb-1 border-b border-white/5 pb-2">
+              <span className="text-[11px] font-black font-arabic">صوتيات القرآن</span>
+              <Headphones className="w-3.5 h-3.5 text-[#e2b43b]" />
             </div>
 
             {[
@@ -812,14 +831,14 @@ export function AudioLibrary() {
                     if (action) action();
                     else if (key !== "playlist") setActiveTab(key as any);
                   }}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-black transition-all text-right ${
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-black transition-all text-right ${
                     active
-                      ? "bg-[#e2b43b] text-black shadow-lg shadow-[#e2b43b]/10"
-                      : "text-white/50 hover:text-white hover:bg-white/[0.02]"
+                      ? "bg-[#e2b43b] text-black shadow-md shadow-[#e2b43b]/10"
+                      : "text-white/50 hover:text-white hover:bg-white/[0.01]"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <Icon className="w-4 h-4 shrink-0" />
+                  <div className="flex items-center gap-2">
+                    <Icon className="w-3.5 h-3.5 shrink-0" />
                     <span>{label}</span>
                   </div>
                 </button>
@@ -828,113 +847,113 @@ export function AudioLibrary() {
           </div>
 
           {/* 2. Mini Player Widget (جاري الاستماع) */}
-          <div className="rounded-[2rem] bg-[#121318]/50 border border-white/5 p-5 flex flex-col gap-4 shadow-xl text-center">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">جاري الاستماع</span>
+          <div className="rounded-2xl bg-[#121318]/50 border border-white/5 p-4 flex flex-col gap-3 shadow-xl text-center">
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/20">جاري الاستماع</span>
 
             {/* Circular Progress & Disc */}
-            <div className="relative w-28 h-28 mx-auto flex items-center justify-center">
+            <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
               {/* Outer Circular SVG Progress */}
               <svg className="absolute inset-0 w-full h-full -rotate-90">
                 <circle
-                  cx="56" cy="56" r={miniRadius}
+                  cx="40" cy="40" r={miniRadius}
                   className="stroke-white/5 fill-none"
-                  strokeWidth="4"
+                  strokeWidth="3"
                 />
                 <circle
-                  cx="56" cy="56" r={miniRadius}
+                  cx="40" cy="40" r={miniRadius}
                   className="stroke-[#e2b43b] fill-none transition-all duration-300"
-                  strokeWidth="4"
+                  strokeWidth="3"
                   strokeDasharray={miniCircumference}
                   strokeDashoffset={miniStrokeDashoffset}
                   strokeLinecap="round"
                 />
               </svg>
               {/* Inner CD Disc Cover */}
-              <div className="w-16 h-16 rounded-full bg-[#1c1e24] flex items-center justify-center border border-white/10 shadow-inner overflow-hidden relative">
+              <div className="w-12 h-12 rounded-full bg-[#1c1e24] flex items-center justify-center border border-white/10 shadow-inner overflow-hidden relative">
                 <div className="absolute inset-0 islamic-pattern opacity-10 pointer-events-none" />
-                <Disc className={`w-8 h-8 text-[#e2b43b]/50 ${isPlaying ? "animate-spin-slow" : ""}`} />
-                <div className="absolute w-3.5 h-3.5 bg-[#0c0d10] rounded-full border border-white/10" />
+                <Disc className={`w-6 h-6 text-[#e2b43b]/50 ${isPlaying ? "animate-spin-slow" : ""}`} />
+                <div className="absolute w-2.5 h-2.5 bg-[#0c0d10] rounded-full border border-white/10" />
               </div>
             </div>
 
             {/* Info */}
-            <div className="px-2">
-              <h4 className="text-sm font-black font-arabic text-white leading-tight">
+            <div className="px-1">
+              <h4 className="text-xs font-black font-arabic text-white leading-tight">
                 سورة {currentSurah.name}
               </h4>
-              <p className="text-[10px] text-white/40 font-bold mt-1">{selectedReciter.name}</p>
+              <p className="text-[9px] text-white/35 font-bold mt-0.5">{selectedReciter.name}</p>
             </div>
 
             {/* Timeline simple bar */}
-            <div className="px-2 space-y-1">
-              <div className="relative w-full h-1 bg-white/5 rounded-full overflow-hidden">
+            <div className="px-1 space-y-1">
+              <div className="relative w-full h-0.5 bg-white/5 rounded-full overflow-hidden">
                 <div className="absolute inset-y-0 right-0 bg-[#e2b43b] rounded-full" style={{ width: `${progress}%` }} />
               </div>
-              <div className="flex items-center justify-between text-[10px] font-black text-white/20 tabular-nums">
+              <div className="flex items-center justify-between text-[9px] font-black text-white/20 tabular-nums">
                 <span>{fmt(currentTime)}</span>
                 <span>{fmt(duration)}</span>
               </div>
             </div>
 
             {/* Mini Player Controls */}
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex items-center justify-center gap-2">
               <button
                 onClick={() => setIsShuffle(!isShuffle)}
-                className={`p-2 rounded-full transition-all ${isShuffle ? "text-[#e2b43b]" : "text-white/30 hover:text-white"}`}
+                className={`p-1.5 rounded-full transition-all ${isShuffle ? "text-[#e2b43b]" : "text-white/25 hover:text-white"}`}
               >
-                <Shuffle className="w-3.5 h-3.5" />
+                <Shuffle className="w-3 h-3" />
               </button>
               <button
                 onClick={handlePrev}
-                className="p-2 text-white/50 hover:text-white transition-colors active:scale-95"
+                className="p-1.5 text-white/40 hover:text-white transition-colors active:scale-95"
               >
-                <SkipBack className="w-4 h-4 fill-current" />
+                <SkipBack className="w-3.5 h-3.5 fill-current" />
               </button>
               <button
                 onClick={() => setIsPlaying(!isPlaying)}
-                className="w-10 h-10 rounded-full bg-[#e2b43b] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-md shadow-[#e2b43b]/10"
+                className="w-8 h-8 rounded-full bg-[#e2b43b] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-md shadow-[#e2b43b]/10 shrink-0"
               >
-                {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current translate-x-[1px]" />}
+                {isPlaying ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current translate-x-[0.5px]" />}
               </button>
               <button
                 onClick={handleNext}
-                className="p-2 text-white/50 hover:text-white transition-colors active:scale-95"
+                className="p-1.5 text-white/40 hover:text-white transition-colors active:scale-95"
               >
-                <SkipForward className="w-4 h-4 fill-current" />
+                <SkipForward className="w-3.5 h-3.5 fill-current" />
               </button>
               <button
                 onClick={() => setIsRepeat(!isRepeat)}
-                className={`p-2 rounded-full transition-all ${isRepeat ? "text-[#e2b43b]" : "text-white/30 hover:text-white"}`}
+                className={`p-1.5 rounded-full transition-all ${isRepeat ? "text-[#e2b43b]" : "text-white/25 hover:text-white"}`}
               >
-                <Repeat className="w-3.5 h-3.5" />
+                <Repeat className="w-3 h-3" />
               </button>
             </div>
 
-            {/* Premium Settings Rows */}
-            <div className="border-t border-white/5 pt-3 mt-1 flex flex-col gap-2.5">
+            {/* Settings Rows */}
+            <div className="border-t border-white/5 pt-2 flex flex-col gap-1.5">
               {/* Sleep Timer */}
-              <div className="flex items-center justify-between text-xs px-2 text-right">
-                <div className="flex items-center gap-2 text-white/40 font-bold">
-                  <Timer className="w-4 h-4" />
+              <div className="flex items-center justify-between text-[11px] px-1 text-right">
+                <div className="flex items-center gap-1.5 text-white/35 font-bold">
+                  <Timer className="w-3.5 h-3.5" />
                   <span>موقت إيقاف</span>
                 </div>
                 <button
                   onClick={toggleSleepTimer}
-                  className="font-black text-[#e2b43b] bg-[#e2b43b]/10 hover:bg-[#e2b43b]/20 px-3 py-1.5 rounded-xl transition-all border border-[#e2b43b]/10 active:scale-95 text-[11px]"
+                  className="font-black text-[#e2b43b] bg-[#e2b43b]/10 hover:bg-[#e2b43b]/20 px-2 py-1 rounded-lg transition-all border border-[#e2b43b]/10 active:scale-95 text-[10px]"
                 >
                   {sleepTimeLeft !== null ? fmt(sleepTimeLeft) : "إيقاف"}
                 </button>
               </div>
 
               {/* Playback speed */}
-              <div className="flex items-center justify-between text-xs px-2 text-right">
-                <div className="flex items-center gap-2 text-white/40 font-bold">
-                  <Gauge className="w-4 h-4" />
+              <div className="flex items-center justify-between text-[11px] px-1 text-right">
+                <div className="flex items-center gap-1.5 text-white/35 font-bold">
+                  <Gauge className="w-3.5 h-3.5" />
                   <span>سرعة الصوت</span>
                 </div>
                 <button
                   onClick={togglePlaybackSpeed}
-                  className="font-black text-[#e2b43b] bg-[#e2b43b]/10 hover:bg-[#e2b43b]/20 px-3 py-1.5 rounded-xl transition-all border border-[#e2b43b]/10 active:scale-95 text-[11px]"
+                  className="font-black text-[#e2b43b] bg-[#e2b43b]/10 hover:bg-[#e2b43b]/20 px-2 py-1 rounded-lg transition-all border border-[#e2b43b]/10 active:scale-95 text-[10px]"
                 >
                   {playbackSpeed.toFixed(2)}x
                 </button>
@@ -943,23 +962,23 @@ export function AudioLibrary() {
           </div>
 
           {/* 3. Support Card (دعم تطبيق يقين) */}
-          <div className="relative rounded-[2rem] bg-gradient-to-br from-[#1b1712] to-[#0c0d10] border border-[#e2b43b]/20 p-5 flex flex-col gap-4 shadow-xl overflow-hidden group">
+          <div className="relative rounded-2xl bg-gradient-to-br from-[#1b1712] to-[#0c0d10] border border-[#e2b43b]/20 p-4 flex flex-col gap-3 shadow-xl overflow-hidden group">
             {/* Shine highlight */}
-            <div className="absolute top-0 right-0 w-24 h-24 bg-[#e2b43b]/5 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute top-0 right-0 w-20 h-20 bg-[#e2b43b]/5 rounded-full blur-2xl pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#e2b43b]/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
 
             {/* Header info */}
             <div className="flex items-center justify-between">
-              <div className="w-8 h-8 rounded-full bg-[#e2b43b]/10 flex items-center justify-center text-[#e2b43b] shadow-inner">
-                <Crown className="w-4 h-4" />
+              <div className="w-7 h-7 rounded-full bg-[#e2b43b]/10 flex items-center justify-center text-[#e2b43b] shadow-inner">
+                <Crown className="w-3.5 h-3.5" />
               </div>
-              <span className="text-[10px] font-black text-[#e2b43b] uppercase tracking-[0.25em]">دعم استمرارية يقين</span>
+              <span className="text-[9px] font-black text-[#e2b43b] uppercase tracking-[0.25em]">دعم استمرارية يقين</span>
             </div>
 
-            <div className="text-right space-y-1.5">
-              <h4 className="text-sm font-black text-white">ادعم تطبيق يقين 👑</h4>
-              <p className="text-[11px] text-white/50 leading-relaxed font-bold">
-                يقين خالٍ تماماً من الإعلانات لراحتك. دعمك السخي يضمن استمرار السيرفرات وتطوير الميزات لخدمة كتاب الله.
+            <div className="text-right space-y-1">
+              <h4 className="text-xs font-black text-white">ادعم تطبيق يقين 👑</h4>
+              <p className="text-[10px] text-white/40 leading-relaxed font-bold">
+                يقين خالي من الإعلانات. دعمك يضمن استمرار السيرفرات لخدمة كتاب الله.
               </p>
             </div>
 
@@ -968,7 +987,7 @@ export function AudioLibrary() {
               onClick={() => {
                 window.dispatchEvent(new CustomEvent('open_subscription_modal'));
               }}
-              className="w-full py-3.5 bg-[#e2b43b] hover:bg-[#c99f33] text-black font-black text-xs rounded-2xl tracking-wider transition-all shadow-lg shadow-[#e2b43b]/10 active:scale-95 flex items-center justify-center gap-2"
+              className="w-full py-2.5 bg-[#e2b43b] hover:bg-[#c99f33] text-black font-black text-[11px] rounded-xl tracking-wider transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5"
             >
               <span>ادعم الآن</span>
             </button>
@@ -1100,7 +1119,7 @@ export function AudioLibrary() {
                 </div>
               </div>
 
-              {/* Scrollable Reciters list */}
+              {/* Scrollable Reciters list with actual photos */}
               <div className="flex-1 overflow-y-auto no-scrollbar p-2 space-y-0.5">
                 {filteredReciters.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
@@ -1114,14 +1133,15 @@ export function AudioLibrary() {
                       <button
                         key={rec.id}
                         onClick={() => { setSelectedReciter(rec); setShowReciters(false); }}
-                        className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all text-right ${
-                          isSel ? "bg-[#e2b43b]/10 text-[#e2b43b]" : "hover:bg-white/[0.02] text-white/70"
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-right ${
+                          isSel ? "bg-[#e2b43b]/10 text-[#e2b43b]" : "hover:bg-white/[0.01] text-white/70"
                         }`}
                       >
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                          isSel ? "bg-[#e2b43b]/20 text-[#e2b43b]" : "bg-white/5 text-white/30"
+                        {/* Sheikh photo/avatar in the selection drawer */}
+                        <div className={`w-8 h-8 rounded-full overflow-hidden border shrink-0 ${
+                          isSel ? "border-[#e2b43b]" : "border-white/10"
                         }`}>
-                          <Mic2 className="w-3.5 h-3.5" />
+                          <img src={getReciterAvatar(rec.id, rec.name)} alt={rec.name} className="w-full h-full object-cover" />
                         </div>
                         <span className="text-xs font-black flex-1 truncate">{rec.name}</span>
                         {isSel && <div className="w-2 h-2 rounded-full bg-[#e2b43b] shrink-0" />}
