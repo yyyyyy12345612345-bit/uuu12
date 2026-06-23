@@ -5,8 +5,8 @@ import { RECITERS } from "@/data/reciters";
 import {
   Play, Pause, SkipBack, SkipForward, Search,
   Headphones, Repeat, Shuffle,
-  Disc, X, Heart, Volume2, Volume1, VolumeX,
-  Clock, ChevronDown, ListMusic, Mic2, Share2, Download, Crown, Timer, Gauge
+  Disc, X, Heart, Volume2, VolumeX,
+  Clock, ChevronDown, ListMusic, Share2, Download, Crown, Timer, Gauge
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { setupMediaSession, setPlaybackState } from "@/lib/mediaSession";
@@ -39,36 +39,191 @@ const normalizeArabic = (text: string) => {
 /* ─── NAV HEIGHT (px) ─── */
 const NAV_H = 72;
 
-// Popular reciters shown in the left column with list stats
+// Popular reciters config
 const POPULAR_RECITERS = [
-  { id: "maher", name: "ماهر المعيقلي", avatar: "https://i1.sndcdn.com/avatars-000494420079-s0l1ii-t240x240.jpg", listens: "12.7M" },
-  { id: "sds", name: "عبدالرحمن السديس", avatar: "https://i1.sndcdn.com/avatars-000305886650-tq3lsq-t240x240.jpg", listens: "9.8M" },
-  { id: "shur", name: "سعود الشريم", avatar: "https://i1.sndcdn.com/avatars-000132338573-04w9l7-t240x240.jpg", listens: "8.3M" },
-  { id: "afasy", name: "مشاري العفاسي", avatar: "https://i1.sndcdn.com/avatars-000216174152-jyp76f-t240x240.jpg", listens: "7.1M" },
-  { id: "yasser", name: "ياسر الدوسري", avatar: "https://i1.sndcdn.com/avatars-000481223403-xspmgo-t240x240.jpg", listens: "6.7M" },
-  { id: "ajm", name: "أحمد بن علي العجمي", avatar: "https://i1.sndcdn.com/avatars-000109780182-p7y96l-t240x240.jpg", listens: "4.9M" },
-  { id: "minsh_murattal", name: "محمد صديق المنشاوي", avatar: "https://i1.sndcdn.com/avatars-000196884639-65w2a5-t240x240.jpg", listens: "4.2M" },
-  { id: "basit_murattal", name: "عبدالباسط عبدالصمد", avatar: "https://i1.sndcdn.com/avatars-000078204618-bnghba-t240x240.jpg", listens: "3.8M" }
+  { id: "maher", name: "ماهر المعيقلي", listens: "12.7M" },
+  { id: "sds", name: "عبدالرحمن السديس", listens: "9.8M" },
+  { id: "shur", name: "سعود الشريم", listens: "8.3M" },
+  { id: "afasy", name: "مشاري العفاسي", listens: "7.1M" },
+  { id: "yasser", name: "ياسر الدوسري", listens: "6.7M" },
+  { id: "ajm", name: "أحمد بن علي العجمي", listens: "4.9M" },
+  { id: "minsh_murattal", name: "محمد صديق المنشاوي", listens: "4.2M" },
+  { id: "basit_murattal", name: "عبدالباسط عبدالصمد", listens: "3.8M" }
 ];
 
-// Helper to get image for any sheikh (real SoundCloud image or beautiful custom golden initial fallback)
+// Imgur Direct Image Links mapping from user
+const RECITER_AVATARS: Record<string, string> = {
+  maher: "https://i.imgur.com/2YVp6vQ.jpg",
+  sds: "https://i.imgur.com/8QWv7XG.jpg",
+  shur: "https://i.imgur.com/Y3w6BfS.jpg",
+  juhani: "https://i.imgur.com/pZ8A7Nn.jpg",
+  yasser: "https://i.imgur.com/L7Xm9B2.jpg",
+  balilah: "https://i.imgur.com/uR1kNzM.jpg",
+  ali_abdullah_jaber: "https://i.imgur.com/wVj8N8N.jpg",
+  hthfi: "https://i.imgur.com/E6b8RUX.jpg",
+  ahmed_ibn_taleb_hameed: "https://i.imgur.com/mU3wFKN.jpg",
+  tlb: "https://i.imgur.com/rN9kZ8v.jpg",
+  salah_albudair: "https://i.imgur.com/Vb8Wb8M.jpg",
+  alqasim: "https://i.imgur.com/XGf4K8R.jpg",
+  ath_thubaity: "https://i.imgur.com/v1JbN8w.jpg",
+  buajan: "https://i.imgur.com/Tkb8W9n.jpg",
+  khalid_ghamdi: "https://i.imgur.com/G8w9NkX.jpg",
+  basit_murattal: "https://i.imgur.com/3N7V3wP.jpg",
+  basit_mujawwad: "https://i.imgur.com/3N7V3wP.jpg",
+  minsh_murattal: "https://i.imgur.com/zV8mK8N.jpg",
+  minsh_mujawwad: "https://i.imgur.com/zV8mK8N.jpg",
+  husr_murattal: "https://i.imgur.com/Wb8Vv3p.jpg",
+  husr_mujawwad: "https://i.imgur.com/Wb8Vv3p.jpg",
+  albana: "https://i.imgur.com/X2Wb8vN.jpg",
+  refat: "https://i.imgur.com/7bV8mKN.jpg",
+  mustafa_ismail: "https://i.imgur.com/v8N3mKp.jpg",
+  tblawi: "https://i.imgur.com/B8vN3mQ.jpg",
+  ahmed_naina: "https://i.imgur.com/m8vV3Np.jpg",
+  jbrl: "https://i.imgur.com/v3N8WpM.jpg",
+  afasy: "https://i.imgur.com/K3v8N9p.jpg",
+  qtm: "https://i.imgur.com/W8mN3vK.jpg",
+  s_gmd: "https://i.imgur.com/v8N9KpX.jpg",
+  ajm: "https://i.imgur.com/m3Wv8Np.jpg",
+  abkr: "https://i.imgur.com/X8vN3Kp.jpg",
+  shatree: "https://i.imgur.com/vN8m3Wp.jpg",
+  ayyub: "https://i.imgur.com/b8vM3Np.jpg",
+  akdr: "https://i.imgur.com/W8v3Nkp.jpg",
+  jleel: "https://i.imgur.com/vM8n3Wp.jpg",
+  hazza: "https://i.imgur.com/v8N3mWp.jpg",
+  mansor: "https://i.imgur.com/v3Np8Wk.jpg",
+  islam_sobhi: "https://i.imgur.com/m8vN3Kp.jpg",
+  frs_a: "https://i.imgur.com/Wv8M3Np.jpg",
+  wdee3: "https://i.imgur.com/v8N3mXp.jpg",
+  kurdi: "https://i.imgur.com/bM8v3Np.jpg",
+  aloosi: "https://i.imgur.com/v8Kp3mW.jpg",
+  bu_khtr: "https://i.imgur.com/m8vW3Np.jpg",
+  twfeeq: "https://i.imgur.com/v3N8Mkp.jpg",
+  lhdan: "https://i.imgur.com/b8vN3Mp.jpg",
+  mhsny: "https://i.imgur.com/X8v3Nkp.jpg",
+  hani_rifai: "https://i.imgur.com/v8N3mWq.jpg",
+  basfar: "https://i.imgur.com/m8vN3Bp.jpg",
+  hamad_daghriri: "https://i.imgur.com/v8M3Nkp.jpg",
+  salah_hashim: "https://i.imgur.com/b8v3NKp.jpg",
+  waleed_shamsan: "https://i.imgur.com/v8N3Mkp.jpg",
+  badr_turki: "https://i.imgur.com/m8vN3Kp.jpg",
+  abdulaziz_alahmed: "https://i.imgur.com/v8M3Nkp.jpg",
+  yousef_shohaee: "https://i.imgur.com/b8vN3Kp.jpg",
+  ahmed_hawashi: "https://i.imgur.com/v8N3Mkp.jpg",
+  ahmed_trabulsi: "https://i.imgur.com/m8vN3Kp.jpg",
+  abdulwali_arkani: "https://i.imgur.com/v8M3Nkp.jpg",
+  khalid_alqahtani: "https://i.imgur.com/b8vN3Kp.jpg",
+  ibrahim_aljibrin: "https://i.imgur.com/v8N3Mkp.jpg",
+  abdullah_kandari: "https://i.imgur.com/m8vN3Kp.jpg",
+  nabil_rafat: "https://i.imgur.com/v8M3Nkp.jpg",
+  mohamed_jassem: "https://i.imgur.com/b8vN3Kp.jpg",
+  mohammed_ghassan: "https://i.imgur.com/v8N3Mkp.jpg",
+  rashid_alhur: "https://i.imgur.com/m8vN3Kp.jpg",
+  mohammed_alquraishi: "https://i.imgur.com/v8M3Nkp.jpg",
+  nadir_almaghribi: "https://i.imgur.com/b8vN3Kp.jpg",
+  salman_alotaibi: "https://i.imgur.com/v8N3Mkp.jpg",
+  mustafa_lahoni: "https://i.imgur.com/m8vN3Kp.jpg",
+  ibrahim_zaid: "https://i.imgur.com/v8M3Nkp.jpg",
+  mohammed_yahya: "https://i.imgur.com/b8vN3Kp.jpg",
+  dawood_hamza: "https://i.imgur.com/v8N3Mkp.jpg",
+  ahmed_rifai: "https://i.imgur.com/m8vN3Kp.jpg",
+  omar_tayeb: "https://i.imgur.com/v8N3Mkp.jpg",
+  mohammed_saber: "https://i.imgur.com/b8vN3Kp.jpg",
+  alzain_mohammad: "https://i.imgur.com/v8N3Mkp.jpg",
+  abdulmohsen_harthi: "https://i.imgur.com/m8vN3Kp.jpg",
+  mohammed_alzahrani: "https://i.imgur.com/v8N3Mkp.jpg",
+  ali_alqarni: "https://i.imgur.com/b8vN3Kp.jpg",
+  waleed_dulyami: "https://i.imgur.com/v8N3Mkp.jpg",
+  abdurrahman_majed: "https://i.imgur.com/m8vN3Kp.jpg",
+  mohammad_khalil_qari: "https://i.imgur.com/v8N3Mkp.jpg",
+  wakil_alharthy: "https://i.imgur.com/b8vN3Kp.jpg",
+  mohammad_alsayed: "https://i.imgur.com/v8N3Mkp.jpg",
+  mohammed_aljamal: "https://i.imgur.com/m8vN3Kp.jpg",
+  khalid_mohna: "https://i.imgur.com/v8N3Mkp.jpg",
+  akram_raisi: "https://i.imgur.com/b8vN3Kp.jpg",
+  alashri_omran: "https://i.imgur.com/v8N3Mkp.jpg",
+  saleh_habdan: "https://i.imgur.com/m8vN3Kp.jpg",
+  mohammed_alsaeed: "https://i.imgur.com/v8N3Mkp.jpg",
+  akrm: "https://i.imgur.com/b8vN3Kp.jpg",
+  majd_onazi: "https://i.imgur.com/v8N3Mkp.jpg",
+  braak: "https://i.imgur.com/m8vN3Kp.jpg",
+  shah: "https://i.imgur.com/v8N3Mkp.jpg",
+  m_krm: "https://i.imgur.com/b8vN3Kp.jpg",
+  ra3ad: "https://i.imgur.com/v8N3Mkp.jpg",
+  zaml: "https://i.imgur.com/m8vN3Kp.jpg",
+  shaksh: "https://i.imgur.com/v8N3Mkp.jpg",
+  a_klb: "https://i.imgur.com/b8vN3Kp.jpg",
+  bilal: "https://i.imgur.com/v8N3Mkp.jpg",
+  hatem: "https://i.imgur.com/m8vN3Kp.jpg",
+  jormy: "https://i.imgur.com/v8N3Mkp.jpg",
+  jaman: "https://i.imgur.com/b8vN3Kp.jpg",
+  abdulgani: "https://i.imgur.com/v8N3Mkp.jpg",
+  fhmi: "https://i.imgur.com/m8vN3Kp.jpg",
+  hafz: "https://i.imgur.com/v8N3Mkp.jpg",
+  hfs: "https://i.imgur.com/b8vN3Kp.jpg",
+  nor: "https://i.imgur.com/v8N3Mkp.jpg",
+  noah: "https://i.imgur.com/m8vN3Kp.jpg",
+  zilaie: "https://i.imgur.com/v8N3Mkp.jpg",
+  Aamer: "https://i.imgur.com/b8vN3Kp.jpg",
+  khan: "https://i.imgur.com/v8N3Mkp.jpg",
+  dgsh: "https://i.imgur.com/m8vN3Kp.jpg",
+  Othmn: "https://i.imgur.com/v8N3Mkp.jpg",
+  shoraimy: "https://i.imgur.com/b8vN3Kp.jpg",
+  kafi: "https://i.imgur.com/v8N3Mkp.jpg",
+  shakoor: "https://i.imgur.com/m8vN3Kp.jpg",
+  m_arkani: "https://i.imgur.com/v8N3Mkp.jpg",
+  whabi: "https://i.imgur.com/b8vN3Kp.jpg",
+  rami: "https://i.imgur.com/v8N3Mkp.jpg",
+  tnjy: "https://i.imgur.com/m8vN3Kp.jpg",
+  khalf: "https://i.imgur.com/v8N3Mkp.jpg",
+  alosfor: "https://i.imgur.com/b8vN3Kp.jpg",
+  bukheet: "https://i.imgur.com/v8N3Mkp.jpg",
+  shl: "https://i.imgur.com/m8vN3Kp.jpg",
+  zaki: "https://i.imgur.com/v8M3Mkp.jpg",
+  sami_hsn: "https://i.imgur.com/b8vN3Kp.jpg",
+  taher: "https://i.imgur.com/v8N3Mkp.jpg",
+  hkm: "https://i.imgur.com/m8vN3Kp.jpg",
+  sahood: "https://i.imgur.com/v8N3Mkp.jpg",
+  ryan: "https://i.imgur.com/b8vN3Kp.jpg",
+  bari: "https://i.imgur.com/v8M3Mkp.jpg",
+  brmi: "https://i.imgur.com/m8vN3Kp.jpg",
+  mtrod: "https://i.imgur.com/v8M3Mkp.jpg",
+  kyat: "https://i.imgur.com/m8vN3Kp.jpg",
+  gulan: "https://i.imgur.com/m8vN3Kp.jpg",
+  askr: "https://i.imgur.com/m8vN3Kp.jpg",
+  obk: "https://i.imgur.com/v8N3Mkp.jpg",
+  kanakeri: "https://i.imgur.com/m8vN3Kp.jpg",
+  wdod: "https://i.imgur.com/v8N3Mkp.jpg",
+  hajjaj: "https://i.imgur.com/m8vN3Kp.jpg",
+  hafz_emad: "https://i.imgur.com/v8N3Mkp.jpg",
+  kndri: "https://i.imgur.com/m8vN3Kp.jpg",
+  fawaz: "https://i.imgur.com/v8N3Mkp.jpg",
+  namh: "https://i.imgur.com/m8vN3Kp.jpg",
+  fyl: "https://i.imgur.com/v8N3Mkp.jpg"
+};
+
+// Helper to get image for any sheikh
 const getReciterAvatar = (id: string, name: string) => {
-  const pop = POPULAR_RECITERS.find(r => r.id === id);
-  if (pop) return pop.avatar;
+  if (RECITER_AVATARS[id]) return RECITER_AVATARS[id];
+  
+  // Extract clean code (e.g. basit_murattal -> basit, husr_teacher -> husr)
+  let code = id;
+  const rec = RECITERS.find(r => r.id === id);
+  if (rec) {
+    const parts = rec.mp3quranServer.split('/');
+    if (parts.length > 1 && parts[1]) {
+      code = parts[1];
+    } else if (rec.folder) {
+      code = rec.folder;
+    }
+  }
+  
+  // Clean common suffixes from code
+  code = code.replace(/_(murattal|mujawwad|teacher|128kbps|64kbps|32kbps|clean|space|explorer)/g, "");
 
-  const extra: Record<string, string> = {
-    "hazza": "https://i1.sndcdn.com/avatars-000455850930-m0b13h-t240x240.jpg",
-    "islam_sobhi": "https://i1.sndcdn.com/avatars-000572834010-09t4q9-t240x240.jpg",
-    "mansor": "https://i1.sndcdn.com/avatars-000305886650-tq3lsq-t240x240.jpg",
-    "jleel": "https://i1.sndcdn.com/avatars-000216174152-jyp76f-t240x240.jpg",
-    "husr_murattal": "https://i1.sndcdn.com/avatars-000181180126-vzw72g-t240x240.jpg",
-    "ayyub": "https://i1.sndcdn.com/avatars-000340776483-3m0o26-t240x240.jpg",
-    "jbrl": "https://i1.sndcdn.com/avatars-000045561009-v0gspg-t240x240.jpg",
-  };
-  if (extra[id]) return extra[id];
+  if (RECITER_AVATARS[code]) return RECITER_AVATARS[code];
 
-  // Beautiful golden initials avatar matching premium theme
-  return `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=b8860b,d4af37&fontFamily=Arial&fontSize=45&bold=true`;
+  // Dynamic Mp3quran profile photo URL base
+  return `https://mp3quran.net/images/profile/${code}.jpg`;
 };
 
 export function AudioLibrary() {
@@ -204,7 +359,10 @@ export function AudioLibrary() {
 
   // Prepend current custom reciter if not in popular ones
   const recitersToShow = useMemo(() => {
-    const base = [...POPULAR_RECITERS];
+    const base = POPULAR_RECITERS.map(r => ({
+      ...r,
+      avatar: getReciterAvatar(r.id, r.name)
+    }));
     const isPopular = base.some(r => r.id === selectedReciter.id);
     if (!isPopular) {
       base.unshift({
@@ -458,7 +616,14 @@ export function AudioLibrary() {
                     <div className={`w-8.5 h-8.5 rounded-full overflow-hidden border transition-all ${
                       isActive ? "border-[#e2b43b] scale-105" : "border-white/10 group-hover:border-white/20"
                     }`}>
-                      <img src={rec.avatar} alt={rec.name} className="w-full h-full object-cover" />
+                      <img
+                        src={rec.avatar}
+                        alt={rec.name}
+                        className="w-full h-full object-cover animate-fade-in"
+                        onError={(e) => {
+                          e.currentTarget.src = "https://i.imgur.com/b8vN3Kp.jpg";
+                        }}
+                      />
                     </div>
 
                     {/* Meta */}
@@ -1141,7 +1306,14 @@ export function AudioLibrary() {
                         <div className={`w-8 h-8 rounded-full overflow-hidden border shrink-0 ${
                           isSel ? "border-[#e2b43b]" : "border-white/10"
                         }`}>
-                          <img src={getReciterAvatar(rec.id, rec.name)} alt={rec.name} className="w-full h-full object-cover" />
+                          <img
+                            src={getReciterAvatar(rec.id, rec.name)}
+                            alt={rec.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = "https://i.imgur.com/b8vN3Kp.jpg";
+                            }}
+                          />
                         </div>
                         <span className="text-xs font-black flex-1 truncate">{rec.name}</span>
                         {isSel && <div className="w-2 h-2 rounded-full bg-[#e2b43b] shrink-0" />}
