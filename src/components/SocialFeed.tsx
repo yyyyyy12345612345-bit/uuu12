@@ -6,7 +6,8 @@ import {
   Loader2, User, EyeOff, X, AlertCircle, Bookmark, BookmarkCheck,
   Crown, Star, Sparkles, BookOpen, HandHeart, Award, Users, Search,
   Trophy, Shield, Ban, Flag, Check, Image as ImageIcon, Video, HelpCircle,
-  FileText, ArrowRight, Sparkle, UserCheck, UserPlus, LogOut, Info
+  FileText, ArrowRight, Sparkle, UserCheck, UserPlus, LogOut, Info,
+  Home, Folder
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { db, auth } from "@/lib/firebase";
@@ -17,6 +18,7 @@ import {
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { checkAndAwardBadges } from "@/lib/badges";
+import { navigateInstantly } from "@/lib/navigation";
 
 /* ─── Helpers ─── */
 const timeAgo = (date: any) => {
@@ -231,6 +233,7 @@ export function SocialFeed() {
   const [activeSortTab, setActiveSortTab] = useState("latest"); // latest, interactive, following
   const [activeMobileTab, setActiveMobileTab] = useState("feed"); // feed, groups, dashboard
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   
   // Real Group States
   const [groups, setGroups] = useState<RealGroup[]>([]);
@@ -1090,7 +1093,17 @@ export function SocialFeed() {
 
   // Filter and Sort Posts
   const filteredPosts = posts.filter(p => {
-    // 1. Tag Filter
+    // 1. Search Query Filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const inContent = p.content?.toLowerCase().includes(q);
+      const inUserName = p.userName?.toLowerCase().includes(q);
+      const inVerse = p.verseText?.toLowerCase().includes(q);
+      const inReflection = p.reflectionText?.toLowerCase().includes(q);
+      if (!inContent && !inUserName && !inVerse && !inReflection) return false;
+    }
+
+    // 2. Tag Filter
     if (selectedTag) {
       const tagClean = selectedTag.replace("#", "");
       const inContent = p.content?.includes(tagClean) || p.content?.includes(selectedTag);
@@ -1099,17 +1112,17 @@ export function SocialFeed() {
       if (!inContent && !inVerse && !inReflection) return false;
     }
 
-    // 2. Real Group Filtration
+    // 3. Real Group Filtration
     if (selectedGroupId) {
       return p.groupId === selectedGroupId;
     }
 
-    // 3. Category Filter
+    // 4. Category Filter
     if (selectedCategory === "saved") {
       return bookmarkedPosts.has(p.id);
     }
     if (selectedCategory === "all") {
-      // 4. Real Follow Tab Filtration
+      // 5. Real Follow Tab Filtration
       if (activeSortTab === "following") {
         return followingUids.includes(p.userId) || p.userId === user?.uid;
       }
@@ -1146,44 +1159,92 @@ export function SocialFeed() {
         <div className="absolute bottom-20 right-1/4 w-80 h-80 bg-emerald-500/5 blur-[140px] rounded-full" />
       </div>
 
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-2xl border-b border-border/40 px-5 py-4 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#fbbf24]/10 flex items-center justify-center border border-[#fbbf24]/20 shadow-lg shadow-[#fbbf24]/5">
-            <Users className="w-5 h-5 text-[#fbbf24]" />
-          </div>
-          <div>
-            <h1 className="text-xl font-black text-foreground">مجتمع يقين</h1>
-            <p className="text-[9px] text-foreground/35 font-bold uppercase tracking-wider">Yaqeen Community</p>
+      {/* New Sticky Top Bar matching the design image perfectly */}
+      <header className="sticky top-0 z-50 bg-[#090a0f] border-b border-white/5 px-6 py-3 flex items-center justify-between shrink-0 select-none">
+        
+        {/* Left: Search Bar */}
+        <div className="flex items-center gap-2 w-full max-w-[180px] sm:max-w-[240px] md:max-w-[280px]">
+          <div className="relative w-full">
+            <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/35" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="ابحث في المجتمع..."
+              className="w-full bg-white/5 border border-white/10 rounded-full py-2 pr-10 pl-4 text-[10px] sm:text-xs text-white outline-none focus:border-[#fbbf24] transition-all font-bold placeholder:text-white/20 text-right"
+            />
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery("")}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 p-0.5 text-white/30 hover:text-white"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Selected filtration status displays */}
-        <div className="flex items-center gap-2">
-          {selectedGroupId && (
-            <button
-              onClick={() => setSelectedGroupId(null)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold rounded-full hover:scale-105 active:scale-95"
-            >
-              <span>مجموعة: {currentActiveGroup?.name}</span>
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
+        {/* Center: Navigation Tabs (Hidden on small mobile, flex on md+) */}
+        <nav className="hidden md:flex items-center gap-4 lg:gap-6">
+          <button
+            onClick={() => navigateInstantly("/rank")}
+            className="flex items-center gap-2 py-2 px-3 text-xs font-black text-white/40 hover:text-white transition-colors"
+          >
+            <User className="w-4 h-4" />
+            <span>الأصدقاء</span>
+          </button>
 
-          {selectedTag && (
-            <button
-              onClick={() => setSelectedTag(null)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#fbbf24]/10 border border-[#fbbf24]/30 text-[#fbbf24] text-xs font-bold rounded-full hover:scale-105 active:scale-95"
-            >
-              <span>وسم: {selectedTag}</span>
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
+          <button
+            onClick={() => {
+              setSelectedGroupId(null);
+              setSelectedCategory("all");
+              setActiveMobileTab("groups");
+            }}
+            className="flex items-center gap-2 py-2 px-3 text-xs font-black text-white/40 hover:text-white transition-colors"
+          >
+            <Folder className="w-4 h-4" />
+            <span>المجموعات</span>
+          </button>
+
+          <button
+            className="flex items-center gap-2 py-2 px-4.5 text-xs font-black text-[#fbbf24] border-b-2 border-[#fbbf24] transition-colors"
+          >
+            <Users className="w-4 h-4 text-[#fbbf24]" />
+            <span>المجتمع</span>
+          </button>
+
+          <button
+            onClick={() => navigateInstantly("/daily")}
+            className="flex items-center gap-2 py-2 px-3 text-xs font-black text-white/40 hover:text-white transition-colors"
+          >
+            <FileText className="w-4 h-4" />
+            <span>المواضيع</span>
+          </button>
+
+          <button
+            onClick={() => navigateInstantly("/")}
+            className="flex items-center gap-2 py-2 px-3 text-xs font-black text-white/40 hover:text-white transition-colors"
+          >
+            <Home className="w-4 h-4" />
+            <span>الرئيسية</span>
+          </button>
+        </nav>
+
+        {/* Right: Logo & Branding */}
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="text-right">
+            <h1 className="text-[10px] md:text-sm font-black text-white leading-none">مجتمع يقين</h1>
+            <span className="text-[6px] md:text-[8px] font-bold text-[#fbbf24] tracking-widest mt-0.5 block">YAQEEN COMMUNITY</span>
+          </div>
+          <div className="w-8 h-8 md:w-9 h-9 rounded-xl border border-[#fbbf24]/20 p-0.5 bg-white/5 flex items-center justify-center shrink-0">
+            <img src="/logo/logo.png?v=25" alt="Yaqeen Logo" className="w-full h-full object-contain rounded-lg" />
+          </div>
         </div>
-      </div>
+
+      </header>
 
       {/* Mobile Sticky Tab Selector */}
-      <div className="sticky top-[73px] z-40 bg-background/90 backdrop-blur-md border-b border-border/20 flex items-center justify-around py-3 lg:hidden shrink-0">
+      <div className="sticky top-[58px] z-40 bg-background/90 backdrop-blur-md border-b border-border/20 flex items-center justify-around py-3 lg:hidden shrink-0">
         <button
           onClick={() => setActiveMobileTab("feed")}
           className={`px-4 py-2 text-xs font-black rounded-full transition-all border ${
@@ -1474,8 +1535,8 @@ export function SocialFeed() {
                               onClick={() => setComposeTheme(themeId)}
                               className={`w-4 h-4 rounded-full border ${composeTheme === themeId ? 'border-white scale-110' : 'border-transparent'} ${
                                 themeId === 'emerald-gold' ? 'bg-emerald-800' :
-                                themeId === 'midnight' ? 'bg-slate-900' :
-                                themeId === 'royal-purple' ? 'bg-purple-900' : 'bg-slate-500'
+                                themeId === 'midnight' ? 'bg-slate-950' :
+                                themeId === 'royal-purple' ? 'bg-purple-950' : 'bg-slate-500'
                               }`}
                             />
                           ))}
@@ -1868,11 +1929,9 @@ export function SocialFeed() {
                   <div className="px-6 py-4">
                     {post.isReflection ? (
                       <div className="p-6 md:p-8 rounded-[2rem] border border-[#fbbf24]/20 relative overflow-hidden text-center bg-gradient-to-br from-[#0a0e1c] via-[#05070e] to-[#010204] shadow-inner mt-2">
-                        {/* Glow effect */}
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#fbbf24]/5 blur-[70px] rounded-full pointer-events-none" />
                         <div className="absolute top-3 left-4 text-[#fbbf24]/30 text-xs font-serif select-none pointer-events-none">✨</div>
                         
-                        {/* Calligraphy display styling matching the design image */}
                         <div className="relative z-10 space-y-4">
                           <p className="font-arabic text-xl md:text-2xl font-black text-[#fbbf24] leading-relaxed text-shadow-md select-text" dir="rtl">
                             « {post.verseText} »

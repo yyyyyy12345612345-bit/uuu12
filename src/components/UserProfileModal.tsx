@@ -44,7 +44,7 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
     // 1. Fetch target user doc
     const unsubUser = onSnapshot(doc(db, "users", userId), (snap) => {
       if (snap.exists()) {
-        setTargetUser(snap.value ? snap.value() : snap.data());
+        setTargetUser(snap.data());
       } else {
         onClose();
       }
