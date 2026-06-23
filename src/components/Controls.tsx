@@ -306,6 +306,12 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                             { id: "Scheherazade New", label: "شهرزاد" },
                             { id: "Cairo", label: "القاهرة" },
                             { id: "Tajawal", label: "تجوال" },
+                            { id: "Reem Kufi", label: "ريم كوفي" },
+                            { id: "Lalezar", label: "لاليزار" },
+                            { id: "El Messiri", label: "المسيري" },
+                            { id: "Almarai", label: "المراعي" },
+                            { id: "Aref Ruqaa", label: "رقعة" },
+                            { id: "Alexandria", label: "إسكندرية" },
                         ].map((font) => (
                         <button
                             key={font.id}

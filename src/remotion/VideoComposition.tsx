@@ -56,7 +56,6 @@ const FILTER_MAP: Record<string, string> = {
   cross_process: "contrast(1.35) saturate(1.15) hue-rotate(10deg) sepia(0.12)"
 };
 
-// ── الخطوط ──
 const FONT_IMPORTS: Record<string, string> = {
   "Amiri": "Amiri:wght@400;700",
   "Noto Naskh Arabic": "Noto+Naskh+Arabic:wght@400;500;600;700",
@@ -64,6 +63,12 @@ const FONT_IMPORTS: Record<string, string> = {
   "Lateef": "Lateef:wght@200;300;400;500;600;700;800",
   "Cairo": "Cairo:wght@200;300;400;500;600;700;800;900",
   "Tajawal": "Tajawal:wght@200;300;400;500;700;800;900",
+  "Reem Kufi": "Reem+Kufi:wght@400;700",
+  "Lalezar": "Lalezar",
+  "El Messiri": "El+Messiri:wght@500;700",
+  "Almarai": "Almarai:wght@400;700",
+  "Aref Ruqaa": "Aref+Ruqaa",
+  "Alexandria": "Alexandria:wght@400;700",
 };
 
 interface Verse {

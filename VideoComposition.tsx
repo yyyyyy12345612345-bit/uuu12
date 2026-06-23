@@ -51,6 +51,12 @@ const FONT_IMPORTS: Record<string, string> = {
   "Lateef": "Lateef:wght@200;300;400;500;600;700;800",
   "Cairo": "Cairo:wght@200;300;400;500;600;700;800;900",
   "Tajawal": "Tajawal:wght@200;300;400;500;700;800;900",
+  "Reem Kufi": "Reem+Kufi:wght@400;700",
+  "Lalezar": "Lalezar",
+  "El Messiri": "El+Messiri:wght@500;700",
+  "Almarai": "Almarai:wght@400;700",
+  "Aref Ruqaa": "Aref+Ruqaa",
+  "Alexandria": "Alexandria:wght@400;700",
 };
 
 interface Verse {
@@ -76,6 +82,7 @@ interface MainVideoProps {
   textPosition?: "top" | "center" | "bottom";
   textVerticalOffset?: number;
   userPlan?: string;
+  ayahDecoration?: string;
 }
 
 export const MainVideo: React.FC<MainVideoProps> = ({
@@ -92,6 +99,7 @@ export const MainVideo: React.FC<MainVideoProps> = ({
   textPosition = "center",
   textVerticalOffset = 0,
   userPlan = "free",
+  ayahDecoration = "bracket1",
 }) => {
   const { durationInFrames } = useVideoConfig();
   const frame = useCurrentFrame();
@@ -257,6 +265,7 @@ export const MainVideo: React.FC<MainVideoProps> = ({
                 textPosition={textPosition}
                 textVerticalOffset={textVerticalOffset}
                 totalVerseFrames={actualDuration}
+                ayahDecoration={ayahDecoration}
               />
             </Sequence>
           );
@@ -288,9 +297,9 @@ export const MainVideo: React.FC<MainVideoProps> = ({
   );
 };
 
-const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fontFamily, animation, textPosition, textVerticalOffset, totalVerseFrames }: {
+const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fontFamily, animation, textPosition, textVerticalOffset, totalVerseFrames, ayahDecoration }: {
   verse: Verse, surahName: string, textColor: string, fontSize: number, fontWeight: any,
-  fontFamily: string, animation: string, textPosition: string, textVerticalOffset: number, totalVerseFrames: number
+  fontFamily: string, animation: string, textPosition: string, textVerticalOffset: number, totalVerseFrames: number, ayahDecoration: string
 }) => {
   const frame = useCurrentFrame();
 
@@ -384,6 +393,36 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
           {verse.translation}
         </p>
       )}
+
+      {/* Verse Number (Bottom) */}
+      <div style={{
+        position: 'absolute',
+        bottom: '180px',
+        left: 0,
+        right: 0,
+        display: 'flex',
+        justifyContent: 'center',
+        pointerEvents: 'none'
+      }}>
+        <span style={{
+          color: '#FFD700',
+          fontSize: '45px',
+          fontWeight: 'bold',
+          fontFamily: `"${fontFamily}", serif`,
+          textShadow: '0 4px 15px rgba(0,0,0,0.8)'
+        }}>
+          {(() => {
+            const dec = ayahDecoration || "bracket1";
+            if (dec === "none") return `${verse.id}`;
+            if (dec === "bracket1") return `﴿ ${verse.id} ﴾`;
+            if (dec === "bracket2") return `﴾ ${verse.id} ﴿`;
+            if (dec === "star") return `✧ ${verse.id} ✧`;
+            if (dec === "diamond") return `✥ ${verse.id} ✥`;
+            if (dec === "ornament") return `۞ ${verse.id} ۞`;
+            return `﴿ ${verse.id} ﴾`;
+          })()}
+        </span>
+      </div>
     </div>
   );
 };

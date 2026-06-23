@@ -602,7 +602,7 @@ export function VideoPreview() {
         {/* Verse Number (Bottom) */}
         {surahData && currentVerse && (
           <div className="absolute bottom-[14%] left-0 right-0 flex justify-center z-30 pointer-events-none">
-            <span className="text-[22px] font-bold text-primary font-['Amiri'] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+            <span className="text-[22px] font-bold text-primary drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" style={{ fontFamily: 'Amiri, serif' }}>
               {(() => {
                 const dec = state.ayahDecoration || "bracket1";
                 if (dec === "none") return `${currentVerse.id}`;
@@ -712,7 +712,7 @@ export function VideoPreview() {
             justifyContent: state.textPosition === 'top' ? 'flex-start' : state.textPosition === 'bottom' ? 'flex-end' : 'center',
             paddingTop: state.textPosition === 'top' ? '180px' : '60px',
             paddingBottom: state.textPosition === 'bottom' ? '160px' : '60px',
-            transform: `translateY(${state.textVerticalOffset}px)` 
+            transform: `translateY(${state.textVerticalOffset * 0.45}px)` 
           }}
         >
           {surahLoading ? (
