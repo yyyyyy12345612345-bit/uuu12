@@ -35,6 +35,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
     senderIdentifier: "",
     transactionRef: "",
     platformLink: "",
+    proofLink: "",
     amount: "",
     note: ""
   });
@@ -118,6 +119,10 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
       alert("يرجى إدخال المبلغ المحول");
       return;
     }
+    if (!formData.proofLink.trim()) {
+      alert("يرجى إدخال رابط ملف / صورة إثبات التحويل");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -148,6 +153,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
         senderIdentifier: formData.senderIdentifier.trim(),
         transactionRef: formData.transactionRef.trim(),
         platformLink: formData.platformLink.trim(),
+        proofLink: formData.proofLink.trim(),
         note: formData.note.trim(),
         amount: Number(formData.amount) || currentSelected?.price || 0,
         paymentMethod: payMethod === "vodafone" ? "Vodafone Cash" : "Instapay",
@@ -569,6 +575,22 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                   />
                 </div>
 
+                {/* Proof Link */}
+                <div className="space-y-2 text-right">
+                  <label className="text-[11px] font-black text-white/30 uppercase tracking-[0.4em] px-2 flex items-center gap-2 justify-end">
+                    <Link2 className="w-3.5 h-3.5" />
+                    رابط ملف / صورة إثبات التحويل (سكرين شوت)
+                    <span className="text-primary normal-case font-bold">(مطلوب)</span>
+                  </label>
+                  <input
+                    required
+                    value={formData.proofLink}
+                    onChange={e => setFormData({ ...formData, proofLink: e.target.value })}
+                    className="w-full bg-white/5 border-2 border-white/5 rounded-2xl py-4 px-6 text-right outline-none focus:border-primary/50 transition-all font-bold text-white shadow-xl text-sm hover:bg-white/[0.07]"
+                    placeholder="ضع رابط صورة إيصال التحويل المرفوع هنا"
+                  />
+                </div>
+
                 {/* Amount */}
                 <div className="space-y-2 text-right">
                   <label className="text-[11px] font-black text-white/30 uppercase tracking-[0.4em] px-2 flex items-center gap-2 justify-end">
@@ -616,7 +638,6 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
             </motion.form>
           )}
           </AnimatePresence>
-        </div>
         </div>
 
         {/* Desktop Close */}

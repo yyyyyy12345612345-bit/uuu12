@@ -126,11 +126,16 @@ function CatchAllContent() {
       const userId = e.detail?.userId;
       if (userId) setChatPartnerId(userId);
     };
+    const handleOpenSubscription = () => {
+      setIsSubscriptionOpen(true);
+    };
     window.addEventListener('show_user_profile', handleShowProfile);
     window.addEventListener('open_direct_chat', handleOpenChat);
+    window.addEventListener('open_subscription_modal', handleOpenSubscription);
     return () => {
       window.removeEventListener('show_user_profile', handleShowProfile);
       window.removeEventListener('open_direct_chat', handleOpenChat);
+      window.removeEventListener('open_subscription_modal', handleOpenSubscription);
     };
   }, []);
 
