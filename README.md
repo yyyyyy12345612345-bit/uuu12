@@ -134,7 +134,7 @@ npm run final-build
 
 ## النشر
 
-- **Web**: مستضاف على Vercel (`quran1-mu.vercel.app`)
+- **Web**: مستضاف على Vercel (`yaqeenalquran.online`)
 - **Android**: بناء يدوي عبر Gradle، يتم رفع APK يدويًا
 
 ---

@@ -750,7 +750,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
       {children}
 
       {/* Smart App Banner - Platform Aware */}
-      <AppBanner apkDownloadUrl="https://yaqeen-app.vercel.app/download/" />
+      <AppBanner apkDownloadUrl="https://yaqeenalquran.online/download/" />
     </>
   );
 }

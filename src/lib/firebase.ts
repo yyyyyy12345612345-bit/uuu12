@@ -25,7 +25,7 @@ export async function initFirebase(): Promise<void> {
     try {
       app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
       auth = getAuth(app);
-      db = initializeFirestore(app, { experimentalForceLongPolling: false });
+      db = initializeFirestore(app, { experimentalForceLongPolling: true });
       storage = getStorage(app);
       if (typeof window !== "undefined") {
         try {

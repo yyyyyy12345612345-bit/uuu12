@@ -125,7 +125,7 @@ export function AdminPanel() {
   const [versionSettings, setVersionSettings] = useState({
     version: "v22",
     releaseNotes: "تحسين استقرار التطبيق، تحديث واجهة المستخدم، وإضافة دعم الدفع الجديد.",
-    downloadUrl: "https://yaqeen-app.vercel.app/download",
+    downloadUrl: "https://yaqeenalquran.online/download",
     mandatoryUpdate: false, displayOnDownloadPage: false
   });
   const [versionHistory, setVersionHistory] = useState<any[]>([]);

@@ -19,7 +19,7 @@ import {
 } from "firebase/firestore";
 import { motion, AnimatePresence } from "framer-motion";
 
-const VERCEL_BASE = process.env.NEXT_PUBLIC_APP_URL || "https://yaqeen-app.vercel.app";
+const VERCEL_BASE = process.env.NEXT_PUBLIC_APP_URL || "https://yaqeenalquran.online";
 
 function getApiUrl(path: string): string {
   if (typeof window !== "undefined" && (window as any).Capacitor) {

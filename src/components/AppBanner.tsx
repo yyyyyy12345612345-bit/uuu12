@@ -13,7 +13,7 @@ interface AppBannerProps {
   apkDownloadUrl?: string;
 }
 
-export function AppBanner({ apkDownloadUrl = "https://yaqeen-app.vercel.app/download/" }: AppBannerProps) {
+export function AppBanner({ apkDownloadUrl = "https://yaqeenalquran.online/download/" }: AppBannerProps) {
   const [platform, setPlatform] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);

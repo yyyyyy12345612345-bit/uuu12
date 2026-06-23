@@ -504,7 +504,7 @@ export const MainVideo: React.FC<MainVideoProps> = ({
                       whiteSpace: 'nowrap',
                       fontFamily: 'sans-serif'
                    }}>
-                      quran1-mu.vercel.app
+                      yaqeenalquran.online
                    </div>
                 ))}
              </div>
@@ -521,57 +521,43 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
 }) => {
   const frame = useCurrentFrame();
 
-  // ═══ نظام كاريوكي: سطر واحد في كل لحظة ═══
-  const words = (verse.text || "").split(/\s+/).filter(Boolean);
-  const WORDS_PER_LINE = Math.min(4, Math.max(2, Math.ceil(words.length / Math.ceil(words.length / 4))));
-  const lines: string[] = [];
-  for (let i = 0; i < words.length; i += WORDS_PER_LINE) {
-    lines.push(words.slice(i, i + WORDS_PER_LINE).join(" "));
-  }
-  const numLines = Math.max(1, lines.length);
-  const framesPerLine = Math.floor(totalVerseFrames / numLines);
-  const currentLineIndex = Math.min(Math.floor(frame / framesPerLine), numLines - 1);
-  const currentLine = lines[currentLineIndex];
-
-  // انميشن fade لكل سطر جديد
-  const lineLocalFrame = frame - (currentLineIndex * framesPerLine);
-  const lineFadeIn = Math.min(12, Math.floor(framesPerLine * 0.15));
-  const lineFadeOut = Math.min(8, Math.floor(framesPerLine * 0.1));
+  const fadeIn = Math.min(15, Math.floor(totalVerseFrames * 0.15));
+  const fadeOut = Math.min(10, Math.floor(totalVerseFrames * 0.1));
 
   const lineOpacity = interpolate(
-    lineLocalFrame,
-    [0, lineFadeIn, framesPerLine - lineFadeOut, framesPerLine],
-    [0, 1, 1, 0.3],
+    frame,
+    [0, fadeIn, totalVerseFrames - fadeOut, totalVerseFrames],
+    [0, 1, 1, 0],
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
   );
 
   // Zoom/Scale effect
   const baseScale = interpolate(frame, [0, totalVerseFrames], [1, 1.03], { easing: Easing.out(Easing.quad) });
 
-  // انميشن الدخول والتحول حسب النوع (16 أنيميشن)
+  // Entrance animation
   let animationStyles: React.CSSProperties = {};
-  const entranceY = interpolate(lineLocalFrame, [0, lineFadeIn], [40, 0], {
+  const entranceY = interpolate(frame, [0, fadeIn], [40, 0], {
     extrapolateRight: 'clamp',
     easing: Easing.out(Easing.quad)
   });
 
   if (animation === "scale") {
-    const s = interpolate(lineLocalFrame, [0, lineFadeIn], [0.85, 1], { extrapolateRight: 'clamp' });
+    const s = interpolate(frame, [0, fadeIn], [0.85, 1], { extrapolateRight: 'clamp' });
     animationStyles.transform = `scale(${baseScale * s}) translateY(${textVerticalOffset}px)`;
   } else if (animation === "slide") {
     animationStyles.transform = `scale(${baseScale}) translateY(${entranceY + textVerticalOffset}px)`;
   } else if (animation === "blur") {
-    const blur = interpolate(lineLocalFrame, [0, lineFadeIn], [20, 0], { extrapolateRight: 'clamp' });
+    const blur = interpolate(frame, [0, fadeIn], [20, 0], { extrapolateRight: 'clamp' });
     animationStyles.filter = `blur(${blur}px)`;
     animationStyles.transform = `scale(${baseScale}) translateY(${textVerticalOffset}px)`;
   } else if (animation === "zoom") {
-    const zoom = interpolate(lineLocalFrame, [0, lineFadeIn], [1.5, 1], { easing: Easing.out(Easing.exp), extrapolateRight: 'clamp' });
+    const zoom = interpolate(frame, [0, fadeIn], [1.5, 1], { easing: Easing.out(Easing.exp), extrapolateRight: 'clamp' });
     animationStyles.transform = `scale(${baseScale * zoom}) translateY(${textVerticalOffset}px)`;
   } else if (animation === "flip") {
-    const rotateX = interpolate(lineLocalFrame, [0, lineFadeIn], [60, 0], { easing: Easing.out(Easing.quad), extrapolateRight: 'clamp' });
+    const rotateX = interpolate(frame, [0, fadeIn], [60, 0], { easing: Easing.out(Easing.quad), extrapolateRight: 'clamp' });
     animationStyles.transform = `perspective(1000px) scale(${baseScale}) rotateX(${rotateX}deg) translateY(${textVerticalOffset}px)`;
   } else if (animation === "bounce") {
-    const bounce = interpolate(lineLocalFrame, [0, lineFadeIn], [150, 0], { easing: Easing.out(Easing.bounce), extrapolateRight: 'clamp' });
+    const bounce = interpolate(frame, [0, fadeIn], [150, 0], { easing: Easing.out(Easing.bounce), extrapolateRight: 'clamp' });
     animationStyles.transform = `scale(${baseScale}) translateY(${bounce + textVerticalOffset}px)`;
   } else if (animation === "glitch") {
     const jitterX = Math.random() > 0.92 ? (Math.random() - 0.5) * 16 : 0;
@@ -581,29 +567,29 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
       animationStyles.filter = `hue-rotate(${Math.random() * 360}deg) saturate(3)`;
     }
   } else if (animation === "elastic") {
-    const t = lineLocalFrame / lineFadeIn;
+    const t = frame / fadeIn;
     const elasticScale = 1 - Math.cos(t * Math.PI * 2.5) * Math.exp(-t * 2.5);
-    const s = lineLocalFrame < lineFadeIn ? Math.max(0, elasticScale) : 1;
+    const s = frame < fadeIn ? Math.max(0, elasticScale) : 1;
     animationStyles.transform = `scale(${baseScale * s}) translateY(${textVerticalOffset}px)`;
   } else if (animation === "swing") {
-    const rot = Math.sin(lineLocalFrame / 8) * 8;
+    const rot = Math.sin(frame / 8) * 8;
     animationStyles.transform = `scale(${baseScale}) rotate(${rot}deg) translateY(${textVerticalOffset}px)`;
   } else if (animation === "spiral") {
-    const rot = interpolate(lineLocalFrame, [0, lineFadeIn], [360, 0], { easing: Easing.out(Easing.quad), extrapolateRight: 'clamp' });
-    const s = interpolate(lineLocalFrame, [0, lineFadeIn], [0.1, 1], { extrapolateRight: 'clamp' });
+    const rot = interpolate(frame, [0, fadeIn], [360, 0], { easing: Easing.out(Easing.quad), extrapolateRight: 'clamp' });
+    const s = interpolate(frame, [0, fadeIn], [0.1, 1], { extrapolateRight: 'clamp' });
     animationStyles.transform = `scale(${baseScale * s}) rotate(${rot}deg) translateY(${textVerticalOffset}px)`;
   } else if (animation === "cinematic") {
     const track = interpolate(frame, [0, totalVerseFrames], [1, 10], { extrapolateRight: 'clamp' });
     animationStyles.letterSpacing = `${track}px`;
     animationStyles.transform = `scale(${baseScale}) translateY(${textVerticalOffset}px)`;
   } else if (animation === "rotate") {
-    const rot = interpolate(lineLocalFrame, [0, lineFadeIn], [-180, 0], { easing: Easing.out(Easing.back(1.2)), extrapolateRight: 'clamp' });
+    const rot = interpolate(frame, [0, fadeIn], [-180, 0], { easing: Easing.out(Easing.back(1.2)), extrapolateRight: 'clamp' });
     animationStyles.transform = `scale(${baseScale}) rotate(${rot}deg) translateY(${textVerticalOffset}px)`;
   } else {
     animationStyles.transform = `scale(${baseScale}) translateY(${entranceY + textVerticalOffset}px)`;
   }
 
-  const showTranslation = currentLineIndex === numLines - 1 && verse.translation;
+  const showTranslation = !!verse.translation;
 
   const justifyMap: Record<string, string> = { top: "flex-start", center: "center", bottom: "flex-end" };
   const paddingMap: Record<string, string> = {
@@ -616,8 +602,8 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
     if (animation === "wave") {
       return (
         <span style={{ display: 'inline-block' }}>
-          {currentLine.split("").map((char, charIdx) => {
-            const charOffset = Math.sin((lineLocalFrame / 6) + (charIdx * 0.4)) * 12;
+          {(verse.text || "").split("").map((char, charIdx) => {
+            const charOffset = Math.sin((frame / 6) + (charIdx * 0.4)) * 12;
             return (
               <span key={charIdx} style={{
                 display: 'inline-block',
@@ -633,16 +619,16 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
     }
 
     if (animation === "typewriter") {
-      const charIndex = Math.floor(interpolate(lineLocalFrame, [0, Math.min(framesPerLine - 10, 45)], [0, currentLine.length], { extrapolateRight: 'clamp' }));
-      return currentLine.slice(0, charIndex);
+      const charIndex = Math.floor(interpolate(frame, [0, Math.min(totalVerseFrames - 10, 45)], [0, (verse.text || "").length], { extrapolateRight: 'clamp' }));
+      return (verse.text || "").slice(0, charIndex);
     }
 
     if (animation === "split") {
       return (
         <span style={{ display: 'inline-flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {currentLine.split(" ").map((word, wordIdx) => {
+          {(verse.text || "").split(" ").map((word, wordIdx) => {
             const dir = wordIdx % 2 === 0 ? -60 : 60;
-            const x = interpolate(lineLocalFrame, [0, lineFadeIn], [dir, 0], { easing: Easing.out(Easing.quad), extrapolateRight: 'clamp' });
+            const x = interpolate(frame, [0, fadeIn], [dir, 0], { easing: Easing.out(Easing.quad), extrapolateRight: 'clamp' });
             return (
               <span key={wordIdx} style={{
                 display: 'inline-block',
@@ -656,7 +642,7 @@ const VerseComponent = ({ verse, surahName, textColor, fontSize, fontWeight, fon
       );
     }
 
-    return currentLine;
+    return verse.text;
   };
 
   return (

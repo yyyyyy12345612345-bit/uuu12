@@ -65,7 +65,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
           }
         }},
         { id: "install-apk", label: "تثبيت التطبيق (APK)", icon: Smartphone, onClick: () => {
-          window.open('https://yaqeen-app.vercel.app/download/', '_blank');
+          window.open('https://yaqeenalquran.online/download/', '_blank');
         }},
         { id: "points-guide", label: "دليل النقاط", icon: MapIcon, onClick: onOpenPointsGuide },
         { id: "user-guide", label: "دليل استخدام المنصة 📖", icon: Info, onClick: () => {

@@ -66,7 +66,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "يقين القران | Yaqeen AlQuran - القرآن الكريم",
     description: "تطبيق إسلامي شامل للمصحف، الصلاة، الأذكار، وصناعة الفيديوهات القرآنية",
-    url: "https://yaqueenalquran.online",
+    url: "https://yaqeenalquran.online",
     siteName: "يقين القران | Yaqeen AlQuran",
     locale: "ar_EG",
     type: "website",
@@ -116,7 +116,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://yaqueenalquran.online",
+    canonical: "https://yaqeenalquran.online",
   },
 };
 
@@ -168,7 +168,7 @@ export default function RootLayout({
               "@type": "WebApplication",
               "name": "يقين القرآن | Yaqeen AlQuran",
               "description": "تطبيق إسلامي شامل للمصحف، الصلاة، الأذكار، وصناعة الفيديوهات القرآنية",
-              "url": "https://yaqueenalquran.online",
+              "url": "https://yaqeenalquran.online",
               "applicationCategory": "LifestyleApplication",
               "operatingSystem": "Android, Web",
               "offers": {

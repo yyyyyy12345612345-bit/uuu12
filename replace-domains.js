@@ -23,11 +23,12 @@ function walk(dir) {
 const files = walk(dir);
 let count = 0;
 files.forEach(file => {
-  if (file.endsWith('.js') || file.endsWith('.ts') || file.endsWith('.tsx') || file.endsWith('.html') || file.endsWith('.md') || file.endsWith('.json') || file.endsWith('.ts') || file.endsWith('.tsx')) {
+  if (file.endsWith('.js') || file.endsWith('.ts') || file.endsWith('.tsx') || file.endsWith('.html') || file.endsWith('.md') || file.endsWith('.json')) {
     let content = fs.readFileSync(file, 'utf8');
-    if (content.includes('yaqeen-app.vercel.app') || content.includes('quran1-mu.vercel.app')) {
-      content = content.replace(/yaqeen-app\.vercel\.app/g, 'yaqueenalquran.online');
-      content = content.replace(/quran1-mu\.vercel\.app/g, 'yaqueenalquran.online');
+    if (content.includes('yaqeenalquran.online') || content.includes('yaqeenalquran.online') || content.includes('yaqeenalquran.online')) {
+      content = content.replace(/yaqeen-app\.vercel\.app/g, 'yaqeenalquran.online');
+      content = content.replace(/quran1-mu\.vercel\.app/g, 'yaqeenalquran.online');
+      content = content.replace(/yaqueenalquran\.online/g, 'yaqeenalquran.online');
       fs.writeFileSync(file, content);
       console.log('Updated:', file);
       count++;

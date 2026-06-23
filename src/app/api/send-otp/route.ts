@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     const cleanEmail = email.trim().toLowerCase();
     const otpCode = generateCode(cleanEmail);
     const token = createSignedToken(cleanEmail, otpCode);
-    const origin = request.headers.get("origin") || "https://yaqeen-app.vercel.app";
+    const origin = request.headers.get("origin") || "https://yaqeenalquran.online";
 
     let html = `
       <div style="direction:rtl;font-family:Tahoma,sans-serif;text-align:center;padding:30px;max-width:480px;margin:auto;border:1px solid #e5e7eb;border-radius:16px;background-color:#ffffff;box-shadow:0 4px 6px rgba(0,0,0,0.05);">
