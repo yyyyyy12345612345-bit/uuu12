@@ -1698,24 +1698,6 @@ export function SocialFeed() {
                         <span className="hidden sm:inline">استطلاع</span>
                       </button>
                       <button
-                        onClick={() => setComposerMode("video")}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black transition-all ${
-                          composerMode === "video" ? "bg-primary/20 text-[#fbbf24]" : "text-white/40 hover:text-white"
-                        }`}
-                      >
-                        <Video className="w-3.5 h-3.5 text-[#fbbf24]" />
-                        <span className="hidden sm:inline">فيديو</span>
-                      </button>
-                      <button
-                        onClick={() => setComposerMode("image")}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black transition-all ${
-                          composerMode === "image" ? "bg-primary/20 text-[#fbbf24]" : "text-white/40 hover:text-white"
-                        }`}
-                      >
-                        <ImageIcon className="w-3.5 h-3.5 text-[#fbbf24]" />
-                        <span className="hidden sm:inline">صورة</span>
-                      </button>
-                      <button
                         onClick={() => setComposerMode("text")}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black transition-all ${
                           composerMode === "text" ? "bg-primary/20 text-[#fbbf24]" : "text-white/40 hover:text-white"

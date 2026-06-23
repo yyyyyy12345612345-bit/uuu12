@@ -5,6 +5,7 @@ import { X, Check, CreditCard, Send, Loader2, Crown, Zap, Gift, Star, Smartphone
 import { db, auth, initFirebase } from "@/lib/firebase";
 import { doc, getDoc, addDoc, collection, serverTimestamp, query, where, getDocs, limit, setDoc } from "firebase/firestore";
 import { useUserPlan } from "@/hooks/useUserPlan";
+import { motion, AnimatePresence } from "framer-motion";
 
 
 interface SubscriptionModalProps {
@@ -49,6 +50,15 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
       }
     }
   }, [isOpen, initialPlan]);
+
+  useEffect(() => {
+    if (selectedPlan && selectedPlan !== 'custom') {
+      const price = selectedPlan === 'starter' ? pricing.priceStarter : pricing.pricePremium;
+      setFormData(prev => ({ ...prev, amount: price.toString() }));
+    } else if (selectedPlan === 'custom') {
+      setFormData(prev => ({ ...prev, amount: "" }));
+    }
+  }, [selectedPlan, pricing]);
 
   const fetchPricing = async () => {
     try {
@@ -181,10 +191,9 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
   ];
 
   const PLANS = [
-    { id: "free", name: "بدون دعم", price: 0, icon: Star, color: "from-gray-500 to-gray-600", features: ["5 فيديوهات فقط", "علامة مائية", "خلفيات ثابتة"] },
-    { id: "trial", name: "تجربة مجانية 🎁", price: 0, icon: Gift, color: "from-green-500 to-emerald-600", features: ["فيديوهات غير محدودة", "بدون علامة مائية", "خلفيات فيديو", "30 يوم"] },
-    { id: "starter", name: "دعم أساسي", price: pricing.priceStarter, icon: Zap, color: "from-blue-500 to-cyan-600", features: ["50 فيديو شهرياً", "بدون علامة مائية", "خلفيات فيديو", "فتح ميزة البحث"] },
-    { id: "premium", name: "داعم مميز", price: pricing.pricePremium, icon: Crown, color: "from-yellow-500 to-amber-600", features: ["غير محدود + 4K", "بدون علامة مائية", "أولوية الرندر", "قوالب حصرية"] },
+    { id: "starter", name: "دعم أساسي", price: pricing.priceStarter, icon: Zap, color: "from-blue-500 to-cyan-600" },
+    { id: "premium", name: "داعم مميز", price: pricing.pricePremium, icon: Crown, color: "from-yellow-500 to-amber-600" },
+    { id: "custom", name: "دعم حر (مبلغ مخصص)", price: 0, icon: DollarSign, color: "from-purple-500 to-pink-600" },
   ];
 
   const currentSelected = PLANS.find(p => p.id === selectedPlan);
@@ -201,10 +210,20 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
     : null;
 
   return (
-    <div className="force-dark fixed inset-0 z-[2000] flex items-center justify-center p-0 md:p-6 bg-black/95 backdrop-blur-3xl font-['Tajawal'] overflow-y-auto no-scrollbar">
-      <div className="fixed inset-0" onClick={onClose} />
+    <div className="force-dark fixed inset-0 z-[2000] flex items-center justify-center p-0 md:p-6 font-['Tajawal'] overflow-y-auto no-scrollbar">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="fixed inset-0 bg-black/90 backdrop-blur-3xl" 
+        onClick={onClose} 
+      />
 
-      <div className="relative w-full max-w-7xl bg-gradient-to-br from-[#0a0b0e] via-[#0c0d10] to-[#0a0b0e] border border-white/10 rounded-[3rem] shadow-[0_50px_150px_rgba(0,0,0,0.8)] flex flex-col lg:flex-row h-full lg:h-auto lg:max-h-[90vh] animate-in zoom-in-95 duration-500 overflow-hidden">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="relative w-full max-w-7xl bg-gradient-to-br from-[#0a0b0e] via-[#0c0d10] to-[#0a0b0e] border border-white/10 rounded-[3rem] shadow-[0_50px_150px_rgba(0,0,0,0.8)] flex flex-col lg:flex-row h-full lg:h-auto lg:max-h-[90vh] overflow-hidden"
+      >
         <div className="absolute inset-0 islamic-pattern opacity-[0.02] pointer-events-none" />
 
         {/* Animated background glow */}
@@ -264,7 +283,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                         {isCurrent && <span className="text-[9px] font-black px-3 py-1 bg-primary text-black rounded-full shadow-lg shadow-primary/30">المفعّلة</span>}
                       </div>
                       <span className="text-[11px] text-primary/50 font-black uppercase tracking-widest mt-1 block">
-                        {p.price === 0 ? "بدون تبرع" : `مساهمة بقيمة ${p.price} ج.م`}
+                        {p.id === 'custom' ? "تبرع بأي مبلغ تختاره" : `مساهمة بقيمة ${p.price} ج.م`}
                       </span>
                     </div>
                   </div>
@@ -277,23 +296,6 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
               );
             })}
           </div>
-
-          {currentSelected && (
-            <div className="mt-10 p-8 rounded-[2rem] bg-gradient-to-br from-white/[0.05] to-white/[0.02] border border-white/10 animate-in fade-in duration-700 shadow-2xl">
-              <div className="flex items-center gap-3 mb-6">
-                <Crown className="w-5 h-5 text-primary" />
-                <h4 className="text-[11px] font-black text-white/40 uppercase tracking-[0.4em]">مميزات مستوى الدعم</h4>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                {currentSelected.features.map((f, i) => (
-                  <div key={i} className="flex items-center gap-3 text-[12px] font-bold text-white/80">
-                    <Check className="w-4 h-4 text-primary shrink-0" />
-                    {f}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* 10,000 Points Auto-Unlock Card */}
           <div className="mt-6 p-6 rounded-[2rem] bg-gradient-to-r from-yellow-500/10 via-primary/10 to-purple-500/10 border border-primary/30 flex flex-col lg:flex-row items-center gap-4 text-right relative overflow-hidden group hover:border-primary/50 transition-all">
@@ -329,79 +331,126 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
         {/* ============ RIGHT SECTION: Checkout ============ */}
         <div className="flex-1 p-8 lg:p-14 flex flex-col justify-center relative z-10 bg-gradient-to-br from-black/30 to-transparent overflow-hidden">
 
-          {activeTab === "plans" ? (
-            /* ---- Payment Gateway View ---- */
-            <div className="animate-in fade-in slide-in-from-left-8 duration-500 space-y-8">
-              <div className="text-right">
-                <h3 className="text-2xl lg:text-3xl font-black text-white mb-4">طريقة التبرع</h3>
-                <p className="text-white/50 text-sm leading-relaxed">
-                  يرجى تحويل مبلغ <span className="text-primary font-black text-lg">{currentSelected?.price} ج.م</span> عبر أحد الوسائل التالية، ثم قم بإرسال إثبات التبرع.
-                </p>
-              </div>
+          <AnimatePresence mode="wait">
+            {activeTab === "plans" ? (
+              /* ---- Payment Gateway View ---- */
+              <motion.div
+                key="plans-tab"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="space-y-8"
+              >
+                <div className="text-right">
+                  <h3 className="text-2xl lg:text-3xl font-black text-white mb-4">طريقة التبرع</h3>
+                  {selectedPlan === 'custom' ? (
+                    <div className="space-y-4 mb-4">
+                      <p className="text-white/50 text-sm leading-relaxed">
+                        يرجى إدخال المبلغ الذي ترغب في التبرع به (بالجنيه المصري):
+                      </p>
+                      <div className="flex justify-end">
+                        <input
+                          type="number"
+                          required
+                          value={formData.amount}
+                          onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
+                          className="w-full max-w-[240px] bg-white/5 border border-white/20 focus:border-primary rounded-2xl py-3.5 px-6 text-center outline-none transition-all font-black text-white text-lg placeholder:text-white/25"
+                          placeholder="المبلغ ج.م"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-white/50 text-sm leading-relaxed">
+                      يرجى تحويل مبلغ <span className="text-primary font-black text-lg">{currentSelected?.price} ج.م</span> عبر أحد الوسائل التالية، ثم قم بإرسال إثبات التبرع.
+                    </p>
+                  )}
+                </div>
 
-              {/* Payment Methods */}
-              <div className="grid grid-cols-1 gap-4">
-                {PAYMENT_METHODS.map((method) => (
-                  <button
-                    key={method.id}
-                    type="button"
-                    onClick={() => { setPayMethod(method.id as any); setActiveTab("pay"); }}
-                    className="w-full p-6 rounded-[2rem] bg-white/5 border-2 border-white/10 hover:border-primary/50 transition-all duration-300 group text-right relative overflow-hidden hover:bg-white/[0.07] hover:scale-[1.02] active:scale-[0.98]"
-                  >
-                    <div className={`absolute inset-0 bg-gradient-to-r ${method.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
-                    <div className="flex items-center justify-between relative z-10">
-                      <div className="flex items-center gap-5">
-                        <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${method.color} flex items-center justify-center text-white shadow-xl group-hover:scale-110 transition-transform`}>
-                          <method.icon className="w-8 h-8" />
-                        </div>
-                        <div className="text-right">
-                          <span className="text-[11px] text-white/40 font-black uppercase tracking-[0.3em] mb-2 block">{method.name}</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xl font-black text-white tracking-wider">{method.number}</span>
-                            <button
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); copyToClipboard(method.number, `method-${method.id}`); }}
-                              className="p-1.5 rounded-lg bg-white/5 hover:bg-primary/20 text-white/30 hover:text-primary transition-all"
-                              title="نسخ الرقم"
-                            >
-                              {copiedId === `method-${method.id}`
-                                ? <Check className="w-3.5 h-3.5 text-emerald-400" />
-                                : <Copy className="w-3.5 h-3.5" />}
-                            </button>
+                {/* Payment Methods */}
+                <div className="grid grid-cols-1 gap-4">
+                  {PAYMENT_METHODS.map((method) => (
+                    <button
+                      key={method.id}
+                      type="button"
+                      onClick={() => {
+                        if (selectedPlan === 'custom' && (!formData.amount || Number(formData.amount) <= 0)) {
+                          alert("يرجى إدخال مبلغ تبرع صحيح أولاً");
+                          return;
+                        }
+                        setPayMethod(method.id as any);
+                        setActiveTab("pay");
+                      }}
+                      className="w-full p-6 rounded-[2rem] bg-white/5 border-2 border-white/10 hover:border-primary/50 transition-all duration-300 group text-right relative overflow-hidden hover:bg-white/[0.07] hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      <div className={`absolute inset-0 bg-gradient-to-r ${method.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
+                      <div className="flex items-center justify-between relative z-10">
+                        <div className="flex items-center gap-5">
+                          <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${method.color} flex items-center justify-center text-white shadow-xl group-hover:scale-110 transition-transform`}>
+                            <method.icon className="w-8 h-8" />
+                          </div>
+                          <div className="text-right">
+                            <span className="text-[11px] text-white/40 font-black uppercase tracking-[0.3em] mb-2 block">{method.name}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl font-black text-white tracking-wider">{method.number}</span>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); copyToClipboard(method.number, `method-${method.id}`); }}
+                                className="p-1.5 rounded-lg bg-white/5 hover:bg-primary/20 text-white/30 hover:text-primary transition-all"
+                                title="نسخ الرقم"
+                              >
+                                {copiedId === `method-${method.id}`
+                                  ? <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                  : <Copy className="w-3.5 h-3.5" />}
+                              </button>
+                            </div>
                           </div>
                         </div>
+                        <ArrowLeft className="w-6 h-6 text-white/20 group-hover:text-primary transition-colors" />
                       </div>
-                      <ArrowLeft className="w-6 h-6 text-white/20 group-hover:text-primary transition-colors" />
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              {isPending ? (
-                <div className="p-10 rounded-[2.5rem] bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/30 flex flex-col items-center gap-6 text-center shadow-2xl">
-                  <Loader2 className="w-12 h-12 text-primary animate-spin" />
-                  <div>
-                    <p className="text-lg font-black text-primary">الطلب قيد المراجعة</p>
-                    <p className="text-[11px] text-primary/40 uppercase tracking-widest mt-2">سيتم التفعيل تلقائياً فور التأكد</p>
-                  </div>
+                    </button>
+                  ))}
                 </div>
-              ) : (
-                <button
-                  disabled={selectedPlan === 'free' || currentPlanData?.plan === selectedPlan}
-                  onClick={() => setActiveTab("pay")}
-                  className="w-full py-6 bg-gradient-to-r from-primary via-yellow-400 to-primary text-black rounded-[2rem] font-black text-lg shadow-[0_20px_60px_rgba(212,175,55,0.4)] hover:scale-[1.03] active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed relative overflow-hidden group"
-                >
-                  <span className="relative z-10">
-                    {currentPlanData?.plan === selectedPlan ? 'مستوى مفعّل حالياً' : 'تأكيد الدعم وإرسال إثبات التحويل'}
-                  </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                </button>
-              )}
-            </div>
 
-          ) : (
-            /* ---- Payment Confirmation Form ---- */
-            <form onSubmit={handleSubmitRequest} className="animate-in fade-in slide-in-from-right-8 duration-500 space-y-5 overflow-y-auto no-scrollbar max-h-[calc(90vh-8rem)] pb-6">
+                {isPending ? (
+                  <div className="p-10 rounded-[2.5rem] bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/30 flex flex-col items-center gap-6 text-center shadow-2xl">
+                    <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                    <div>
+                      <p className="text-lg font-black text-primary">الطلب قيد المراجعة</p>
+                      <p className="text-[11px] text-primary/40 uppercase tracking-widest mt-2">سيتم التفعيل تلقائياً فور التأكد</p>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    disabled={currentPlanData?.plan === selectedPlan && selectedPlan !== 'custom'}
+                    onClick={() => {
+                      if (selectedPlan === 'custom' && (!formData.amount || Number(formData.amount) <= 0)) {
+                        alert("يرجى إدخال مبلغ تبرع صحيح أولاً");
+                        return;
+                      }
+                      setActiveTab("pay");
+                    }}
+                    className="w-full py-6 bg-gradient-to-r from-primary via-yellow-400 to-primary text-black rounded-[2rem] font-black text-lg shadow-[0_20px_60px_rgba(212,175,55,0.4)] hover:scale-[1.03] active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed relative overflow-hidden group"
+                  >
+                    <span className="relative z-10">
+                      {currentPlanData?.plan === selectedPlan && selectedPlan !== 'custom' ? 'مستوى مفعّل حالياً' : 'تأكيد الدعم وإرسال إثبات التحويل'}
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                  </button>
+                )}
+              </motion.div>
+
+            ) : (
+              /* ---- Payment Confirmation Form ---- */
+              <motion.form
+                key="pay-tab"
+                onSubmit={handleSubmitRequest}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="space-y-5 overflow-y-auto no-scrollbar max-h-[calc(90vh-8rem)] pb-6"
+              >
 
               {/* Header */}
               <div className="flex items-center justify-between mb-2">
@@ -564,15 +613,17 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                 }
                 {!loading && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />}
               </button>
-            </form>
+            </motion.form>
           )}
+          </AnimatePresence>
+        </div>
         </div>
 
         {/* Desktop Close */}
         <button onClick={onClose} className="absolute top-10 left-10 p-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-all text-white/20 hover:text-white hidden md:block z-50">
           <X className="w-6 h-6" />
         </button>
-      </div>
+      </motion.div>
     </div>
   );
 }
