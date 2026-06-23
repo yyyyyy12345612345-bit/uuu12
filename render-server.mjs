@@ -44,6 +44,12 @@ const FONT_MAP = {
   "Lateef":             "https://github.com/google/fonts/raw/main/ofl/lateef/Lateef-Regular.ttf",
   "Cairo":              "https://github.com/google/fonts/raw/main/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf",
   "Tajawal":            "https://github.com/google/fonts/raw/main/ofl/tajawal/Tajawal-Regular.ttf",
+  "Reem Kufi":          "https://github.com/google/fonts/raw/main/ofl/reemkufi/static/ReemKufi-Regular.ttf",
+  "Lalezar":            "https://github.com/google/fonts/raw/main/ofl/lalezar/Lalezar-Regular.ttf",
+  "El Messiri":         "https://github.com/google/fonts/raw/main/ofl/elmessiri/static/ElMessiri-Regular.ttf",
+  "Almarai":            "https://github.com/google/fonts/raw/main/ofl/almarai/Almarai-Regular.ttf",
+  "Aref Ruqaa":         "https://github.com/google/fonts/raw/main/ofl/arefruqaa/ArefRuqaa-Regular.ttf",
+  "Alexandria":         "https://github.com/google/fonts/raw/main/ofl/alexandria/static/Alexandria-Regular.ttf",
 };
 
 const ALLOWED_DOMAINS = [
@@ -295,7 +301,7 @@ function applyOverlayToSVG(svg, overlayName) {
 }
 
 // رسم إطارات الآيات (SVG)
-async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg = false, fontBase64 = null, animState = null) {
+async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg = false, fontBase64 = null, amiriBase64 = null, animState = null) {
   const { fontSize = 50, fontWeight = 700, fontFamily = "Amiri", textColor = "#ffffff", textPosition = "center", textVerticalOffset = 0, surahName = "", userPlan = "free", instaHandle = "", tiktokHandle = "", filter = "none", overlay = "none", ayahDecoration = "bracket1" } = settings;
 
   const opacity = animState ? animState.opacity : 1;
@@ -385,7 +391,23 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
   // تعتيم الخلفية للمشاهد
   const overlayGrad = `<linearGradient id="overlayGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(0,0,0,0.55)"/><stop offset="25%" stop-color="rgba(0,0,0,0.25)"/><stop offset="70%" stop-color="rgba(0,0,0,0.30)"/><stop offset="100%" stop-color="rgba(0,0,0,0.85)"/></linearGradient>`;
 
-  const fontFaceDef = fontBase64 ? `<style>@font-face { font-family: '${escapeXml(fontFamily)}'; src: url(data:font/truetype;charset=utf-8;base64,${fontBase64}) format('truetype'); }</style>` : "";
+  const fontFaceDef = `
+    <style>
+      @font-face {
+        font-family: 'Amiri';
+        src: url(data:font/truetype;charset=utf-8;base64,${amiriBase64}) format('truetype');
+      }
+      ${fontFamily !== "Amiri" && fontBase64 ? `
+      @font-face {
+        font-family: '${escapeXml(fontFamily)}';
+        src: url(data:font/truetype;charset=utf-8;base64,${fontBase64}) format('truetype');
+      }
+      ` : ""}
+    </style>
+  `;
+
+  // Stable bottom position for Ayah number (180px from bottom)
+  const ornamentY = HEIGHT - 180;
 
   // Transform origin for scale
   const transformOrigin = `${centerX}px ${startY + totalH/2}px`;
@@ -406,7 +428,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     <rect x="${(WIDTH - 100) / 2}" y="${sepY}" width="100" height="1.5" rx="1" fill="rgba(212,175,55,0.5)"/>
     <circle cx="${centerX}" cy="${sepY + 0.75}" r="3" fill="rgba(212,175,55,0.6)"/>
     ${tLines.length > 0 ? `<text x="${centerX}" y="${transY}" font-family="'${escapeXml(fontFamily)}', 'Amiri', serif" font-size="${translationFontSize}" font-weight="400" fill="rgba(255,255,255,0.88)" text-anchor="middle" font-style="italic" filter="url(#softShadow)">${transTSpans}</text>` : ""}
-    <text x="${centerX}" y="${ornamentY}" font-family="'${escapeXml(fontFamily)}', 'Amiri', serif" font-size="34" font-weight="bold" fill="url(#goldGrad)" text-anchor="middle">${escapeXml(getAyahDecoration(verse.id, ayahDecoration))}</text>
+    <text x="${centerX}" y="${ornamentY}" font-family="Amiri" font-size="34" font-weight="bold" fill="url(#goldGrad)" text-anchor="middle">${escapeXml(getAyahDecoration(verse.id, ayahDecoration))}</text>
   </g>
   ${socialSVG}
 </svg>`;
@@ -447,6 +469,8 @@ async function startRender(jobId, data) {
     setProgress(5, "تحميل الخطوط والموارد...");
     const fontPath = await ensureFont(fontFamily);
     const fontBase64 = fs.readFileSync(fontPath).toString("base64");
+    const amiriPath = await ensureFont("Amiri");
+    const amiriBase64 = fs.readFileSync(amiriPath).toString("base64");
 
     // كشف فيديو الخلفية — يدعم Pexels و روابط بها query params
     const isVideoBg = backgroundUrl && (
@@ -503,7 +527,7 @@ async function startRender(jobId, data) {
           else animState.opacity = progress; // fallback to fade
 
           const fPath = path.resolve(tempDir, `${fBaseName}-anim-${f}.${ext}`);
-          await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fontBase64, animState);
+          await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState);
           frameEntries.push({ fPath, dur: frameDur });
           remainingDur -= frameDur;
         }
@@ -518,7 +542,7 @@ async function startRender(jobId, data) {
         for (let w = 0; w < wordCount; w++) {
           const animState = { opacity: 1, offsetY: 0, scale: 1, activeWordIndex: w };
           const fPath = path.resolve(tempDir, `${fBaseName}-word-${w}.${ext}`);
-          await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fontBase64, animState);
+          await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState);
           frameEntries.push({ fPath, dur: durPerWord });
         }
       }
