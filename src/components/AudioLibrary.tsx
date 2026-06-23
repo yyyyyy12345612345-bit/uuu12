@@ -593,7 +593,7 @@ export function AudioLibrary() {
   return (
     <div
       dir="rtl"
-      className="h-full w-full flex flex-col font-['Tajawal'] overflow-hidden text-slate-800 dark:text-foreground relative bg-[#f8fafc] dark:bg-[#0c0d10]"
+      className="h-full w-full flex flex-col font-['Tajawal'] overflow-hidden text-slate-800 dark:text-foreground relative bg-transparent"
     >
       <audio
         ref={audioRef}
@@ -706,7 +706,7 @@ export function AudioLibrary() {
         <div className="flex flex-col gap-4 overflow-y-auto no-scrollbar min-w-0">
 
           {/* 1. Sticky Player, Search & Filters Section */}
-          <div className="sticky top-0 z-30 bg-[#f8fafc] dark:bg-[#0c0d10] pb-3 pt-1 flex flex-col gap-3 shadow-sm dark:shadow-none">
+          <div className="relative lg:sticky lg:top-0 lg:z-30 bg-[#f8fafc] dark:bg-[#0c0d10] pb-3 pt-1 flex flex-col gap-3 shadow-sm dark:shadow-none">
             {/* Large Main Player Widget */}
             <div className="relative rounded-2xl bg-gradient-to-b from-white to-slate-50/50 dark:from-[#14151a] dark:to-[#0b0c0f] border border-slate-200 dark:border-white/5 p-4 lg:p-5 overflow-hidden shadow-md dark:shadow-2xl flex flex-col md:flex-row items-center gap-4">
               {/* Background pattern */}
@@ -735,33 +735,33 @@ export function AudioLibrary() {
                     سورة {currentSurah.name}
                   </h2>
                   <div className="flex items-center justify-center md:justify-start gap-1.5 text-slate-500 dark:text-white/40 text-[10px] font-bold">
-                    <span className="text-[#e2b43b] font-black">{selectedReciter.name}</span>
+                    <button
+                      onClick={() => setShowReciters(true)}
+                      className="flex items-center gap-1 text-[#e2b43b] hover:text-[#c99f33] font-black bg-[#e2b43b]/10 dark:bg-[#e2b43b]/5 px-2.5 py-1 rounded-full border border-[#e2b43b]/20 transition-all active:scale-95 shrink-0"
+                    >
+                      <Headphones className="w-3 h-3" />
+                      <span>{selectedReciter.name}</span>
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    </button>
                     <span>•</span>
                     <span>{currentSurah.total_verses} آية</span>
                   </div>
                 </div>
 
                 {/* Progress Slider & Waveform */}
-                <div className="space-y-1.5">
-                  {/* Waveform Visualization (height reduced to h-6) */}
-                  <div className="flex items-center justify-between gap-[2px] h-6 w-full" dir="ltr">
+                <div className="space-y-2">
+                  {/* Waveform Visualization (Dense and Decorative) */}
+                  <div className="flex items-end justify-center gap-[2.5px] h-6 w-full opacity-60 pointer-events-none" dir="ltr">
                     {Array.from({ length: waveBarCount }).map((_, i) => {
                       const isActive = (i / waveBarCount) * 100 <= progress;
-                      // Deterministic beautiful wave shape
-                      const height = 8 + Math.sin(i * 0.45) * 8 + (i % 4 === 0 ? 5 : 0);
+                      const height = 6 + Math.sin(i * 0.45) * 8 + (i % 4 === 0 ? 4 : 0);
                       return (
                         <div
                           key={i}
-                          onClick={() => {
-                            const a = audioRef.current;
-                            if (a) {
-                              a.currentTime = (i / waveBarCount) * a.duration;
-                            }
-                          }}
-                          className={`w-[2.5px] rounded-full transition-all duration-300 cursor-pointer ${
+                          className={`w-[2.5px] rounded-full transition-all duration-300 ${
                             isActive
                               ? "bg-[#e2b43b]"
-                              : "bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20"
+                              : "bg-slate-200 dark:bg-white/10"
                           }`}
                           style={{ height: `${height}px` }}
                         />
@@ -769,6 +769,34 @@ export function AudioLibrary() {
                     })}
                   </div>
 
+                  {/* Seek Bar / Progress Slider */}
+                  <div className="relative w-full h-5 flex items-center group/slider">
+                    {/* Background track */}
+                    <div className="w-full h-1.5 bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden relative">
+                      {/* Active progress track */}
+                      <div
+                        className="absolute inset-y-0 right-0 bg-[#e2b43b] rounded-full"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                    {/* Drag thumb/handle */}
+                    <div
+                      className="absolute w-3.5 h-3.5 rounded-full bg-white border-2 border-[#e2b43b] shadow-md transition-transform scale-100 md:scale-0 group-hover/slider:scale-100 focus-within:scale-100"
+                      style={{ right: `calc(${progress}% - 7px)` }}
+                    />
+                    {/* Native slider input for interaction */}
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      value={progress}
+                      onChange={seek}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    />
+                  </div>
+
+                  {/* Time Labels */}
                   <div className="flex items-center justify-between text-[10px] font-black text-slate-400 dark:text-white/25 tabular-nums">
                     <span>{fmt(currentTime)}</span>
                     <span>{fmt(duration)}</span>
@@ -776,111 +804,117 @@ export function AudioLibrary() {
                 </div>
 
                 {/* Actions row (Smaller paddings and icons) */}
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-0.5 border-t border-slate-100 dark:border-white/5 pt-3">
-                  {/* Play Button */}
-                  <button
-                    onClick={() => setIsPlaying(!isPlaying)}
-                    className="w-9 h-9 rounded-full bg-[#e2b43b] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-md shadow-[#e2b43b]/10 shrink-0"
-                  >
-                    {isPlaying ? (
-                      <Pause className="w-4 h-4 fill-current" />
-                    ) : (
-                      <Play className="w-4 h-4 fill-current translate-x-[0.5px]" />
-                    )}
-                  </button>
+                <div className="flex flex-col md:flex-row items-center justify-between gap-3 mt-0.5 border-t border-slate-100 dark:border-white/5 pt-3 w-full overflow-hidden">
+                  {/* Playback Controls */}
+                  <div className="flex items-center justify-center gap-1.5 shrink-0">
+                    {/* Play Button */}
+                    <button
+                      onClick={() => setIsPlaying(!isPlaying)}
+                      className="w-9 h-9 rounded-full bg-[#e2b43b] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-md shadow-[#e2b43b]/10 shrink-0"
+                    >
+                      {isPlaying ? (
+                        <Pause className="w-4 h-4 fill-current" />
+                      ) : (
+                        <Play className="w-4 h-4 fill-current translate-x-[0.5px]" />
+                      )}
+                    </button>
 
-                  {/* Controls (Swapped for RTL arrow logic: Prev goes right/SkipForward, Next goes left/SkipBack) */}
-                  <button
-                    onClick={handlePrev}
-                    className="p-2 text-slate-400 dark:text-white/40 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-all active:scale-95"
-                  >
-                    <SkipForward className="w-3.5 h-3.5 fill-current" />
-                  </button>
-                  <button
-                    onClick={handleNext}
-                    className="p-2 text-slate-400 dark:text-white/40 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-all active:scale-95"
-                  >
-                    <SkipBack className="w-3.5 h-3.5 fill-current" />
-                  </button>
-                  <button
-                    onClick={() => setIsShuffle(!isShuffle)}
-                    className={`p-2 rounded-full transition-all ${isShuffle ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-slate-400 dark:text-white/30 hover:text-slate-700 dark:hover:text-white"}`}
-                  >
-                    <Shuffle className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => setIsRepeat(!isRepeat)}
-                    className={`p-2 rounded-full transition-all ${isRepeat ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-slate-400 dark:text-white/30 hover:text-slate-700 dark:hover:text-white"}`}
-                  >
-                    <Repeat className="w-3.5 h-3.5" />
-                  </button>
+                    {/* Controls (Swapped for RTL arrow logic: Prev goes right/SkipForward, Next goes left/SkipBack) */}
+                    <button
+                      onClick={handlePrev}
+                      className="p-2 text-slate-400 dark:text-white/40 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-all active:scale-95"
+                    >
+                      <SkipForward className="w-3.5 h-3.5 fill-current" />
+                    </button>
+                    <button
+                      onClick={handleNext}
+                      className="p-2 text-slate-400 dark:text-white/40 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-all active:scale-95"
+                    >
+                      <SkipBack className="w-3.5 h-3.5 fill-current" />
+                    </button>
+                    <button
+                      onClick={() => setIsShuffle(!isShuffle)}
+                      className={`p-2 rounded-full transition-all ${isShuffle ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-slate-400 dark:text-white/30 hover:text-slate-700 dark:hover:text-white"}`}
+                    >
+                      <Shuffle className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setIsRepeat(!isRepeat)}
+                      className={`p-2 rounded-full transition-all ${isRepeat ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-slate-400 dark:text-white/30 hover:text-slate-700 dark:hover:text-white"}`}
+                    >
+                      <Repeat className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
 
-                  <div className="h-5 w-px bg-slate-200 dark:bg-white/5 mx-1" />
+                  {/* Divider (Desktop only) */}
+                  <div className="hidden md:block h-5 w-px bg-slate-200 dark:bg-white/5 mx-1" />
 
-                  {/* Extra actions */}
-                  <button
-                    onClick={handleShare}
-                    className="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-white/60 hover:text-slate-800 dark:hover:text-white text-[10px] font-black transition-all flex items-center gap-1.5 border border-slate-200 dark:border-white/5"
-                  >
-                    <Share2 className="w-3 h-3" />
-                    <span>مشاركة</span>
-                  </button>
+                  {/* Extra Actions Scrollable Row */}
+                  <div className="w-full md:flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 md:pb-0 justify-start md:justify-start -mx-4 px-4 md:mx-0 md:px-0">
+                    <button
+                      onClick={handleShare}
+                      className="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-white/60 hover:text-slate-800 dark:hover:text-white text-[10px] font-black transition-all flex items-center gap-1.5 border border-slate-200 dark:border-white/5 shrink-0"
+                    >
+                      <Share2 className="w-3 h-3" />
+                      <span>مشاركة</span>
+                    </button>
 
-                  <button
-                    onClick={() => toggleFavorite(currentSurah.id)}
-                    className={`px-2.5 py-1.5 rounded-xl text-[10px] font-black transition-all flex items-center gap-1.5 border ${
-                      favorites.includes(currentSurah.id)
-                        ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
-                        : "bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-600 dark:text-white/60 hover:text-slate-800 dark:hover:text-white"
-                    }`}
-                  >
-                    <Heart className={`w-3 h-3 ${favorites.includes(currentSurah.id) ? "fill-current" : ""}`} />
-                    <span>المفضلة</span>
-                  </button>
+                    <button
+                      onClick={() => toggleFavorite(currentSurah.id)}
+                      className={`px-2.5 py-1.5 rounded-xl text-[10px] font-black transition-all flex items-center gap-1.5 border shrink-0 ${
+                        favorites.includes(currentSurah.id)
+                          ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
+                          : "bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-600 dark:text-white/60 hover:text-slate-800 dark:hover:text-white"
+                      }`}
+                    >
+                      <Heart className={`w-3 h-3 ${favorites.includes(currentSurah.id) ? "fill-current" : ""}`} />
+                      <span>المفضلة</span>
+                    </button>
 
-                  <button
-                    onClick={downloadSurah}
-                    className="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-white/60 hover:text-slate-800 dark:hover:text-white text-[10px] font-black transition-all flex items-center gap-1.5 border border-slate-200 dark:border-white/5"
-                  >
-                    <Download className="w-3 h-3" />
-                    <span>تحميل</span>
-                  </button>
+                    <button
+                      onClick={downloadSurah}
+                      className="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-white/60 hover:text-slate-800 dark:hover:text-white text-[10px] font-black transition-all flex items-center gap-1.5 border border-slate-200 dark:border-white/5 shrink-0"
+                    >
+                      <Download className="w-3 h-3" />
+                      <span>تحميل</span>
+                    </button>
 
-                  <button
-                    onClick={toggleSleepTimer}
-                    className={`px-2.5 py-1.5 rounded-xl text-[10px] font-black transition-all flex items-center gap-1.5 border ${
-                      sleepTimeLeft !== null
-                        ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
-                        : "bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-600 dark:text-white/60 hover:text-slate-800 dark:hover:text-white"
-                    }`}
-                  >
-                    <Timer className="w-3.5 h-3.5" />
-                    <span>{sleepTimeLeft !== null ? fmt(sleepTimeLeft) : "موقت إيقاف"}</span>
-                  </button>
+                    <button
+                      onClick={toggleSleepTimer}
+                      className={`px-2.5 py-1.5 rounded-xl text-[10px] font-black transition-all flex items-center gap-1.5 border shrink-0 ${
+                        sleepTimeLeft !== null
+                          ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
+                          : "bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-600 dark:text-white/60 hover:text-slate-800 dark:hover:text-white"
+                      }`}
+                    >
+                      <Timer className="w-3.5 h-3.5" />
+                      <span>{sleepTimeLeft !== null ? fmt(sleepTimeLeft) : "موقت إيقاف"}</span>
+                    </button>
 
-                  <button
-                    onClick={togglePlaybackSpeed}
-                    className={`px-2.5 py-1.5 rounded-xl text-[10px] font-black transition-all flex items-center gap-1.5 border ${
-                      playbackSpeed !== 1.0
-                        ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
-                        : "bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-600 dark:text-white/60 hover:text-slate-800 dark:hover:text-white"
-                    }`}
-                  >
-                    <Gauge className="w-3.5 h-3.5" />
-                    <span>{playbackSpeed.toFixed(2)}x</span>
-                  </button>
+                    <button
+                      onClick={togglePlaybackSpeed}
+                      className={`px-2.5 py-1.5 rounded-xl text-[10px] font-black transition-all flex items-center gap-1.5 border shrink-0 ${
+                        playbackSpeed !== 1.0
+                          ? "bg-[#e2b43b]/10 border-[#e2b43b]/20 text-[#e2b43b]"
+                          : "bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-600 dark:text-white/60 hover:text-slate-800 dark:hover:text-white"
+                      }`}
+                    >
+                      <Gauge className="w-3.5 h-3.5" />
+                      <span>{playbackSpeed.toFixed(2)}x</span>
+                    </button>
 
-                  {/* HQ Indicator */}
-                  <div className="mr-auto flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#e2b43b]/10 border border-[#e2b43b]/20 text-[#e2b43b] text-[9px] font-black tracking-wider">
-                    <span>HQ</span>
-                    <ChevronDown className="w-2.5 h-2.5" />
+                    {/* HQ Indicator */}
+                    <div className="mr-auto flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#e2b43b]/10 border border-[#e2b43b]/20 text-[#e2b43b] text-[9px] font-black tracking-wider shrink-0">
+                      <span>HQ</span>
+                      <ChevronDown className="w-2.5 h-2.5" />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Search and Filters row */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#f8fafc] dark:bg-[#0c0d10] py-1">
+            <div className="sticky top-0 z-20 lg:relative lg:top-auto lg:z-auto bg-[#f8fafc] dark:bg-[#0c0d10] py-1.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-white/5 lg:border-none">
               {/* Search Bar */}
               <div className="relative flex-1">
                 <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 dark:text-white/20 pointer-events-none" />
@@ -951,8 +985,8 @@ export function AudioLibrary() {
               <div className="flex items-center px-4 py-3 text-[9px] font-black text-slate-400 dark:text-white/20 uppercase tracking-[0.2em] border-b border-slate-100 dark:border-white/5">
                 <div className="w-8 text-center">#</div>
                 <div className="flex-1 text-right">السورة</div>
-                <div className="w-16 text-center">آيات</div>
-                <div className="w-24 text-center">مدة الاستماع</div>
+                <div className="hidden sm:block w-16 text-center">آيات</div>
+                <div className="hidden md:block w-24 text-center">مدة الاستماع</div>
                 <div className="w-10" />
               </div>
 
@@ -991,16 +1025,22 @@ export function AudioLibrary() {
                         <p className={`text-xs font-black font-arabic leading-tight ${isCurrent ? "text-[#e2b43b]" : "text-slate-800 dark:text-white"}`}>
                           {surah.name}
                         </p>
-                        <p className="text-[9px] text-slate-400 dark:text-white/25 font-bold mt-0.5 truncate">{surah.transliteration}</p>
+                        <div className="flex items-center gap-1.5 mt-0.5 text-[9px] text-slate-400 dark:text-white/25 font-bold">
+                          <span className="truncate">{surah.transliteration}</span>
+                          <span className="sm:hidden">•</span>
+                          <span className="sm:hidden">{surah.total_verses} آية</span>
+                          <span className="md:hidden">•</span>
+                          <span className="md:hidden">{getSurahDuration(surah.id, surah.total_verses)}</span>
+                        </div>
                       </div>
 
                       {/* Verses */}
-                      <div className="w-16 text-center font-bold text-[11px] text-slate-400 dark:text-white/30 group-hover:text-slate-600 dark:group-hover:text-white/50">
+                      <div className="hidden sm:block w-16 text-center font-bold text-[11px] text-slate-400 dark:text-white/30 group-hover:text-slate-600 dark:group-hover:text-white/50">
                         {surah.total_verses}
                       </div>
 
                       {/* Mock Duration */}
-                      <div className="w-24 text-center font-black text-[11px] text-slate-400 dark:text-white/30 group-hover:text-slate-600 dark:group-hover:text-white/50 tabular-nums">
+                      <div className="hidden md:block w-24 text-center font-black text-[11px] text-slate-400 dark:text-white/30 group-hover:text-slate-600 dark:group-hover:text-white/50 tabular-nums">
                         {getSurahDuration(surah.id, surah.total_verses)}
                       </div>
 
@@ -1033,11 +1073,33 @@ export function AudioLibrary() {
               </div>
             </div>
 
-            {/* Show More */}
-            <button className="w-full py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-[#121318]/10 dark:hover:bg-[#121318]/25 text-slate-500 dark:text-white/35 hover:text-slate-700 dark:hover:text-white border border-slate-200 dark:border-white/5 text-[10px] font-black transition-all flex items-center justify-center gap-1.5 active:scale-[0.98]">
-              <span>عرض المزيد</span>
-              <ChevronDown className="w-3.5 h-3.5" />
-            </button>
+            {/* Mobile Support Card (Visible only on mobile) */}
+            <div className="block lg:hidden mt-2">
+              <div className="relative rounded-2xl bg-gradient-to-br from-[#fefaf0] to-[#f8fafc] dark:from-[#1b1712] dark:to-[#0c0d10] border border-[#e2b43b]/30 dark:border-[#e2b43b]/20 p-4 flex flex-col gap-3 shadow-xl overflow-hidden group">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-[#e2b43b]/5 rounded-full blur-2xl pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#e2b43b]/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                <div className="flex items-center justify-between">
+                  <div className="w-7 h-7 rounded-full bg-[#e2b43b]/10 flex items-center justify-center text-[#e2b43b] shadow-inner">
+                    <Crown className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="text-[9px] font-black text-[#e2b43b] uppercase">دعم استمرارية يقين</span>
+                </div>
+                <div className="text-right space-y-1">
+                  <h4 className="text-xs font-black text-slate-800 dark:text-white">ادعم تطبيق يقين 👑</h4>
+                  <p className="text-[10px] text-slate-500 dark:text-white/40 leading-relaxed font-bold">
+                    يقين خالي من الإعلانات. دعمك يضمن استمرار السيرفرات لخدمة كتاب الله.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent('open_subscription_modal'));
+                  }}
+                  className="w-full py-2.5 bg-[#e2b43b] hover:bg-[#c99f33] text-black font-black text-[11px] rounded-xl tracking-wider transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5"
+                >
+                  <span>ادعم الآن</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1144,8 +1206,11 @@ export function AudioLibrary() {
 
         {/* Controller items */}
         <div className="flex items-center px-4 h-16 gap-3">
-          {/* Info */}
-          <div className="flex items-center gap-3 flex-1 min-w-0 text-right">
+          {/* Info (Click to open Drawer on mobile) */}
+          <div
+            onClick={() => setShowReciters(true)}
+            className="flex items-center gap-3 flex-1 min-w-0 text-right cursor-pointer hover:opacity-85 active:scale-[0.98] transition-all"
+          >
             <div className="w-9 h-9 shrink-0 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center border border-slate-200 dark:border-white/10 overflow-hidden relative">
               <div className="absolute inset-0 islamic-pattern opacity-10 pointer-events-none" />
               <Disc className={`w-4 h-4 text-[#e2b43b]/50 ${isPlaying ? "animate-spin-slow" : ""}`} />

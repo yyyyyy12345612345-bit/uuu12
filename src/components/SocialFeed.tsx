@@ -1160,23 +1160,23 @@ export function SocialFeed() {
       </div>
 
       {/* New Sticky Top Bar matching the design image perfectly */}
-      <header className="sticky top-0 z-50 bg-[#090a0f] border-b border-white/5 px-6 py-3 flex items-center justify-between shrink-0 select-none">
+      <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#090a0f]/80 backdrop-blur-md border-b border-slate-200 dark:border-white/5 px-6 py-3 flex items-center justify-between shrink-0 select-none">
         
         {/* Left: Search Bar */}
         <div className="flex items-center gap-2 w-full max-w-[180px] sm:max-w-[240px] md:max-w-[280px]">
           <div className="relative w-full">
-            <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/35" />
+            <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-white/35" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="ابحث في المجتمع..."
-              className="w-full bg-white/5 border border-white/10 rounded-full py-2 pr-10 pl-4 text-[10px] sm:text-xs text-white outline-none focus:border-[#fbbf24] transition-all font-bold placeholder:text-white/20 text-right"
+              className="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-full py-2 pr-10 pl-4 text-[10px] sm:text-xs text-slate-800 dark:text-white outline-none focus:border-[#fbbf24] transition-all font-bold placeholder:text-slate-400 dark:placeholder:text-white/20 text-right"
             />
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery("")}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 p-0.5 text-white/30 hover:text-white"
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 dark:text-white/30 hover:text-slate-700 dark:hover:text-white"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -1188,10 +1188,10 @@ export function SocialFeed() {
         {/* Right: Logo & Branding */}
         <div className="flex items-center gap-2 md:gap-3">
           <div className="text-right">
-            <h1 className="text-[10px] md:text-sm font-black text-white leading-none">مجتمع يقين</h1>
+            <h1 className="text-[10px] md:text-sm font-black text-slate-800 dark:text-white leading-none">مجتمع يقين</h1>
             <span className="text-[6px] md:text-[8px] font-bold text-[#fbbf24] tracking-widest mt-0.5 block">YAQEEN COMMUNITY</span>
           </div>
-          <div className="w-8 h-8 md:w-9 h-9 rounded-xl border border-[#fbbf24]/20 p-0.5 bg-white/5 flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 md:w-9 h-9 rounded-xl border border-[#fbbf24]/20 p-0.5 bg-slate-100 dark:bg-white/5 flex items-center justify-center shrink-0">
             <img src="/logo/logo.png?v=25" alt="Yaqeen Logo" className="w-full h-full object-contain rounded-lg" />
           </div>
         </div>
@@ -1264,11 +1264,11 @@ export function SocialFeed() {
         {/* ===================== COLUMN 1: LEFT SIDEBAR ===================== */}
         <aside className={`lg:col-span-3 flex-col h-full overflow-y-auto no-scrollbar pb-6 gap-6 ${activeMobileTab === "groups" ? "flex" : "hidden lg:flex"}`}>
           {/* Suggested Groups (Real Firestore Data) */}
-          <div className="bg-[#0c0d12]/90 border border-border/30 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden shrink-0">
+          <div className="bg-white/85 dark:bg-[#0c0d12]/90 border border-slate-200 dark:border-border/30 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden shrink-0">
             <div className="absolute inset-0 islamic-pattern opacity-[0.01] pointer-events-none" />
             <div className="flex items-center justify-between mb-5">
               <span className="text-[10px] font-bold text-[#fbbf24]/50 hover:text-[#fbbf24] cursor-pointer">المجموعات</span>
-              <h3 className="text-sm font-black text-white">المجموعات الدعوية</h3>
+              <h3 className="text-sm font-black text-slate-800 dark:text-white">المجموعات الدعوية</h3>
             </div>
 
             <div className="space-y-4">
@@ -1280,7 +1280,7 @@ export function SocialFeed() {
                 return (
                   <div
                     key={g.id}
-                    className="w-full flex flex-col p-4 rounded-[1.8rem] bg-white/[0.02] border border-white/5 transition-all text-right group gap-3"
+                    className="w-full flex flex-col p-4 rounded-[1.8rem] bg-slate-50 dark:bg-white/[0.02] border border-slate-100 dark:border-white/5 transition-all text-right group gap-3"
                   >
                     <button
                       onClick={() => {
@@ -1294,19 +1294,19 @@ export function SocialFeed() {
                         <GrpIcon className="w-4.5 h-4.5" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <h4 className="text-xs font-black text-white group-hover:text-primary transition-colors truncate">{g.name}</h4>
-                        <p className="text-[9px] text-white/30 font-bold mt-0.5">{(g.memberCount || 0).toLocaleString()} عضو</p>
+                        <h4 className="text-xs font-black text-slate-800 dark:text-white group-hover:text-primary transition-colors truncate">{g.name}</h4>
+                        <p className="text-[9px] text-slate-400 dark:text-white/30 font-bold mt-0.5">{(g.memberCount || 0).toLocaleString()} عضو</p>
                       </div>
                     </button>
 
-                    <div className="flex justify-between items-center border-t border-white/5 pt-2">
-                      <p className="text-[8px] text-white/20 truncate max-w-[120px]" title={g.description}>{g.description || "لا يوجد وصف"}</p>
+                    <div className="flex justify-between items-center border-t border-slate-100 dark:border-white/5 pt-2">
+                      <p className="text-[8px] text-slate-400 dark:text-white/20 truncate max-w-[120px]" title={g.description}>{g.description || "لا يوجد وصف"}</p>
                       {user && (
                         <button
                           onClick={() => handleToggleJoinGroup(g.id)}
                           className={`px-3 py-1 rounded-full text-[9px] font-black transition-all ${
                             isJoined 
-                              ? "bg-white/10 text-white/70 hover:bg-red-500/10 hover:text-red-400" 
+                              ? "bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-white/70 hover:bg-red-500/10 hover:text-red-400" 
                               : "bg-[#fbbf24] text-black hover:scale-105"
                           }`}
                         >
@@ -1334,7 +1334,7 @@ export function SocialFeed() {
           </div>
 
           {/* Active Members / Leaderboard */}
-          <div className="bg-[#0c0d12]/90 border border-border/30 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden shrink-0">
+          <div className="bg-white/85 dark:bg-[#0c0d12]/90 border border-slate-200 dark:border-border/30 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden shrink-0">
             <div className="flex items-center justify-between mb-5">
               <span 
                 onClick={() => window.dispatchEvent(new CustomEvent('show_user_profile', { detail: { userId: user?.uid } }))}
@@ -1342,7 +1342,7 @@ export function SocialFeed() {
               >
                 عرض الكل
               </span>
-              <h3 className="text-sm font-black text-white">الأشخاص النشطون</h3>
+              <h3 className="text-sm font-black text-slate-800 dark:text-white">الأشخاص النشطون</h3>
             </div>
 
             <div className="space-y-3.5">
@@ -1350,27 +1350,27 @@ export function SocialFeed() {
                 <div
                   key={p.id}
                   onClick={() => p.id && window.dispatchEvent(new CustomEvent('show_user_profile', { detail: { userId: p.id } }))}
-                  className="flex items-center justify-between p-2 rounded-2xl hover:bg-white/[0.02] cursor-pointer transition-colors"
+                  className="flex items-center justify-between p-2 rounded-2xl hover:bg-slate-50 dark:hover:bg-white/[0.02] cursor-pointer transition-colors"
                 >
                   <div className="flex items-center gap-2.5">
                     <div className="relative">
-                      <img src={p.avatar} alt="" className="w-9 h-9 rounded-full border border-white/10 bg-white/5 object-cover" />
-                      <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border border-[#0c0d12] rounded-full" />
+                      <img src={p.avatar} alt="" className="w-9 h-9 rounded-full border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 object-cover" />
+                      <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border border-slate-200 dark:border-[#0c0d12] rounded-full" />
                     </div>
                     <div className="text-right">
-                      <h4 className="text-xs font-black text-white">{p.name}</h4>
+                      <h4 className="text-xs font-black text-slate-800 dark:text-white">{p.name}</h4>
                       <p className="text-[9px] text-[#fbbf24] font-bold mt-0.5">{p.points}</p>
                     </div>
                   </div>
-                  <span className="text-[10px] text-white/20 font-bold font-mono">#{idx + 1}</span>
+                  <span className="text-[10px] text-slate-350 dark:text-white/20 font-bold font-mono">#{idx + 1}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Popular Tags */}
-          <div className="bg-[#0c0d12]/90 border border-border/30 rounded-[2.5rem] p-6 shadow-xl shrink-0">
-            <h3 className="text-sm font-black text-white mb-4">الوسوم الشائعة</h3>
+          <div className="bg-white/85 dark:bg-[#0c0d12]/90 border border-slate-200 dark:border-border/30 rounded-[2.5rem] p-6 shadow-xl shrink-0">
+            <h3 className="text-sm font-black text-slate-800 dark:text-white mb-4">الوسوم الشائعة</h3>
             <div className="flex flex-wrap gap-2">
               {MOCK_TAGS.map((tag) => {
                 const isActive = selectedTag === tag;
@@ -1384,7 +1384,7 @@ export function SocialFeed() {
                     className={`px-3 py-1.5 rounded-xl text-xs font-black border transition-all ${
                       isActive
                         ? "bg-[#fbbf24] text-black border-[#fbbf24]"
-                        : "bg-white/[0.02] border-white/5 text-white/50 hover:text-white hover:bg-white/[0.05]"
+                        : "bg-slate-55 dark:bg-white/[0.02] border-slate-200 dark:border-white/5 text-slate-500 dark:text-white/50 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.05]"
                     }`}
                   >
                     {tag}
@@ -1403,14 +1403,14 @@ export function SocialFeed() {
         >
           {/* Group Header Info Card in Feed (If a group is selected) */}
           {selectedGroupId && currentActiveGroup && (
-            <div className="p-6 rounded-[2.5rem] bg-gradient-to-br from-[#0c0d12] to-[#040508] border border-emerald-500/20 text-right space-y-4 shadow-xl shrink-0">
+            <div className="p-6 rounded-[2.5rem] bg-gradient-to-br from-white to-slate-50 dark:from-[#0c0d12] dark:to-[#040508] border border-slate-200 dark:border-emerald-500/20 text-right space-y-4 shadow-xl shrink-0">
               <div className="flex justify-between items-start">
                 <div className="flex gap-3 items-center">
                   <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${getGroupStyle(currentActiveGroup.category).gradient} flex items-center justify-center border shadow-lg`}>
                     <BookOpen className="w-5 h-5" />
                   </div>
                   <div>
-                    <h2 className="text-base font-black text-white leading-snug">{currentActiveGroup.name}</h2>
+                    <h2 className="text-base font-black text-slate-800 dark:text-white leading-snug">{currentActiveGroup.name}</h2>
                     <p className="text-[9px] text-[#fbbf24] font-bold">{(currentActiveGroup.memberCount || 0).toLocaleString()} عضو نشط</p>
                   </div>
                 </div>
@@ -1419,7 +1419,7 @@ export function SocialFeed() {
                     onClick={() => handleToggleJoinGroup(currentActiveGroup.id)}
                     className={`px-4 py-2 rounded-2xl text-xs font-black transition-all ${
                       joinedGroupIds.has(currentActiveGroup.id)
-                        ? "bg-white/10 text-white/70 border border-white/15"
+                        ? "bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-white/70 border border-slate-200 dark:border-white/15"
                         : "bg-gradient-to-r from-[#fbbf24] to-[#d4af37] text-black"
                     }`}
                   >
@@ -1427,13 +1427,13 @@ export function SocialFeed() {
                   </button>
                 )}
               </div>
-              <p className="text-xs text-white/50 leading-relaxed font-bold">{currentActiveGroup.description || "مجلس نقاش ودعوة للأعضاء المباركين."}</p>
+              <p className="text-xs text-slate-500 dark:text-white/50 leading-relaxed font-bold">{currentActiveGroup.description || "مجلس نقاش ودعوة للأعضاء المباركين."}</p>
             </div>
           )}
 
           {/* Post Creator Section */}
           {user ? (
-            <div className="bg-[#0c0d12]/95 border border-[#fbbf24]/10 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden shrink-0">
+            <div className="bg-white/85 dark:bg-[#0c0d12]/95 border border-slate-200 dark:border-[#fbbf24]/10 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden shrink-0">
               <div className="absolute inset-0 islamic-pattern opacity-[0.01] pointer-events-none" />
               <div className="flex gap-4 items-start">
                 <img
@@ -1450,7 +1450,7 @@ export function SocialFeed() {
                       onChange={(e) => setNewPost(e.target.value)}
                       placeholder="شاركنا شيئاً نافعاً..."
                       rows={3}
-                      className="w-full bg-white/[0.02] border border-white/5 focus:border-primary/40 rounded-2xl py-3 px-4 text-xs md:text-sm outline-none transition-all font-bold resize-none text-right leading-relaxed text-white placeholder:text-white/20"
+                      className="w-full bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 focus:border-primary/40 rounded-2xl py-3 px-4 text-xs md:text-sm outline-none transition-all font-bold resize-none text-right leading-relaxed text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/20"
                       maxLength={500}
                     />
                   )}
@@ -1593,12 +1593,12 @@ export function SocialFeed() {
                   )}
 
                   {/* Post-in-Group Selection Dropdown */}
-                  <div className="flex items-center justify-between gap-3 bg-white/5 border border-white/10 rounded-2xl p-3">
-                    <span className="text-[10px] font-bold text-white/40">انشر في مجموعة:</span>
+                  <div className="flex items-center justify-between gap-3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-3">
+                    <span className="text-[10px] font-bold text-slate-500 dark:text-white/40">انشر في مجموعة:</span>
                     <select
                       value={selectedComposerGroupId}
                       onChange={(e) => setSelectedComposerGroupId(e.target.value)}
-                      className="bg-[#0c0d12] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white outline-none font-bold"
+                      className="bg-slate-100 dark:bg-[#0c0d12] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-1.5 text-xs text-slate-800 dark:text-white outline-none font-bold"
                     >
                       <option value="">الخلاصة العامة 🌐</option>
                       {groups.filter(g => joinedGroupIds.has(g.id) || g.creatorId === user?.uid).map(g => (
@@ -1677,9 +1677,9 @@ export function SocialFeed() {
               </div>
             </div>
           ) : (
-            <div className="bg-[#0c0d12]/95 border border-white/5 rounded-[2.5rem] p-8 text-center shadow-xl flex flex-col items-center gap-4 shrink-0">
-              <User className="w-10 h-10 text-white/20" />
-              <p className="text-sm text-white/40 font-bold leading-relaxed">سجّل دخولك الآن لنشر منشور دعوي جديد أو مشاركة الأدعية وتدبرات الآيات في مجتمع يقين.</p>
+            <div className="bg-white/85 dark:bg-[#0c0d12]/95 border border-slate-200 dark:border-white/5 rounded-[2.5rem] p-8 text-center shadow-xl flex flex-col items-center gap-4 shrink-0">
+              <User className="w-10 h-10 text-slate-350 dark:text-white/20" />
+              <p className="text-sm text-slate-500 dark:text-white/40 font-bold leading-relaxed">سجّل دخولك الآن لنشر منشور دعوي جديد أو مشاركة الأدعية وتدبرات الآيات في مجتمع يقين.</p>
               <button
                 onClick={() => window.dispatchEvent(new CustomEvent("show_auth_gate"))}
                 className="px-6 py-2.5 bg-primary hover:brightness-110 text-primary-foreground font-black text-xs rounded-xl transition-all hover:scale-105 active:scale-95 shadow-md shadow-primary/10 cursor-pointer"
@@ -1690,15 +1690,15 @@ export function SocialFeed() {
           )}
 
           {/* Sort Tabs Filter Bar (Latest, Interactive, Follows) */}
-          <div className="flex items-center justify-between bg-[#0c0d12]/90 border border-white/5 px-6 py-3.5 rounded-[2rem] shadow-md shrink-0">
-            <span className="text-[10px] text-white/30 font-bold">فرز المنشورات</span>
+          <div className="flex items-center justify-between bg-white/85 dark:bg-[#0c0d12]/90 border border-slate-200 dark:border-white/5 px-6 py-3.5 rounded-[2rem] shadow-md shrink-0">
+            <span className="text-[10px] text-slate-400 dark:text-white/30 font-bold">فرز المنشورات</span>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setActiveSortTab("latest")}
                 className={`px-4 py-1.5 text-xs font-black rounded-full transition-all border ${
                   activeSortTab === "latest"
                     ? "bg-[#fbbf24] text-black border-[#fbbf24] shadow-md shadow-[#fbbf24]/10"
-                    : "bg-transparent border-transparent text-white/40 hover:text-white"
+                    : "bg-transparent border-transparent text-slate-500 dark:text-white/40 hover:text-slate-800 dark:hover:text-white"
                 }`}
               >
                 الأحدث
@@ -1708,7 +1708,7 @@ export function SocialFeed() {
                 className={`px-4 py-1.5 text-xs font-black rounded-full transition-all border ${
                   activeSortTab === "interactive"
                     ? "bg-[#fbbf24] text-black border-[#fbbf24] shadow-md"
-                    : "bg-transparent border-transparent text-white/40 hover:text-white"
+                    : "bg-transparent border-transparent text-slate-500 dark:text-white/40 hover:text-slate-800 dark:hover:text-white"
                 }`}
               >
                 الأكثر تفاعلاً
@@ -1724,7 +1724,7 @@ export function SocialFeed() {
                 className={`px-4 py-1.5 text-xs font-black rounded-full transition-all border ${
                   activeSortTab === "following"
                     ? "bg-[#fbbf24] text-black border-[#fbbf24] shadow-md"
-                    : "bg-transparent border-transparent text-white/40 hover:text-white"
+                    : "bg-transparent border-transparent text-slate-500 dark:text-white/40 hover:text-slate-800 dark:hover:text-white"
                 }`}
               >
                 المتابعات
@@ -1736,15 +1736,15 @@ export function SocialFeed() {
           {loadingPosts ? (
             <div className="flex flex-col items-center justify-center py-24 gap-4">
               <Loader2 className="w-8 h-8 text-[#fbbf24] animate-spin" />
-              <p className="text-xs text-white/30 font-bold">جاري تحميل المنشورات والمجالس...</p>
+              <p className="text-xs text-slate-400 dark:text-white/30 font-bold">جاري تحميل المنشورات والمجالس...</p>
             </div>
           ) : filteredPosts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-              <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-white/10">
+              <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 dark:text-white/10">
                 <MessageCircle className="w-8 h-8" />
               </div>
-              <p className="text-sm text-white/40 font-black">لا توجد منشورات في هذا القسم بعد</p>
-              <p className="text-xs text-white/20">كن أول من يشارك كلمة طيبة أو دعاء إيماني!</p>
+              <p className="text-sm text-slate-500 dark:text-white/40 font-black">لا توجد منشورات في هذا القسم بعد</p>
+              <p className="text-xs text-slate-400 dark:text-white/20">كن أول من يشارك كلمة طيبة أو دعاء إيماني!</p>
             </div>
           ) : (
             filteredPosts.map((post, idx) => {
@@ -1760,7 +1760,7 @@ export function SocialFeed() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
-                  className="bg-[#0c0d12]/95 rounded-[2.5rem] overflow-hidden shadow-lg border border-white/5 hover:border-[#fbbf24]/10 transition-all duration-300 relative group/card shrink-0"
+                  className="bg-white/90 dark:bg-[#0c0d12]/95 rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200 dark:border-white/5 hover:border-[#fbbf24]/10 transition-all duration-300 relative group/card shrink-0"
                 >
                   {/* Post Header */}
                   <div className="flex items-center justify-between p-5 pb-2">
@@ -1771,11 +1771,11 @@ export function SocialFeed() {
                       <img
                         src={post.userAvatar || `https://api.dicebear.com/9.x/avataaars/svg?seed=${post.userId}`}
                         alt=""
-                        className="w-11 h-11 rounded-full border border-white/10 object-cover bg-white/5"
+                        className="w-11 h-11 rounded-full border border-slate-200 dark:border-white/10 object-cover bg-slate-50 dark:bg-white/5"
                       />
                       <div className="min-w-0 text-right">
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-black truncate text-white">{post.userName}</p>
+                          <p className="text-sm font-black truncate text-slate-800 dark:text-white">{post.userName}</p>
                           
                           {/* Crown/Star Badges */}
                           {isUserAdmin ? (
@@ -1793,25 +1793,25 @@ export function SocialFeed() {
                           ) : null}
 
                           {authorPoints > 0 && (
-                            <span className="text-[8px] font-bold border border-white/10 px-1.5 py-0.5 rounded-md text-white/50 bg-white/5">
+                            <span className="text-[8px] font-bold border border-slate-200 dark:border-white/10 px-1.5 py-0.5 rounded-md text-slate-500 dark:text-white/50 bg-slate-100 dark:bg-white/5">
                               Lvl {Math.floor(authorPoints / 100) + 1}
                             </span>
                           )}
                         </div>
-                        <p className="text-[9px] font-bold mt-0.5 text-white/30">{timeAgo(post.createdAt)}</p>
+                        <p className="text-[9px] font-bold mt-0.5 text-slate-400 dark:text-white/30">{timeAgo(post.createdAt)}</p>
                       </div>
                     </button>
 
                     <div className="flex items-center gap-2">
                       {post.category && (
-                        <span className="text-[9px] font-black px-2.5 py-1 rounded-full border bg-white/5 border-white/10 text-white/60">
+                        <span className="text-[9px] font-black px-2.5 py-1 rounded-full border bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-650 dark:text-white/60">
                           {CATEGORIES.find(c => c.id === post.category)?.label || post.category}
                         </span>
                       )}
 
                       <button
                         onClick={() => toggleBookmark(post.id)}
-                        className="p-2 rounded-xl transition-all bg-white/5 hover:bg-white/10 text-white/40 hover:text-[#fbbf24]"
+                        className="p-2 rounded-xl transition-all bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-400 dark:text-white/40 hover:text-[#fbbf24]"
                         title={bookmarkedPosts.has(post.id) ? "إزالة الحفظ" : "حفظ المنشور"}
                       >
                         {bookmarkedPosts.has(post.id) ? (
@@ -1825,7 +1825,7 @@ export function SocialFeed() {
                         <div className="relative">
                           <button
                             onClick={() => setMenuOpen(menuOpen === post.id ? null : post.id)}
-                            className="p-2 rounded-xl transition-colors bg-white/5 hover:bg-white/10 text-white/40 hover:text-white"
+                            className="p-2 rounded-xl transition-colors bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-400 dark:text-white/40 hover:text-white"
                           >
                             <MoreHorizontal className="w-4 h-4" />
                           </button>
@@ -1835,7 +1835,7 @@ export function SocialFeed() {
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
-                                className="absolute left-0 top-full mt-1.5 bg-[#0c0d12] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 min-w-[130px]"
+                                className="absolute left-0 top-full mt-1.5 bg-white dark:bg-[#0c0d12] border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 min-w-[130px]"
                               >
                                 {user.uid === post.userId ? (
                                   <button
@@ -1865,7 +1865,7 @@ export function SocialFeed() {
                   {/* Post Content */}
                   <div className="px-6 py-4">
                     {post.isReflection ? (
-                      <div className="p-6 md:p-8 rounded-[2rem] border border-[#fbbf24]/20 relative overflow-hidden text-center bg-gradient-to-br from-[#0a0e1c] via-[#05070e] to-[#010204] shadow-inner mt-2">
+                      <div className="p-6 md:p-8 rounded-[2rem] border border-[#fbbf24]/20 relative overflow-hidden text-center bg-gradient-to-br from-[#faf6ee] via-white to-[#faf6ee] dark:from-[#0a0e1c] dark:via-[#05070e] dark:to-[#010204] shadow-inner mt-2">
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#fbbf24]/5 blur-[70px] rounded-full pointer-events-none" />
                         <div className="absolute top-3 left-4 text-[#fbbf24]/30 text-xs font-serif select-none pointer-events-none">✨</div>
                         
@@ -1873,23 +1873,23 @@ export function SocialFeed() {
                           <p className="font-arabic text-xl md:text-2xl font-black text-[#fbbf24] leading-relaxed text-shadow-md select-text" dir="rtl">
                             « {post.verseText} »
                           </p>
-                          <p className="text-[10px] text-white/40 font-bold">[ سورة {post.surahName} ]</p>
-                          <div className="w-16 h-px mx-auto bg-white/10" />
-                          <p className="text-xs md:text-sm leading-relaxed font-bold whitespace-pre-wrap text-right text-white/80" dir="rtl">
+                          <p className="text-[10px] text-slate-400 dark:text-white/40 font-bold">[ سورة {post.surahName} ]</p>
+                          <div className="w-16 h-px mx-auto bg-slate-200 dark:bg-white/10" />
+                          <p className="text-xs md:text-sm leading-relaxed font-bold whitespace-pre-wrap text-right text-slate-700 dark:text-white/80" dir="rtl">
                             💡 {post.reflectionText}
                           </p>
                         </div>
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        <p className="text-sm md:text-base leading-relaxed whitespace-pre-wrap break-words font-medium text-right text-white/90">
+                        <p className="text-sm md:text-base leading-relaxed whitespace-pre-wrap break-words font-medium text-right text-slate-800 dark:text-white/90">
                           {post.content}
                         </p>
 
                         {/* Interactive Poll Component */}
                         {post.isPoll && post.pollOptions && post.pollVotes && (
-                          <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl space-y-3 mt-3">
-                            <p className="text-xs font-black text-white/70">📊 استطلاع رأي:</p>
+                          <div className="p-4 bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 rounded-2xl space-y-3 mt-3">
+                            <p className="text-xs font-black text-slate-600 dark:text-white/70">📊 استطلاع رأي:</p>
                             {(() => {
                               const allVotesCount = Object.values(post.pollVotes).reduce((sum, vList) => sum + vList.length, 0);
                               return post.pollOptions.map((opt, idx) => {
@@ -1901,7 +1901,7 @@ export function SocialFeed() {
                                   <button
                                     key={idx}
                                     onClick={() => handleVotePoll(post.id, idx)}
-                                    className="w-full relative p-3 rounded-xl border border-white/5 overflow-hidden text-right flex items-center justify-between hover:bg-white/5 active:scale-99 transition-all"
+                                    className="w-full relative p-3 rounded-xl border border-slate-200 dark:border-white/5 overflow-hidden text-right flex items-center justify-between hover:bg-slate-100 dark:hover:bg-white/5 active:scale-99 transition-all"
                                   >
                                     <div 
                                       className="absolute inset-y-0 right-0 bg-[#fbbf24]/5 border-l border-[#fbbf24]/20 transition-all duration-500"
@@ -1923,14 +1923,14 @@ export function SocialFeed() {
 
                         {/* Image attachments */}
                         {post.imageUrl && (
-                          <div className="rounded-2xl border border-white/5 overflow-hidden shadow-md max-h-[300px] mt-2 relative">
+                          <div className="rounded-2xl border border-slate-200 dark:border-white/5 overflow-hidden shadow-md max-h-[300px] mt-2 relative">
                             <img src={post.imageUrl} alt="" className="w-full h-full object-cover" />
                           </div>
                         )}
 
                         {/* Video attachments */}
                         {post.videoUrl && (
-                          <div className="rounded-2xl border border-white/5 overflow-hidden shadow-md aspect-video mt-2 bg-black flex items-center justify-center">
+                          <div className="rounded-2xl border border-slate-200 dark:border-white/5 overflow-hidden shadow-md aspect-video mt-2 bg-black flex items-center justify-center">
                             <video src={post.videoUrl} controls className="w-full h-full object-contain" />
                           </div>
                         )}
@@ -1947,7 +1947,7 @@ export function SocialFeed() {
 
                   {/* Likes/Reactions and Comments Counts */}
                   {(post.likesCount > 0 || post.commentsCount > 0) && (
-                    <div className="flex items-center justify-between px-6 py-2.5 border-t bg-white/[0.01] border-white/5">
+                    <div className="flex items-center justify-between px-6 py-2.5 border-t bg-slate-50/[0.3] dark:bg-white/[0.01] border-slate-100 dark:border-white/5">
                       <div className="flex items-center gap-1">
                         {post.reactions && Object.entries(post.reactions).map(([type, count]) => {
                           if (count <= 0) return null;
@@ -1958,7 +1958,7 @@ export function SocialFeed() {
                             </span>
                           );
                         })}
-                        <span className="text-[10px] font-bold mr-1.5 text-white/30">
+                        <span className="text-[10px] font-bold mr-1.5 text-slate-400 dark:text-white/30">
                           {post.likesCount} تفاعل
                         </span>
                       </div>
@@ -1966,7 +1966,7 @@ export function SocialFeed() {
                       {post.commentsCount > 0 && (
                         <button
                           onClick={() => toggleComments(post.id)}
-                          className="text-[10px] font-bold transition-colors text-white/30 hover:text-[#fbbf24]"
+                          className="text-[10px] font-bold transition-colors text-slate-450 dark:text-white/30 hover:text-[#fbbf24]"
                         >
                           {post.commentsCount} تعليق
                         </button>
@@ -1975,7 +1975,7 @@ export function SocialFeed() {
                   )}
 
                   {/* Social Actions Buttons Section */}
-                  <div className="flex border-t relative border-white/5">
+                  <div className="flex border-t relative border-slate-150 dark:border-white/5">
                     
                     {/* Reaction Button with Popover */}
                     <div 
@@ -1989,7 +1989,7 @@ export function SocialFeed() {
                         className={`w-full flex items-center justify-center gap-2 py-3.5 text-xs font-black transition-all active:scale-95 ${
                           activeReact
                             ? "text-[#fbbf24] scale-102"
-                            : "text-white/40 hover:text-white"
+                            : "text-slate-500 dark:text-white/40 hover:text-slate-800 dark:hover:text-white"
                         }`}
                       >
                         {activeReact ? (
@@ -2009,7 +2009,7 @@ export function SocialFeed() {
                       {/* Reactions Popover */}
                       {activeReactionPopup === post.id && (
                         <div 
-                          className="absolute bottom-full right-1/2 translate-x-1/2 mb-2 bg-[#0d111d]/95 backdrop-blur-2xl border border-white/10 rounded-full px-4 py-2 flex gap-3.5 shadow-2xl z-50 animate-in fade-in slide-in-from-bottom-2 duration-150"
+                          className="absolute bottom-full right-1/2 translate-x-1/2 mb-2 bg-white/95 dark:bg-[#0d111d]/95 backdrop-blur-2xl border border-slate-200 dark:border-white/10 rounded-full px-4 py-2 flex gap-3.5 shadow-2xl z-50 animate-in fade-in slide-in-from-bottom-2 duration-150"
                         >
                           {REACTION_EMOJIS.map(r => (
                             <button
@@ -2019,7 +2019,7 @@ export function SocialFeed() {
                               title={r.label}
                             >
                               <span>{r.emoji}</span>
-                              <span className="text-[7px] text-white/50 font-black mt-0.5">{r.label}</span>
+                              <span className="text-[7px] text-slate-500 dark:text-white/50 font-black mt-0.5">{r.label}</span>
                             </button>
                           ))}
                         </div>
@@ -2028,7 +2028,7 @@ export function SocialFeed() {
 
                     <button
                       onClick={() => toggleComments(post.id)}
-                      className="flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-black transition-all active:scale-95 border-r border-white/5 text-white/40 hover:text-[#fbbf24]"
+                      className="flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-black transition-all active:scale-95 border-r border-slate-150 dark:border-white/5 text-slate-500 dark:text-white/40 hover:text-[#fbbf24]"
                     >
                       <MessageCircle className="w-4 h-4" />
                       تعليق
@@ -2036,7 +2036,7 @@ export function SocialFeed() {
 
                     <button
                       onClick={() => handleShare(post)}
-                      className="flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-black transition-all active:scale-95 border-r border-white/5 text-white/40 hover:text-blue-400"
+                      className="flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-black transition-all active:scale-95 border-r border-slate-150 dark:border-white/5 text-slate-500 dark:text-white/40 hover:text-blue-400"
                     >
                       <Share2 className="w-4 h-4" />
                       مشاركة
@@ -2051,7 +2051,7 @@ export function SocialFeed() {
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="border-t overflow-hidden border-white/5 bg-black/20"
+                        className="border-t overflow-hidden border-slate-200 dark:border-white/5 bg-slate-50/50 dark:bg-black/20"
                       >
                         <div className="p-4 space-y-4 max-h-[400px] overflow-y-auto no-scrollbar">
                           {(() => {
@@ -2074,7 +2074,7 @@ export function SocialFeed() {
 
                             if (sortedParents.length === 0) {
                               return (
-                                <p className="text-center text-xs text-white/10 py-4 font-bold">
+                                <p className="text-center text-xs text-slate-400 dark:text-white/10 py-4 font-bold">
                                   لا توجد تعليقات بعد — كن أول من يعلّق بكلمة طيبة!
                                 </p>
                               );
@@ -2085,23 +2085,23 @@ export function SocialFeed() {
                               const userLiked = user && cmt.likes?.includes(user.uid);
                               
                               return (
-                                <div key={cmt.id} className="space-y-3 border-b border-white/5 pb-3 last:border-b-0 last:pb-0">
+                                <div key={cmt.id} className="space-y-3 border-b border-slate-150 dark:border-white/5 pb-3 last:border-b-0 last:pb-0">
                                   {/* Parent Comment */}
                                   <div className="flex gap-3 items-start text-right animate-in fade-in slide-in-from-bottom-2 duration-300">
                                     {cmt.isAnonymous ? (
-                                      <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center shrink-0 border border-white/10">
-                                        <EyeOff className="w-4 h-4 text-white/30" />
+                                      <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center shrink-0 border border-slate-200 dark:border-white/10">
+                                        <EyeOff className="w-4 h-4 text-slate-400 dark:text-white/30" />
                                       </div>
                                     ) : (
                                       <img
                                         src={cmt.userAvatar || `https://api.dicebear.com/9.x/avataaars/svg?seed=${cmt.userId}`}
                                         alt=""
-                                        className="w-9 h-9 rounded-full border border-white/10 shrink-0 object-cover bg-white/5"
+                                        className="w-9 h-9 rounded-full border border-slate-200 dark:border-white/10 shrink-0 object-cover bg-slate-50 dark:bg-white/5"
                                       />
                                     )}
                                     <div className="flex-1 min-w-0">
-                                      <div className="border rounded-2xl px-4 py-2.5 bg-white/5 border-white/10">
-                                        <p className="text-[10px] font-black mb-0.5 flex items-center justify-between gap-2 text-white/60">
+                                      <div className="border rounded-2xl px-4 py-2.5 bg-slate-100/50 dark:bg-white/5 border-slate-200 dark:border-white/10">
+                                        <p className="text-[10px] font-black mb-0.5 flex items-center justify-between gap-2 text-slate-500 dark:text-white/60">
                                           <span>{cmt.isAnonymous ? "مجهول 🕶️" : cmt.userName}</span>
                                           {cmt.isBlocked && (
                                             <span className="text-[8px] bg-rose-500/10 text-rose-400 border border-rose-500/20 px-1.5 py-0.5 rounded-full font-bold">
@@ -2109,20 +2109,20 @@ export function SocialFeed() {
                                             </span>
                                           )}
                                         </p>
-                                        <p className="text-xs leading-relaxed break-words font-medium text-white/90">
+                                        <p className="text-xs leading-relaxed break-words font-medium text-slate-800 dark:text-white/90">
                                           {cmt.content}
                                         </p>
                                       </div>
                                       
                                       <div className="flex items-center gap-4 mt-1 px-2">
-                                        <span className="text-[8px] font-bold text-white/30">
+                                        <span className="text-[8px] font-bold text-slate-400 dark:text-white/30">
                                           {timeAgo(cmt.createdAt)}
                                         </span>
                                         
                                         <button
                                           onClick={() => handleLikeComment(post.id, cmt.id)}
                                           className={`text-[9px] font-black transition-colors flex items-center gap-1 ${
-                                            userLiked ? "text-rose-500" : "text-white/40 hover:text-white"
+                                            userLiked ? "text-rose-500" : "text-slate-400 dark:text-white/40 hover:text-slate-800 dark:hover:text-white"
                                           }`}
                                         >
                                           <Heart className={`w-2.5 h-2.5 ${userLiked ? 'fill-rose-500' : ''}`} />
@@ -2139,7 +2139,7 @@ export function SocialFeed() {
                                             const inputEl = document.getElementById(`comment-input-${post.id}`);
                                             if (inputEl) inputEl.focus();
                                           }}
-                                          className="text-[9px] font-black transition-colors text-white/40 hover:text-white"
+                                          className="text-[9px] font-black transition-colors text-slate-400 dark:text-white/40 hover:text-slate-700 dark:hover:text-white"
                                         >
                                           رد
                                         </button>
@@ -2155,19 +2155,19 @@ export function SocialFeed() {
                                         return (
                                           <div key={reply.id} className="flex gap-3 items-start text-right animate-in fade-in slide-in-from-bottom-2 duration-300">
                                             {reply.isAnonymous ? (
-                                              <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center shrink-0 border border-white/10">
-                                                <EyeOff className="w-3.5 h-3.5 text-white/30" />
+                                              <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center shrink-0 border border-slate-200 dark:border-white/10">
+                                                <EyeOff className="w-3.5 h-3.5 text-slate-400 dark:text-white/30" />
                                               </div>
                                             ) : (
                                               <img
                                                 src={reply.userAvatar || `https://api.dicebear.com/9.x/avataaars/svg?seed=${reply.userId}`}
                                                 alt=""
-                                                className="w-8 h-8 rounded-full border border-white/10 shrink-0 object-cover bg-white/5"
+                                                className="w-8 h-8 rounded-full border border-slate-200 dark:border-white/10 shrink-0 object-cover bg-slate-50 dark:bg-white/5"
                                               />
                                             )}
                                             <div className="flex-1 min-w-0">
-                                              <div className="border rounded-2xl px-3.5 py-2 bg-white/5 border-white/10">
-                                                <p className="text-[9px] font-black mb-0.5 flex items-center justify-between gap-2 text-white/60">
+                                              <div className="border rounded-2xl px-3.5 py-2 bg-slate-100/50 dark:bg-white/5 border-slate-200 dark:border-white/10">
+                                                <p className="text-[9px] font-black mb-0.5 flex items-center justify-between gap-2 text-slate-500 dark:text-white/60">
                                                   <span>
                                                     {reply.isAnonymous ? "مجهول 🕶️" : reply.userName}
                                                     {reply.replyToName && (
@@ -2182,20 +2182,20 @@ export function SocialFeed() {
                                                     </span>
                                                   )}
                                                 </p>
-                                                <p className="text-xs leading-relaxed break-words font-medium text-white/90">
+                                                <p className="text-xs leading-relaxed break-words font-medium text-slate-800 dark:text-white/90">
                                                   {reply.content}
                                                 </p>
                                               </div>
                                               
                                               <div className="flex items-center gap-4 mt-1 px-2">
-                                                <span className="text-[8px] font-bold text-white/30">
+                                                <span className="text-[8px] font-bold text-slate-400 dark:text-white/30">
                                                   {timeAgo(reply.createdAt)}
                                                 </span>
                                                 
                                                 <button
                                                   onClick={() => handleLikeComment(post.id, reply.id)}
                                                   className={`text-[9px] font-black transition-colors flex items-center gap-1 ${
-                                                    replyLiked ? "text-rose-500" : "text-white/40 hover:text-white"
+                                                    replyLiked ? "text-rose-500" : "text-slate-400 dark:text-white/40 hover:text-slate-700 dark:hover:text-white"
                                                   }`}
                                                 >
                                                   <Heart className={`w-2.5 h-2.5 ${replyLiked ? 'fill-rose-500' : ''}`} />
@@ -2212,7 +2212,7 @@ export function SocialFeed() {
                                                     const inputEl = document.getElementById(`comment-input-${post.id}`);
                                                     if (inputEl) inputEl.focus();
                                                   }}
-                                                  className="text-[9px] font-black transition-colors text-white/40 hover:text-white"
+                                                  className="text-[9px] font-black transition-colors text-slate-400 dark:text-white/40 hover:text-slate-700 dark:hover:text-white"
                                                 >
                                                   رد
                                                 </button>
@@ -2230,14 +2230,14 @@ export function SocialFeed() {
                         </div>
 
                         {/* Comment compose input */}
-                        <div className="p-4 pt-0 border-t border-white/5">
+                        <div className="p-4 pt-0 border-t border-slate-200 dark:border-white/5">
                           {replyingTo && replyingTo.postId === post.id && (
                             <div className="flex items-center justify-between bg-primary/10 border border-primary/20 rounded-xl px-3 py-1.5 mb-2 text-right">
                               <span className="text-[10px] font-bold text-primary flex items-center gap-1">
                                 <span>الرد على:</span>
                                 <span className="underline font-black">@{replyingTo.userName}</span>
                               </span>
-                              <button onClick={() => setReplyingTo(null)} className="text-white/45 hover:text-white p-1"><X className="w-3.5 h-3.5" /></button>
+                              <button onClick={() => setReplyingTo(null)} className="text-slate-500 dark:text-white/45 hover:text-slate-800 dark:hover:text-white p-1"><X className="w-3.5 h-3.5" /></button>
                             </div>
                           )}
 
@@ -2247,7 +2247,7 @@ export function SocialFeed() {
                               className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold transition-all border ${
                                 isAnonymous[post.id]
                                   ? "bg-purple-500/10 border-purple-500/30 text-purple-400"
-                                  : "bg-white/5 border-white/10 text-white/30"
+                                  : "bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400 dark:text-white/30"
                               }`}
                             >
                               <EyeOff className="w-3 h-3" />
@@ -2262,7 +2262,7 @@ export function SocialFeed() {
                               onChange={(e) => setCommentText(prev => ({ ...prev, [post.id]: e.target.value }))}
                               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handlePostComment(post.id)}
                               placeholder={isAnonymous[post.id] ? "اكتب تعليقاً مجهولاً..." : "اكتب تعليقاً..."}
-                              className="flex-1 border rounded-xl py-2.5 px-4 text-xs outline-none focus:border-primary/50 transition-all font-bold text-right bg-white/5 border-white/20 text-white placeholder:text-white/25"
+                              className="flex-1 border rounded-xl py-2.5 px-4 text-xs outline-none focus:border-primary/50 transition-all font-bold text-right bg-slate-50 dark:bg-white/5 border-slate-250 dark:border-white/20 text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/25"
                               maxLength={300}
                             />
                             <button
@@ -2292,7 +2292,7 @@ export function SocialFeed() {
           )}
 
           {!hasMore && filteredPosts.length > 0 && (
-            <p className="text-center text-[10px] text-white/20 font-bold py-8 uppercase tracking-wider">
+            <p className="text-center text-[10px] text-slate-400 dark:text-white/20 font-bold py-8 uppercase tracking-wider">
               — نهاية المنشورات • تم تحميل جميع المشاركات —
             </p>
           )}
@@ -2303,7 +2303,7 @@ export function SocialFeed() {
         <aside className={`lg:col-span-3 flex-col h-full overflow-y-auto no-scrollbar pb-6 gap-6 ${activeMobileTab === "dashboard" ? "flex" : "hidden lg:flex"}`}>
           {/* User Profile Card (Dynamic real statistics counts) */}
           {user ? (
-            <div className="bg-gradient-to-b from-[#181a24] to-[#0c0d12] border border-[#fbbf24]/20 rounded-[2.5rem] p-6 shadow-2xl relative overflow-hidden text-center flex flex-col items-center shrink-0">
+            <div className="bg-gradient-to-b from-white to-slate-50 dark:from-[#181a24] dark:to-[#0c0d12] border border-slate-200 dark:border-[#fbbf24]/20 rounded-[2.5rem] p-6 shadow-2xl relative overflow-hidden text-center flex flex-col items-center shrink-0">
               {/* Gold Ornament Mandala Background */}
               <div className="absolute top-0 inset-x-0 h-36 bg-[radial-gradient(circle_at_top,rgba(212,175,55,0.15)_0%,transparent_75%)] select-none pointer-events-none" />
               <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 blur-[50px] rounded-full pointer-events-none" />
@@ -2313,12 +2313,12 @@ export function SocialFeed() {
                 <img
                   src={userData?.photoURL || user.photoURL || `https://api.dicebear.com/9.x/avataaars/svg?seed=${user.uid}`}
                   alt=""
-                  className="w-20 h-20 rounded-full border-2 border-[#fbbf24]/50 object-cover bg-white/5 relative z-10"
+                  className="w-20 h-20 rounded-full border-2 border-[#fbbf24]/50 object-cover bg-slate-50 dark:bg-white/5 relative z-10"
                 />
               </div>
 
-              <h3 className="text-base font-black text-white mt-6 relative z-10">{userData?.displayName || user.displayName || "مستخدم يقين"}</h3>
-              <p className="text-[10px] font-bold text-white/40 mt-1 relative z-10">طالب علم</p>
+              <h3 className="text-base font-black text-slate-850 dark:text-white mt-6 relative z-10">{userData?.displayName || user.displayName || "مستخدم يقين"}</h3>
+              <p className="text-[10px] font-bold text-slate-450 dark:text-white/40 mt-1 relative z-10">طالب علم</p>
 
               {/* Total points label */}
               <button 
@@ -2329,34 +2329,34 @@ export function SocialFeed() {
               </button>
 
               {/* Real Profile Statistics (Posts, Followers, Following) */}
-              <div className="grid grid-cols-3 gap-1 w-full border-t border-white/5 mt-6 pt-5 text-center">
+              <div className="grid grid-cols-3 gap-1 w-full border-t border-slate-100 dark:border-white/5 mt-6 pt-5 text-center">
                 <div>
-                  <span className="block text-sm font-black text-white">{userPostsCount}</span>
-                  <span className="text-[8px] text-white/30 font-bold uppercase tracking-wider">المنشورات</span>
+                  <span className="block text-sm font-black text-slate-800 dark:text-white">{userPostsCount}</span>
+                  <span className="text-[8px] text-slate-400 dark:text-white/30 font-bold uppercase tracking-wider">المنشورات</span>
                 </div>
-                <div className="border-r border-white/5">
-                  <span className="block text-sm font-black text-white">{userFollowersCount.toLocaleString()}</span>
-                  <span className="text-[8px] text-white/30 font-bold uppercase tracking-wider">المتابعون</span>
+                <div className="border-r border-slate-100 dark:border-white/5">
+                  <span className="block text-sm font-black text-slate-800 dark:text-white">{userFollowersCount.toLocaleString()}</span>
+                  <span className="text-[8px] text-slate-400 dark:text-white/30 font-bold uppercase tracking-wider">المتابعون</span>
                 </div>
-                <div className="border-r border-white/5">
-                  <span className="block text-sm font-black text-white">{userFollowingCount.toLocaleString()}</span>
-                  <span className="text-[8px] text-white/30 font-bold uppercase tracking-wider">يتابع</span>
+                <div className="border-r border-slate-100 dark:border-white/5">
+                  <span className="block text-sm font-black text-slate-800 dark:text-white">{userFollowingCount.toLocaleString()}</span>
+                  <span className="text-[8px] text-slate-400 dark:text-white/30 font-bold uppercase tracking-wider">يتابع</span>
                 </div>
               </div>
 
               {/* Profile link button */}
               <button
                 onClick={() => window.dispatchEvent(new CustomEvent('show_user_profile', { detail: { userId: user.uid } }))}
-                className="w-full mt-6 py-3.5 bg-white/5 hover:bg-[#fbbf24]/5 hover:text-[#fbbf24] border border-white/10 rounded-2xl text-xs font-black text-white transition-all active:scale-95"
+                className="w-full mt-6 py-3.5 bg-slate-100 dark:bg-white/5 hover:bg-[#fbbf24]/5 hover:text-[#fbbf24] border border-slate-200 dark:border-white/10 rounded-2xl text-xs font-black text-slate-700 dark:text-white transition-all active:scale-95"
               >
                 الملف الشخصي
               </button>
             </div>
           ) : (
-            <div className="bg-[#0c0d12]/95 border border-white/5 rounded-[2.5rem] p-6 text-center shadow-xl flex flex-col items-center shrink-0">
-              <User className="w-12 h-12 text-white/10 mb-3" />
-              <h3 className="text-xs font-black text-white mb-2">لوحة التحكم الشخصية</h3>
-              <p className="text-[10px] text-white/30 mb-4 leading-relaxed">سجّل دخولك لمتابعة تحدياتك اليومية وإحصائيات نقاطك في لوحة الشرف.</p>
+            <div className="bg-white/90 dark:bg-[#0c0d12]/95 border border-slate-200 dark:border-white/5 rounded-[2.5rem] p-6 text-center shadow-xl flex flex-col items-center shrink-0">
+              <User className="w-12 h-12 text-slate-300 dark:text-white/10 mb-3" />
+              <h3 className="text-xs font-black text-slate-800 dark:text-white mb-2">لوحة التحكم الشخصية</h3>
+              <p className="text-[10px] text-slate-500 dark:text-white/30 mb-4 leading-relaxed">سجّل دخولك لمتابعة تحدياتك اليومية وإحصائيات نقاطك في لوحة الشرف.</p>
               <button
                 onClick={() => window.dispatchEvent(new CustomEvent("show_auth_gate"))}
                 className="w-full py-3 bg-[#fbbf24] hover:bg-[#d4af37] text-black font-black text-xs rounded-xl transition-all"
@@ -2367,8 +2367,8 @@ export function SocialFeed() {
           )}
 
           {/* Daily Challenge Progress */}
-          <div className="bg-[#0c0d12]/90 border border-border/30 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden shrink-0">
-            <h3 className="text-sm font-black text-white mb-4 text-right">التحدي اليومي</h3>
+          <div className="bg-white/85 dark:bg-[#0c0d12]/90 border border-slate-200 dark:border-border/30 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden shrink-0">
+            <h3 className="text-sm font-black text-slate-800 dark:text-white mb-4 text-right">التحدي اليومي</h3>
             
             <div className="flex gap-3.5 items-start text-right">
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#fbbf24]/20 to-[#d4af37]/5 flex items-center justify-center border border-[#fbbf24]/30 shrink-0 shadow-lg">
@@ -2377,10 +2377,10 @@ export function SocialFeed() {
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-black text-[#fbbf24]">{dailyChallengeCompleted ? "1/1" : "0/1"}</span>
-                  <h4 className="text-xs font-black text-white leading-snug">شارك آية أو حديث نبوي</h4>
+                  <h4 className="text-xs font-black text-slate-800 dark:text-white leading-snug">شارك آية أو حديث نبوي</h4>
                 </div>
                 
-                <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden mt-2 border border-white/5">
+                <div className="w-full bg-slate-100 dark:bg-white/5 h-2 rounded-full overflow-hidden mt-2 border border-slate-200 dark:border-white/5">
                   <div 
                     className="bg-gradient-to-l from-[#fbbf24] to-[#d4af37] h-full rounded-full transition-all duration-700"
                     style={{ width: dailyChallengeCompleted ? "100%" : "15%" }}
@@ -2400,63 +2400,63 @@ export function SocialFeed() {
             >
               <span>{dailyChallengeCompleted ? "تم الإنجاز بنجاح" : "تأكيد إتمام التحدي"}</span>
             </button>
-            <p className="text-center text-[9px] text-white/30 font-bold mt-2">يحصل منجز التحدي على +50 نقطة</p>
+            <p className="text-center text-[9px] text-slate-400 dark:text-white/30 font-bold mt-2">يحصل منجز التحدي على +50 نقطة</p>
           </div>
 
           {/* Community Rules */}
-          <div className="bg-[#0c0d12]/90 border border-border/30 rounded-[2.5rem] p-6 shadow-xl shrink-0">
-            <h3 className="text-sm font-black text-white mb-5 text-right">قواعد المجتمع</h3>
+          <div className="bg-white/85 dark:bg-[#0c0d12]/90 border border-slate-200 dark:border-border/30 rounded-[2.5rem] p-6 shadow-xl shrink-0">
+            <h3 className="text-sm font-black text-slate-800 dark:text-white mb-5 text-right">قواعد المجتمع</h3>
             
             <div className="space-y-4">
               <div className="flex gap-3 items-start text-right">
-                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0 border border-white/5">
+                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center shrink-0 border border-slate-200 dark:border-white/5">
                   <Shield className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-black text-white leading-normal">احترام الآخرين</h4>
-                  <p className="text-[9px] text-white/30 font-bold mt-0.5">احترم جميع الأعضاء وآرائهم</p>
+                  <h4 className="text-xs font-black text-slate-800 dark:text-white leading-normal">احترام الآخرين</h4>
+                  <p className="text-[9px] text-slate-400 dark:text-white/30 font-bold mt-0.5">احترم جميع الأعضاء وآرائهم</p>
                 </div>
               </div>
 
               <div className="flex gap-3 items-start text-right">
-                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0 border border-white/5">
+                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center shrink-0 border border-slate-200 dark:border-white/5">
                   <BookOpen className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-black text-white leading-normal">محتوى نافع</h4>
-                  <p className="text-[9px] text-white/30 font-bold mt-0.5">شارك محتوى مفيد وهادف</p>
+                  <h4 className="text-xs font-black text-slate-800 dark:text-white leading-normal">محتوى نافع</h4>
+                  <p className="text-[9px] text-slate-400 dark:text-white/30 font-bold mt-0.5">شارك محتوى مفيد وهادف</p>
                 </div>
               </div>
 
               <div className="flex gap-3 items-start text-right">
-                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0 border border-white/5">
+                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center shrink-0 border border-slate-200 dark:border-white/5">
                   <Ban className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-black text-white leading-normal">تجنب المخالفات</h4>
-                  <p className="text-[9px] text-white/30 font-bold mt-0.5">لا تنشر محتوى مخالف للشريعة</p>
+                  <h4 className="text-xs font-black text-slate-800 dark:text-white leading-normal">تجنب المخالفات</h4>
+                  <p className="text-[9px] text-slate-400 dark:text-white/30 font-bold mt-0.5">لا تنشر محتوى مخالف للشريعة</p>
                 </div>
               </div>
 
               <div className="flex gap-3 items-start text-right">
-                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0 border border-white/5">
+                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center shrink-0 border border-slate-200 dark:border-white/5">
                   <Flag className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-black text-white leading-normal">الإبلاغ عن المخالفات</h4>
-                  <p className="text-[9px] text-white/30 font-bold mt-0.5">ساعدنا في الحفاظ على بيئة آمنة</p>
+                  <h4 className="text-xs font-black text-slate-800 dark:text-white leading-normal">الإبلاغ عن المخالفات</h4>
+                  <p className="text-[9px] text-slate-400 dark:text-white/30 font-bold mt-0.5">ساعدنا في الحفاظ على بيئة آمنة</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Support Banner Card */}
-          <div className="bg-gradient-to-br from-[#0c2a1a] via-[#05110a] to-[#010402] border border-emerald-500/20 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden flex items-center justify-between group shrink-0">
+          <div className="bg-gradient-to-br from-emerald-50 to-teal-50/50 dark:from-[#0c2a1a] dark:via-[#05110a] dark:to-[#010402] border border-emerald-500/10 dark:border-emerald-500/20 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden flex items-center justify-between group shrink-0">
             <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
             
             <div className="text-right flex-1 min-w-0 pr-2">
-              <h4 className="text-xs font-black text-white">ادعم مجتمع يقين</h4>
-              <p className="text-[9px] text-white/40 font-bold mt-1 leading-relaxed">ساهم في نشر الخير واكسب الأجر</p>
+              <h4 className="text-xs font-black text-slate-800 dark:text-white">ادعم مجتمع يقين</h4>
+              <p className="text-[9px] text-slate-500 dark:text-white/40 font-bold mt-1 leading-relaxed">ساهم في نشر الخير واكسب الأجر</p>
               
               <button
                 onClick={() => window.dispatchEvent(new CustomEvent('open_subscription_modal'))}
@@ -2489,46 +2489,46 @@ export function SocialFeed() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[#0c0d12] border border-white/10 rounded-[3rem] w-full max-w-md p-8 relative z-10 shadow-2xl"
+              className="bg-white dark:bg-[#0c0d12] border border-slate-250 dark:border-white/10 rounded-[3rem] w-full max-w-md p-8 relative z-10 shadow-2xl"
             >
               <button 
                 onClick={() => setShowCreateGroupModal(false)}
-                className="absolute top-6 left-6 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center border border-white/5 text-white/50 hover:text-white transition-all"
+                className="absolute top-6 left-6 w-9 h-9 rounded-full bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 flex items-center justify-center border border-slate-200 dark:border-white/5 text-slate-500 dark:text-white/50 hover:text-slate-800 dark:hover:text-white transition-all"
               >
                 <X className="w-4 h-4" />
               </button>
 
-              <h3 className="text-lg font-black text-white mb-2 leading-none">إنشاء مجموعة دعوية جديدة</h3>
-              <p className="text-[10px] text-white/30 font-bold mb-6">قُد مجلساً جديداً لتبادل الآيات والأدعية وكلم الطيب مع إخوتك.</p>
+              <h3 className="text-lg font-black text-slate-800 dark:text-white mb-2 leading-none">إنشاء مجموعة دعوية جديدة</h3>
+              <p className="text-[10px] text-slate-400 dark:text-white/30 font-bold mb-6">قُد مجلساً جديداً لتبادل الآيات والأدعية وكلم الطيب مع إخوتك.</p>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-white/40 mb-1.5 pr-1">اسم المجموعة</label>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-white/40 mb-1.5 pr-1">اسم المجموعة</label>
                   <input
                     value={newGroupName}
                     onChange={(e) => setNewGroupName(e.target.value)}
                     placeholder="مثال: محبي السنن النبوية"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-4 text-xs text-white outline-none focus:border-[#fbbf24] transition-all font-bold"
+                    className="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-2.5 px-4 text-xs text-slate-800 dark:text-white outline-none focus:border-[#fbbf24] transition-all font-bold"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-white/40 mb-1.5 pr-1">وصف المجموعة</label>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-[#fbbf24]/40 mb-1.5 pr-1">وصف المجموعة</label>
                   <textarea
                     value={newGroupDesc}
                     onChange={(e) => setNewGroupDesc(e.target.value)}
                     placeholder="اكتب وصفاً موجزاً لأهداف هذه المجموعة..."
                     rows={3}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-4 text-xs text-white outline-none focus:border-[#fbbf24] transition-all font-bold resize-none leading-relaxed"
+                    className="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-2.5 px-4 text-xs text-slate-800 dark:text-white outline-none focus:border-[#fbbf24] transition-all font-bold resize-none leading-relaxed"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-white/40 mb-1.5 pr-1">تصنيف المحتوى الرئيسي</label>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-white/40 mb-1.5 pr-1">تصنيف المحتوى الرئيسي</label>
                   <select
                     value={newGroupCat}
                     onChange={(e) => setNewGroupCat(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs text-white outline-none font-bold"
+                    className="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-2.5 px-3 text-xs text-slate-800 dark:text-white outline-none font-bold"
                   >
                     <option value="reflection">تدبر آية 📖</option>
                     <option value="dua">أدعية 🤲</option>
