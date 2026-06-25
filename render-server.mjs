@@ -148,13 +148,28 @@ async function ensureFont(fontFamily) {
   const fontKey = fontFamily || "Amiri";
   const safeName = fontKey.replace(/[^a-zA-Z0-9-]/g, "_");
   const fontPath = safePath(FONTS_DIR, `${safeName}.ttf`);
-  if (fs.existsSync(fontPath)) return fontPath;
+  const sysFontsDir = path.resolve(os.homedir(), ".fonts");
+  if (!fs.existsSync(sysFontsDir)) fs.mkdirSync(sysFontsDir, { recursive: true });
+  const sysFontPath = path.resolve(sysFontsDir, `${safeName}.ttf`);
+
+  const registerFont = async (fPath) => {
+    if (!fs.existsSync(sysFontPath)) {
+      fs.copyFileSync(fPath, sysFontPath);
+      try { await execAsync('fc-cache -f'); } catch(e) {}
+    }
+  };
+
+  if (fs.existsSync(fontPath)) {
+    await registerFont(fontPath);
+    return fontPath;
+  }
   const url = FONT_MAP[fontKey] || FONT_MAP["Amiri"];
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const fileStream = fs.createWriteStream(fontPath);
     await finished(Readable.fromWeb(res.body).pipe(fileStream));
+    await registerFont(fontPath);
     return fontPath;
   } catch (e) {
     console.warn(`⚠️ فشل تحميل خط ${fontKey}، سيتم استخدام Amiri`);
@@ -163,6 +178,11 @@ async function ensureFont(fontFamily) {
       const res = await fetch(FONT_MAP["Amiri"]);
       const fileStream = fs.createWriteStream(fallback);
       await finished(Readable.fromWeb(res.body).pipe(fileStream));
+    }
+    const fallbackSysPath = path.resolve(sysFontsDir, "Amiri.ttf");
+    if (!fs.existsSync(fallbackSysPath)) {
+      fs.copyFileSync(fallback, fallbackSysPath);
+      try { await execAsync('fc-cache -f'); } catch(e) {}
     }
     return fallback;
   }
@@ -391,28 +411,11 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
   // تعتيم الخلفية للمشاهد
   const overlayGrad = `<linearGradient id="overlayGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(0,0,0,0.55)"/><stop offset="25%" stop-color="rgba(0,0,0,0.25)"/><stop offset="70%" stop-color="rgba(0,0,0,0.30)"/><stop offset="100%" stop-color="rgba(0,0,0,0.85)"/></linearGradient>`;
 
-  const fontFaceDef = `
-    <style>
-      @font-face {
-        font-family: 'Amiri';
-        src: url(data:font/truetype;charset=utf-8;base64,${amiriBase64}) format('truetype');
-      }
-      ${fontFamily !== "Amiri" && fontBase64 ? `
-      @font-face {
-        font-family: '${escapeXml(fontFamily)}';
-        src: url(data:font/truetype;charset=utf-8;base64,${fontBase64}) format('truetype');
-      }
-      ` : ""}
-    </style>
-  `;
-
-
   // Transform origin for scale
   const transformOrigin = `${centerX}px ${startY + totalH/2}px`;
 
   const svg = `<svg width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    ${fontFaceDef}
     <filter id="textGlow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="rgba(0,0,0,0.9)" flood-opacity="0.9"/></filter>
     <filter id="softShadow" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="rgba(0,0,0,0.7)" flood-opacity="0.7"/></filter>
     <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#BF953F"/><stop offset="30%" stop-color="#FCF6BA"/><stop offset="50%" stop-color="#D4AF37"/><stop offset="70%" stop-color="#FCF6BA"/><stop offset="100%" stop-color="#AA771C"/></linearGradient>
@@ -465,10 +468,8 @@ async function startRender(jobId, data) {
 
   try {
     setProgress(5, "تحميل الخطوط والموارد...");
-    const fontPath = await ensureFont(fontFamily);
-    const fontBase64 = fs.readFileSync(fontPath).toString("base64");
-    const amiriPath = await ensureFont("Amiri");
-    const amiriBase64 = fs.readFileSync(amiriPath).toString("base64");
+    await ensureFont(fontFamily);
+    await ensureFont("Amiri");
 
     // كشف فيديو الخلفية — يدعم Pexels و روابط بها query params
     const isVideoBg = backgroundUrl && (
@@ -501,19 +502,18 @@ async function startRender(jobId, data) {
 
     const stripTashkeel = (s) => (s || "").replace(/[\u064B-\u065F\u0670]/g, '');
 
-    // Helper function to generate frames with animation and karaoke
+    // Helper function to generate frames with animation (Fade In / Fade Out)
     const processLineWithAnim = async (lineVerse, lineDur, fBaseName, lineIdx) => {
       const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration };
       
-      const animDuration = 0.3; // 300ms for entrance transition
-      const hasTransition = animation && animation !== "none" && animation !== "fade"; // fade is handled natively if needed, but we'll manually simulate
+      const hasTransition = animation && animation !== "none";
       
       let remainingDur = lineDur;
       
-      // 1. Entrance Transition (if requested)
+      // 1. Entrance Transition (Fade In / Slide etc)
       if (hasTransition && remainingDur > 0.4) {
-        const transitionFrames = 6; // 6 frames = ~0.2s
-        const frameDur = 0.2 / transitionFrames;
+        const transitionFrames = 8; // 8 frames = ~0.26s
+        const frameDur = 0.26 / transitionFrames;
         for (let f = 0; f < transitionFrames; f++) {
           const progress = f / (transitionFrames - 1); // 0 to 1
           const animState = { opacity: 1, offsetY: 0, scale: 1, activeWordIndex: -1 };
@@ -524,25 +524,44 @@ async function startRender(jobId, data) {
           else if (animation === "zoomIn") { animState.opacity = progress; animState.scale = 0.8 + (0.2 * progress); }
           else animState.opacity = progress; // fallback to fade
 
-          const fPath = path.resolve(tempDir, `${fBaseName}-anim-${f}.${ext}`);
-          await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState);
+          const fPath = path.resolve(tempDir, `${fBaseName}-in-${f}.${ext}`);
+          await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, null, null, animState);
           frameEntries.push({ fPath, dur: frameDur });
           remainingDur -= frameDur;
         }
       }
 
-      // 2. Karaoke Tracking (Highlighting words)
-      const words = lineVerse.text.split(/\s+/).filter(Boolean);
-      const wordCount = words.length;
-      
-      if (wordCount > 0 && remainingDur > 0) {
-        const durPerWord = remainingDur / wordCount;
-        for (let w = 0; w < wordCount; w++) {
-          const animState = { opacity: 1, offsetY: 0, scale: 1, activeWordIndex: w };
-          const fPath = path.resolve(tempDir, `${fBaseName}-word-${w}.${ext}`);
-          await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState);
-          frameEntries.push({ fPath, dur: durPerWord });
+      // 2. Prepare Exit Transition (Fade Out)
+      let fadeOutFrames = [];
+      if (hasTransition && remainingDur > 0.4) {
+        const transitionFrames = 8; // 8 frames = ~0.26s
+        const frameDur = 0.26 / transitionFrames;
+        remainingDur -= 0.26;
+        for (let f = 0; f < transitionFrames; f++) {
+          const progress = 1 - (f / (transitionFrames - 1)); // 1 to 0
+          const animState = { opacity: progress, offsetY: 0, scale: 1, activeWordIndex: -1 };
+          
+          if (animation === "slideUp") { animState.offsetY = -30 * (1 - progress); }
+          else if (animation === "slideDown") { animState.offsetY = 30 * (1 - progress); }
+          else if (animation === "zoomIn") { animState.scale = 0.8 + (0.2 * progress); }
+          
+          const fPath = path.resolve(tempDir, `${fBaseName}-out-${f}.${ext}`);
+          fadeOutFrames.push({ fPath, dur: frameDur, animState });
         }
+      }
+
+      // 3. The Static Frame (No Karaoke Tracking)
+      if (remainingDur > 0) {
+        const animState = { opacity: 1, offsetY: 0, scale: 1, activeWordIndex: -1 };
+        const fPath = path.resolve(tempDir, `${fBaseName}-static.${ext}`);
+        await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, null, null, animState);
+        frameEntries.push({ fPath, dur: remainingDur });
+      }
+
+      // 4. Render Exit Transition Frames
+      for (const fo of fadeOutFrames) {
+        await generateVerseFrame(lineVerse, fo.fPath, settings, bgPath, isVideoBg, null, null, fo.animState);
+        frameEntries.push({ fPath: fo.fPath, dur: fo.dur });
       }
     };
 
