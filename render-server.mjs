@@ -355,6 +355,13 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
   let curY = startY;
   const svgWeight = fontWeight >= 700 ? "bold" : fontWeight >= 500 ? "600" : "normal";
 
+  // Dynamic Scale to prevent overflow if the verse is extremely long
+  let dynamicScale = 1;
+  const maxAllowedH = HEIGHT - 200;
+  if (totalH > maxAllowedH) {
+    dynamicScale = maxAllowedH / totalH;
+  }
+
   const badgeSVG = surahName ? `
     <rect x="${(WIDTH - 240) / 2}" y="80" width="240" height="34" rx="17" fill="rgba(0,0,0,0.45)" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
     <text x="${centerX}" y="103" font-family="'${escapeXml(fontFamily)}', 'Amiri', serif" font-size="13" font-weight="600" fill="#FFD700" text-anchor="middle" letter-spacing="0.8">${escapeXml(surahName)} · ${escapeXml(String(verse.id || ""))}</text>` : "";
@@ -413,6 +420,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
 
   // Transform origin for scale
   const transformOrigin = `${centerX}px ${startY + totalH/2}px`;
+  const finalScale = scale * dynamicScale;
 
   const svg = `<svg width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -423,7 +431,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
   </defs>
   <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#overlayGrad)"/>
   ${watermarkSVG}
-  <g opacity="${opacity}" transform="scale(${scale})" style="transform-origin: ${transformOrigin}">
+  <g opacity="${opacity}" transform="scale(${finalScale})" transform-origin="${transformOrigin}">
     ${badgeSVG}
     <text x="${centerX}" y="${verseY}" font-family="'${escapeXml(fontFamily)}', 'Amiri', serif" font-size="${scaledFontSize}" font-weight="${svgWeight}" fill="${escapeXml(textColor)}" text-anchor="middle" direction="rtl" filter="url(#textGlow)">${verseTSpans}</text>
     <rect x="${(WIDTH - 100) / 2}" y="${sepY}" width="100" height="1.5" rx="1" fill="rgba(212,175,55,0.5)"/>
@@ -576,10 +584,12 @@ async function startRender(jobId, data) {
         const lineVerse = { ...v, text: lines[0], translation: v.translation || "" };
         await processLineWithAnim(lineVerse, Math.max(dur, 0.5), fBaseName, 0);
       } else {
-        const charLengths = lines.map(l => Math.max(stripTashkeel(l).length, 1));
-        const totalChars = charLengths.reduce((a, b) => a + b, 0);
-        let remainingDur = dur;
-        let remainingChars = totalChars;
+        const wordCounts = lines.map(l => Math.max(l.split(/\s+/).length, 1));
+        const totalWords = wordCounts.reduce((a, b) => a + b, 0);
+        
+        // خصم 0.8 ثانية كمتوسط للسكوت في نهاية الآية
+        const assumedSilence = Math.min(dur * 0.15, 0.8);
+        let remainingActiveDur = dur - assumedSilence;
 
         for (let j = 0; j < numLines; j++) {
           const fBaseName = `f-${i}-${j}`;
@@ -588,17 +598,17 @@ async function startRender(jobId, data) {
             text: lines[j],
             translation: (j === numLines - 1) ? (v.translation || "") : ""
           };
+          
           let lineDur;
           if (j === numLines - 1) {
-            lineDur = Math.max(remainingDur + 0.1, 0.5);
+            lineDur = remainingActiveDur + assumedSilence;
           } else {
-            const ratio = charLengths[j] / remainingChars;
-            lineDur = Math.max(remainingDur * ratio * 1.05, 0.4);
-            remainingDur -= lineDur;
-            remainingChars -= charLengths[j];
+            const ratio = wordCounts[j] / totalWords;
+            lineDur = (dur - assumedSilence) * ratio;
+            remainingActiveDur -= lineDur;
           }
           
-          await processLineWithAnim(lineVerse, lineDur, fBaseName, j);
+          await processLineWithAnim(lineVerse, Math.max(lineDur, 0.4), fBaseName, j);
         }
       }
     }
