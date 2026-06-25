@@ -22,8 +22,10 @@ export function OnboardingOverlay({ onClose }: OnboardingOverlayProps) {
   const totalSlides = 3;
 
   const handleFinish = () => {
+    localStorage.setItem("auth_skipped", "true");
     localStorage.setItem("has_seen_onboarding", "true");
     onClose();
+    window.location.reload();
   };
 
   const handleSkipAuth = () => {
@@ -442,29 +444,9 @@ export function OnboardingOverlay({ onClose }: OnboardingOverlayProps) {
                 {/* Comparison Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-1 text-right">
                   
-                  {/* Direct Card */}
-                  <div className="p-5 bg-blue-500/[0.01] border border-blue-500/15 rounded-3xl flex flex-col justify-between gap-4 shadow-sm">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 justify-start">
-                        <span className="p-1 rounded-lg bg-blue-500/10 text-blue-600 border border-blue-500/10">
-                          <ShieldCheck className="w-4 h-4" />
-                        </span>
-                        <h4 className="text-zinc-900 text-xs font-black">تسجيل مباشر (مستحسن)</h4>
-                      </div>
-                      <p className="text-zinc-500 text-[11px] leading-relaxed font-bold">
-                        يتطلب تفعيل الكود OTP عبر بريدك الإلكتروني. يحافظ على أمان حسابك الكامل وحصيلة نقاطك وتحدياتك اليومية في لوحة المتصدرين مع إمكانية استعادة كلمة المرور في أي وقت.
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => triggerAuth("signupInfo", "direct")}
-                      className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-black text-[11px] rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
-                    >
-                      حساب مباشر وآمن 🔐
-                    </button>
-                  </div>
-
                   {/* Indirect Card */}
-                  <div className="p-5 bg-amber-500/[0.01] border border-amber-500/15 rounded-3xl flex flex-col justify-between gap-4 shadow-sm">
+                  <div className="p-5 bg-amber-500/[0.01] border border-amber-500/15 rounded-3xl flex flex-col justify-between gap-4 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-[#d4af37]/10 rounded-full blur-xl pointer-events-none" />
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 justify-start">
                         <span className="p-1 rounded-lg bg-amber-500/10 text-amber-600 border border-amber-500/10">
@@ -473,14 +455,35 @@ export function OnboardingOverlay({ onClose }: OnboardingOverlayProps) {
                         <h4 className="text-zinc-900 text-xs font-black">تسجيل غير مباشر فوري</h4>
                       </div>
                       <p className="text-zinc-500 text-[11px] leading-relaxed font-bold">
-                        إنشاء حساب فوري بدون تفعيل البريد. يمكنك من التفاعل في مجتمع يقين ونشر الفيديوهات فوراً. تنبيه: لا يمكن استرجاع هذا الحساب مطلقاً إذا فقدت كلمة المرور.
+                        إنشاء حساب فوري. لا يُشترط إدخال بيانات حقيقية (كالاسم أو الإيميل)، ولكن يُفضل كتابة رقم هاتف حقيقي لسهولة الدعم والاستفسار لاحقاً.
                       </p>
                     </div>
                     <button
                       onClick={() => triggerAuth("signupInfo", "indirect")}
-                      className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-[#d4af37] text-white font-black text-[11px] rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
+                      className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-[#d4af37] text-white font-black text-[11px] rounded-xl transition-all shadow-md active:scale-95 cursor-pointer relative z-10"
                     >
                       حساب سريع غير مباشر 👤
+                    </button>
+                  </div>
+
+                  {/* Direct Card */}
+                  <div className="p-5 bg-blue-500/[0.01] border border-blue-500/15 rounded-3xl flex flex-col justify-between gap-4 shadow-sm opacity-90">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 justify-start">
+                        <span className="p-1 rounded-lg bg-blue-500/10 text-blue-600 border border-blue-500/10">
+                          <ShieldCheck className="w-4 h-4" />
+                        </span>
+                        <h4 className="text-zinc-900 text-xs font-black">تسجيل مباشر (مستحسن)</h4>
+                      </div>
+                      <p className="text-zinc-500 text-[11px] leading-relaxed font-bold">
+                        يتطلب تفعيل الكود OTP عبر بريدك الإلكتروني. يحافظ على أمان حسابك الكامل وحصيلة نقاطك وتحدياتك اليومية.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => triggerAuth("signupInfo", "direct")}
+                      className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-black text-[11px] rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
+                    >
+                      حساب مباشر وآمن 🔐
                     </button>
                   </div>
 

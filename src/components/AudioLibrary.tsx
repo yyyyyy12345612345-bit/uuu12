@@ -727,10 +727,10 @@ export function AudioLibrary() {
         </aside>
 
         {/* ── COLUMN 2: CENTER PANEL (المشغل وقائمة السور) ── */}
-        <div className="flex flex-col gap-4 overflow-y-auto no-scrollbar min-w-0">
+        <div className="flex flex-col gap-4 overflow-hidden min-w-0">
 
           {/* 1. Sticky Player, Search & Filters Section */}
-          <div className="relative lg:sticky lg:top-0 lg:z-30 bg-transparent pb-3 pt-1 flex flex-col gap-3 shadow-sm dark:shadow-none">
+          <div className="relative z-30 bg-transparent pb-1 pt-1 flex flex-col gap-3 shadow-sm dark:shadow-none shrink-0">
             {/* Large Main Player Widget */}
             <div className="relative rounded-2xl bg-white/40 dark:bg-black/30 backdrop-blur-md border border-slate-200/50 dark:border-white/5 p-4 lg:p-5 overflow-hidden shadow-md dark:shadow-2xl flex flex-col md:flex-row items-center gap-4">
               {/* Background pattern */}
@@ -1006,9 +1006,9 @@ export function AudioLibrary() {
           </div>
 
           {/* 2. Surah Table */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 flex-1 min-h-0">
             {/* Surah List Table (tightened paddings py-2.5) */}
-            <div className="rounded-2xl bg-white/40 dark:bg-[#121318]/15 backdrop-blur-md border border-slate-200/50 dark:border-white/5 overflow-hidden shadow-sm dark:shadow-none">
+            <div className="rounded-2xl bg-white/40 dark:bg-[#121318]/15 backdrop-blur-md border border-slate-200/50 dark:border-white/5 overflow-hidden shadow-sm dark:shadow-none flex flex-col h-full">
               {/* Header */}
               <div className="flex items-center px-4 py-3 text-[9px] font-black text-slate-400 dark:text-white/20 uppercase tracking-[0.2em] border-b border-slate-100 dark:border-white/5">
                 <div className="w-8 text-center">#</div>
@@ -1019,7 +1019,7 @@ export function AudioLibrary() {
               </div>
 
               {/* Rows */}
-              <div className="divide-y divide-slate-100 dark:divide-white/5">
+              <div className="divide-y divide-slate-100 dark:divide-white/5 overflow-y-auto flex-1 no-scrollbar">
                 {allFiltered.map((surah) => {
                   const isCurrent = surah.id === currentSurah.id;
                   const isFav = favorites.includes(surah.id);

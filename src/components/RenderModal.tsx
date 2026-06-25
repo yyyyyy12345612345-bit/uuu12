@@ -43,6 +43,9 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     const user = auth?.currentUser;
     if (!user) {
       setUserPlan(null);
+      const guestRenders = parseInt(localStorage.getItem("guest_video_renders") || "0");
+      if (guestRenders >= 1) setIsLimitReached(true);
+      else setIsLimitReached(false);
       return;
     }
     if (!db) return;
@@ -125,6 +128,11 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             setStatus("success");
             setProgressPct(100);
             setMessage("تم تجهيز الفيديو بنجاح! اضغط للتحميل.");
+            if (!auth?.currentUser) {
+              localStorage.setItem("guest_video_renders", "1");
+            } else {
+              await incrementVideoRenderCount();
+            }
           } else if (jobData.status === "failed") throw new Error(jobData.error || "فشلت عملية الرندرة");
         } catch (e: any) {
           setStatus("error");
@@ -252,7 +260,11 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         const finalBlob = new Blob(chunks, { type: 'video/webm' });
         setDownloadUrl(URL.createObjectURL(finalBlob));
         setStatus("success");
-        await incrementVideoRenderCount();
+        if (!auth?.currentUser) {
+          localStorage.setItem("guest_video_renders", "1");
+        } else {
+          await incrementVideoRenderCount();
+        }
       };
     } catch (e: any) {
       console.error(e);
@@ -642,13 +654,13 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             <X className="w-8 h-8" />
         </button>
 
-        {!auth?.currentUser ? (
+        {!auth?.currentUser && isLimitReached ? (
           <div className="animate-in fade-in zoom-in duration-500 flex flex-col items-center py-10">
             <div className="w-24 h-24 rounded-[2rem] bg-red-500/10 flex items-center justify-center mb-8 border border-red-500/20">
               <Lock className="w-12 h-12 text-red-500" />
             </div>
             <h3 className="text-2xl font-black text-white mb-4">يتطلب تسجيل الدخول</h3>
-            <p className="text-white/40 text-sm text-center mb-10 px-8 leading-relaxed">يرجى تسجيل الدخول بحسابك لتتمكن من إنشاء وتصدير الفيديوهات القرآنية.</p>
+            <p className="text-white/40 text-sm text-center mb-10 px-8 leading-relaxed">لقد استهلكت الفيديو المجاني للزوار. يرجى تسجيل الدخول بحسابك لتتمكن من إنشاء المزيد من الفيديوهات القرآنية.</p>
             <button 
               onClick={() => {
                 window.dispatchEvent(new CustomEvent("show_auth_gate"));
@@ -673,12 +685,12 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             <div className="w-full flex items-center justify-between mb-12">
                 <div className="text-right">
                     <span className="text-[10px] text-primary font-black uppercase tracking-[0.2em] mb-1 block">الحالة الحالية</span>
-                    <span className="text-base font-black text-white">{userPlan?.plan === 'free' ? 'العضوية المجانية' : 'عضوية التميز'}</span>
+                    <span className="text-base font-black text-white">{!auth?.currentUser ? 'زائر' : userPlan?.plan === 'free' ? 'العضوية المجانية' : 'عضوية التميز'}</span>
                 </div>
                 <div className="w-px h-10 bg-white/10" />
                 <div className="text-right">
                     <span className="text-[10px] text-primary font-black uppercase tracking-[0.2em] mb-1 block">الرندرة المتاحة</span>
-                    <span className="text-base font-black text-white">{userPlan?.plan === 'free' ? `${5 - (userPlan?.count || 0)} فيديوهات` : 'غير محدود'}</span>
+                    <span className="text-base font-black text-white">{!auth?.currentUser ? '1 فيديو' : userPlan?.plan === 'free' ? `${5 - (userPlan?.count || 0)} فيديوهات` : 'غير محدود'}</span>
                 </div>
             </div>
 
@@ -694,12 +706,12 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                     <span className="text-base font-black text-white">رندرة المتصفح السريعة</span>
                     <span className="text-[10px] text-primary/60 font-bold uppercase tracking-widest">تصدير فوري بجودة HD قياسية</span>
                 </button>
-                <button onClick={() => !userPlan || userPlan.plan !== 'free' ? setRenderMode("server") : null} className={`w-full p-6 rounded-[2rem] border-2 transition-all flex items-center justify-between gap-4 text-right ${renderMode === "server" ? "border-primary bg-primary/10" : "border-white/5 bg-white/5"} ${userPlan?.plan === 'free' ? 'opacity-40 cursor-not-allowed' : 'hover:bg-white/10'}`}>
+                <button onClick={() => userPlan?.plan === 'premium' ? setRenderMode("server") : null} className={`w-full p-6 rounded-[2rem] border-2 transition-all flex items-center justify-between gap-4 text-right ${renderMode === "server" ? "border-primary bg-primary/10" : "border-white/5 bg-white/5"} ${(!userPlan || userPlan.plan === 'free') ? 'opacity-40 cursor-not-allowed' : 'hover:bg-white/10'}`}>
                     <div className="flex flex-col items-start gap-1">
                         <span className="text-base font-black text-white">الرندرة السحابية الفائقة</span>
                         <span className="text-[10px] text-primary/60 font-bold uppercase tracking-widest">تصدير MP4 بجودة 4K احترافية</span>
                     </div>
-                    <Crown className={`w-6 h-6 ${userPlan?.plan === 'free' ? 'text-white/20' : 'text-primary'}`} />
+                    <Crown className={`w-6 h-6 ${(!userPlan || userPlan.plan === 'free') ? 'text-white/20' : 'text-primary'}`} />
                 </button>
             </div>
 
