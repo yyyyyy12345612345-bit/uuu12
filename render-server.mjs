@@ -406,8 +406,6 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     </style>
   `;
 
-  // Stable bottom position for Ayah number (180px from bottom)
-  const ornamentY = HEIGHT - 180;
 
   // Transform origin for scale
   const transformOrigin = `${centerX}px ${startY + totalH/2}px`;
