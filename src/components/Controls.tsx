@@ -273,15 +273,20 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                     <button
                         key={r.id}
                         onClick={() => updateState({ reciterId: r.id })}
-                        className={`flex items-center justify-between p-6 rounded-[2rem] border-2 transition-all duration-500 group/reciter ${state.reciterId === r.id ? 'bg-primary/10 border-primary shadow-2xl shadow-primary/10' : 'bg-foreground/5 border-foreground/5 hover:border-foreground/10'}`}
+                        className={`flex items-center justify-between p-6 rounded-[2rem] border-2 transition-all duration-500 group/reciter ${state.reciterId === r.id ? 'bg-primary/10 border-primary shadow-2xl shadow-primary/10' : (r.isPremiumSync ? 'bg-[#D4AF37]/5 border-[#D4AF37]/20 hover:border-[#D4AF37]/50' : 'bg-foreground/5 border-foreground/5 hover:border-foreground/10')}`}
                     >
                         <div className="flex items-center gap-4">
-                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${state.reciterId === r.id ? 'bg-primary text-black shadow-xl shadow-primary/20' : 'bg-foreground/5 text-foreground/20'}`}>
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${state.reciterId === r.id ? 'bg-primary text-black shadow-xl shadow-primary/20' : (r.isPremiumSync ? 'bg-[#D4AF37]/20 text-[#D4AF37]' : 'bg-foreground/5 text-foreground/20')}`}>
                                 <Music className="w-5 h-5" />
                             </div>
                             <div className="text-right">
-                                <span className={`block text-base font-bold font-arabic ${state.reciterId === r.id ? 'text-foreground' : 'text-foreground/60'}`}>{r.name}</span>
-                                <p className="text-[9px] font-black text-primary/40 uppercase tracking-widest mt-0.5">صوت نقي عالي الجودة</p>
+                                <div className="flex items-center gap-2 justify-end">
+                                    {r.isPremiumSync && <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-500 text-[8px] font-black tracking-widest border border-amber-500/30">PREMIUM SYNC</span>}
+                                    <span className={`block text-base font-bold font-arabic ${state.reciterId === r.id ? 'text-foreground' : 'text-foreground/60'}`}>{r.name}</span>
+                                </div>
+                                <p className={`text-[9px] font-black uppercase tracking-widest mt-0.5 ${r.isPremiumSync ? 'text-amber-500/70' : 'text-primary/40'}`}>
+                                    {r.isPremiumSync ? 'تزامن كلمات فائق الدقة 100%' : 'صوت نقي عالي الجودة'}
+                                </p>
                             </div>
                         </div>
                         {state.reciterId === r.id && <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-black"><Check className="w-4 h-4 stroke-[4px]" /></div>}

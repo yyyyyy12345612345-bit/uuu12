@@ -579,27 +579,37 @@ async function startRender(jobId, data) {
       const lines = wrapText(v.text || "", sf, tw);
       const numLines = Math.max(1, lines.length);
 
-      if (numLines === 1) {
-        const fBaseName = `f-${i}-0`;
-        const lineVerse = { ...v, text: lines[0], translation: v.translation || "" };
-        await processLineWithAnim(lineVerse, Math.max(dur, 0.5), fBaseName, 0);
-      } else {
-        const wordCounts = lines.map(l => Math.max(l.split(/\s+/).length, 1));
-        const totalWords = wordCounts.reduce((a, b) => a + b, 0);
-        
-        // خصم 0.8 ثانية كمتوسط للسكوت في نهاية الآية
-        const assumedSilence = Math.min(dur * 0.15, 0.8);
-        let remainingActiveDur = dur - assumedSilence;
+      const wordCounts = lines.map(l => Math.max(l.split(/\s+/).length, 1));
+      const totalWords = wordCounts.reduce((a, b) => a + b, 0);
+      
+      const assumedSilence = Math.min(dur * 0.15, 0.8);
+      let remainingActiveDur = dur - assumedSilence;
+      let currentWordIdx = 0;
 
-        for (let j = 0; j < numLines; j++) {
-          const fBaseName = `f-${i}-${j}`;
-          const lineVerse = {
-            ...v,
-            text: lines[j],
-            translation: (j === numLines - 1) ? (v.translation || "") : ""
-          };
+      for (let j = 0; j < numLines; j++) {
+        const fBaseName = `f-${i}-${j}`;
+        const lineVerse = {
+          ...v,
+          text: lines[j],
+          translation: (j === numLines - 1) ? (v.translation || "") : ""
+        };
+        
+        const wordsInLine = wordCounts[j];
+        let lineDur = 0;
+        
+        if (v.words && v.words.length > 0 && currentWordIdx < v.words.length) {
+          const endIndex = Math.min(currentWordIdx + wordsInLine, v.words.length);
+          const lineWords = v.words.slice(currentWordIdx, endIndex);
+          const prevWordEnd = j === 0 ? 0 : v.words[currentWordIdx - 1].end_time;
+          const lastWord = lineWords[lineWords.length - 1];
           
-          let lineDur;
+          if (j === numLines - 1) {
+            lineDur = dur - prevWordEnd;
+          } else {
+            lineDur = lastWord.end_time - prevWordEnd;
+          }
+        } else {
+          // Heuristic Sync (simulating invisible tracking through precision)
           if (j === numLines - 1) {
             lineDur = remainingActiveDur + assumedSilence;
           } else {
@@ -607,9 +617,11 @@ async function startRender(jobId, data) {
             lineDur = (dur - assumedSilence) * ratio;
             remainingActiveDur -= lineDur;
           }
-          
-          await processLineWithAnim(lineVerse, Math.max(lineDur, 0.4), fBaseName, j);
         }
+        
+        currentWordIdx += wordsInLine;
+
+        await processLineWithAnim(lineVerse, Math.max(lineDur, 0.4), fBaseName, j);
       }
     }
 

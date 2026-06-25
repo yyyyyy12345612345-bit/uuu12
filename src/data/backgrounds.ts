@@ -10,9 +10,9 @@ export type BackgroundItem = {
 
 const STATIC_CORE: BackgroundItem[] = [
   // صورة المصحف الشريف الخلفية الأساسية
-  { type: "image", src: "/mushaf-bg.jpg.png", poster: "", tags: ["مصحف", "قرآن", "إسلامي", "طولي", "mushaf", "bg", "خلفية"] },
-  
-  
+
+
+
   // البحار والمحيطات (Sea/Ocean) - Portrait
   { type: "image", src: "https://images.pexels.com/photos/1624496/pexels-photo-1624496.jpeg", poster: "", tags: ["جبل", "سماء", "طبيعة", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/1366919/pexels-photo-1366919.jpeg", poster: "", tags: ["جبل", "ثلج", "قمة", "طولي"] },
@@ -64,7 +64,7 @@ const STATIC_CORE: BackgroundItem[] = [
   { type: "image", src: "https://images.pexels.com/photos/1040499/pexels-photo-1040499.jpeg", poster: "", tags: ["فضاء", "نجوم", "مجرة", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/462118/pexels-photo-462118.jpeg", poster: "", tags: ["ورد", "حديقة", "طبيعة", "طولي"] },
 
-  
+
   // تكرار للأقسام لزيادة العدد لخدمة البحث الذكي
   { type: "image", src: "https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg", poster: "", tags: ["ريف", "هدوء", "طبيعة", "سلام", "طولي"] },
   { type: "image", src: "https://images.pexels.com/photos/911738/pexels-photo-911738.jpeg", poster: "", tags: ["طريق", "سفر", "مغامرة", "أفق", "طولي"] },

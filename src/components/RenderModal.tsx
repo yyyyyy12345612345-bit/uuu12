@@ -75,12 +75,35 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     setProgressPct(5);
 
     try {
+      const selectedReciter = RECITERS.find(r => r.id === state.reciterId);
+      let quranComData: any = null;
+      if (selectedReciter?.quranComId) {
+        try {
+          const res = await fetch(`https://api.quran.com/api/v4/quran/recitations/${selectedReciter.quranComId}?chapter_number=${state.surahId}`);
+          if (res.ok) {
+            quranComData = await res.json();
+          }
+        } catch(e) { console.warn("Failed to fetch premium sync data", e); }
+      }
+
       const verses = surahData.verses
         .filter((v: any) => v.id >= state.startAyah && v.id <= state.endAyah)
-        .map((v: any) => ({
-          ...v,
-          audio: getAudioUrl(Number(state.surahId), v.id, state.reciterId)
-        }));
+        .map((v: any) => {
+          let quranComVerse = null;
+          if (quranComData?.audio_files) {
+            const verseKey = `${state.surahId}:${v.id}`;
+            quranComVerse = quranComData.audio_files.find((af:any) => af.verse_key === verseKey);
+          }
+          const premiumAudio = quranComVerse?.url 
+            ? (quranComVerse.url.startsWith('http') ? quranComVerse.url : `https://verses.quran.com/${quranComVerse.url}`) 
+            : null;
+            
+          return {
+            ...v,
+            audio: premiumAudio || getAudioUrl(Number(state.surahId), v.id, state.reciterId),
+            words: quranComVerse?.words || undefined
+          };
+        });
 
       const response = await fetch("https://yousef891238-render-server.hf.space/render", {
         method: "POST",

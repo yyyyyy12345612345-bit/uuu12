@@ -4,9 +4,110 @@ export interface Reciter {
   folder: string;
   mp3quranServer: string;
   everyAyahFolder?: string; // Standard EveryAyah folder name
+  quranComId?: number;
+  isPremiumSync?: boolean;
 }
 
 export const RECITERS: Reciter[] = [
+  {
+    "id": "afasy",
+    "name": "مشاري العفاسي",
+    "folder": "afs",
+    "mp3quranServer": "server8.mp3quran.net/afs",
+    "everyAyahFolder": "Alafasy_128kbps",
+    "quranComId": 7,
+    "isPremiumSync": true
+  },
+  {
+    "id": "basit_murattal",
+    "name": "عبدالباسط عبدالصمد (مرتل)",
+    "folder": "basit",
+    "mp3quranServer": "server7.mp3quran.net/basit",
+    "everyAyahFolder": "Abdul_Basit_Murattal_192kbps",
+    "quranComId": 2,
+    "isPremiumSync": true
+  },
+  {
+    "id": "basit_mujawwad",
+    "name": "عبدالباسط عبدالصمد (مجود)",
+    "folder": "basit_mjwd",
+    "mp3quranServer": "server7.mp3quran.net/basit/Almusshaf-Al-Mojawwad",
+    "everyAyahFolder": "Abdul_Basit_Mujawwad_128kbps",
+    "quranComId": 1,
+    "isPremiumSync": true
+  },
+  {
+    "id": "sds",
+    "name": "عبدالرحمن السديس",
+    "folder": "sds",
+    "mp3quranServer": "server11.mp3quran.net/sds",
+    "everyAyahFolder": "Abdurrahmaan_As-Sudais_192kbps",
+    "quranComId": 3,
+    "isPremiumSync": true
+  },
+  {
+    "id": "shur",
+    "name": "سعود الشريم",
+    "folder": "shur",
+    "mp3quranServer": "server7.mp3quran.net/shur",
+    "everyAyahFolder": "Saood_ash-Shuraym_128kbps",
+    "quranComId": 10,
+    "isPremiumSync": true
+  },
+  {
+    "id": "hani_rifai",
+    "name": "هاني الرفاعي",
+    "folder": "hani",
+    "mp3quranServer": "server8.mp3quran.net/hani",
+    "everyAyahFolder": "Hani_Rifai_192kbps",
+    "quranComId": 5,
+    "isPremiumSync": true
+  },
+  {
+    "id": "shatree",
+    "name": "شيخ أبو بكر الشاطري",
+    "folder": "shatree",
+    "mp3quranServer": "server11.mp3quran.net/shatri",
+    "everyAyahFolder": "Abu_Bakr_Ash-Shaatree_128kbps",
+    "quranComId": 4,
+    "isPremiumSync": true
+  },
+  {
+    "id": "minsh_murattal",
+    "name": "محمد صديق المنشاوي (مرتل)",
+    "folder": "minsh",
+    "mp3quranServer": "server10.mp3quran.net/minsh",
+    "everyAyahFolder": "Minshawy_Murattal_128kbps",
+    "quranComId": 9,
+    "isPremiumSync": true
+  },
+  {
+    "id": "minsh_mujawwad",
+    "name": "محمد صديق المنشاوي (مجود)",
+    "folder": "minsh_mjwd",
+    "mp3quranServer": "server10.mp3quran.net/minsh/Almusshaf-Al-Mojawwad",
+    "everyAyahFolder": "Minshawy_Mujawwad_192kbps",
+    "quranComId": 8,
+    "isPremiumSync": true
+  },
+  {
+    "id": "husr_murattal",
+    "name": "محمود خليل الحصري (مرتل)",
+    "folder": "husr",
+    "mp3quranServer": "server13.mp3quran.net/husr",
+    "everyAyahFolder": "Husary_128kbps",
+    "quranComId": 6,
+    "isPremiumSync": true
+  },
+  {
+    "id": "husr_mujawwad",
+    "name": "محمود خليل الحصري (مجود)",
+    "folder": "husr_mjwd",
+    "mp3quranServer": "server13.mp3quran.net/husr/Almusshaf-Al-Mojawwad",
+    "everyAyahFolder": "Husary_Mujawwad_64kbps",
+    "quranComId": 12,
+    "isPremiumSync": true
+  },
   {
     "id": "maher",
     "name": "ماهر المعيقلي",
@@ -15,39 +116,11 @@ export const RECITERS: Reciter[] = [
     "everyAyahFolder": "Maher_AlMuaiqly_64kbps"
   },
   {
-    "id": "sds",
-    "name": "عبدالرحمن السديس",
-    "folder": "sds",
-    "mp3quranServer": "server11.mp3quran.net/sds",
-    "everyAyahFolder": "Abdurrahmaan_As-Sudais_192kbps"
-  },
-  {
-    "id": "shur",
-    "name": "سعود الشريم",
-    "folder": "shur",
-    "mp3quranServer": "server7.mp3quran.net/shur",
-    "everyAyahFolder": "Saood_ash-Shuraym_128kbps"
-  },
-  {
-    "id": "hani_rifai",
-    "name": "هاني الرفاعي",
-    "folder": "hani",
-    "mp3quranServer": "server8.mp3quran.net/hani",
-    "everyAyahFolder": "Hani_Rifai_192kbps"
-  },
-  {
     "id": "juhani",
     "name": "عبدالله عواد الجهني",
     "folder": "jhn",
     "mp3quranServer": "server13.mp3quran.net/jhn",
     "everyAyahFolder": "Abdullaah_3awwaad_Al-Juhaynee_128kbps"
-  },
-  {
-    "id": "afasy",
-    "name": "مشاري العفاسي",
-    "folder": "afs",
-    "mp3quranServer": "server8.mp3quran.net/afs",
-    "everyAyahFolder": "Alafasy_128kbps"
   },
   {
     "id": "qtm",
@@ -83,55 +156,13 @@ export const RECITERS: Reciter[] = [
     "folder": "abkr",
     "mp3quranServer": "server6.mp3quran.net/abkr"
   },
-  {
-    "id": "basit_murattal",
-    "name": "عبدالباسط عبدالصمد (مرتل)",
-    "folder": "basit",
-    "mp3quranServer": "server7.mp3quran.net/basit",
-    "everyAyahFolder": "Abdul_Basit_Murattal_192kbps"
-  },
-  {
-    "id": "basit_mujawwad",
-    "name": "عبدالباسط عبدالصمد (مجود)",
-    "folder": "basit_mjwd",
-    "mp3quranServer": "server7.mp3quran.net/basit/Almusshaf-Al-Mojawwad",
-    "everyAyahFolder": "Abdul_Basit_Mujawwad_128kbps"
-  },
-  {
-    "id": "minsh_murattal",
-    "name": "محمد صديق المنشاوي (مرتل)",
-    "folder": "minsh",
-    "mp3quranServer": "server10.mp3quran.net/minsh",
-    "everyAyahFolder": "Minshawy_Murattal_128kbps"
-  },
-  {
-    "id": "minsh_mujawwad",
-    "name": "محمد صديق المنشاوي (مجود)",
-    "folder": "minsh_mjwd",
-    "mp3quranServer": "server10.mp3quran.net/minsh/Almusshaf-Al-Mojawwad",
-    "everyAyahFolder": "Minshawy_Mujawwad_192kbps"
-  },
-  {
-    "id": "husr_murattal",
-    "name": "محمود خليل الحصري (مرتل)",
-    "folder": "husr",
-    "mp3quranServer": "server13.mp3quran.net/husr",
-    "everyAyahFolder": "Husary_128kbps"
-  },
-  {
-    "id": "husr_mujawwad",
-    "name": "محمود خليل الحصري (مجود)",
-    "folder": "husr_mjwd",
-    "mp3quranServer": "server13.mp3quran.net/husr/Almusshaf-Al-Mojawwad",
-    "everyAyahFolder": "Husary_Mujawwad_64kbps"
-  },
-  {
-    "id": "shatree",
-    "name": "شيخ أبو بكر الشاطري",
-    "folder": "shatree",
-    "mp3quranServer": "server11.mp3quran.net/shatri",
-    "everyAyahFolder": "Abu_Bakr_Ash-Shaatree_128kbps"
-  },
+
+
+
+
+
+
+
   {
     "id": "ayyub",
     "name": "محمد أيوب",
