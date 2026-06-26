@@ -100,7 +100,7 @@ export function AuthGate({ children }: AuthGateProps) {
     displayName: "", username: "", email: "", phone: "",
     password: "", gender: "male" as "male" | "female", country: "مصر", avatar: AVATARS.male[0],
     registrationType: "direct" as "direct" | "indirect",
-    privacyPhone: "public" as "public" | "friends" | "private",
+    privacyPhone: "private" as "public" | "friends" | "private",
   });
   const [otpCode, setOtpCode] = useState("");
   const [emailVerified, setEmailVerified] = useState(false);

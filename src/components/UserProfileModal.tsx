@@ -382,7 +382,7 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
   // Check privacy helpers
   const canSeePhone = () => {
     if (userId === myUid) return true;
-    const privacy = targetUser?.privacySettings?.phone || "public";
+    const privacy = targetUser?.privacySettings?.phone || "private";
     if (privacy === "public") return true;
     if (privacy === "friends" && relation === "friends") return true;
     return false;

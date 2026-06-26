@@ -471,7 +471,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                gender: data.gender || "male",
                country: data.country || data.governorate || "مصر",
                birthDate: data.birthDate || "",
-               privacyPhone: data.privacySettings?.phone || "public",
+               privacyPhone: data.privacySettings?.phone || "private",
                privacyBirthDate: data.privacySettings?.birthDate || "public"
             });
          }
