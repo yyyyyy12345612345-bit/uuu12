@@ -158,7 +158,7 @@ export function MushafChoice() {
   const isDark = theme === "dark";
 
   return (
-    <div className="relative w-full h-full overflow-hidden flex flex-col items-center justify-between px-4 md:px-6 py-2.5">
+    <div className="relative w-full h-full overflow-y-auto overflow-x-hidden flex flex-col items-center justify-between px-4 md:px-6 py-2.5">
       
       {/* ── Custom Theme Background Images ── */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
