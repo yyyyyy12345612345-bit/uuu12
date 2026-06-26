@@ -1561,7 +1561,6 @@ export function AdminPanel() {
         };
       }
       
-      // Update name if valid
       const uName = log.userName || log.displayName || log.name;
       if (uName && uName !== "يقين (البوت)" && uName !== "زائر") {
         sessions[uid].userName = uName;
@@ -1583,7 +1582,6 @@ export function AdminPanel() {
       }
     });
 
-    // Sort messages descending
     Object.values(sessions).forEach(sess => {
       sess.messages.sort((a: any, b: any) => {
         const ta = a.timestamp?.toDate ? a.timestamp.toDate().getTime() : new Date(a.timestamp || 0).getTime();
@@ -1599,85 +1597,41 @@ export function AdminPanel() {
     let returningUsers = 0;
     let oneTimeUsers = 0;
 
-    Object.values(userSessions).forEach(sess => {
+    Object.values(sessions).forEach(sess => {
       const dates = new Set<string>();
-      sess.messages.forEach(m => {
-        if (m.timestamp) {
-          const dateStr = m.timestamp.toDate 
-            ? m.timestamp.toDate().toDateString()
-            : new Date(m.timestamp).toDateString();
-          dates.add(dateStr);
-        }
+      let hasToday = false;
+      
+      sess.messages.forEach((m: any) => {
+        if (!m.timestamp) return;
+        const dateStr = m.timestamp.toDate ? m.timestamp.toDate().toISOString().split('T')[0] : new Date(m.timestamp).toISOString().split('T')[0];
+        dates.add(dateStr);
+        if (dateStr === todayStr) hasToday = true;
       });
 
-      if (dates.size > 1 || sess.messages.length > 5) {
-        returningUsers++;
-      } else {
-        oneTimeUsers++;
-      }
+      if (hasToday) activeToday++;
+      if (dates.size > 1 || sess.messages.length > 5) returningUsers++;
+      else oneTimeUsers++;
     });
 
-    const returningPercent = totalUniqueUsers > 0 ? Math.round((returningUsers / totalUniqueUsers) * 100) : 0;
-    const oneTimePercent = totalUniqueUsers > 0 ? Math.round((oneTimeUsers / totalUniqueUsers) * 100) : 0;
-
-    const totalClassifiedSentiment = politeCount + insultCount || 1;
-    const politePercent = Math.round((politeCount / totalClassifiedSentiment) * 100);
-    const insultPercent = Math.round((insultCount / totalClassifiedSentiment) * 100);
-
-    // Top 10 repeated questions
-    // Normalise and count questions
-    const questionCounts: Record<string, number> = {};
-    chatbotLogs.forEach(log => {
-      if (log.sender === "user") {
-        const textVal = log.text || log.message || "";
-        let qText = textVal.trim()
-          .replace(/[أإآ]/g, "ا")
-          .replace(/ة/g, "ه")
-          .replace(/ى/g, "ي")
-          .replace(/[.,!?()؛؟?"'«»]/g, "")
-          .replace(/\s+/g, " ")
-          .toLowerCase();
-        
-        if (qText.length > 3) {
-          questionCounts[qText] = (questionCounts[qText] || 0) + 1;
-        }
-      }
-    });
-
-    const topQuestions = Object.entries(questionCounts)
-      .map(([text, count]) => {
-        // Find original question for display
-        const original = chatbotLogs.find(l => {
-          if (l.sender !== "user") return false;
-          const textVal = l.text || l.message || "";
-          let norm = textVal.trim()
-            .replace(/[أإآ]/g, "ا")
-            .replace(/ة/g, "ه")
-            .replace(/ى/g, "ي")
-            .replace(/[.,!?()؛؟?"'«»]/g, "")
-            .replace(/\s+/g, " ")
-            .toLowerCase();
-          return norm === text;
-        })?.text || text;
-
-        return { text: original, count };
-      })
+    const totalClassified = politeCount + insultCount || 1;
+    const topQuestions = Object.values(questionCounts)
       .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
+      .slice(0, 10)
+      .map(q => ({ text: q.original, count: q.count }));
 
     return {
       totalUniqueUsers,
       activeToday,
       returningUsers,
-      returningPercent,
+      returningPercent: totalUniqueUsers > 0 ? Math.round((returningUsers / totalUniqueUsers) * 100) : 0,
       oneTimeUsers,
-      oneTimePercent,
+      oneTimePercent: totalUniqueUsers > 0 ? Math.round((oneTimeUsers / totalUniqueUsers) * 100) : 0,
       politeCount,
       insultCount,
-      insultPercent,
-      politePercent,
+      politePercent: Math.round((politeCount / totalClassified) * 100),
+      insultPercent: Math.round((insultCount / totalClassified) * 100),
       topQuestions,
-      userSessions
+      userSessions: sessions
     };
   }, [chatbotLogs]);
 
