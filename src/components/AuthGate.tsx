@@ -761,13 +761,28 @@ export function AuthGate({ children }: AuthGateProps) {
                     <FancyInput icon={<User />} type="text" value={signupForm.displayName} onChange={(v: string) => setSignupForm({ ...signupForm, displayName: v })} placeholder="الاسم الكامل" />
                     <div className="grid grid-cols-2 gap-2">
                       <FancyInput icon={<User />} type="text" value={signupForm.username} onChange={(v: string) => setSignupForm({ ...signupForm, username: v.toLowerCase().replace(/[^a-z0-9_]/g, "") })} placeholder="اسم_المستخدم" dir="ltr" />
-                      <div className="flex flex-col gap-1.5 relative">
-                        <FancyInput icon={<Phone />} type="text" value={signupForm.phone} onChange={(v: string) => setSignupForm({ ...signupForm, phone: v })} placeholder="الهاتف" dir="ltr" />
-                        <div className="absolute left-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5 bg-slate-100 rounded-lg p-0.5 shadow-inner">
-                          <button type="button" onClick={() => setSignupForm({ ...signupForm, privacyPhone: "private" })} title="أنا فقط" className={`p-1.5 rounded-lg transition-all ${signupForm.privacyPhone === "private" ? "bg-red-100 text-red-500 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}><EyeOff className="w-3 h-3" /></button>
-                          <button type="button" onClick={() => setSignupForm({ ...signupForm, privacyPhone: "friends" })} title="الأصدقاء" className={`p-1.5 rounded-lg transition-all ${signupForm.privacyPhone === "friends" ? "bg-amber-100 text-amber-500 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}><User className="w-3 h-3" /></button>
-                          <button type="button" onClick={() => setSignupForm({ ...signupForm, privacyPhone: "public" })} title="الجميع" className={`p-1.5 rounded-lg transition-all ${signupForm.privacyPhone === "public" ? "bg-emerald-100 text-emerald-500 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}><Eye className="w-3 h-3" /></button>
-                        </div>
+                      <FancyInput icon={<Phone />} type="text" value={signupForm.phone} onChange={(v: string) => setSignupForm({ ...signupForm, phone: v })} placeholder="الهاتف" dir="ltr" />
+                    </div>
+
+                    <div className="flex flex-col gap-2 p-3 rounded-xl border bg-slate-50/50 border-slate-100">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-black text-slate-700">من يمكنه رؤية رقمك؟</span>
+                        <span className="text-[9px] font-bold text-slate-500">
+                          {signupForm.privacyPhone === "private" && "أنا فقط (مخفي للجميع)"}
+                          {signupForm.privacyPhone === "friends" && "أصدقائك فقط"}
+                          {signupForm.privacyPhone === "public" && "الجميع (عام)"}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        <button type="button" onClick={() => setSignupForm({ ...signupForm, privacyPhone: "private" })} className={`py-1.5 flex items-center justify-center gap-1.5 rounded-lg text-[10px] font-bold transition-all border ${signupForm.privacyPhone === "private" ? "bg-red-50 border-red-200 text-red-600 shadow-sm" : "bg-white border-slate-200 text-slate-400 hover:bg-slate-50"}`}>
+                          <EyeOff className="w-3.5 h-3.5" /> أنا فقط
+                        </button>
+                        <button type="button" onClick={() => setSignupForm({ ...signupForm, privacyPhone: "friends" })} className={`py-1.5 flex items-center justify-center gap-1.5 rounded-lg text-[10px] font-bold transition-all border ${signupForm.privacyPhone === "friends" ? "bg-amber-50 border-amber-200 text-amber-600 shadow-sm" : "bg-white border-slate-200 text-slate-400 hover:bg-slate-50"}`}>
+                          <User className="w-3.5 h-3.5" /> الأصدقاء
+                        </button>
+                        <button type="button" onClick={() => setSignupForm({ ...signupForm, privacyPhone: "public" })} className={`py-1.5 flex items-center justify-center gap-1.5 rounded-lg text-[10px] font-bold transition-all border ${signupForm.privacyPhone === "public" ? "bg-emerald-50 border-emerald-200 text-emerald-600 shadow-sm" : "bg-white border-slate-200 text-slate-400 hover:bg-slate-50"}`}>
+                          <Eye className="w-3.5 h-3.5" /> الجميع
+                        </button>
                       </div>
                     </div>
                     <FancyInput icon={<Mail />} type="email" value={signupForm.email} onChange={(v: string) => { setSignupForm({ ...signupForm, email: v }); setShowWeakPwWarn(false); }} placeholder="البريد الإلكتروني" dir="ltr" />
