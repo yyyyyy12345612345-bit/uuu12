@@ -285,7 +285,7 @@ export function AudioLibrary() {
   const [favorites, setFavorites] = useState<number[]>([]);
   const [user, setUser] = useState<any>(null);
   const [recentlyPlayed, setRecentlyPlayed] = useState<number[]>([]);
-  const [activeTab, setActiveTab] = useState<"all" | "favorites" | "recent">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "favorites" | "recent" | "meccan" | "medinan">("all");
   const [sortOrder, setSortOrder] = useState<"default" | "alphabetical" | "verses">("default");
   
   // Sleep Timer state (in seconds)
@@ -426,6 +426,12 @@ export function AudioLibrary() {
     if (activeTab === "recent") {
       const ids = recentlyPlayed;
       list = ids.map(id => surahsData.find(s => s.id === id)!).filter(Boolean);
+    }
+    if (activeTab === "meccan") {
+      list = list.filter(s => s.type === "meccan");
+    }
+    if (activeTab === "medinan") {
+      list = list.filter(s => s.type === "medinan");
     }
     
     // Applying Search
@@ -1005,9 +1011,11 @@ export function AudioLibrary() {
               </div>
 
               {/* Tabs list */}
-              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
+              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 w-full">
                 {[
                   { key: "all", label: "الكل" },
+                  { key: "meccan", label: "سور مكية" },
+                  { key: "medinan", label: "سور مدنية" },
                   { key: "favorites", label: "المفضلة" },
                   { key: "recent", label: "الأكثر استماعاً" },
                 ].map(({ key, label }) => (
@@ -1044,6 +1052,15 @@ export function AudioLibrary() {
                   }`}
                 >
                   ترتيب السور
+                </button>
+
+                {/* Support Yaqeen Button */}
+                <button
+                  onClick={() => window.dispatchEvent(new CustomEvent('open_subscription_modal'))}
+                  className="px-2.5 py-1.5 rounded-lg text-[9px] font-black whitespace-nowrap bg-[#e2b43b]/10 border border-[#e2b43b]/20 text-[#e2b43b] hover:bg-[#e2b43b]/20 transition-all shrink-0 mr-auto flex items-center gap-1"
+                >
+                  <Crown className="w-3 h-3 text-[#e2b43b]" />
+                  <span>ادعم يقين</span>
                 </button>
               </div>
             </div>
@@ -1142,34 +1159,6 @@ export function AudioLibrary() {
                     <p className="text-xs text-slate-400 dark:text-white/25 font-bold">لا توجد سور مطابقة لبحثك</p>
                   </div>
                 )}
-
-                {/* Mobile Support Card (Visible only on mobile as a scrollable footer item) */}
-                <div className="block lg:hidden p-3 border-t border-slate-100 dark:border-white/5">
-                  <div className="relative rounded-2xl bg-white/20 dark:bg-black/20 backdrop-blur-md border border-[#e2b43b]/30 dark:border-[#e2b43b]/20 p-3.5 flex flex-col gap-2.5 shadow-xl overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-20 h-20 bg-[#e2b43b]/5 rounded-full blur-2xl pointer-events-none" />
-                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#e2b43b]/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                    <div className="flex items-center justify-between">
-                      <div className="w-7 h-7 rounded-full bg-[#e2b43b]/10 flex items-center justify-center text-[#e2b43b] shadow-inner">
-                        <Crown className="w-3.5 h-3.5" />
-                      </div>
-                      <span className="text-[9px] font-black text-[#e2b43b] uppercase">دعم استمرارية يقين</span>
-                    </div>
-                    <div className="text-right space-y-1">
-                      <h4 className="text-xs font-black text-slate-800 dark:text-white">ادعم تطبيق يقين 👑</h4>
-                      <p className="text-[10px] text-slate-500 dark:text-white/40 leading-relaxed font-bold">
-                        يقين خالي من الإعلانات. دعمك يضمن استمرار السيرفرات لخدمة كتاب الله.
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        window.dispatchEvent(new CustomEvent('open_subscription_modal'));
-                      }}
-                      className="w-full py-2 bg-[#e2b43b] hover:bg-[#c99f33] text-black font-black text-[10px] rounded-xl tracking-wider transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5"
-                    >
-                      <span>ادعم الآن</span>
-                    </button>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -1187,10 +1176,13 @@ export function AudioLibrary() {
 
             {[
               { key: "all", label: "جميع السور", icon: ListMusic },
+              { key: "meccan", label: "السور المكية", icon: Disc },
+              { key: "medinan", label: "السور المدنية", icon: Disc },
               { key: "favorites", label: "المفضلة", icon: Heart },
               { key: "recent", label: "آخر استماع", icon: Clock },
               { key: "download", label: "التنزيلات", icon: Download, action: downloadSurah },
               { key: "playlist", label: "قائمة التشغيل", icon: ListMusic },
+              { key: "support", label: "ادعم يقين 👑", icon: Crown, action: () => window.dispatchEvent(new CustomEvent('open_subscription_modal')) },
             ].map(({ key, label, icon: Icon, action }) => {
               const active = activeTab === key || (key === "playlist" && activeTab === "all");
               return (
@@ -1213,40 +1205,6 @@ export function AudioLibrary() {
                 </button>
               );
             })}
-          </div>
-
-
-
-          {/* 3. Support Card (دعم تطبيق يقين) */}
-          <div className="relative rounded-2xl bg-white/20 dark:bg-black/20 backdrop-blur-md border border-[#e2b43b]/30 dark:border-[#e2b43b]/20 p-4 flex flex-col gap-3 shadow-xl overflow-hidden group">
-            {/* Shine highlight */}
-            <div className="absolute top-0 right-0 w-20 h-20 bg-[#e2b43b]/5 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#e2b43b]/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-
-            {/* Header info */}
-            <div className="flex items-center justify-between">
-              <div className="w-7 h-7 rounded-full bg-[#e2b43b]/10 flex items-center justify-center text-[#e2b43b] shadow-inner">
-                <Crown className="w-3.5 h-3.5" />
-              </div>
-              <span className="text-[9px] font-black text-[#e2b43b] uppercase">دعم استمرارية يقين</span>
-            </div>
-
-            <div className="text-right space-y-1">
-              <h4 className="text-xs font-black text-slate-800 dark:text-white">ادعم تطبيق يقين 👑</h4>
-              <p className="text-[10px] text-slate-500 dark:text-white/40 leading-relaxed font-bold">
-                يقين خالي من الإعلانات. دعمك يضمن استمرار السيرفرات لخدمة كتاب الله.
-              </p>
-            </div>
-
-            {/* Support Trigger Button */}
-            <button
-              onClick={() => {
-                window.dispatchEvent(new CustomEvent('open_subscription_modal'));
-              }}
-              className="w-full py-2.5 bg-[#e2b43b] hover:bg-[#c99f33] text-black font-black text-[11px] rounded-xl tracking-wider transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5"
-            >
-              <span>ادعم الآن</span>
-            </button>
           </div>
         </aside>
       </div>
