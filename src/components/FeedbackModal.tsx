@@ -38,15 +38,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
         </div>
 
         <div className="flex flex-col gap-4 relative z-10">
-            <a
-                href="https://wa.me/201020451206"
-                target="_blank"
-                rel="noreferrer"
-                className="w-full py-4 bg-[#25D366]/10 border border-[#25D366]/30 text-[#25D366] rounded-[1.5rem] font-black text-base flex flex-row-reverse items-center justify-center gap-3 shadow-[0_0_20px_rgba(37,211,102,0.1)] hover:bg-[#25D366]/20 transition-all hover:scale-105 active:scale-95"
-            >
-                <Phone className="w-5 h-5" />
-                <span>واتساب - <span dir="ltr">01020451206</span></span>
-            </a>
+
 
             <a
                 href="https://www.instagram.com/youssef_osama04"

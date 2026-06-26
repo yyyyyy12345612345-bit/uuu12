@@ -156,6 +156,46 @@ export function ChatBot() {
     });
   };
 
+  const logChatInteraction = async (msgText: string, sender: "user" | "bot") => {
+    if (!db) return;
+    try {
+      let sessionId = typeof window !== "undefined" ? localStorage.getItem("chat_session_id") : null;
+      if (!sessionId && typeof window !== "undefined") {
+        sessionId = "guest_" + Math.random().toString(36).substring(2, 9);
+        localStorage.setItem("chat_session_id", sessionId);
+      }
+
+      let isInsult = false;
+      let sentiment = "neutral";
+
+      if (sender === "user") {
+        const insultRegex = /حمار|غبي|زفت|خرا|كلب|حيوان|قذر|شتم|يلعن|قحبه|شرموط/i;
+        const positiveRegex = /شكرا|جزاك|حلو|رائع|ممتاز|بطل|عظيم|بارك|الله|ما شاء|جميل/i;
+        if (insultRegex.test(msgText)) {
+          isInsult = true;
+          sentiment = "negative";
+        } else if (positiveRegex.test(msgText)) {
+          sentiment = "positive";
+        }
+      }
+
+      const uid = userData?.uid || auth.currentUser?.uid || sessionId || "unknown";
+      const name = userData?.name || userData?.displayName || auth.currentUser?.displayName || "زائر";
+
+      await addDoc(collection(db, "chatbot_logs"), {
+        userId: uid,
+        userName: name,
+        text: msgText,
+        sender,
+        isInsult,
+        sentiment,
+        timestamp: serverTimestamp()
+      });
+    } catch (e) {
+      console.warn("Failed to log interaction");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -165,24 +205,7 @@ export function ChatBot() {
     setInput("");
     setIsLoading(true);
 
-    const logMessage = async (msgText: string, sender: "user" | "bot") => {
-      if (!db) return;
-      try {
-        await addDoc(collection(db, "chatbot_logs"), {
-          userId: userData?.uid || auth.currentUser?.uid || "guest",
-          userName: userData?.name || userData?.displayName || auth.currentUser?.displayName || "زائر",
-          text: msgText, // AdminPanel expects .text or .message
-          message: msgText,
-          sender,
-          timestamp: serverTimestamp()
-        });
-      } catch (e) {
-        console.error("Failed to log chat:", e);
-      }
-    };
-
-    // Log the user's message
-    logMessage(input, "user");
+    logChatInteraction(input, "user");
 
     try {
       const res = await fetch("/api/chat", {
@@ -200,15 +223,17 @@ export function ChatBot() {
       
       if (isStream) {
         const fullResponse = await parseStream(res);
-        logMessage(fullResponse, "bot");
+        logChatInteraction(fullResponse, "bot");
       } else {
         const data = await res.json();
         const replyText = data.reply || data.error || "عذراً، لم أتمكن من الإجابة.";
         updateLastMessage(replyText);
-        logMessage(replyText, "bot");
+        logChatInteraction(replyText, "bot");
       }
     } catch (error) {
-      updateLastMessage("حدث خطأ في الاتصال. يرجى المحاولة لاحقاً.");
+      const errorMsg = "حدث خطأ في الاتصال. يرجى المحاولة لاحقاً.";
+      updateLastMessage(errorMsg);
+      logChatInteraction(errorMsg, "bot");
     } finally {
       setIsLoading(false);
     }
@@ -378,7 +403,7 @@ export function ChatBot() {
       info.point.x - dragStartPos.current.x,
       info.point.y - dragStartPos.current.y
     );
-    if (distance > 5) {
+    if (distance > 15) {
       isDraggingRef.current = true;
     }
   };

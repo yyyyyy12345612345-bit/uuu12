@@ -99,7 +99,7 @@ export function AuthGate({ children }: AuthGateProps) {
   const [signupForm, setSignupForm] = useState({
     displayName: "", username: "", email: "", phone: "",
     password: "", gender: "male" as "male" | "female", country: "مصر", avatar: AVATARS.male[0],
-    registrationType: "direct" as "direct" | "indirect",
+    registrationType: "indirect" as "direct" | "indirect",
     privacyPhone: "private" as "public" | "friends" | "private",
   });
   const [otpCode, setOtpCode] = useState("");
@@ -736,17 +736,6 @@ export function AuthGate({ children }: AuthGateProps) {
                     <div className="grid grid-cols-2 gap-2 mb-2">
                       <button
                         type="button"
-                        onClick={() => setSignupForm({ ...signupForm, registrationType: "direct" })}
-                        className="py-2.5 px-1.5 rounded-xl text-xs font-black transition-all border flex flex-col items-center justify-center gap-1"
-                        style={signupForm.registrationType === "direct"
-                          ? { borderColor: "rgba(59,130,246,0.45)", color: "#2563eb", background: "rgba(59,130,246,0.08)" }
-                          : { borderColor: "rgba(15,23,42,0.08)", color: "rgba(15,23,42,0.4)", background: "rgba(15,23,42,0.02)" }}
-                      >
-                        <span className="text-[11px] font-black">✨ تسجيل مباشر</span>
-                        <span className="text-[8px] opacity-75 font-bold">كود تحقق (استرجاع متاح)</span>
-                      </button>
-                      <button
-                        type="button"
                         onClick={() => setSignupForm({ ...signupForm, registrationType: "indirect" })}
                         className="py-2.5 px-1.5 rounded-xl text-xs font-black transition-all border flex flex-col items-center justify-center gap-1"
                         style={signupForm.registrationType === "indirect"
@@ -755,6 +744,17 @@ export function AuthGate({ children }: AuthGateProps) {
                       >
                         <span className="text-[11px] font-black">👤 تسجيل غير مباشر</span>
                         <span className="text-[8px] opacity-75 font-bold">بيانات عادية (بدون استرجاع)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSignupForm({ ...signupForm, registrationType: "direct" })}
+                        className="py-2.5 px-1.5 rounded-xl text-xs font-black transition-all border flex flex-col items-center justify-center gap-1"
+                        style={signupForm.registrationType === "direct"
+                          ? { borderColor: "rgba(59,130,246,0.45)", color: "#2563eb", background: "rgba(59,130,246,0.08)" }
+                          : { borderColor: "rgba(15,23,42,0.08)", color: "rgba(15,23,42,0.4)", background: "rgba(15,23,42,0.02)" }}
+                      >
+                        <span className="text-[11px] font-black">✨ تسجيل مباشر</span>
+                        <span className="text-[8px] opacity-75 font-bold">كود تحقق (استرجاع متاح)</span>
                       </button>
                     </div>
 

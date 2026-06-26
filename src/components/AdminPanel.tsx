@@ -1538,72 +1538,64 @@ export function AdminPanel() {
   const chatbotStats = useMemo(() => {
     if (!chatbotLogs || chatbotLogs.length === 0) {
       return {
-        totalUniqueUsers: 0,
-        activeToday: 0,
-        returningUsers: 0,
-        returningPercent: 0,
-        oneTimeUsers: 0,
-        oneTimePercent: 0,
-        politeCount: 0,
-        insultCount: 0,
-        insultPercent: 0,
-        politePercent: 0,
-        topQuestions: [],
-        userSessions: {}
+        totalUniqueUsers: 0, activeToday: 0, returningUsers: 0, returningPercent: 0,
+        oneTimeUsers: 0, oneTimePercent: 0, politeCount: 0, insultCount: 0,
+        insultPercent: 0, politePercent: 0, topQuestions: [], userSessions: {}
       };
     }
 
-    // Group logs by userId
-    const userSessions: Record<string, { userName: string, lastActive: any, messages: any[], textMessages: string[] }> = {};
+    const sessions: Record<string, any> = {};
     let politeCount = 0;
     let insultCount = 0;
+    const questionCounts: Record<string, { count: number, original: string }> = {};
 
     chatbotLogs.forEach(log => {
       const uid = log.userId || log.uid;
       if (!uid) return;
-      if (!userSessions[uid]) {
-        userSessions[uid] = {
+      
+      if (!sessions[uid]) {
+        sessions[uid] = {
           userName: log.userName || log.displayName || log.name || "زائر",
           lastActive: log.timestamp,
-          messages: [],
-          textMessages: []
+          messages: []
         };
       }
       
+      // Update name if valid
       const uName = log.userName || log.displayName || log.name;
       if (uName && uName !== "يقين (البوت)" && uName !== "زائر") {
-        userSessions[uid].userName = uName;
+        sessions[uid].userName = uName;
       }
-      
-      userSessions[uid].messages.push(log);
+
+      sessions[uid].messages.push(log);
+
       if (log.sender === "user") {
-        userSessions[uid].textMessages.push(log.text || log.message || "");
-        if (log.isInsult) {
-          insultCount++;
-        } else if (log.sentiment === "positive") {
-          politeCount++;
+        if (log.isInsult) insultCount++;
+        else if (log.sentiment === "positive") politeCount++;
+
+        const textVal = log.text || log.message || "";
+        let qText = textVal.trim().replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/[.,!?()؛؟?"'«»]/g, "").replace(/\s+/g, " ").toLowerCase();
+        
+        if (qText.length > 3) {
+          if (!questionCounts[qText]) questionCounts[qText] = { count: 0, original: textVal };
+          questionCounts[qText].count++;
         }
       }
     });
 
-    const totalUniqueUsers = Object.keys(userSessions).length;
-
-    // Today's date in local time YYYY-MM-DD
-    const todayStr = new Date().toISOString().split('T')[0];
-    let activeToday = 0;
-    Object.values(userSessions).forEach(sess => {
-      const todayMsgs = sess.messages.filter(m => {
-        if (!m.timestamp) return false;
-        const dateStr = m.timestamp.toDate 
-          ? m.timestamp.toDate().toISOString().split('T')[0]
-          : new Date(m.timestamp).toISOString().split('T')[0];
-        return dateStr === todayStr;
+    // Sort messages descending
+    Object.values(sessions).forEach(sess => {
+      sess.messages.sort((a: any, b: any) => {
+        const ta = a.timestamp?.toDate ? a.timestamp.toDate().getTime() : new Date(a.timestamp || 0).getTime();
+        const tb = b.timestamp?.toDate ? b.timestamp.toDate().getTime() : new Date(b.timestamp || 0).getTime();
+        return tb - ta;
       });
-      if (todayMsgs.length > 0) activeToday++;
     });
 
-    // One-time vs Returning:
-    // A user is returning if they have messages on more than one day OR sent > 5 messages in total.
+    const totalUniqueUsers = Object.keys(sessions).length;
+    const todayStr = new Date().toISOString().split('T')[0];
+    
+    let activeToday = 0;
     let returningUsers = 0;
     let oneTimeUsers = 0;
 
