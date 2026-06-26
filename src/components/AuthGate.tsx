@@ -100,6 +100,7 @@ export function AuthGate({ children }: AuthGateProps) {
     displayName: "", username: "", email: "", phone: "",
     password: "", gender: "male" as "male" | "female", country: "مصر", avatar: AVATARS.male[0],
     registrationType: "direct" as "direct" | "indirect",
+    privacyPhone: "public" as "public" | "friends" | "private",
   });
   const [otpCode, setOtpCode] = useState("");
   const [emailVerified, setEmailVerified] = useState(false);
@@ -449,6 +450,7 @@ export function AuthGate({ children }: AuthGateProps) {
         displayName: signupForm.displayName.trim(), email: origEmail, authEmail, emailVerified,
         phoneNumber: signupForm.phone.trim(), gender: signupForm.gender,
         country: signupForm.country, photoURL: signupForm.avatar,
+        privacySettings: { phone: signupForm.privacyPhone, birthDate: "public" },
         totalPoints: 0, createdAt: new Date().toISOString(), lastActive: new Date().toISOString(),
         isBanned: false, encP: btoa(signupForm.password),
         registrationType: signupForm.registrationType || "direct",
@@ -466,6 +468,7 @@ export function AuthGate({ children }: AuthGateProps) {
             displayName: signupForm.displayName.trim(), email: origEmail, authEmail: authEmail2, emailVerified,
             phoneNumber: signupForm.phone.trim(), gender: signupForm.gender,
             country: signupForm.country, photoURL: signupForm.avatar,
+            privacySettings: { phone: signupForm.privacyPhone, birthDate: "public" },
             totalPoints: 0, createdAt: new Date().toISOString(), lastActive: new Date().toISOString(),
             isBanned: false, encP: btoa(signupForm.password),
             registrationType: signupForm.registrationType || "direct",
@@ -758,7 +761,14 @@ export function AuthGate({ children }: AuthGateProps) {
                     <FancyInput icon={<User />} type="text" value={signupForm.displayName} onChange={(v: string) => setSignupForm({ ...signupForm, displayName: v })} placeholder="الاسم الكامل" />
                     <div className="grid grid-cols-2 gap-2">
                       <FancyInput icon={<User />} type="text" value={signupForm.username} onChange={(v: string) => setSignupForm({ ...signupForm, username: v.toLowerCase().replace(/[^a-z0-9_]/g, "") })} placeholder="اسم_المستخدم" dir="ltr" />
-                      <FancyInput icon={<Phone />} type="text" value={signupForm.phone} onChange={(v: string) => setSignupForm({ ...signupForm, phone: v })} placeholder="الهاتف" dir="ltr" />
+                      <div className="flex flex-col gap-1.5 relative">
+                        <FancyInput icon={<Phone />} type="text" value={signupForm.phone} onChange={(v: string) => setSignupForm({ ...signupForm, phone: v })} placeholder="الهاتف" dir="ltr" />
+                        <div className="absolute left-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5 bg-slate-100 rounded-lg p-0.5 shadow-inner">
+                          <button type="button" onClick={() => setSignupForm({ ...signupForm, privacyPhone: "private" })} title="أنا فقط" className={`p-1.5 rounded-lg transition-all ${signupForm.privacyPhone === "private" ? "bg-red-100 text-red-500 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}><EyeOff className="w-3 h-3" /></button>
+                          <button type="button" onClick={() => setSignupForm({ ...signupForm, privacyPhone: "friends" })} title="الأصدقاء" className={`p-1.5 rounded-lg transition-all ${signupForm.privacyPhone === "friends" ? "bg-amber-100 text-amber-500 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}><User className="w-3 h-3" /></button>
+                          <button type="button" onClick={() => setSignupForm({ ...signupForm, privacyPhone: "public" })} title="الجميع" className={`p-1.5 rounded-lg transition-all ${signupForm.privacyPhone === "public" ? "bg-emerald-100 text-emerald-500 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}><Eye className="w-3 h-3" /></button>
+                        </div>
+                      </div>
                     </div>
                     <FancyInput icon={<Mail />} type="email" value={signupForm.email} onChange={(v: string) => { setSignupForm({ ...signupForm, email: v }); setShowWeakPwWarn(false); }} placeholder="البريد الإلكتروني" dir="ltr" />
                     <FancyInput icon={<KeyRound />} type="password" value={signupForm.password} onChange={(v: string) => { setSignupForm({ ...signupForm, password: v }); setShowWeakPwWarn(false); if (error.includes("ضعيف")) clearError(); }} placeholder="كلمة المرور" showEye showPassword={showPassword} setShowPassword={setShowPassword} />
