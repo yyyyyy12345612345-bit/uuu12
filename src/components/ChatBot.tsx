@@ -5,6 +5,7 @@ import { MessageSquare, X, Send, User, Bot, Loader2 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { auth, db } from "../lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { motion, useMotionValue } from "framer-motion";
 
 interface Message {
@@ -164,6 +165,25 @@ export function ChatBot() {
     setInput("");
     setIsLoading(true);
 
+    const logMessage = async (msgText: string, sender: "user" | "bot") => {
+      if (!db) return;
+      try {
+        await addDoc(collection(db, "chatbot_logs"), {
+          userId: userData?.uid || auth.currentUser?.uid || "guest",
+          userName: userData?.name || userData?.displayName || auth.currentUser?.displayName || "زائر",
+          text: msgText, // AdminPanel expects .text or .message
+          message: msgText,
+          sender,
+          timestamp: serverTimestamp()
+        });
+      } catch (e) {
+        console.error("Failed to log chat:", e);
+      }
+    };
+
+    // Log the user's message
+    logMessage(input, "user");
+
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -179,10 +199,13 @@ export function ChatBot() {
       const isStream = res.headers.get("content-type")?.includes("event-stream");
       
       if (isStream) {
-        await parseStream(res);
+        const fullResponse = await parseStream(res);
+        logMessage(fullResponse, "bot");
       } else {
         const data = await res.json();
-        updateLastMessage(data.reply || data.error || "عذراً، لم أتمكن من الإجابة.");
+        const replyText = data.reply || data.error || "عذراً، لم أتمكن من الإجابة.";
+        updateLastMessage(replyText);
+        logMessage(replyText, "bot");
       }
     } catch (error) {
       updateLastMessage("حدث خطأ في الاتصال. يرجى المحاولة لاحقاً.");
