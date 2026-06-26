@@ -732,12 +732,12 @@ export function AudioLibrary() {
           {/* 1. Sticky Player, Search & Filters Section */}
           <div className="relative z-30 bg-transparent pb-1 pt-1 flex flex-col gap-3 shadow-sm dark:shadow-none shrink-0">
             {/* Large Main Player Widget */}
-            <div className="relative rounded-2xl bg-white/40 dark:bg-black/30 backdrop-blur-md border border-slate-200/50 dark:border-white/5 p-4 lg:p-5 overflow-hidden shadow-md dark:shadow-2xl flex flex-col md:flex-row items-center gap-4">
+            <div className="relative rounded-2xl bg-white/40 dark:bg-black/30 backdrop-blur-md border border-slate-200/50 dark:border-white/5 p-3 lg:p-5 overflow-hidden shadow-md dark:shadow-2xl flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
               {/* Background pattern */}
               <div className="absolute inset-0 islamic-pattern opacity-[0.01] pointer-events-none" />
 
               {/* Album image on the right (RTL) */}
-              <div className="relative w-20 h-20 lg:w-24 lg:h-24 rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 shadow-sm dark:shadow-2xl shrink-0 group">
+              <div className="hidden sm:block relative w-16 h-16 lg:w-24 lg:h-24 rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 shadow-sm dark:shadow-2xl shrink-0 group">
                 <img
                   src="/quran_3d_hero.png"
                   alt="Quran"
@@ -775,7 +775,7 @@ export function AudioLibrary() {
                 {/* Progress Slider & Waveform */}
                 <div className="space-y-2">
                   {/* Waveform Visualization (Dense and Decorative) */}
-                  <div className="flex items-end justify-center gap-[2.5px] h-6 w-full opacity-60 pointer-events-none" dir="ltr">
+                  <div className="hidden sm:flex items-end justify-center gap-[2.5px] h-6 w-full opacity-60 pointer-events-none" dir="ltr">
                     {Array.from({ length: waveBarCount }).map((_, i) => {
                       const isActive = (i / waveBarCount) * 100 <= progress;
                       const height = 6 + Math.sin(i * 0.45) * 8 + (i % 4 === 0 ? 4 : 0);
@@ -832,53 +832,47 @@ export function AudioLibrary() {
                 </div>
 
                 {/* Actions row (Smaller paddings and icons) */}
-                <div className="flex flex-col md:flex-row items-center justify-between gap-3 mt-0.5 border-t border-slate-100 dark:border-white/5 pt-3 w-full overflow-hidden">
-                  {/* Playback Controls */}
-                  <div className="flex items-center justify-center gap-1.5 shrink-0">
-                    {/* Play Button */}
-                    <button
-                      onClick={() => setIsPlaying(!isPlaying)}
-                      className="w-9 h-9 rounded-full bg-[#e2b43b] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-md shadow-[#e2b43b]/10 shrink-0"
-                    >
-                      {isPlaying ? (
-                        <Pause className="w-4 h-4 fill-current" />
-                      ) : (
-                        <Play className="w-4 h-4 fill-current translate-x-[0.5px]" />
-                      )}
-                    </button>
+                <div className="flex flex-row flex-wrap sm:flex-nowrap items-center justify-between gap-2 mt-0.5 border-t border-slate-100 dark:border-white/5 pt-2 w-full overflow-hidden">
+                  {/* Playback Controls & Volume */}
+                  <div className="flex items-center justify-between w-full sm:w-auto shrink-0 gap-3">
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => setIsPlaying(!isPlaying)}
+                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#e2b43b] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-md shrink-0"
+                      >
+                        {isPlaying ? <Pause className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" /> : <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current translate-x-[0.5px]" />}
+                      </button>
+                      <button onClick={handlePrev} className="p-1.5 sm:p-2 text-slate-400 hover:text-slate-800 dark:text-white/40 dark:hover:text-white rounded-full transition-all active:scale-95"><SkipForward className="w-3.5 h-3.5 fill-current" /></button>
+                      <button onClick={handleNext} className="p-1.5 sm:p-2 text-slate-400 hover:text-slate-800 dark:text-white/40 dark:hover:text-white rounded-full transition-all active:scale-95"><SkipBack className="w-3.5 h-3.5 fill-current" /></button>
+                      <button onClick={() => setIsShuffle(!isShuffle)} className={`p-1.5 sm:p-2 rounded-full transition-all ${isShuffle ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-slate-400 hover:text-slate-700 dark:text-white/30 dark:hover:text-white"}`}><Shuffle className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => setIsRepeat(!isRepeat)} className={`p-1.5 sm:p-2 rounded-full transition-all ${isRepeat ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-slate-400 hover:text-slate-700 dark:text-white/30 dark:hover:text-white"}`}><Repeat className="w-3.5 h-3.5" /></button>
+                    </div>
 
-                    {/* Controls (Swapped for RTL arrow logic: Prev goes right/SkipForward, Next goes left/SkipBack) */}
-                    <button
-                      onClick={handlePrev}
-                      className="p-2 text-slate-400 dark:text-white/40 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-all active:scale-95"
-                    >
-                      <SkipForward className="w-3.5 h-3.5 fill-current" />
-                    </button>
-                    <button
-                      onClick={handleNext}
-                      className="p-2 text-slate-400 dark:text-white/40 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-all active:scale-95"
-                    >
-                      <SkipBack className="w-3.5 h-3.5 fill-current" />
-                    </button>
-                    <button
-                      onClick={() => setIsShuffle(!isShuffle)}
-                      className={`p-2 rounded-full transition-all ${isShuffle ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-slate-400 dark:text-white/30 hover:text-slate-700 dark:hover:text-white"}`}
-                    >
-                      <Shuffle className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => setIsRepeat(!isRepeat)}
-                      className={`p-2 rounded-full transition-all ${isRepeat ? "text-[#e2b43b] bg-[#e2b43b]/10" : "text-slate-400 dark:text-white/30 hover:text-slate-700 dark:hover:text-white"}`}
-                    >
-                      <Repeat className="w-3.5 h-3.5" />
-                    </button>
+                    {/* Volume Slider */}
+                    <div className="flex items-center gap-1.5 w-24 shrink-0">
+                      <button onClick={() => setIsMuted(!isMuted)} className="text-slate-400 hover:text-slate-700 dark:text-white/40 dark:hover:text-white p-1">
+                        {isMuted || volume === 0 ? <VolumeX className="w-3.5 h-3.5 text-red-500" /> : <Volume2 className="w-3.5 h-3.5" />}
+                      </button>
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.05"
+                        value={isMuted ? 0 : volume}
+                        onChange={(e) => {
+                          setVolume(parseFloat(e.target.value));
+                          if (isMuted) setIsMuted(false);
+                        }}
+                        className="w-full h-1 bg-slate-200 dark:bg-white/10 rounded-full cursor-pointer accent-[#e2b43b]"
+                      />
+                    </div>
                   </div>
 
                   {/* Divider (Desktop only) */}
-                  <div className="hidden md:block h-5 w-px bg-slate-200 dark:bg-white/5 mx-1" />
+                  <div className="hidden sm:block h-5 w-px bg-slate-200 dark:bg-white/5 mx-1" />
 
                   {/* Extra Actions Scrollable Row */}
-                  <div className="w-full md:flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 md:pb-0 justify-start md:justify-start -mx-4 px-4 md:mx-0 md:px-0">
+                  <div className="w-full sm:flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0 justify-start -mx-3 px-3 sm:mx-0 sm:px-0">
                     <button
                       onClick={handleShare}
                       className="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-white/60 hover:text-slate-800 dark:hover:text-white text-[10px] font-black transition-all flex items-center gap-1.5 border border-slate-200 dark:border-white/5 shrink-0"
@@ -1207,79 +1201,7 @@ export function AudioLibrary() {
         </aside>
       </div>
 
-      {/* ══════════════════════════════════════════
-          MOBILE BOTTOM CONTROLLER BAR
-      ══════════════════════════════════════════ */}
-      <div
-        className="fixed left-0 right-0 z-[900] bg-white/95 dark:bg-[#121318]/95 backdrop-blur-2xl border-t border-slate-200 dark:border-t-white/5 shadow-[0_-8px_32px_rgba(0,0,0,0.1)] dark:shadow-[0_-8px_32px_rgba(0,0,0,0.4)] lg:hidden flex flex-col"
-        style={{ bottom: `${NAV_H}px` }}
-      >
-        {/* Progress bar thin */}
-        <div className="relative w-full h-1 bg-slate-100 dark:bg-white/5 cursor-pointer">
-          <div className="absolute inset-y-0 right-0 bg-[#e2b43b]" style={{ width: `${localProgress}%` }} />
-          <input
-            type="range"
-            min="0"
-            max="100"
-            step="0.1"
-            value={localProgress}
-            onChange={handleSliderChange}
-            onMouseDown={() => setIsDragging(true)}
-            onTouchStart={() => setIsDragging(true)}
-            onMouseUp={handleSliderRelease}
-            onTouchEnd={handleSliderRelease}
-            className="absolute inset-0 w-full opacity-0 cursor-pointer z-10"
-          />
-        </div>
 
-        {/* Controller items */}
-        <div className="flex items-center px-4 h-16 gap-3">
-          {/* Info (Click to open Drawer on mobile) */}
-          <div
-            onClick={() => setShowReciters(true)}
-            className="flex items-center gap-3 flex-1 min-w-0 text-right cursor-pointer hover:opacity-85 active:scale-[0.98] transition-all"
-          >
-            <div className="w-9 h-9 shrink-0 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center border border-slate-200 dark:border-white/10 overflow-hidden relative">
-              <div className="absolute inset-0 islamic-pattern opacity-10 pointer-events-none" />
-              <Disc className={`w-4 h-4 text-[#e2b43b]/50 ${isPlaying ? "animate-spin-slow" : ""}`} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-black truncate text-slate-800 dark:text-white leading-tight">سورة {currentSurah.name}</p>
-              <p className="text-[9px] text-slate-500 dark:text-white/40 truncate font-bold">{selectedReciter.name}</p>
-            </div>
-          </div>
-
-          {/* Volume button on mobile */}
-          <button
-            onClick={() => setIsMuted(!isMuted)}
-            className="p-2 text-slate-400 hover:text-slate-800 dark:text-white/40 dark:hover:text-white shrink-0"
-          >
-            {isMuted || volume === 0 ? <VolumeX className="w-4 h-4 text-red-500" /> : <Volume2 className="w-4 h-4" />}
-          </button>
-
-          {/* Playback Controls (Swapped for RTL arrow logic: Prev goes right/SkipForward, Next goes left/SkipBack) */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              onClick={handlePrev}
-              className="p-2 text-slate-400 hover:text-slate-800 dark:text-white/50 dark:hover:text-white"
-            >
-              <SkipForward className="w-4 h-4 fill-current" />
-            </button>
-            <button
-              onClick={() => setIsPlaying(!isPlaying)}
-              className="w-9 h-9 rounded-full bg-[#e2b43b] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-md"
-            >
-              {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current translate-x-[0.5px]" />}
-            </button>
-            <button
-              onClick={handleNext}
-              className="p-2 text-slate-400 hover:text-slate-800 dark:text-white/50 dark:hover:text-white"
-            >
-              <SkipBack className="w-4 h-4 fill-current" />
-            </button>
-          </div>
-        </div>
-      </div>
 
       {/* ══════════════════════════════════════════
           FULL SCREEN RECITER PICKER DRAWER
