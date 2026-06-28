@@ -426,9 +426,9 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
         
         <!-- Minshawi Photo Rounded -->
         <clipPath id="photoClip">
-          <rect x="120" y="430" width="480" height="240" rx="32" />
+          <rect x="120" y="430" width="480" height="200" rx="32" />
         </clipPath>
-        <image href="data:image/jpeg;base64,${minshawiPhotoBase64}" x="120" y="430" width="480" height="240" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)" />
+        <image href="data:image/jpeg;base64,${minshawiPhotoBase64}" x="120" y="430" width="480" height="200" preserveAspectRatio="xMidYMid meet" clip-path="url(#photoClip)" />
         
         <!-- Surah Title & Reciter Name (Left aligned) -->
         <text x="120" y="705" font-family="'Cairo', sans-serif" font-size="26" font-weight="bold" fill="#ffffff" text-anchor="start">${escapeXml(surahName || "سورة")}</text>
