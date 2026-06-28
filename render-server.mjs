@@ -506,7 +506,15 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
   finalSvg = applyOverlayToSVG(finalSvg, overlay);
   const svgBuffer = Buffer.from(finalSvg);
 
-  if (isVideoBg) {
+  if (videoTemplate === "minshawi_player") {
+    // رندرة خلفية سوداء بالكامل لتصميم المنشاوي المخصص
+    await sharp({
+      create: { width: WIDTH, height: HEIGHT, channels: 3, background: { r: 0, g: 0, b: 0 } }
+    })
+    .composite([{ input: svgBuffer, blend: "over" }])
+    .jpeg({ quality: 85 })
+    .toFile(outputPath);
+  } else if (isVideoBg) {
     // رندرة شفافة لوضعها فوق الفيديو
     await sharp({
       create: { width: WIDTH, height: HEIGHT, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } }
@@ -554,7 +562,7 @@ async function startRender(jobId, data) {
     const isMinshawiPlayer = data.videoTemplate === "minshawi_player";
     const minshawiPhotoPath = path.resolve(tempDir, "minshawi.jpg");
     if (isMinshawiPlayer) {
-      await downloadFile("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782611993/%D8%A7%D9%84%D8%B4%D9%8I%D8%AE_%D9%85%D8%AD%D9%85%D8%AF_%D8%B5%D8%AF%D9%8A%D9%82_%D8%A7%D9%84%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_fp1s3x.jpg", minshawiPhotoPath);
+      await downloadFile("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782611993/%D8%A7%D9%84%D8%B4%D9%8A%D8%AE_%D9%85%D8%AD%D9%85%D8%AF_%D8%B5%D8%AF%D9%8A%D9%82_%D8%A7%D9%84%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_fp1s3x.jpg", minshawiPhotoPath);
     }
     const minshawiPhotoBase64 = isMinshawiPlayer ? fs.readFileSync(minshawiPhotoPath).toString("base64") : "";
 

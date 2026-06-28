@@ -364,30 +364,32 @@ export function VideoPreview() {
       <div className="absolute inset-0 bg-[#0c0d10] rounded-[3rem] border-[8px] border-[#0A0A0A] shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden">
         
         {/* Background Media */}
-        <div className="absolute inset-0 z-0">
-          {state.backgroundUrl ? (
-            isVideoUrl(state.backgroundUrl) ? (
-              <video
-                ref={videoRef}
-                src={state.backgroundUrl}
-                className="absolute inset-0 w-full h-full object-cover transition-all duration-1000"
-                style={{ filter: getFilterCSS(state.filter) }}
-                loop
-                muted
-                playsInline
-              />
+        <div className="absolute inset-0 z-0 bg-black">
+          {state.videoTemplate !== "minshawi_player" ? (
+            state.backgroundUrl ? (
+              isVideoUrl(state.backgroundUrl) ? (
+                <video
+                  ref={videoRef}
+                  src={state.backgroundUrl}
+                  className="absolute inset-0 w-full h-full object-cover transition-all duration-1000"
+                  style={{ filter: getFilterCSS(state.filter) }}
+                  loop
+                  muted
+                  playsInline
+                />
+              ) : (
+                <div
+                  className="absolute inset-0 bg-cover bg-center transition-[opacity,filter] duration-700"
+                  style={{ 
+                    backgroundImage: `url(${state.backgroundUrl.includes('pexels.com') ? `${state.backgroundUrl.split('?')[0]}?auto=compress&cs=tinysrgb&fit=crop&h=1280&w=720` : state.backgroundUrl})`, 
+                    filter: getFilterCSS(state.filter) 
+                  }}
+                />
+              )
             ) : (
-              <div
-                className="absolute inset-0 bg-cover bg-center transition-[opacity,filter] duration-700"
-                style={{ 
-                  backgroundImage: `url(${state.backgroundUrl.includes('pexels.com') ? `${state.backgroundUrl.split('?')[0]}?auto=compress&cs=tinysrgb&fit=crop&h=1280&w=720` : state.backgroundUrl})`, 
-                  filter: getFilterCSS(state.filter) 
-                }}
-              />
+              <div className="absolute inset-0 bg-[#0c0d10] islamic-pattern opacity-10" />
             )
-          ) : (
-            <div className="absolute inset-0 bg-[#0c0d10] islamic-pattern opacity-10" />
-          )}
+          ) : null}
         </div>
 
         {/* Overlays */}
@@ -719,7 +721,7 @@ export function VideoPreview() {
             justifyContent: state.videoTemplate === "minshawi_player" ? 'center' : (state.textPosition === 'top' ? 'flex-start' : state.textPosition === 'bottom' ? 'flex-end' : 'center'),
             paddingTop: state.videoTemplate === "minshawi_player" ? '0px' : (state.textPosition === 'top' ? '180px' : '60px'),
             paddingBottom: state.videoTemplate === "minshawi_player" ? '0px' : (state.textPosition === 'bottom' ? '160px' : '60px'),
-            transform: `translateY(${state.textVerticalOffset * 0.45}px)` 
+            transform: state.videoTemplate === "minshawi_player" ? 'none' : `translateY(${state.textVerticalOffset * 0.45}px)` 
           }}
         >
           {state.videoTemplate === "minshawi_player" ? (
@@ -727,7 +729,7 @@ export function VideoPreview() {
               {/* Photo */}
               <div className="w-full aspect-[4/3] rounded-[1.8rem] overflow-hidden shadow-lg border border-white/5 relative">
                 <img
-                  src="https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782611993/%D8%A7%D9%84%D8%B4%D9%8I%D8%AE_%D9%85%D8%AD%D9%85%D8%AF_%D8%B5%D8%AF%D9%8A%D9%82_%D8%A7%D9%84%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_fp1s3x.jpg"
+                  src="https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782611993/%D8%A7%D9%84%D8%B4%D9%8A%D8%AE_%D9%85%D8%AD%D9%85%D8%AF_%D8%B5%D8%AF%D9%8A%D9%82_%D8%A7%D9%84%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_fp1s3x.jpg"
                   alt="الشيخ محمد صديق المنشاوي"
                   className="w-full h-full object-cover"
                 />
