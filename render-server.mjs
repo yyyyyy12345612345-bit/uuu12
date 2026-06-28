@@ -534,7 +534,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
 
 // ═══ عملية الرندرة الأساسية ═══
 async function startRender(jobId, data) {
-  const { verses, backgroundUrl, surahName, textColor = "#ffffff", fontSize = 50, fontWeight = 700, fontFamily = "Amiri", filter = "none", overlay = "none", animation = "fade", textPosition = "center", textVerticalOffset = 0, userPlan = "free", instaHandle = "", tiktokHandle = "", ayahDecoration = "bracket1", showVisualizer = false, visualizerColor = "#D4AF37", visualizerStyle = "bars", particles = "none" } = data;
+  const { verses, backgroundUrl, surahName, textColor = "#ffffff", fontSize = 50, fontWeight = 700, fontFamily = "Amiri", filter = "none", overlay = "none", animation = "fade", textPosition = "center", textVerticalOffset = 0, userPlan = "free", instaHandle = "", tiktokHandle = "", ayahDecoration = "bracket1", showVisualizer = false, visualizerColor = "#D4AF37", visualizerStyle = "bars", particles = "none", videoTemplate = "default" } = data;
   const tempDir = path.resolve(os.tmpdir(), jobId);
   fs.mkdirSync(tempDir, { recursive: true });
 
