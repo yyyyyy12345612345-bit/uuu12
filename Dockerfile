@@ -11,9 +11,8 @@ ENV REMOTION_CHROME_EXECUTABLE=/usr/bin/chromium
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
-RUN npm install express cors sharp
+# تهيئة مشروع npm جديد وتثبيت الحزم الأساسية فقط لخادم الرندرة لضمان عدم حدوث تداخل
+RUN npm init -y && npm install express cors sharp
 
 COPY . .
 
