@@ -130,6 +130,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           particles: state.particles ?? "none",
           userPlan: userPlan?.plan || "free",
           ayahDecoration: state.ayahDecoration || "bracket1",
+          videoTemplate: state.videoTemplate || "default",
         }),
       });
 

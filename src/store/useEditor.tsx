@@ -110,6 +110,8 @@ export interface EditorState {
   mushafFontSize: number;
   /** زخرفة الآية */
   ayahDecoration: AyahDecoration;
+  /** قالب الفيديو النشط */
+  videoTemplate?: "default" | "minshawi_player";
   /** الإشارة المرجعية الحالية */
   bookmark?: { surahId: string; ayahId: number };
   /** الصلاة النشطة في الإعدادات */
@@ -158,6 +160,7 @@ const initialState: Omit<EditorState, 'isHydrated'> = {
   mushafFontSize: 22,
   ayahDecoration: "bracket1",
   activeSettingsPrayer: null,
+  videoTemplate: "default",
 };
 
 /**

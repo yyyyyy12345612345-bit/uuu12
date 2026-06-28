@@ -49,6 +49,13 @@ const getFilterCSS = (filter?: string): string => {
   return map[filter || "none"] || "none";
 };
 
+const formatTime = (secs: number) => {
+  if (isNaN(secs)) return "0:00";
+  const m = Math.floor(secs / 60);
+  const s = Math.floor(secs % 60);
+  return `${m}:${s < 10 ? '0' : ''}${s}`;
+};
+
 export function VideoPreview() {
   const { state } = useEditor();
   const { data: surahData, loading: surahLoading } = useSurahData(state.surahId);
@@ -600,7 +607,7 @@ export function VideoPreview() {
         )}
 
         {/* Verse Number (Bottom) */}
-        {surahData && currentVerse && (
+        {state.videoTemplate !== "minshawi_player" && surahData && currentVerse && (
           <div className="absolute bottom-[14%] left-0 right-0 flex justify-center z-30 pointer-events-none">
             <span className="text-[22px] font-bold text-primary drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" style={{ fontFamily: 'Amiri, serif' }}>
               {(() => {
@@ -709,13 +716,100 @@ export function VideoPreview() {
         <div 
           className="absolute inset-0 flex flex-col items-center px-10 text-center z-20 transition-all duration-700 ease-out"
           style={{ 
-            justifyContent: state.textPosition === 'top' ? 'flex-start' : state.textPosition === 'bottom' ? 'flex-end' : 'center',
-            paddingTop: state.textPosition === 'top' ? '180px' : '60px',
-            paddingBottom: state.textPosition === 'bottom' ? '160px' : '60px',
+            justifyContent: state.videoTemplate === "minshawi_player" ? 'center' : (state.textPosition === 'top' ? 'flex-start' : state.textPosition === 'bottom' ? 'flex-end' : 'center'),
+            paddingTop: state.videoTemplate === "minshawi_player" ? '0px' : (state.textPosition === 'top' ? '180px' : '60px'),
+            paddingBottom: state.videoTemplate === "minshawi_player" ? '0px' : (state.textPosition === 'bottom' ? '160px' : '60px'),
             transform: `translateY(${state.textVerticalOffset * 0.45}px)` 
           }}
         >
-          {surahLoading ? (
+          {state.videoTemplate === "minshawi_player" ? (
+            <div className="w-[88%] bg-black/85 backdrop-blur-md border border-white/10 rounded-[2.5rem] p-5 flex flex-col gap-5 shadow-2xl z-20 text-right select-none animate-in fade-in duration-500">
+              {/* Photo */}
+              <div className="w-full aspect-[4/3] rounded-[1.8rem] overflow-hidden shadow-lg border border-white/5 relative">
+                <img
+                  src="https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782611993/%D8%A7%D9%84%D8%B4%D9%8I%D8%AE_%D9%85%D8%AD%D9%85%D8%AF_%D8%B5%D8%AF%D9%8A%D9%82_%D8%A7%D9%84%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_fp1s3x.jpg"
+                  alt="الشيخ محمد صديق المنشاوي"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
+              {/* Title & Artist */}
+              <div className="text-right font-arabic px-1">
+                <h3 className="text-base font-bold text-white leading-tight">
+                  {surahData ? surahData.name : "..."}
+                </h3>
+                <p className="text-[11px] text-white/50 mt-1">الشيخ محمد صديق المنشاوي</p>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="px-1 mt-1">
+                <div className="w-full h-1 bg-white/10 rounded-full relative cursor-pointer" onClick={(e) => {
+                  if (audioRef.current && duration > 0) {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const clickX = e.clientX - rect.left;
+                    const pct = clickX / rect.width;
+                    audioRef.current.currentTime = pct * duration;
+                  }
+                }}>
+                  <div 
+                    className="h-full bg-white rounded-full" 
+                    style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
+                  />
+                  <div 
+                    className="w-3 h-3 bg-white rounded-full absolute -top-1 -ml-1.5 shadow" 
+                    style={{ left: `${(currentTime / (duration || 1)) * 100}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-[9px] text-white/40 font-mono mt-2" dir="ltr">
+                  <span>{formatTime(currentTime)}</span>
+                  <span>{formatTime(duration)}</span>
+                </div>
+              </div>
+
+              {/* Player Controls */}
+              <div className="flex items-center justify-between px-4 py-2 mt-1" dir="ltr">
+                {/* Heart */}
+                <button className="text-white/60 hover:text-white transition active:scale-90">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-heart"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                </button>
+
+                {/* Prev */}
+                <button 
+                  onClick={() => {
+                    if (audioRef.current) audioRef.current.currentTime = 0;
+                  }}
+                  className="text-white/80 hover:text-white transition active:scale-90"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-skip-back"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg>
+                </button>
+
+                {/* Play/Pause Circle */}
+                <button 
+                  onClick={togglePlay}
+                  className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 active:scale-95 transition shadow-lg"
+                >
+                  {isPlaying ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                  )}
+                </button>
+
+                {/* Next */}
+                <button 
+                  onClick={handleAyahEnd}
+                  className="text-white/80 hover:text-white transition active:scale-90"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-skip-forward"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg>
+                </button>
+
+                {/* Minus */}
+                <button className="text-white/60 hover:text-white transition active:scale-90">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-circle-minus"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                </button>
+              </div>
+            </div>
+          ) : surahLoading ? (
             <div className="flex flex-col items-center gap-6 py-20 animate-pulse">
               <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
               <span className="text-[10px] text-primary font-black uppercase tracking-[0.5em]">جاري جلب البيانات</span>
@@ -793,19 +887,21 @@ export function VideoPreview() {
         </div>
 
         {/* Floating Play Control */}
-        <div className="absolute inset-x-0 bottom-32 flex flex-col items-center z-40">
-          <button
-            onClick={togglePlay}
-            disabled={surahLoading}
-            className={`w-20 h-20 rounded-[2.5rem] bg-primary border-4 border-black/40 flex items-center justify-center transition-all duration-500 shadow-2xl hover:scale-110 active:scale-95 group/play ${isPlaying ? 'bg-primary/90' : 'animate-[goldGlow_3s_infinite]'}`}
-          >
-            {isPlaying ? (
-              <Pause className="w-8 h-8 text-black fill-current" />
-            ) : (
-              <Play className="w-8 h-8 text-black fill-current ml-1" />
-            )}
-          </button>
-        </div>
+        {state.videoTemplate !== "minshawi_player" && (
+          <div className="absolute inset-x-0 bottom-32 flex flex-col items-center z-40">
+            <button
+              onClick={togglePlay}
+              disabled={surahLoading}
+              className={`w-20 h-20 rounded-[2.5rem] bg-primary border-4 border-black/40 flex items-center justify-center transition-all duration-500 shadow-2xl hover:scale-110 active:scale-95 group/play ${isPlaying ? 'bg-primary/90' : 'animate-[goldGlow_3s_infinite]'}`}
+            >
+              {isPlaying ? (
+                <Pause className="w-8 h-8 text-black fill-current" />
+              ) : (
+                <Play className="w-8 h-8 text-black fill-current ml-1" />
+              )}
+            </button>
+          </div>
+        )}
 
         <audio
           ref={audioRef}

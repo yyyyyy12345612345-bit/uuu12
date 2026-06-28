@@ -5,7 +5,7 @@ import { useEditor } from "@/store/useEditor";
 import { usePexelsBackgrounds, PexelsMediaItem } from "@/hooks/usePexelsBackgrounds";
 import { RECITERS } from "@/data/reciters";
 import { useUserPlan } from "@/hooks/useUserPlan";
-import { Crown, Lock, ShieldCheck, Star, Search, Image as ImageIcon, Music, Type, MessageSquare, Check, Loader2 } from "lucide-react";
+import { Crown, Lock, ShieldCheck, Star, Search, Image as ImageIcon, Music, Type, MessageSquare, Check, Loader2, Sparkles } from "lucide-react";
 
 
 // ============================================================
@@ -297,6 +297,84 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
 
           {activeTab === "style" && (
             <div className="flex flex-col gap-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                {/* التصاميم الجاهزة */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <div className="h-px flex-1 bg-foreground/10" />
+                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">التصاميم الجاهزة</span>
+                        <div className="h-px flex-1 bg-foreground/10" />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button
+                            onClick={() => {
+                                updateState({
+                                    videoTemplate: "minshawi_player",
+                                    reciterId: "minsh_murattal",
+                                    fontFamily: "Amiri",
+                                    textColor: "#FFD700",
+                                    fontSize: 56,
+                                    filter: "cinematic",
+                                    overlay: "rays",
+                                    animation: "slide",
+                                    textPosition: "center",
+                                    showVisualizer: true,
+                                    visualizerColor: "#D4AF37",
+                                    visualizerStyle: "bars",
+                                    ayahDecoration: "ornament"
+                                });
+                            }}
+                            className={`relative overflow-hidden group p-5 rounded-2xl border-2 transition-all duration-500 text-right flex items-center justify-between ${
+                                state.videoTemplate === "minshawi_player"
+                                    ? 'bg-primary/10 border-primary shadow-xl'
+                                    : 'bg-foreground/5 border-foreground/5 hover:bg-foreground/10'
+                            }`}
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+                                    <Sparkles className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <span className="text-sm font-black block font-arabic text-foreground">تصميم زياد (المنشاوي)</span>
+                                    <p className="text-[9px] text-foreground/40 font-arabic mt-0.5">مشغل المنشاوي المخصص</p>
+                                </div>
+                            </div>
+                            {state.videoTemplate === "minshawi_player" && (
+                                <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-black">
+                                    <Check className="w-3.5 h-3.5 stroke-[4px]" />
+                                </div>
+                            )}
+                        </button>
+
+                        <button
+                            onClick={() => {
+                                updateState({
+                                    videoTemplate: "default"
+                                });
+                            }}
+                            className={`relative overflow-hidden group p-5 rounded-2xl border-2 transition-all duration-500 text-right flex items-center justify-between ${
+                                state.videoTemplate !== "minshawi_player"
+                                    ? 'bg-primary/10 border-primary shadow-xl'
+                                    : 'bg-foreground/5 border-foreground/5 hover:bg-foreground/10'
+                            }`}
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-foreground/10 flex items-center justify-center text-foreground/40">
+                                    <Type className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <span className="text-sm font-black block font-arabic text-foreground">التصميم الافتراضي</span>
+                                    <p className="text-[9px] text-foreground/40 font-arabic mt-0.5">عرض الآيات والترجمة الكلاسيكية</p>
+                                </div>
+                            </div>
+                            {state.videoTemplate !== "minshawi_player" && (
+                                <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-black">
+                                    <Check className="w-3.5 h-3.5 stroke-[4px]" />
+                                </div>
+                            )}
+                        </button>
+                    </div>
+                </div>
+
                 {/* Font Family */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-4">
