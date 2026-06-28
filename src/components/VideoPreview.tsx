@@ -407,7 +407,7 @@ export function VideoPreview() {
       {/* Premium Frame */}
       <div className="absolute inset-[-12px] rounded-[3.5rem] border-[1px] border-primary/20 bg-primary/5 pointer-events-none" />
       
-      <div className="absolute inset-0 rounded-[3rem] border-[8px] border-[#0A0A0A] shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden transition-colors duration-500" style={{ backgroundColor: state.videoTemplate === "minshawi_player" ? "#383838" : "#0c0d10" }}>
+      <div className="absolute inset-0 rounded-[3rem] border-[8px] border-[#0A0A0A] shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden transition-colors duration-500" style={{ backgroundColor: state.videoTemplate === "minshawi_player" ? "#000000" : "#0c0d10" }}>
         
         {/* Background Media */}
         <div className="absolute inset-0 z-0 bg-black">
@@ -435,7 +435,9 @@ export function VideoPreview() {
             ) : (
               <div className="absolute inset-0 bg-[#0c0d10] islamic-pattern opacity-10" />
             )
-          ) : null}
+          ) : (
+            <div className="absolute top-[23.44%] bottom-[23.44%] left-0 right-0 bg-[#383838] z-10" />
+          )}
         </div>
 
         {/* Overlays */}

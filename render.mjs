@@ -422,54 +422,54 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     innerContent = `
       <g opacity="${opacity}">
         <!-- Card Container -->
-        <rect x="90" y="300" width="540" height="660" rx="48" fill="#000000" stroke="rgba(255, 255, 255, 0.05)" stroke-width="2" />
+        <rect x="90" y="310" width="540" height="660" rx="48" fill="#000000" stroke="rgba(255, 255, 255, 0.05)" stroke-width="2" />
         
         <!-- Minshawi Photo Rounded -->
         <clipPath id="photoClip">
-          <rect x="130" y="340" width="460" height="340" rx="32" />
+          <rect x="130" y="350" width="460" height="340" rx="32" />
         </clipPath>
-        <image href="data:image/jpeg;base64,${minshawiPhotoBase64}" x="130" y="340" width="460" height="340" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)" />
+        <image href="data:image/jpeg;base64,${minshawiPhotoBase64}" x="130" y="350" width="460" height="340" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)" />
         
         <!-- Surah Title & Reciter Name (Left aligned) -->
-        <text x="130" y="740" font-family="'Cairo', sans-serif" font-size="32" font-weight="bold" fill="#ffffff" text-anchor="start">${escapeXml(surahName || "سورة")}</text>
-        <text x="130" y="778" font-family="'Cairo', sans-serif" font-size="20" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">الشيخ محمد صديق المنشاوي</text>
+        <text x="130" y="750" font-family="'Cairo', sans-serif" font-size="32" font-weight="bold" fill="#ffffff" text-anchor="start">${escapeXml(surahName || "سورة")}</text>
+        <text x="130" y="788" font-family="'Cairo', sans-serif" font-size="20" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">الشيخ محمد صديق المنشاوي</text>
         
         <!-- Progress Bar -->
-        <rect x="130" y="818" width="460" height="4" rx="2" fill="rgba(255, 255, 255, 0.2)" />
-        <rect x="130" y="818" width="${progressWidth}" height="4" rx="2" fill="#ffffff" />
-        <circle cx="${handleX}" cy="820" r="7" fill="#ffffff" />
+        <rect x="130" y="828" width="460" height="4" rx="2" fill="rgba(255, 255, 255, 0.2)" />
+        <rect x="130" y="828" width="${progressWidth}" height="4" rx="2" fill="#ffffff" />
+        <circle cx="${handleX}" cy="830" r="7" fill="#ffffff" />
         
         <!-- Timestamps -->
-        <text x="130" y="850" font-family="monospace" font-size="16" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">${formatTime(elapsed)}</text>
-        <text x="590" y="850" font-family="monospace" font-size="16" fill="rgba(255, 255, 255, 0.5)" text-anchor="end">${formatTime(total)}</text>
+        <text x="130" y="860" font-family="monospace" font-size="16" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">${formatTime(elapsed)}</text>
+        <text x="590" y="860" font-family="monospace" font-size="16" fill="rgba(255, 255, 255, 0.5)" text-anchor="end">${formatTime(total)}</text>
         
         <!-- Controls Row -->
         <!-- Heart Button (Outline) -->
-        <g transform="translate(145, 888) scale(1.1)">
+        <g transform="translate(145, 898) scale(1.1)">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6"/>
         </g>
         
         <!-- Prev Button -->
-        <g transform="translate(250, 888) scale(1.1)">
+        <g transform="translate(250, 898) scale(1.1)">
           <path d="M19 20L9 12l10-8v16z" fill="#ffffff" />
           <rect x="5" y="4" width="2" height="16" rx="0.5" fill="#ffffff" />
         </g>
         
         <!-- Play Button (Circle Pause) -->
-        <circle cx="360" cy="900" r="28" fill="#ffffff" />
-        <g transform="translate(351, 891) scale(0.9)">
+        <circle cx="360" cy="910" r="28" fill="#ffffff" />
+        <g transform="translate(351, 901) scale(0.9)">
           <rect x="3" y="4" width="4" height="12" rx="1" fill="#000000" />
           <rect x="11" y="4" width="4" height="12" rx="1" fill="#000000" />
         </g>
         
         <!-- Next Button -->
-        <g transform="translate(450, 888) scale(1.1)">
+        <g transform="translate(450, 898) scale(1.1)">
           <path d="M5 4l10 8-10 8V4z" fill="#ffffff" />
           <rect x="17" y="4" width="2" height="16" rx="0.5" fill="#ffffff" />
         </g>
         
         <!-- Minus Circle -->
-        <g transform="translate(545, 888) scale(1.1)">
+        <g transform="translate(545, 898) scale(1.1)">
           <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6" />
           <line x1="7" y1="12" x2="17" y2="12" stroke="#ffffff" stroke-width="2" opacity="0.6" />
         </g>
@@ -488,6 +488,13 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     `;
   }
 
+  const isMinshawi = videoTemplate === "minshawi_player";
+  const bgRects = isMinshawi ? `
+    <rect x="0" y="0" width="${WIDTH}" height="300" fill="#000000" />
+    <rect x="0" y="300" width="${WIDTH}" height="680" fill="#383838" />
+    <rect x="0" y="980" width="${WIDTH}" height="300" fill="#000000" />
+  ` : `<rect width="${WIDTH}" height="${HEIGHT}" fill="url(#overlayGrad)"/>`;
+
   const svg = `<svg width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     ${fontFaceDef}
@@ -496,7 +503,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#BF953F"/><stop offset="30%" stop-color="#FCF6BA"/><stop offset="50%" stop-color="#D4AF37"/><stop offset="70%" stop-color="#FCF6BA"/><stop offset="100%" stop-color="#AA771C"/></linearGradient>
     ${overlayGrad}
   </defs>
-  <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#overlayGrad)"/>
+  ${bgRects}
   ${watermarkSVG}
   ${innerContent}
   ${socialSVG}
@@ -507,9 +514,9 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
   const svgBuffer = Buffer.from(finalSvg);
 
   if (videoTemplate === "minshawi_player") {
-    // رندرة خلفية رمادية داكنة لتصميم المنشاوي المخصص
+    // رندرة خلفية سوداء بالكامل وتوليد تفاصيل التصميم داخل الـ SVG
     await sharp({
-      create: { width: WIDTH, height: HEIGHT, channels: 3, background: { r: 56, g: 56, b: 56 } }
+      create: { width: WIDTH, height: HEIGHT, channels: 3, background: { r: 0, g: 0, b: 0 } }
     })
     .composite([{ input: svgBuffer, blend: "over" }])
     .jpeg({ quality: 85 })
