@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import { useEditor } from "@/store/useEditor";
 import { useSurahData } from "@/hooks/useSurahData";
 import { getAudioUrl } from "@/lib/quranUtils";
@@ -67,6 +67,52 @@ export function VideoPreview() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [visualizerActive, setVisualizerActive] = useState(false);
+
+  const [verseDurations, setVerseDurations] = useState<Record<number, number>>({});
+
+  useEffect(() => {
+    if (!surahData) return;
+    const versesToLoad = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
+    
+    // Reset durations
+    setVerseDurations({});
+
+    versesToLoad.forEach(v => {
+      const audio = new Audio();
+      audio.crossOrigin = "anonymous";
+      audio.src = getAudioUrl(Number(state.surahId), v.id, state.reciterId);
+      audio.preload = "metadata";
+      audio.onloadedmetadata = () => {
+        setVerseDurations(prev => ({ ...prev, [v.id]: audio.duration }));
+      };
+      audio.onerror = () => {
+        setVerseDurations(prev => ({ ...prev, [v.id]: 5 }));
+      };
+    });
+  }, [state.surahId, state.startAyah, state.endAyah, state.reciterId, surahData]);
+
+  const totalSelectedDuration = useMemo(() => {
+    if (!surahData) return 0;
+    const versesInRange = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
+    return versesInRange.reduce((sum, v) => sum + (verseDurations[v.id] || 5), 0);
+  }, [verseDurations, state.startAyah, state.endAyah, surahData]);
+
+  const totalSelectedElapsed = useMemo(() => {
+    if (!surahData) return 0;
+    const versesInRange = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
+    let sum = 0;
+    for (let v of versesInRange) {
+      if (v.id < currentAyahIndex) {
+        sum += verseDurations[v.id] || 5;
+      } else if (v.id === currentAyahIndex) {
+        sum += currentTime;
+        break;
+      } else {
+        break;
+      }
+    }
+    return sum;
+  }, [verseDurations, currentAyahIndex, currentTime, state.startAyah, state.endAyah, surahData]);
   const textWrapperRef = useRef<HTMLDivElement>(null);
   const visualizerCanvasRef = useRef<HTMLCanvasElement>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -393,7 +439,9 @@ export function VideoPreview() {
         </div>
 
         {/* Overlays */}
-        {state.overlay === "dust" && (
+        {state.videoTemplate !== "minshawi_player" && (
+          <>
+            {state.overlay === "dust" && (
            <div className="absolute inset-0 pointer-events-none z-10">
               {[...Array(20)].map((_, i) => (
                 <div key={i} className="absolute rounded-full bg-primary/30 blur-[2px]" style={{
@@ -561,9 +609,11 @@ export function VideoPreview() {
           <div className="absolute inset-0 pointer-events-none z-10"
             style={{ boxShadow: 'inset 0 0 120px rgba(0,0,0,0.85)' }} />
         )}
+          </>
+        )}
 
         {/* Visualizer Canvas */}
-        {state.showVisualizer && (
+        {state.showVisualizer && state.videoTemplate !== "minshawi_player" && (
            <canvas 
               ref={visualizerCanvasRef} 
               width={400} 
@@ -573,8 +623,12 @@ export function VideoPreview() {
         )}
 
         {/* Vignette & Gradients */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 z-[5]" />
-        <div className="absolute inset-0 shadow-[inset_0_0_150px_rgba(0,0,0,0.6)] z-[5]" />
+        {state.videoTemplate !== "minshawi_player" && (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 z-[5]" />
+            <div className="absolute inset-0 shadow-[inset_0_0_150px_rgba(0,0,0,0.6)] z-[5]" />
+          </>
+        )}
 
         {/* Social Handles */}
         <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center gap-2 z-[6] pointer-events-none">
@@ -746,25 +800,42 @@ export function VideoPreview() {
               {/* Progress Bar */}
               <div className="px-1 mt-1">
                 <div className="w-full h-1 bg-white/10 rounded-full relative cursor-pointer" onClick={(e) => {
-                  if (audioRef.current && duration > 0) {
+                  if (audioRef.current && totalSelectedDuration > 0 && surahData) {
                     const rect = e.currentTarget.getBoundingClientRect();
                     const clickX = e.clientX - rect.left;
                     const pct = clickX / rect.width;
-                    audioRef.current.currentTime = pct * duration;
+                    const targetTime = pct * totalSelectedDuration;
+
+                    const versesInRange = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
+                    let accumulatedTime = 0;
+                    for (let v of versesInRange) {
+                      const vDur = verseDurations[v.id] || 5;
+                      if (targetTime <= accumulatedTime + vDur) {
+                        setCurrentAyahIndex(v.id);
+                        const seekOffset = targetTime - accumulatedTime;
+                        setTimeout(() => {
+                          if (audioRef.current) {
+                            audioRef.current.currentTime = seekOffset;
+                          }
+                        }, 80);
+                        break;
+                      }
+                      accumulatedTime += vDur;
+                    }
                   }
                 }}>
                   <div 
                     className="h-full bg-white rounded-full" 
-                    style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
+                    style={{ width: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%` }}
                   />
                   <div 
                     className="w-3 h-3 bg-white rounded-full absolute -top-1 -ml-1.5 shadow" 
-                    style={{ left: `${(currentTime / (duration || 1)) * 100}%` }}
+                    style={{ left: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%` }}
                   />
                 </div>
                 <div className="flex justify-between text-[9px] text-white/40 font-mono mt-2" dir="ltr">
-                  <span>{formatTime(currentTime)}</span>
-                  <span>{formatTime(duration)}</span>
+                  <span>{formatTime(totalSelectedElapsed)}</span>
+                  <span>{formatTime(totalSelectedDuration)}</span>
                 </div>
               </div>
 
