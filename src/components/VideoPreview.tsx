@@ -783,7 +783,7 @@ export function VideoPreview() {
           {state.videoTemplate === "minshawi_player" ? (
             <div className="w-[76%] bg-black rounded-[2.5rem] p-4 flex flex-col gap-3.5 shadow-2xl z-20 text-left select-none animate-in fade-in duration-500">
               {/* Photo */}
-              <div className="w-full aspect-[1.2] rounded-[1.6rem] overflow-hidden shadow-lg border border-white/5 relative bg-black">
+              <div className="w-full aspect-[1.2] rounded-[1.2rem] overflow-hidden shadow-lg border-[3px] border-[#8a8070]/40 relative bg-black">
                 <img
                   src="https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782611993/%D8%A7%D9%84%D8%B4%D9%8A%D8%AE_%D9%85%D8%AD%D9%85%D8%AF_%D8%B5%D8%AF%D9%8A%D9%82_%D8%A7%D9%84%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8اي_fp1s3x.jpg"
                   alt="الشيخ محمد صديق المنشاوي"
