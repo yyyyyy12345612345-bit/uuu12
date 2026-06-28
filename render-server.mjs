@@ -59,7 +59,7 @@ const ALLOWED_DOMAINS = [
   "ia800601.us.archive.org", "archive.org",
   "images.pexels.com", "videos.pexels.com", "images.unsplash.com",
   "pexels.com", "pixabay.com", "cdn.pixabay.com",
-  "player.vimeo.com", "vimeo.com",
+  "player.vimeo.com", "vimeo.com", "res.cloudinary.com", "cloudinary.com",
 ];
 
 const jobs = new Map();
