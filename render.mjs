@@ -507,9 +507,9 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
   const svgBuffer = Buffer.from(finalSvg);
 
   if (videoTemplate === "minshawi_player") {
-    // رندرة خلفية سوداء بالكامل لتصميم المنشاوي المخصص
+    // رندرة خلفية رمادية داكنة لتصميم المنشاوي المخصص
     await sharp({
-      create: { width: WIDTH, height: HEIGHT, channels: 3, background: { r: 0, g: 0, b: 0 } }
+      create: { width: WIDTH, height: HEIGHT, channels: 3, background: { r: 56, g: 56, b: 56 } }
     })
     .composite([{ input: svgBuffer, blend: "over" }])
     .jpeg({ quality: 85 })
