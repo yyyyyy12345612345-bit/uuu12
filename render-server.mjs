@@ -422,56 +422,56 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     innerContent = `
       <g opacity="${opacity}">
         <!-- Card Container -->
-        <rect x="90" y="300" width="540" height="680" rx="40" fill="rgba(10, 10, 10, 0.85)" stroke="rgba(255, 255, 255, 0.12)" stroke-width="2" />
+        <rect x="90" y="300" width="540" height="660" rx="48" fill="#000000" stroke="rgba(255, 255, 255, 0.05)" stroke-width="2" />
         
         <!-- Minshawi Photo Rounded -->
         <clipPath id="photoClip">
-          <rect x="130" y="340" width="460" height="400" rx="24" />
+          <rect x="130" y="340" width="460" height="340" rx="32" />
         </clipPath>
-        <image href="data:image/jpeg;base64,${minshawiPhotoBase64}" x="130" y="340" width="460" height="400" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)" />
+        <image href="data:image/jpeg;base64,${minshawiPhotoBase64}" x="130" y="340" width="460" height="340" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)" />
         
         <!-- Surah Title & Reciter Name (Left aligned) -->
-        <text x="130" y="795" font-family="'Cairo', sans-serif" font-size="34" font-weight="bold" fill="#ffffff" text-anchor="start">${escapeXml(surahName || "سورة")}</text>
-        <text x="130" y="835" font-family="'Cairo', sans-serif" font-size="22" fill="rgba(255, 255, 255, 0.6)" text-anchor="start">الشيخ محمد صديق المنشاوي</text>
+        <text x="130" y="740" font-family="'Cairo', sans-serif" font-size="32" font-weight="bold" fill="#ffffff" text-anchor="start">${escapeXml(surahName || "سورة")}</text>
+        <text x="130" y="778" font-family="'Cairo', sans-serif" font-size="20" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">الشيخ محمد صديق المنشاوي</text>
         
         <!-- Progress Bar -->
-        <rect x="130" y="875" width="460" height="6" rx="3" fill="rgba(255, 255, 255, 0.15)" />
-        <rect x="130" y="875" width="${progressWidth}" height="6" rx="3" fill="#ffffff" />
-        <circle cx="${handleX}" cy="878" r="8" fill="#ffffff" />
+        <rect x="130" y="818" width="460" height="4" rx="2" fill="rgba(255, 255, 255, 0.2)" />
+        <rect x="130" y="818" width="${progressWidth}" height="4" rx="2" fill="#ffffff" />
+        <circle cx="${handleX}" cy="820" r="7" fill="#ffffff" />
         
         <!-- Timestamps -->
-        <text x="130" y="910" font-family="monospace" font-size="18" fill="rgba(255, 255, 255, 0.4)" text-anchor="start">${formatTime(elapsed)}</text>
-        <text x="590" y="910" font-family="monospace" font-size="18" fill="rgba(255, 255, 255, 0.4)" text-anchor="end">${formatTime(total)}</text>
+        <text x="130" y="850" font-family="monospace" font-size="16" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">${formatTime(elapsed)}</text>
+        <text x="590" y="850" font-family="monospace" font-size="16" fill="rgba(255, 255, 255, 0.5)" text-anchor="end">${formatTime(total)}</text>
         
         <!-- Controls Row -->
         <!-- Heart Button (Outline) -->
-        <g transform="translate(155, 938) scale(1.2)">
-          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="#ffffff" stroke-width="2.5" fill="none"/>
+        <g transform="translate(145, 888) scale(1.1)">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6"/>
         </g>
         
         <!-- Prev Button -->
-        <g transform="translate(260, 938) scale(1.2)">
+        <g transform="translate(250, 888) scale(1.1)">
           <path d="M19 20L9 12l10-8v16z" fill="#ffffff" />
-          <rect x="5" y="4" width="4" height="16" rx="1" fill="#ffffff" />
+          <rect x="5" y="4" width="2" height="16" rx="0.5" fill="#ffffff" />
         </g>
         
         <!-- Play Button (Circle Pause) -->
-        <circle cx="360" cy="950" r="28" fill="#ffffff" />
-        <g transform="translate(348, 938) scale(1.0)">
-          <rect x="5" y="4" width="5" height="16" rx="1.5" fill="#000000" />
-          <rect x="14" y="4" width="5" height="16" rx="1.5" fill="#000000" />
+        <circle cx="360" cy="900" r="28" fill="#ffffff" />
+        <g transform="translate(351, 891) scale(0.9)">
+          <rect x="3" y="4" width="4" height="12" rx="1" fill="#000000" />
+          <rect x="11" y="4" width="4" height="12" rx="1" fill="#000000" />
         </g>
         
         <!-- Next Button -->
-        <g transform="translate(435, 938) scale(1.2)">
+        <g transform="translate(450, 888) scale(1.1)">
           <path d="M5 4l10 8-10 8V4z" fill="#ffffff" />
-          <rect x="15" y="4" width="4" height="16" rx="1" fill="#ffffff" />
+          <rect x="17" y="4" width="2" height="16" rx="0.5" fill="#ffffff" />
         </g>
         
         <!-- Minus Circle -->
-        <g transform="translate(535, 938) scale(1.2)">
-          <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2.5" fill="none" />
-          <line x1="7" y1="12" x2="17" y2="12" stroke="#ffffff" stroke-width="2.5" />
+        <g transform="translate(545, 888) scale(1.1)">
+          <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6" />
+          <line x1="7" y1="12" x2="17" y2="12" stroke="#ffffff" stroke-width="2" opacity="0.6" />
         </g>
       </g>
     `;
@@ -676,8 +676,7 @@ async function startRender(jobId, data) {
       }
     }
 
-    // ═══ ضبط توقيت الإطارات ليتطابق تماماً مع الصوت ═══
-    const audioTotal = verseDurations.reduce((a, b) => a + b, 0);
+    // audioTotal تم تعريفها مسبقاً
     const frameTotal = frameEntries.reduce((a, f) => a + f.dur, 0);
     const diff = audioTotal - frameTotal;
     if (Math.abs(diff) > 0.01 && frameEntries.length > 0) {
