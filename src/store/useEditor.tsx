@@ -111,7 +111,7 @@ export interface EditorState {
   /** زخرفة الآية */
   ayahDecoration: AyahDecoration;
   /** قالب الفيديو النشط */
-  videoTemplate?: "default" | "minshawi_player";
+  videoTemplate?: "default" | "minshawi_player" | "dossary_player";
   /** الإشارة المرجعية الحالية */
   bookmark?: { surahId: string; ayahId: number };
   /** الصلاة النشطة في الإعدادات */

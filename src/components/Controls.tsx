@@ -304,7 +304,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                         <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">التصاميم الجاهزة</span>
                         <div className="h-px flex-1 bg-foreground/10" />
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <button
                             onClick={() => {
                                 updateState({
@@ -334,7 +334,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                                     <Sparkles className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <span className="text-sm font-black block font-arabic text-foreground">تصميم زياد (المنشاوي)</span>
+                                    <span className="text-sm font-black block font-arabic text-foreground">تصميم المنشاوي</span>
                                     <p className="text-[9px] text-foreground/40 font-arabic mt-0.5">مشغل المنشاوي المخصص</p>
                                 </div>
                             </div>
@@ -348,11 +348,51 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                         <button
                             onClick={() => {
                                 updateState({
+                                    videoTemplate: "dossary_player",
+                                    reciterId: "yasser",
+                                    fontFamily: "Amiri",
+                                    textColor: "#ffffff",
+                                    fontSize: 56,
+                                    filter: "cinematic",
+                                    overlay: "rays",
+                                    animation: "slide",
+                                    textPosition: "center",
+                                    showVisualizer: true,
+                                    visualizerColor: "#ffffff",
+                                    visualizerStyle: "bars",
+                                    ayahDecoration: "ornament"
+                                });
+                            }}
+                            className={`relative overflow-hidden group p-5 rounded-2xl border-2 transition-all duration-500 text-right flex items-center justify-between ${
+                                state.videoTemplate === "dossary_player"
+                                    ? 'bg-primary/10 border-primary shadow-xl'
+                                    : 'bg-foreground/5 border-foreground/5 hover:bg-foreground/10'
+                            }`}
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+                                    <Sparkles className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <span className="text-sm font-black block font-arabic text-foreground">تصميم الدوسري</span>
+                                    <p className="text-[9px] text-foreground/40 font-arabic mt-0.5">مشغل الدوسري المخصص</p>
+                                </div>
+                            </div>
+                            {state.videoTemplate === "dossary_player" && (
+                                <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-black">
+                                    <Check className="w-3.5 h-3.5 stroke-[4px]" />
+                                </div>
+                            )}
+                        </button>
+
+                        <button
+                            onClick={() => {
+                                updateState({
                                     videoTemplate: "default"
                                 });
                             }}
                             className={`relative overflow-hidden group p-5 rounded-2xl border-2 transition-all duration-500 text-right flex items-center justify-between ${
-                                state.videoTemplate !== "minshawi_player"
+                                (state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player")
                                     ? 'bg-primary/10 border-primary shadow-xl'
                                     : 'bg-foreground/5 border-foreground/5 hover:bg-foreground/10'
                             }`}
@@ -366,7 +406,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                                     <p className="text-[9px] text-foreground/40 font-arabic mt-0.5">عرض الآيات والترجمة الكلاسيكية</p>
                                 </div>
                             </div>
-                            {state.videoTemplate !== "minshawi_player" && (
+                            {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && (
                                 <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-black">
                                     <Check className="w-3.5 h-3.5 stroke-[4px]" />
                                 </div>

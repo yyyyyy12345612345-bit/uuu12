@@ -451,11 +451,16 @@ export function VideoPreview() {
       {/* Premium Frame */}
       <div className="absolute inset-[-12px] rounded-[3.5rem] border-[1px] border-primary/20 bg-primary/5 pointer-events-none" />
       
-      <div className="absolute inset-0 rounded-[3rem] border-[8px] border-[#0A0A0A] shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden transition-colors duration-500" style={{ backgroundColor: state.videoTemplate === "minshawi_player" ? "#000000" : "#0c0d10" }}>
+      <div 
+        className={`absolute inset-0 rounded-[3rem] border-[8px] border-[#0A0A0A] shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden transition-colors duration-500 ${
+          state.videoTemplate === "dossary_player" ? "bg-black relative before:absolute before:inset-0 before:bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] before:from-zinc-900 before:to-black before:opacity-85" : ""
+        }`} 
+        style={{ backgroundColor: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player") ? "#000000" : "#0c0d10" }}
+      >
         
         {/* Background Media */}
         <div className="absolute inset-0 z-0 bg-black">
-          {state.videoTemplate !== "minshawi_player" ? (
+          {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" ? (
             state.backgroundUrl ? (
               isVideoUrl(state.backgroundUrl) ? (
                 <video
@@ -480,12 +485,16 @@ export function VideoPreview() {
               <div className="absolute inset-0 bg-[#0c0d10] islamic-pattern opacity-10" />
             )
           ) : (
-            <div className="absolute top-[29.69%] bottom-[29.69%] left-0 right-0 bg-[#383838] z-10" />
+            state.videoTemplate === "minshawi_player" ? (
+              <div className="absolute top-[29.69%] bottom-[29.69%] left-0 right-0 bg-[#383838] z-10" />
+            ) : (
+              <div className="absolute inset-y-[25%] left-0 right-0 bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950 border-y border-white/[0.02] z-10 opacity-60" />
+            )
           )}
         </div>
 
         {/* Overlays */}
-        {state.videoTemplate !== "minshawi_player" && (
+        {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && (
           <>
             {state.overlay === "dust" && (
            <div className="absolute inset-0 pointer-events-none z-10">
@@ -659,7 +668,7 @@ export function VideoPreview() {
         )}
 
         {/* Visualizer Canvas */}
-        {state.showVisualizer && state.videoTemplate !== "minshawi_player" && (
+        {state.showVisualizer && state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && (
            <canvas 
               ref={visualizerCanvasRef} 
               width={400} 
@@ -669,7 +678,7 @@ export function VideoPreview() {
         )}
 
         {/* Vignette & Gradients */}
-        {state.videoTemplate !== "minshawi_player" && (
+        {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && (
           <>
             <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 z-[5]" />
             <div className="absolute inset-0 shadow-[inset_0_0_150px_rgba(0,0,0,0.6)] z-[5]" />
@@ -709,7 +718,7 @@ export function VideoPreview() {
         )}
 
         {/* Verse Number (Bottom) */}
-        {state.videoTemplate !== "minshawi_player" && surahData && currentVerse && (
+        {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && surahData && currentVerse && (
           <div className="absolute bottom-[14%] left-0 right-0 flex justify-center z-30 pointer-events-none">
             <span className="text-[22px] font-bold text-primary drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" style={{ fontFamily: 'Amiri, serif' }}>
               {(() => {
@@ -818,13 +827,67 @@ export function VideoPreview() {
         <div 
           className="absolute inset-0 flex flex-col items-center px-10 text-center z-20 transition-all duration-700 ease-out"
           style={{ 
-            justifyContent: state.videoTemplate === "minshawi_player" ? 'center' : (state.textPosition === 'top' ? 'flex-start' : state.textPosition === 'bottom' ? 'flex-end' : 'center'),
-            paddingTop: state.videoTemplate === "minshawi_player" ? '0px' : (state.textPosition === 'top' ? '180px' : '60px'),
-            paddingBottom: state.videoTemplate === "minshawi_player" ? '0px' : (state.textPosition === 'bottom' ? '160px' : '60px'),
-            transform: state.videoTemplate === "minshawi_player" ? 'none' : `translateY(${state.textVerticalOffset * 0.45}px)` 
+            justifyContent: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player") ? 'center' : (state.textPosition === 'top' ? 'flex-start' : state.textPosition === 'bottom' ? 'flex-end' : 'center'),
+            paddingTop: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player") ? '0px' : (state.textPosition === 'top' ? '180px' : '60px'),
+            paddingBottom: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player") ? '0px' : (state.textPosition === 'bottom' ? '160px' : '60px'),
+            transform: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player") ? 'none' : `translateY(${state.textVerticalOffset * 0.45}px)` 
+  
           }}
         >
-          {state.videoTemplate === "minshawi_player" ? (
+          {state.videoTemplate === "dossary_player" ? (
+            <div className="w-[85%] aspect-[500/350] flex items-center justify-between gap-6 z-20 text-right select-none animate-in fade-in duration-500">
+              {/* Left Side: Photo */}
+              <div 
+                className="w-[42%] aspect-[3/4] overflow-hidden bg-black border-[4px] border-white shadow-[0_0_25px_rgba(255,255,255,0.6)] shrink-0 transition-transform duration-500 hover:scale-105"
+                style={{ borderRadius: "0rem 2rem 2rem 2rem" }}
+              >
+                <img
+                  src="https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782863138/Sheikh_Yasser_Al_Dosari_qm0gsf.jpg"
+                  alt="الشيخ ياسر الدوسري"
+                  className="w-full h-full object-cover grayscale brightness-110"
+                />
+              </div>
+              
+              {/* Right Side: Info & Ornaments */}
+              <div className="flex-1 flex flex-col items-center justify-center text-center gap-4">
+                {/* Reciter Name */}
+                <h2 
+                  className="text-xl font-bold text-white font-arabic tracking-wide drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]"
+                  style={{ fontFamily: 'Amiri, serif' }}
+                >
+                  ياسر الدوسري
+                </h2>
+                
+                {/* Surah Name */}
+                <h1 
+                  className="text-3xl font-black text-white font-arabic tracking-wider drop-shadow-[0_0_10px_rgba(255,255,255,0.8)] my-1"
+                  style={{ fontFamily: 'Amiri, serif' }}
+                >
+                  سُورَةُ {surahData ? surahData.name : "..."}
+                </h1>
+                
+                {/* Glowing Circular Ornaments (Start & End Ayahs) */}
+                <div className="flex items-center justify-center gap-4 mt-2">
+                  {[state.endAyah, state.startAyah].map((num, i) => (
+                    <div key={i} className="relative w-12 h-12 flex items-center justify-center text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.75)]">
+                      {/* Islamic Star/Circle Border SVG */}
+                      <svg className="absolute inset-0 w-full h-full stroke-white fill-none stroke-[2.5]" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="38" />
+                        <circle cx="50" cy="50" r="43" strokeDasharray="3,3" />
+                        <path d="M 50 2 L 50 10 M 50 90 L 50 98 M 2 50 L 10 50 M 90 50 L 98 50" />
+                        <circle cx="50" cy="6" r="3" fill="currentColor" />
+                        <circle cx="50" cy="94" r="3" fill="currentColor" />
+                        <circle cx="6" cy="50" r="3" fill="currentColor" />
+                        <circle cx="94" cy="50" r="3" fill="currentColor" />
+                      </svg>
+                      {/* Ayah number */}
+                      <span className="text-[14px] font-bold z-10 font-mono translate-y-[1px]">{num}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : state.videoTemplate === "minshawi_player" ? (
             <div className="w-[70%] aspect-[500/450] bg-black rounded-[2rem] p-5 pb-6 flex flex-col justify-between shadow-2xl z-20 text-left select-none animate-in fade-in duration-500 border border-white/5">
               {/* Photo */}
               <div className="w-[90%] mx-auto aspect-[450/185] rounded-[1.2rem] overflow-hidden bg-black border-[3px] border-[#8a8070]/40 shrink-0">
@@ -1008,7 +1071,7 @@ export function VideoPreview() {
         </div>
 
         {/* Floating Play Control */}
-        {state.videoTemplate !== "minshawi_player" && (
+        {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && (
           <div className="absolute inset-x-0 bottom-32 flex flex-col items-center z-40">
             <button
               onClick={togglePlay}

@@ -290,7 +290,7 @@ function applyOverlayToSVG(svg, overlayName) {
 }
 
 // رسم إطارات الآيات (SVG)
-async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg = false, fontBase64 = null, amiriBase64 = null, animState = null, elapsedSeconds = 0, totalDuration = 0, minshawiPhotoBase64 = "") {
+async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg = false, fontBase64 = null, amiriBase64 = null, animState = null, elapsedSeconds = 0, totalDuration = 0, templatePhotoBase64 = "") {
   const { fontSize = 50, fontWeight = 700, fontFamily = "Amiri", textColor = "#ffffff", textPosition = "center", textVerticalOffset = 0, surahName = "", userPlan = "free", instaHandle = "", tiktokHandle = "", filter = "none", overlay = "none", ayahDecoration = "bracket1", videoTemplate = "default", reciterName = "Sheikh Muhammad Siddiq Al-Minshawi" } = settings;
 
   const opacity = animState ? animState.opacity : 1;
@@ -428,7 +428,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
         <clipPath id="photoClip">
           <rect x="190" y="475" width="340" height="200" rx="45" />
         </clipPath>
-        <image href="data:image/jpeg;base64,${minshawiPhotoBase64}" x="190" y="475" width="340" height="200" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)" />
+        <image href="data:image/jpeg;base64,${templatePhotoBase64}" x="190" y="475" width="340" height="200" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)" />
         
         <!-- Surah Title & Reciter Name (Left aligned) -->
         <text x="190" y="707" font-family="'Cairo', sans-serif" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="start">${escapeXml(surahName || "سورة")}</text>
@@ -475,6 +475,44 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
         </g>
       </g>
     `;
+  } else if (videoTemplate === "dossary_player") {
+    const startAyah = settings.startAyah || 1;
+    const endAyah = settings.endAyah || 1;
+    innerContent = `
+      <g opacity="${opacity}">
+        <!-- Photo with border-radius: top-left is sharp, other corners rounded (0 2rem 2rem 2rem) -->
+        <clipPath id="photoClip">
+          <path d="M 80,480 H 290 A 30,30 0 0 1 320,510 V 730 A 30,30 0 0 1 290,760 H 110 A 30,30 0 0 1 80,730 Z" />
+        </clipPath>
+        <!-- Outer Glowing white border -->
+        <path d="M 80,480 H 290 A 30,30 0 0 1 320,510 V 730 A 30,30 0 0 1 290,760 H 110 A 30,30 0 0 1 80,730 Z" fill="none" stroke="#ffffff" stroke-width="4" filter="url(#whiteGlow)" />
+        <image href="data:image/jpeg;base64,${templatePhotoBase64}" x="80" y="480" width="240" height="280" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)" />
+        
+        <!-- Info Column -->
+        <!-- Reciter Name: Yasser Al-Dossary -->
+        <text x="500" y="550" font-family="'Amiri', 'Cairo', serif" font-size="28" font-weight="bold" fill="#ffffff" text-anchor="middle" filter="url(#textGlow)">ياسر الدوسري</text>
+        
+        <!-- Surah Name -->
+        <text x="500" y="620" font-family="'Amiri', 'Cairo', serif" font-size="44" font-weight="black" fill="#ffffff" text-anchor="middle" filter="url(#textGlow)">سُورَةُ ${escapeXml(surahName || "سورة")}</text>
+        
+        <!-- Glowing Ornaments (Ayah range) -->
+        <!-- End Ayah (Left) -->
+        <g transform="translate(420, 670)" filter="url(#whiteGlow)">
+          <circle cx="25" cy="25" r="22" stroke="#ffffff" stroke-width="2.5" fill="none" />
+          <circle cx="25" cy="25" r="25" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="2,2" fill="none" />
+          <path d="M 25 2 L 25 7 M 25 43 L 25 48 M 2 25 L 7 25 M 43 25 L 48 25" stroke="#ffffff" stroke-width="2.5" />
+          <text x="25" y="32" font-family="monospace" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">${endAyah}</text>
+        </g>
+        
+        <!-- Start Ayah (Right) -->
+        <g transform="translate(530, 670)" filter="url(#whiteGlow)">
+          <circle cx="25" cy="25" r="22" stroke="#ffffff" stroke-width="2.5" fill="none" />
+          <circle cx="25" cy="25" r="25" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="2,2" fill="none" />
+          <path d="M 25 2 L 25 7 M 25 43 L 25 48 M 2 25 L 7 25 M 43 25 L 48 25" stroke="#ffffff" stroke-width="2.5" />
+          <text x="25" y="32" font-family="monospace" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">${startAyah}</text>
+        </g>
+      </g>
+    `;
   } else {
     innerContent = `
       <g opacity="${opacity}" transform="scale(${scale})" style="transform-origin: ${transformOrigin}">
@@ -489,11 +527,17 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
   }
 
   const isMinshawi = videoTemplate === "minshawi_player";
+  const isDossary = videoTemplate === "dossary_player";
   const bgRects = isMinshawi ? `
     <rect x="0" y="0" width="${WIDTH}" height="380" fill="#000000" />
     <rect x="0" y="380" width="${WIDTH}" height="520" fill="#383838" />
     <rect x="0" y="900" width="${WIDTH}" height="380" fill="#000000" />
-  ` : `<rect width="${WIDTH}" height="${HEIGHT}" fill="url(#overlayGrad)"/>`;
+  ` : (isDossary ? `
+    <!-- Dark Textured Gradient Background -->
+    <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#dossaryBgGrad)" />
+    <!-- Horizontal middle stripe -->
+    <rect x="0" y="320" width="${WIDTH}" height="640" fill="url(#dossaryStripeGrad)" opacity="0.6" />
+  ` : `<rect width="${WIDTH}" height="${HEIGHT}" fill="url(#overlayGrad)"/>`);
 
   const svg = `<svg width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -501,6 +545,9 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     <filter id="textGlow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="rgba(0,0,0,0.9)" flood-opacity="0.9"/></filter>
     <filter id="softShadow" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="rgba(0,0,0,0.7)" flood-opacity="0.7"/></filter>
     <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#BF953F"/><stop offset="30%" stop-color="#FCF6BA"/><stop offset="50%" stop-color="#D4AF37"/><stop offset="70%" stop-color="#FCF6BA"/><stop offset="100%" stop-color="#AA771C"/></linearGradient>
+    <filter id="whiteGlow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#ffffff" flood-opacity="0.6"/></filter>
+    <linearGradient id="dossaryBgGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#050505"/><stop offset="50%" stop-color="#141414"/><stop offset="100%" stop-color="#000000"/></linearGradient>
+    <linearGradient id="dossaryStripeGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#000000"/><stop offset="50%" stop-color="#222222"/><stop offset="100%" stop-color="#000000"/></linearGradient>
     ${overlayGrad}
   </defs>
   ${bgRects}
@@ -513,7 +560,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
   finalSvg = applyOverlayToSVG(finalSvg, overlay);
   const svgBuffer = Buffer.from(finalSvg);
 
-  if (videoTemplate === "minshawi_player") {
+  if (videoTemplate === "minshawi_player" || videoTemplate === "dossary_player") {
     // رندرة خلفية سوداء بالكامل وتوليد تفاصيل التصميم داخل الـ SVG
     await sharp({
       create: { width: WIDTH, height: HEIGHT, channels: 3, background: { r: 0, g: 0, b: 0 } }
@@ -565,13 +612,16 @@ async function startRender(jobId, data) {
     const bgPath = path.resolve(tempDir, isVideoBg ? "bg.mp4" : "bg.jpg");
     await downloadFile(backgroundUrl, bgPath);
 
-    // تحميل صورة الشيخ المنشاوي في حال اختيار مشغل المنشاوي المخصص
+    // تحميل صورة الشيخ المخصصة للقالب
     const isMinshawiPlayer = data.videoTemplate === "minshawi_player";
-    const minshawiPhotoPath = path.resolve(tempDir, "minshawi.jpg");
+    const isDossaryPlayer = data.videoTemplate === "dossary_player";
+    const photoPath = path.resolve(tempDir, "template_photo.jpg");
     if (isMinshawiPlayer) {
-      await downloadFile("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg", minshawiPhotoPath);
+      await downloadFile("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg", photoPath);
+    } else if (isDossaryPlayer) {
+      await downloadFile("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782863138/Sheikh_Yasser_Al_Dosari_qm0gsf.jpg", photoPath);
     }
-    const minshawiPhotoBase64 = isMinshawiPlayer ? fs.readFileSync(minshawiPhotoPath).toString("base64") : "";
+    const templatePhotoBase64 = (isMinshawiPlayer || isDossaryPlayer) ? fs.readFileSync(photoPath).toString("base64") : "";
 
     setProgress(20, "تحميل وتحليل الملفات الصوتية...");
     
@@ -638,7 +688,7 @@ async function startRender(jobId, data) {
         for (let w = 0; w < wordCount; w++) {
           const animState = { opacity: 1, offsetY: 0, scale: 1, activeWordIndex: w };
           const fPath = path.resolve(tempDir, `${fBaseName}-word-${w}.${ext}`);
-          await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState, currentElapsed, audioTotal, minshawiPhotoBase64);
+          await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState, currentElapsed, audioTotal, templatePhotoBase64);
           frameEntries.push({ fPath, dur: durPerWord });
           currentElapsed += durPerWord;
         }
@@ -659,10 +709,12 @@ async function startRender(jobId, data) {
         
         const fPath = path.resolve(tempDir, `frame-${frameIndex}.${ext}`);
         const mockVerse = { id: 1, text: "" };
-        const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, videoTemplate, reciterName };
+        const startAyah = verses && verses.length > 0 ? verses[0].id : 1;
+        const endAyah = verses && verses.length > 0 ? verses[verses.length - 1].id : 1;
+        const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, videoTemplate, reciterName, startAyah, endAyah };
         const animState = { opacity: 1, offsetY: 0, scale: 1, activeWordIndex: -1 };
 
-        await generateVerseFrame(mockVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState, elapsed, audioTotal, minshawiPhotoBase64);
+        await generateVerseFrame(mockVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState, elapsed, audioTotal, templatePhotoBase64);
         frameEntries.push({ fPath, dur });
         
         elapsed += dur;
