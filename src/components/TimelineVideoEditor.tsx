@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { useEditor } from "@/store/useEditor";
+import { useTheme } from "@/components/ThemeProvider";
 import { usePexelsBackgrounds } from "@/hooks/usePexelsBackgrounds";
 import { RECITERS } from "@/data/reciters";
 import { STATIC_BACKGROUNDS } from "@/data/backgrounds";
@@ -11,10 +12,11 @@ import { VideoPreview } from "@/components/VideoPreview";
 import { 
   FolderOpen, ImageIcon, Wand2, Type, Layout, Music, 
   ArrowLeftRight, FileText, Bookmark, 
-  Settings, Bell, Sun, Cloud, RotateCcw, RotateCw, 
+  Sun, Cloud, RotateCcw, RotateCw, 
   Play, Volume2, Maximize2, Trash2, Pin, Scissors, 
   Copy, Layers, Plus, Eye, Lock, Search, 
-  Loader2, Check, ChevronDown, Sparkles, Sliders, Info, Download
+  Loader2, Check, ChevronDown, Sparkles, Sliders, Info, Download,
+  Briefcase, Moon
 } from "lucide-react";
 
 interface TimelineVideoEditorProps {
@@ -24,6 +26,7 @@ interface TimelineVideoEditorProps {
 
 export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: TimelineVideoEditorProps) {
   const { state, updateState } = useEditor();
+  const { theme, toggleTheme } = useTheme();
   const { isFeatureLocked } = useUserPlan();
 
   // Navigation states
@@ -187,21 +190,15 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
 
           {/* Utility Icons */}
           <div className="flex items-center gap-2">
-            <button className="p-2 hover:bg-white/5 hover:text-white rounded-lg text-white/40 transition-colors">
-              <Settings className="w-4 h-4" />
+            <button 
+              onClick={toggleTheme}
+              className="p-2 hover:bg-white/5 hover:text-white rounded-lg text-white/40 transition-colors"
+              title={theme === "dark" ? "الوضع المضيء" : "الوضع المظلم"}
+            >
+              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
-            <button className="p-2 hover:bg-white/5 hover:text-white rounded-lg text-white/40 transition-colors">
-              <Bell className="w-4 h-4" />
-            </button>
-            <button className="p-2 hover:bg-white/5 hover:text-white rounded-lg text-white/40 transition-colors">
-              <Sun className="w-4 h-4" />
-            </button>
-            <button className="p-1 hover:border-primary/50 border border-transparent rounded-full transition-colors ml-1">
-              <img 
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80" 
-                alt="Profile" 
-                className="w-7 h-7 rounded-full object-cover"
-              />
+            <button className="p-2 hover:bg-white/5 hover:text-white rounded-lg text-white/40 transition-colors ml-1 border border-white/5 bg-white/5" title="مساحة العمل">
+              <Briefcase className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -937,10 +934,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
 
             </div>
 
-            {/* Timeline current frame needle pointer line */}
-            <div className="absolute top-[4.2rem] bottom-0 left-[55%] w-[2px] bg-primary z-20 pointer-events-none">
-              <div className="w-3 h-3 rounded-full bg-primary -ml-[5px] -mt-[6px] shadow-lg shadow-primary/30" />
-            </div>
+            {/* Timeline current frame needle pointer line removed */}
 
           </div>
 
@@ -953,7 +947,6 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
           <div className="h-12 shrink-0 border-b border-white/5 flex bg-[#0e0f14] p-1 gap-1">
             {[
               { id: "settings", label: "الإعدادات" },
-              { id: "layers", label: "الطبقات" },
               { id: "project", label: "المشروع" }
             ].map((tab) => (
               <button
@@ -970,8 +963,8 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
             ))}
           </div>
 
-          {/* Properties content area */}
-          <div className="flex-1 overflow-y-auto no-scrollbar p-5 flex flex-col gap-4">
+          {/* Properties content area with padding bottom to avoid navigation overlay */}
+          <div className="flex-1 overflow-y-auto no-scrollbar p-5 pb-32 flex flex-col gap-4">
             
             {activeRightTab === "settings" && (
               <div className="flex flex-col gap-3">
@@ -1309,30 +1302,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
               </div>
             )}
 
-            {activeRightTab === "layers" && (
-              <div className="flex flex-col gap-3">
-                <span className="text-[10px] text-white/40 block mb-2 font-arabic">ترتيب طبقات المقطع:</span>
-                {[
-                  { name: "العلامة المائية (Branding)", active: !!(state.tiktokHandle || state.instaHandle) },
-                  { name: "موجة الصوت (Visualizer)", active: state.showVisualizer },
-                  { name: "الآيات والترجمة (Verses)", active: true },
-                  { name: "تأثير الإضاءة (Overlay)", active: state.overlay !== "none" },
-                  { name: "الخلفية (Background)", active: true }
-                ].map((l, i) => (
-                  <div key={i} className="flex items-center justify-between p-3.5 bg-white/5 rounded-xl border border-white/5 text-xs text-white font-bold">
-                    <span className={l.active ? "text-white" : "text-white/30 font-arabic"}>{l.name}</span>
-                    <div className="flex items-center gap-2">
-                      <button className="text-white/30 hover:text-white">
-                        <Eye className="w-3.5 h-3.5" />
-                      </button>
-                      <button className="text-white/30 hover:text-white">
-                        <Lock className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+
 
             {activeRightTab === "project" && (
               <div className="flex flex-col gap-4 text-xs">
@@ -1369,22 +1339,20 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
               
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { name: "تصميم المنشاوي", active: state.videoTemplate === "minshawi_player", img: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg" },
-                  { name: "ذهبي فاخر", active: false, img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=200&h=150&q=80" },
-                  { name: "كلاسيك", active: state.videoTemplate !== "minshawi_player", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=200&h=150&q=80" },
-                  { name: "بسيط", active: false, img: "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?auto=format&fit=crop&w=200&h=150&q=80" }
-                ].map((temp, i) => (
+                  { id: "minshawi_player", name: "تصميم المنشاوي", active: state.videoTemplate === "minshawi_player", img: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg" },
+                  { id: "default", name: "كلاسيك", active: state.videoTemplate !== "minshawi_player", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=200&h=150&q=80" }
+                ].map((temp) => (
                   <button
-                    key={i}
+                    key={temp.id}
                     onClick={() => {
-                      if (i === 0) {
+                      if (temp.id === "minshawi_player") {
                         updateState({
                           videoTemplate: "minshawi_player",
                           reciterId: "minsh_murattal",
                           textColor: "#FFD700",
                           fontFamily: "Amiri"
                         });
-                      } else if (i === 2) {
+                      } else {
                         updateState({
                           videoTemplate: "default",
                           fontFamily: "Amiri"

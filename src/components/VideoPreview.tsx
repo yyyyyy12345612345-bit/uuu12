@@ -825,33 +825,33 @@ export function VideoPreview() {
           }}
         >
           {state.videoTemplate === "minshawi_player" ? (
-            <div className="w-[78%] aspect-[1.6] bg-black rounded-[4rem] p-6 flex flex-col justify-between shadow-2xl z-20 text-left select-none animate-in fade-in duration-500">
+            <div className="w-[70%] aspect-[500/450] bg-black rounded-[2rem] p-5 pb-6 flex flex-col justify-between shadow-2xl z-20 text-left select-none animate-in fade-in duration-500 border border-white/5">
               {/* Photo */}
-              <div className="w-[62%] mx-auto aspect-[1.7] rounded-[2.2rem] overflow-hidden bg-black">
+              <div className="w-[90%] mx-auto aspect-[450/185] rounded-[1.2rem] overflow-hidden bg-black border-[3px] border-[#8a8070]/40 shrink-0">
                 <img
                   src="https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg"
                   alt="الشيخ محمد صديق المنشاوي"
-                  className="w-full h-full object-cover rounded-[2.2rem]"
+                  className="w-full h-full object-contain rounded-[1rem]"
                 />
               </div>
               
               {/* Title & Artist */}
-              <div className="w-[62%] mx-auto text-left font-sans mt-2">
-                <h3 className="text-base font-bold text-white tracking-tight">
+              <div className="w-[90%] mx-auto text-left font-sans mt-2">
+                <h3 className="text-base font-bold text-white tracking-tight leading-tight">
                   {surahData ? surahData.name : "..."}
                 </h3>
                 <p className="text-[10px] text-white/50 mt-0.5 font-medium">{getReciterEnglishName(state.reciterId)}</p>
               </div>
-
+ 
               {/* Progress Bar */}
-              <div className="w-[62%] mx-auto mt-2">
+              <div className="w-[90%] mx-auto mt-2">
                 <div className="w-full h-[2px] bg-white/20 rounded-full relative cursor-pointer" onClick={(e) => {
                   if (audioRef.current && totalSelectedDuration > 0 && surahData) {
                     const rect = e.currentTarget.getBoundingClientRect();
                     const clickX = e.clientX - rect.left;
                     const pct = clickX / rect.width;
                     const targetTime = pct * totalSelectedDuration;
-
+ 
                     const versesInRange = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
                     let accumulatedTime = 0;
                     for (let v of versesInRange) {
@@ -877,23 +877,23 @@ export function VideoPreview() {
                   />
                   <div 
                     ref={progressDotRef}
-                    className="w-2.5 h-2.5 bg-white rounded-full absolute -top-1 -ml-1.25 shadow-md" 
+                    className="w-2 h-2 bg-white rounded-full absolute -top-0.75 -ml-1 shadow-md" 
                     style={{ left: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%` }}
                   />
                 </div>
-                <div className="flex justify-between text-[8px] text-white/50 font-mono mt-1.5" dir="ltr">
+                <div className="flex justify-between text-[8px] text-white/50 font-mono mt-1" dir="ltr">
                   <span ref={progressTextRef}>{formatTime(totalSelectedElapsed)}</span>
                   <span>{formatTime(totalSelectedDuration)}</span>
                 </div>
               </div>
-
+ 
               {/* Player Controls */}
-              <div className="w-[62%] mx-auto flex items-center justify-between mt-2 px-0" dir="ltr">
+              <div className="w-[90%] mx-auto flex items-center justify-between mt-2 px-0" dir="ltr">
                 {/* Heart */}
                 <button className="text-white/60 hover:text-white transition active:scale-95">
                   <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
                 </button>
-
+ 
                 {/* Prev */}
                 <button 
                   onClick={() => {
@@ -903,19 +903,19 @@ export function VideoPreview() {
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5" stroke="currentColor" strokeWidth="1.6"/></svg>
                 </button>
-
+ 
                 {/* Play/Pause Circle */}
                 <button 
                   onClick={togglePlay}
-                  className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 active:scale-95 transition shadow-lg"
+                  className="w-9 h-9 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 active:scale-95 transition shadow-lg shrink-0"
                 >
                   {isPlaying ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/></svg>
                   ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5"><polygon points="6 3 20 12 6 21 6 3"/></svg>
                   )}
                 </button>
-
+ 
                 {/* Next */}
                 <button 
                   onClick={handleAyahEnd}
@@ -923,7 +923,7 @@ export function VideoPreview() {
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19" stroke="currentColor" strokeWidth="1.6"/></svg>
                 </button>
-
+ 
                 {/* Minus */}
                 <button className="text-white/60 hover:text-white transition active:scale-95">
                   <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
