@@ -448,6 +448,14 @@ html:not(.dark) .text-white\/70 { color: hsl(var(--foreground) / 0.9) !important
 html:not(.dark) .text-white\/80 { color: hsl(var(--foreground)) !important; }
 html:not(.dark) .text-white\/90 { color: hsl(var(--foreground)) !important; }
 
+/* Hardcoded Editor Background Overrides for Light Mode */
+html:not(.dark) .bg-\[\#08090c\] { background-color: hsl(var(--background)) !important; }
+html:not(.dark) .bg-\[\#0a0b0f\] { background-color: hsl(var(--background)) !important; }
+html:not(.dark) .bg-\[\#0c0d12\] { background-color: hsl(var(--card)) !important; }
+html:not(.dark) .bg-\[\#0e0f14\] { background-color: hsl(var(--card)) !important; }
+html:not(.dark) .bg-\[\#0d0e14\] { background-color: hsl(var(--background)) !important; }
+html:not(.dark) .bg-\[\#0e0f14\]\/80 { background-color: hsla(var(--card) / 0.8) !important; }
+
 html:not(.dark) .bg-white\/5 { background-color: rgba(0,0,0,0.05) !important; }
 html:not(.dark) .bg-white\/10 { background-color: rgba(0,0,0,0.1) !important; }
 html:not(.dark) .bg-white\/20 { background-color: rgba(0,0,0,0.2) !important; }

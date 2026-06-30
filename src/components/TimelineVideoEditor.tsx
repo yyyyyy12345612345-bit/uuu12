@@ -739,36 +739,6 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
               </div>
             </div>
 
-            {/* Action Tools directly beneath Video */}
-            <div className="flex items-center gap-1.5 bg-[#0e0f14]/80 backdrop-blur-xl border border-white/5 px-4 py-2 rounded-2xl mt-4 shadow-xl">
-              <button className="p-2 hover:bg-white/5 hover:text-white rounded-lg text-white/40 active:scale-95 transition-all" title="تراجع">
-                <RotateCcw className="w-3.5 h-3.5" />
-              </button>
-              <button className="p-2 hover:bg-white/5 hover:text-white rounded-lg text-white/40 active:scale-95 transition-all" title="إعادة">
-                <RotateCw className="w-3.5 h-3.5" />
-              </button>
-              <div className="w-px h-4 bg-white/10 mx-1" />
-              <button className="p-2 hover:bg-white/5 hover:text-white rounded-lg text-white/40 active:scale-95 transition-all" title="قص">
-                <Scissors className="w-3.5 h-3.5" />
-              </button>
-              <button className="p-2 hover:bg-white/5 hover:text-white rounded-lg text-white/40 active:scale-95 transition-all" title="نسخ">
-                <Copy className="w-3.5 h-3.5" />
-              </button>
-              <button className="p-2 hover:bg-red-500/10 hover:text-red-400 rounded-lg text-white/40 active:scale-95 transition-all" title="حذف">
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-              <div className="w-px h-4 bg-white/10 mx-1" />
-              <button className="p-2 hover:bg-white/5 hover:text-white rounded-lg text-white/40 active:scale-95 transition-all" title="تقسيم">
-                <Sliders className="w-3.5 h-3.5" />
-              </button>
-              <button className="p-2 hover:bg-white/5 hover:text-white rounded-lg text-white/40 active:scale-95 transition-all" title="انتقال">
-                <ArrowLeftRight className="w-3.5 h-3.5" />
-              </button>
-              <button className="p-2 hover:bg-white/5 hover:text-white rounded-lg text-white/40 active:scale-95 transition-all" title="أضف نص">
-                <Type className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
           </div>
 
           {/* ── TIMELINE CONTAINER ── */}
