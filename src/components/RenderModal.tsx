@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Download, Loader2, CheckCircle2, AlertCircle, Play, Crown, Lock, Info, Sparkles, ChevronLeft, X } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
 import { useSurahData } from "@/hooks/useSurahData";
-import { RECITERS } from "@/data/reciters";
+import { RECITERS, getReciterEnglishName } from "@/data/reciters";
 import { getAudioUrl } from "@/lib/quranUtils";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
@@ -129,8 +129,9 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           instaHandle: state.instaHandle ?? "",
           particles: state.particles ?? "none",
           userPlan: userPlan?.plan || "free",
-          ayahDecoration: state.ayahDecoration || "bracket1",
+           ayahDecoration: state.ayahDecoration || "bracket1",
           videoTemplate: state.videoTemplate || "default",
+          reciterName: getReciterEnglishName(state.reciterId),
         }),
       });
 

@@ -43,6 +43,7 @@ const SettingsModal = nextDynamic(() => import("@/components/SettingsModal").the
 const AppSettingsModal = nextDynamic(() => import("@/components/AppSettingsModal").then(mod => mod.AppSettingsModal), { ssr: false });
 const UserProfileModal = nextDynamic(() => import("@/components/UserProfileModal").then(mod => mod.UserProfileModal), { ssr: false });
 const DirectChatModal = nextDynamic(() => import("@/components/DirectChatModal").then(mod => mod.DirectChatModal), { ssr: false });
+const TimelineVideoEditor = nextDynamic(() => import("@/components/TimelineVideoEditor").then(mod => mod.TimelineVideoEditor), { loading: () => <ComponentLoader />, ssr: false });
 
 // Error Boundary for CatchAll
 class CatchAllErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error?: Error }> {
@@ -233,7 +234,7 @@ function CatchAllContent() {
 
       {/* Global Top Bar - Logo + Install + Feedback */}
       {activeView !== 'mushaf' && activeView !== 'mushaf-full' && activeView !== 'mushaf-tafseer' && activeView !== 'feed' && (
-        <header className="h-14 shrink-0 bg-transparent px-4 md:px-8 flex items-center justify-between z-[200]">
+        <header className={`h-14 shrink-0 bg-transparent px-4 md:px-8 flex items-center justify-between z-[200] ${activeView === 'video' ? 'lg:hidden' : ''}`}>
           <button 
             onClick={() => navigateInstantly('/')} 
             className="flex items-center gap-2 hover:opacity-85 active:scale-95 transition-all text-right"
@@ -337,46 +338,40 @@ function CatchAllContent() {
         )}
         {visited.video && (
           <div key="video" className={`h-full w-full ${activeView === 'video' ? 'block view-transition' : 'hidden'}`}>
-             <div className="flex h-full w-full overflow-hidden bg-[#0c0d10]">
-                {/* Desktop Sidebar */}
-                <aside className="hidden lg:flex w-[340px] h-full border-r border-border flex-col p-4 overflow-y-auto no-scrollbar gap-4 pb-40 relative z-50 bg-background/50 backdrop-blur-3xl">
-                   <div className="absolute inset-0 islamic-pattern opacity-[0.02] pointer-events-none" />
-                   <div className="relative z-10 flex flex-col gap-6">
-                      <SurahSelector />
-                      <div className="h-px bg-white/5 w-full" />
-                      <Controls onOpenSubscription={() => setIsSubscriptionOpen(true)} />
-                   </div>
-                </aside>
+             {/* Desktop View: Full Featured Timeline Editor */}
+             <div className="hidden lg:block w-full h-full">
+                <TimelineVideoEditor 
+                  onOpenSubscription={() => setIsSubscriptionOpen(true)}
+                  onOpenRender={() => setIsRenderOpen(true)}
+                />
+             </div>
 
-                <div className="flex-1 flex flex-col h-full overflow-y-auto no-scrollbar relative">
-                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.05)_0%,transparent_70%)] pointer-events-none" />
+             {/* Mobile View: Classic Layout */}
+             <div className="lg:hidden flex flex-col h-full w-full bg-[#0c0d10] overflow-hidden">
+                {/* Mobile Header Controls */}
+                <div className="flex items-center justify-between px-6 pt-6 pb-4 shrink-0 relative z-50">
+                   <button 
+                      onClick={() => setIsMobileControlsOpen(true)}
+                      className="flex items-center gap-3 px-6 py-3.5 bg-black/40 backdrop-blur-xl border border-white/10 rounded-[1.5rem] active:scale-95 transition-all group"
+                   >
+                      <Settings className="w-5 h-5 text-primary group-hover:rotate-90 transition-transform duration-500" />
+                      <span className="text-[10px] font-black font-arabic text-primary uppercase tracking-widest">إعدادات التصميم</span>
+                   </button>
                    
-                   {/* Mobile Header Controls */}
-                   <div className="flex items-center justify-between px-6 pt-6 pb-4 shrink-0 lg:hidden relative z-50">
-                      <button 
-                         onClick={() => setIsMobileControlsOpen(true)}
-                         className="flex items-center gap-3 px-6 py-3.5 bg-black/40 backdrop-blur-xl border border-white/10 rounded-[1.5rem] active:scale-95 transition-all group"
-                      >
-                         <Settings className="w-5 h-5 text-primary group-hover:rotate-90 transition-transform duration-500" />
-                         <span className="text-[10px] font-black font-arabic text-primary uppercase tracking-widest">إعدادات التصميم</span>
-                      </button>
-                      
-                      <button 
-                         onClick={() => setIsRenderOpen(true)}
-                         className="flex items-center gap-3 px-6 py-3.5 bg-primary text-black rounded-[1.5rem] font-black text-[10px] active:scale-95 transition-all shadow-[0_20px_50px_rgba(212,175,55,0.2)] uppercase tracking-widest"
-                      >
-                         <Download className="w-5 h-5" />
-                         <span className="font-arabic">تصدير الفيديو</span>
-                      </button>
+                   <button 
+                      onClick={() => setIsRenderOpen(true)}
+                      className="flex items-center gap-3 px-6 py-3.5 bg-primary text-black rounded-[1.5rem] font-black text-[10px] active:scale-95 transition-all shadow-[0_20px_50px_rgba(212,175,55,0.2)] uppercase tracking-widest"
+                   >
+                      <Download className="w-5 h-5" />
+                      <span className="font-arabic">تصدير الفيديو</span>
+                   </button>
+                </div>
+                
+                {/* Main Preview Area */}
+                <div className="flex-1 flex items-center justify-center p-4 relative z-10 min-h-0">
+                   <div className="scale-[0.8] md:scale-[0.95] h-full flex items-center justify-center transition-all duration-1000">
+                     <VideoPreview />
                    </div>
-                   
-                   {/* Main Preview Area */}
-                   <div className="flex-1 flex items-center justify-center p-4 md:p-12 min-h-0 relative z-10">
-                      <div className="scale-[0.8] md:scale-[0.95] lg:scale-100 h-full flex items-center justify-center transition-all duration-1000">
-                        <VideoPreview />
-                      </div>
-                   </div>
-
                 </div>
              </div>
           </div>

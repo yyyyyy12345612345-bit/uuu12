@@ -1367,3 +1367,56 @@ export const RECITERS: Reciter[] = [
     "everyAyahFolder": "warsh/warsh_Abdul_Basit_128kbps"
   }
 ];
+
+export function getReciterEnglishName(id: string): string {
+  const mapping: Record<string, string> = {
+    "afasy": "Sheikh Mishary Al-Afasy",
+    "basit_murattal": "Sheikh Abdul Basit",
+    "basit_mujawwad": "Sheikh Abdul Basit (Mujawwad)",
+    "sds": "Sheikh Abdul Rahman Al-Sudais",
+    "shur": "Sheikh Saud Al-Shuraim",
+    "shur_64kbps": "Sheikh Saud Al-Shuraim",
+    "hani_rifai": "Sheikh Hani Al-Rifai",
+    "shatree": "Sheikh Abu Bakr Al-Shatri",
+    "minsh_murattal": "Sheikh Muhammad Siddiq Al-Minshawi",
+    "minsh_mujawwad": "Sheikh Muhammad Siddiq Al-Minshawi (Mujawwad)",
+    "husr_murattal": "Sheikh Mahmoud Khalil Al-Husary",
+    "husr_mujawwad": "Sheikh Mahmoud Khalil Al-Husary (Mujawwad)",
+    "maher": "Sheikh Maher Al-Muaiqly",
+    "juhani": "Sheikh Abdullah Al-Juhani",
+    "qtm": "Sheikh Nasser Al-Katami",
+    "s_gmd": "Sheikh Saad Al-Ghamdi",
+    "ajm": "Sheikh Ahmad Al-Ajmy",
+    "ajm_128kbps_clean": "Sheikh Ahmad Al-Ajmy",
+    "yasser": "Sheikh Yasser Al-Dosari",
+    "abkr": "Sheikh Idrees Abkar",
+    "ayyub": "Sheikh Muhammad Ayyub",
+    "jbrl": "Sheikh Muhammad Jebril",
+    "akdr": "Sheikh Ibrahim Al-Akhdar",
+    "jleel": "Sheikh Khalid Al-Jaleel",
+    "hazza": "Sheikh Hazza Al-Balushi",
+    "mansor": "Sheikh Mansour Al-Salimi",
+    "balilah": "Sheikh Bandar Balilah",
+    "albana": "Sheikh Mahmoud Ali Al-Banna",
+    "basfar": "Sheikh Abdullah Basfar",
+    "islam_sobhi": "Sheikh Islam Sobhi",
+  };
+
+  if (mapping[id]) return mapping[id];
+
+  const reciter = RECITERS.find(r => r.id === id);
+  if (reciter) {
+    if (reciter.everyAyahFolder) {
+      let clean = reciter.everyAyahFolder
+        .replace(/.*\//, "") // remove parent directories (like warsh/)
+        .replace(/_\d+kbps.*/i, "")
+        .replace(/_/g, " ")
+        .trim();
+      return "Sheikh " + clean;
+    }
+    return reciter.name;
+  }
+  
+  return "Sheikh Muhammad Siddiq Al-Minshawi";
+}
+

@@ -4,7 +4,7 @@ import React, { useRef, useState, useEffect, useMemo } from "react";
 import { useEditor } from "@/store/useEditor";
 import { useSurahData } from "@/hooks/useSurahData";
 import { getAudioUrl } from "@/lib/quranUtils";
-import { RECITERS } from "@/data/reciters";
+import { RECITERS, getReciterEnglishName } from "@/data/reciters";
 import { Play, Pause, Loader2, BookOpen, AlertCircle } from "lucide-react";
 
 const isVideoUrl = (url: string) => {
@@ -63,6 +63,9 @@ export function VideoPreview() {
   const [currentAyahIndex, setCurrentAyahIndex] = useState(state.startAyah);
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
+  const progressDotRef = useRef<HTMLDivElement>(null);
+  const progressTextRef = useRef<HTMLSpanElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -73,10 +76,7 @@ export function VideoPreview() {
   useEffect(() => {
     if (!surahData) return;
     const versesToLoad = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
-    
-    // Reset durations
     setVerseDurations({});
-
     versesToLoad.forEach(v => {
       const audio = new Audio();
       audio.crossOrigin = "anonymous";
@@ -113,6 +113,50 @@ export function VideoPreview() {
     }
     return sum;
   }, [verseDurations, currentAyahIndex, currentTime, state.startAyah, state.endAyah, surahData]);
+
+  // Buttery smooth progress updates at 60fps
+  useEffect(() => {
+    let animFrameId: number;
+    
+    const updateProgressSmoothly = () => {
+      if (audioRef.current && totalSelectedDuration > 0 && isPlaying) {
+        const versesInRange = surahData?.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah) || [];
+        let elapsed = 0;
+        for (let v of versesInRange) {
+          if (v.id < currentAyahIndex) {
+            elapsed += verseDurations[v.id] || 5;
+          } else if (v.id === currentAyahIndex) {
+            elapsed += audioRef.current.currentTime;
+            break;
+          } else {
+            break;
+          }
+        }
+        
+        const pct = (elapsed / totalSelectedDuration) * 100;
+        
+        if (progressBarRef.current) {
+          progressBarRef.current.style.width = `${pct}%`;
+        }
+        if (progressDotRef.current) {
+          progressDotRef.current.style.left = `${pct}%`;
+        }
+        if (progressTextRef.current) {
+          progressTextRef.current.innerText = formatTime(elapsed);
+        }
+      }
+      animFrameId = requestAnimationFrame(updateProgressSmoothly);
+    };
+    
+    if (isPlaying) {
+      animFrameId = requestAnimationFrame(updateProgressSmoothly);
+    }
+    
+    return () => {
+      cancelAnimationFrame(animFrameId);
+    };
+  }, [isPlaying, totalSelectedDuration, surahData, currentAyahIndex, state.startAyah, state.endAyah, verseDurations]);
+
   const textWrapperRef = useRef<HTMLDivElement>(null);
   const visualizerCanvasRef = useRef<HTMLCanvasElement>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -781,26 +825,26 @@ export function VideoPreview() {
           }}
         >
           {state.videoTemplate === "minshawi_player" ? (
-            <div className="w-[70%] bg-black rounded-[2rem] p-3 flex flex-col gap-2.5 shadow-2xl z-20 text-left select-none animate-in fade-in duration-500">
+            <div className="w-[78%] aspect-[1.6] bg-black rounded-[4rem] p-6 flex flex-col justify-between shadow-2xl z-20 text-left select-none animate-in fade-in duration-500">
               {/* Photo */}
-              <div className="w-full aspect-[1.2] rounded-[1.2rem] overflow-hidden shadow-lg border-[3px] border-[#8a8070]/40 relative bg-black">
+              <div className="w-[62%] mx-auto aspect-[1.7] rounded-[2.2rem] overflow-hidden bg-black">
                 <img
                   src="https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg"
                   alt="الشيخ محمد صديق المنشاوي"
-                  className="w-full h-full object-contain rounded-[1rem]"
+                  className="w-full h-full object-cover rounded-[2.2rem]"
                 />
               </div>
               
               {/* Title & Artist */}
-              <div className="text-left font-sans px-1 mt-0.5">
+              <div className="w-[62%] mx-auto text-left font-sans mt-2">
                 <h3 className="text-base font-bold text-white tracking-tight">
                   {surahData ? surahData.name : "..."}
                 </h3>
-                <p className="text-[10px] text-white/50 mt-0.5 font-medium">الشيخ محمد صديق المنشاوي</p>
+                <p className="text-[10px] text-white/50 mt-0.5 font-medium">{getReciterEnglishName(state.reciterId)}</p>
               </div>
 
               {/* Progress Bar */}
-              <div className="px-1 mt-0.5">
+              <div className="w-[62%] mx-auto mt-2">
                 <div className="w-full h-[2px] bg-white/20 rounded-full relative cursor-pointer" onClick={(e) => {
                   if (audioRef.current && totalSelectedDuration > 0 && surahData) {
                     const rect = e.currentTarget.getBoundingClientRect();
@@ -827,22 +871,24 @@ export function VideoPreview() {
                   }
                 }}>
                   <div 
+                    ref={progressBarRef}
                     className="h-full bg-white rounded-full" 
-                    style={{ width: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%`, transition: 'width 0.3s linear' }}
+                    style={{ width: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%` }}
                   />
                   <div 
+                    ref={progressDotRef}
                     className="w-2.5 h-2.5 bg-white rounded-full absolute -top-1 -ml-1.25 shadow-md" 
-                    style={{ left: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%`, transition: 'left 0.3s linear' }}
+                    style={{ left: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%` }}
                   />
                 </div>
                 <div className="flex justify-between text-[8px] text-white/50 font-mono mt-1.5" dir="ltr">
-                  <span>{formatTime(totalSelectedElapsed)}</span>
+                  <span ref={progressTextRef}>{formatTime(totalSelectedElapsed)}</span>
                   <span>{formatTime(totalSelectedDuration)}</span>
                 </div>
               </div>
 
               {/* Player Controls */}
-              <div className="flex items-center justify-between px-1 py-1 mt-0.5" dir="ltr">
+              <div className="w-[62%] mx-auto flex items-center justify-between mt-2 px-0" dir="ltr">
                 {/* Heart */}
                 <button className="text-white/60 hover:text-white transition active:scale-95">
                   <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>

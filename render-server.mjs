@@ -291,7 +291,7 @@ function applyOverlayToSVG(svg, overlayName) {
 
 // رسم إطارات الآيات (SVG)
 async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg = false, fontBase64 = null, amiriBase64 = null, animState = null, elapsedSeconds = 0, totalDuration = 0, minshawiPhotoBase64 = "") {
-  const { fontSize = 50, fontWeight = 700, fontFamily = "Amiri", textColor = "#ffffff", textPosition = "center", textVerticalOffset = 0, surahName = "", userPlan = "free", instaHandle = "", tiktokHandle = "", filter = "none", overlay = "none", ayahDecoration = "bracket1", videoTemplate = "default" } = settings;
+  const { fontSize = 50, fontWeight = 700, fontFamily = "Amiri", textColor = "#ffffff", textPosition = "center", textVerticalOffset = 0, surahName = "", userPlan = "free", instaHandle = "", tiktokHandle = "", filter = "none", overlay = "none", ayahDecoration = "bracket1", videoTemplate = "default", reciterName = "Sheikh Muhammad Siddiq Al-Minshawi" } = settings;
 
   const opacity = animState ? animState.opacity : 1;
   const verticalOffset = animState ? animState.offsetY : 0;
@@ -422,55 +422,54 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     innerContent = `
       <g opacity="${opacity}">
         <!-- Card Container -->
-        <rect x="110" y="410" width="500" height="450" rx="40" fill="#000000" stroke="rgba(255, 255, 255, 0.05)" stroke-width="2" />
+        <rect x="80" y="450" width="560" height="380" rx="95" fill="#000000" stroke="rgba(255, 255, 255, 0.05)" stroke-width="2" />
         
         <!-- Minshawi Photo Rounded -->
         <clipPath id="photoClip">
-          <rect x="135" y="435" width="450" height="185" rx="20" />
+          <rect x="190" y="475" width="340" height="200" rx="45" />
         </clipPath>
-        <image href="data:image/jpeg;base64,${minshawiPhotoBase64}" x="135" y="435" width="450" height="185" preserveAspectRatio="xMidYMid meet" clip-path="url(#photoClip)" />
-        <rect x="135" y="435" width="450" height="185" rx="20" fill="none" stroke="rgba(138, 128, 112, 0.4)" stroke-width="4" />
+        <image href="data:image/jpeg;base64,${minshawiPhotoBase64}" x="190" y="475" width="340" height="200" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)" />
         
         <!-- Surah Title & Reciter Name (Left aligned) -->
-        <text x="135" y="690" font-family="'Cairo', sans-serif" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="start">${escapeXml(surahName || "سورة")}</text>
-        <text x="135" y="718" font-family="'Cairo', sans-serif" font-size="15" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">الشيخ محمد صديق المنشاوي</text>
+        <text x="190" y="707" font-family="'Cairo', sans-serif" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="start">${escapeXml(surahName || "سورة")}</text>
+        <text x="190" y="733" font-family="'Cairo', sans-serif" font-size="15" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">${escapeXml(reciterName)}</text>
         
         <!-- Progress Bar -->
-        <rect x="135" y="755" width="450" height="4" rx="2" fill="rgba(255, 255, 255, 0.2)" />
-        <rect x="135" y="755" width="${450 * Math.min(1, Math.max(0, progressPct))}" height="4" rx="2" fill="#ffffff" />
-        <circle cx="${135 + 450 * Math.min(1, Math.max(0, progressPct))}" cy="757" r="6" fill="#ffffff" />
+        <rect x="190" y="760" width="340" height="4" rx="2" fill="rgba(255, 255, 255, 0.2)" />
+        <rect x="190" y="760" width="${340 * Math.min(1, Math.max(0, progressPct))}" height="4" rx="2" fill="#ffffff" />
+        <circle cx="${190 + 340 * Math.min(1, Math.max(0, progressPct))}" cy="762" r="6" fill="#ffffff" />
         
         <!-- Timestamps -->
-        <text x="135" y="788" font-family="monospace" font-size="14" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">${formatTime(elapsed)}</text>
-        <text x="585" y="788" font-family="monospace" font-size="14" fill="rgba(255, 255, 255, 0.5)" text-anchor="end">${formatTime(total)}</text>
+        <text x="190" y="787" font-family="monospace" font-size="14" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">${formatTime(elapsed)}</text>
+        <text x="530" y="787" font-family="monospace" font-size="14" fill="rgba(255, 255, 255, 0.5)" text-anchor="end">${formatTime(total)}</text>
         
         <!-- Controls Row -->
         <!-- Heart Button (Outline) -->
-        <g transform="translate(143, 810) scale(0.95)">
+        <g transform="translate(190, 793) scale(0.95)">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6"/>
         </g>
         
         <!-- Prev Button -->
-        <g transform="translate(245, 810) scale(0.95)">
+        <g transform="translate(270, 793) scale(0.95)">
           <path d="M19 20L9 12l10-8v16z" fill="#ffffff" />
           <rect x="5" y="4" width="2" height="16" rx="0.5" fill="#ffffff" />
         </g>
         
         <!-- Play Button (Circle Pause) -->
-        <circle cx="360" cy="822" r="22" fill="#ffffff" />
-        <g transform="translate(352, 814) scale(0.8)">
+        <circle cx="360" cy="805" r="22" fill="#ffffff" />
+        <g transform="translate(352, 797) scale(0.8)">
           <rect x="3" y="4" width="4" height="12" rx="1" fill="#000000" />
           <rect x="11" y="4" width="4" height="12" rx="1" fill="#000000" />
         </g>
         
         <!-- Next Button -->
-        <g transform="translate(451, 810) scale(0.95)">
+        <g transform="translate(426, 793) scale(0.95)">
           <path d="M5 4l10 8-10 8V4z" fill="#ffffff" />
           <rect x="17" y="4" width="2" height="16" rx="0.5" fill="#ffffff" />
         </g>
         
         <!-- Minus Circle -->
-        <g transform="translate(553, 810) scale(0.95)">
+        <g transform="translate(506, 793) scale(0.95)">
           <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6" />
           <line x1="7" y1="12" x2="17" y2="12" stroke="#ffffff" stroke-width="2" opacity="0.6" />
         </g>
@@ -542,7 +541,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
 
 // ═══ عملية الرندرة الأساسية ═══
 async function startRender(jobId, data) {
-  const { verses, backgroundUrl, surahName, textColor = "#ffffff", fontSize = 50, fontWeight = 700, fontFamily = "Amiri", filter = "none", overlay = "none", animation = "fade", textPosition = "center", textVerticalOffset = 0, userPlan = "free", instaHandle = "", tiktokHandle = "", ayahDecoration = "bracket1", showVisualizer = false, visualizerColor = "#D4AF37", visualizerStyle = "bars", particles = "none", videoTemplate = "default" } = data;
+  const { verses, backgroundUrl, surahName, reciterName = "Sheikh Muhammad Siddiq Al-Minshawi", textColor = "#ffffff", fontSize = 50, fontWeight = 700, fontFamily = "Amiri", filter = "none", overlay = "none", animation = "fade", textPosition = "center", textVerticalOffset = 0, userPlan = "free", instaHandle = "", tiktokHandle = "", ayahDecoration = "bracket1", showVisualizer = false, visualizerColor = "#D4AF37", visualizerStyle = "bars", particles = "none", videoTemplate = "default" } = data;
   const tempDir = path.resolve(os.tmpdir(), jobId);
   fs.mkdirSync(tempDir, { recursive: true });
 
@@ -601,7 +600,7 @@ async function startRender(jobId, data) {
 
     // Helper function to generate frames with animation and karaoke
     const processLineWithAnim = async (lineVerse, lineDur, fBaseName, lineIdx) => {
-      const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, videoTemplate };
+      const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, videoTemplate, reciterName };
       
       const animDuration = 0.3; // 300ms for entrance transition
       const hasTransition = animation && animation !== "none" && animation !== "fade"; 
@@ -646,40 +645,65 @@ async function startRender(jobId, data) {
       }
     };
 
-    for (let i = 0; i < verses.length; i++) {
-      const v = verses[i];
-      const dur = verseDurations[i];
-      const lines = wrapText(v.text || "", sf, tw);
-      const numLines = Math.max(1, lines.length);
+    const isPlayerTemplate = videoTemplate && videoTemplate.endsWith("_player");
 
-      if (numLines === 1) {
-        const fBaseName = `f-${i}-0`;
-        const lineVerse = { ...v, text: lines[0], translation: v.translation || "" };
-        await processLineWithAnim(lineVerse, Math.max(dur, 0.5), fBaseName, 0);
-      } else {
-        const charLengths = lines.map(l => Math.max(stripTashkeel(l).length, 1));
-        const totalChars = charLengths.reduce((a, b) => a + b, 0);
-        let remainingDur = dur;
-        let remainingChars = totalChars;
+    if (isPlayerTemplate) {
+      setProgress(35, "توليد إطارات مشغل الشيخ المخصص...");
+      const interval = 0.1; // 10 FPS - buttery smooth progress bar!
+      let elapsed = 0;
+      let frameIndex = 0;
 
-        for (let j = 0; j < numLines; j++) {
-          const fBaseName = `f-${i}-${j}`;
-          const lineVerse = {
-            ...v,
-            text: lines[j],
-            translation: (j === numLines - 1) ? (v.translation || "") : ""
-          };
-          let lineDur;
-          if (j === numLines - 1) {
-            lineDur = Math.max(remainingDur + 0.1, 0.5);
-          } else {
-            const ratio = charLengths[j] / remainingChars;
-            lineDur = Math.max(remainingDur * ratio * 1.05, 0.4);
-            remainingDur -= lineDur;
-            remainingChars -= charLengths[j];
+      while (elapsed < audioTotal) {
+        const remaining = audioTotal - elapsed;
+        const dur = Math.min(interval, remaining);
+        
+        const fPath = path.resolve(tempDir, `frame-${frameIndex}.${ext}`);
+        const mockVerse = { id: 1, text: "" };
+        const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, videoTemplate, reciterName };
+        const animState = { opacity: 1, offsetY: 0, scale: 1, activeWordIndex: -1 };
+
+        await generateVerseFrame(mockVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState, elapsed, audioTotal, minshawiPhotoBase64);
+        frameEntries.push({ fPath, dur });
+        
+        elapsed += dur;
+        frameIndex++;
+      }
+    } else {
+      for (let i = 0; i < verses.length; i++) {
+        const v = verses[i];
+        const dur = verseDurations[i];
+        const lines = wrapText(v.text || "", sf, tw);
+        const numLines = Math.max(1, lines.length);
+
+        if (numLines === 1) {
+          const fBaseName = `f-${i}-0`;
+          const lineVerse = { ...v, text: lines[0], translation: v.translation || "" };
+          await processLineWithAnim(lineVerse, Math.max(dur, 0.5), fBaseName, 0);
+        } else {
+          const charLengths = lines.map(l => Math.max(stripTashkeel(l).length, 1));
+          const totalChars = charLengths.reduce((a, b) => a + b, 0);
+          let remainingDur = dur;
+          let remainingChars = totalChars;
+
+          for (let j = 0; j < numLines; j++) {
+            const fBaseName = `f-${i}-${j}`;
+            const lineVerse = {
+              ...v,
+              text: lines[j],
+              translation: (j === numLines - 1) ? (v.translation || "") : ""
+            };
+            let lineDur;
+            if (j === numLines - 1) {
+              lineDur = Math.max(remainingDur + 0.1, 0.5);
+            } else {
+              const ratio = charLengths[j] / remainingChars;
+              lineDur = Math.max(remainingDur * ratio * 1.05, 0.4);
+              remainingDur -= lineDur;
+              remainingChars -= charLengths[j];
+            }
+            
+            await processLineWithAnim(lineVerse, lineDur, fBaseName, j);
           }
-          
-          await processLineWithAnim(lineVerse, lineDur, fBaseName, j);
         }
       }
     }
