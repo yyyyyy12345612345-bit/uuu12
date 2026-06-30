@@ -422,55 +422,55 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     innerContent = `
       <g opacity="${opacity}">
         <!-- Card Container -->
-        <rect x="90" y="400" width="540" height="480" rx="48" fill="#000000" stroke="rgba(255, 255, 255, 0.05)" stroke-width="2" />
+        <rect x="110" y="410" width="500" height="450" rx="40" fill="#000000" stroke="rgba(255, 255, 255, 0.05)" stroke-width="2" />
         
         <!-- Minshawi Photo Rounded -->
         <clipPath id="photoClip">
-          <rect x="120" y="430" width="480" height="200" rx="24" />
+          <rect x="135" y="435" width="450" height="185" rx="20" />
         </clipPath>
-        <image href="data:image/jpeg;base64,${minshawiPhotoBase64}" x="120" y="430" width="480" height="200" preserveAspectRatio="xMidYMid meet" clip-path="url(#photoClip)" />
-        <rect x="120" y="430" width="480" height="200" rx="24" fill="none" stroke="rgba(138, 128, 112, 0.4)" stroke-width="4" />
+        <image href="data:image/jpeg;base64,${minshawiPhotoBase64}" x="135" y="435" width="450" height="185" preserveAspectRatio="xMidYMid meet" clip-path="url(#photoClip)" />
+        <rect x="135" y="435" width="450" height="185" rx="20" fill="none" stroke="rgba(138, 128, 112, 0.4)" stroke-width="4" />
         
         <!-- Surah Title & Reciter Name (Left aligned) -->
-        <text x="120" y="705" font-family="'Cairo', sans-serif" font-size="26" font-weight="bold" fill="#ffffff" text-anchor="start">${escapeXml(surahName || "سورة")}</text>
-        <text x="120" y="735" font-family="'Cairo', sans-serif" font-size="16" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">الشيخ محمد صديق المنشاوي</text>
+        <text x="135" y="690" font-family="'Cairo', sans-serif" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="start">${escapeXml(surahName || "سورة")}</text>
+        <text x="135" y="718" font-family="'Cairo', sans-serif" font-size="15" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">الشيخ محمد صديق المنشاوي</text>
         
         <!-- Progress Bar -->
-        <rect x="120" y="775" width="480" height="4" rx="2" fill="rgba(255, 255, 255, 0.2)" />
-        <rect x="120" y="775" width="${progressWidth}" height="4" rx="2" fill="#ffffff" />
-        <circle cx="${handleX}" cy="777" r="6" fill="#ffffff" />
+        <rect x="135" y="755" width="450" height="4" rx="2" fill="rgba(255, 255, 255, 0.2)" />
+        <rect x="135" y="755" width="${450 * Math.min(1, Math.max(0, progressPct))}" height="4" rx="2" fill="#ffffff" />
+        <circle cx="${135 + 450 * Math.min(1, Math.max(0, progressPct))}" cy="757" r="6" fill="#ffffff" />
         
         <!-- Timestamps -->
-        <text x="120" y="810" font-family="monospace" font-size="14" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">${formatTime(elapsed)}</text>
-        <text x="600" y="810" font-family="monospace" font-size="14" fill="rgba(255, 255, 255, 0.5)" text-anchor="end">${formatTime(total)}</text>
+        <text x="135" y="788" font-family="monospace" font-size="14" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">${formatTime(elapsed)}</text>
+        <text x="585" y="788" font-family="monospace" font-size="14" fill="rgba(255, 255, 255, 0.5)" text-anchor="end">${formatTime(total)}</text>
         
         <!-- Controls Row -->
         <!-- Heart Button (Outline) -->
-        <g transform="translate(128, 838) scale(0.95)">
+        <g transform="translate(143, 810) scale(0.95)">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6"/>
         </g>
         
         <!-- Prev Button -->
-        <g transform="translate(238, 838) scale(0.95)">
+        <g transform="translate(245, 810) scale(0.95)">
           <path d="M19 20L9 12l10-8v16z" fill="#ffffff" />
           <rect x="5" y="4" width="2" height="16" rx="0.5" fill="#ffffff" />
         </g>
         
         <!-- Play Button (Circle Pause) -->
-        <circle cx="360" cy="850" r="24" fill="#ffffff" />
-        <g transform="translate(352, 842) scale(0.8)">
+        <circle cx="360" cy="822" r="22" fill="#ffffff" />
+        <g transform="translate(352, 814) scale(0.8)">
           <rect x="3" y="4" width="4" height="12" rx="1" fill="#000000" />
           <rect x="11" y="4" width="4" height="12" rx="1" fill="#000000" />
         </g>
         
         <!-- Next Button -->
-        <g transform="translate(458, 838) scale(0.95)">
+        <g transform="translate(451, 810) scale(0.95)">
           <path d="M5 4l10 8-10 8V4z" fill="#ffffff" />
           <rect x="17" y="4" width="2" height="16" rx="0.5" fill="#ffffff" />
         </g>
         
         <!-- Minus Circle -->
-        <g transform="translate(568, 838) scale(0.95)">
+        <g transform="translate(553, 810) scale(0.95)">
           <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6" />
           <line x1="7" y1="12" x2="17" y2="12" stroke="#ffffff" stroke-width="2" opacity="0.6" />
         </g>
@@ -570,7 +570,7 @@ async function startRender(jobId, data) {
     const isMinshawiPlayer = data.videoTemplate === "minshawi_player";
     const minshawiPhotoPath = path.resolve(tempDir, "minshawi.jpg");
     if (isMinshawiPlayer) {
-      await downloadFile("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782611993/%D8%A7%D9%84%D8%B4%D9%8A%D8%AE_%D9%85%D8%AD%D9%85%D8%AF_%D8%B5%D8%AF%D9%8A%D9%82_%D8%A7%D9%84%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_fp1s3x.jpg", minshawiPhotoPath);
+      await downloadFile("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg", minshawiPhotoPath);
     }
     const minshawiPhotoBase64 = isMinshawiPlayer ? fs.readFileSync(minshawiPhotoPath).toString("base64") : "";
 

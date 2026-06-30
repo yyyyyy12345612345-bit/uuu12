@@ -781,13 +781,13 @@ export function VideoPreview() {
           }}
         >
           {state.videoTemplate === "minshawi_player" ? (
-            <div className="w-[76%] bg-black rounded-[2.5rem] p-4 flex flex-col gap-3.5 shadow-2xl z-20 text-left select-none animate-in fade-in duration-500">
+            <div className="w-[70%] bg-black rounded-[2rem] p-3 flex flex-col gap-2.5 shadow-2xl z-20 text-left select-none animate-in fade-in duration-500">
               {/* Photo */}
               <div className="w-full aspect-[1.2] rounded-[1.2rem] overflow-hidden shadow-lg border-[3px] border-[#8a8070]/40 relative bg-black">
                 <img
-                  src="https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782611993/%D8%A7%D9%84%D8%B4%D9%8A%D8%AE_%D9%85%D8%AD%D9%85%D8%AF_%D8%B5%D8%AF%D9%8A%D9%82_%D8%A7%D9%84%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8اي_fp1s3x.jpg"
+                  src="https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg"
                   alt="الشيخ محمد صديق المنشاوي"
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain rounded-[1rem]"
                 />
               </div>
               
@@ -828,11 +828,11 @@ export function VideoPreview() {
                 }}>
                   <div 
                     className="h-full bg-white rounded-full" 
-                    style={{ width: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%` }}
+                    style={{ width: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%`, transition: 'width 0.3s linear' }}
                   />
                   <div 
-                    className="w-2.5 h-2.5 bg-white rounded-full absolute -top-1 -ml-1.25 shadow-md transition-all" 
-                    style={{ left: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%` }}
+                    className="w-2.5 h-2.5 bg-white rounded-full absolute -top-1 -ml-1.25 shadow-md" 
+                    style={{ left: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%`, transition: 'left 0.3s linear' }}
                   />
                 </div>
                 <div className="flex justify-between text-[8px] text-white/50 font-mono mt-1.5" dir="ltr">
