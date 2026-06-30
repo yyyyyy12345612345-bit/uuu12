@@ -91,6 +91,14 @@ export const RECITERS: Reciter[] = [
     "isPremiumSync": true
   },
   {
+    "id": "bahtimi",
+    "name": "كامل يوسف البهتيمي",
+    "folder": "bahtimi",
+    "mp3quranServer": "https://archive.org/download/kamel-al-bahtimi",
+    "everyAyahFolder": "Minshawy_Mujawwad_192kbps",
+    "isPremiumSync": false
+  },
+  {
     "id": "husr_murattal",
     "name": "محمود خليل الحصري (مرتل)",
     "folder": "husr",
@@ -1400,6 +1408,7 @@ export function getReciterEnglishName(id: string): string {
     "albana": "Sheikh Mahmoud Ali Al-Banna",
     "basfar": "Sheikh Abdullah Basfar",
     "islam_sobhi": "Sheikh Islam Sobhi",
+    "bahtimi": "Sheikh Kamel Al-Bahtimi",
   };
 
   if (mapping[id]) return mapping[id];
