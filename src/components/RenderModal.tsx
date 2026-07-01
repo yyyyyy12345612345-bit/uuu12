@@ -1255,8 +1255,8 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
               <Lock className="w-12 h-12 text-red-500" />
             </div>
             <h3 className="text-2xl font-black text-white mb-4">فترة انتظار الزوار</h3>
-            <p className="text-white/40 text-sm text-center mb-10 px-8 leading-relaxed">
-              يرجى الانتظار <span className="text-primary font-bold font-mono">{cooldownTimeLeft !== null ? `${Math.floor(cooldownTimeLeft / 60)} دقيقة و ${cooldownTimeLeft % 60} ثانية` : '30 دقيقة'}</span> لإنشاء فيديو آخر كزائر، أو سجل الدخول لتفادي فترات الانتظار.
+            <p className="text-white/40 text-sm text-center mb-10 px-8 leading-relaxed font-arabic">
+              يرجى الانتظار <span className="text-primary font-bold font-mono">{cooldownTimeLeft !== null ? `${Math.floor(cooldownTimeLeft / 60)} دقيقة و ${cooldownTimeLeft % 60} ثانية` : '30 دقيقة'}</span> لإنشاء فيديو آخر كزائر. نطبق هذا الانتظار لنحافظ على مجانية الخدمة وتغطية تكاليف الخوادم لنساعد أكبر عدد ممكن من المسلمين في نشر كتاب الله. يمكنك تسجيل الدخول لتقليل الانتظار.
             </p>
             <button 
               onClick={() => {
@@ -1275,7 +1275,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             </div>
             <h3 className="text-2xl font-black text-white mb-4">فترة انتظار التصدير</h3>
             <p className="text-white/40 text-sm text-center mb-10 px-8 leading-relaxed font-arabic">
-              طبقاً لخطة تبرعك الحالي، يرجى الانتظار <span className="text-primary font-bold font-mono">{cooldownTimeLeft !== null ? `${Math.floor(cooldownTimeLeft / 60)} دقيقة و ${cooldownTimeLeft % 60} ثانية` : '15 دقيقة'}</span> قبل تصدير الفيديو التالي لضمان استقرار السيرفرات.
+              طبقاً لخطة تبرعك الحالي، يرجى الانتظار <span className="text-primary font-bold font-mono">{cooldownTimeLeft !== null ? `${Math.floor(cooldownTimeLeft / 60)} دقيقة و ${cooldownTimeLeft % 60} ثانية` : '15 دقيقة'}</span> قبل تصدير الفيديو التالي. نطبق فترات الانتظار لضمان استقرار السيرفرات السحابية وتوزيع الموارد بشكل عادل، لنحافظ على مجانية الموقع ونساعد أكبر عدد من المستخدمين في تصميم ونشر القرآن الكريم.
             </p>
             <button onClick={() => { onClose(); onOpenSubscription(); }} className="w-full bg-primary text-black py-5 rounded-[1.5rem] font-black shadow-2xl hover:scale-105 transition-all">ترقية خطة التبرع لسرعة أكبر</button>
           </div>
