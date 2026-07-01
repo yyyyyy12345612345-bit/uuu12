@@ -328,6 +328,10 @@ export function VideoPreview() {
         }
         audioRef.current.load();
         await audioRef.current.play();
+        
+        if (videoRef.current) {
+          videoRef.current.volume = 0.25;
+        }
         videoRef.current?.play();
         setIsPlaying(true);
       } catch (error) {
@@ -480,7 +484,7 @@ export function VideoPreview() {
                   className="absolute inset-0 w-full h-full object-cover transition-all duration-1000"
                   style={{ filter: getFilterCSS(state.filter) }}
                   loop
-                  muted
+                  muted={false}
                   playsInline
                 />
               ) : (

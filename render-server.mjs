@@ -900,24 +900,56 @@ async function startRender(jobId, data) {
     let ffmpegCmd;
     if (isVideoBg) {
       // === فيديو الخلفية ===
-      ffmpegCmd = [
-        `ffmpeg`,
-        `-stream_loop -1`,
-        `-t ${totalDuration.toFixed(4)}`,
-        `-i "${sl(bgPath)}"`,
-        `-f concat -safe 0 -i "${sl(frameListPath)}"`,
-        `-i "${sl(mergedAudioPath)}"`,
-        `-filter_complex`,
-        `"[0:v]scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT},setsar=1[bg];`,
-        `[1:v]format=rgba,scale=${WIDTH}:${HEIGHT}[fg];`,
-        `[bg][fg]overlay=0:0:shortest=1,format=yuv420p[vout]"`,
-        `-map "[vout]" -map 2:a`,
-        `-c:v libx264 -preset ultrafast -crf 23`,
-        `-c:a copy`,
-        `-t ${totalDuration.toFixed(4)}`,
-        `-movflags +faststart`,
-        `-y "${sl(outPath)}"`
-      ].join(" ");
+      let hasAudio = false;
+      try {
+        const { stdout } = await execAsync(`ffprobe -v error -select_streams a -show_entries stream=codec_type -of csv=p=0 "${sl(bgPath)}"`);
+        if (stdout.trim().includes("audio")) {
+          hasAudio = true;
+        }
+      } catch (e) {
+        console.warn("Failed to probe video audio stream:", e.message);
+      }
+
+      if (hasAudio) {
+        ffmpegCmd = [
+          `ffmpeg`,
+          `-stream_loop -1`,
+          `-t ${totalDuration.toFixed(4)}`,
+          `-i "${sl(bgPath)}"`,
+          `-f concat -safe 0 -i "${sl(frameListPath)}"`,
+          `-i "${sl(mergedAudioPath)}"`,
+          `-filter_complex`,
+          `"[0:v]scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT},setsar=1[bg];`,
+          `[1:v]format=rgba,scale=${WIDTH}:${HEIGHT}[fg];`,
+          `[bg][fg]overlay=0:0:shortest=1,format=yuv420p[vout];`,
+          `[0:a]volume=0.25[bga];[2:a][bga]amix=inputs=2:duration=first:dropout_transition=2[aout]"`,
+          `-map "[vout]" -map "[aout]"`,
+          `-c:v libx264 -preset ultrafast -crf 23`,
+          `-c:a aac -b:a 192k -ar 44100`,
+          `-t ${totalDuration.toFixed(4)}`,
+          `-movflags +faststart`,
+          `-y "${sl(outPath)}"`
+        ].join(" ");
+      } else {
+        ffmpegCmd = [
+          `ffmpeg`,
+          `-stream_loop -1`,
+          `-t ${totalDuration.toFixed(4)}`,
+          `-i "${sl(bgPath)}"`,
+          `-f concat -safe 0 -i "${sl(frameListPath)}"`,
+          `-i "${sl(mergedAudioPath)}"`,
+          `-filter_complex`,
+          `"[0:v]scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT},setsar=1[bg];`,
+          `[1:v]format=rgba,scale=${WIDTH}:${HEIGHT}[fg];`,
+          `[bg][fg]overlay=0:0:shortest=1,format=yuv420p[vout]"`,
+          `-map "[vout]" -map 2:a`,
+          `-c:v libx264 -preset ultrafast -crf 23`,
+          `-c:a copy`,
+          `-t ${totalDuration.toFixed(4)}`,
+          `-movflags +faststart`,
+          `-y "${sl(outPath)}"`
+        ].join(" ");
+      }
     } else {
       // === صورة الخلفية ===
       ffmpegCmd = `ffmpeg -f concat -safe 0 -i "${sl(frameListPath)}" -i "${sl(mergedAudioPath)}" -c:v libx264 -preset ultrafast -crf 23 -pix_fmt yuv420p -c:a copy -t ${totalDuration.toFixed(4)} -movflags +faststart -y "${sl(outPath)}"`;

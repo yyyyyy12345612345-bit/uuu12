@@ -224,14 +224,33 @@ async function renderFinalStable(jobId, data) {
       ? `-stream_loop -1 -i "${bgPath}"`
       : `-loop 1 -i "${bgPath}"`;
 
+    // التحقق من وجود صوت في الفيديو
+    let hasAudio = false;
+    if (isVideoBg) {
+      try {
+        const { stdout } = await execAsync(`ffprobe -v error -select_streams a -show_entries stream=codec_type -of csv=p=0 "${bgPath}"`);
+        if (stdout.trim().includes("audio")) {
+          hasAudio = true;
+        }
+      } catch (e) {
+        console.warn("Failed to probe video audio stream:", e.message);
+      }
+    }
+
     // blend + overlay لدمج النص فوق الخلفية مع الحفاظ على الشفافية
-    const filterComplex = [
+    const filterParts = [
       `[0:v]scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280,setsar=1[bg]`,
       `[1:v]scale=720:1280[txt]`,
       `[bg][txt]blend=all_mode=screen:all_opacity=1,format=yuv420p[out]`
-    ].join(";");
+    ];
+    if (hasAudio) {
+      filterParts.push(`[0:a]volume=0.25[bga];[2:a][bga]amix=inputs=2:duration=first:dropout_transition=2[aout]`);
+    }
+    const filterComplex = filterParts.join(";");
 
-    const ffmpegMergeCmd = `ffmpeg ${bgInputArg} -i "${overlayVideoPath}" -i "${mergedAudioPath}" -filter_complex "${filterComplex}" -map "[out]" -map 2:a -c:v libx264 -preset medium -crf 20 -c:a copy -shortest -movflags +faststart "${finalOutputPath}" -y`;
+    const audioMapping = hasAudio ? `-map "[aout]" -c:a aac -b:a 192k -ar 44100` : `-map 2:a -c:a copy`;
+
+    const ffmpegMergeCmd = `ffmpeg ${bgInputArg} -i "${overlayVideoPath}" -i "${mergedAudioPath}" -filter_complex "${filterComplex}" -map "[out]" ${audioMapping} -c:v libx264 -preset medium -crf 20 -shortest -movflags +faststart "${finalOutputPath}" -y`;
 
     await execAsync(ffmpegMergeCmd, { maxBuffer: 100 * 1024 * 1024 });
 

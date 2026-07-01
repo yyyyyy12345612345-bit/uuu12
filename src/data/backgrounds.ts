@@ -137,5 +137,53 @@ export const STATIC_VIDEOS: BackgroundItem[] = [
     src: "https://res.cloudinary.com/dtuyo4gqm/video/upload/v1782881177/5_nxtzqz.mp4",
     poster: "",
     tags: ["بحار", "بحر", "محيط", "أمواج", "شاطئ", "طبيعة"]
+  },
+  {
+    type: "video",
+    src: "https://res.cloudinary.com/dtuyo4gqm/video/upload/v1782883479/00_vhysba.mp4",
+    poster: "",
+    tags: ["سماء", "ليل", "نجوم", "طبيعة", "غيوم"]
+  },
+  {
+    type: "video",
+    src: "https://res.cloudinary.com/dtuyo4gqm/video/upload/v1782883230/111_bsrzqy.mp4",
+    poster: "",
+    tags: ["جبال", "جبل", "طبيعة", "ثلج", "شتاء"]
+  },
+  {
+    type: "video",
+    src: "https://res.cloudinary.com/dtuyo4gqm/video/upload/v1782883549/1122%D9%81%D8%AE%D8%A7%D9%84%D8%A8%D9%8A%D9%86%D9%84%D8%A8%D8%B1%D8%A8%D9%8A%D8%B1_grcvqz.mp4",
+    poster: "",
+    tags: ["غابات", "غابة", "شجر", "طبيعة", "أخضر"]
+  },
+  {
+    type: "video",
+    src: "https://res.cloudinary.com/dtuyo4gqm/video/upload/v1782883496/1122%D9%81%D8%AE_a8dz7p.mp4",
+    poster: "",
+    tags: ["غروب", "شمس", "سماء", "طبيعة"]
+  },
+  {
+    type: "video",
+    src: "https://res.cloudinary.com/dtuyo4gqm/video/upload/v1782883643/1122%D9%81%D8%AE%D8%A7%D9%84%D8%A8%D9%8A%D9%86%D9%84%D8%A8%D8%B1_y7hc0k.mp4",
+    poster: "",
+    tags: ["بحار", "بحر", "محيط", "أمواج", "شاطئ", "طبيعة"]
+  },
+  {
+    type: "video",
+    src: "https://res.cloudinary.com/dtuyo4gqm/video/upload/v1782883604/1122_dcoj9o.mp4",
+    poster: "",
+    tags: ["مساجد", "مسجد", "إسلامي", "هدوء"]
+  },
+  {
+    type: "video",
+    src: "https://res.cloudinary.com/dtuyo4gqm/video/upload/v1782883685/1122%D9%81%D8%AE%D8%A7%D9%84_zqltaa.mp4",
+    poster: "",
+    tags: ["طبيعة", "مطر", "ماء", "غابات"]
+  },
+  {
+    type: "video",
+    src: "https://res.cloudinary.com/dtuyo4gqm/video/upload/v1782883657/1122%D9%81%D8%AE%D8%A7%D9%84%D8%A8%D9%8A_ljrmka.mp4",
+    poster: "",
+    tags: ["جبال", "جبل", "طبيعة", "ضباب"]
   }
 ];
