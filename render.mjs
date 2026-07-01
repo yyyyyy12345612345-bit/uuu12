@@ -1073,7 +1073,7 @@ async function startRender(jobId, data) {
     const concatFilter = `${filterParts};${concatIn}concat=n=${audioPaths.length}:v=0:a=1[aout]`;
 
     await execAsync(
-      `ffmpeg -loglevel error ${audioInputs} -filter_complex "${concatFilter}" -map "[aout]" -c:a aac -b:a 192k -ar 44100 "${sl(mergedAudioPath)}" -y`,
+      `ffmpeg -loglevel error ${audioInputs} -filter_complex "${concatFilter}" -map "[aout]" -c:a aac -b:a 192k -ar 44100 "${mergedAudioPath.replace(/\\/g, "/")}" -y`,
       { timeout: 90000 }
     );
 
@@ -1123,8 +1123,13 @@ async function startRender(jobId, data) {
     console.log(`✨ [${jobId}] Render completed successfully!`);
 
   } catch (e) {
-    console.error(`❌ [${jobId}] Render failed:`, e.message);
-    jobs.set(jobId, { status: "failed", error: e.message, message: "فشلت عملية الرندرة" });
+    console.error(`❌ [${jobId}] Render failed:`, e);
+    jobs.set(jobId, { 
+      status: "failed", 
+      error: e.message, 
+      stack: e.stack, 
+      message: `فشلت عملية الرندرة: ${e.message} ${e.stack ? `في ${e.stack.split("\n")[1].trim()}` : ""}` 
+    });
   } finally {
     // مسح المجلد المؤقت بعد دقيقة لتجنب شغل مساحة الهارد
     setTimeout(() => {
