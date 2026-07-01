@@ -139,8 +139,14 @@ async function downloadFile(url, dest) {
       decodedUrl = decodeURI(url);
     } catch (err) {}
   }
+
+  if (decodedUrl.startsWith("https://verses.quran.com///")) {
+    decodedUrl = "https://" + decodedUrl.substring("https://verses.quran.com///".length);
+  } else if (decodedUrl.includes("verses.quran.com//")) {
+    decodedUrl = decodedUrl.replace("verses.quran.com//", "verses.quran.com/");
+  }
   
-  if (!validateUrl(decodedUrl)) throw new Error(`URL غير مسموح به أمنياً: ${url}`);
+  if (!validateUrl(decodedUrl)) throw new Error(`URL غير مسموح به أمنياً: ${decodedUrl}`);
   
   const parsedUrl = new URL(decodedUrl);
   const res = await fetch(parsedUrl.href);
@@ -1082,7 +1088,7 @@ async function startRender(jobId, data) {
       const bgProcessedPath = path.resolve(tempDir, "bg_processed.mp4");
       setProgress(75, "جاري تهيئة فيديو الخلفية بمقاس الهاتف...");
       await execAsync(
-        `ffmpeg -stream_loop -1 -t ${totalDuration.toFixed(4)} -i "${sl(bgPath)}" -vf "scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT},setsar=1" -an -c:v libx264 -preset ultrafast -crf 23 "${sl(bgProcessedPath)}" -y`,
+        `ffmpeg -stream_loop -1 -t ${totalDuration.toFixed(4)} -i "${sl(bgPath)}" -vf "scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT},setsar=1" ${hasAudio ? "-c:a aac -b:a 128k" : "-an"} -c:v libx264 -preset ultrafast -crf 23 "${sl(bgProcessedPath)}" -y`,
         { timeout: 90000 }
       );
 
