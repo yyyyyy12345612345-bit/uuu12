@@ -660,14 +660,14 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         ctx.font = `600 32px "Noto Naskh Arabic", serif`;
         
         const lines = wrapText(ctx, verse.text, rightAreaW);
-        const lineH = 32 * 1.9;
-        const totalH = lines.length * lineH;
-        // Vertically center inside [480, 630]
-        const startY = 480 + (150 - totalH) / 2 + (lineH / 2);
-        
-        lines.forEach((l, idx) => {
-          ctx.fillText(l, textCenterX, startY + (idx * lineH));
-        });
+        if (lines.length > 0) {
+          const progressPct = ayahProgress || 0;
+          const activeLineIdx = Math.min(lines.length - 1, Math.floor(progressPct * lines.length));
+          const activeLineText = lines[activeLineIdx];
+          
+          const startY = 480 + 150 / 2;
+          ctx.fillText(activeLineText, textCenterX, startY);
+        }
         ctx.restore();
       }
 

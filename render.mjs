@@ -10,18 +10,18 @@
  * ✅ Zero Chromium Memory Leak: لا يحتاج لمتصفح كروم نهائياً
  */
 
-import express  from "express";
-import cors     from "cors";
-import path     from "path";
-import fs       from "fs";
-import os       from "os";
-import { Readable }      from "stream";
-import { finished }      from "stream/promises";
-import { exec, spawn }   from "child_process";
-import { promisify }     from "util";
-import crypto   from "crypto";
-import sharp    from "sharp";
-import { URL }  from "url";
+import express from "express";
+import cors from "cors";
+import path from "path";
+import fs from "fs";
+import os from "os";
+import { Readable } from "stream";
+import { finished } from "stream/promises";
+import { exec, spawn } from "child_process";
+import { promisify } from "util";
+import crypto from "crypto";
+import sharp from "sharp";
+import { URL } from "url";
 
 const execAsync = promisify(exec);
 const app = express();
@@ -29,26 +29,26 @@ app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 
 const RENDERS_DIR = path.resolve(os.tmpdir(), "renders_output");
-const FONTS_DIR   = path.resolve(os.tmpdir(), "fonts_cache");
+const FONTS_DIR = path.resolve(os.tmpdir(), "fonts_cache");
 const WIDTH = 720, HEIGHT = 1280;
 const HOST = process.env.RENDER_HOST || "yousef891238-render-server.hf.space";
 
 [RENDERS_DIR, FONTS_DIR].forEach(d => { if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true }); });
 
 const FONT_MAP = {
-  "Amiri":              "https://github.com/google/fonts/raw/main/ofl/amiri/Amiri-Regular.ttf",
-  "Amiri-Bold":         "https://github.com/google/fonts/raw/main/ofl/amiri/Amiri-Bold.ttf",
-  "Noto Naskh Arabic":  "https://github.com/google/fonts/raw/main/ofl/notonaskharabic/NotoNaskhArabic%5Bwght%5D.ttf",
-  "Scheherazade New":   "https://github.com/google/fonts/raw/main/ofl/scheherazadenew/ScheherazadeNew-Regular.ttf",
-  "Lateef":             "https://github.com/google/fonts/raw/main/ofl/lateef/Lateef-Regular.ttf",
-  "Cairo":              "https://github.com/google/fonts/raw/main/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf",
-  "Tajawal":            "https://github.com/google/fonts/raw/main/ofl/tajawal/Tajawal-Regular.ttf",
-  "Reem Kufi":          "https://github.com/google/fonts/raw/main/ofl/reemkufi/static/ReemKufi-Regular.ttf",
-  "Lalezar":            "https://github.com/google/fonts/raw/main/ofl/lalezar/Lalezar-Regular.ttf",
-  "El Messiri":         "https://github.com/google/fonts/raw/main/ofl/elmessiri/static/ElMessiri-Regular.ttf",
-  "Almarai":            "https://github.com/google/fonts/raw/main/ofl/almarai/Almarai-Regular.ttf",
-  "Aref Ruqaa":         "https://github.com/google/fonts/raw/main/ofl/arefruqaa/ArefRuqaa-Regular.ttf",
-  "Alexandria":         "https://github.com/google/fonts/raw/main/ofl/alexandria/static/Alexandria-Regular.ttf",
+  "Amiri": "https://github.com/google/fonts/raw/main/ofl/amiri/Amiri-Regular.ttf",
+  "Amiri-Bold": "https://github.com/google/fonts/raw/main/ofl/amiri/Amiri-Bold.ttf",
+  "Noto Naskh Arabic": "https://github.com/google/fonts/raw/main/ofl/notonaskharabic/NotoNaskhArabic%5Bwght%5D.ttf",
+  "Scheherazade New": "https://github.com/google/fonts/raw/main/ofl/scheherazadenew/ScheherazadeNew-Regular.ttf",
+  "Lateef": "https://github.com/google/fonts/raw/main/ofl/lateef/Lateef-Regular.ttf",
+  "Cairo": "https://github.com/google/fonts/raw/main/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf",
+  "Tajawal": "https://github.com/google/fonts/raw/main/ofl/tajawal/Tajawal-Regular.ttf",
+  "Reem Kufi": "https://github.com/google/fonts/raw/main/ofl/reemkufi/static/ReemKufi-Regular.ttf",
+  "Lalezar": "https://github.com/google/fonts/raw/main/ofl/lalezar/Lalezar-Regular.ttf",
+  "El Messiri": "https://github.com/google/fonts/raw/main/ofl/elmessiri/static/ElMessiri-Regular.ttf",
+  "Almarai": "https://github.com/google/fonts/raw/main/ofl/almarai/Almarai-Regular.ttf",
+  "Aref Ruqaa": "https://github.com/google/fonts/raw/main/ofl/arefruqaa/ArefRuqaa-Regular.ttf",
+  "Alexandria": "https://github.com/google/fonts/raw/main/ofl/alexandria/static/Alexandria-Regular.ttf",
 };
 
 const ALLOWED_DOMAINS = [
@@ -169,7 +169,7 @@ async function ensureFont(fontFamily) {
 
 // تزيين رقم الآية حسب الاختيار
 function getAyahDecoration(verseId, style) {
-  switch(style) {
+  switch (style) {
     case "none": return String(verseId);
     case "bracket2": return `﴾ ${verseId} ﴿`;
     case "star": return `✧ ${verseId} ✧`;
@@ -192,38 +192,38 @@ function applyFilterToSVG(svg, filterName) {
 
 function makeFilter(name, id) {
   const bc = (bright, contrast) =>
-    `<feComponentTransfer><feFuncR type="linear" slope="${(bright*contrast).toFixed(4)}" intercept="${(0.5*bright*(1-contrast)).toFixed(4)}"/><feFuncG type="linear" slope="${(bright*contrast).toFixed(4)}" intercept="${(0.5*bright*(1-contrast)).toFixed(4)}"/><feFuncB type="linear" slope="${(bright*contrast).toFixed(4)}" intercept="${(0.5*bright*(1-contrast)).toFixed(4)}"/></feComponentTransfer>`;
-  const sat = (s) => { const a=(1-s)/3; return `<feColorMatrix type="matrix" values="${a+s} ${a} ${a} 0 0  ${a} ${a+s} ${a} 0 0  ${a} ${a} ${a+s} 0 0  0 0 0 1 0"/>`; };
-  const sep = (s) => { const a=1-s; return `<feColorMatrix type="matrix" values="${a+s*0.393} ${s*0.769} ${s*0.189} 0 0  ${s*0.349} ${a+s*0.686} ${s*0.168} 0 0  ${s*0.272} ${s*0.534} ${a+s*0.131} 0 0  0 0 0 1 0"/>`; };
+    `<feComponentTransfer><feFuncR type="linear" slope="${(bright * contrast).toFixed(4)}" intercept="${(0.5 * bright * (1 - contrast)).toFixed(4)}"/><feFuncG type="linear" slope="${(bright * contrast).toFixed(4)}" intercept="${(0.5 * bright * (1 - contrast)).toFixed(4)}"/><feFuncB type="linear" slope="${(bright * contrast).toFixed(4)}" intercept="${(0.5 * bright * (1 - contrast)).toFixed(4)}"/></feComponentTransfer>`;
+  const sat = (s) => { const a = (1 - s) / 3; return `<feColorMatrix type="matrix" values="${a + s} ${a} ${a} 0 0  ${a} ${a + s} ${a} 0 0  ${a} ${a} ${a + s} 0 0  0 0 0 1 0"/>`; };
+  const sep = (s) => { const a = 1 - s; return `<feColorMatrix type="matrix" values="${a + s * 0.393} ${s * 0.769} ${s * 0.189} 0 0  ${s * 0.349} ${a + s * 0.686} ${s * 0.168} 0 0  ${s * 0.272} ${s * 0.534} ${a + s * 0.131} 0 0  0 0 0 1 0"/>`; };
   const gray = () => `<feColorMatrix type="matrix" values="0.333 0.333 0.333 0 0  0.333 0.333 0.333 0 0  0.333 0.333 0.333 0 0  0 0 0 1 0"/>`;
   const hue = (deg) => `<feColorMatrix type="hueRotate" values="${deg}"/>`;
   const bri = (b) => `<feComponentTransfer><feFuncR type="linear" slope="${b}"/><feFuncG type="linear" slope="${b}"/><feFuncB type="linear" slope="${b}"/></feComponentTransfer>`;
-  const con = (c) => `<feComponentTransfer><feFuncR type="linear" slope="${c}" intercept="${0.5*(1-c)}"/><feFuncG type="linear" slope="${c}" intercept="${0.5*(1-c)}"/><feFuncB type="linear" slope="${c}" intercept="${0.5*(1-c)}"/></feComponentTransfer>`;
+  const con = (c) => `<feComponentTransfer><feFuncR type="linear" slope="${c}" intercept="${0.5 * (1 - c)}"/><feFuncG type="linear" slope="${c}" intercept="${0.5 * (1 - c)}"/><feFuncB type="linear" slope="${c}" intercept="${0.5 * (1 - c)}"/></feComponentTransfer>`;
 
   const defs = {
-    vintage:     [sep(0.5), bc(0.8, 1.1)],
-    cool:        [sat(0.8), hue(20), bri(1.1)],
-    warm:        [sat(1.4), hue(-10), bri(1.1)],
-    bw:          [gray(), bc(0.9, 1.3)],
-    dramatic:    [con(1.5), bri(0.6), sat(1.3)],
-    blur:        [bri(0.7), `<feGaussianBlur stdDeviation="30"/>`],
-    sepia:       [sep(1), bc(1.2, 0.8)],
-    midnight:    [bri(0.5), con(1.3), sat(0.7), hue(20)],
-    oceanic:     [hue(170), bri(1.2), sat(1.3), con(1.1)],
-    saturated:   [sat(3), con(1.2)],
-    cinematic:   [con(1.4), sat(1.6), bri(0.85), sep(0.1)],
-    golden:      [bri(1.1), sat(1.3), sep(0.35), hue(-5)],
+    vintage: [sep(0.5), bc(0.8, 1.1)],
+    cool: [sat(0.8), hue(20), bri(1.1)],
+    warm: [sat(1.4), hue(-10), bri(1.1)],
+    bw: [gray(), bc(0.9, 1.3)],
+    dramatic: [con(1.5), bri(0.6), sat(1.3)],
+    blur: [bri(0.7), `<feGaussianBlur stdDeviation="30"/>`],
+    sepia: [sep(1), bc(1.2, 0.8)],
+    midnight: [bri(0.5), con(1.3), sat(0.7), hue(20)],
+    oceanic: [hue(170), bri(1.2), sat(1.3), con(1.1)],
+    saturated: [sat(3), con(1.2)],
+    cinematic: [con(1.4), sat(1.6), bri(0.85), sep(0.1)],
+    golden: [bri(1.1), sat(1.3), sep(0.35), hue(-5)],
     teal_orange: [con(1.2), sat(1.1), sep(0.15), hue(5), bri(1.05)],
-    noir:        [gray(), con(1.5), bri(0.85)],
-    dreamy:      [bri(1.15), sat(0.7), con(0.9), sep(0.15)],
-    neon:        [sat(2.5), con(1.3), hue(300), bri(1.2)],
-    pastel:      [sat(0.5), bri(1.2), con(0.85), sep(0.2)],
-    lut_autumn:  [sep(0.6), sat(1.4), hue(-20), bri(1.0)],
-    lut_forest:  [sep(0.3), sat(1.2), hue(80), bri(0.9)],
-    high_contrast:[con(2), bri(0.8), sat(1.5)],
-    faded:       [bri(1.1), con(0.7), sat(0.4), sep(0.3)],
-    vignette:    [bri(0.9), con(1.3), sat(1.1)],
-    cross_process:[con(1.3), sat(0.7), sep(0.4), hue(20), bri(0.9)],
+    noir: [gray(), con(1.5), bri(0.85)],
+    dreamy: [bri(1.15), sat(0.7), con(0.9), sep(0.15)],
+    neon: [sat(2.5), con(1.3), hue(300), bri(1.2)],
+    pastel: [sat(0.5), bri(1.2), con(0.85), sep(0.2)],
+    lut_autumn: [sep(0.6), sat(1.4), hue(-20), bri(1.0)],
+    lut_forest: [sep(0.3), sat(1.2), hue(80), bri(0.9)],
+    high_contrast: [con(2), bri(0.8), sat(1.5)],
+    faded: [bri(1.1), con(0.7), sat(0.4), sep(0.3)],
+    vignette: [bri(0.9), con(1.3), sat(1.1)],
+    cross_process: [con(1.3), sat(0.7), sep(0.4), hue(20), bri(0.9)],
   };
   const parts = defs[name];
   if (!parts) return "";
@@ -234,7 +234,7 @@ function makeFilter(name, id) {
 function applyOverlayToSVG(svg, overlayName) {
   if (overlayName === "none" || !overlayName) return svg;
   let overlaySVG = "";
-  switch(overlayName) {
+  switch (overlayName) {
     case "dust":
       overlaySVG = `<rect width="100%" height="100%" opacity="0.06" filter="url(#dustFilter)"><animate attributeName="opacity" values="0.03;0.07;0.03" dur="4s" repeatCount="indefinite"/></rect>`;
       break;
@@ -245,19 +245,19 @@ function applyOverlayToSVG(svg, overlayName) {
       overlaySVG = `<circle cx="100" cy="200" r="60" fill="rgba(255,255,255,0.05)"/><circle cx="600" cy="400" r="40" fill="rgba(255,255,255,0.04)"/><circle cx="300" cy="900" r="80" fill="rgba(255,255,255,0.03)"/><circle cx="500" cy="1100" r="50" fill="rgba(255,255,255,0.04)"/>`;
       break;
     case "rain":
-      overlaySVG = `<g opacity="0.35">${Array.from({length:40},(_,i)=>`<line x1="${Math.random()*720}" y1="${-20+Math.random()*100}" x2="${6+Math.random()*8-8+Math.random()*720}" y2="${1300+Math.random()*200}" stroke="rgba(174,194,224,0.5)" stroke-width="1.5"/>`).join('')}</g>`;
+      overlaySVG = `<g opacity="0.35">${Array.from({ length: 40 }, (_, i) => `<line x1="${Math.random() * 720}" y1="${-20 + Math.random() * 100}" x2="${6 + Math.random() * 8 - 8 + Math.random() * 720}" y2="${1300 + Math.random() * 200}" stroke="rgba(174,194,224,0.5)" stroke-width="1.5"/>`).join('')}</g>`;
       break;
     case "snow":
-      overlaySVG = `<g opacity="0.6">${Array.from({length:30},(_,i)=>`<circle cx="${Math.random()*720}" cy="${Math.random()*1280}" r="${1+Math.random()*3}" fill="white" opacity="${0.3+Math.random()*0.5}"><animate attributeName="cy" values="${-20};${1300}" dur="${5+Math.random()*8}s" repeatCount="indefinite"/><animate attributeName="cx" values="${Math.random()*720};${Math.random()*720}" dur="${5+Math.random()*8}s" repeatCount="indefinite"/></circle>`).join('')}</g>`;
+      overlaySVG = `<g opacity="0.6">${Array.from({ length: 30 }, (_, i) => `<circle cx="${Math.random() * 720}" cy="${Math.random() * 1280}" r="${1 + Math.random() * 3}" fill="white" opacity="${0.3 + Math.random() * 0.5}"><animate attributeName="cy" values="${-20};${1300}" dur="${5 + Math.random() * 8}s" repeatCount="indefinite"/><animate attributeName="cx" values="${Math.random() * 720};${Math.random() * 720}" dur="${5 + Math.random() * 8}s" repeatCount="indefinite"/></circle>`).join('')}</g>`;
       break;
     case "fireflies":
-      overlaySVG = `<g>${Array.from({length:15},(_,i)=>`<circle cx="${Math.random()*720}" cy="${Math.random()*1280}" r="${1.5+Math.random()*2.5}" fill="#D4AF37" opacity="0.4"><animate attributeName="opacity" values="0.1;0.9;0.1" dur="${2+Math.random()*3}s" repeatCount="indefinite"/></circle>`).join('')}</g>`;
+      overlaySVG = `<g>${Array.from({ length: 15 }, (_, i) => `<circle cx="${Math.random() * 720}" cy="${Math.random() * 1280}" r="${1.5 + Math.random() * 2.5}" fill="#D4AF37" opacity="0.4"><animate attributeName="opacity" values="0.1;0.9;0.1" dur="${2 + Math.random() * 3}s" repeatCount="indefinite"/></circle>`).join('')}</g>`;
       break;
     case "smoke":
-      overlaySVG = `<g opacity="0.12">${Array.from({length:6},(_,i)=>`<circle cx="${100+Math.random()*520}" cy="${1100+Math.random()*200}" r="${100+Math.random()*150}" fill="rgba(255,255,255,0.06)"><animate attributeName="cy" values="${1100+Math.random()*100};${-100}" dur="${10+Math.random()*15}s" repeatCount="indefinite"/><animate attributeName="r" values="${50+Math.random()*50};${150+Math.random()*150}" dur="${10+Math.random()*15}s" repeatCount="indefinite"/></circle>`).join('')}</g>`;
+      overlaySVG = `<g opacity="0.12">${Array.from({ length: 6 }, (_, i) => `<circle cx="${100 + Math.random() * 520}" cy="${1100 + Math.random() * 200}" r="${100 + Math.random() * 150}" fill="rgba(255,255,255,0.06)"><animate attributeName="cy" values="${1100 + Math.random() * 100};${-100}" dur="${10 + Math.random() * 15}s" repeatCount="indefinite"/><animate attributeName="r" values="${50 + Math.random() * 50};${150 + Math.random() * 150}" dur="${10 + Math.random() * 15}s" repeatCount="indefinite"/></circle>`).join('')}</g>`;
       break;
     case "sparkle":
-      overlaySVG = `<g>${Array.from({length:12},(_,i)=>`<text x="${Math.random()*660+30}" y="${Math.random()*1180+50}" font-size="${10+Math.random()*14}" fill="#FFD700" opacity="${0.3+Math.random()*0.5}" text-anchor="middle">✦</text>`).join('')}</g>`;
+      overlaySVG = `<g>${Array.from({ length: 12 }, (_, i) => `<text x="${Math.random() * 660 + 30}" y="${Math.random() * 1180 + 50}" font-size="${10 + Math.random() * 14}" fill="#FFD700" opacity="${0.3 + Math.random() * 0.5}" text-anchor="middle">✦</text>`).join('')}</g>`;
       break;
     case "film_grain":
       overlaySVG = `<rect width="100%" height="100%" opacity="0.08" fill="#888" filter="url(#grainFilter)" mix-blend-mode="overlay"/>`;
@@ -405,14 +405,14 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
   const finalOrnamentY = HEIGHT - 180;
 
   // Transform origin for scale
-  const transformOrigin = `${centerX}px ${startY + totalH/2}px`;
+  const transformOrigin = `${centerX}px ${startY + totalH / 2}px`;
 
   let innerContent = "";
   if (videoTemplate === "minshawi_player") {
     const elapsed = elapsedSeconds || 0;
     const total = totalDuration || 1;
     const progressPct = elapsed / total;
-    
+
     // Time formatter helper
     const formatTime = (secs) => {
       if (isNaN(secs)) return "0:00";
@@ -487,7 +487,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     const elapsed = elapsedSeconds || 0;
     const total = totalDuration || 1;
     const progressPct = elapsed / total;
-    
+
     const formatTime = (secs) => {
       if (isNaN(secs)) return "0:00";
       const m = Math.floor(secs / 60);
@@ -505,7 +505,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     const lineHNaskh = scaledNaskhSize * 1.9;
     const totalHNaskh = vLinesNaskh.length * lineHNaskh;
     const naskhStartY = 480 + (150 - totalHNaskh) / 2 + (lineHNaskh * 0.7);
-    
+
     const verseNaskhTSpans = vLinesNaskh.map((line, i) => {
       return `<tspan x="${rightAreaCenterX}" dy="${i === 0 ? 0 : lineHNaskh}">${escapeXml(line)}</tspan>`;
     }).join("");
@@ -624,17 +624,17 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     await sharp({
       create: { width: WIDTH, height: HEIGHT, channels: 3, background: { r: 0, g: 0, b: 0 } }
     })
-    .composite([{ input: svgBuffer, blend: "over" }])
-    .jpeg({ quality: 85 })
-    .toFile(outputPath);
+      .composite([{ input: svgBuffer, blend: "over" }])
+      .jpeg({ quality: 85 })
+      .toFile(outputPath);
   } else if (isVideoBg) {
     // رندرة شفافة لوضعها فوق الفيديو
     await sharp({
       create: { width: WIDTH, height: HEIGHT, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } }
     })
-    .composite([{ input: svgBuffer, blend: "over" }])
-    .png()
-    .toFile(outputPath);
+      .composite([{ input: svgBuffer, blend: "over" }])
+      .png()
+      .toFile(outputPath);
   } else {
     // دمج سريع جداً ومباشر فوق الصورة
     await sharp(bgPath)
@@ -676,14 +676,14 @@ async function startRender(jobId, data) {
     const isDossaryPlayer = data.videoTemplate === "dossary_player";
     const photoPath = path.resolve(tempDir, "template_photo.jpg");
     const dossaryBgPath = path.resolve(tempDir, "dossary_bg.png");
-    
+
     if (isMinshawiPlayer) {
       await downloadFile("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg", photoPath);
     } else if (isDossaryPlayer) {
       await downloadFile("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782863138/Sheikh_Yasser_Al_Dosari_qm0gsf.jpg", photoPath);
       await downloadFile("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782871516/12_gahaqi.png", dossaryBgPath);
     }
-    
+
     const templatePhotoBase64 = (isMinshawiPlayer || isDossaryPlayer) ? fs.readFileSync(photoPath).toString("base64") : "";
     const dossaryBgBase64 = isDossaryPlayer ? fs.readFileSync(dossaryBgPath).toString("base64") : "";
 
@@ -694,7 +694,7 @@ async function startRender(jobId, data) {
     }
 
     setProgress(20, "تحميل وتحليل الملفات الصوتية...");
-    
+
     // 1. تحميل كل الصوتيات أولاً
     const audioPaths = [];
     const verseDurations = [];
@@ -713,7 +713,7 @@ async function startRender(jobId, data) {
 
     const sf = Math.min(Math.max(fontSize * 1.6, 40), 110);
     const tw = Math.floor(WIDTH * 0.82);
-    const frameEntries = []; 
+    const frameEntries = [];
     const ext = isVideoBg ? "png" : "jpg";
 
     const stripTashkeel = (s) => (s || "").replace(/[\u064B-\u065F\u0670]/g, '');
@@ -721,12 +721,12 @@ async function startRender(jobId, data) {
     // Helper function to generate frames with animation and karaoke
     const processLineWithAnim = async (lineVerse, lineDur, fBaseName, lineIdx) => {
       const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, videoTemplate, reciterName };
-      
+
       const animDuration = 0.3; // 300ms for entrance transition
-      const hasTransition = animation && animation !== "none" && animation !== "fade"; 
-      
+      const hasTransition = animation && animation !== "none" && animation !== "fade";
+
       let remainingDur = lineDur;
-      
+
       // 1. Entrance Transition (if requested)
       if (hasTransition && remainingDur > 0.4) {
         const transitionFrames = 6; // 6 frames = ~0.2s
@@ -734,7 +734,7 @@ async function startRender(jobId, data) {
         for (let f = 0; f < transitionFrames; f++) {
           const progress = f / (transitionFrames - 1); // 0 to 1
           const animState = { opacity: 1, offsetY: 0, scale: 1, activeWordIndex: -1 };
-          
+
           if (animation === "fade") animState.opacity = progress;
           else if (animation === "slideUp") { animState.opacity = progress; animState.offsetY = 30 * (1 - progress); }
           else if (animation === "slideDown") { animState.opacity = progress; animState.offsetY = -30 * (1 - progress); }
@@ -752,7 +752,7 @@ async function startRender(jobId, data) {
       // 2. Karaoke Tracking (Highlighting words)
       const words = lineVerse.text.split(/\s+/).filter(Boolean);
       const wordCount = words.length;
-      
+
       if (wordCount > 0 && remainingDur > 0) {
         const durPerWord = remainingDur / wordCount;
         for (let w = 0; w < wordCount; w++) {
@@ -777,9 +777,9 @@ async function startRender(jobId, data) {
       while (elapsed < audioTotal) {
         const remaining = audioTotal - elapsed;
         const dur = Math.min(interval, remaining);
-        
+
         const fPath = path.resolve(tempDir, `frame-${frameIndex}.${ext}`);
-        
+
         // Find active verse for rendering text
         let activeVerseIndex = 0;
         let accum = 0;
@@ -794,7 +794,7 @@ async function startRender(jobId, data) {
           }
         }
         const activeVerse = verses[activeVerseIndex] || { id: 1, text: "" };
-        
+
         const startAyah = verses && verses.length > 0 ? verses[0].id : 1;
         const endAyah = verses && verses.length > 0 ? verses[verses.length - 1].id : 1;
         const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, videoTemplate, reciterName, startAyah, endAyah, dossaryBgBase64, naskhBase64 };
@@ -802,7 +802,7 @@ async function startRender(jobId, data) {
 
         await generateVerseFrame(activeVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState, elapsed, audioTotal, templatePhotoBase64);
         frameEntries.push({ fPath, dur });
-        
+
         elapsed += dur;
         frameIndex++;
       }
@@ -839,7 +839,7 @@ async function startRender(jobId, data) {
               remainingDur -= lineDur;
               remainingChars -= charLengths[j];
             }
-            
+
             await processLineWithAnim(lineVerse, lineDur, fBaseName, j);
           }
         }
@@ -859,7 +859,7 @@ async function startRender(jobId, data) {
     setProgress(55, "دمج الصوت بدون تقطيع...");
     const mergedAudioPath = path.resolve(tempDir, "merged-audio.aac");
     const audioInputs = audioPaths.map(p => `-i "${p.replace(/\\/g, "/")}"`).join(" ");
-    
+
     // فلتر إعادة تهيئة الترددات (Resampling) لضمان عدم وجود أخطاء في الـ concat
     const filterParts = audioPaths.map((_, i) => `[${i}:a]aresample=44100,aformat=sample_fmts=fltp:channel_layouts=stereo[a${i}]`).join(";");
     const concatIn = audioPaths.map((_, i) => `[a${i}]`).join("");
@@ -921,7 +921,7 @@ async function startRender(jobId, data) {
   } finally {
     // مسح المجلد المؤقت بعد دقيقة لتجنب شغل مساحة الهارد
     setTimeout(() => {
-      try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch (_) {}
+      try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch (_) { }
     }, 60000);
   }
 }

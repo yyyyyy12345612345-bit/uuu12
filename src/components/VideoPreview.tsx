@@ -46,7 +46,26 @@ const getFilterCSS = (filter?: string): string => {
     vignette: "brightness(0.95) contrast(1.05)",
     cross_process: "contrast(1.35) saturate(1.15) hue-rotate(10deg) sepia(0.12)",
   };
-  return map[filter || "none"] || "none";
+const wrapTextHelper = (text: string, fontSize: number, maxWidth: number) => {
+  if (!text) return [];
+  const hasHarakat = /[\u064B-\u065F]/.test(text);
+  const ratio = hasHarakat ? 0.45 : 0.40;
+  const charWidth = fontSize * ratio;
+  const maxChars = Math.max(20, Math.floor((maxWidth * 1.6) / charWidth));
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines = [];
+  let current = "";
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (candidate.length > maxChars && current) {
+      lines.push(current.trim());
+      current = word;
+    } else {
+      current = candidate;
+    }
+  }
+  if (current.trim()) lines.push(current.trim());
+  return lines;
 };
 
 const formatTime = (secs: number) => {
@@ -863,18 +882,24 @@ export function VideoPreview() {
                 <div className="flex-1 flex flex-col justify-between py-2 text-right h-[320px] max-w-[55%]">
                   {/* Verse Text */}
                   <div className="flex-1 flex items-center justify-center">
-                    {currentVerse ? (
-                      <p
-                        className="text-white text-center w-full break-words leading-[1.9] drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] font-arabic"
-                        style={{
-                          fontSize: `${Math.max(16, previewFontSize * 0.65)}px`,
-                          fontFamily: '"Noto Naskh Arabic", serif',
-                          direction: 'rtl',
-                        }}
-                      >
-                        {currentVerse.text}
-                      </p>
-                    ) : (
+                    {currentVerse ? (() => {
+                      const lines = wrapTextHelper(currentVerse.text, Math.max(16, previewFontSize * 0.65), 180);
+                      const progress = duration > 0 ? (currentTime / duration) : 0;
+                      const activeLineIdx = Math.min(lines.length - 1, Math.floor(progress * lines.length));
+                      const activeLineText = lines[activeLineIdx] || currentVerse.text;
+                      return (
+                        <p
+                          className="text-white text-center w-full break-words leading-[1.9] drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] font-arabic"
+                          style={{
+                            fontSize: `${Math.max(16, previewFontSize * 0.65)}px`,
+                            fontFamily: '"Noto Naskh Arabic", serif',
+                            direction: 'rtl',
+                          }}
+                        >
+                          {activeLineText}
+                        </p>
+                      );
+                    })() : (
                       <p className="text-white/40 text-sm font-arabic">لم يتم تحديد آية</p>
                     )}
                   </div>
