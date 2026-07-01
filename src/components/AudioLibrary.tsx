@@ -222,8 +222,8 @@ const getReciterAvatar = (id: string, name: string) => {
 
   if (RECITER_AVATARS[code]) return RECITER_AVATARS[code];
 
-  // Dynamic Mp3quran profile photo URL base
-  return `https://mp3quran.net/images/profile/${code}.jpg`;
+  // Dynamic Mp3quran profile photo URL base (canonical HTTPS path to avoid insecure redirects)
+  return `https://www.mp3quran.net/ar/images/profile/${code}.jpg`;
 };
 
 const ReciterAvatar = ({ src, name, className }: { src: string; name: string; className?: string }) => {

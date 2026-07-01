@@ -699,7 +699,8 @@ async function startRender(jobId, data) {
 
     if (isPlayerTemplate) {
       setProgress(35, "توليد إطارات مشغل الشيخ المخصص...");
-      const interval = 0.1; // 10 FPS - buttery smooth progress bar!
+      // Dossary template has no animations (1 FPS is enough). Minshawi template updates at 2 FPS (0.5s).
+      const interval = videoTemplate === "dossary_player" ? 1.0 : 0.5;
       let elapsed = 0;
       let frameIndex = 0;
 
