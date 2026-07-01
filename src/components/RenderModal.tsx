@@ -7,7 +7,7 @@ import { useSurahData } from "@/hooks/useSurahData";
 import { RECITERS, getReciterEnglishName, getSheikhAsset } from "@/data/reciters";
 import { getAudioUrl } from "@/lib/quranUtils";
 import { db, auth } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { incrementVideoRenderCount } from "@/lib/points";
 
 
@@ -33,6 +33,30 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
   const [userPlan, setUserPlan] = useState<any>(null);
   const [isLimitReached, setIsLimitReached] = useState(false);
   const [cooldownTimeLeft, setCooldownTimeLeft] = useState<number | null>(null);
+  
+  const [renderConfig, setRenderConfig] = useState<{
+    enabled: boolean;
+    message: string;
+    reason: string;
+    allowPlans: string[];
+  }>({ enabled: true, message: "", reason: "maintenance", allowPlans: ["free", "starter", "supporter", "premium"] });
+
+  const isRenderDisabled = React.useMemo(() => {
+    if (renderConfig.enabled) return false;
+    
+    const email = auth?.currentUser?.email || "";
+    const username = userPlan?.username || "";
+    const displayName = userPlan?.displayName || "";
+    if (
+      email.toLowerCase() === "youssefosama@gmail.com" ||
+      username.toLowerCase() === "youssef" ||
+      displayName.toLowerCase() === "youssef"
+    ) {
+      return false;
+    }
+    
+    return true;
+  }, [renderConfig, auth?.currentUser, userPlan]);
 
   useEffect(() => {
     if (isOpen) {
@@ -79,6 +103,21 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         }
       } catch (err) {
         console.warn("Failed to load pricing/cooldown configurations:", err);
+      }
+
+      try {
+        const configDoc = await getDoc(doc(db, "settings", "render_config"));
+        if (configDoc.exists()) {
+          const cData = configDoc.data();
+          setRenderConfig({
+            enabled: cData.enabled ?? true,
+            message: cData.message ?? "",
+            reason: cData.reason ?? "maintenance",
+            allowPlans: cData.allowPlans ?? ["free", "starter", "supporter", "premium"]
+          });
+        }
+      } catch (err) {
+        console.warn("Failed to load render_config:", err);
       }
     }
 
@@ -232,6 +271,36 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
 
       if (!response.ok) throw new Error("فشل التواصل مع السيرفر");
       const { jobId } = await response.json();
+      const startTime = Date.now();
+
+      // Log render job start to Firestore
+      if (db) {
+        try {
+          const user = auth?.currentUser;
+          const isVideoBg = !!state.backgroundUrl?.match(/\.(mp4|webm|mov)$/i);
+          await setDoc(doc(db, "video_renders", jobId), {
+            jobId,
+            userId: user?.uid || "guest",
+            userEmail: user?.email || "guest@guest.com",
+            surahId: state.surahId,
+            surahName: surahData.name,
+            reciterId: state.reciterId,
+            reciterName: getReciterEnglishName(state.reciterId),
+            videoTemplate: state.videoTemplate || "default",
+            backgroundUrl: state.backgroundUrl || "",
+            isVideoBg,
+            status: "rendering",
+            createdAt: serverTimestamp(),
+            completedAt: null,
+            renderTime: 0,
+            error: null,
+            userPlan: userPlan?.plan || "free"
+          });
+        } catch (err) {
+          console.error("Failed to create video_renders log:", err);
+        }
+      }
+
       setMessage("بدأت الرندرة في الخلفية. يمكنك الانتظار...");
       
       const checkStatus = async () => {
@@ -242,19 +311,56 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           if (jobData.status === "processing" || jobData.status === "merging") {
             setProgressPct(jobData.progress || 5);
             setMessage(jobData.message || "جاري المعالجة...");
+            
+            // Optional: update status to merging in Firestore
+            if (db && jobData.status === "merging") {
+              updateDoc(doc(db, "video_renders", jobId), {
+                status: "merging"
+              }).catch(() => {});
+            }
+
             setTimeout(checkStatus, 7000);
           } else if (jobData.status === "completed") {
             setDownloadUrl(jobData.url);
             setStatus("success");
             setProgressPct(100);
             setMessage("تم تجهيز الفيديو بنجاح! اضغط للتحميل.");
+
+            // Log successful completion in Firestore
+            if (db) {
+              try {
+                await updateDoc(doc(db, "video_renders", jobId), {
+                  status: "completed",
+                  completedAt: serverTimestamp(),
+                  renderTime: Math.round((Date.now() - startTime) / 1000)
+                });
+              } catch (err) {
+                console.error("Failed to update video_renders log for success:", err);
+              }
+            }
+
             if (!auth?.currentUser) {
               localStorage.setItem("guest_video_renders", "1");
               localStorage.setItem("last_guest_render_time", Date.now().toString());
             } else {
               await incrementVideoRenderCount();
             }
-          } else if (jobData.status === "failed") throw new Error(jobData.error || "فشلت عملية الرندرة");
+          } else if (jobData.status === "failed") {
+            const errMsg = jobData.error || "فشلت عملية الرندرة";
+            // Log failure in Firestore
+            if (db) {
+              try {
+                await updateDoc(doc(db, "video_renders", jobId), {
+                  status: "failed",
+                  completedAt: serverTimestamp(),
+                  error: errMsg
+                });
+              } catch (err) {
+                console.error("Failed to update video_renders log for failure:", err);
+              }
+            }
+            throw new Error(errMsg);
+          }
         } catch (e: any) {
           setStatus("error");
           setMessage(e.message || "خطأ أثناء متابعة حالة الفيديو");
@@ -1240,7 +1346,23 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             <X className="w-8 h-8" />
         </button>
 
-        {!auth?.currentUser && isLimitReached ? (
+        {isRenderDisabled ? (
+          <div className="animate-in fade-in zoom-in duration-500 flex flex-col items-center py-10">
+            <div className="w-24 h-24 rounded-[2rem] bg-red-500/10 flex items-center justify-center mb-8 border border-red-500/20">
+              <AlertCircle className="w-12 h-12 text-red-500 animate-bounce" />
+            </div>
+            <h3 className="text-2xl font-black text-white mb-4">خدمة الرندر غير متوفرة حالياً</h3>
+            <p className="text-white/60 text-sm text-center mb-10 px-8 leading-relaxed font-arabic">
+              {renderConfig.message || "السيرفر تحت الصيانة حالياً لترقية وتحسين خوادم المعالجة السحابية. يرجى المحاولة مرة أخرى لاحقاً."}
+            </p>
+            <button 
+              onClick={handleClose} 
+              className="w-full bg-white/5 text-white/70 py-5 rounded-[1.5rem] font-black border border-white/10 hover:bg-white/10 transition-all"
+            >
+              إغلاق النافذة
+            </button>
+          </div>
+        ) : !auth?.currentUser && isLimitReached ? (
           <div className="animate-in fade-in zoom-in duration-500 flex flex-col items-center py-10">
             <div className="w-24 h-24 rounded-[2rem] bg-red-500/10 flex items-center justify-center mb-8 border border-red-500/20">
               <Lock className="w-12 h-12 text-red-500" />

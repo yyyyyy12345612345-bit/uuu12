@@ -8,7 +8,7 @@ import surahsData from "@/data/surahs.json";
 import { auth, db, initFirebase } from "@/lib/firebase";
 import {
   collection, getDocs, doc, getDoc, updateDoc, writeBatch,
-  query, orderBy, addDoc, serverTimestamp, deleteDoc, setDoc, deleteField
+  query, orderBy, addDoc, serverTimestamp, deleteDoc, setDoc, deleteField, limit, increment
 } from "firebase/firestore";
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { checkAndAwardBadges } from "@/lib/badges";
@@ -152,7 +152,22 @@ export function AdminPanel() {
   const [isSavingFlags, setIsSavingFlags] = useState(false);
   const [isSavingContent, setIsSavingContent] = useState(false);
   const [isSavingMaintenance, setIsSavingMaintenance] = useState(false);
+  const [isSavingRenderConfig, setIsSavingRenderConfig] = useState(false);
   const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false);
+  
+  const [renderConfig, setRenderConfig] = useState<{
+    enabled: boolean;
+    message: string;
+    reason: string;
+    allowPlans: string[];
+  }>({
+    enabled: true,
+    message: "السيرفر تحت الصيانة حالياً لترقية وتحسين خوادم المعالجة السحابية. يرجى المحاولة مرة أخرى لاحقاً.",
+    reason: "maintenance",
+    allowPlans: ["free", "starter", "supporter", "premium"]
+  });
+  const [videoRendersSearch, setVideoRendersSearch] = useState("");
+  const [videoRendersStatusFilter, setVideoRendersStatusFilter] = useState("all");
   const [userPlanSelection, setUserPlanSelection] = useState<Record<string, string>>({});
   const [showBannedOnly, setShowBannedOnly] = useState(false);
   const [blockedUsers, setBlockedUsers] = useState<any[]>([]);
@@ -643,6 +658,9 @@ export function AdminPanel() {
         await auth.currentUser.getIdToken(true);
       }
       
+      // Load current rendering controls config
+      await fetchRenderConfig();
+      
       const [
         usersSnap,
         emailLogsSnap,
@@ -664,6 +682,25 @@ export function AdminPanel() {
         getDocs(collection(db, "duels")),
         getDocs(collection(db, "showcase"))
       ]);
+
+      let videoRendersList: any[] = [];
+      try {
+        const vrSnap = await getDocs(query(collection(db, "video_renders"), orderBy("createdAt", "desc"), limit(1000)));
+        videoRendersList = vrSnap.docs.map(d => ({ id: d.id, ...d.data() as any }));
+      } catch (err) {
+        console.warn("Index query for video_renders failed, falling back to unordered query:", err);
+        try {
+          const vrSnap = await getDocs(query(collection(db, "video_renders"), limit(1000)));
+          videoRendersList = vrSnap.docs.map(d => ({ id: d.id, ...d.data() as any }));
+          videoRendersList.sort((a, b) => {
+            const timeA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : (typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : 0);
+            const timeB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : (typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : 0);
+            return timeB - timeA;
+          });
+        } catch (err2) {
+          console.error("Failed to load video renders:", err2);
+        }
+      }
 
       const usersList = usersSnap.docs.map(d => ({ uid: d.id, ...d.data() as any }));
       const emailLogsList = emailLogsSnap.docs.map(d => d.data() as any);
@@ -865,6 +902,38 @@ export function AdminPanel() {
       const activeCreators = usersList.filter(u => (u.videoRendersCount || 0) > 0 || (u.videoPoints || 0) > 0).length;
       const totalShowcaseVideos = showcaseList.length;
 
+      // Advanced Video Renders Stats
+      const vrTotal = videoRendersList.length;
+      const vrSuccessful = videoRendersList.filter(j => j.status === "completed").length;
+      const vrFailed = videoRendersList.filter(j => j.status === "failed").length;
+      const vrActive = videoRendersList.filter(j => j.status === "rendering" || j.status === "processing" || j.status === "merging").length;
+      const vrSuccessRate = vrTotal > 0 ? Math.round((vrSuccessful / vrTotal) * 100) : 100;
+      
+      const vrSuccessfulList = videoRendersList.filter(j => j.status === "completed");
+      const vrAvgTime = vrSuccessfulList.length > 0
+        ? Math.round(vrSuccessfulList.reduce((sum, j) => sum + (j.renderTime || 0), 0) / vrSuccessfulList.length)
+        : 0;
+
+      const vrReciters: Record<string, number> = {};
+      const vrTemplates: Record<string, number> = {};
+      const vrPlans: Record<string, number> = {};
+      let vrVideoBg = 0;
+      let vrImageBg = 0;
+
+      videoRendersList.forEach(j => {
+        const rec = j.reciterName || "غير معروف";
+        vrReciters[rec] = (vrReciters[rec] || 0) + 1;
+        
+        const temp = j.videoTemplate === "minshawi_player" ? "تصميم زياد (المنشاوي)" : (j.videoTemplate === "dossary_player" ? "تصميم 2 (الدوسري)" : "التصميم الافتراضي");
+        vrTemplates[temp] = (vrTemplates[temp] || 0) + 1;
+
+        const p = j.userPlan || "free";
+        vrPlans[p] = (vrPlans[p] || 0) + 1;
+
+        if (j.isVideoBg) vrVideoBg++;
+        else vrImageBg++;
+      });
+
       // --- 11. Engagement & Streaks ---
       const totalStreak = usersList.reduce((acc, u) => acc + (u.streak || 0), 0);
       const maxStreak = Math.max(...usersList.map(u => u.streak || 0), 0);
@@ -954,7 +1023,21 @@ export function AdminPanel() {
             totalVideoPoints,
             totalVideosRendered,
             activeCreators,
-            totalShowcaseVideos
+            totalShowcaseVideos,
+            videoRendersList,
+            vrStats: {
+              total: vrTotal,
+              successful: vrSuccessful,
+              failed: vrFailed,
+              active: vrActive,
+              successRate: vrSuccessRate,
+              avgTime: vrAvgTime,
+              reciters: vrReciters,
+              templates: vrTemplates,
+              plans: vrPlans,
+              videoBgCount: vrVideoBg,
+              imageBgCount: vrImageBg
+            }
           },
           social: {
             totalPosts,
@@ -1017,6 +1100,62 @@ export function AdminPanel() {
         if (m) setMaintenanceMode({ enabled: m.enabled || false, message: m.message || "", reason: m.reason || "", duration: m.duration || "" });
       }
     } catch (e) { console.error(e); }
+  };
+
+  const fetchRenderConfig = async () => {
+    if (!db) return;
+    try {
+      const s = await getDoc(doc(db, "settings", "render_config"));
+      if (s.exists()) {
+        const cData = s.data();
+        setRenderConfig({
+          enabled: cData.enabled ?? true,
+          message: cData.message ?? "",
+          reason: cData.reason ?? "maintenance",
+          allowPlans: cData.allowPlans ?? ["free", "starter", "supporter", "premium"]
+        });
+      }
+    } catch (e) {
+      console.error("Failed to fetch render config:", e);
+    }
+  };
+
+  const handleSaveRenderConfig = async () => {
+    if (!db) return;
+    setIsSavingRenderConfig(true);
+    try {
+      await setDoc(doc(db, "settings", "render_config"), {
+        ...renderConfig,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      alert("✅ تم حفظ إعدادات رندر الفيديوهات بنجاح!");
+    } catch (e) {
+      console.error(e);
+      alert("فشل الحفظ: يرجى التحقق من اتصال الإنترنت.");
+    } finally {
+      setIsSavingRenderConfig(false);
+    }
+  };
+
+  const togglePlanInConfig = (plan: string) => {
+    setRenderConfig(prev => {
+      const plans = prev.allowPlans.includes(plan)
+        ? prev.allowPlans.filter(p => p !== plan)
+        : [...prev.allowPlans, plan];
+      return { ...prev, allowPlans: plans };
+    });
+  };
+
+  const handleDeleteRenderLog = async (jobId: string) => {
+    if (!db || !window.confirm("هل أنت متأكد من حذف هذا السجل نهائياً؟")) return;
+    try {
+      await deleteDoc(doc(db, "video_renders", jobId));
+      alert("✅ تم حذف السجل بنجاح!");
+      fetchAnalyticsData();
+    } catch (e) {
+      console.error(e);
+      alert("فشل حذف السجل.");
+    }
   };
 
   const handleSaveMaintenance = async () => {
@@ -3499,45 +3638,422 @@ export function AdminPanel() {
                       SUB-TAB: VIDEO STUDIO
                       ──────────────────────────────────────────────────────── */}
                   {analyticsSubTab === 'video_studio' && (
-                    <div className="space-y-6">
-                      <div className="grid md:grid-cols-2 gap-6">
-                        {/* Video Generation stats */}
-                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 relative overflow-hidden group">
-                          <div className="absolute top-4 left-4 opacity-5 group-hover:scale-110 transition-transform">
-                            <Play className="w-16 h-16 text-purple-400" />
-                          </div>
+                    <div className="space-y-6 font-arabic text-right animate-in fade-in slide-in-from-bottom-6 duration-500">
+                      {/* Section 1: Render Control Settings */}
+                      <div className="rounded-3xl border border-white/[0.06] bg-white/[0.02] p-6 relative overflow-hidden">
+                        <div className="absolute top-4 left-4 opacity-5 pointer-events-none">
+                          <Settings className="w-16 h-16 text-[#fbbf24]" />
+                        </div>
+                        
+                        <div className="border-b border-white/5 pb-4 mb-6">
+                          <h3 className="text-lg font-black text-white flex items-center gap-2">
+                            <span>أدوات التحكم في خادم الرندر السحابي 🛠️</span>
+                          </h3>
+                          <p className="text-xs text-white/40 mt-0.5">تعطيل أو تمكين تصدير الفيديوهات للمستخدمين وكتابة رسائل التنبيه</p>
+                        </div>
 
-                          <div className="border-b border-white/5 pb-3">
-                            <h3 className="text-lg font-black text-white">تحليلات تصميم الفيديوهات الدعوية 🎬</h3>
-                            <p className="text-xs text-white/40 mt-0.5">تتبع عمليات رندر وتصميم مقاطع الآيات في الاستوديو</p>
-                          </div>
+                        <div className="grid md:grid-cols-2 gap-6">
+                          {/* Column 1: Switch and message */}
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between bg-white/[0.01] border border-white/[0.03] p-4 rounded-2xl">
+                              <div>
+                                <span className="text-sm font-black text-white block">حالة خدمة الرندر</span>
+                                <span className="text-[10px] text-white/40">تفعيل أو إيقاف تصدير الفيديوهات تماماً</span>
+                              </div>
+                              <button
+                                onClick={() => setRenderConfig(prev => ({ ...prev, enabled: !prev.enabled }))}
+                                className={`w-14 h-8 rounded-full transition-all relative ${renderConfig.enabled ? "bg-[#fbbf24]" : "bg-white/10"}`}
+                              >
+                                <span className={`absolute top-1 left-1 w-6 h-6 rounded-full bg-black transition-all ${renderConfig.enabled ? "translate-x-6 bg-black" : "translate-x-0 bg-white/70"}`} />
+                              </button>
+                            </div>
 
-                          <div className="grid grid-cols-2 gap-4 my-6 text-center">
-                            <div className="bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl">
-                              <span className="text-[10px] text-white/30 font-bold block">إجمالي الفيديوهات المنتجة</span>
-                              <p className="text-2xl font-black text-white mt-2 font-mono">{analyticsData.featuresBreakdown.video.totalVideosRendered}</p>
-                            </div>
-                            <div className="bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl">
-                              <span className="text-[10px] text-white/30 font-bold block">نقاط التصميم الممنوحة</span>
-                              <p className="text-2xl font-black text-[#fbbf24] mt-2 font-mono">+{analyticsData.featuresBreakdown.video.totalVideoPoints}</p>
-                            </div>
-                          </div>
-
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-xs font-bold">
-                              <span className="text-white/70">صناع المحتوى النشطين (صمّموا فيديو)</span>
-                              <span className="text-purple-400 font-mono">{analyticsData.featuresBreakdown.video.activeCreators} مصمم</span>
-                            </div>
-                            <div className="w-full bg-white/[0.03] h-2 rounded-full overflow-hidden">
-                              <div 
-                                className="h-full bg-gradient-to-l from-purple-400 to-indigo-500 rounded-full"
-                                style={{ width: `${analyticsData.kpis.totalUsers > 0 ? ((analyticsData.featuresBreakdown.video.activeCreators / analyticsData.kpis.totalUsers) * 100) : 0}%` }}
+                            <div>
+                              <label className="text-xs font-black text-white/50 block mb-2">رسالة تنبيه المستخدمين (عند التعطيل)</label>
+                              <textarea
+                                value={renderConfig.message}
+                                onChange={(e) => setRenderConfig(prev => ({ ...prev, message: e.target.value }))}
+                                placeholder="اكتب الرسالة التي ستظهر للمستخدمين عند محاولة رندر فيديو..."
+                                className="w-full h-24 bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 text-xs text-white outline-none focus:border-[#fbbf24]/40 transition resize-none text-right"
                               />
+                            </div>
+                          </div>
+
+                          {/* Column 2: Reason and bypassed plans */}
+                          <div className="space-y-4">
+                            <div>
+                              <label className="text-xs font-black text-white/50 block mb-2">سبب الإيقاف أو التنبيه</label>
+                              <select
+                                value={renderConfig.reason}
+                                onChange={(e) => setRenderConfig(prev => ({ ...prev, reason: e.target.value }))}
+                                className="w-full bg-white/[0.03] border border-white/[0.06] rounded-2xl p-3.5 text-xs text-white outline-none focus:border-[#fbbf24]/40 transition text-right"
+                              >
+                                <option value="maintenance" className="bg-[#12131a] text-white">صيانة مجدولة وترقية كروت الشاشة</option>
+                                <option value="server_load" className="bg-[#12131a] text-white">ضغط كبير على الخوادم السحابية</option>
+                                <option value="error" className="bg-[#12131a] text-white">عطل طارئ وجاري الفحص</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="text-xs font-black text-white/50 block mb-2">العضويات المستثناة من الإيقاف (Bypass)</label>
+                              <div className="grid grid-cols-2 gap-2">
+                                {["free", "starter", "supporter", "premium"].map((plan) => {
+                                  const isAllowed = renderConfig.allowPlans.includes(plan);
+                                  const labelAr = plan === "free" ? "المجانية" : plan === "starter" ? "الفضية" : plan === "supporter" ? "الذهبية" : "الماسية/Premium";
+                                  return (
+                                    <button
+                                      key={plan}
+                                      onClick={() => togglePlanInConfig(plan)}
+                                      className={`p-3 rounded-xl border text-[10px] font-black transition-all ${
+                                        isAllowed 
+                                          ? "border-[#fbbf24]/40 bg-[#fbbf24]/10 text-[#fbbf24]" 
+                                          : "border-white/5 bg-white/[0.01] text-white/40 hover:bg-white/5"
+                                      }`}
+                                    >
+                                      {labelAr} {isAllowed ? "✓" : ""}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                              <span className="text-[9px] text-white/30 block mt-2">
+                                * يستطيع الأدمن (youssefosama) دائماً تخطي إيقاف الرندر لإجراء الاختبارات.
+                              </span>
                             </div>
                           </div>
                         </div>
 
+                        <div className="mt-6 flex justify-end">
+                          <button
+                            onClick={handleSaveRenderConfig}
+                            disabled={isSavingRenderConfig}
+                            className="px-6 py-3 bg-[#fbbf24] text-black font-black rounded-xl text-xs hover:brightness-110 active:scale-95 transition disabled:opacity-50 flex items-center gap-2"
+                          >
+                            {isSavingRenderConfig && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                            حفظ إعدادات الرندر الحالية
+                          </button>
+                        </div>
                       </div>
+
+                      {/* Section 2: Render Metrics Cards */}
+                      {analyticsData.featuresBreakdown.video.vrStats ? (
+                        <>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {/* Card 1: Success Rate */}
+                            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 text-center">
+                              <span className="text-[10px] text-white/30 font-bold block">معدل نجاح الرندر 🟢</span>
+                              <p className="text-3xl font-black text-emerald-400 mt-2 font-mono">
+                                {analyticsData.featuresBreakdown.video.vrStats.successRate}%
+                              </p>
+                              <span className="text-[9px] text-white/40 mt-1 block">
+                                نجاح: {analyticsData.featuresBreakdown.video.vrStats.successful} | فشل: {analyticsData.featuresBreakdown.video.vrStats.failed}
+                              </span>
+                            </div>
+
+                            {/* Card 2: Avg. Duration */}
+                            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 text-center">
+                              <span className="text-[10px] text-white/30 font-bold block">متوسط سرعة الرندر ⚡</span>
+                              <p className="text-3xl font-black text-white mt-2 font-mono">
+                                {analyticsData.featuresBreakdown.video.vrStats.avgTime} ثانية
+                              </p>
+                              <span className="text-[9px] text-white/40 mt-1 block">
+                                لكل مقطع فيديو مصمم
+                              </span>
+                            </div>
+
+                            {/* Card 3: Active Jobs */}
+                            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 text-center relative overflow-hidden">
+                              {analyticsData.featuresBreakdown.video.vrStats.active > 0 && (
+                                <div className="absolute inset-0 bg-sky-500/5 animate-pulse" />
+                              )}
+                              <span className="text-[10px] text-white/30 font-bold block">رندر نشط حالياً 🎬</span>
+                              <p className="text-3xl font-black text-sky-400 mt-2 font-mono">
+                                {analyticsData.featuresBreakdown.video.vrStats.active}
+                              </p>
+                              <span className="text-[9px] text-white/40 mt-1 block">
+                                عمليات معالجة جارية لحظية
+                              </span>
+                            </div>
+
+                            {/* Card 4: Total Renders */}
+                            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 text-center">
+                              <span className="text-[10px] text-white/30 font-bold block">إجمالي محاولات الرندر 📊</span>
+                              <p className="text-3xl font-black text-[#fbbf24] mt-2 font-mono">
+                                {analyticsData.featuresBreakdown.video.vrStats.total}
+                              </p>
+                              <span className="text-[9px] text-white/40 mt-1 block">
+                                إجمالي السجلات المقيدة
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Section 3: Distribution Breakdown */}
+                          <div className="grid md:grid-cols-3 gap-6">
+                            {/* Col 1: Popular Reciters */}
+                            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5">
+                              <h4 className="text-sm font-black text-white border-b border-white/5 pb-2 mb-4">القراء الأكثر شعبية بالفيديوهات 🎙️</h4>
+                              <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+                                {Object.entries(analyticsData.featuresBreakdown.video.vrStats.reciters)
+                                  .sort((a: any, b: any) => b[1] - a[1])
+                                  .slice(0, 5)
+                                  .map(([name, count]: any) => {
+                                    const pct = Math.round((count / (analyticsData.featuresBreakdown.video.vrStats.total || 1)) * 100);
+                                    return (
+                                      <div key={name} className="space-y-1">
+                                        <div className="flex justify-between text-xs font-bold text-white/80">
+                                          <span>{name}</span>
+                                          <span className="font-mono">{count} فيديو ({pct}%)</span>
+                                        </div>
+                                        <div className="w-full bg-white/[0.03] h-1.5 rounded-full overflow-hidden">
+                                          <div className="h-full bg-gradient-to-l from-amber-400 to-[#fbbf24] rounded-full" style={{ width: `${pct}%` }} />
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                {Object.keys(analyticsData.featuresBreakdown.video.vrStats.reciters).length === 0 && (
+                                  <p className="text-xs text-white/30 text-center py-6">لا توجد بيانات قراء كافية</p>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Col 2: Popular Surahs */}
+                            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5">
+                              <h4 className="text-sm font-black text-white border-b border-white/5 pb-2 mb-4">السور الأكثر تصميماً بالفيديوهات 📖</h4>
+                              <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+                                {Object.entries(analyticsData.featuresBreakdown.video.vrStats.surahs || {})
+                                  .sort((a: any, b: any) => b[1] - a[1])
+                                  .slice(0, 5)
+                                  .map(([name, count]: any) => {
+                                    const pct = Math.round((count / (analyticsData.featuresBreakdown.video.vrStats.total || 1)) * 100);
+                                    return (
+                                      <div key={name} className="space-y-1">
+                                        <div className="flex justify-between text-xs font-bold text-white/80">
+                                          <span>سورة {name}</span>
+                                          <span className="font-mono">{count} فيديو ({pct}%)</span>
+                                        </div>
+                                        <div className="w-full bg-white/[0.03] h-1.5 rounded-full overflow-hidden">
+                                          <div className="h-full bg-gradient-to-l from-purple-400 to-indigo-500 rounded-full" style={{ width: `${pct}%` }} />
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                {/* Fallback if surah counts not compiled inline, compile from render logs */}
+                                {(() => {
+                                  const surahCounts: Record<string, number> = {};
+                                  (analyticsData.featuresBreakdown.video.videoRendersList || []).forEach((j: any) => {
+                                    if (j.surahName) surahCounts[j.surahName] = (surahCounts[j.surahName] || 0) + 1;
+                                  });
+                                  return Object.entries(surahCounts)
+                                    .sort((a, b) => b[1] - a[1])
+                                    .slice(0, 5)
+                                    .map(([name, count]) => {
+                                      const pct = Math.round((count / (analyticsData.featuresBreakdown.video.vrStats.total || 1)) * 100);
+                                      return (
+                                        <div key={name} className="space-y-1">
+                                          <div className="flex justify-between text-xs font-bold text-white/80">
+                                            <span>سورة {name}</span>
+                                            <span className="font-mono">{count} فيديو ({pct}%)</span>
+                                          </div>
+                                          <div className="w-full bg-white/[0.03] h-1.5 rounded-full overflow-hidden">
+                                            <div className="h-full bg-gradient-to-l from-purple-400 to-indigo-500 rounded-full" style={{ width: `${pct}%` }} />
+                                          </div>
+                                        </div>
+                                      );
+                                    });
+                                })()}
+                              </div>
+                            </div>
+
+                            {/* Col 3: Templates & Background Type */}
+                            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 flex flex-col justify-between">
+                              <div>
+                                <h4 className="text-sm font-black text-white border-b border-white/5 pb-2 mb-4">توزيع القوالب والخلفيات المستعملة 🎬</h4>
+                                <div className="space-y-4">
+                                  {/* Templates */}
+                                  <div className="space-y-2">
+                                    <span className="text-[10px] text-white/40 block">القوالب المختارة</span>
+                                    {Object.entries(analyticsData.featuresBreakdown.video.vrStats.templates)
+                                      .sort((a: any, b: any) => b[1] - a[1])
+                                      .map(([name, count]: any) => {
+                                        const pct = Math.round((count / (analyticsData.featuresBreakdown.video.vrStats.total || 1)) * 100);
+                                        return (
+                                          <div key={name} className="flex justify-between text-xs font-bold">
+                                            <span className="text-white/60">{name}</span>
+                                            <span className="text-white font-mono">{pct}%</span>
+                                          </div>
+                                        );
+                                      })}
+                                  </div>
+                                  
+                                  {/* Background Type */}
+                                  <div className="border-t border-white/5 pt-3 space-y-2">
+                                    <span className="text-[10px] text-white/40 block">نوع الخلفيات</span>
+                                    <div className="flex justify-between text-xs font-bold">
+                                      <span className="text-white/60">فيديو متحرك (.mp4)</span>
+                                      <span className="text-sky-400 font-mono">
+                                        {analyticsData.featuresBreakdown.video.vrStats.videoBgCount} مقطع ({Math.round((analyticsData.featuresBreakdown.video.vrStats.videoBgCount / (analyticsData.featuresBreakdown.video.vrStats.total || 1)) * 100)}%)
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between text-xs font-bold">
+                                      <span className="text-white/60">صورة ثابتة</span>
+                                      <span className="text-amber-400 font-mono">
+                                        {analyticsData.featuresBreakdown.video.vrStats.imageBgCount} صورة ({Math.round((analyticsData.featuresBreakdown.video.vrStats.imageBgCount / (analyticsData.featuresBreakdown.video.vrStats.total || 1)) * 100)}%)
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="text-[9px] text-white/20 mt-4 leading-relaxed">
+                                * تعتمد الإحصائيات على آخر 1,000 محاولة رندر مسجلة في قاعدة بيانات التطبيق.
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Section 4: Live Render Logs Table */}
+                          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-4 mb-6">
+                              <div>
+                                <h3 className="text-lg font-black text-white">سجل عمليات رندر الفيديوهات السحابي الحي 📜</h3>
+                                <p className="text-xs text-white/40 mt-0.5">تفاصيل جميع طلبات تصميم الفيديوهات في السيرفر مع فرز وبحث لحظي</p>
+                              </div>
+                              
+                              <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                                <input
+                                  type="text"
+                                  value={videoRendersSearch}
+                                  onChange={(e) => setVideoRendersSearch(e.target.value)}
+                                  placeholder="البحث بالبريد، القارئ أو السورة..."
+                                  className="px-4 py-2.5 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-[#fbbf24]/40 w-full sm:w-60 text-right"
+                                />
+
+                                <select
+                                  value={videoRendersStatusFilter}
+                                  onChange={(e) => setVideoRendersStatusFilter(e.target.value)}
+                                  className="px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-[#fbbf24]/40 text-right"
+                                >
+                                  <option value="all" className="bg-[#12131a] text-white">كل الحالات</option>
+                                  <option value="completed" className="bg-[#12131a] text-white">مكتمل بنجاح</option>
+                                  <option value="failed" className="bg-[#12131a] text-white">فشل / خطأ</option>
+                                  <option value="rendering" className="bg-[#12131a] text-white">جاري المعالجة</option>
+                                  <option value="merging" className="bg-[#12131a] text-white">دمج الطبقات</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            {/* Table */}
+                            {(() => {
+                              const list = analyticsData.featuresBreakdown.video.videoRendersList || [];
+                              const filtered = list.filter((item: any) => {
+                                const matchesSearch = 
+                                  (item.userEmail || "").toLowerCase().includes(videoRendersSearch.toLowerCase()) ||
+                                  (item.surahName || "").toLowerCase().includes(videoRendersSearch.toLowerCase()) ||
+                                  (item.reciterName || "").toLowerCase().includes(videoRendersSearch.toLowerCase());
+                                
+                                if (videoRendersStatusFilter === "all") return matchesSearch;
+                                return matchesSearch && item.status === videoRendersStatusFilter;
+                              });
+
+                              return (
+                                <div className="overflow-x-auto">
+                                  <table className="w-full text-right text-xs">
+                                    <thead>
+                                      <tr className="border-b border-white/5 text-white/40 font-bold">
+                                        <th className="pb-3 pl-4">المستخدم</th>
+                                        <th className="pb-3 pl-4">السورة / القارئ</th>
+                                        <th className="pb-3 pl-4">القالب المستخدم</th>
+                                        <th className="pb-3 pl-4">نوع الخلفية</th>
+                                        <th className="pb-3 pl-4">التاريخ والمدة</th>
+                                        <th className="pb-3 pl-4">الحالة</th>
+                                        <th className="pb-3 text-center">الإجراء</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-white/5">
+                                      {filtered.slice(0, 100).map((job: any) => {
+                                        const dateStr = job.createdAt?.toDate 
+                                          ? job.createdAt.toDate().toLocaleString('ar-EG') 
+                                          : (job.createdAt ? new Date(job.createdAt).toLocaleString('ar-EG') : "غير معروف");
+                                        
+                                        const planLabel = job.userPlan === "premium" ? "Premium" : job.userPlan === "supporter" ? "Supporter" : job.userPlan === "starter" ? "Starter" : "Free";
+                                        const planColor = job.userPlan === "premium" ? "text-purple-400 border-purple-500/20 bg-purple-500/5" : job.userPlan === "supporter" ? "text-[#fbbf24] border-[#fbbf24]/20 bg-[#fbbf24]/5" : job.userPlan === "starter" ? "text-sky-400 border-sky-500/20 bg-sky-500/5" : "text-white/40 border-white/5 bg-white/[0.01]";
+
+                                        return (
+                                          <tr key={job.jobId} className="hover:bg-white/[0.01] transition-colors">
+                                            <td className="py-4 pl-4">
+                                              <span className="font-bold text-white block truncate max-w-[150px]" title={job.userEmail}>{job.userEmail}</span>
+                                              <span className={`inline-block px-2 py-0.5 rounded-full border text-[8px] font-black mt-1 ${planColor}`}>
+                                                {planLabel}
+                                              </span>
+                                            </td>
+                                            <td className="py-4 pl-4">
+                                              <span className="text-white block font-bold">سورة {job.surahName}</span>
+                                              <span className="text-white/40 text-[10px]">{job.reciterName}</span>
+                                            </td>
+                                            <td className="py-4 pl-4 font-bold text-white/80">
+                                              {job.videoTemplate === "minshawi_player" ? "تصميم زياد (المنشاوي)" : (job.videoTemplate === "dossary_player" ? "تصميم 2" : "التصميم الافتراضي")}
+                                            </td>
+                                            <td className="py-4 pl-4">
+                                              {job.isVideoBg ? (
+                                                <span className="text-sky-400 font-bold">فيديو 🎬</span>
+                                              ) : (
+                                                <span className="text-amber-400 font-bold">صورة 🖼️</span>
+                                              )}
+                                            </td>
+                                            <td className="py-4 pl-4">
+                                              <span className="text-white/40 block">{dateStr}</span>
+                                              <span className="text-white font-mono text-[10px]">
+                                                {job.renderTime ? `${job.renderTime} ثانية` : "—"}
+                                              </span>
+                                            </td>
+                                            <td className="py-4 pl-4">
+                                              {job.status === "completed" ? (
+                                                <span className="px-2.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-black text-[10px]">
+                                                  مكتمل بنجاح ✓
+                                                </span>
+                                              ) : job.status === "failed" ? (
+                                                <span 
+                                                  className="px-2.5 py-1.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 font-black text-[10px] cursor-help inline-block max-w-[120px] truncate"
+                                                  title={job.error || "خطأ مجهول في الرندر"}
+                                                >
+                                                  فشل: {job.error || "خطأ مجهول"}
+                                                </span>
+                                              ) : (
+                                                <span className="px-2.5 py-1.5 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 font-black text-[10px] animate-pulse">
+                                                  جاري الرندر...
+                                                </span>
+                                              )}
+                                            </td>
+                                            <td className="py-4 text-center">
+                                              <button
+                                                onClick={() => handleDeleteRenderLog(job.jobId)}
+                                                className="p-2 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl hover:bg-red-500/20 hover:text-white transition"
+                                                title="حذف السجل نهائياً"
+                                              >
+                                                <Trash2 className="w-4 h-4" />
+                                              </button>
+                                            </td>
+                                          </tr>
+                                        );
+                                      })}
+                                      {filtered.length === 0 && (
+                                        <tr>
+                                          <td colSpan={7} className="text-center py-10 text-white/30 font-bold">
+                                            لا توجد أي سجلات مطابقة للبحث أو الفلتر
+                                          </td>
+                                        </tr>
+                                      )}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-12 text-center text-white/30">
+                          <AlertTriangle className="mx-auto mb-3 h-10 w-10 text-white/10" />
+                          <p className="text-xs font-bold">لم نتمكن من تجميع إحصائيات رندر الفيديوهات. يرجى رندر أول فيديو لتفعيل السجل.</p>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -4756,7 +5272,7 @@ export function AdminPanel() {
                 <button 
                   onClick={async () => {
                     await handleUpdateTicketStatus(selectedTicket.id, 'in_progress');
-                    setSelectedTicket(prev => prev ? { ...prev, status: 'in_progress' } : null);
+                    setSelectedTicket((prev: any) => prev ? { ...prev, status: 'in_progress' } : null);
                   }} 
                   className="rounded-xl bg-sky-500 px-4 py-2.5 text-xs font-black text-black hover:brightness-110 active:scale-95 transition-all"
                 >
@@ -4767,7 +5283,7 @@ export function AdminPanel() {
                 <button 
                   onClick={async () => {
                     await handleUpdateTicketStatus(selectedTicket.id, 'resolved');
-                    setSelectedTicket(prev => prev ? { ...prev, status: 'resolved' } : null);
+                    setSelectedTicket((prev: any) => prev ? { ...prev, status: 'resolved' } : null);
                   }} 
                   className="rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-black text-black hover:brightness-110 active:scale-95 transition-all"
                 >
