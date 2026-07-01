@@ -605,13 +605,23 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         if (typeof ctx.roundRect === 'function') {
           ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 27);
         } else {
-          ctx    if (state.videoTemplate === "dossary_player") {
-      // 1. Draw Sheikh Photo on the left of the middle area (centered vertically inside middle area y=[380,900])
-      const rx = 30;
-      const photoX = 80;
-      const photoY = 500; // 380 + (520 - 280)/2
-      const photoW = 210;
-      const photoH = 280;
+          ctx.rect(badgeX, badgeY, badgeW, badgeH);
+        }
+        ctx.fill();
+        ctx.stroke();
+        
+        ctx.fillStyle = "#FFD700";
+        ctx.fillText(text, canvas.width / 2, badgeY + 36);
+        ctx.restore();
+    }
+
+    if (state.videoTemplate === "dossary_player") {
+      // 1. Draw Sheikh Photo on the left (y=[480,800])
+      const rx = 35;
+      const photoX = 70;
+      const photoY = 480;
+      const photoW = 240;
+      const photoH = 320;
       
       if (templatePhoto) {
         ctx.save();
@@ -621,22 +631,24 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         ctx.lineWidth = 3;
         
         ctx.beginPath();
-        ctx.moveTo(photoX, photoY);
-        ctx.lineTo(photoX + photoW, photoY);
-        ctx.arcTo(photoX + photoW, photoY, photoX + photoW, photoY + rx, rx);
-        ctx.lineTo(photoX + photoW, photoY + photoH);
-        ctx.lineTo(photoX + rx, photoY + photoH);
-        ctx.arcTo(photoX, photoY + photoH, photoX, photoY + photoH - rx, rx);
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(photoX, photoY, photoW, photoH, rx);
+        } else {
+          ctx.rect(photoX, photoY, photoW, photoH);
+        }
         ctx.closePath();
         ctx.stroke();
         
-        // Clip and draw image
         ctx.clip();
         ctx.drawImage(templatePhoto, photoX, photoY, photoW, photoH);
         ctx.restore();
       }
 
-      // 2. Draw Active Verse Text on the right
+      const rightAreaX = 345;
+      const rightAreaW = 330;
+      const textCenterX = rightAreaX + rightAreaW / 2; // 510
+
+      // 2. Draw Active Verse Text (Top part of right area y=[480,620])
       if (verse && verse.text) {
         ctx.save();
         ctx.textAlign = "center";
@@ -645,16 +657,13 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         ctx.shadowBlur = 15;
         ctx.shadowOffsetY = 6;
         ctx.fillStyle = "#ffffff";
-        ctx.font = `600 36px "Noto Naskh Arabic", serif`;
-        
-        const rightAreaX = 330;
-        const rightAreaW = canvas.width - rightAreaX - 60; // 720 - 330 - 60 = 330
-        const textCenterX = rightAreaX + rightAreaW / 2; // 495
+        ctx.font = `600 32px "Noto Naskh Arabic", serif`;
         
         const lines = wrapText(ctx, verse.text, rightAreaW);
-        const lineH = 36 * 2.1;
+        const lineH = 32 * 1.9;
         const totalH = lines.length * lineH;
-        const startY = 380 + (520 - totalH) / 2 + (lineH / 2);
+        // Vertically center inside [480, 630]
+        const startY = 480 + (150 - totalH) / 2 + (lineH / 2);
         
         lines.forEach((l, idx) => {
           ctx.fillText(l, textCenterX, startY + (idx * lineH));
@@ -662,55 +671,55 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         ctx.restore();
       }
 
-      // 3. Progress Bar & Controls (in bottom area y=[900,1280])
+      // 3. Progress Bar & Controls (in right area y=[640,800])
       const progressPct = ayahProgress || 0;
-      const barWidth = 480;
+      const barWidth = 300;
       const progressWidth = barWidth * progressPct;
-      const barX = 120;
-      const barY = 980; // Pushed down to bottom area
+      const barX = rightAreaX + (rightAreaW - barWidth) / 2; // 360
+      const barY = 660;
       
       ctx.save();
       ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
       ctx.beginPath();
       if (typeof ctx.roundRect === 'function') {
-        ctx.roundRect(barX, barY, barWidth, 4, 2);
+        ctx.roundRect(barX, barY, barWidth, 3, 1.5);
       } else {
-        ctx.rect(barX, barY, barWidth, 4);
+        ctx.rect(barX, barY, barWidth, 3);
       }
       ctx.fill();
       
       ctx.fillStyle = "#ffffff";
       ctx.beginPath();
       if (typeof ctx.roundRect === 'function') {
-        ctx.roundRect(barX, barY, progressWidth, 4, 2);
+        ctx.roundRect(barX, barY, progressWidth, 3, 1.5);
       } else {
-        ctx.rect(barX, barY, progressWidth, 4);
+        ctx.rect(barX, barY, progressWidth, 3);
       }
       ctx.fill();
       
       ctx.beginPath();
-      ctx.arc(barX + progressWidth, barY + 2, 6, 0, Math.PI * 2);
+      ctx.arc(barX + progressWidth, barY + 1.5, 5, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
       
       ctx.save();
       ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-      ctx.font = "14px monospace";
+      ctx.font = "12px monospace";
       ctx.textAlign = "left";
-      ctx.fillText("0:00", barX, barY + 28);
+      ctx.fillText("0:00", barX, barY + 20);
       ctx.textAlign = "right";
-      ctx.fillText("1:30", barX + barWidth, barY + 28);
+      ctx.fillText("1:30", barX + barWidth, barY + 20);
       ctx.restore();
       
-      // Control Buttons (y around 1040)
-      const btnY = 1040;
+      // Control Buttons (y around 715)
+      const btnY = 715;
       
       // Heart Button
       ctx.save();
-      ctx.translate(120, btnY);
-      ctx.scale(1.15, 1.15);
+      ctx.translate(360, btnY);
+      ctx.scale(0.9, 0.9);
       ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.2;
       ctx.globalAlpha = 0.6;
       ctx.beginPath();
       ctx.moveTo(12, 6);
@@ -726,31 +735,30 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       // Prev Button
       ctx.save();
       ctx.fillStyle = "#ffffff";
-      ctx.translate(225, btnY);
-      ctx.scale(1.15, 1.15);
+      ctx.translate(430, btnY);
+      ctx.scale(0.9, 0.9);
       ctx.beginPath();
       ctx.moveTo(19, 20); ctx.lineTo(9, 12); ctx.lineTo(19, 4);
       ctx.fill();
       ctx.fillRect(5, 4, 2, 16);
       ctx.restore();
       
-      // Play Button (Circle Play)
+      // Play Button (Circle Pause)
       ctx.save();
       ctx.fillStyle = "#ffffff";
       ctx.beginPath();
-      ctx.arc(360, btnY + 12, 26, 0, Math.PI * 2);
+      ctx.arc(510, btnY + 11, 20, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = "#000000";
-      ctx.beginPath();
-      ctx.moveTo(353, btnY); ctx.lineTo(373, btnY + 12); ctx.lineTo(353, btnY + 24);
-      ctx.fill();
+      ctx.fillRect(503, btnY + 2, 4, 18);
+      ctx.fillRect(513, btnY + 2, 4, 18);
       ctx.restore();
       
       // Next Button
       ctx.save();
       ctx.fillStyle = "#ffffff";
-      ctx.translate(470, btnY);
-      ctx.scale(1.15, 1.15);
+      ctx.translate(590, btnY);
+      ctx.scale(0.9, 0.9);
       ctx.beginPath();
       ctx.moveTo(5, 4); ctx.lineTo(15, 12); ctx.lineTo(5, 20);
       ctx.fill();
@@ -759,10 +767,10 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       
       // Minus Circle Button
       ctx.save();
-      ctx.translate(570, btnY);
-      ctx.scale(1.15, 1.15);
+      ctx.translate(660, btnY);
+      ctx.scale(0.9, 0.9);
       ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.2;
       ctx.globalAlpha = 0.6;
       ctx.beginPath();
       ctx.arc(12, 12, 10, 0, Math.PI * 2);
@@ -772,7 +780,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       ctx.stroke();
       ctx.restore();
 
-      // 4. Small Ayah range/number at the very bottom center (y around 1170)
+      // 4. Small Ayah range/number at the very bottom center (y = 1170)
       ctx.save();
       ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
       ctx.font = "bold 20px monospace";

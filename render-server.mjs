@@ -499,12 +499,12 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     const progressWidth = barWidth * Math.min(1, Math.max(0, progressPct));
 
     const rightAreaW = 330;
-    const rightAreaCenterX = 495;
-    const scaledNaskhSize = 36;
+    const rightAreaCenterX = 510;
+    const scaledNaskhSize = 32;
     const vLinesNaskh = wrapText(verse.text || "", scaledNaskhSize, rightAreaW);
-    const lineHNaskh = scaledNaskhSize * 2.1;
+    const lineHNaskh = scaledNaskhSize * 1.9;
     const totalHNaskh = vLinesNaskh.length * lineHNaskh;
-    const naskhStartY = 380 + (520 - totalHNaskh) / 2 + (lineHNaskh * 0.8);
+    const naskhStartY = 480 + (150 - totalHNaskh) / 2 + (lineHNaskh * 0.7);
     
     const verseNaskhTSpans = vLinesNaskh.map((line, i) => {
       return `<tspan x="${rightAreaCenterX}" dy="${i === 0 ? 0 : lineHNaskh}">${escapeXml(line)}</tspan>`;
@@ -519,50 +519,50 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
         </text>
         ` : ""}
 
-        <!-- Photo with border-radius: top-left is sharp, other corners rounded (0 2rem 2rem 2rem) -->
-        <!-- Center vertically inside middle area (380 to 900) -> photoY = 500, photoH = 280 -->
+        <!-- Photo with border-radius rx = 35 for all 4 corners -->
         <clipPath id="photoClip">
-          <path d="M 80,500 H 290 A 30,30 0 0 1 320,530 V 750 A 30,30 0 0 1 290,780 H 110 A 30,30 0 0 1 80,750 Z" />
+          <rect x="70" y="480" width="240" height="320" rx="35" />
         </clipPath>
         <!-- Outer Glowing white border -->
-        <path d="M 80,500 H 290 A 30,30 0 0 1 320,530 V 750 A 30,30 0 0 1 290,780 H 110 A 30,30 0 0 1 80,750 Z" fill="none" stroke="#ffffff" stroke-width="4" filter="url(#whiteGlow)" />
-        <image href="data:image/jpeg;base64,${templatePhotoBase64}" x="80" y="500" width="210" height="280" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)" />
+        <rect x="70" y="480" width="240" height="320" rx="35" fill="none" stroke="#ffffff" stroke-width="4" filter="url(#whiteGlow)" />
+        <image href="data:image/jpeg;base64,${templatePhotoBase64}" x="70" y="480" width="240" height="320" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)" />
         
-        <!-- Progress Bar at y = 980 -->
-        <rect x="120" y="980" width="480" height="4" rx="2" fill="rgba(255, 255, 255, 0.2)" />
-        <rect x="120" y="980" width="${progressWidth}" height="4" rx="2" fill="#ffffff" />
-        <circle cx="${120 + progressWidth}" cy="982" r="6" fill="#ffffff" />
+        <!-- Progress Bar at y = 660 -->
+        <rect x="360" y="660" width="300" height="4" rx="2" fill="rgba(255, 255, 255, 0.2)" />
+        <rect x="360" y="660" width="${300 * Math.min(1, Math.max(0, progressPct))}" height="4" rx="2" fill="#ffffff" />
+        <circle cx="${360 + 300 * Math.min(1, Math.max(0, progressPct))}" cy="662" r="5" fill="#ffffff" />
         
         <!-- Timestamps -->
-        <text x="120" y="1008" font-family="monospace" font-size="14" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">${formatTime(elapsed)}</text>
-        <text x="600" y="1008" font-family="monospace" font-size="14" fill="rgba(255, 255, 255, 0.5)" text-anchor="end">${formatTime(total)}</text>
+        <text x="360" y="684" font-family="monospace" font-size="12" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">${formatTime(elapsed)}</text>
+        <text x="660" y="684" font-family="monospace" font-size="12" fill="rgba(255, 255, 255, 0.5)" text-anchor="end">${formatTime(total)}</text>
         
-        <!-- Controls Row at y = 1040 -->
+        <!-- Controls Row at y = 715 -->
         <!-- Heart Button (Outline) -->
-        <g transform="translate(120, 1040) scale(1.15)">
+        <g transform="translate(360, 715) scale(0.9)">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6"/>
         </g>
         
         <!-- Prev Button -->
-        <g transform="translate(225, 1040) scale(1.15)">
+        <g transform="translate(430, 715) scale(0.9)">
           <path d="M19 20L9 12l10-8v16z" fill="#ffffff" />
           <rect x="5" y="4" width="2" height="16" rx="0.5" fill="#ffffff" />
         </g>
         
-        <!-- Play Button (Circle Play) -->
-        <circle cx="360" cy="1052" r="26" fill="#ffffff" />
-        <g transform="translate(350, 1040) scale(1.0)">
-          <path d="M8 5v14l11-7z" fill="#000000" />
+        <!-- Play Button (Circle Pause) -->
+        <circle cx="510" cy="726" r="20" fill="#ffffff" />
+        <g transform="translate(501, 715) scale(0.8)">
+          <rect x="3" y="4" width="5" height="16" rx="1" fill="#000000" />
+          <rect x="12" y="4" width="5" height="16" rx="1" fill="#000000" />
         </g>
         
         <!-- Next Button -->
-        <g transform="translate(470, 1040) scale(1.15)">
+        <g transform="translate(590, 715) scale(0.9)">
           <path d="M5 4l10 8-10 8V4z" fill="#ffffff" />
           <rect x="17" y="4" width="2" height="16" rx="0.5" fill="#ffffff" />
         </g>
         
         <!-- Minus Circle -->
-        <g transform="translate(570, 1040) scale(1.15)">
+        <g transform="translate(660, 715) scale(0.9)">
           <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6" />
           <line x1="7" y1="12" x2="17" y2="12" stroke="#ffffff" stroke-width="2" opacity="0.6" />
         </g>

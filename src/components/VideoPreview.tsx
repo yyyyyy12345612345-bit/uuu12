@@ -849,8 +849,8 @@ export function VideoPreview() {
               <div className="h-[40.62%] flex items-center justify-between gap-4 px-6">
                 {/* Left Side: Photo */}
                 <div 
-                  className="w-[38%] aspect-[3/4] overflow-hidden bg-black border-[3px] border-white shadow-[0_0_20px_rgba(255,255,255,0.5)] shrink-0"
-                  style={{ borderRadius: "0rem 2rem 2rem 2rem" }}
+                  className="w-[44%] aspect-[3/4] overflow-hidden bg-black border-[3px] border-white shadow-[0_0_20px_rgba(255,255,255,0.5)] shrink-0"
+                  style={{ borderRadius: "2rem" }}
                 >
                   <img
                     src="https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782863138/Sheikh_Yasser_Al_Dosari_qm0gsf.jpg"
@@ -859,116 +859,122 @@ export function VideoPreview() {
                   />
                 </div>
                 
-                {/* Right Side: Active Verse Text */}
-                <div className="flex-1 flex items-center justify-center text-right">
-                  {currentVerse ? (
-                    <p
-                      className="text-white text-center w-full break-words leading-[2.1] drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] font-arabic"
-                      style={{
-                        fontSize: `${Math.max(18, previewFontSize * 0.75)}px`,
-                        fontFamily: '"Noto Naskh Arabic", serif',
-                        direction: 'rtl',
-                      }}
-                    >
-                      {currentVerse.text}
-                    </p>
-                  ) : (
-                    <p className="text-white/40 text-sm font-arabic">لم يتم تحديد آية</p>
-                  )}
+                {/* Right Side: Active Verse Text & Player Controls */}
+                <div className="flex-1 flex flex-col justify-between py-2 text-right h-[320px] max-w-[55%]">
+                  {/* Verse Text */}
+                  <div className="flex-1 flex items-center justify-center">
+                    {currentVerse ? (
+                      <p
+                        className="text-white text-center w-full break-words leading-[1.9] drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] font-arabic"
+                        style={{
+                          fontSize: `${Math.max(16, previewFontSize * 0.65)}px`,
+                          fontFamily: '"Noto Naskh Arabic", serif',
+                          direction: 'rtl',
+                        }}
+                      >
+                        {currentVerse.text}
+                      </p>
+                    ) : (
+                      <p className="text-white/40 text-sm font-arabic">لم يتم تحديد آية</p>
+                    )}
+                  </div>
+
+                  {/* Player Controls inside the Right Side! */}
+                  <div className="flex flex-col gap-2 mt-2">
+                    {/* Progress Bar */}
+                    <div className="w-full">
+                      <div className="w-full h-[3px] bg-white/20 rounded-full relative cursor-pointer" onClick={(e) => {
+                        if (audioRef.current && totalSelectedDuration > 0 && surahData) {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          const clickX = e.clientX - rect.left;
+                          const pct = clickX / rect.width;
+                          const targetTime = pct * totalSelectedDuration;
+
+                          const versesInRange = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
+                          let accumulatedTime = 0;
+                          for (let v of versesInRange) {
+                            const vDur = verseDurations[v.id] || 5;
+                            if (targetTime <= accumulatedTime + vDur) {
+                              setCurrentAyahIndex(v.id);
+                              const seekOffset = targetTime - accumulatedTime;
+                              setTimeout(() => {
+                                if (audioRef.current) {
+                                  audioRef.current.currentTime = seekOffset;
+                                }
+                              }, 80);
+                              break;
+                            }
+                            accumulatedTime += vDur;
+                          }
+                        }
+                      }}>
+                        <div 
+                          ref={progressBarRef}
+                          className="h-full bg-white rounded-full transition-all duration-75" 
+                          style={{ width: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%` }}
+                        />
+                        <div 
+                          ref={progressDotRef}
+                          className="w-2 h-2 bg-white rounded-full absolute -top-0.75 -ml-1 shadow-md" 
+                          style={{ left: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-[9px] text-white/50 font-mono mt-1" dir="ltr">
+                        <span ref={progressTextRef}>{formatTime(totalSelectedElapsed)}</span>
+                        <span>{formatTime(totalSelectedDuration)}</span>
+                      </div>
+                    </div>
+
+                    {/* Control Buttons */}
+                    <div className="flex items-center justify-between px-1" dir="ltr">
+                      {/* Heart Button */}
+                      <button className="text-white/60 hover:text-white transition active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                      </button>
+
+                      {/* Previous Button */}
+                      <button 
+                        onClick={() => {
+                          if (audioRef.current) audioRef.current.currentTime = 0;
+                        }}
+                        className="text-white hover:scale-105 transition active:scale-95"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5" stroke="currentColor" strokeWidth="1.6"/></svg>
+                      </button>
+
+                      {/* Play/Pause Button */}
+                      <button 
+                        onClick={togglePlay}
+                        className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 active:scale-95 transition shadow-lg shrink-0"
+                      >
+                        {isPlaying ? (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/></svg>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                        )}
+                      </button>
+
+                      {/* Next Button */}
+                      <button 
+                        onClick={handleAyahEnd}
+                        className="text-white hover:scale-105 transition active:scale-95"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19" stroke="currentColor" strokeWidth="1.6"/></svg>
+                      </button>
+
+                      {/* Minus Circle Button */}
+                      <button className="text-white/60 hover:text-white transition active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Bottom Area: Controls & Ayah Range */}
-              <div className="h-[29.69%] flex flex-col justify-between py-6 px-8 bg-black">
-                {/* Progress Bar Timeline */}
-                <div className="w-full">
-                  <div className="w-full h-[3px] bg-white/20 rounded-full relative cursor-pointer" onClick={(e) => {
-                    if (audioRef.current && totalSelectedDuration > 0 && surahData) {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      const clickX = e.clientX - rect.left;
-                      const pct = clickX / rect.width;
-                      const targetTime = pct * totalSelectedDuration;
-
-                      const versesInRange = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
-                      let accumulatedTime = 0;
-                      for (let v of versesInRange) {
-                        const vDur = verseDurations[v.id] || 5;
-                        if (targetTime <= accumulatedTime + vDur) {
-                          setCurrentAyahIndex(v.id);
-                          const seekOffset = targetTime - accumulatedTime;
-                          setTimeout(() => {
-                            if (audioRef.current) {
-                              audioRef.current.currentTime = seekOffset;
-                            }
-                          }, 80);
-                          break;
-                        }
-                        accumulatedTime += vDur;
-                      }
-                    }
-                  }}>
-                    <div 
-                      ref={progressBarRef}
-                      className="h-full bg-white rounded-full transition-all duration-75" 
-                      style={{ width: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%` }}
-                    />
-                    <div 
-                      ref={progressDotRef}
-                      className="w-2.5 h-2.5 bg-white rounded-full absolute -top-1 -ml-1.25 shadow-md" 
-                      style={{ left: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%` }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-[10px] text-white/50 font-mono mt-1.5" dir="ltr">
-                    <span ref={progressTextRef}>{formatTime(totalSelectedElapsed)}</span>
-                    <span>{formatTime(totalSelectedDuration)}</span>
-                  </div>
-                </div>
-
-                {/* Player Control Buttons */}
-                <div className="flex items-center justify-between px-2" dir="ltr">
-                  {/* Heart Button */}
-                  <button className="text-white/60 hover:text-white transition active:scale-95">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-                  </button>
-
-                  {/* Previous Button */}
-                  <button 
-                    onClick={() => {
-                      if (audioRef.current) audioRef.current.currentTime = 0;
-                    }}
-                    className="text-white hover:scale-105 transition active:scale-95"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5" stroke="currentColor" strokeWidth="1.6"/></svg>
-                  </button>
-
-                  {/* Play/Pause Button */}
-                  <button 
-                    onClick={togglePlay}
-                    className="w-11 h-11 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 active:scale-95 transition shadow-lg shrink-0"
-                  >
-                    {isPlaying ? (
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/></svg>
-                    ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-                    )}
-                  </button>
-
-                  {/* Next Button */}
-                  <button 
-                    onClick={handleAyahEnd}
-                    className="text-white hover:scale-105 transition active:scale-95"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19" stroke="currentColor" strokeWidth="1.6"/></svg>
-                  </button>
-
-                  {/* Minus Circle Button */}
-                  <button className="text-white/60 hover:text-white transition active:scale-95">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-                  </button>
-                </div>
-
+              {/* Bottom Area: Ayah Range */}
+              <div className="h-[29.69%] flex items-center justify-center bg-black">
                 {/* Small Ayah range/number at the very bottom center */}
-                <div className="text-center mt-1 text-[11px] font-black text-white/50 tracking-wider font-mono">
+                <div className="text-center text-[11px] font-black text-white/50 tracking-wider font-mono">
                   {state.startAyah === state.endAyah ? `AYAH ${state.startAyah}` : `AYAH ${state.startAyah} - ${state.endAyah}`}
                 </div>
               </div>
