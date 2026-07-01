@@ -14,6 +14,30 @@ interface SubscriptionModalProps {
   initialPlan?: string;
 }
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 15, scale: 0.98 },
+  show: { 
+    opacity: 1, 
+    y: 0, 
+    scale: 1,
+    transition: { 
+      type: "spring", 
+      stiffness: 300, 
+      damping: 24 
+    }
+  }
+};
+
 export function SubscriptionModal({ isOpen, onClose, initialPlan }: SubscriptionModalProps) {
   const [activeTab, setActiveTab] = useState<"plans" | "pay">("plans");
   const [selectedPlan, setSelectedPlan] = useState(initialPlan || "starter");
@@ -225,9 +249,9 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
       />
 
       <motion.div
-        initial={{ opacity: 0, scale: 0.96, y: 20 }}
+        initial={{ opacity: 0, scale: 0.96, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ type: "spring", damping: 25, stiffness: 350 }}
         className="relative w-full max-w-7xl bg-gradient-to-br from-[#0a0b0e] via-[#0c0d10] to-[#0a0b0e] border border-white/10 rounded-t-[2.5rem] rounded-b-none md:rounded-[3rem] shadow-[0_50px_150px_rgba(0,0,0,0.8)] flex flex-col lg:flex-row h-full lg:h-auto lg:max-h-[90vh] overflow-y-auto lg:overflow-hidden"
       >
         <div className="absolute inset-0 islamic-pattern opacity-[0.02] pointer-events-none" />
@@ -262,46 +286,52 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
             )}
           </div>
 
-          <div className="grid grid-cols-1 gap-4">
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 gap-3.5"
+          >
             {PLANS.map((p) => {
               const isCurrent = currentPlanData?.plan === p.id;
               const isSelected = selectedPlan === p.id;
               return (
-                <button
+                <motion.button
                   key={p.id}
+                  variants={itemVariants}
                   onClick={() => { setSelectedPlan(p.id); setActiveTab("plans"); }}
-                  className={`w-full p-6 rounded-[2rem] border-2 text-right transition-all duration-500 flex items-center justify-between group relative overflow-hidden ${
+                  className={`w-full p-4.5 rounded-[1.8rem] border-2 text-right transition-all duration-300 flex items-center justify-between group relative overflow-hidden ${
                     isSelected
-                      ? 'bg-gradient-to-br from-primary/20 to-primary/5 border-primary shadow-[0_20px_60px_rgba(212,175,55,0.2)]'
-                      : 'bg-white/5 border-white/5 hover:border-white/10 hover:bg-white/[0.07]'
+                      ? 'bg-gradient-to-br from-primary/15 to-primary/5 border-primary shadow-[0_15px_45px_rgba(212,175,55,0.15)] scale-[1.01]'
+                      : 'bg-white/5 border-white/5 hover:border-white/10 hover:bg-white/[0.07] hover:scale-[1.005]'
                   }`}
                 >
                   {isSelected && <div className={`absolute inset-0 bg-gradient-to-r ${p.color} opacity-10`} />}
-                  <div className="flex items-center gap-5 relative z-10">
-                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-500 ${
-                      isSelected ? `bg-gradient-to-br ${p.color} text-white shadow-xl scale-110` : 'bg-white/5 text-white/20'
+                  <div className="flex items-center gap-4 relative z-10">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                      isSelected ? `bg-gradient-to-br ${p.color} text-white shadow-xl scale-105` : 'bg-white/5 text-white/20'
                     }`}>
-                      <p.icon className="w-8 h-8" />
+                      <p.icon className="w-5.5 h-5.5" />
                     </div>
                     <div className="text-right">
                       <div className="flex items-center gap-2">
-                        <span className={`font-black text-lg ${isSelected ? 'text-white' : 'text-white/60'}`}>{p.name}</span>
-                        {isCurrent && <span className="text-[9px] font-black px-3 py-1 bg-primary text-black rounded-full shadow-lg shadow-primary/30">المفعّلة</span>}
+                        <span className={`font-black text-base ${isSelected ? 'text-white' : 'text-white/60'}`}>{p.name}</span>
+                        {isCurrent && <span className="text-[8px] font-black px-2 py-0.5 bg-primary text-black rounded-full shadow-lg shadow-primary/20">المفعّلة</span>}
                       </div>
-                      <span className="text-[11px] text-primary/50 font-black uppercase tracking-widest mt-1 block">
+                      <span className="text-[10px] text-primary/50 font-black uppercase tracking-widest mt-1 block">
                         {p.id === 'custom' ? "تبرع بأي مبلغ تختاره" : `مساهمة بقيمة ${p.price} ج.م`}
                       </span>
                     </div>
                   </div>
                   {isSelected && (
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-yellow-400 flex items-center justify-center text-black shadow-2xl relative z-10">
-                      <Check className="w-5 h-5 stroke-[4px]" />
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-yellow-400 flex items-center justify-center text-black shadow-2xl relative z-10">
+                      <Check className="w-3.5 h-3.5 stroke-[4px]" />
                     </div>
                   )}
-                </button>
+                </motion.button>
               );
             })}
-          </div>
+          </motion.div>
 
           {/* 10,000 Points Auto-Unlock Card */}
           <div className="mt-6 p-6 rounded-[2rem] bg-gradient-to-r from-yellow-500/10 via-primary/10 to-purple-500/10 border border-primary/30 flex flex-col lg:flex-row items-center gap-4 text-right relative overflow-hidden group hover:border-primary/50 transition-all">
@@ -374,10 +404,16 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                 </div>
 
                 {/* Payment Methods */}
-                <div className="grid grid-cols-1 gap-4">
+                <motion.div 
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="show"
+                  className="grid grid-cols-1 gap-3.5"
+                >
                   {PAYMENT_METHODS.map((method) => (
-                    <button
+                    <motion.button
                       key={method.id}
+                      variants={itemVariants}
                       type="button"
                       onClick={() => {
                         if (selectedPlan === 'custom' && (!formData.amount || Number(formData.amount) <= 0)) {
@@ -387,36 +423,36 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                         setPayMethod(method.id as any);
                         setActiveTab("pay");
                       }}
-                      className="w-full p-6 rounded-[2rem] bg-white/5 border-2 border-white/10 hover:border-primary/50 transition-all duration-300 group text-right relative overflow-hidden hover:bg-white/[0.07] hover:scale-[1.02] active:scale-[0.98]"
+                      className="w-full p-4.5 rounded-[1.8rem] bg-white/5 border-2 border-white/10 hover:border-primary/50 transition-all duration-300 group text-right relative overflow-hidden hover:bg-white/[0.07] hover:scale-[1.01] active:scale-[0.99]"
                     >
                       <div className={`absolute inset-0 bg-gradient-to-r ${method.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
                       <div className="flex items-center justify-between relative z-10">
-                        <div className="flex items-center gap-5">
-                          <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${method.color} flex items-center justify-center text-white shadow-xl group-hover:scale-110 transition-transform`}>
-                            <method.icon className="w-8 h-8" />
+                        <div className="flex items-center gap-4">
+                          <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${method.color} flex items-center justify-center text-white shadow-xl group-hover:scale-105 transition-transform`}>
+                            <method.icon className="w-5.5 h-5.5" />
                           </div>
                           <div className="text-right">
-                            <span className="text-[11px] text-white/40 font-black uppercase tracking-[0.3em] mb-2 block">{method.name}</span>
+                            <span className="text-[10px] text-white/40 font-black uppercase tracking-[0.3em] mb-1.5 block">{method.name}</span>
                             <div className="flex items-center gap-2">
-                              <span className="text-xl font-black text-white tracking-wider">{method.number}</span>
+                              <span className="text-lg font-black text-white tracking-wider">{method.number}</span>
                               <button
                                 type="button"
                                 onClick={(e) => { e.stopPropagation(); copyToClipboard(method.number, `method-${method.id}`); }}
-                                className="p-1.5 rounded-lg bg-white/5 hover:bg-primary/20 text-white/30 hover:text-primary transition-all"
+                                className="p-1 rounded-lg bg-white/5 hover:bg-primary/20 text-white/30 hover:text-primary transition-all flex items-center justify-center"
                                 title="نسخ الرقم"
                               >
                                 {copiedId === `method-${method.id}`
-                                  ? <Check className="w-3.5 h-3.5 text-emerald-400" />
-                                  : <Copy className="w-3.5 h-3.5" />}
+                                  ? <Check className="w-3 h-3 text-emerald-400" />
+                                  : <Copy className="w-3 h-3" />}
                               </button>
                             </div>
                           </div>
                         </div>
-                        <ArrowLeft className="w-6 h-6 text-white/20 group-hover:text-primary transition-colors" />
+                        <ArrowLeft className="w-5 h-5 text-white/20 group-hover:text-primary transition-all group-hover:translate-x-[-4px]" />
                       </div>
-                    </button>
+                    </motion.button>
                   ))}
-                </div>
+                </motion.div>
 
                 {isPending ? (
                   <div className="p-10 rounded-[2.5rem] bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/30 flex flex-col items-center gap-6 text-center shadow-2xl">
