@@ -21,6 +21,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [pricing, setPricing] = useState({
     priceStarter: 100,
+    priceSupporter: 200,
     pricePremium: 250,
     vodafoneCash: "",
     instapay: ""
@@ -54,7 +55,9 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
 
   useEffect(() => {
     if (selectedPlan && selectedPlan !== 'custom') {
-      const price = selectedPlan === 'starter' ? pricing.priceStarter : pricing.pricePremium;
+      let price = pricing.pricePremium;
+      if (selectedPlan === 'starter') price = pricing.priceStarter;
+      else if (selectedPlan === 'supporter') price = pricing.priceSupporter;
       setFormData(prev => ({ ...prev, amount: price.toString() }));
     } else if (selectedPlan === 'custom') {
       setFormData(prev => ({ ...prev, amount: "" }));
@@ -68,6 +71,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
         const d = s.data();
         setPricing({
           priceStarter: d.priceStarter || 100,
+          priceSupporter: d.priceSupporter || 200,
           pricePremium: d.pricePremium || 250,
           vodafoneCash: d.vodafoneCash || "",
           instapay: d.instapay || ""
@@ -192,9 +196,10 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
   ];
 
   const PLANS = [
-    { id: "starter", name: "دعم أساسي", price: pricing.priceStarter, icon: Zap, color: "from-blue-500 to-cyan-600" },
-    { id: "premium", name: "داعم مميز", price: pricing.pricePremium, icon: Crown, color: "from-yellow-500 to-amber-600" },
-    { id: "custom", name: "دعم حر (مبلغ مخصص)", price: 0, icon: DollarSign, color: "from-purple-500 to-pink-600" },
+    { id: "starter", name: "تبرع عادي", price: pricing.priceStarter, icon: Zap, color: "from-blue-500 to-cyan-600" },
+    { id: "supporter", name: "تبرع ذهبي", price: pricing.priceSupporter, icon: Sparkles, color: "from-emerald-500 to-teal-600" },
+    { id: "premium", name: "تبرع بريميوم", price: pricing.pricePremium, icon: Crown, color: "from-yellow-500 to-amber-600" },
+    { id: "custom", name: "تبرع حر (مبلغ مخصص)", price: 0, icon: DollarSign, color: "from-purple-500 to-pink-600" },
   ];
 
   const currentSelected = PLANS.find(p => p.id === selectedPlan);

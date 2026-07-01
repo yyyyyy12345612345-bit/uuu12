@@ -272,6 +272,20 @@ export function VideoPreview() {
   };
 
   useEffect(() => {
+    window.dispatchEvent(new CustomEvent("preview_play_state_changed", { detail: { isPlaying } }));
+  }, [isPlaying]);
+
+  useEffect(() => {
+    const handleToggle = () => {
+      togglePlay();
+    };
+    window.addEventListener("toggle_preview_play", handleToggle);
+    return () => {
+      window.removeEventListener("toggle_preview_play", handleToggle);
+    };
+  }, [isPlaying, state.showVisualizer]);
+
+  useEffect(() => {
     if (isPlaying && audioRef.current) {
       audioRef.current.load();
       const playPromise = audioRef.current.play();

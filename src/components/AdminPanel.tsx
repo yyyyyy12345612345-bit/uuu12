@@ -111,7 +111,8 @@ export function AdminPanel() {
 
   const [paymentSettings, setPaymentSettings] = useState({
     vodafoneCash: "", instapay: "",
-    priceStarter: 100, priceSupporter: 200, pricePremium: 250
+    priceStarter: 100, priceSupporter: 200, pricePremium: 250,
+    cooldownFree: 30, cooldownStarter: 15, cooldownSupporter: 10, cooldownPremium: 5
   });
   const [campaignSettings, setCampaignSettings] = useState({
     active: false, label: "حملة رمضان", discountRate: 15, referralBonus: 5, link: ""
@@ -1044,7 +1045,17 @@ export function AdminPanel() {
       const s = await getDoc(doc(db, "settings", "pricing"));
       if (s.exists()) {
         const d = s.data();
-        setPaymentSettings({ vodafoneCash: d.vodafoneCash || "", instapay: d.instapay || "", priceStarter: d.priceStarter || 100, priceSupporter: d.priceSupporter || 200, pricePremium: d.pricePremium || 250 });
+        setPaymentSettings({ 
+          vodafoneCash: d.vodafoneCash || "", 
+          instapay: d.instapay || "", 
+          priceStarter: d.priceStarter || 100, 
+          priceSupporter: d.priceSupporter || 200, 
+          pricePremium: d.pricePremium || 250,
+          cooldownFree: d.cooldownFree !== undefined ? d.cooldownFree : 30,
+          cooldownStarter: d.cooldownStarter !== undefined ? d.cooldownStarter : 15,
+          cooldownSupporter: d.cooldownSupporter !== undefined ? d.cooldownSupporter : 10,
+          cooldownPremium: d.cooldownPremium !== undefined ? d.cooldownPremium : 5
+        });
       }
     } catch (e) { console.error(e); }
   };
@@ -2462,16 +2473,38 @@ export function AdminPanel() {
                 </div>
                 <div className="mt-6 grid gap-4 md:grid-cols-3">
                   <div className="space-y-2 text-right">
-                    <label className={LABEL}>خطة الهواة</label>
+                    <label className={LABEL}>تبرع عادي</label>
                     <input type="number" value={paymentSettings.priceStarter} onChange={e => setPaymentSettings({ ...paymentSettings, priceStarter: parseInt(e.target.value) })} className={INPUT_CLASS + " text-center"} />
                   </div>
                   <div className="space-y-2 text-right">
-                    <label className={LABEL}>ادعم المشروع</label>
+                    <label className={LABEL}>تبرع ذهبي</label>
                     <input type="number" value={paymentSettings.priceSupporter} onChange={e => setPaymentSettings({ ...paymentSettings, priceSupporter: parseInt(e.target.value) })} className={INPUT_CLASS + " text-center"} />
                   </div>
                   <div className="space-y-2 text-right">
-                    <label className={LABEL}>البريميوم</label>
+                    <label className={LABEL}>تبرع بريميوم</label>
                     <input type="number" value={paymentSettings.pricePremium} onChange={e => setPaymentSettings({ ...paymentSettings, pricePremium: parseInt(e.target.value) })} className={INPUT_CLASS + " text-center"} />
+                  </div>
+                </div>
+
+                <div className="mt-8 border-t border-white/5 pt-6">
+                  <h3 className="text-sm font-black text-white/60 mb-4 text-right">فترة الانتظار للرندرة (بالدقائق بين كل فيديو)</h3>
+                  <div className="grid gap-4 md:grid-cols-4">
+                    <div className="space-y-2 text-right">
+                      <label className={LABEL}>غير متبرع</label>
+                      <input type="number" value={paymentSettings.cooldownFree || 30} onChange={e => setPaymentSettings({ ...paymentSettings, cooldownFree: parseInt(e.target.value) || 0 })} className={INPUT_CLASS + " text-center"} />
+                    </div>
+                    <div className="space-y-2 text-right">
+                      <label className={LABEL}>تبرع عادي</label>
+                      <input type="number" value={paymentSettings.cooldownStarter || 15} onChange={e => setPaymentSettings({ ...paymentSettings, cooldownStarter: parseInt(e.target.value) || 0 })} className={INPUT_CLASS + " text-center"} />
+                    </div>
+                    <div className="space-y-2 text-right">
+                      <label className={LABEL}>تبرع ذهبي</label>
+                      <input type="number" value={paymentSettings.cooldownSupporter || 10} onChange={e => setPaymentSettings({ ...paymentSettings, cooldownSupporter: parseInt(e.target.value) || 0 })} className={INPUT_CLASS + " text-center"} />
+                    </div>
+                    <div className="space-y-2 text-right">
+                      <label className={LABEL}>تبرع بريميوم</label>
+                      <input type="number" value={paymentSettings.cooldownPremium || 5} onChange={e => setPaymentSettings({ ...paymentSettings, cooldownPremium: parseInt(e.target.value) || 0 })} className={INPUT_CLASS + " text-center"} />
+                    </div>
                   </div>
                 </div>
                 <button onClick={handleSavePaymentSettings} disabled={isSavingSettings} className="mt-8 w-full rounded-2xl bg-gradient-to-r from-sky-400 to-violet-500 px-5 py-4 text-black font-black transition hover:shadow-xl hover:shadow-sky-500/20">

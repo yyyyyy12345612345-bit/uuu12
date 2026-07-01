@@ -12,7 +12,7 @@ import {
   FolderOpen, ImageIcon, Wand2, Type, Layout, Music, 
   ArrowLeftRight, FileText, Bookmark, 
   Sun, Cloud, RotateCcw, RotateCw, 
-  Play, Volume2, Maximize2, Trash2, Pin, Scissors, 
+  Play, Pause, Heart, Volume2, Maximize2, Trash2, Pin, Scissors, 
   Copy, Layers, Plus, Eye, Lock, Search, 
   Loader2, Check, ChevronDown, Sparkles, Sliders, Info, Download,
   Briefcase, Moon
@@ -27,6 +27,18 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
   const { state, updateState } = useEditor();
   const { theme, toggleTheme } = useTheme();
   const { isFeatureLocked } = useUserPlan();
+
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    const handlePlayState = (e: any) => {
+      setIsPlaying(e.detail.isPlaying);
+    };
+    window.addEventListener("preview_play_state_changed", handlePlayState);
+    return () => {
+      window.removeEventListener("preview_play_state_changed", handlePlayState);
+    };
+  }, []);
 
   // Navigation states
   const [activeLeftTab, setActiveLeftTab] = useState<string>("bg");
@@ -108,7 +120,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
 
   // Left Sidebar Tabs
   const leftTabs = [
-    { id: "library", label: "المكتبة", icon: FolderOpen },
+    { id: "donation", label: "تبرع لدعمنا", icon: Heart },
     { id: "bg", label: "الخلفيات", icon: ImageIcon },
     { id: "effects", label: "المؤثرات", icon: Wand2 },
     { id: "fonts", label: "الخطوط", icon: Type },
@@ -168,9 +180,21 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
 
         {/* Right Tools / Action Buttons */}
         <div className="flex items-center gap-4">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-xs font-bold text-white transition-all">
-            <Play className="w-3.5 h-3.5 fill-current" />
-            <span>معاينة</span>
+          <button 
+            onClick={() => window.dispatchEvent(new CustomEvent("toggle_preview_play"))}
+            className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-xs font-bold text-white transition-all active:scale-95"
+          >
+            {isPlaying ? (
+              <>
+                <Pause className="w-3.5 h-3.5 fill-current" />
+                <span>إيقاف مؤقت</span>
+              </>
+            ) : (
+              <>
+                <Play className="w-3.5 h-3.5 fill-current" />
+                <span>معاينة</span>
+              </>
+            )}
           </button>
           
           <button 
@@ -210,7 +234,13 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveLeftTab(tab.id)}
+                onClick={() => {
+                  if (tab.id === "donation") {
+                    onOpenSubscription();
+                  } else {
+                    setActiveLeftTab(tab.id);
+                  }
+                }}
                 className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center gap-1 transition-all ${
                   isActive 
                     ? "bg-primary text-black shadow-lg shadow-primary/20 scale-[1.02]" 
@@ -240,7 +270,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
             </div>
 
             {/* TAB CONTENT: الخلفيات / المكتبة */}
-            {(activeLeftTab === "bg" || activeLeftTab === "library") && (
+            {activeLeftTab === "bg" && (
               <div className="flex flex-col gap-4">
                 {/* Search mode toggle */}
                 <div className="flex p-1 bg-white/5 rounded-xl border border-white/5 gap-1.5">

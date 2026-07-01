@@ -484,7 +484,8 @@ export async function incrementVideoRenderCount(): Promise<PointUpdateResult> {
   
   try {
     await updateDoc(doc(db, "users", user.uid), {
-      videoRendersCount: increment(1)
+      videoRendersCount: increment(1),
+      lastRenderedAt: serverTimestamp()
     });
     
     // Async check for badges

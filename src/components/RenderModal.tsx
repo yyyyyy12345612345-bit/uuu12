@@ -32,6 +32,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
 
   const [userPlan, setUserPlan] = useState<any>(null);
   const [isLimitReached, setIsLimitReached] = useState(false);
+  const [cooldownTimeLeft, setCooldownTimeLeft] = useState<number | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -39,16 +40,67 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    let timer: any = null;
+    if (isOpen && isLimitReached && cooldownTimeLeft !== null && cooldownTimeLeft > 0) {
+      timer = setInterval(() => {
+        setCooldownTimeLeft(prev => {
+          if (prev === null || prev <= 1) {
+            clearInterval(timer);
+            setIsLimitReached(false);
+            return null;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isOpen, isLimitReached, cooldownTimeLeft]);
+
   const fetchUserPlan = async () => {
     const user = auth?.currentUser;
+    
+    let cooldownFree = 30;
+    let cooldownStarter = 15;
+    let cooldownSupporter = 10;
+    let cooldownPremium = 5;
+
+    if (db) {
+      try {
+        const pricingDoc = await getDoc(doc(db, "settings", "pricing"));
+        if (pricingDoc.exists()) {
+          const pData = pricingDoc.data();
+          if (pData.cooldownFree !== undefined) cooldownFree = pData.cooldownFree;
+          if (pData.cooldownStarter !== undefined) cooldownStarter = pData.cooldownStarter;
+          if (pData.cooldownSupporter !== undefined) cooldownSupporter = pData.cooldownSupporter;
+          if (pData.cooldownPremium !== undefined) cooldownPremium = pData.cooldownPremium;
+        }
+      } catch (err) {
+        console.warn("Failed to load pricing/cooldown configurations:", err);
+      }
+    }
+
     if (!user) {
       setUserPlan(null);
-      const guestRenders = parseInt(localStorage.getItem("guest_video_renders") || "0");
-      if (guestRenders >= 1) setIsLimitReached(true);
-      else setIsLimitReached(false);
       setRenderMode("browser");
+      
+      const lastGuestRenderStr = localStorage.getItem("last_guest_render_time");
+      if (lastGuestRenderStr) {
+        const lastGuestRender = parseInt(lastGuestRenderStr);
+        const elapsedMinutes = (Date.now() - lastGuestRender) / (60 * 1000);
+        if (elapsedMinutes < cooldownFree) {
+          setIsLimitReached(true);
+          setCooldownTimeLeft(Math.ceil(cooldownFree * 60 - (Date.now() - lastGuestRender) / 1000));
+          return;
+        }
+      }
+      setIsLimitReached(false);
+      setCooldownTimeLeft(null);
       return;
     }
+
     if (!db) return;
     try {
       const s = await getDoc(doc(db, "users", user.uid));
@@ -57,11 +109,35 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         const plan = data.plan || "free";
         const count = data.videoRendersCount || 0;
         setUserPlan({ ...data, plan, count });
-        if (plan === "free" && count >= 5) setIsLimitReached(true);
-        else if (plan === "starter" && count >= 50) setIsLimitReached(true);
-        else setIsLimitReached(false);
 
-        if (plan === "premium") {
+        let cooldownMinutes = cooldownFree;
+        if (plan === "starter") cooldownMinutes = cooldownStarter;
+        else if (plan === "supporter") cooldownMinutes = cooldownSupporter;
+        else if (plan === "premium" || plan === "vip") cooldownMinutes = cooldownPremium;
+
+        const totalPoints = data.totalPoints || 0;
+        if (totalPoints >= 10000) {
+          setIsLimitReached(false);
+          setCooldownTimeLeft(null);
+          setRenderMode("server");
+          return;
+        }
+
+        const lastRenderedAtVal = data.lastRenderedAt;
+        if (lastRenderedAtVal) {
+          const lastRenderTime = lastRenderedAtVal.toDate ? lastRenderedAtVal.toDate().getTime() : new Date(lastRenderedAtVal).getTime();
+          const elapsedMinutes = (Date.now() - lastRenderTime) / (60 * 1000);
+          if (elapsedMinutes < cooldownMinutes) {
+            setIsLimitReached(true);
+            setCooldownTimeLeft(Math.ceil(cooldownMinutes * 60 - (Date.now() - lastRenderTime) / 1000));
+            return;
+          }
+        }
+
+        setIsLimitReached(false);
+        setCooldownTimeLeft(null);
+
+        if (plan === "premium" || plan === "vip") {
           setRenderMode("server");
         } else {
           setRenderMode("browser");
@@ -166,6 +242,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             setMessage("تم تجهيز الفيديو بنجاح! اضغط للتحميل.");
             if (!auth?.currentUser) {
               localStorage.setItem("guest_video_renders", "1");
+              localStorage.setItem("last_guest_render_time", Date.now().toString());
             } else {
               await incrementVideoRenderCount();
             }
@@ -315,6 +392,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         setStatus("success");
         if (!auth?.currentUser) {
           localStorage.setItem("guest_video_renders", "1");
+          localStorage.setItem("last_guest_render_time", Date.now().toString());
         } else {
           await incrementVideoRenderCount();
         }
@@ -1172,8 +1250,10 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             <div className="w-24 h-24 rounded-[2rem] bg-red-500/10 flex items-center justify-center mb-8 border border-red-500/20">
               <Lock className="w-12 h-12 text-red-500" />
             </div>
-            <h3 className="text-2xl font-black text-white mb-4">يتطلب تسجيل الدخول</h3>
-            <p className="text-white/40 text-sm text-center mb-10 px-8 leading-relaxed">لقد استهلكت الفيديو المجاني للزوار. يرجى تسجيل الدخول بحسابك لتتمكن من إنشاء المزيد من الفيديوهات القرآنية.</p>
+            <h3 className="text-2xl font-black text-white mb-4">فترة انتظار الزوار</h3>
+            <p className="text-white/40 text-sm text-center mb-10 px-8 leading-relaxed">
+              يرجى الانتظار <span className="text-primary font-bold font-mono">{cooldownTimeLeft !== null ? `${Math.floor(cooldownTimeLeft / 60)} دقيقة و ${cooldownTimeLeft % 60} ثانية` : '30 دقيقة'}</span> لإنشاء فيديو آخر كزائر، أو سجل الدخول لتفادي فترات الانتظار.
+            </p>
             <button 
               onClick={() => {
                 window.dispatchEvent(new CustomEvent("show_auth_gate"));
@@ -1189,9 +1269,11 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             <div className="w-24 h-24 rounded-[2rem] bg-amber-500/10 flex items-center justify-center mb-8 border border-amber-500/20">
               <Sparkles className="w-12 h-12 text-amber-500" />
             </div>
-            <h3 className="text-2xl font-black text-white mb-4">انتهت المحاولات المتاحة</h3>
-            <p className="text-white/40 text-sm text-center mb-10 px-8 leading-relaxed">لقد استهلكت جميع الرندرات المتاحة في خطتك. اشترك الآن في العضوية المميزة لرندرة غير محدودة.</p>
-            <button onClick={() => { onClose(); onOpenSubscription(); }} className="w-full bg-primary text-black py-5 rounded-[1.5rem] font-black shadow-2xl hover:scale-105 transition-all">عرض خطط التميز</button>
+            <h3 className="text-2xl font-black text-white mb-4">فترة انتظار التصدير</h3>
+            <p className="text-white/40 text-sm text-center mb-10 px-8 leading-relaxed font-arabic">
+              طبقاً لخطة تبرعك الحالي، يرجى الانتظار <span className="text-primary font-bold font-mono">{cooldownTimeLeft !== null ? `${Math.floor(cooldownTimeLeft / 60)} دقيقة و ${cooldownTimeLeft % 60} ثانية` : '15 دقيقة'}</span> قبل تصدير الفيديو التالي لضمان استقرار السيرفرات.
+            </p>
+            <button onClick={() => { onClose(); onOpenSubscription(); }} className="w-full bg-primary text-black py-5 rounded-[1.5rem] font-black shadow-2xl hover:scale-105 transition-all">ترقية خطة التبرع لسرعة أكبر</button>
           </div>
         ) : status === "idle" ? (
           <>
