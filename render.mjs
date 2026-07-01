@@ -1092,15 +1092,22 @@ async function startRender(jobId, data) {
       // === فيديو الخلفية ===
       let hasAudio = false; // تعطيل دمج صوت الخلفية لتجنب مشاكل وتوقف رندر ffmpeg أثناء التكرار
 
+      const bgResizedPath = path.resolve(tempDir, "bg_resized.mp4");
+      setProgress(75, "جاري تهيئة فيديو الخلفية بمقاس الهاتف...");
+      await execAsync(
+        `ffmpeg -loglevel error -i "${sl(bgPath)}" -vf "scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT},setsar=1" -an -c:v libx264 -preset ultrafast -crf 20 "${sl(bgResizedPath)}" -y`,
+        { timeout: 45000 }
+      );
+
       setProgress(85, "دمج الطبقات وإنتاج الفيديو النهائي...");
       ffmpegCmd = [
         `ffmpeg`,
         `-loglevel error`,
-        `-stream_loop -1 -i "${sl(bgPath)}"`,
+        `-stream_loop -1 -i "${sl(bgResizedPath)}"`,
         `-f concat -safe 0 -i "${sl(frameListPath)}"`,
         `-i "${sl(mergedAudioPath)}"`,
         `-filter_complex`,
-        `"[0:v]scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT},setsar=1[bg]; [1:v]format=rgba,scale=${WIDTH}:${HEIGHT}[fg]; [bg][fg]overlay=0:0:shortest=1,format=yuv420p[vout]"`,
+        `"[0:v][1:v]overlay=0:0:shortest=1,format=yuv420p[vout]"`,
         `-map "[vout]" -map 2:a`,
         `-t ${totalDuration.toFixed(4)}`,
         `-c:v libx264 -preset ultrafast -crf 23`,
