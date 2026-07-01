@@ -437,7 +437,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
         <image href="data:image/jpeg;base64,${templatePhotoBase64}" x="190" y="475" width="340" height="200" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)" />
         
         <!-- Surah Title & Reciter Name (Left aligned) -->
-        <text x="190" y="707" font-family="'Cairo', sans-serif" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="start">${escapeXml(surahName || "سورة")}</text>
+        <text x="190" y="707" font-family="'Noto Naskh Arabic', serif" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="start">${escapeXml(surahName || "سورة")}</text>
         <text x="190" y="733" font-family="'Cairo', sans-serif" font-size="15" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">${escapeXml(reciterName)}</text>
         
         <!-- Progress Bar -->
@@ -574,8 +574,13 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
           <line x1="7" y1="12" x2="17" y2="12" stroke="#ffffff" stroke-width="2" opacity="0.6" />
         </g>
 
+        <!-- Sheikh Name at bottom center (y = 1140) -->
+        <text x="360" y="1140" font-family="'Inter', sans-serif" font-size="22" font-weight="500" fill="rgba(255, 255, 255, 0.6)" text-anchor="middle">
+          Yasser Al-Dossary
+        </text>
+
         <!-- Small Ayah range/number at the very bottom center (y = 1170) -->
-        <text x="360" y="1170" font-family="monospace" font-size="20" font-weight="bold" fill="rgba(255, 255, 255, 0.5)" text-anchor="middle">
+        <text x="360" y="1175" font-family="monospace" font-size="18" font-weight="bold" fill="rgba(255, 255, 255, 0.4)" text-anchor="middle">
           ${startAyah === endAyah ? `AYAH ${startAyah}` : `AYAH ${startAyah} - ${endAyah}`}
         </text>
       </g>

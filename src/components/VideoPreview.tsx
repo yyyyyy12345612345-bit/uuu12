@@ -988,10 +988,13 @@ export function VideoPreview() {
                 </div>
               </div>
 
-              {/* Bottom Area: Ayah Range */}
-              <div className="h-[29.69%] flex items-center justify-center bg-black">
-                {/* Small Ayah range/number at the very bottom center */}
-                <div className="text-center text-[11px] font-black text-white/50 tracking-wider font-mono">
+              {/* Bottom Area: Ayah Range + Sheikh Name */}
+              <div className="h-[29.69%] flex flex-col items-center justify-center bg-black gap-1">
+                <div className="text-center text-[13px] font-medium text-white/60 tracking-wide" style={{ fontFamily: '"Inter", sans-serif' }}>
+                  Yasser Al-Dossary
+                </div>
+                {/* Small Ayah range/number */}
+                <div className="text-center text-[10px] font-black text-white/40 tracking-wider font-mono">
                   {state.startAyah === state.endAyah ? `AYAH ${state.startAyah}` : `AYAH ${state.startAyah} - ${state.endAyah}`}
                 </div>
               </div>
@@ -1009,7 +1012,7 @@ export function VideoPreview() {
               
               {/* Title & Artist */}
               <div className="w-[90%] mx-auto text-left font-sans mt-2">
-                <h3 className="text-base font-bold text-white tracking-tight leading-tight">
+                <h3 className="text-base font-bold text-white tracking-tight leading-tight" style={{ fontFamily: '"Noto Naskh Arabic", serif' }}>
                   {surahData ? surahData.name : "..."}
                 </h3>
                 <p className="text-[10px] text-white/50 mt-0.5 font-medium">{getReciterEnglishName(state.reciterId)}</p>

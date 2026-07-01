@@ -780,10 +780,17 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       ctx.stroke();
       ctx.restore();
 
-      // 4. Small Ayah range/number at the very bottom center (y = 1170)
+      // 4. Sheikh name + Ayah range at the very bottom center
       ctx.save();
-      ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-      ctx.font = "bold 20px monospace";
+      ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+      ctx.font = "500 22px 'Inter', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Yasser Al-Dossary", canvas.width / 2, 1140);
+      ctx.restore();
+
+      ctx.save();
+      ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+      ctx.font = "bold 18px monospace";
       ctx.textAlign = "center";
       const startAyah = state.startAyah || 1;
       const endAyah = state.endAyah || 1;
@@ -826,7 +833,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       
       ctx.save();
       ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 24px Arial";
+      ctx.font = "bold 24px 'Noto Naskh Arabic', serif";
       ctx.fillText(surahName || "سورة", 190, 707);
       ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
       ctx.font = "15px Arial";
