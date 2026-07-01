@@ -1115,21 +1115,18 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                       if (temp.id === "minshawi_player") {
                         updateState({
                           videoTemplate: "minshawi_player",
-                          reciterId: "minsh_murattal",
                           textColor: "#FFD700",
                           fontFamily: "Amiri"
                         });
                       } else if (temp.id === "dossary_player") {
                         updateState({
                           videoTemplate: "dossary_player",
-                          reciterId: "yasser",
                           textColor: "#ffffff",
                           fontFamily: "Noto Naskh Arabic"
                         });
                       } else if (temp.id === "basit_player") {
                         updateState({
                           videoTemplate: "basit_player",
-                          reciterId: "basit_murattal",
                           textColor: "#ffffff",
                           fontFamily: "Noto Naskh Arabic"
                         });

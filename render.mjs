@@ -130,9 +130,20 @@ setInterval(() => {
 }, 15 * 60 * 1000);
 
 async function downloadFile(url, dest) {
-  if (!validateUrl(url)) throw new Error(`URL غير مسموح به أمنياً: ${url}`);
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Download failed (${res.status}): ${url}`);
+  let decodedUrl = url;
+  try {
+    decodedUrl = decodeURIComponent(url);
+  } catch (e) {
+    try {
+      decodedUrl = decodeURI(url);
+    } catch (err) {}
+  }
+  
+  if (!validateUrl(decodedUrl)) throw new Error(`URL غير مسموح به أمنياً: ${url}`);
+  
+  const parsedUrl = new URL(decodedUrl);
+  const res = await fetch(parsedUrl.href);
+  if (!res.ok) throw new Error(`Download failed (${res.status}): ${parsedUrl.href}`);
   const ws = fs.createWriteStream(dest);
   await finished(Readable.fromWeb(res.body).pipe(ws));
 }
@@ -791,7 +802,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
       create: { width: WIDTH, height: HEIGHT, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } }
     })
       .composite([{ input: svgBuffer, blend: "over" }])
-      .png()
+      .png({ compressionLevel: 3 })
       .toFile(outputPath);
   } else {
     // دمج سريع جداً ومباشر فوق الصورة
@@ -1065,42 +1076,42 @@ async function startRender(jobId, data) {
         console.warn("Failed to probe video audio stream:", e.message);
       }
 
+      const bgProcessedPath = path.resolve(tempDir, "bg_processed.mp4");
+      setProgress(75, "جاري تهيئة فيديو الخلفية بمقاس الهاتف...");
+      await execAsync(
+        `ffmpeg -stream_loop -1 -t ${totalDuration.toFixed(4)} -i "${sl(bgPath)}" -vf "scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT},setsar=1" -an -c:v libx264 -preset ultrafast -crf 23 "${sl(bgProcessedPath)}" -y`,
+        { timeout: 90000 }
+      );
+
+      setProgress(85, "دمج الطبقات وإنتاج الفيديو النهائي...");
       if (hasAudio) {
         ffmpegCmd = [
           `ffmpeg`,
-          `-stream_loop -1`,
-          `-t ${totalDuration.toFixed(4)}`,
-          `-i "${sl(bgPath)}"`,
+          `-i "${sl(bgProcessedPath)}"`,
           `-f concat -safe 0 -i "${sl(frameListPath)}"`,
           `-i "${sl(mergedAudioPath)}"`,
           `-filter_complex`,
-          `"[0:v]scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT},setsar=1[bg];`,
-          `[1:v]format=rgba,scale=${WIDTH}:${HEIGHT}[fg];`,
-          `[bg][fg]overlay=0:0:shortest=1,format=yuv420p[vout];`,
+          `"[1:v]format=rgba,scale=${WIDTH}:${HEIGHT}[fg];`,
+          `[0:v][fg]overlay=0:0:shortest=1,format=yuv420p[vout];`,
           `[0:a]volume=0.25[bga];[2:a][bga]amix=inputs=2:duration=first:dropout_transition=2[aout]"`,
           `-map "[vout]" -map "[aout]"`,
           `-c:v libx264 -preset ultrafast -crf 23`,
           `-c:a aac -b:a 192k -ar 44100`,
-          `-t ${totalDuration.toFixed(4)}`,
           `-movflags +faststart`,
           `-y "${sl(outPath)}"`
         ].join(" ");
       } else {
         ffmpegCmd = [
           `ffmpeg`,
-          `-stream_loop -1`,
-          `-t ${totalDuration.toFixed(4)}`,
-          `-i "${sl(bgPath)}"`,
+          `-i "${sl(bgProcessedPath)}"`,
           `-f concat -safe 0 -i "${sl(frameListPath)}"`,
           `-i "${sl(mergedAudioPath)}"`,
           `-filter_complex`,
-          `"[0:v]scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT},setsar=1[bg];`,
-          `[1:v]format=rgba,scale=${WIDTH}:${HEIGHT}[fg];`,
-          `[bg][fg]overlay=0:0:shortest=1,format=yuv420p[vout]"`,
+          `"[1:v]format=rgba,scale=${WIDTH}:${HEIGHT}[fg];`,
+          `[0:v][fg]overlay=0:0:shortest=1,format=yuv420p[vout]"`,
           `-map "[vout]" -map 2:a`,
           `-c:v libx264 -preset ultrafast -crf 23`,
           `-c:a copy`,
-          `-t ${totalDuration.toFixed(4)}`,
           `-movflags +faststart`,
           `-y "${sl(outPath)}"`
         ].join(" ");
