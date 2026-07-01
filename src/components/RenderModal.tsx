@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Download, Loader2, CheckCircle2, AlertCircle, Play, Crown, Lock, Info, Sparkles, ChevronLeft, X } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
 import { useSurahData } from "@/hooks/useSurahData";
-import { RECITERS, getReciterEnglishName } from "@/data/reciters";
+import { RECITERS, getReciterEnglishName, getSheikhAsset } from "@/data/reciters";
 import { getAudioUrl } from "@/lib/quranUtils";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
@@ -142,6 +142,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
            ayahDecoration: state.ayahDecoration || "bracket1",
           videoTemplate: state.videoTemplate || "default",
           reciterName: getReciterEnglishName(state.reciterId),
+          reciterId: state.reciterId,
         }),
       });
 
@@ -234,10 +235,15 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       else bgImage = await loadImage(actualBgUrl); 
 
       let templatePhoto: HTMLImageElement | null = null;
-      if (state.videoTemplate === "dossary_player") {
-        templatePhoto = await loadImage("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782863138/Sheikh_Yasser_Al_Dosari_qm0gsf.jpg");
-      } else if (state.videoTemplate === "minshawi_player") {
-        templatePhoto = await loadImage("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg");
+      let templateCalligraphy: HTMLImageElement | null = null;
+      const isPlayerTemplate = ["dossary_player", "minshawi_player", "basit_player"].includes(state.videoTemplate || "");
+
+      if (isPlayerTemplate) {
+        const sheikh = getSheikhAsset(state.reciterId || "");
+        templatePhoto = await loadImage(sheikh.photoUrl);
+        if (state.videoTemplate === "basit_player" && sheikh.calligraphyUrl) {
+          templateCalligraphy = await loadImage(sheikh.calligraphyUrl);
+        }
       }
 
       if (!isRenderingRef.current) return;
@@ -280,7 +286,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           while (isRenderingRef.current && !item.audio.ended && (Date.now() - startTime) < (item.duration * 1000 + 1000)) {
             analyser.getByteFrequencyData(dataArray);
             const ayahProgress = item.audio.currentTime / item.duration;
-             renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, dataArray, surahData?.name || "", templatePhoto);
+             renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, dataArray, surahData?.name || "", templatePhoto, templateCalligraphy);
             const progress = Math.min(99, Math.round(((elapsed + item.audio.currentTime) / totalDuration) * 100));
             setProgressPct(progress);
             setMessage(`جاري التصميم: ${progress}%`);
@@ -293,7 +299,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           for (let s = 0; s < 5 * 30; s++) {
             if (!isRenderingRef.current) break;
             const ayahProgress = s / (5 * 30);
-             renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, null, surahData?.name || "", templatePhoto);
+             renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, null, surahData?.name || "", templatePhoto, templateCalligraphy);
             const progress = Math.min(99, Math.round(((elapsed + (s/30)) / totalDuration) * 100));
             setProgressPct(progress);
             await new Promise(r => setTimeout(r, 33));
@@ -345,7 +351,8 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     ayahProgress: number = 1, 
     freqData: Uint8Array | null = null,
     surahName: string = "",
-    templatePhoto: HTMLImageElement | null = null
+    templatePhoto: HTMLImageElement | null = null,
+    templateCalligraphy: HTMLImageElement | null = null
   ) => {
     ctx.save();
     
@@ -790,12 +797,11 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       ctx.stroke();
       ctx.restore();
 
-      // 4. Sheikh name + Ayah range at the very bottom center
       ctx.save();
       ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
       ctx.font = "500 22px 'Inter', sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText("Yasser Al-Dossary", canvas.width / 2, 1140);
+      ctx.fillText(getSheikhAsset(state.reciterId).nameEn, canvas.width / 2, 1140);
       ctx.restore();
 
       ctx.save();
@@ -806,6 +812,205 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       const endAyah = state.endAyah || 1;
       const rangeText = startAyah === endAyah ? `AYAH ${startAyah}` : `AYAH ${startAyah} - ${endAyah}`;
       ctx.fillText(rangeText, canvas.width / 2, 1170);
+      ctx.restore();
+    } else if (state.videoTemplate === "basit_player") {
+      // 1. Draw centered semi-transparent card (rounded rect)
+      const cardW = 612; // 85% of 720
+      const cardH = 416; // aspect aspect-[500/340] -> 612 * 340/500 = 416
+      const cardX = (canvas.width - cardW) / 2;
+      const cardY = (canvas.height - cardH) / 2;
+
+      ctx.save();
+      ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+      ctx.lineWidth = 2;
+      ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+      ctx.shadowBlur = 30;
+
+      ctx.beginPath();
+      if (typeof ctx.roundRect === 'function') {
+        ctx.roundRect(cardX, cardY, cardW, cardH, 50); // rounded-[2.5rem] is roughly 50px
+      } else {
+        ctx.rect(cardX, cardY, cardW, cardH);
+      }
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // 2. Draw Sheikh Photo on the left of the card
+      const photoW = cardW * 0.42; // 257px
+      const photoH = photoW * 1.15; // 295px
+      const photoX = cardX + 24; // 24px padding
+      const photoY = cardY + 24;
+      const rx = 35; // rounded-[2rem]
+
+      if (templatePhoto) {
+        ctx.save();
+        ctx.shadowColor = "rgba(255, 255, 255, 0.4)";
+        ctx.shadowBlur = 20;
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 3;
+
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(photoX, photoY, photoW, photoH, rx);
+        } else {
+          ctx.rect(photoX, photoY, photoW, photoH);
+        }
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.clip();
+        ctx.drawImage(templatePhoto, photoX, photoY, photoW, photoH);
+        ctx.restore();
+      }
+
+      // 3. Draw Calligraphy Signature Name below photo
+      const calligW = photoW;
+      const calligH = 40;
+      const calligX = photoX;
+      const calligY = photoY + photoH + 12;
+
+      if (templateCalligraphy) {
+        ctx.save();
+        ctx.filter = "invert(1) brightness(2)";
+        ctx.drawImage(templateCalligraphy, calligX, calligY, calligW, calligH);
+        ctx.restore();
+      }
+
+      // 4. Draw Right Side: Text & Controls
+      const rightAreaX = photoX + photoW + 20;
+      const rightAreaW = cardW - (photoW + 68); // ~267px
+      const textCenterX = rightAreaX + rightAreaW / 2;
+
+      // Active Verse Text (Top part of right area)
+      if (verse && verse.text) {
+        ctx.save();
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
+        ctx.shadowBlur = 15;
+        ctx.shadowOffsetY = 6;
+        ctx.fillStyle = "#ffffff";
+        ctx.font = `600 28px "Noto Naskh Arabic", serif`;
+
+        const lines = wrapText(ctx, verse.text, rightAreaW);
+        if (lines.length > 0) {
+          const progressPct = ayahProgress || 0;
+          const activeLineIdx = Math.min(lines.length - 1, Math.floor(progressPct * lines.length));
+          const activeLineText = lines[activeLineIdx];
+
+          const startY = cardY + 110;
+          ctx.fillText(activeLineText, textCenterX, startY);
+        }
+        ctx.restore();
+      }
+
+      // Progress Bar & Controls
+      const progressPct = ayahProgress || 0;
+      const barWidth = rightAreaW - 20;
+      const progressWidth = barWidth * progressPct;
+      const barX = rightAreaX + 10;
+      const barY = cardY + cardH - 120;
+
+      ctx.save();
+      ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+      ctx.beginPath();
+      if (typeof ctx.roundRect === 'function') {
+        ctx.roundRect(barX, barY, barWidth, 3, 1.5);
+      } else {
+        ctx.rect(barX, barY, barWidth, 3);
+      }
+      ctx.fill();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      if (typeof ctx.roundRect === 'function') {
+        ctx.roundRect(barX, barY, progressWidth, 3, 1.5);
+      } else {
+        ctx.rect(barX, barY, progressWidth, 3);
+      }
+      ctx.fill();
+      ctx.restore();
+
+      // Timestamps
+      ctx.save();
+      ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+      ctx.font = "10px monospace";
+      ctx.textAlign = "left";
+      ctx.fillText("0:00", barX, barY + 16);
+      ctx.textAlign = "right";
+      ctx.fillText("1:30", barX + barWidth, barY + 16);
+      ctx.restore();
+
+      // Controls Row (Prev / Play / Next / Heart / minus)
+      const btnY = barY + 30;
+      const scaleFactor = 0.8;
+
+      // Heart
+      ctx.save();
+      ctx.translate(rightAreaX + 10, btnY);
+      ctx.scale(scaleFactor, scaleFactor);
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 2.2;
+      ctx.globalAlpha = 0.6;
+      ctx.beginPath();
+      ctx.moveTo(12, 6);
+      ctx.bezierCurveTo(12, 6, 11, 2, 6.5, 2);
+      ctx.bezierCurveTo(2, 2, 2, 7.5, 2, 7.5);
+      ctx.bezierCurveTo(2, 12, 12, 20, 12, 20);
+      ctx.bezierCurveTo(12, 20, 22, 12, 22, 7.5);
+      ctx.bezierCurveTo(22, 7.5, 22, 2, 17.5, 2);
+      ctx.bezierCurveTo(13, 2, 12, 6, 12, 6);
+      ctx.stroke();
+      ctx.restore();
+
+      // Prev
+      ctx.save();
+      ctx.fillStyle = "#ffffff";
+      ctx.translate(rightAreaX + 60, btnY);
+      ctx.scale(scaleFactor, scaleFactor);
+      ctx.beginPath();
+      ctx.moveTo(19, 20); ctx.lineTo(9, 12); ctx.lineTo(19, 4);
+      ctx.fill();
+      ctx.fillRect(5, 4, 2, 16);
+      ctx.restore();
+
+      // Play (Circle Pause)
+      ctx.save();
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(rightAreaX + rightAreaW / 2, btnY + 10, 18, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(rightAreaX + rightAreaW / 2 - 5, btnY + 2, 3, 16);
+      ctx.fillRect(rightAreaX + rightAreaW / 2 + 2, btnY + 2, 3, 16);
+      ctx.restore();
+
+      // Next
+      ctx.save();
+      ctx.fillStyle = "#ffffff";
+      ctx.translate(rightAreaX + rightAreaW - 80, btnY);
+      ctx.scale(scaleFactor, scaleFactor);
+      ctx.beginPath();
+      ctx.moveTo(5, 4); ctx.lineTo(15, 12); ctx.lineTo(5, 20);
+      ctx.fill();
+      ctx.fillRect(17, 4, 2, 16);
+      ctx.restore();
+
+      // Minus
+      ctx.save();
+      ctx.translate(rightAreaX + rightAreaW - 30, btnY);
+      ctx.scale(scaleFactor, scaleFactor);
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 2.2;
+      ctx.globalAlpha = 0.6;
+      ctx.beginPath();
+      ctx.arc(12, 12, 10, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(7, 12); ctx.lineTo(17, 12);
+      ctx.stroke();
       ctx.restore();
     } else if (state.videoTemplate === "minshawi_player") {
       // Draw Minshawi player

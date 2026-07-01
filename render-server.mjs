@@ -28,6 +28,46 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 
+const SHEIKH_ASSETS = {
+  minsh: {
+    id: "minsh",
+    nameAr: "الشيخ محمد صديق المنشاوي",
+    nameEn: "Mohammad Siddiq Al-Minshawi",
+    photoUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8Side_filgf2.jpg",
+    calligraphyUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782885918/%D8%AA%D9%88%D9%82%D9%8A%D8%B9_%D8%A7%D9%84%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8Side_u3ytsf.png"
+  },
+  yasser: {
+    id: "yasser",
+    nameAr: "الشيخ ياسر الدوسري",
+    nameEn: "Yasser Al-Dossary",
+    photoUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782863138/Sheikh_Yasser_Al_Dosari_qm0gsf.jpg",
+    calligraphyUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782887640/%D8%AA%D9%88%D9%82%D9%8A%D8%B9_%D9%8A%D8%A7%D8%B3%D8%B1_%D8%A7%D9%84%D8%AF%D9%88%D8%B3%D8%B1%D9%8A_pt1fbe.png"
+  },
+  husr: {
+    id: "husr",
+    nameAr: "الشيخ محمود خليل الحصري",
+    nameEn: "Mahmoud Khalil Al-Husary",
+    photoUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782885361/%D8%A7%D9%84%D8%B4%D9%8A%D8%AE_%D8%A7%D9%84%D8%AD%D8%B5%D8%B1%D9%8A_vhdgba.jpg",
+    calligraphyUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782887638/%D8%AA%D9%88%D9%82%D9%8A%D8%B9_%D8%A7%D9%84%D8%AD%D8%B5%D8%B1%D9%8A_uaymqw.png"
+  },
+  basit: {
+    id: "basit",
+    nameAr: "الشيخ عبدالباسط عبدالصمد",
+    nameEn: "Abdul Basit Abdul Samad",
+    photoUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782885144/%D8%B9%D8%A8%D8%AF_%D8%A7%D9%84%D8%A8%D8%A7%D8%B3%D8%B7_ykv3aw.jpg",
+    calligraphyUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782885233/%D8%AA%D9%88%D9%82%D9%8A%D8%B9_%D8%B9%D8%A8%D8%AF_%D8%A7%D9%84%D8%A8%D8%A7%D8%B3%D8%B7_m05p8o.png"
+  }
+};
+
+function getSheikhAsset(reciterId) {
+  const cleanId = reciterId || "";
+  if (cleanId.includes("minsh")) return SHEIKH_ASSETS.minsh;
+  if (cleanId.includes("yasser")) return SHEIKH_ASSETS.yasser;
+  if (cleanId.includes("husr")) return SHEIKH_ASSETS.husr;
+  if (cleanId.includes("basit")) return SHEIKH_ASSETS.basit;
+  return SHEIKH_ASSETS.minsh;
+}
+
 const RENDERS_DIR = path.resolve(os.tmpdir(), "renders_output");
 const FONTS_DIR = path.resolve(os.tmpdir(), "fonts_cache");
 const WIDTH = 720, HEIGHT = 1280;
@@ -290,8 +330,8 @@ function applyOverlayToSVG(svg, overlayName) {
 }
 
 // رسم إطارات الآيات (SVG)
-async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg = false, fontBase64 = null, amiriBase64 = null, animState = null, elapsedSeconds = 0, totalDuration = 0, templatePhotoBase64 = "") {
-  const { fontSize = 50, fontWeight = 700, fontFamily = "Amiri", textColor = "#ffffff", textPosition = "center", textVerticalOffset = 0, surahName = "", userPlan = "free", instaHandle = "", tiktokHandle = "", filter = "none", overlay = "none", ayahDecoration = "bracket1", videoTemplate = "default", reciterName = "Sheikh Muhammad Siddiq Al-Minshawi" } = settings;
+async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg = false, fontBase64 = null, amiriBase64 = null, animState = null, elapsedSeconds = 0, totalDuration = 0, templatePhotoBase64 = "", calligraphyBase64 = "") {
+  const { fontSize = 50, fontWeight = 700, fontFamily = "Amiri", textColor = "#ffffff", textPosition = "center", textVerticalOffset = 0, surahName = "", userPlan = "free", instaHandle = "", tiktokHandle = "", filter = "none", overlay = "none", ayahDecoration = "bracket1", videoTemplate = "default", reciterName = "Sheikh Muhammad Siddiq Al-Minshawi", reciterId } = settings;
 
   const opacity = animState ? animState.opacity : 1;
   const verticalOffset = animState ? animState.offsetY : 0;
@@ -481,6 +521,112 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
         </g>
       </g>
     `;
+  } else if (videoTemplate === "basit_player") {
+    const startAyah = settings.startAyah || 1;
+    const endAyah = settings.endAyah || 1;
+    const elapsed = elapsedSeconds || 0;
+    const total = totalDuration || 1;
+    const progressPct = elapsed / total;
+
+    const formatTime = (secs) => {
+      if (isNaN(secs)) return "0:00";
+      const m = Math.floor(secs / 60);
+      const s = Math.floor(secs % 60);
+      return `${m}:${s < 10 ? '0' : ''}${s}`;
+    };
+
+    const cardW = 612;
+    const cardH = 416;
+    const cardX = (WIDTH - cardW) / 2;
+    const cardY = (HEIGHT - cardH) / 2;
+
+    const photoW = 257;
+    const photoH = 295;
+    const photoX = cardX + 24;
+    const photoY = cardY + 24;
+
+    const calligW = photoW;
+    const calligH = 40;
+    const calligX = photoX;
+    const calligY = photoY + photoH + 12;
+
+    const rightAreaX = photoX + photoW + 20;
+    const rightAreaW = cardW - (photoW + 68);
+    const textCenterX = rightAreaX + rightAreaW / 2;
+
+    const naskhStartY = cardY + 110;
+
+    const verseWords = (verse.text || "").split(/\s+/).filter(Boolean);
+    const wordsPerLine = 4;
+    const verseLines = [];
+    for (let i = 0; i < verseWords.length; i += wordsPerLine) {
+      verseLines.push(verseWords.slice(i, i + wordsPerLine).join(" "));
+    }
+    if (verseLines.length === 0 && verse.text) verseLines.push(verse.text);
+
+    const ayahProg = settings.ayahProgress || 0;
+    const activeLineIdx = Math.min(verseLines.length - 1, Math.floor(ayahProg * verseLines.length));
+    const activeLineText = verseLines[activeLineIdx] || verse.text || "";
+
+    const barWidth = rightAreaW - 20;
+    const progressWidth = barWidth * progressPct;
+    const barX = rightAreaX + 10;
+    const barY = cardY + cardH - 120;
+    const btnY = barY + 30;
+
+    innerContent = `
+      <g opacity="${opacity}">
+        <rect x="${cardX}" y="${cardY}" width="${cardW}" height="${cardH}" rx="50" fill="rgba(0, 0, 0, 0.65)" stroke="rgba(255, 255, 255, 0.1)" stroke-width="2" filter="url(#softShadow)" />
+
+        <clipPath id="basitPhotoClip">
+          <rect x="${photoX}" y="${photoY}" width="${photoW}" height="${photoH}" rx="35" />
+        </clipPath>
+        <rect x="${photoX}" y="${photoY}" width="${photoW}" height="${photoH}" rx="35" fill="none" stroke="#ffffff" stroke-width="4" filter="url(#whiteGlow)" />
+        <image href="data:image/jpeg;base64,${templatePhotoBase64}" x="${photoX}" y="${photoY}" width="${photoW}" height="${photoH}" preserveAspectRatio="xMidYMid slice" clip-path="url(#basitPhotoClip)" />
+
+        ${calligraphyBase64 ? `
+        <image href="data:image/png;base64,${calligraphyBase64}" x="${calligX}" y="${calligY}" width="${calligW}" height="${calligH}" preserveAspectRatio="xMidYMid contain" filter="invert(1) brightness(2)" />
+        ` : ""}
+
+        ${verse.text ? `
+        <text x="${textCenterX}" y="${naskhStartY}" font-family="'Noto Naskh Arabic', serif" font-size="28" fill="#ffffff" text-anchor="middle" direction="rtl" filter="url(#textGlow)">
+          ${escapeXml(activeLineText)}
+        </text>
+        ` : ""}
+
+        <rect x="${barX}" y="${barY}" width="${barWidth}" height="4" rx="2" fill="rgba(255, 255, 255, 0.2)" />
+        <rect x="${barX}" y="${barY}" width="${progressWidth}" height="4" rx="2" fill="#ffffff" />
+        <circle cx="${barX + progressWidth}" cy="${barY + 2}" r="5" fill="#ffffff" />
+
+        <text x="${barX}" y="${barY + 20}" font-family="monospace" font-size="10" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">${formatTime(elapsed)}</text>
+        <text x="${barX + barWidth}" y="${barY + 20}" font-family="monospace" font-size="10" fill="rgba(255, 255, 255, 0.5)" text-anchor="end">${formatTime(total)}</text>
+
+        <g transform="translate(${barX}, ${btnY}) scale(0.8)">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6"/>
+        </g>
+        
+        <g transform="translate(${barX + 50}, ${btnY}) scale(0.8)">
+          <path d="M19 20L9 12l10-8v16z" fill="#ffffff" />
+          <rect x="5" y="4" width="2" height="16" rx="0.5" fill="#ffffff" />
+        </g>
+        
+        <circle cx="${rightAreaX + rightAreaW / 2}" cy="${btnY + 10}" r="18" fill="#ffffff" />
+        <g transform="translate(${rightAreaX + rightAreaW / 2 - 9}, ${btnY - 1}) scale(0.75)">
+          <rect x="3" y="4" width="5" height="16" rx="1" fill="#000000" />
+          <rect x="12" y="4" width="5" height="16" rx="1" fill="#000000" />
+        </g>
+        
+        <g transform="translate(${rightAreaX + rightAreaW - 75}, ${btnY}) scale(0.8)">
+          <path d="M5 4l10 8-10 8V4z" fill="#ffffff" />
+          <rect x="17" y="4" width="2" height="16" rx="0.5" fill="#ffffff" />
+        </g>
+        
+        <g transform="translate(${rightAreaX + rightAreaW - 25}, ${btnY}) scale(0.8)">
+          <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6" />
+          <line x1="7" y1="12" x2="17" y2="12" stroke="#ffffff" stroke-width="2" opacity="0.6" />
+        </g>
+      </g>
+    `;
   } else if (videoTemplate === "dossary_player") {
     const startAyah = settings.startAyah || 1;
     const endAyah = settings.endAyah || 1;
@@ -576,7 +722,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
 
         <!-- Sheikh Name at bottom center (y = 1140) -->
         <text x="360" y="1140" font-family="'Inter', sans-serif" font-size="22" font-weight="500" fill="rgba(255, 255, 255, 0.6)" text-anchor="middle">
-          Yasser Al-Dossary
+          ${escapeXml(getSheikhAsset(reciterId).nameEn)}
         </text>
 
         <!-- Small Ayah range/number at the very bottom center (y = 1170) -->
@@ -656,7 +802,6 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
       .toFile(outputPath);
   }
 }
-
 // ═══ عملية الرندرة الأساسية ═══
 async function startRender(jobId, data) {
   const { verses, backgroundUrl, surahName, reciterName = "Sheikh Muhammad Siddiq Al-Minshawi", textColor = "#ffffff", fontSize = 50, fontWeight = 700, fontFamily = "Amiri", filter = "none", overlay = "none", animation = "fade", textPosition = "center", textVerticalOffset = 0, userPlan = "free", instaHandle = "", tiktokHandle = "", ayahDecoration = "bracket1", showVisualizer = false, visualizerColor = "#D4AF37", visualizerStyle = "bars", particles = "none", videoTemplate = "default" } = data;
@@ -686,21 +831,30 @@ async function startRender(jobId, data) {
     // تحميل صورة الشيخ وصورة الخلفية المخصصة للقالب
     const isMinshawiPlayer = data.videoTemplate === "minshawi_player";
     const isDossaryPlayer = data.videoTemplate === "dossary_player";
+    const isBasitPlayer = data.videoTemplate === "basit_player";
+    const isPlayerTemplate = isMinshawiPlayer || isDossaryPlayer || isBasitPlayer;
+
     const photoPath = path.resolve(tempDir, "template_photo.jpg");
+    const calligraphyPath = path.resolve(tempDir, "template_calligraphy.png");
     const dossaryBgPath = path.resolve(tempDir, "dossary_bg.png");
 
-    if (isMinshawiPlayer) {
-      await downloadFile("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg", photoPath);
-    } else if (isDossaryPlayer) {
-      await downloadFile("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782863138/Sheikh_Yasser_Al_Dosari_qm0gsf.jpg", photoPath);
-      await downloadFile("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782871516/12_gahaqi.png", dossaryBgPath);
+    if (isPlayerTemplate) {
+      const sheikh = getSheikhAsset(data.reciterId);
+      await downloadFile(sheikh.photoUrl, photoPath);
+      if (isBasitPlayer && sheikh.calligraphyUrl) {
+        await downloadFile(sheikh.calligraphyUrl, calligraphyPath);
+      }
+      if (isDossaryPlayer) {
+        await downloadFile("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782871516/12_gahaqi.png", dossaryBgPath);
+      }
     }
 
-    const templatePhotoBase64 = (isMinshawiPlayer || isDossaryPlayer) ? fs.readFileSync(photoPath).toString("base64") : "";
+    const templatePhotoBase64 = isPlayerTemplate ? fs.readFileSync(photoPath).toString("base64") : "";
+    const calligraphyBase64 = (isBasitPlayer && fs.existsSync(calligraphyPath)) ? fs.readFileSync(calligraphyPath).toString("base64") : "";
     const dossaryBgBase64 = isDossaryPlayer ? fs.readFileSync(dossaryBgPath).toString("base64") : "";
 
     let naskhBase64 = null;
-    if (isDossaryPlayer) {
+    if (isDossaryPlayer || isBasitPlayer) {
       const naskhPath = await ensureFont("Noto Naskh Arabic");
       naskhBase64 = fs.readFileSync(naskhPath).toString("base64");
     }
@@ -815,10 +969,10 @@ async function startRender(jobId, data) {
 
         const startAyah = verses && verses.length > 0 ? verses[0].id : 1;
         const endAyah = verses && verses.length > 0 ? verses[verses.length - 1].id : 1;
-        const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, videoTemplate, reciterName, startAyah, endAyah, dossaryBgBase64, naskhBase64, ayahProgress };
+        const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, videoTemplate, reciterName, reciterId: data.reciterId, startAyah, endAyah, dossaryBgBase64, naskhBase64, ayahProgress };
         const animState = { opacity: 1, offsetY: 0, scale: 1, activeWordIndex: -1 };
 
-        await generateVerseFrame(activeVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState, elapsed, audioTotal, templatePhotoBase64);
+        await generateVerseFrame(activeVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState, elapsed, audioTotal, templatePhotoBase64, calligraphyBase64);
         frameEntries.push({ fPath, dur });
 
         elapsed += dur;

@@ -1102,10 +1102,11 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                 </button>
               </div>
               
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 {[
                   { id: "minshawi_player", name: "تصميم المنشاوي", active: state.videoTemplate === "minshawi_player", img: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg" },
                   { id: "dossary_player", name: "تصميم الدوسري", active: state.videoTemplate === "dossary_player", img: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782863138/Sheikh_Yasser_Al_Dosari_qm0gsf.jpg" },
+                  { id: "basit_player", name: "تصميم عبد الباسط", active: state.videoTemplate === "basit_player", img: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782885144/%D8%B9%D8%A8%D8%AF_%D8%A7%D9%84%D8%A8%D8%A7%D8%B3%D8%B7_ykv3aw.jpg" },
                   { id: "default", name: "كلاسيك", active: state.videoTemplate === "default" || !state.videoTemplate, img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=200&h=150&q=80" }
                 ].map((temp) => (
                   <button
@@ -1122,6 +1123,13 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                         updateState({
                           videoTemplate: "dossary_player",
                           reciterId: "yasser",
+                          textColor: "#ffffff",
+                          fontFamily: "Noto Naskh Arabic"
+                        });
+                      } else if (temp.id === "basit_player") {
+                        updateState({
+                          videoTemplate: "basit_player",
+                          reciterId: "basit_murattal",
                           textColor: "#ffffff",
                           fontFamily: "Noto Naskh Arabic"
                         });

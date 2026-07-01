@@ -1429,3 +1429,52 @@ export function getReciterEnglishName(id: string): string {
   return "Sheikh Muhammad Siddiq Al-Minshawi";
 }
 
+export interface SheikhAsset {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  photoUrl: string;
+  calligraphyUrl: string;
+}
+
+export const SHEIKH_ASSETS: Record<string, SheikhAsset> = {
+  minsh: {
+    id: "minsh",
+    nameAr: "الشيخ محمد صديق المنشاوي",
+    nameEn: "Mohammad Siddiq Al-Minshawi",
+    photoUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8Side_filgf2.jpg",
+    calligraphyUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782885918/%D8%AA%D9%88%D9%82%D9%8A%D8%B9_%D8%A7%D9%84%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8Side_u3ytsf.png"
+  },
+  yasser: {
+    id: "yasser",
+    nameAr: "الشيخ ياسر الدوسري",
+    nameEn: "Yasser Al-Dossary",
+    photoUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782863138/Sheikh_Yasser_Al_Dosari_qm0gsf.jpg",
+    calligraphyUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782887640/%D8%AA%D9%88%D9%82%D9%8A%D8%B9_%D9%8A%D8%A7%D8%B3%D8%B1_%D8%A7%D9%84%D8%AF%D9%88%D8%B3%D8%B1%D9%8A_pt1fbe.png"
+  },
+  husr: {
+    id: "husr",
+    nameAr: "الشيخ محمود خليل الحصري",
+    nameEn: "Mahmoud Khalil Al-Husary",
+    photoUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782885361/%D8%A7%D9%84%D8%B4%D9%8A%D8%AE_%D8%A7%D9%84%D8%AD%D8%B5%D8%B1%D9%8A_vhdgba.jpg",
+    calligraphyUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782887638/%D8%AA%D9%88%D9%82%D9%8A%D8%B9_%D8%A7%D9%84%D8%AD%D8%B5%D8%B1%D9%8A_uaymqw.png"
+  },
+  basit: {
+    id: "basit",
+    nameAr: "الشيخ عبدالباسط عبدالصمد",
+    nameEn: "Abdul Basit Abdul Samad",
+    photoUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782885144/%D8%B9%D8%A8%D8%AF_%D8%A7%D9%84%D8%A8%D8%A7%D8%B3%D8%B7_ykv3aw.jpg",
+    calligraphyUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782885233/%D8%AA%D9%88%D9%82%D9%8A%D8%B9_%D8%B9%D8%A8%D8%AF_%D8%A7%D9%84%D8%A8%D8%A7%D8%B3%D8%B7_m05p8o.png"
+  }
+};
+
+export function getSheikhAsset(reciterId: string): SheikhAsset {
+  const cleanId = reciterId || "";
+  if (cleanId.includes("minsh")) return SHEIKH_ASSETS.minsh;
+  if (cleanId.includes("yasser")) return SHEIKH_ASSETS.yasser;
+  if (cleanId.includes("husr")) return SHEIKH_ASSETS.husr;
+  if (cleanId.includes("basit")) return SHEIKH_ASSETS.basit;
+  // Default fallback
+  return SHEIKH_ASSETS.minsh;
+}
+

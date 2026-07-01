@@ -4,7 +4,7 @@ import React, { useRef, useState, useEffect, useMemo } from "react";
 import { useEditor } from "@/store/useEditor";
 import { useSurahData } from "@/hooks/useSurahData";
 import { getAudioUrl } from "@/lib/quranUtils";
-import { RECITERS, getReciterEnglishName } from "@/data/reciters";
+import { RECITERS, getReciterEnglishName, getSheikhAsset } from "@/data/reciters";
 import { Play, Pause, Loader2, BookOpen, AlertCircle } from "lucide-react";
 
 const isVideoUrl = (url: string) => {
@@ -502,7 +502,7 @@ export function VideoPreview() {
           ) : (
             state.videoTemplate === "minshawi_player" ? (
               <div className="absolute top-[29.69%] bottom-[29.69%] left-0 right-0 bg-[#383838] z-10" />
-            ) : (
+            ) : state.videoTemplate === "dossary_player" ? (
               <>
                 <div className="absolute top-0 left-0 right-0 h-[29.69%] bg-black z-10" />
                 <div 
@@ -511,12 +511,12 @@ export function VideoPreview() {
                 />
                 <div className="absolute bottom-0 left-0 right-0 h-[29.69%] bg-black z-10" />
               </>
-            )
+            ) : null
           )}
         </div>
 
         {/* Overlays */}
-        {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && (
+        {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "basit_player" && (
           <>
             {state.overlay === "dust" && (
            <div className="absolute inset-0 pointer-events-none z-10">
@@ -849,27 +849,161 @@ export function VideoPreview() {
         <div 
           className="absolute inset-0 flex flex-col items-center px-10 text-center z-20 transition-all duration-700 ease-out"
           style={{ 
-            justifyContent: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player") ? 'center' : (state.textPosition === 'top' ? 'flex-start' : state.textPosition === 'bottom' ? 'flex-end' : 'center'),
-            paddingTop: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player") ? '0px' : (state.textPosition === 'top' ? '180px' : '60px'),
-            paddingBottom: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player") ? '0px' : (state.textPosition === 'bottom' ? '160px' : '60px'),
-            transform: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player") ? 'none' : `translateY(${state.textVerticalOffset * 0.45}px)` 
+            justifyContent: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player" || state.videoTemplate === "basit_player") ? 'center' : (state.textPosition === 'top' ? 'flex-start' : state.textPosition === 'bottom' ? 'flex-end' : 'center'),
+            paddingTop: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player" || state.videoTemplate === "basit_player") ? '0px' : (state.textPosition === 'top' ? '180px' : '60px'),
+            paddingBottom: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player" || state.videoTemplate === "basit_player") ? '0px' : (state.textPosition === 'bottom' ? '160px' : '60px'),
+            transform: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player" || state.videoTemplate === "basit_player") ? 'none' : `translateY(${state.textVerticalOffset * 0.45}px)` 
           }}
         >
-          {state.videoTemplate === "dossary_player" ? (
+          {state.videoTemplate === "basit_player" ? (
+            <div className="w-full h-full flex flex-col justify-between z-20 select-none animate-in fade-in duration-500">
+              <div className="h-[20%]" />
+              {/* Card Container in Center */}
+              <div className="w-[85%] mx-auto aspect-[500/340] bg-black/60 backdrop-blur-md rounded-[2.5rem] p-6 flex flex-row items-center justify-between gap-5 border border-white/10 shadow-2xl shrink-0" dir="ltr">
+                {/* Left Side: Photo and Calligraphy */}
+                <div className="w-[42%] flex flex-col items-center gap-3 shrink-0">
+                  <div 
+                    className="w-full aspect-[1/1.15] overflow-hidden bg-black border-[3px] border-white shadow-[0_0_20px_rgba(255,255,255,0.4)] shrink-0"
+                    style={{ borderRadius: "2rem" }}
+                  >
+                    <img
+                      src={getSheikhAsset(state.reciterId).photoUrl}
+                      alt={getSheikhAsset(state.reciterId).nameAr}
+                      className="w-full h-full object-cover grayscale brightness-110"
+                    />
+                  </div>
+                  <div className="h-10 w-full flex items-center justify-center shrink-0">
+                    <img
+                      src={getSheikhAsset(state.reciterId).calligraphyUrl}
+                      alt="توقيع اسم الشيخ"
+                      className="h-full object-contain invert brightness-200"
+                    />
+                  </div>
+                </div>
+                
+                {/* Right Side: Verse Text and Player Controls */}
+                <div className="flex-1 flex flex-col justify-between py-1 text-right h-full max-w-[55%]">
+                  {/* Verse Text */}
+                  <div className="flex-1 flex items-center justify-center">
+                    {currentVerse ? (() => {
+                      const lines = wrapTextHelper(currentVerse.text, Math.max(16, previewFontSize * 0.65), 180);
+                      const progress = duration > 0 ? (currentTime / duration) : 0;
+                      const activeLineIdx = Math.min(lines.length - 1, Math.floor(progress * lines.length));
+                      const activeLineText = lines[activeLineIdx] || currentVerse.text;
+                      return (
+                        <p
+                          className="text-white text-center w-full break-words leading-[1.9] drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] font-arabic"
+                          style={{
+                            fontSize: `${Math.max(15, previewFontSize * 0.62)}px`,
+                            fontFamily: '"Noto Naskh Arabic", serif',
+                            direction: 'rtl',
+                          }}
+                        >
+                          {activeLineText}
+                        </p>
+                      );
+                    })() : (
+                      <p className="text-white/40 text-sm font-arabic">لم يتم تحديد آية</p>
+                    )}
+                  </div>
+
+                  {/* Player Controls */}
+                  <div className="flex flex-col gap-2 mt-2">
+                    {/* Progress Bar */}
+                    <div className="w-full">
+                      <div className="w-full h-[3px] bg-white/20 rounded-full relative cursor-pointer" onClick={(e) => {
+                        if (audioRef.current && totalSelectedDuration > 0 && surahData) {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          const clickX = e.clientX - rect.left;
+                          const pct = clickX / rect.width;
+                          const targetTime = pct * totalSelectedDuration;
+
+                          const versesInRange = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
+                          let accumulatedTime = 0;
+                          for (let v of versesInRange) {
+                            const vDur = verseDurations[v.id] || 5;
+                            if (targetTime <= accumulatedTime + vDur) {
+                              setCurrentAyahIndex(v.id);
+                              const seekOffset = targetTime - accumulatedTime;
+                              setTimeout(() => {
+                                if (audioRef.current) {
+                                  audioRef.current.currentTime = seekOffset;
+                                }
+                              }, 80);
+                              break;
+                            }
+                            accumulatedTime += vDur;
+                          }
+                        }
+                      }}>
+                        <div 
+                          className="h-full bg-white rounded-full transition-all duration-75" 
+                          style={{ width: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-[8px] text-white/50 font-mono mt-1" dir="ltr">
+                        <span>{formatTime(totalSelectedElapsed)}</span>
+                        <span>{formatTime(totalSelectedDuration)}</span>
+                      </div>
+                    </div>
+
+                    {/* Control Buttons */}
+                    <div className="flex items-center justify-between px-1" dir="ltr">
+                      <button className="text-white/60 hover:text-white transition active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                      </button>
+
+                      <button 
+                        onClick={() => {
+                          if (audioRef.current) audioRef.current.currentTime = 0;
+                        }}
+                        className="text-white hover:scale-105 transition active:scale-95"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5" stroke="currentColor" strokeWidth="1.6"/></svg>
+                      </button>
+
+                      <button 
+                        onClick={togglePlay}
+                        className="w-7 h-7 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 active:scale-95 transition shadow-lg shrink-0"
+                      >
+                        {isPlaying ? (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/></svg>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                        )}
+                      </button>
+
+                      <button 
+                        onClick={handleAyahEnd}
+                        className="text-white hover:scale-105 transition active:scale-95"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19" stroke="currentColor" strokeWidth="1.6"/></svg>
+                      </button>
+
+                      <button className="text-white/60 hover:text-white transition active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="h-[20%]" />
+            </div>
+          ) : state.videoTemplate === "dossary_player" ? (
             <div className="w-full h-full flex flex-col justify-between z-20 select-none animate-in fade-in duration-500">
               {/* Top Area: Clean and Black */}
               <div className="h-[29.69%]" />
 
               {/* Middle Area: Photo on Left, Verses on Right */}
-              <div className="h-[40.62%] flex items-center justify-between gap-4 px-6">
+              <div className="h-[40.62%] flex flex-row items-center justify-between gap-4 px-6" dir="ltr">
                 {/* Left Side: Photo */}
                 <div 
                   className="w-[44%] aspect-[3/4] overflow-hidden bg-black border-[3px] border-white shadow-[0_0_20px_rgba(255,255,255,0.5)] shrink-0"
                   style={{ borderRadius: "2rem" }}
                 >
                   <img
-                    src="https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782863138/Sheikh_Yasser_Al_Dosari_qm0gsf.jpg"
-                    alt="ياسر الدوسري"
+                    src={getSheikhAsset(state.reciterId).photoUrl}
+                    alt={getSheikhAsset(state.reciterId).nameAr}
                     className="w-full h-full object-cover grayscale brightness-110"
                   />
                 </div>
@@ -995,11 +1129,146 @@ export function VideoPreview() {
               {/* Bottom Area: Ayah Range + Sheikh Name */}
               <div className="h-[29.69%] flex flex-col items-center justify-center bg-black gap-1">
                 <div className="text-center text-[13px] font-medium text-white/60 tracking-wide" style={{ fontFamily: '"Inter", sans-serif' }}>
-                  Yasser Al-Dossary
+                  {getSheikhAsset(state.reciterId).nameEn}
                 </div>
                 {/* Small Ayah range/number */}
                 <div className="text-center text-[10px] font-black text-white/40 tracking-wider font-mono">
                   {state.startAyah === state.endAyah ? `AYAH ${state.startAyah}` : `AYAH ${state.startAyah} - ${state.endAyah}`}
+                </div>
+              </div>
+            </div>
+          ) : (state.videoTemplate as any) === "basit_player" ? (
+            <div className="w-[85%] aspect-[500/340] bg-black/65 backdrop-blur-md rounded-[2.5rem] p-6 flex flex-row items-center justify-between gap-6 shadow-2xl z-20 select-none animate-in fade-in duration-500 border border-white/10" dir="ltr">
+              {/* Left Side: Photo & Calligraphy */}
+              <div className="w-[42%] flex flex-col items-center gap-3 shrink-0">
+                <div 
+                  className="w-full aspect-[1/1.15] overflow-hidden bg-black border-[3px] border-white shadow-[0_0_20px_rgba(255,255,255,0.4)]"
+                  style={{ borderRadius: "2rem" }}
+                >
+                  <img
+                    src={getSheikhAsset(state.reciterId).photoUrl}
+                    alt={getSheikhAsset(state.reciterId).nameAr}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                {getSheikhAsset(state.reciterId).calligraphyUrl && (
+                  <img
+                    src={getSheikhAsset(state.reciterId).calligraphyUrl}
+                    alt=""
+                    className="h-10 object-contain invert brightness-[2]"
+                  />
+                )}
+              </div>
+
+              {/* Right Side: Active Verse & Controls */}
+              <div className="flex-1 flex flex-col justify-between py-2 text-right h-full max-w-[53%]">
+                {/* Verse Text */}
+                <div className="flex-1 flex items-center justify-center">
+                  {currentVerse ? (() => {
+                    const lines = wrapTextHelper(currentVerse.text, Math.max(14, previewFontSize * 0.58), 160);
+                    const progress = duration > 0 ? (currentTime / duration) : 0;
+                    const activeLineIdx = Math.min(lines.length - 1, Math.floor(progress * lines.length));
+                    const activeLineText = lines[activeLineIdx] || currentVerse.text;
+                    return (
+                      <p
+                        className="text-white text-center w-full break-words leading-[1.8] drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] font-arabic"
+                        style={{
+                          fontSize: `${Math.max(14, previewFontSize * 0.58)}px`,
+                          fontFamily: '"Noto Naskh Arabic", serif',
+                          direction: 'rtl',
+                        }}
+                      >
+                        {activeLineText}
+                      </p>
+                    );
+                  })() : (
+                    <p className="text-white/40 text-sm font-arabic">لم يتم تحديد آية</p>
+                  )}
+                </div>
+
+                {/* Progress Bar & Controls */}
+                <div className="flex flex-col gap-2 mt-2">
+                  {/* Progress Bar */}
+                  <div className="w-full">
+                    <div className="w-full h-[3px] bg-white/20 rounded-full relative cursor-pointer" onClick={(e) => {
+                      if (audioRef.current && totalSelectedDuration > 0 && surahData) {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const clickX = e.clientX - rect.left;
+                        const pct = clickX / rect.width;
+                        const targetTime = pct * totalSelectedDuration;
+
+                        const versesInRange = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
+                        let accumulatedTime = 0;
+                        for (let v of versesInRange) {
+                          const vDur = verseDurations[v.id] || 5;
+                          if (targetTime <= accumulatedTime + vDur) {
+                            setCurrentAyahIndex(v.id);
+                            const seekOffset = targetTime - accumulatedTime;
+                            setTimeout(() => {
+                              if (audioRef.current) {
+                                audioRef.current.currentTime = seekOffset;
+                              }
+                            }, 80);
+                            break;
+                          }
+                          accumulatedTime += vDur;
+                        }
+                      }
+                    }}>
+                      <div 
+                        ref={progressBarRef}
+                        className="h-full bg-white rounded-full transition-all duration-75" 
+                        style={{ width: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-[8px] text-white/50 font-mono mt-1" dir="ltr">
+                      <span ref={progressTextRef}>{formatTime(totalSelectedElapsed)}</span>
+                      <span>{formatTime(totalSelectedDuration)}</span>
+                    </div>
+                  </div>
+
+                  {/* Control Buttons */}
+                  <div className="flex items-center justify-between px-1" dir="ltr">
+                    {/* Heart */}
+                    <button className="text-white/60 hover:text-white transition active:scale-95">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                    </button>
+
+                    {/* Prev */}
+                    <button 
+                      onClick={() => {
+                        if (audioRef.current) audioRef.current.currentTime = 0;
+                      }}
+                      className="text-white hover:scale-105 transition active:scale-95"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5" stroke="currentColor" strokeWidth="1.6"/></svg>
+                    </button>
+
+                    {/* Play/Pause Button */}
+                    <button 
+                      onClick={togglePlay}
+                      className="w-7 h-7 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 active:scale-95 transition shadow-lg shrink-0"
+                    >
+                      {isPlaying ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/></svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                      )}
+                    </button>
+
+                    {/* Next Button */}
+                    <button 
+                      onClick={handleAyahEnd}
+                      className="text-white hover:scale-105 transition active:scale-95"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19" stroke="currentColor" strokeWidth="1.6"/></svg>
+                    </button>
+
+                    {/* Minus Button */}
+                    <button className="text-white/60 hover:text-white transition active:scale-95">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1008,8 +1277,8 @@ export function VideoPreview() {
               {/* Photo */}
               <div className="w-[90%] mx-auto aspect-[450/185] rounded-[1.2rem] overflow-hidden bg-black border-[3px] border-[#8a8070]/40 shrink-0">
                 <img
-                  src="https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg"
-                  alt="الشيخ محمد صديق المنشاوي"
+                  src={getSheikhAsset(state.reciterId).photoUrl}
+                  alt={getSheikhAsset(state.reciterId).nameAr}
                   className="w-full h-full object-contain rounded-[1rem]"
                 />
               </div>
@@ -1019,7 +1288,7 @@ export function VideoPreview() {
                 <h3 className="text-base font-bold text-white tracking-tight leading-tight" style={{ fontFamily: '"Noto Naskh Arabic", serif' }}>
                   {surahData ? surahData.name : "..."}
                 </h3>
-                <p className="text-[10px] text-white/50 mt-0.5 font-medium">{getReciterEnglishName(state.reciterId)}</p>
+                <p className="text-[10px] text-white/50 mt-0.5 font-medium">{getSheikhAsset(state.reciterId).nameEn}</p>
               </div>
  
               {/* Progress Bar */}
