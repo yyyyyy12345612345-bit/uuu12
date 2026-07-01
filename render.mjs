@@ -296,7 +296,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
   const opacity = animState ? animState.opacity : 1;
   const verticalOffset = animState ? animState.offsetY : 0;
   const scale = animState ? animState.scale : 1;
-  const activeWordIdx = animState ? animState.activeWordIndex : -1;
+  const activeWordIdx = (animState && videoTemplate !== "default") ? animState.activeWordIndex : -1;
 
   const scaledFontSize = Math.min(Math.max(fontSize * 1.6, 40), 110);
   const translationFontSize = Math.min(Math.max(fontSize * 0.65, 28), 40);
