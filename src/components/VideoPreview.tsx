@@ -453,7 +453,7 @@ export function VideoPreview() {
       
       <div 
         className={`absolute inset-0 rounded-[3rem] border-[8px] border-[#0A0A0A] shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden transition-colors duration-500 ${
-          state.videoTemplate === "dossary_player" ? "bg-black relative before:absolute before:inset-0 before:bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] before:from-zinc-900 before:to-black before:opacity-85" : ""
+          state.videoTemplate === "dossary_player" ? "bg-gradient-to-b from-zinc-950 via-zinc-900 to-black" : ""
         }`} 
         style={{ backgroundColor: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player") ? "#000000" : "#0c0d10" }}
       >
@@ -871,14 +871,14 @@ export function VideoPreview() {
                   {[state.endAyah, state.startAyah].map((num, i) => (
                     <div key={i} className="relative w-12 h-12 flex items-center justify-center text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.75)]">
                       {/* Islamic Star/Circle Border SVG */}
-                      <svg className="absolute inset-0 w-full h-full stroke-white fill-none stroke-[2.5]" viewBox="0 0 100 100">
+                      <svg className="absolute inset-0 w-full h-full fill-none" stroke="white" strokeWidth="2.5" viewBox="0 0 100 100">
                         <circle cx="50" cy="50" r="38" />
                         <circle cx="50" cy="50" r="43" strokeDasharray="3,3" />
                         <path d="M 50 2 L 50 10 M 50 90 L 50 98 M 2 50 L 10 50 M 90 50 L 98 50" />
-                        <circle cx="50" cy="6" r="3" fill="currentColor" />
-                        <circle cx="50" cy="94" r="3" fill="currentColor" />
-                        <circle cx="6" cy="50" r="3" fill="currentColor" />
-                        <circle cx="94" cy="50" r="3" fill="currentColor" />
+                        <circle cx="50" cy="6" r="3" fill="white" />
+                        <circle cx="50" cy="94" r="3" fill="white" />
+                        <circle cx="6" cy="50" r="3" fill="white" />
+                        <circle cx="94" cy="50" r="3" fill="white" />
                       </svg>
                       {/* Ayah number */}
                       <span className="text-[14px] font-bold z-10 font-mono translate-y-[1px]">{num}</span>
