@@ -110,50 +110,32 @@ export const STATIC_BACKGROUNDS: BackgroundItem[] = [
 export const STATIC_VIDEOS: BackgroundItem[] = [
   {
     type: "video",
-    src: "https://videos.pexels.com/video-files/3752538/3752538-sd_540_960_24fps.mp4",
-    poster: "https://images.pexels.com/photos/3752538/pexels-photo-3752538.jpeg",
-    tags: ["مساجد", "مسجد", "إسلامي", "هدوء"]
+    src: "https://res.cloudinary.com/dtuyo4gqm/video/upload/v1782881189/5920292944983629707_g77wkb.mp4",
+    poster: "",
+    tags: ["سماء", "ليل", "نجوم", "طبيعة", "غيوم"]
   },
   {
     type: "video",
-    src: "https://videos.pexels.com/video-files/856981/856981-sd_540_960_30fps.mp4",
-    poster: "https://images.pexels.com/photos/856981/pexels-photo-856981.jpeg",
-    tags: ["سماء", "ليل", "نجوم", "طبيعة", "غروب"]
+    src: "https://res.cloudinary.com/dtuyo4gqm/video/upload/v1782881185/1_zvcyor.mp4",
+    poster: "",
+    tags: ["جبال", "جبل", "طبيعة", "ضباب", "غيوم"]
   },
   {
     type: "video",
-    src: "https://videos.pexels.com/video-files/3209828/3209828-sd_540_960_25fps.mp4",
-    poster: "https://images.pexels.com/photos/3209828/pexels-photo-3209828.jpeg",
-    tags: ["بحار", "بحر", "محيط", "أمواج", "شاطئ", "طبيعة"]
-  },
-  {
-    type: "video",
-    src: "https://videos.pexels.com/video-files/5843362/5843362-sd_360_640_24fps.mp4",
-    poster: "https://images.pexels.com/photos/5843362/pexels-photo-5843362.jpeg",
+    src: "https://res.cloudinary.com/dtuyo4gqm/video/upload/v1782881182/2_lceeb7.mp4",
+    poster: "",
     tags: ["غابات", "غابة", "شجر", "طبيعة", "أخضر"]
   },
   {
     type: "video",
-    src: "https://videos.pexels.com/video-files/3121437/3121437-sd_540_960_25fps.mp4",
-    poster: "https://images.pexels.com/photos/3121437/pexels-photo-3121437.jpeg",
+    src: "https://res.cloudinary.com/dtuyo4gqm/video/upload/v1782881179/4_qwjfw4.mp4",
+    poster: "",
     tags: ["غروب", "شمس", "سماء", "طبيعة"]
   },
   {
     type: "video",
-    src: "https://videos.pexels.com/video-files/4827946/4827946-sd_540_960_25fps.mp4",
-    poster: "https://images.pexels.com/photos/4827946/pexels-photo-4827946.jpeg",
-    tags: ["جبال", "جبل", "غيوم", "طبيعة", "سماء"]
-  },
-  {
-    type: "video",
-    src: "https://videos.pexels.com/video-files/856157/856157-sd_540_960_24fps.mp4",
-    poster: "https://images.pexels.com/photos/856157/pexels-photo-856157.jpeg",
-    tags: ["طبيعة", "مطر", "ماء", "غابات"]
-  },
-  {
-    type: "video",
-    src: "https://videos.pexels.com/video-files/1850300/1850300-sd_540_960_25fps.mp4",
-    poster: "https://images.pexels.com/photos/1850300/pexels-photo-1850300.jpeg",
-    tags: ["جبال", "جبل", "طبيعة", "ضباب"]
+    src: "https://res.cloudinary.com/dtuyo4gqm/video/upload/v1782881177/5_nxtzqz.mp4",
+    poster: "",
+    tags: ["بحار", "بحر", "محيط", "أمواج", "شاطئ", "طبيعة"]
   }
 ];
