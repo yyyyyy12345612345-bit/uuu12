@@ -443,18 +443,10 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
           </div>
 
           {/* Quick Stats Grid */}
-          <div className="grid grid-cols-3 gap-1 w-full max-w-sm mt-6 p-4 rounded-2xl bg-foreground/5 border border-border shadow-inner text-center">
+          <div className="grid grid-cols-1 gap-1 w-full max-w-sm mt-6 p-4 rounded-2xl bg-foreground/5 border border-border shadow-inner text-center">
             <div>
               <span className="block text-lg font-black text-foreground">{postsCount}</span>
               <span className="text-[8px] text-foreground/35 font-bold uppercase tracking-widest">المنشورات</span>
-            </div>
-            <div className="border-r border-border">
-              <span className="block text-lg font-black text-foreground">{followersCount.toLocaleString()}</span>
-              <span className="text-[8px] text-foreground/35 font-bold uppercase tracking-widest">المتابعون</span>
-            </div>
-            <div className="border-r border-border">
-              <span className="block text-lg font-black text-foreground">{followingCount.toLocaleString()}</span>
-              <span className="text-[8px] text-foreground/35 font-bold uppercase tracking-widest">يتابع</span>
             </div>
           </div>
 
@@ -531,20 +523,7 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
               </div>
             ) : (
               <>
-                {myUid && userId !== myUid && (
-                  <button
-                    onClick={handleFollowToggle}
-                    disabled={actionLoading}
-                    className={`w-full py-3.5 rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-2 mb-2 ${
-                      isFollowing 
-                        ? "bg-foreground/10 text-foreground border border-border" 
-                        : "bg-gradient-to-r from-[#fbbf24] to-[#d4af37] text-black shadow-lg shadow-[#fbbf24]/10"
-                    }`}
-                  >
-                    {isFollowing ? <UserCheck className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
-                    {isFollowing ? "متابع" : "متابعة"}
-                  </button>
-                )}
+
                 {currentUserData?.blockedUsers?.includes(userId) ? (
                   <div className="space-y-3 w-full">
                     <div className="w-full py-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl font-black text-sm text-center">

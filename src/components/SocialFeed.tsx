@@ -1729,22 +1729,7 @@ export function SocialFeed() {
               >
                 الأكثر تفاعلاً
               </button>
-              <button
-                onClick={() => {
-                  if (!user) {
-                    alert("سجّل دخولك لمتابعة الآخرين وتصفح منشوراتهم.");
-                    return;
-                  }
-                  setActiveSortTab("following");
-                }}
-                className={`px-4 py-1.5 text-xs font-black rounded-full transition-all border ${
-                  activeSortTab === "following"
-                    ? "bg-[#fbbf24] text-black border-[#fbbf24] shadow-md"
-                    : "bg-transparent border-transparent text-slate-500 dark:text-white/40 hover:text-slate-800 dark:hover:text-white"
-                }`}
-              >
-                المتابعات
-              </button>
+
             </div>
           </div>
 
@@ -2344,19 +2329,11 @@ export function SocialFeed() {
                 {(userData?.totalPoints || 0).toLocaleString()} نقطة
               </button>
 
-              {/* Real Profile Statistics (Posts, Followers, Following) */}
-              <div className="grid grid-cols-3 gap-1 w-full border-t border-slate-100 dark:border-white/5 mt-6 pt-5 text-center">
+              {/* Real Profile Statistics (Posts) */}
+              <div className="grid grid-cols-1 gap-1 w-full border-t border-slate-100 dark:border-white/5 mt-6 pt-5 text-center">
                 <div>
                   <span className="block text-sm font-black text-slate-800 dark:text-white">{userPostsCount}</span>
                   <span className="text-[8px] text-slate-400 dark:text-white/30 font-bold uppercase tracking-wider">المنشورات</span>
-                </div>
-                <div className="border-r border-slate-100 dark:border-white/5">
-                  <span className="block text-sm font-black text-slate-800 dark:text-white">{userFollowersCount.toLocaleString()}</span>
-                  <span className="text-[8px] text-slate-400 dark:text-white/30 font-bold uppercase tracking-wider">المتابعون</span>
-                </div>
-                <div className="border-r border-slate-100 dark:border-white/5">
-                  <span className="block text-sm font-black text-slate-800 dark:text-white">{userFollowingCount.toLocaleString()}</span>
-                  <span className="text-[8px] text-slate-400 dark:text-white/30 font-bold uppercase tracking-wider">يتابع</span>
                 </div>
               </div>
 
