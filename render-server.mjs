@@ -800,7 +800,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
       create: { width: WIDTH, height: HEIGHT, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } }
     })
       .composite([{ input: svgBuffer, blend: "over" }])
-      .png({ compressionLevel: 3 })
+      .png({ compressionLevel: 1 })
       .toFile(outputPath);
   } else {
     // دمج سريع جداً ومباشر فوق الصورة
@@ -902,6 +902,7 @@ async function startRender(jobId, data) {
     const tw = Math.floor(WIDTH * 0.82);
     const frameEntries = [];
     const ext = isVideoBg ? "png" : "jpg";
+    const renderPromises = [];
 
     const stripTashkeel = (s) => (s || "").replace(/[\u064B-\u065F\u0670]/g, '');
 
@@ -929,7 +930,10 @@ async function startRender(jobId, data) {
           else animState.opacity = progress; // fallback to fade
 
           const fPath = path.resolve(tempDir, `${fBaseName}-anim-${f}.${ext}`);
-          await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState, currentElapsed, audioTotal, templatePhotoBase64);
+          const frameElapsed = currentElapsed;
+          renderPromises.push(
+            generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState, frameElapsed, audioTotal, templatePhotoBase64)
+          );
           frameEntries.push({ fPath, dur: frameDur });
           currentElapsed += frameDur;
           remainingDur -= frameDur;
@@ -945,7 +949,10 @@ async function startRender(jobId, data) {
         for (let w = 0; w < wordCount; w++) {
           const animState = { opacity: 1, offsetY: 0, scale: 1, activeWordIndex: w };
           const fPath = path.resolve(tempDir, `${fBaseName}-word-${w}.${ext}`);
-          await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState, currentElapsed, audioTotal, templatePhotoBase64);
+          const frameElapsed = currentElapsed;
+          renderPromises.push(
+            generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState, frameElapsed, audioTotal, templatePhotoBase64)
+          );
           frameEntries.push({ fPath, dur: durPerWord });
           currentElapsed += durPerWord;
         }
@@ -992,8 +999,11 @@ async function startRender(jobId, data) {
         const endAyah = verses && verses.length > 0 ? verses[verses.length - 1].id : 1;
         const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, videoTemplate, reciterName, reciterId: data.reciterId, startAyah, endAyah, dossaryBgBase64, naskhBase64, ayahProgress };
         const animState = { opacity: 1, offsetY: 0, scale: 1, activeWordIndex: -1 };
+        const frameElapsed = elapsed;
 
-        await generateVerseFrame(activeVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState, elapsed, audioTotal, templatePhotoBase64, calligraphyBase64);
+        renderPromises.push(
+          generateVerseFrame(activeVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState, frameElapsed, audioTotal, templatePhotoBase64, calligraphyBase64)
+        );
         frameEntries.push({ fPath, dur });
 
         elapsed += dur;
@@ -1039,6 +1049,9 @@ async function startRender(jobId, data) {
       }
     }
 
+    setProgress(45, "جاري معالجة ورسم نصوص الآيات...");
+    await Promise.all(renderPromises);
+
     // audioTotal تم تعريفها مسبقاً
     const frameTotal = frameEntries.reduce((a, f) => a + f.dur, 0);
     const diff = audioTotal - frameTotal;
@@ -1059,7 +1072,7 @@ async function startRender(jobId, data) {
     const concatFilter = `${filterParts};${concatIn}concat=n=${audioPaths.length}:v=0:a=1[aout]`;
 
     await execAsync(
-      `ffmpeg ${audioInputs} -filter_complex "${concatFilter}" -map "[aout]" -c:a aac -b:a 192k -ar 44100 "${mergedAudioPath.replace(/\\/g, "/")}" -y`,
+      `ffmpeg -loglevel error ${audioInputs} -filter_complex "${concatFilter}" -map "[aout]" -c:a aac -b:a 192k -ar 44100 "${sl(mergedAudioPath)}" -y`,
       { timeout: 90000 }
     );
 
@@ -1077,49 +1090,25 @@ async function startRender(jobId, data) {
       // === فيديو الخلفية ===
       let hasAudio = false; // تعطيل دمج صوت الخلفية لتجنب مشاكل وتوقف رندر ffmpeg أثناء التكرار
 
-      const bgProcessedPath = path.resolve(tempDir, "bg_processed.mp4");
-      setProgress(75, "جاري تهيئة فيديو الخلفية بمقاس الهاتف...");
-      await execAsync(
-        `ffmpeg -stream_loop -1 -t ${totalDuration.toFixed(4)} -i "${sl(bgPath)}" -vf "scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT},setsar=1" ${hasAudio ? "-c:a aac -b:a 128k" : "-an"} -c:v libx264 -preset ultrafast -crf 23 "${sl(bgProcessedPath)}" -y`,
-        { timeout: 90000 }
-      );
-
       setProgress(85, "دمج الطبقات وإنتاج الفيديو النهائي...");
-      if (hasAudio) {
-        ffmpegCmd = [
-          `ffmpeg`,
-          `-i "${sl(bgProcessedPath)}"`,
-          `-f concat -safe 0 -i "${sl(frameListPath)}"`,
-          `-i "${sl(mergedAudioPath)}"`,
-          `-filter_complex`,
-          `"[1:v]format=rgba,scale=${WIDTH}:${HEIGHT}[fg];`,
-          `[0:v][fg]overlay=0:0:shortest=1,format=yuv420p[vout];`,
-          `[0:a]volume=0.25[bga];[2:a][bga]amix=inputs=2:duration=first:dropout_transition=2[aout]"`,
-          `-map "[vout]" -map "[aout]"`,
-          `-c:v libx264 -preset ultrafast -crf 23`,
-          `-c:a aac -b:a 192k -ar 44100`,
-          `-movflags +faststart`,
-          `-y "${sl(outPath)}"`
-        ].join(" ");
-      } else {
-        ffmpegCmd = [
-          `ffmpeg`,
-          `-i "${sl(bgProcessedPath)}"`,
-          `-f concat -safe 0 -i "${sl(frameListPath)}"`,
-          `-i "${sl(mergedAudioPath)}"`,
-          `-filter_complex`,
-          `"[1:v]format=rgba,scale=${WIDTH}:${HEIGHT}[fg];`,
-          `[0:v][fg]overlay=0:0:shortest=1,format=yuv420p[vout]"`,
-          `-map "[vout]" -map 2:a`,
-          `-c:v libx264 -preset ultrafast -crf 23`,
-          `-c:a copy`,
-          `-movflags +faststart`,
-          `-y "${sl(outPath)}"`
-        ].join(" ");
-      }
+      ffmpegCmd = [
+        `ffmpeg`,
+        `-loglevel error`,
+        `-stream_loop -1 -i "${sl(bgPath)}"`,
+        `-f concat -safe 0 -i "${sl(frameListPath)}"`,
+        `-i "${sl(mergedAudioPath)}"`,
+        `-filter_complex`,
+        `"[0:v]scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT},setsar=1[bg]; [1:v]format=rgba,scale=${WIDTH}:${HEIGHT}[fg]; [bg][fg]overlay=0:0:shortest=1,format=yuv420p[vout]"`,
+        `-map "[vout]" -map 2:a`,
+        `-t ${totalDuration.toFixed(4)}`,
+        `-c:v libx264 -preset ultrafast -crf 23`,
+        `-c:a aac -b:a 192k -ar 44100`,
+        `-movflags +faststart`,
+        `-y "${sl(outPath)}"`
+      ].join(" ");
     } else {
       // === صورة الخلفية ===
-      ffmpegCmd = `ffmpeg -f concat -safe 0 -i "${sl(frameListPath)}" -i "${sl(mergedAudioPath)}" -c:v libx264 -preset ultrafast -crf 23 -pix_fmt yuv420p -c:a copy -t ${totalDuration.toFixed(4)} -movflags +faststart -y "${sl(outPath)}"`;
+      ffmpegCmd = `ffmpeg -loglevel error -f concat -safe 0 -i "${sl(frameListPath)}" -i "${sl(mergedAudioPath)}" -c:v libx264 -preset ultrafast -crf 23 -pix_fmt yuv420p -c:a copy -t ${totalDuration.toFixed(4)} -movflags +faststart -y "${sl(outPath)}"`;
     }
 
     await execAsync(ffmpegCmd, { timeout: 180000 });
