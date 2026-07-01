@@ -185,7 +185,11 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             quranComVerse = quranComData.audio_files.find((af:any) => af.verse_key === verseKey);
           }
           const premiumAudio = quranComVerse?.url 
-            ? (quranComVerse.url.startsWith('http') ? quranComVerse.url : `https://verses.quran.com/${quranComVerse.url}`) 
+            ? (quranComVerse.url.startsWith('http') 
+                ? quranComVerse.url 
+                : (quranComVerse.url.startsWith('//') 
+                    ? `https:${quranComVerse.url}` 
+                    : `https://verses.quran.com/${quranComVerse.url}`)) 
             : null;
             
           return {
@@ -631,20 +635,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     ctx.fillStyle = vignette;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // 4. Watermark
-    if (!userPlan || (userPlan.plan === "free" && userPlan.plan !== "trial")) {
-        ctx.save();
-        ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
-        ctx.font = "bold 24px Arial";
-        ctx.textAlign = "center";
-        const brand = "QURAN PREMIUM";
-        for (let y = 100; y < canvas.height; y += 400) {
-          for (let x = 150; x < canvas.width; x += 400) {
-            ctx.save(); ctx.translate(x, y); ctx.rotate(-Math.PI / 4); ctx.fillText(brand, 0, 0); ctx.restore();
-          }
-        }
-        ctx.restore();
-    }
+    // 4. Watermark (Removed by request)
 
     // 4.5 Visualizer & Social Handles
     if (state.showVisualizer && freqData) {

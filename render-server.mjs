@@ -93,6 +93,7 @@ const FONT_MAP = {
 
 const ALLOWED_DOMAINS = [
   "everyayah.com", "quran.com", "cdn.islamic.network", "verses.quran.com",
+  "quranicaudio.com", "mirrors.quranicaudio.com",
   "raw.githubusercontent.com", "github.com", "mp3quran.net",
   "server8.mp3quran.net", "server7.mp3quran.net", "server6.mp3quran.net",
   "server10.mp3quran.net", "server11.mp3quran.net", "server12.mp3quran.net",
@@ -403,17 +404,8 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
 
   const ornamentY = Math.min(curY + 28, HEIGHT - 180);
 
-  // العلامة المائية للمستخدم المجاني
+  // العلامة المائية للمستخدم المجاني (تمت إزالتها نهائياً بطلب المستخدم)
   let watermarkSVG = "";
-  if (userPlan === "free") {
-    watermarkSVG = `<g opacity="0.06" font-family="Arial" font-size="22" font-weight="bold" fill="white" text-anchor="center">`;
-    for (let y = 150; y < HEIGHT; y += 300) {
-      for (let x = 100; x < WIDTH; x += 300) {
-        watermarkSVG += `<text x="${x}" y="${y}" transform="rotate(-30 ${x} ${y})">QURAN PREMIUM</text>`;
-      }
-    }
-    watermarkSVG += `</g>`;
-  }
 
   // حسابات شبكات التواصل
   let socialSVG = "";

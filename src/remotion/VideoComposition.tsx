@@ -495,27 +495,7 @@ export const MainVideo: React.FC<MainVideoProps> = ({
         </AbsoluteFill>
       )}
 
-      {/* ── Watermarks for Free Users ── */}
-      {userPlan === "free" && (
-        <AbsoluteFill style={{ pointerEvents: 'none' }}>
-           {[...Array(6)].map((_, row) => (
-             <div key={row} style={{ flex: 1, display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-                {[...Array(3)].map((_, col) => (
-                   <div key={col} style={{ 
-                      color: 'rgba(255,255,255,0.15)', 
-                      fontSize: '30px', 
-                      fontWeight: 900,
-                      transform: 'rotate(-30deg)',
-                      whiteSpace: 'nowrap',
-                      fontFamily: 'sans-serif'
-                   }}>
-                      yaqeenalquran.online
-                   </div>
-                ))}
-             </div>
-           ))}
-        </AbsoluteFill>
-      )}
+
     </AbsoluteFill>
   );
 };
