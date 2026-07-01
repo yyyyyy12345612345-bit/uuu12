@@ -372,12 +372,23 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     };
     ctx.filter = filterMap[state.filter || "none"] || "none";
 
-    if (video) {
-        const sc = Math.max(canvas.width / video.videoWidth, canvas.height / video.videoHeight);
-        ctx.drawImage(video, (canvas.width - video.videoWidth * sc) / 2, (canvas.height - video.videoHeight * sc) / 2, video.videoWidth * sc, video.videoHeight * sc);
-    } else if (bg) {
-        const sc = Math.max(canvas.width / bg.width, canvas.height / bg.height);
-        ctx.drawImage(bg, (canvas.width - bg.width * sc) / 2, (canvas.height - bg.height * sc) / 2, bg.width * sc, bg.height * sc);
+    if (state.videoTemplate === "minshawi_player") {
+        ctx.fillStyle = "#383838";
+        ctx.fillRect(0, 380, canvas.width, 520);
+    } else if (state.videoTemplate === "dossary_player") {
+        if (bg) {
+            const middleH = 520;
+            const sc = Math.max(canvas.width / bg.width, middleH / bg.height);
+            ctx.drawImage(bg, (canvas.width - bg.width * sc) / 2, 380 + (middleH - bg.height * sc) / 2, bg.width * sc, bg.height * sc);
+        }
+    } else {
+        if (video) {
+            const sc = Math.max(canvas.width / video.videoWidth, canvas.height / video.videoHeight);
+            ctx.drawImage(video, (canvas.width - video.videoWidth * sc) / 2, (canvas.height - video.videoHeight * sc) / 2, video.videoWidth * sc, video.videoHeight * sc);
+        } else if (bg) {
+            const sc = Math.max(canvas.width / bg.width, canvas.height / bg.height);
+            ctx.drawImage(bg, (canvas.width - bg.width * sc) / 2, (canvas.height - bg.height * sc) / 2, bg.width * sc, bg.height * sc);
+        }
     }
     ctx.filter = "none"; // Reset filter for overlays and text
 
@@ -571,7 +582,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     }
 
     // 4.7 Draw Surah Name Badge at the top
-    if (surahName) {
+    if (surahName && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "minshawi_player") {
         ctx.save();
         ctx.textAlign = "center";
         ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
@@ -594,142 +605,69 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         if (typeof ctx.roundRect === 'function') {
           ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 27);
         } else {
-          ctx.rect(badgeX, badgeY, badgeW, badgeH);
-        }
-        ctx.fill();
+          ctx    if (state.videoTemplate === "dossary_player") {
+      // 1. Draw Sheikh Photo on the left of the middle area (centered vertically inside middle area y=[380,900])
+      const rx = 30;
+      const photoX = 80;
+      const photoY = 500; // 380 + (520 - 280)/2
+      const photoW = 210;
+      const photoH = 280;
+      
+      if (templatePhoto) {
+        ctx.save();
+        ctx.shadowColor = "rgba(255, 255, 255, 0.5)";
+        ctx.shadowBlur = 20;
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 3;
+        
+        ctx.beginPath();
+        ctx.moveTo(photoX, photoY);
+        ctx.lineTo(photoX + photoW, photoY);
+        ctx.arcTo(photoX + photoW, photoY, photoX + photoW, photoY + rx, rx);
+        ctx.lineTo(photoX + photoW, photoY + photoH);
+        ctx.lineTo(photoX + rx, photoY + photoH);
+        ctx.arcTo(photoX, photoY + photoH, photoX, photoY + photoH - rx, rx);
+        ctx.closePath();
         ctx.stroke();
         
-        ctx.fillStyle = "#FFD700";
-        ctx.fillText(text, canvas.width / 2, badgeY + 36);
+        // Clip and draw image
+        ctx.clip();
+        ctx.drawImage(templatePhoto, photoX, photoY, photoW, photoH);
         ctx.restore();
-    }
+      }
 
-    // 5. Text Animation & Rendering
-    if (state.videoTemplate === "dossary_player") {
-      // 1. Draw Active Verse Text (Naskh Font at the top)
+      // 2. Draw Active Verse Text on the right
       if (verse && verse.text) {
         ctx.save();
         ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
         ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
         ctx.shadowBlur = 15;
         ctx.shadowOffsetY = 6;
         ctx.fillStyle = "#ffffff";
         ctx.font = `600 36px "Noto Naskh Arabic", serif`;
         
-        const textW = canvas.width - 140;
-        const lines = wrapText(ctx, verse.text, textW);
-        const lineH = 36 * 2.3;
+        const rightAreaX = 330;
+        const rightAreaW = canvas.width - rightAreaX - 60; // 720 - 330 - 60 = 330
+        const textCenterX = rightAreaX + rightAreaW / 2; // 495
+        
+        const lines = wrapText(ctx, verse.text, rightAreaW);
+        const lineH = 36 * 2.1;
         const totalH = lines.length * lineH;
-        const startY = 140 + (280 - totalH) / 2;
+        const startY = 380 + (520 - totalH) / 2 + (lineH / 2);
         
         lines.forEach((l, idx) => {
-          ctx.fillText(l, canvas.width / 2, startY + (idx * lineH));
+          ctx.fillText(l, textCenterX, startY + (idx * lineH));
         });
         ctx.restore();
       }
 
-      // 2. Draw Player Card in the center
-      const rx = 30;
-      const cardX = 80;
-      const cardY = 480;
-      const cardW = 560;
-      const cardH = 280;
-      
-      ctx.save();
-      ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
-      ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 4;
-      ctx.shadowColor = "#ffffff";
-      ctx.shadowBlur = 20;
-      
-      ctx.beginPath();
-      ctx.moveTo(cardX, cardY);
-      ctx.lineTo(cardX + cardW - rx, cardY);
-      ctx.arcTo(cardX + cardW, cardY, cardX + cardW, cardY + rx, rx);
-      ctx.lineTo(cardX + cardW, cardY + cardH - rx);
-      ctx.arcTo(cardX + cardW, cardY + cardH, cardX + cardW - rx, cardY + cardH, rx);
-      ctx.lineTo(cardX + rx, cardY + cardH);
-      ctx.arcTo(cardX, cardY + cardH, cardX, cardY + cardH - rx, rx);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-      ctx.restore();
-      
-      // Draw Sheikh Photo
-      if (templatePhoto) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(cardX, cardY);
-        ctx.lineTo(cardX + 240, cardY);
-        ctx.arcTo(cardX + 240, cardY, cardX + 240, cardY + rx, rx);
-        ctx.lineTo(cardX + 240, cardY + cardH);
-        ctx.lineTo(cardX + rx, cardY + cardH);
-        ctx.arcTo(cardX, cardY + cardH, cardX, cardY + cardH - rx, rx);
-        ctx.closePath();
-        ctx.clip();
-        ctx.drawImage(templatePhoto, cardX, cardY, 240, cardH);
-        ctx.restore();
-      }
-      
-      // Reciter & Surah Name
-      ctx.save();
-      ctx.textAlign = "center";
-      ctx.fillStyle = "#ffffff";
-      ctx.shadowColor = "rgba(255, 255, 255, 0.7)";
-      ctx.shadowBlur = 8;
-      
-      ctx.font = `bold 28px Amiri, serif`;
-      ctx.fillText("ياسر الدوسري", 500, 550);
-      
-      ctx.font = `900 44px Amiri, serif`;
-      ctx.fillText(`سُورَةُ ${surahName || "سورة"}`, 500, 620);
-      ctx.restore();
-      
-      // Ornaments
-      const startAyah = state.startAyah || 1;
-      const endAyah = state.endAyah || 1;
-      const drawOrnament = (cx: number, cy: number, num: number) => {
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = 2.5;
-        ctx.shadowColor = "#ffffff";
-        ctx.shadowBlur = 10;
-        
-        ctx.beginPath();
-        ctx.arc(0, 0, 22, 0, Math.PI * 2);
-        ctx.stroke();
-        
-        ctx.beginPath();
-        ctx.arc(0, 0, 25, 0, Math.PI * 2);
-        ctx.setLineDash([2, 2]);
-        ctx.stroke();
-        
-        ctx.setLineDash([]);
-        ctx.beginPath();
-        ctx.moveTo(0, -22); ctx.lineTo(0, -17);
-        ctx.moveTo(0, 22); ctx.lineTo(0, 17);
-        ctx.moveTo(-22, 0); ctx.lineTo(-17, 0);
-        ctx.moveTo(22, 0); ctx.lineTo(17, 0);
-        ctx.stroke();
-        
-        ctx.font = "bold 16px monospace";
-        ctx.fillStyle = "#ffffff";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(String(num), 0, 1);
-        ctx.restore();
-      };
-      
-      drawOrnament(445, 695, endAyah);
-      drawOrnament(555, 695, startAyah);
-
-      // 3. Progress Bar & Controls
+      // 3. Progress Bar & Controls (in bottom area y=[900,1280])
       const progressPct = ayahProgress || 0;
       const barWidth = 480;
       const progressWidth = barWidth * progressPct;
       const barX = 120;
-      const barY = 805;
+      const barY = 980; // Pushed down to bottom area
       
       ctx.save();
       ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
@@ -759,14 +697,17 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
       ctx.font = "14px monospace";
       ctx.textAlign = "left";
-      ctx.fillText("0:00", barX, 832);
+      ctx.fillText("0:00", barX, barY + 28);
       ctx.textAlign = "right";
-      ctx.fillText("1:30", barX + barWidth, 832);
+      ctx.fillText("1:30", barX + barWidth, barY + 28);
       ctx.restore();
       
-      // Buttons
+      // Control Buttons (y around 1040)
+      const btnY = 1040;
+      
+      // Heart Button
       ctx.save();
-      ctx.translate(120, 850);
+      ctx.translate(120, btnY);
       ctx.scale(1.15, 1.15);
       ctx.strokeStyle = "#ffffff";
       ctx.lineWidth = 2;
@@ -782,9 +723,10 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       ctx.stroke();
       ctx.restore();
       
+      // Prev Button
       ctx.save();
       ctx.fillStyle = "#ffffff";
-      ctx.translate(225, 850);
+      ctx.translate(225, btnY);
       ctx.scale(1.15, 1.15);
       ctx.beginPath();
       ctx.moveTo(19, 20); ctx.lineTo(9, 12); ctx.lineTo(19, 4);
@@ -792,20 +734,22 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       ctx.fillRect(5, 4, 2, 16);
       ctx.restore();
       
+      // Play Button (Circle Play)
       ctx.save();
       ctx.fillStyle = "#ffffff";
       ctx.beginPath();
-      ctx.arc(360, 862, 26, 0, Math.PI * 2);
+      ctx.arc(360, btnY + 12, 26, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = "#000000";
       ctx.beginPath();
-      ctx.moveTo(353, 850); ctx.lineTo(373, 862); ctx.lineTo(353, 874);
+      ctx.moveTo(353, btnY); ctx.lineTo(373, btnY + 12); ctx.lineTo(353, btnY + 24);
       ctx.fill();
       ctx.restore();
       
+      // Next Button
       ctx.save();
       ctx.fillStyle = "#ffffff";
-      ctx.translate(470, 850);
+      ctx.translate(470, btnY);
       ctx.scale(1.15, 1.15);
       ctx.beginPath();
       ctx.moveTo(5, 4); ctx.lineTo(15, 12); ctx.lineTo(5, 20);
@@ -813,8 +757,9 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       ctx.fillRect(17, 4, 2, 16);
       ctx.restore();
       
+      // Minus Circle Button
       ctx.save();
-      ctx.translate(570, 850);
+      ctx.translate(570, btnY);
       ctx.scale(1.15, 1.15);
       ctx.strokeStyle = "#ffffff";
       ctx.lineWidth = 2;
@@ -825,6 +770,17 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       ctx.beginPath();
       ctx.moveTo(7, 12); ctx.lineTo(17, 12);
       ctx.stroke();
+      ctx.restore();
+
+      // 4. Small Ayah range/number at the very bottom center (y around 1170)
+      ctx.save();
+      ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+      ctx.font = "bold 20px monospace";
+      ctx.textAlign = "center";
+      const startAyah = state.startAyah || 1;
+      const endAyah = state.endAyah || 1;
+      const rangeText = startAyah === endAyah ? `AYAH ${startAyah}` : `AYAH ${startAyah} - ${endAyah}`;
+      ctx.fillText(rangeText, canvas.width / 2, 1170);
       ctx.restore();
     } else if (state.videoTemplate === "minshawi_player") {
       // Draw Minshawi player

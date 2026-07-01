@@ -498,95 +498,79 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     const barWidth = 480;
     const progressWidth = barWidth * Math.min(1, Math.max(0, progressPct));
 
+    const rightAreaW = 330;
+    const rightAreaCenterX = 495;
     const scaledNaskhSize = 36;
-    const vLinesNaskh = wrapText(verse.text || "", scaledNaskhSize, textW);
-    const lineHNaskh = scaledNaskhSize * 2.3;
+    const vLinesNaskh = wrapText(verse.text || "", scaledNaskhSize, rightAreaW);
+    const lineHNaskh = scaledNaskhSize * 2.1;
     const totalHNaskh = vLinesNaskh.length * lineHNaskh;
-    const naskhStartY = 140 + (280 - totalHNaskh) / 2;
+    const naskhStartY = 380 + (520 - totalHNaskh) / 2 + (lineHNaskh * 0.8);
     
     const verseNaskhTSpans = vLinesNaskh.map((line, i) => {
-      return `<tspan x="${centerX}" dy="${i === 0 ? 0 : lineHNaskh}">${escapeXml(line)}</tspan>`;
+      return `<tspan x="${rightAreaCenterX}" dy="${i === 0 ? 0 : lineHNaskh}">${escapeXml(line)}</tspan>`;
     }).join("");
 
     innerContent = `
       <g opacity="${opacity}">
-        <!-- Active Verse Text (Naskh Font) -->
+        <!-- Active Verse Text (Naskh Font on the Right) -->
         ${verse.text ? `
-        <text x="${centerX}" y="${naskhStartY}" font-family="'Noto Naskh Arabic', serif" font-size="${scaledNaskhSize}" fill="#ffffff" text-anchor="middle" direction="rtl" filter="url(#textGlow)">
+        <text x="${rightAreaCenterX}" y="${naskhStartY}" font-family="'Noto Naskh Arabic', serif" font-size="${scaledNaskhSize}" fill="#ffffff" text-anchor="middle" direction="rtl" filter="url(#textGlow)">
           ${verseNaskhTSpans}
         </text>
         ` : ""}
 
         <!-- Photo with border-radius: top-left is sharp, other corners rounded (0 2rem 2rem 2rem) -->
+        <!-- Center vertically inside middle area (380 to 900) -> photoY = 500, photoH = 280 -->
         <clipPath id="photoClip">
-          <path d="M 80,480 H 290 A 30,30 0 0 1 320,510 V 730 A 30,30 0 0 1 290,760 H 110 A 30,30 0 0 1 80,730 Z" />
+          <path d="M 80,500 H 290 A 30,30 0 0 1 320,530 V 750 A 30,30 0 0 1 290,780 H 110 A 30,30 0 0 1 80,750 Z" />
         </clipPath>
         <!-- Outer Glowing white border -->
-        <path d="M 80,480 H 290 A 30,30 0 0 1 320,510 V 730 A 30,30 0 0 1 290,760 H 110 A 30,30 0 0 1 80,730 Z" fill="none" stroke="#ffffff" stroke-width="4" filter="url(#whiteGlow)" />
-        <image href="data:image/jpeg;base64,${templatePhotoBase64}" x="80" y="480" width="240" height="280" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)" />
+        <path d="M 80,500 H 290 A 30,30 0 0 1 320,530 V 750 A 30,30 0 0 1 290,780 H 110 A 30,30 0 0 1 80,750 Z" fill="none" stroke="#ffffff" stroke-width="4" filter="url(#whiteGlow)" />
+        <image href="data:image/jpeg;base64,${templatePhotoBase64}" x="80" y="500" width="210" height="280" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)" />
         
-        <!-- Info Column -->
-        <!-- Reciter Name: Yasser Al-Dossary -->
-        <text x="500" y="550" font-family="'Amiri', 'Cairo', serif" font-size="28" font-weight="bold" fill="#ffffff" text-anchor="middle" filter="url(#textGlow)">ياسر الدوسري</text>
-        
-        <!-- Surah Name -->
-        <text x="500" y="620" font-family="'Amiri', 'Cairo', serif" font-size="44" font-weight="black" fill="#ffffff" text-anchor="middle" filter="url(#textGlow)">سُورَةُ ${escapeXml(surahName || "سورة")}</text>
-        
-        <!-- Glowing Ornaments (Ayah range) -->
-        <!-- End Ayah (Left) -->
-        <g transform="translate(420, 670)" filter="url(#whiteGlow)">
-          <circle cx="25" cy="25" r="22" stroke="#ffffff" stroke-width="2.5" fill="none" />
-          <circle cx="25" cy="25" r="25" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="2,2" fill="none" />
-          <path d="M 25 2 L 25 7 M 25 43 L 25 48 M 2 25 L 7 25 M 43 25 L 48 25" stroke="#ffffff" stroke-width="2.5" />
-          <text x="25" y="32" font-family="monospace" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">${endAyah}</text>
-        </g>
-        
-        <!-- Start Ayah (Right) -->
-        <g transform="translate(530, 670)" filter="url(#whiteGlow)">
-          <circle cx="25" cy="25" r="22" stroke="#ffffff" stroke-width="2.5" fill="none" />
-          <circle cx="25" cy="25" r="25" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="2,2" fill="none" />
-          <path d="M 25 2 L 25 7 M 25 43 L 25 48 M 2 25 L 7 25 M 43 25 L 48 25" stroke="#ffffff" stroke-width="2.5" />
-          <text x="25" y="32" font-family="monospace" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">${startAyah}</text>
-        </g>
-
-        <!-- Progress Bar -->
-        <rect x="120" y="805" width="480" height="4" rx="2" fill="rgba(255, 255, 255, 0.2)" />
-        <rect x="120" y="805" width="${progressWidth}" height="4" rx="2" fill="#ffffff" />
-        <circle cx="${120 + progressWidth}" cy="807" r="6" fill="#ffffff" />
+        <!-- Progress Bar at y = 980 -->
+        <rect x="120" y="980" width="480" height="4" rx="2" fill="rgba(255, 255, 255, 0.2)" />
+        <rect x="120" y="980" width="${progressWidth}" height="4" rx="2" fill="#ffffff" />
+        <circle cx="${120 + progressWidth}" cy="982" r="6" fill="#ffffff" />
         
         <!-- Timestamps -->
-        <text x="120" y="832" font-family="monospace" font-size="14" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">${formatTime(elapsed)}</text>
-        <text x="600" y="832" font-family="monospace" font-size="14" fill="rgba(255, 255, 255, 0.5)" text-anchor="end">${formatTime(total)}</text>
+        <text x="120" y="1008" font-family="monospace" font-size="14" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">${formatTime(elapsed)}</text>
+        <text x="600" y="1008" font-family="monospace" font-size="14" fill="rgba(255, 255, 255, 0.5)" text-anchor="end">${formatTime(total)}</text>
         
-        <!-- Controls Row -->
+        <!-- Controls Row at y = 1040 -->
         <!-- Heart Button (Outline) -->
-        <g transform="translate(120, 850) scale(1.15)">
+        <g transform="translate(120, 1040) scale(1.15)">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6"/>
         </g>
         
         <!-- Prev Button -->
-        <g transform="translate(225, 850) scale(1.15)">
+        <g transform="translate(225, 1040) scale(1.15)">
           <path d="M19 20L9 12l10-8v16z" fill="#ffffff" />
           <rect x="5" y="4" width="2" height="16" rx="0.5" fill="#ffffff" />
         </g>
         
         <!-- Play Button (Circle Play) -->
-        <circle cx="360" cy="862" r="26" fill="#ffffff" />
-        <g transform="translate(350, 850) scale(1.0)">
+        <circle cx="360" cy="1052" r="26" fill="#ffffff" />
+        <g transform="translate(350, 1040) scale(1.0)">
           <path d="M8 5v14l11-7z" fill="#000000" />
         </g>
         
         <!-- Next Button -->
-        <g transform="translate(470, 850) scale(1.15)">
+        <g transform="translate(470, 1040) scale(1.15)">
           <path d="M5 4l10 8-10 8V4z" fill="#ffffff" />
           <rect x="17" y="4" width="2" height="16" rx="0.5" fill="#ffffff" />
         </g>
         
         <!-- Minus Circle -->
-        <g transform="translate(570, 850) scale(1.15)">
+        <g transform="translate(570, 1040) scale(1.15)">
           <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6" />
           <line x1="7" y1="12" x2="17" y2="12" stroke="#ffffff" stroke-width="2" opacity="0.6" />
         </g>
+
+        <!-- Small Ayah range/number at the very bottom center (y = 1170) -->
+        <text x="360" y="1170" font-family="monospace" font-size="20" font-weight="bold" fill="rgba(255, 255, 255, 0.5)" text-anchor="middle">
+          ${startAyah === endAyah ? `AYAH ${startAyah}` : `AYAH ${startAyah} - ${endAyah}`}
+        </text>
       </g>
     `;
   } else {
@@ -609,8 +593,9 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     <rect x="0" y="380" width="${WIDTH}" height="520" fill="#383838" />
     <rect x="0" y="900" width="${WIDTH}" height="380" fill="#000000" />
   ` : (isDossary ? `
-    <!-- Dossari Custom Background Image -->
-    <image href="data:image/png;base64,${settings.dossaryBgBase64 || ''}" width="${WIDTH}" height="${HEIGHT}" preserveAspectRatio="xMidYMid slice" />
+    <rect x="0" y="0" width="${WIDTH}" height="380" fill="#000000" />
+    <image href="data:image/png;base64,${settings.dossaryBgBase64 || ''}" x="0" y="380" width="${WIDTH}" height="520" preserveAspectRatio="xMidYMid slice" />
+    <rect x="0" y="900" width="${WIDTH}" height="380" fill="#000000" />
   ` : `<rect width="${WIDTH}" height="${HEIGHT}" fill="url(#overlayGrad)"/>`);
 
   const svg = `<svg width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
