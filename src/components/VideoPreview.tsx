@@ -43,9 +43,11 @@ const getFilterCSS = (filter?: string): string => {
     lut_forest: "hue-rotate(50deg) saturate(1.25) contrast(1.2) brightness(0.85)",
     high_contrast: "contrast(1.5) saturate(1.35) brightness(1.1)",
     faded: "contrast(0.8) brightness(1.15) saturate(0.65)",
-    vignette: "brightness(0.95) contrast(1.05)",
     cross_process: "contrast(1.35) saturate(1.15) hue-rotate(10deg) sepia(0.12)",
   };
+  return map[filter || "none"] || "none";
+};
+
 const wrapTextHelper = (text: string, fontSize: number, maxWidth: number) => {
   if (!text) return [];
   const hasHarakat = /[\u064B-\u065F]/.test(text);
