@@ -213,10 +213,22 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
 
       let bgImage: HTMLImageElement | null = null;
       let bgVideo: HTMLVideoElement | null = null;
-      const isVideo = /\.(mp4|webm|mov|ogg|m4v|3gp|flv|avi)(\?.*|#.*)?$/i.test(state.backgroundUrl) || state.backgroundUrl.includes("video");
+      
+      const isDossary = state.videoTemplate === "dossary_player";
+      const dossaryBgUrl = "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782871516/12_gahaqi.png";
+      const actualBgUrl = isDossary ? dossaryBgUrl : state.backgroundUrl;
+      
+      const isVideo = !isDossary && (/\.(mp4|webm|mov|ogg|m4v|3gp|flv|avi)(\?.*|#.*)?$/i.test(state.backgroundUrl) || state.backgroundUrl.includes("video"));
 
-      if (isVideo) bgVideo = await loadVideo(state.backgroundUrl);
-      else bgImage = await loadImage(state.backgroundUrl); 
+      if (isVideo) bgVideo = await loadVideo(actualBgUrl);
+      else bgImage = await loadImage(actualBgUrl); 
+
+      let templatePhoto: HTMLImageElement | null = null;
+      if (state.videoTemplate === "dossary_player") {
+        templatePhoto = await loadImage("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782863138/Sheikh_Yasser_Al_Dosari_qm0gsf.jpg");
+      } else if (state.videoTemplate === "minshawi_player") {
+        templatePhoto = await loadImage("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg");
+      }
 
       if (!isRenderingRef.current) return;
 
@@ -258,7 +270,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           while (isRenderingRef.current && !item.audio.ended && (Date.now() - startTime) < (item.duration * 1000 + 1000)) {
             analyser.getByteFrequencyData(dataArray);
             const ayahProgress = item.audio.currentTime / item.duration;
-            renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, dataArray, surahData?.name || "");
+             renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, dataArray, surahData?.name || "", templatePhoto);
             const progress = Math.min(99, Math.round(((elapsed + item.audio.currentTime) / totalDuration) * 100));
             setProgressPct(progress);
             setMessage(`جاري التصميم: ${progress}%`);
@@ -271,7 +283,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           for (let s = 0; s < 5 * 30; s++) {
             if (!isRenderingRef.current) break;
             const ayahProgress = s / (5 * 30);
-            renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, null, surahData?.name || "");
+             renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, null, surahData?.name || "", templatePhoto);
             const progress = Math.min(99, Math.round(((elapsed + (s/30)) / totalDuration) * 100));
             setProgressPct(progress);
             await new Promise(r => setTimeout(r, 33));
@@ -322,7 +334,8 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     userPlan: any, 
     ayahProgress: number = 1, 
     freqData: Uint8Array | null = null,
-    surahName: string = ""
+    surahName: string = "",
+    templatePhoto: HTMLImageElement | null = null
   ) => {
     ctx.save();
     
@@ -592,74 +605,363 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     }
 
     // 5. Text Animation & Rendering
-    // ayahProgress goes from 0 to 1
-    let opacity = 1;
-    let scale = 1;
-    let translateY = state.textVerticalOffset || 0;
-    let blur = 0;
+    if (state.videoTemplate === "dossary_player") {
+      // 1. Draw Active Verse Text (Naskh Font at the top)
+      if (verse && verse.text) {
+        ctx.save();
+        ctx.textAlign = "center";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
+        ctx.shadowBlur = 15;
+        ctx.shadowOffsetY = 6;
+        ctx.fillStyle = "#ffffff";
+        ctx.font = `600 36px "Noto Naskh Arabic", serif`;
+        
+        const textW = canvas.width - 140;
+        const lines = wrapText(ctx, verse.text, textW);
+        const lineH = 36 * 2.3;
+        const totalH = lines.length * lineH;
+        const startY = 140 + (280 - totalH) / 2;
+        
+        lines.forEach((l, idx) => {
+          ctx.fillText(l, canvas.width / 2, startY + (idx * lineH));
+        });
+        ctx.restore();
+      }
 
-    const ap = Math.min(1, ayahProgress * 2);
-    if (state.animation === "fade") { opacity = ap; }
-    if (state.animation === "scale") { scale = 0.8 + (ap * 0.2); opacity = ap; }
-    if (state.animation === "slide") { translateY += (1 - ap) * 100; opacity = ap; }
-    if (state.animation === "blur") { blur = (1 - ap) * 20; opacity = ap; }
-    if (state.animation === "zoom") { scale = 1.5 - (ap * 0.5); opacity = ap; }
-    if (state.animation === "flip") { scale = 1 - (1 - ap) * 0.5; opacity = ap; }
-    if (state.animation === "bounce") { scale = 0.9 + Math.sin(ap * Math.PI * 3) * 0.1; opacity = ap; }
-    if (state.animation === "glitch") { if (ap < 0.9) { opacity = Math.random() > 0.9 ? 0 : 1; translateY += (Math.random() - 0.5) * 20; } else { opacity = 1; } }
-    if (state.animation === "rotate") { opacity = ap; scale = ap; }
-    if (state.animation === "wave") { translateY += Math.sin(Date.now() / 200 + 0) * (1 - ap) * 30; opacity = ap; }
-    if (state.animation === "elastic") { scale = 0.5 + (ap * 0.5) + Math.sin(ap * Math.PI * 4) * (1 - ap) * 0.2; opacity = ap; }
-    if (state.animation === "swing") { const rot = (1 - ap) * 30 * Math.sin(ap * Math.PI * 2); ctx.rotate(rot * Math.PI / 180); opacity = ap; }
-    if (state.animation === "typewriter") { opacity = ap; }
-    if (state.animation === "spiral") { translateY += (1 - ap) * 200; const rot = (1 - ap) * 720; ctx.rotate(rot * Math.PI / 180); opacity = ap; }
-    if (state.animation === "cinematic") { scale = 1 + (1 - ap) * 0.3; opacity = Math.min(1, ap * 3); }
-    if (state.animation === "split") { opacity = ap; }
+      // 2. Draw Player Card in the center
+      const rx = 30;
+      const cardX = 80;
+      const cardY = 480;
+      const cardW = 560;
+      const cardH = 280;
+      
+      ctx.save();
+      ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 4;
+      ctx.shadowColor = "#ffffff";
+      ctx.shadowBlur = 20;
+      
+      ctx.beginPath();
+      ctx.moveTo(cardX, cardY);
+      ctx.lineTo(cardX + cardW - rx, cardY);
+      ctx.arcTo(cardX + cardW, cardY, cardX + cardW, cardY + rx, rx);
+      ctx.lineTo(cardX + cardW, cardY + cardH - rx);
+      ctx.arcTo(cardX + cardW, cardY + cardH, cardX + cardW - rx, cardY + cardH, rx);
+      ctx.lineTo(cardX + rx, cardY + cardH);
+      ctx.arcTo(cardX, cardY + cardH, cardX, cardY + cardH - rx, rx);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      
+      // Draw Sheikh Photo
+      if (templatePhoto) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(cardX, cardY);
+        ctx.lineTo(cardX + 240, cardY);
+        ctx.arcTo(cardX + 240, cardY, cardX + 240, cardY + rx, rx);
+        ctx.lineTo(cardX + 240, cardY + cardH);
+        ctx.lineTo(cardX + rx, cardY + cardH);
+        ctx.arcTo(cardX, cardY + cardH, cardX, cardY + cardH - rx, rx);
+        ctx.closePath();
+        ctx.clip();
+        ctx.drawImage(templatePhoto, cardX, cardY, 240, cardH);
+        ctx.restore();
+      }
+      
+      // Reciter & Surah Name
+      ctx.save();
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#ffffff";
+      ctx.shadowColor = "rgba(255, 255, 255, 0.7)";
+      ctx.shadowBlur = 8;
+      
+      ctx.font = `bold 28px Amiri, serif`;
+      ctx.fillText("ياسر الدوسري", 500, 550);
+      
+      ctx.font = `900 44px Amiri, serif`;
+      ctx.fillText(`سُورَةُ ${surahName || "سورة"}`, 500, 620);
+      ctx.restore();
+      
+      // Ornaments
+      const startAyah = state.startAyah || 1;
+      const endAyah = state.endAyah || 1;
+      const drawOrnament = (cx: number, cy: number, num: number) => {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2.5;
+        ctx.shadowColor = "#ffffff";
+        ctx.shadowBlur = 10;
+        
+        ctx.beginPath();
+        ctx.arc(0, 0, 22, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.arc(0, 0, 25, 0, Math.PI * 2);
+        ctx.setLineDash([2, 2]);
+        ctx.stroke();
+        
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(0, -22); ctx.lineTo(0, -17);
+        ctx.moveTo(0, 22); ctx.lineTo(0, 17);
+        ctx.moveTo(-22, 0); ctx.lineTo(-17, 0);
+        ctx.moveTo(22, 0); ctx.lineTo(17, 0);
+        ctx.stroke();
+        
+        ctx.font = "bold 16px monospace";
+        ctx.fillStyle = "#ffffff";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(String(num), 0, 1);
+        ctx.restore();
+      };
+      
+      drawOrnament(445, 695, endAyah);
+      drawOrnament(555, 695, startAyah);
 
-    ctx.save();
-    let centerY = canvas.height / 2;
-    if (state.textPosition === "top") centerY = canvas.height * 0.28;
-    else if (state.textPosition === "bottom") centerY = canvas.height * 0.72;
-    ctx.translate(canvas.width/2, centerY + translateY);
-    ctx.scale(scale, scale);
-    ctx.globalAlpha = opacity;
-    if (blur > 0) ctx.filter = `blur(${blur}px)`;
+      // 3. Progress Bar & Controls
+      const progressPct = ayahProgress || 0;
+      const barWidth = 480;
+      const progressWidth = barWidth * progressPct;
+      const barX = 120;
+      const barY = 805;
+      
+      ctx.save();
+      ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+      ctx.beginPath();
+      if (typeof ctx.roundRect === 'function') {
+        ctx.roundRect(barX, barY, barWidth, 4, 2);
+      } else {
+        ctx.rect(barX, barY, barWidth, 4);
+      }
+      ctx.fill();
+      
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      if (typeof ctx.roundRect === 'function') {
+        ctx.roundRect(barX, barY, progressWidth, 4, 2);
+      } else {
+        ctx.rect(barX, barY, progressWidth, 4);
+      }
+      ctx.fill();
+      
+      ctx.beginPath();
+      ctx.arc(barX + progressWidth, barY + 2, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      
+      ctx.save();
+      ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+      ctx.font = "14px monospace";
+      ctx.textAlign = "left";
+      ctx.fillText("0:00", barX, 832);
+      ctx.textAlign = "right";
+      ctx.fillText("1:30", barX + barWidth, 832);
+      ctx.restore();
+      
+      // Buttons
+      ctx.save();
+      ctx.translate(120, 850);
+      ctx.scale(1.15, 1.15);
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = 0.6;
+      ctx.beginPath();
+      ctx.moveTo(12, 6);
+      ctx.bezierCurveTo(12, 6, 11, 2, 6.5, 2);
+      ctx.bezierCurveTo(2, 2, 2, 7.5, 2, 7.5);
+      ctx.bezierCurveTo(2, 12, 12, 20, 12, 20);
+      ctx.bezierCurveTo(12, 20, 22, 12, 22, 7.5);
+      ctx.bezierCurveTo(22, 7.5, 22, 2, 17.5, 2);
+      ctx.bezierCurveTo(13, 2, 12, 6, 12, 6);
+      ctx.stroke();
+      ctx.restore();
+      
+      ctx.save();
+      ctx.fillStyle = "#ffffff";
+      ctx.translate(225, 850);
+      ctx.scale(1.15, 1.15);
+      ctx.beginPath();
+      ctx.moveTo(19, 20); ctx.lineTo(9, 12); ctx.lineTo(19, 4);
+      ctx.fill();
+      ctx.fillRect(5, 4, 2, 16);
+      ctx.restore();
+      
+      ctx.save();
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(360, 862, 26, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#000000";
+      ctx.beginPath();
+      ctx.moveTo(353, 850); ctx.lineTo(373, 862); ctx.lineTo(353, 874);
+      ctx.fill();
+      ctx.restore();
+      
+      ctx.save();
+      ctx.fillStyle = "#ffffff";
+      ctx.translate(470, 850);
+      ctx.scale(1.15, 1.15);
+      ctx.beginPath();
+      ctx.moveTo(5, 4); ctx.lineTo(15, 12); ctx.lineTo(5, 20);
+      ctx.fill();
+      ctx.fillRect(17, 4, 2, 16);
+      ctx.restore();
+      
+      ctx.save();
+      ctx.translate(570, 850);
+      ctx.scale(1.15, 1.15);
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = 0.6;
+      ctx.beginPath();
+      ctx.arc(12, 12, 10, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(7, 12); ctx.lineTo(17, 12);
+      ctx.stroke();
+      ctx.restore();
+    } else if (state.videoTemplate === "minshawi_player") {
+      // Draw Minshawi player
+      const cardX = 80;
+      const cardY = 450;
+      const cardW = 560;
+      const cardH = 380;
+      
+      ctx.save();
+      ctx.fillStyle = "#000000";
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      if (typeof ctx.roundRect === 'function') {
+        ctx.roundRect(cardX, cardY, cardW, cardH, 95);
+      } else {
+        ctx.rect(cardX, cardY, cardW, cardH);
+      }
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      
+      if (templatePhoto) {
+        ctx.save();
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(190, 475, 340, 200, 45);
+        } else {
+          ctx.rect(190, 475, 340, 200);
+        }
+        ctx.clip();
+        ctx.drawImage(templatePhoto, 190, 475, 340, 200);
+        ctx.restore();
+      }
+      
+      ctx.save();
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 24px Arial";
+      ctx.fillText(surahName || "سورة", 190, 707);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+      ctx.font = "15px Arial";
+      ctx.fillText(getReciterEnglishName(state.reciterId), 190, 733);
+      ctx.restore();
+      
+      // progress bar
+      const progressPct = ayahProgress || 0;
+      ctx.save();
+      ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+      ctx.fillRect(190, 760, 340, 4);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(190, 760, 340 * progressPct, 4);
+      ctx.beginPath();
+      ctx.arc(190 + 340 * progressPct, 762, 6, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+      
+      // play button and controls
+      ctx.save();
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(360, 805, 22, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(351, 799, 4, 12);
+      ctx.fillRect(359, 799, 4, 12);
+      ctx.restore();
+    } else {
+      // 5. Text Animation & Rendering
+      // ayahProgress goes from 0 to 1
+      let opacity = 1;
+      let scale = 1;
+      let translateY = state.textVerticalOffset || 0;
+      let blur = 0;
 
-    ctx.textAlign = "center";
-    ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
-    ctx.shadowBlur = 15;
-    ctx.shadowOffsetY = 6;
-    
-    // Main Text
-    ctx.fillStyle = state.textColor || "#ffffff";
-    ctx.font = `${state.fontWeight || 700} ${state.fontSize * 1.8}px "${state.fontFamily || 'Amiri'}", serif`;
-    const lines = wrapText(ctx, verse.text, canvas.width - 140);
-    const lineHeight = state.fontSize * 2.2;
-    let startY = -(lines.length * lineHeight / 2);
-    
-    lines.forEach((l, idx) => ctx.fillText(l, 0, startY + (idx * lineHeight)));
-    
-    // Translation
-    ctx.globalAlpha = opacity * 0.8;
-    ctx.fillStyle = "#ffffff";
-    ctx.font = `500 44px Tajawal`;
-    const tLines = wrapText(ctx, verse.translation, canvas.width - 160);
-    let transStartY = startY + (lines.length * lineHeight) + 80;
-    tLines.forEach((l, idx) => ctx.fillText(l, 0, transStartY + (idx * 60)));
-    
-    ctx.restore();
+      const ap = Math.min(1, ayahProgress * 2);
+      if (state.animation === "fade") { opacity = ap; }
+      if (state.animation === "scale") { scale = 0.8 + (ap * 0.2); opacity = ap; }
+      if (state.animation === "slide") { translateY += (1 - ap) * 100; opacity = ap; }
+      if (state.animation === "blur") { blur = (1 - ap) * 20; opacity = ap; }
+      if (state.animation === "zoom") { scale = 1.5 - (ap * 0.5); opacity = ap; }
+      if (state.animation === "flip") { scale = 1 - (1 - ap) * 0.5; opacity = ap; }
+      if (state.animation === "bounce") { scale = 0.9 + Math.sin(ap * Math.PI * 3) * 0.1; opacity = ap; }
+      if (state.animation === "glitch") { if (ap < 0.9) { opacity = Math.random() > 0.9 ? 0 : 1; translateY += (Math.random() - 0.5) * 20; } else { opacity = 1; } }
+      if (state.animation === "rotate") { opacity = ap; scale = ap; }
+      if (state.animation === "wave") { translateY += Math.sin(Date.now() / 200 + 0) * (1 - ap) * 30; opacity = ap; }
+      if (state.animation === "elastic") { scale = 0.5 + (ap * 0.5) + Math.sin(ap * Math.PI * 4) * (1 - ap) * 0.2; opacity = ap; }
+      if (state.animation === "swing") { const rot = (1 - ap) * 30 * Math.sin(ap * Math.PI * 2); ctx.rotate(rot * Math.PI / 180); opacity = ap; }
+      if (state.animation === "typewriter") { opacity = ap; }
+      if (state.animation === "spiral") { translateY += (1 - ap) * 200; const rot = (1 - ap) * 720; ctx.rotate(rot * Math.PI / 180); opacity = ap; }
+      if (state.animation === "cinematic") { scale = 1 + (1 - ap) * 0.3; opacity = Math.min(1, ap * 3); }
+      if (state.animation === "split") { opacity = ap; }
 
-    // 6. Verse Number (Bottom)
-    ctx.fillStyle = "rgba(212,175,55,0.9)";
-    ctx.font = "bold 45px Amiri";
-    let decoratedNum = `﴿ ${verse.id} ﴾`;
-    if (state.ayahDecoration === "none") decoratedNum = `${verse.id}`;
-    else if (state.ayahDecoration === "bracket1") decoratedNum = `﴿ ${verse.id} ﴾`;
-    else if (state.ayahDecoration === "bracket2") decoratedNum = `﴾ ${verse.id} ﴿`;
-    else if (state.ayahDecoration === "star") decoratedNum = `✧ ${verse.id} ✧`;
-    else if (state.ayahDecoration === "diamond") decoratedNum = `✥ ${verse.id} ✥`;
-    else if (state.ayahDecoration === "ornament") decoratedNum = `۞ ${verse.id} ۞`;
-    ctx.fillText(decoratedNum, canvas.width/2, canvas.height - 180);
+      ctx.save();
+      let centerY = canvas.height / 2;
+      if (state.textPosition === "top") centerY = canvas.height * 0.28;
+      else if (state.textPosition === "bottom") centerY = canvas.height * 0.72;
+      ctx.translate(canvas.width/2, centerY + translateY);
+      ctx.scale(scale, scale);
+      ctx.globalAlpha = opacity;
+      if (blur > 0) ctx.filter = `blur(${blur}px)`;
+
+      ctx.textAlign = "center";
+      ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
+      ctx.shadowBlur = 15;
+      ctx.shadowOffsetY = 6;
+      
+      // Main Text
+      ctx.fillStyle = state.textColor || "#ffffff";
+      ctx.font = `${state.fontWeight || 700} ${state.fontSize * 1.8}px "${state.fontFamily || 'Amiri'}", serif`;
+      const lines = wrapText(ctx, verse.text, canvas.width - 140);
+      const lineHeight = state.fontSize * 2.2;
+      let startY = -(lines.length * lineHeight / 2);
+      
+      lines.forEach((l, idx) => ctx.fillText(l, 0, startY + (idx * lineHeight)));
+      
+      // Translation
+      ctx.globalAlpha = opacity * 0.8;
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `500 44px Tajawal`;
+      const tLines = wrapText(ctx, verse.translation, canvas.width - 160);
+      let transStartY = startY + (lines.length * lineHeight) + 80;
+      tLines.forEach((l, idx) => ctx.fillText(l, 0, transStartY + (idx * 60)));
+      
+      ctx.restore();
+
+      // 6. Verse Number (Bottom)
+      ctx.fillStyle = "rgba(212,175,55,0.9)";
+      ctx.font = "bold 45px Amiri";
+      let decoratedNum = `﴿ ${verse.id} ﴾`;
+      if (state.ayahDecoration === "none") decoratedNum = `${verse.id}`;
+      else if (state.ayahDecoration === "bracket1") decoratedNum = `﴿ ${verse.id} ﴾`;
+      else if (state.ayahDecoration === "bracket2") decoratedNum = `﴾ ${verse.id} ﴿`;
+      else if (state.ayahDecoration === "star") decoratedNum = `✧ ${verse.id} ✧`;
+      else if (state.ayahDecoration === "diamond") decoratedNum = `✥ ${verse.id} ✥`;
+      else if (state.ayahDecoration === "ornament") decoratedNum = `۞ ${verse.id} ۞`;
+      ctx.fillText(decoratedNum, canvas.width/2, canvas.height - 180);
+    }
 
     ctx.restore();
   };

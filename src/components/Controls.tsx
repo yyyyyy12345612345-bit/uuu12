@@ -350,7 +350,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                                 updateState({
                                     videoTemplate: "dossary_player",
                                     reciterId: "yasser",
-                                    fontFamily: "Amiri",
+                                    fontFamily: "Noto Naskh Arabic",
                                     textColor: "#ffffff",
                                     fontSize: 56,
                                     filter: "cinematic",

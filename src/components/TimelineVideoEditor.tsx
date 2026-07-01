@@ -1164,7 +1164,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                           videoTemplate: "dossary_player",
                           reciterId: "yasser",
                           textColor: "#ffffff",
-                          fontFamily: "Amiri"
+                          fontFamily: "Noto Naskh Arabic"
                         });
                       } else {
                         updateState({

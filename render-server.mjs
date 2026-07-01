@@ -392,6 +392,12 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
         src: url(data:font/truetype;charset=utf-8;base64,${fontBase64}) format('truetype');
       }
       ` : ""}
+      ${settings.naskhBase64 ? `
+      @font-face {
+        font-family: 'Noto Naskh Arabic';
+        src: url(data:font/truetype;charset=utf-8;base64,${settings.naskhBase64}) format('truetype');
+      }
+      ` : ""}
     </style>
   `;
 
@@ -478,8 +484,39 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
   } else if (videoTemplate === "dossary_player") {
     const startAyah = settings.startAyah || 1;
     const endAyah = settings.endAyah || 1;
+    const elapsed = elapsedSeconds || 0;
+    const total = totalDuration || 1;
+    const progressPct = elapsed / total;
+    
+    const formatTime = (secs) => {
+      if (isNaN(secs)) return "0:00";
+      const m = Math.floor(secs / 60);
+      const s = Math.floor(secs % 60);
+      return `${m}:${s < 10 ? '0' : ''}${s}`;
+    };
+
+    const barWidth = 480;
+    const progressWidth = barWidth * Math.min(1, Math.max(0, progressPct));
+
+    const scaledNaskhSize = 36;
+    const vLinesNaskh = wrapText(verse.text || "", scaledNaskhSize, textW);
+    const lineHNaskh = scaledNaskhSize * 2.3;
+    const totalHNaskh = vLinesNaskh.length * lineHNaskh;
+    const naskhStartY = 140 + (280 - totalHNaskh) / 2;
+    
+    const verseNaskhTSpans = vLinesNaskh.map((line, i) => {
+      return `<tspan x="${centerX}" dy="${i === 0 ? 0 : lineHNaskh}">${escapeXml(line)}</tspan>`;
+    }).join("");
+
     innerContent = `
       <g opacity="${opacity}">
+        <!-- Active Verse Text (Naskh Font) -->
+        ${verse.text ? `
+        <text x="${centerX}" y="${naskhStartY}" font-family="'Noto Naskh Arabic', serif" font-size="${scaledNaskhSize}" fill="#ffffff" text-anchor="middle" direction="rtl" filter="url(#textGlow)">
+          ${verseNaskhTSpans}
+        </text>
+        ` : ""}
+
         <!-- Photo with border-radius: top-left is sharp, other corners rounded (0 2rem 2rem 2rem) -->
         <clipPath id="photoClip">
           <path d="M 80,480 H 290 A 30,30 0 0 1 320,510 V 730 A 30,30 0 0 1 290,760 H 110 A 30,30 0 0 1 80,730 Z" />
@@ -511,6 +548,45 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
           <path d="M 25 2 L 25 7 M 25 43 L 25 48 M 2 25 L 7 25 M 43 25 L 48 25" stroke="#ffffff" stroke-width="2.5" />
           <text x="25" y="32" font-family="monospace" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">${startAyah}</text>
         </g>
+
+        <!-- Progress Bar -->
+        <rect x="120" y="805" width="480" height="4" rx="2" fill="rgba(255, 255, 255, 0.2)" />
+        <rect x="120" y="805" width="${progressWidth}" height="4" rx="2" fill="#ffffff" />
+        <circle cx="${120 + progressWidth}" cy="807" r="6" fill="#ffffff" />
+        
+        <!-- Timestamps -->
+        <text x="120" y="832" font-family="monospace" font-size="14" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">${formatTime(elapsed)}</text>
+        <text x="600" y="832" font-family="monospace" font-size="14" fill="rgba(255, 255, 255, 0.5)" text-anchor="end">${formatTime(total)}</text>
+        
+        <!-- Controls Row -->
+        <!-- Heart Button (Outline) -->
+        <g transform="translate(120, 850) scale(1.15)">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6"/>
+        </g>
+        
+        <!-- Prev Button -->
+        <g transform="translate(225, 850) scale(1.15)">
+          <path d="M19 20L9 12l10-8v16z" fill="#ffffff" />
+          <rect x="5" y="4" width="2" height="16" rx="0.5" fill="#ffffff" />
+        </g>
+        
+        <!-- Play Button (Circle Play) -->
+        <circle cx="360" cy="862" r="26" fill="#ffffff" />
+        <g transform="translate(350, 850) scale(1.0)">
+          <path d="M8 5v14l11-7z" fill="#000000" />
+        </g>
+        
+        <!-- Next Button -->
+        <g transform="translate(470, 850) scale(1.15)">
+          <path d="M5 4l10 8-10 8V4z" fill="#ffffff" />
+          <rect x="17" y="4" width="2" height="16" rx="0.5" fill="#ffffff" />
+        </g>
+        
+        <!-- Minus Circle -->
+        <g transform="translate(570, 850) scale(1.15)">
+          <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6" />
+          <line x1="7" y1="12" x2="17" y2="12" stroke="#ffffff" stroke-width="2" opacity="0.6" />
+        </g>
       </g>
     `;
   } else {
@@ -533,10 +609,8 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     <rect x="0" y="380" width="${WIDTH}" height="520" fill="#383838" />
     <rect x="0" y="900" width="${WIDTH}" height="380" fill="#000000" />
   ` : (isDossary ? `
-    <!-- Dark Textured Gradient Background -->
-    <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#dossaryBgGrad)" />
-    <!-- Horizontal middle stripe -->
-    <rect x="0" y="320" width="${WIDTH}" height="640" fill="url(#dossaryStripeGrad)" opacity="0.6" />
+    <!-- Dossari Custom Background Image -->
+    <image href="data:image/png;base64,${settings.dossaryBgBase64 || ''}" width="${WIDTH}" height="${HEIGHT}" preserveAspectRatio="xMidYMid slice" />
   ` : `<rect width="${WIDTH}" height="${HEIGHT}" fill="url(#overlayGrad)"/>`);
 
   const svg = `<svg width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
@@ -612,16 +686,27 @@ async function startRender(jobId, data) {
     const bgPath = path.resolve(tempDir, isVideoBg ? "bg.mp4" : "bg.jpg");
     await downloadFile(backgroundUrl, bgPath);
 
-    // تحميل صورة الشيخ المخصصة للقالب
+    // تحميل صورة الشيخ وصورة الخلفية المخصصة للقالب
     const isMinshawiPlayer = data.videoTemplate === "minshawi_player";
     const isDossaryPlayer = data.videoTemplate === "dossary_player";
     const photoPath = path.resolve(tempDir, "template_photo.jpg");
+    const dossaryBgPath = path.resolve(tempDir, "dossary_bg.png");
+    
     if (isMinshawiPlayer) {
       await downloadFile("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg", photoPath);
     } else if (isDossaryPlayer) {
       await downloadFile("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782863138/Sheikh_Yasser_Al_Dosari_qm0gsf.jpg", photoPath);
+      await downloadFile("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782871516/12_gahaqi.png", dossaryBgPath);
     }
+    
     const templatePhotoBase64 = (isMinshawiPlayer || isDossaryPlayer) ? fs.readFileSync(photoPath).toString("base64") : "";
+    const dossaryBgBase64 = isDossaryPlayer ? fs.readFileSync(dossaryBgPath).toString("base64") : "";
+
+    let naskhBase64 = null;
+    if (isDossaryPlayer) {
+      const naskhPath = await ensureFont("Noto Naskh Arabic");
+      naskhBase64 = fs.readFileSync(naskhPath).toString("base64");
+    }
 
     setProgress(20, "تحميل وتحليل الملفات الصوتية...");
     
@@ -672,7 +757,7 @@ async function startRender(jobId, data) {
           else animState.opacity = progress; // fallback to fade
 
           const fPath = path.resolve(tempDir, `${fBaseName}-anim-${f}.${ext}`);
-          await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState, currentElapsed, audioTotal, minshawiPhotoBase64);
+          await generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState, currentElapsed, audioTotal, templatePhotoBase64);
           frameEntries.push({ fPath, dur: frameDur });
           currentElapsed += frameDur;
           remainingDur -= frameDur;
@@ -709,13 +794,28 @@ async function startRender(jobId, data) {
         const dur = Math.min(interval, remaining);
         
         const fPath = path.resolve(tempDir, `frame-${frameIndex}.${ext}`);
-        const mockVerse = { id: 1, text: "" };
+        
+        // Find active verse for rendering text
+        let activeVerseIndex = 0;
+        let accum = 0;
+        for (let i = 0; i < verses.length; i++) {
+          if (elapsed >= accum && elapsed < accum + verseDurations[i]) {
+            activeVerseIndex = i;
+            break;
+          }
+          accum += verseDurations[i];
+          if (i === verses.length - 1) {
+            activeVerseIndex = i;
+          }
+        }
+        const activeVerse = verses[activeVerseIndex] || { id: 1, text: "" };
+        
         const startAyah = verses && verses.length > 0 ? verses[0].id : 1;
         const endAyah = verses && verses.length > 0 ? verses[verses.length - 1].id : 1;
-        const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, videoTemplate, reciterName, startAyah, endAyah };
+        const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, videoTemplate, reciterName, startAyah, endAyah, dossaryBgBase64, naskhBase64 };
         const animState = { opacity: 1, offsetY: 0, scale: 1, activeWordIndex: -1 };
 
-        await generateVerseFrame(mockVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState, elapsed, audioTotal, templatePhotoBase64);
+        await generateVerseFrame(activeVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState, elapsed, audioTotal, templatePhotoBase64);
         frameEntries.push({ fPath, dur });
         
         elapsed += dur;

@@ -488,7 +488,10 @@ export function VideoPreview() {
             state.videoTemplate === "minshawi_player" ? (
               <div className="absolute top-[29.69%] bottom-[29.69%] left-0 right-0 bg-[#383838] z-10" />
             ) : (
-              <div className="absolute inset-y-[25%] left-0 right-0 bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950 border-y border-white/[0.02] z-10 opacity-60" />
+              <div 
+                className="absolute inset-0 bg-cover bg-center z-10"
+                style={{ backgroundImage: `url(https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782871516/12_gahaqi.png)` }}
+              />
             )
           )}
         </div>
@@ -835,55 +838,162 @@ export function VideoPreview() {
           }}
         >
           {state.videoTemplate === "dossary_player" ? (
-            <div className="w-[85%] aspect-[500/350] flex items-center justify-between gap-6 z-20 text-right select-none animate-in fade-in duration-500">
-              {/* Left Side: Photo */}
-              <div 
-                className="w-[42%] aspect-[3/4] overflow-hidden bg-black border-[4px] border-white shadow-[0_0_25px_rgba(255,255,255,0.6)] shrink-0 transition-transform duration-500 hover:scale-105"
-                style={{ borderRadius: "0rem 2rem 2rem 2rem" }}
-              >
-                <img
-                  src="https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782863138/Sheikh_Yasser_Al_Dosari_qm0gsf.jpg"
-                  alt="الشيخ ياسر الدوسري"
-                  className="w-full h-full object-cover grayscale brightness-110"
-                />
+            <div className="w-full h-full flex flex-col justify-between py-12 px-6 z-20 select-none animate-in fade-in duration-500">
+              {/* Top: Active Verse Text (Quranic Text in Naskh font) */}
+              <div className="flex-1 flex items-center justify-center px-4 min-h-[180px]">
+                {currentVerse ? (
+                  <p
+                    className="text-white text-center w-full break-words leading-[2.2] drop-shadow-[0_4px_15px_rgba(0,0,0,0.9)]"
+                    style={{
+                      fontSize: `${Math.max(22, previewFontSize * 0.95)}px`,
+                      fontFamily: '"Noto Naskh Arabic", serif',
+                      direction: 'rtl',
+                    }}
+                  >
+                    {currentVerse.text}
+                  </p>
+                ) : (
+                  <p className="text-white/40 text-sm">لم يتم تحديد آية</p>
+                )}
               </div>
-              
-              {/* Right Side: Info & Ornaments */}
-              <div className="flex-1 flex flex-col items-center justify-center text-center gap-4">
-                {/* Reciter Name */}
-                <h2 
-                  className="text-xl font-bold text-white font-arabic tracking-wide drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]"
-                  style={{ fontFamily: 'Amiri, serif' }}
+
+              {/* Middle: Player Card (Sheikh Photo + Reciter Name & Surah Name & Ayah numbers) */}
+              <div className="w-[90%] mx-auto aspect-[500/280] flex items-center justify-between gap-6 my-4 bg-black/40 rounded-[2rem] p-4 border border-white/5 backdrop-blur-sm">
+                {/* Left Side: Photo */}
+                <div 
+                  className="w-[40%] aspect-[3/4] overflow-hidden bg-black border-[3px] border-white shadow-[0_0_20px_rgba(255,255,255,0.5)] shrink-0"
+                  style={{ borderRadius: "0rem 2rem 2rem 2rem" }}
                 >
-                  ياسر الدوسري
-                </h2>
+                  <img
+                    src="https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782863138/Sheikh_Yasser_Al_Dosari_qm0gsf.jpg"
+                    alt={getReciterEnglishName(state.reciterId)}
+                    className="w-full h-full object-cover grayscale brightness-110"
+                  />
+                </div>
                 
-                {/* Surah Name */}
-                <h1 
-                  className="text-3xl font-black text-white font-arabic tracking-wider drop-shadow-[0_0_10px_rgba(255,255,255,0.8)] my-1"
-                  style={{ fontFamily: 'Amiri, serif' }}
-                >
-                  سُورَةُ {surahData ? surahData.name : "..."}
-                </h1>
-                
-                {/* Glowing Circular Ornaments (Start & End Ayahs) */}
-                <div className="flex items-center justify-center gap-4 mt-2">
-                  {[state.endAyah, state.startAyah].map((num, i) => (
-                    <div key={i} className="relative w-12 h-12 flex items-center justify-center text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.75)]">
-                      {/* Islamic Star/Circle Border SVG */}
-                      <svg className="absolute inset-0 w-full h-full fill-none" stroke="white" strokeWidth="2.5" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="38" />
-                        <circle cx="50" cy="50" r="43" strokeDasharray="3,3" />
-                        <path d="M 50 2 L 50 10 M 50 90 L 50 98 M 2 50 L 10 50 M 90 50 L 98 50" />
-                        <circle cx="50" cy="6" r="3" fill="white" />
-                        <circle cx="50" cy="94" r="3" fill="white" />
-                        <circle cx="6" cy="50" r="3" fill="white" />
-                        <circle cx="94" cy="50" r="3" fill="white" />
-                      </svg>
-                      {/* Ayah number */}
-                      <span className="text-[14px] font-bold z-10 font-mono translate-y-[1px]">{num}</span>
-                    </div>
-                  ))}
+                {/* Right Side: Info & Ornaments */}
+                <div className="flex-1 flex flex-col items-center justify-center text-center gap-3">
+                  <h2 
+                    className="text-base font-bold text-white font-arabic tracking-wide drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]"
+                    style={{ fontFamily: 'Amiri, serif' }}
+                  >
+                    {state.reciterId === "yasser" ? "ياسر الدوسري" : getReciterEnglishName(state.reciterId)}
+                  </h2>
+                  
+                  <h1 
+                    className="text-2xl font-black text-white font-arabic tracking-wider drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]"
+                    style={{ fontFamily: 'Amiri, serif' }}
+                  >
+                    سُورَةُ {surahData ? surahData.name : "..."}
+                  </h1>
+                  
+                  {/* Glowing Circular Ornaments (Start & End Ayahs) */}
+                  <div className="flex items-center justify-center gap-3 mt-1">
+                    {[state.endAyah, state.startAyah].map((num, i) => (
+                      <div key={i} className="relative w-10 h-10 flex items-center justify-center text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]">
+                        <svg className="absolute inset-0 w-full h-full fill-none" stroke="white" strokeWidth="2.5" viewBox="0 0 100 100">
+                          <circle cx="50" cy="50" r="38" />
+                          <circle cx="50" cy="50" r="43" strokeDasharray="3,3" />
+                          <path d="M 50 2 L 50 10 M 50 90 L 50 98 M 2 50 L 10 50 M 90 50 L 98 50" />
+                          <circle cx="50" cy="6" r="3" fill="white" />
+                          <circle cx="50" cy="94" r="3" fill="white" />
+                          <circle cx="6" cy="50" r="3" fill="white" />
+                          <circle cx="94" cy="50" r="3" fill="white" />
+                        </svg>
+                        <span className="text-[12px] font-bold z-10 font-mono translate-y-[1px]">{num}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom: Progress Bar & Controls */}
+              <div className="w-[90%] mx-auto flex flex-col gap-3 mt-4">
+                {/* Progress Bar Timeline */}
+                <div className="w-full">
+                  <div className="w-full h-[3px] bg-white/20 rounded-full relative cursor-pointer" onClick={(e) => {
+                    if (audioRef.current && totalSelectedDuration > 0 && surahData) {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const clickX = e.clientX - rect.left;
+                      const pct = clickX / rect.width;
+                      const targetTime = pct * totalSelectedDuration;
+
+                      const versesInRange = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
+                      let accumulatedTime = 0;
+                      for (let v of versesInRange) {
+                        const vDur = verseDurations[v.id] || 5;
+                        if (targetTime <= accumulatedTime + vDur) {
+                          setCurrentAyahIndex(v.id);
+                          const seekOffset = targetTime - accumulatedTime;
+                          setTimeout(() => {
+                            if (audioRef.current) {
+                              audioRef.current.currentTime = seekOffset;
+                            }
+                          }, 80);
+                          break;
+                        }
+                        accumulatedTime += vDur;
+                      }
+                    }
+                  }}>
+                    <div 
+                      ref={progressBarRef}
+                      className="h-full bg-white rounded-full transition-all duration-75" 
+                      style={{ width: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%` }}
+                    />
+                    <div 
+                      ref={progressDotRef}
+                      className="w-2.5 h-2.5 bg-white rounded-full absolute -top-1 -ml-1.25 shadow-md" 
+                      style={{ left: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-[10px] text-white/50 font-mono mt-1.5" dir="ltr">
+                    <span ref={progressTextRef}>{formatTime(totalSelectedElapsed)}</span>
+                    <span>{formatTime(totalSelectedDuration)}</span>
+                  </div>
+                </div>
+
+                {/* Player Control Buttons */}
+                <div className="flex items-center justify-between px-2" dir="ltr">
+                  {/* Heart Button */}
+                  <button className="text-white/60 hover:text-white transition active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                  </button>
+
+                  {/* Previous Button */}
+                  <button 
+                    onClick={() => {
+                      if (audioRef.current) audioRef.current.currentTime = 0;
+                    }}
+                    className="text-white hover:scale-105 transition active:scale-95"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5" stroke="currentColor" strokeWidth="1.6"/></svg>
+                  </button>
+
+                  {/* Play/Pause Button */}
+                  <button 
+                    onClick={togglePlay}
+                    className="w-11 h-11 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 active:scale-95 transition shadow-lg shrink-0"
+                  >
+                    {isPlaying ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/></svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                    )}
+                  </button>
+
+                  {/* Next Button */}
+                  <button 
+                    onClick={handleAyahEnd}
+                    className="text-white hover:scale-105 transition active:scale-95"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19" stroke="currentColor" strokeWidth="1.6"/></svg>
+                  </button>
+
+                  {/* Minus Circle Button */}
+                  <button className="text-white/60 hover:text-white transition active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                  </button>
                 </div>
               </div>
             </div>
