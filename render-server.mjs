@@ -501,21 +501,28 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     const rightAreaW = 330;
     const rightAreaCenterX = 510;
     const scaledNaskhSize = 32;
-    const vLinesNaskh = wrapText(verse.text || "", scaledNaskhSize, rightAreaW);
-    const lineHNaskh = scaledNaskhSize * 1.9;
-    const totalHNaskh = vLinesNaskh.length * lineHNaskh;
-    const naskhStartY = 480 + (150 - totalHNaskh) / 2 + (lineHNaskh * 0.7);
-
-    const verseNaskhTSpans = vLinesNaskh.map((line, i) => {
-      return `<tspan x="${rightAreaCenterX}" dy="${i === 0 ? 0 : lineHNaskh}">${escapeXml(line)}</tspan>`;
-    }).join("");
+    
+    // Split verse into lines of 4 words each
+    const verseWords = (verse.text || "").split(/\s+/).filter(Boolean);
+    const wordsPerLine = 4;
+    const verseLines = [];
+    for (let i = 0; i < verseWords.length; i += wordsPerLine) {
+      verseLines.push(verseWords.slice(i, i + wordsPerLine).join(" "));
+    }
+    if (verseLines.length === 0 && verse.text) verseLines.push(verse.text);
+    
+    // Pick active line based on per-ayah progress (not overall video progress)
+    const ayahProg = settings.ayahProgress || 0;
+    const activeLineIdx = Math.min(verseLines.length - 1, Math.floor(ayahProg * verseLines.length));
+    const activeLineText = verseLines[activeLineIdx] || verse.text || "";
+    const naskhStartY = 480 + 150 / 2 + 10;
 
     innerContent = `
       <g opacity="${opacity}">
-        <!-- Active Verse Text (Naskh Font on the Right) -->
+        <!-- Active Verse Text (Naskh Font on the Right) - ONE LINE AT A TIME -->
         ${verse.text ? `
         <text x="${rightAreaCenterX}" y="${naskhStartY}" font-family="'Noto Naskh Arabic', serif" font-size="${scaledNaskhSize}" fill="#ffffff" text-anchor="middle" direction="rtl" filter="url(#textGlow)">
-          ${verseNaskhTSpans}
+          ${escapeXml(activeLineText)}
         </text>
         ` : ""}
 
@@ -794,10 +801,16 @@ async function startRender(jobId, data) {
           }
         }
         const activeVerse = verses[activeVerseIndex] || { id: 1, text: "" };
+        
+        // Calculate per-ayah progress for line-by-line text display
+        const ayahStartTime = verseDurations.slice(0, activeVerseIndex).reduce((a, b) => a + b, 0);
+        const ayahDuration = verseDurations[activeVerseIndex] || 1;
+        const ayahElapsed = elapsed - ayahStartTime;
+        const ayahProgress = Math.min(1, Math.max(0, ayahElapsed / ayahDuration));
 
         const startAyah = verses && verses.length > 0 ? verses[0].id : 1;
         const endAyah = verses && verses.length > 0 ? verses[verses.length - 1].id : 1;
-        const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, videoTemplate, reciterName, startAyah, endAyah, dossaryBgBase64, naskhBase64 };
+        const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, videoTemplate, reciterName, startAyah, endAyah, dossaryBgBase64, naskhBase64, ayahProgress };
         const animState = { opacity: 1, offsetY: 0, scale: 1, activeWordIndex: -1 };
 
         await generateVerseFrame(activeVerse, fPath, settings, bgPath, isVideoBg, fontBase64, amiriBase64, animState, elapsed, audioTotal, templatePhotoBase64);
