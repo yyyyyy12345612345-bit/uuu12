@@ -24,7 +24,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const [renderMode, setRenderMode] = useState<"browser" | "server">("browser");
+  const [renderMode, setRenderMode] = useState<"browser" | "server">("server");
   const [status, setStatus] = useState<"idle" | "rendering" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [progressPct, setProgressPct] = useState(0);
@@ -46,6 +46,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       const guestRenders = parseInt(localStorage.getItem("guest_video_renders") || "0");
       if (guestRenders >= 1) setIsLimitReached(true);
       else setIsLimitReached(false);
+      setRenderMode("browser");
       return;
     }
     if (!db) return;
@@ -59,8 +60,17 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         if (plan === "free" && count >= 5) setIsLimitReached(true);
         else if (plan === "starter" && count >= 50) setIsLimitReached(true);
         else setIsLimitReached(false);
+
+        if (plan === "premium") {
+          setRenderMode("server");
+        } else {
+          setRenderMode("browser");
+        }
       }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      setRenderMode("browser");
+    }
   };
 
   const handleStart = async () => {
@@ -1000,16 +1010,16 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             <p className="text-white/40 text-xs text-center mb-10 uppercase tracking-widest">اختر دقة الإخراج والجودة المطلوبة</p>
             
             <div className="w-full space-y-4 mb-10">
-                <button onClick={() => setRenderMode("browser")} className={`w-full p-6 rounded-[2rem] border-2 transition-all flex flex-col items-start gap-1 text-right ${renderMode === "browser" ? "border-primary bg-primary/10" : "border-white/5 bg-white/5 hover:bg-white/10"}`}>
-                    <span className="text-base font-black text-white">رندرة المتصفح السريعة</span>
-                    <span className="text-[10px] text-primary/60 font-bold uppercase tracking-widest">تصدير فوري بجودة HD قياسية</span>
-                </button>
                 <button onClick={() => userPlan?.plan === 'premium' ? setRenderMode("server") : null} className={`w-full p-6 rounded-[2rem] border-2 transition-all flex items-center justify-between gap-4 text-right ${renderMode === "server" ? "border-primary bg-primary/10" : "border-white/5 bg-white/5"} ${(!userPlan || userPlan.plan === 'free') ? 'opacity-40 cursor-not-allowed' : 'hover:bg-white/10'}`}>
                     <div className="flex flex-col items-start gap-1">
                         <span className="text-base font-black text-white">الرندرة السحابية الفائقة</span>
                         <span className="text-[10px] text-primary/60 font-bold uppercase tracking-widest">تصدير MP4 بجودة 4K احترافية</span>
                     </div>
                     <Crown className={`w-6 h-6 ${(!userPlan || userPlan.plan === 'free') ? 'text-white/20' : 'text-primary'}`} />
+                </button>
+                <button onClick={() => setRenderMode("browser")} className={`w-full p-6 rounded-[2rem] border-2 transition-all flex flex-col items-start gap-1 text-right ${renderMode === "browser" ? "border-primary bg-primary/10" : "border-white/5 bg-white/5 hover:bg-white/10"}`}>
+                    <span className="text-base font-black text-white">رندرة المتصفح السريعة</span>
+                    <span className="text-[10px] text-primary/60 font-bold uppercase tracking-widest">تصدير فوري بجودة HD قياسية</span>
                 </button>
             </div>
 

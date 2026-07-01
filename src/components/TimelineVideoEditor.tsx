@@ -3,9 +3,8 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useEditor } from "@/store/useEditor";
 import { useTheme } from "@/components/ThemeProvider";
-import { usePexelsBackgrounds } from "@/hooks/usePexelsBackgrounds";
 import { RECITERS } from "@/data/reciters";
-import { STATIC_BACKGROUNDS } from "@/data/backgrounds";
+import { STATIC_BACKGROUNDS, STATIC_VIDEOS } from "@/data/backgrounds";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import surahsData from "@/data/surahs.json";
 import { VideoPreview } from "@/components/VideoPreview";
@@ -46,15 +45,10 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
   });
 
   // Background search states
-  const [bgMode, setBgMode] = useState<"library" | "search">("library");
-  const [searchType, setSearchType] = useState<"images" | "videos">("images");
-  const [search, setSearch] = useState("");
+  const [bgMode, setBgMode] = useState<"library" | "videos">("library");
   const [librarySearch, setLibrarySearch] = useState("");
   const [libraryCategory, setLibraryCategory] = useState("الكل");
-  const [query, setQuery] = useState("");
-  const { media, loading } = usePexelsBackgrounds(query, bgMode === "search" ? searchType : "both");
 
-  const isSearchLocked = isFeatureLocked("search");
   const isVideoLocked = isFeatureLocked("video_bg");
 
   const categories = ["الكل", "مساجد", "بحار", "جبال", "غابات", "الثلج", "غروب", "سماء"];
@@ -80,7 +74,8 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
 
   const filteredLibrary = useMemo(() => {
     const normalizedSearch = normalizeForSearch(librarySearch);
-    return STATIC_BACKGROUNDS.filter(item => {
+    const sourceList = bgMode === "library" ? STATIC_BACKGROUNDS : STATIC_VIDEOS;
+    return sourceList.filter(item => {
       const itemTags = item.tags?.map(t => normalizeForSearch(t)) || [];
       const matchesCategory = libraryCategory === "الكل" || 
         item.tags?.some(tag => categoryMap[libraryCategory].some(catTag => normalizeForSearch(tag).includes(normalizeForSearch(catTag))));
@@ -88,9 +83,9 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
       const matchesSearch = !librarySearch || itemTags.some(tag => tag.includes(normalizedSearch));
       return matchesCategory && matchesSearch;
     });
-  }, [libraryCategory, librarySearch]);
+  }, [libraryCategory, librarySearch, bgMode]);
 
-  const displayMedia = bgMode === "library" ? filteredLibrary : (media.length > 0 ? media : STATIC_BACKGROUNDS);
+  const displayMedia = filteredLibrary;
 
   const videoReciters = useMemo(() => {
     return RECITERS.filter(r => !!r.everyAyahFolder);
@@ -258,88 +253,46 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                     المكتبة الذكية
                   </button>
                   <button
-                    onClick={() => !isSearchLocked && setBgMode("search")}
+                    onClick={() => setBgMode("videos")}
                     className={`flex-1 py-2 text-[10px] font-black rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                      bgMode === "search" ? "bg-primary text-black shadow-md" : "text-white/40 hover:text-white/70"
-                    } ${isSearchLocked ? 'opacity-40 cursor-not-allowed' : ''}`}
+                      bgMode === "videos" ? "bg-primary text-black shadow-md" : "text-white/40 hover:text-white/70"
+                    }`}
                   >
-                    {isSearchLocked && <Lock className="w-2.5 h-2.5" />}
-                    بحث Pexels
+                    فيديوهات
                   </button>
                 </div>
 
-                {bgMode === "library" && (
-                  <div className="flex flex-col gap-4">
-                    <div className="relative">
-                      <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 w-3.5 h-3.5" />
-                      <input
-                        value={librarySearch}
-                        onChange={(e) => setLibrarySearch(e.target.value)}
-                        placeholder="ابحث في التصنيفات..."
-                        className="w-full rounded-xl bg-white/5 border border-white/10 pr-9 pl-4 py-2 text-[11px] text-white outline-none focus:border-primary/40 transition-all font-arabic"
-                      />
-                    </div>
-                    {/* Category List */}
-                    <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
-                      {categories.map(cat => (
-                        <button
-                          key={cat}
-                          onClick={() => setLibraryCategory(cat)}
-                          className={`px-3 py-1 rounded-full text-[9px] font-black whitespace-nowrap transition-all border ${
-                            libraryCategory === cat 
-                              ? 'bg-primary/20 text-primary border-primary/30' 
-                              : 'bg-white/5 text-white/40 border-transparent hover:border-white/10'
-                          }`}
-                        >
-                          {cat}
-                        </button>
-                      ))}
-                    </div>
+                <div className="flex flex-col gap-4">
+                  <div className="relative">
+                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 w-3.5 h-3.5" />
+                    <input
+                      value={librarySearch}
+                      onChange={(e) => setLibrarySearch(e.target.value)}
+                      placeholder="ابحث في التصنيفات..."
+                      className="w-full rounded-xl bg-white/5 border border-white/10 pr-9 pl-4 py-2 text-[11px] text-white outline-none focus:border-primary/40 transition-all font-arabic"
+                    />
                   </div>
-                )}
-
-                {bgMode === "search" && (
-                  <div className="flex flex-col gap-3">
-                    <div className="flex gap-1 bg-white/5 p-0.5 rounded-lg border border-white/5">
-                      <button 
-                        onClick={() => setSearchType("images")}
-                        className={`flex-1 py-1 text-[9px] font-bold rounded ${searchType === "images" ? "bg-primary text-black" : "text-white/40"}`}
-                      >
-                        صور
-                      </button>
-                      <button 
-                        onClick={() => setSearchType("videos")}
-                        className={`flex-1 py-1 text-[9px] font-bold rounded ${searchType === "videos" ? "bg-primary text-black" : "text-white/40"}`}
-                      >
-                        فيديو
-                      </button>
-                    </div>
-                    <div className="flex gap-2">
-                      <input
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && setQuery(search)}
-                        placeholder="ابحث بالإنجليزية (sky, nature)..."
-                        className="flex-1 rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-[11px] text-white outline-none focus:border-primary/40 transition-all"
-                      />
+                  {/* Category List */}
+                  <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                    {categories.map(cat => (
                       <button
-                        onClick={() => setQuery(search)}
-                        className="bg-primary text-black px-4 rounded-xl font-black text-[10px]"
+                        key={cat}
+                        onClick={() => setLibraryCategory(cat)}
+                        className={`px-3 py-1 rounded-full text-[9px] font-black whitespace-nowrap transition-all border ${
+                          libraryCategory === cat 
+                            ? 'bg-primary/20 text-primary border-primary/30' 
+                            : 'bg-white/5 text-white/40 border-transparent hover:border-white/10'
+                        }`}
                       >
-                        ابحث
+                        {cat}
                       </button>
-                    </div>
+                    ))}
                   </div>
-                )}
+                </div>
 
                 {/* Media Grid */}
                 <div className="grid grid-cols-2 gap-2 mt-2">
-                  {loading && bgMode === "search" ? (
-                    <div className="col-span-2 py-10 flex flex-col items-center justify-center gap-2">
-                      <Loader2 className="w-5 h-5 text-primary animate-spin" />
-                      <span className="text-[9px] font-black text-white/40">جاري البحث...</span>
-                    </div>
-                  ) : displayMedia.length === 0 ? (
+                  {displayMedia.length === 0 ? (
                     <div className="col-span-2 py-10 text-center text-white/30 text-[10px]">
                       لا توجد نتائج مطابقة
                     </div>
@@ -384,6 +337,12 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                           <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded bg-black/60 px-1.5 py-0.5 text-[8px] font-bold text-white border border-white/5">
                             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                             <span>متحرك</span>
+                          </div>
+                        )}
+
+                        {item.type === 'video' && isVideoLocked && (
+                          <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-black/60 flex items-center justify-center text-white">
+                            <Lock className="w-2.5 h-2.5" />
                           </div>
                         )}
                       </button>

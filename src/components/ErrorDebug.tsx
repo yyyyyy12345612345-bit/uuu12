@@ -8,7 +8,29 @@ export function ErrorDebug() {
   useEffect(() => {
     const orig = console.error;
     console.error = (...args: any[]) => {
-      setErrors(prev => [args.map(a => typeof a === "object" ? JSON.stringify(a).slice(0, 200) : String(a)).join(" "), ...prev].slice(0, 20));
+      setErrors(prev => {
+        const msg = args.map(a => {
+          if (typeof a === "object" && a !== null) {
+            try {
+              if (a instanceof Error) {
+                return `${a.name}: ${a.message}`;
+              }
+              if (a.nativeEvent || a.target || a.srcElement) {
+                return `[Event/Element]`;
+              }
+              return JSON.stringify(a).slice(0, 200);
+            } catch {
+              try {
+                return Object.prototype.toString.call(a);
+              } catch {
+                return "[Unserializable]";
+              }
+            }
+          }
+          return String(a);
+        }).join(" ");
+        return [msg, ...prev].slice(0, 20);
+      });
       orig.apply(console, args);
     };
     window.addEventListener("error", (e) => {
