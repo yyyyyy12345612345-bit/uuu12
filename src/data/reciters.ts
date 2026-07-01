@@ -10,12 +10,21 @@ export interface Reciter {
 
 export const RECITERS: Reciter[] = [
   {
-    "id": "afasy",
-    "name": "مشاري العفاسي",
-    "folder": "afs",
-    "mp3quranServer": "server8.mp3quran.net/afs",
-    "everyAyahFolder": "Alafasy_128kbps",
-    "quranComId": 7,
+    "id": "minsh_murattal",
+    "name": "محمد صديق المنشاوي (مرتل)",
+    "folder": "minsh",
+    "mp3quranServer": "server10.mp3quran.net/minsh",
+    "everyAyahFolder": "Minshawy_Murattal_128kbps",
+    "quranComId": 9,
+    "isPremiumSync": true
+  },
+  {
+    "id": "minsh_mujawwad",
+    "name": "محمد صديق المنشاوي (مجود)",
+    "folder": "minsh_mjwd",
+    "mp3quranServer": "server10.mp3quran.net/minsh/Almusshaf-Al-Mojawwad",
+    "everyAyahFolder": "Minshawy_Mujawwad_192kbps",
+    "quranComId": 8,
     "isPremiumSync": true
   },
   {
@@ -34,6 +43,40 @@ export const RECITERS: Reciter[] = [
     "mp3quranServer": "server7.mp3quran.net/basit/Almusshaf-Al-Mojawwad",
     "everyAyahFolder": "Abdul_Basit_Mujawwad_128kbps",
     "quranComId": 1,
+    "isPremiumSync": true
+  },
+  {
+    "id": "husr_murattal",
+    "name": "محمود خليل الحصري (مرتل)",
+    "folder": "husr",
+    "mp3quranServer": "server13.mp3quran.net/husr",
+    "everyAyahFolder": "Husary_128kbps",
+    "quranComId": 6,
+    "isPremiumSync": true
+  },
+  {
+    "id": "husr_mujawwad",
+    "name": "محمود خليل الحصري (مجود)",
+    "folder": "husr_mjwd",
+    "mp3quranServer": "server13.mp3quran.net/husr/Almusshaf-Al-Mojawwad",
+    "everyAyahFolder": "Husary_Mujawwad_64kbps",
+    "quranComId": 12,
+    "isPremiumSync": true
+  },
+  {
+    "id": "yasser",
+    "name": "ياسر الدوسري",
+    "folder": "yasser",
+    "mp3quranServer": "server11.mp3quran.net/yasser",
+    "everyAyahFolder": "Yasser_Ad-Dussary_128kbps"
+  },
+  {
+    "id": "afasy",
+    "name": "مشاري العفاسي",
+    "folder": "afs",
+    "mp3quranServer": "server8.mp3quran.net/afs",
+    "everyAyahFolder": "Alafasy_128kbps",
+    "quranComId": 7,
     "isPremiumSync": true
   },
   {
@@ -73,48 +116,12 @@ export const RECITERS: Reciter[] = [
     "isPremiumSync": true
   },
   {
-    "id": "minsh_murattal",
-    "name": "محمد صديق المنشاوي (مرتل)",
-    "folder": "minsh",
-    "mp3quranServer": "server10.mp3quran.net/minsh",
-    "everyAyahFolder": "Minshawy_Murattal_128kbps",
-    "quranComId": 9,
-    "isPremiumSync": true
-  },
-  {
-    "id": "minsh_mujawwad",
-    "name": "محمد صديق المنشاوي (مجود)",
-    "folder": "minsh_mjwd",
-    "mp3quranServer": "server10.mp3quran.net/minsh/Almusshaf-Al-Mojawwad",
-    "everyAyahFolder": "Minshawy_Mujawwad_192kbps",
-    "quranComId": 8,
-    "isPremiumSync": true
-  },
-  {
     "id": "bahtimi",
     "name": "كامل يوسف البهتيمي",
     "folder": "bahtimi",
     "mp3quranServer": "https://archive.org/download/kamel-al-bahtimi",
     "everyAyahFolder": "Minshawy_Mujawwad_192kbps",
     "isPremiumSync": false
-  },
-  {
-    "id": "husr_murattal",
-    "name": "محمود خليل الحصري (مرتل)",
-    "folder": "husr",
-    "mp3quranServer": "server13.mp3quran.net/husr",
-    "everyAyahFolder": "Husary_128kbps",
-    "quranComId": 6,
-    "isPremiumSync": true
-  },
-  {
-    "id": "husr_mujawwad",
-    "name": "محمود خليل الحصري (مجود)",
-    "folder": "husr_mjwd",
-    "mp3quranServer": "server13.mp3quran.net/husr/Almusshaf-Al-Mojawwad",
-    "everyAyahFolder": "Husary_Mujawwad_64kbps",
-    "quranComId": 12,
-    "isPremiumSync": true
   },
   {
     "id": "maher",
@@ -150,13 +157,6 @@ export const RECITERS: Reciter[] = [
     "folder": "ajm",
     "mp3quranServer": "server10.mp3quran.net/ajm",
     "everyAyahFolder": "Ahmed_ibn_Ali_al-Ajamy_128kbps_ketaballah.net"
-  },
-  {
-    "id": "yasser",
-    "name": "ياسر الدوسري",
-    "folder": "yasser",
-    "mp3quranServer": "server11.mp3quran.net/yasser",
-    "everyAyahFolder": "Yasser_Ad-Dussary_128kbps"
   },
   {
     "id": "abkr",
@@ -1442,7 +1442,7 @@ export const SHEIKH_ASSETS: Record<string, SheikhAsset> = {
     id: "minsh",
     nameAr: "الشيخ محمد صديق المنشاوي",
     nameEn: "Mohammad Siddiq Al-Minshawi",
-    photoUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8Side_filgf2.jpg",
+    photoUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg",
     calligraphyUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782885918/%D8%AA%D9%88%D9%82%D9%8A%D8%B9_%D8%A7%D9%84%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8Side_u3ytsf.png"
   },
   yasser: {

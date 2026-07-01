@@ -33,7 +33,7 @@ const SHEIKH_ASSETS = {
     id: "minsh",
     nameAr: "الشيخ محمد صديق المنشاوي",
     nameEn: "Mohammad Siddiq Al-Minshawi",
-    photoUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8Side_filgf2.jpg",
+    photoUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg",
     calligraphyUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782885918/%D8%AA%D9%88%D9%82%D9%8A%D8%B9_%D8%A7%D9%84%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8Side_u3ytsf.png"
   },
   yasser: {
@@ -851,18 +851,30 @@ async function startRender(jobId, data) {
 
     if (isPlayerTemplate) {
       const sheikh = getSheikhAsset(data.reciterId);
-      await downloadFile(sheikh.photoUrl, photoPath);
+      try {
+        await downloadFile(sheikh.photoUrl, photoPath);
+      } catch (e) {
+        console.warn("Failed to download sheikh photo:", e.message);
+      }
       if (isBasitPlayer && sheikh.calligraphyUrl) {
-        await downloadFile(sheikh.calligraphyUrl, calligraphyPath);
+        try {
+          await downloadFile(sheikh.calligraphyUrl, calligraphyPath);
+        } catch (e) {
+          console.warn("Failed to download sheikh calligraphy:", e.message);
+        }
       }
       if (isDossaryPlayer) {
-        await downloadFile("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782871516/12_gahaqi.png", dossaryBgPath);
+        try {
+          await downloadFile("https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782871516/12_gahaqi.png", dossaryBgPath);
+        } catch (e) {
+          console.warn("Failed to download dossary background:", e.message);
+        }
       }
     }
 
-    const templatePhotoBase64 = isPlayerTemplate ? fs.readFileSync(photoPath).toString("base64") : "";
+    const templatePhotoBase64 = (isPlayerTemplate && fs.existsSync(photoPath)) ? fs.readFileSync(photoPath).toString("base64") : "";
     const calligraphyBase64 = (isBasitPlayer && fs.existsSync(calligraphyPath)) ? fs.readFileSync(calligraphyPath).toString("base64") : "";
-    const dossaryBgBase64 = isDossaryPlayer ? fs.readFileSync(dossaryBgPath).toString("base64") : "";
+    const dossaryBgBase64 = (isDossaryPlayer && fs.existsSync(dossaryBgPath)) ? fs.readFileSync(dossaryBgPath).toString("base64") : "";
 
     let naskhBase64 = null;
     if (isDossaryPlayer || isBasitPlayer) {
