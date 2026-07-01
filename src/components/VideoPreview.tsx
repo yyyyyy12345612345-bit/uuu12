@@ -48,25 +48,15 @@ const getFilterCSS = (filter?: string): string => {
   return map[filter || "none"] || "none";
 };
 
-const wrapTextHelper = (text: string, fontSize: number, maxWidth: number) => {
+const wrapTextHelper = (text: string, _fontSize: number, _maxWidth: number) => {
   if (!text) return [];
-  const hasHarakat = /[\u064B-\u065F]/.test(text);
-  const ratio = hasHarakat ? 0.45 : 0.40;
-  const charWidth = fontSize * ratio;
-  const maxChars = Math.max(20, Math.floor((maxWidth * 1.6) / charWidth));
   const words = text.split(/\s+/).filter(Boolean);
-  const lines = [];
-  let current = "";
-  for (const word of words) {
-    const candidate = current ? `${current} ${word}` : word;
-    if (candidate.length > maxChars && current) {
-      lines.push(current.trim());
-      current = word;
-    } else {
-      current = candidate;
-    }
+  if (words.length <= 4) return [text];
+  const wordsPerLine = 4;
+  const lines: string[] = [];
+  for (let i = 0; i < words.length; i += wordsPerLine) {
+    lines.push(words.slice(i, i + wordsPerLine).join(" "));
   }
-  if (current.trim()) lines.push(current.trim());
   return lines;
 };
 
