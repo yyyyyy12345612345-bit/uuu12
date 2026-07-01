@@ -422,8 +422,8 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
               <div className="grid grid-cols-1 gap-3">
                 {[
                   { id: "default", label: "التصميم الافتراضي", desc: "آيات مع ترجمة منسقة", icon: Type },
-                  { id: "minshawi_player", label: "تصميم المنشاوي", desc: "مشغل المنشاوي المخصص", icon: Sparkles },
-                  { id: "dossary_player", label: "تصميم الدوسري", desc: "مشغل الدوسري المخصص", icon: Sparkles }
+                  { id: "minshawi_player", label: "تصميم زياد", desc: "مشغل زياد المخصص", icon: Sparkles },
+                  { id: "dossary_player", label: "تصميم 2", desc: "مشغل 2 المخصص", icon: Sparkles }
                 ].map((t) => (
                   <button
                     key={t.id}
@@ -1134,8 +1134,8 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
               
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { id: "minshawi_player", name: "تصميم المنشاوي", active: state.videoTemplate === "minshawi_player", img: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg" },
-                  { id: "dossary_player", name: "تصميم الدوسري", active: state.videoTemplate === "dossary_player", img: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782863138/Sheikh_Yasser_Al_Dosari_qm0gsf.jpg" },
+                  { id: "minshawi_player", name: "تصميم زياد", active: state.videoTemplate === "minshawi_player", img: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg" },
+                  { id: "dossary_player", name: "تصميم 2", active: state.videoTemplate === "dossary_player", img: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782863138/Sheikh_Yasser_Al_Dosari_qm0gsf.jpg" },
                   { id: "default", name: "كلاسيك", active: state.videoTemplate === "default" || !state.videoTemplate, img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=200&h=150&q=80" }
                 ].map((temp) => (
                   <button
