@@ -966,7 +966,7 @@ async function startRender(jobId, data) {
       setProgress(35, "توليد إطارات مشغل الشيخ المخصص...");
       // Dossary template has no animations (1 FPS is enough). Minshawi template updates at 2 FPS (0.5s).
       const isMinshawi = videoTemplate === "minshawi_player";
-      const interval = isMinshawi ? audioTotal : (videoTemplate === "dossary_player" ? 1.0 : 0.5);
+      const interval = (isMinshawi || videoTemplate === "dossary_player") ? 1.0 : 0.5;
       let elapsed = 0;
       let frameIndex = 0;
 
