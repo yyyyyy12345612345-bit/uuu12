@@ -1075,15 +1075,7 @@ async function startRender(jobId, data) {
     let ffmpegCmd;
     if (isVideoBg) {
       // === فيديو الخلفية ===
-      let hasAudio = false;
-      try {
-        const { stdout } = await execAsync(`ffprobe -v error -select_streams a -show_entries stream=codec_type -of csv=p=0 "${sl(bgPath)}"`);
-        if (stdout.trim().includes("audio")) {
-          hasAudio = true;
-        }
-      } catch (e) {
-        console.warn("Failed to probe video audio stream:", e.message);
-      }
+      let hasAudio = false; // تعطيل دمج صوت الخلفية لتجنب مشاكل وتوقف رندر ffmpeg أثناء التكرار
 
       const bgProcessedPath = path.resolve(tempDir, "bg_processed.mp4");
       setProgress(75, "جاري تهيئة فيديو الخلفية بمقاس الهاتف...");
