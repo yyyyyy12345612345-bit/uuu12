@@ -1807,20 +1807,45 @@ export function AdminPanel() {
   // ==============================
   if (!isAdmin) {
     return (
-      <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-[#0b0f1a]">
+      <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-slate-100 admin-light-mode font-['Tajawal']">
+        <style>{`
+          .admin-light-mode {
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
+          }
+          .admin-light-mode form {
+            background-color: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+          }
+          .admin-light-mode h2 {
+            color: #0f172a !important;
+          }
+          .admin-light-mode p {
+            color: #64748b !important;
+          }
+          .admin-light-mode input {
+            background-color: #ffffff !important;
+            border: 1px solid #cbd5e1 !important;
+            color: #0f172a !important;
+          }
+          .admin-light-mode input:focus {
+            border-color: #fbbf24 !important;
+          }
+        `}</style>
         <div className="absolute top-1/4 -left-1/4 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(245,158,11,0.06)_0%,transparent_70%)] rounded-full pointer-events-none" />
         <div className="absolute bottom-1/4 -right-1/4 w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(20,184,166,0.04)_0%,transparent_70%)] rounded-full pointer-events-none" />
-        <form onSubmit={handleAdminLogin} className="relative w-full max-w-sm space-y-5 rounded-3xl border border-white/[0.06] bg-[rgba(255,255,255,0.02)] backdrop-blur-2xl p-8 shadow-2xl text-center">
+        <form onSubmit={handleAdminLogin} className="relative w-full max-w-sm space-y-5 rounded-3xl p-8 text-center">
           <div className="w-16 h-16 mx-auto rounded-2xl bg-[#fbbf24]/10 flex items-center justify-center border border-[#fbbf24]/20">
             <ShieldCheck className="w-8 h-8 text-[#fbbf24]" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-black text-white/90">مركز التحكم</h2>
-            <p className="text-xs text-white/30 font-bold">سجل دخول بحساب الإدارة</p>
+            <h2 className="text-2xl font-black">مركز التحكم</h2>
+            <p className="text-xs font-bold">سجل دخول بحساب الإدارة</p>
           </div>
           <div className="space-y-3 text-right">
-            <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-white/5 border border-white/10 p-3.5 rounded-2xl outline-none text-sm text-white placeholder:text-white/20 text-right" placeholder="البريد الإلكتروني" />
-            <input type="password" required value={password} onChange={e => setPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 p-3.5 rounded-2xl outline-none text-sm text-white placeholder:text-white/20 text-right" placeholder="كلمة المرور" />
+            <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="w-full p-3.5 rounded-2xl outline-none text-sm text-right" placeholder="البريد الإلكتروني" />
+            <input type="password" required value={password} onChange={e => setPassword(e.target.value)} className="w-full p-3.5 rounded-2xl outline-none text-sm text-right" placeholder="كلمة المرور" />
           </div>
           <button type="submit" disabled={isLoggingIn} className="w-full py-3.5 bg-[#fbbf24] text-black rounded-2xl font-black text-sm hover:brightness-110 transition shadow-lg shadow-[#fbbf24]/20 disabled:opacity-50">
             {isLoggingIn ? <Loader2 className="inline-block w-5 h-5 animate-spin" /> : 'دخول'}
@@ -1835,7 +1860,188 @@ export function AdminPanel() {
   // MAIN LAYOUT
   // ==============================
   return (
-    <div className="relative min-h-screen w-full bg-[#05070c] text-white font-arabic overflow-hidden">
+    <div className="relative min-h-screen w-full bg-slate-50 text-slate-800 font-arabic overflow-hidden admin-light-mode font-['Tajawal']">
+      <style>{`
+        /* --- Root Light Mode Overrides --- */
+        .admin-light-mode {
+          background-color: #f8fafc !important; /* bg-slate-50 */
+          color: #0f172a !important; /* text-slate-900 */
+        }
+        
+        /* Sidebar Styling */
+        .admin-light-mode aside {
+          background-color: #ffffff !important;
+          border-left: 1px solid #e2e8f0 !important;
+          box-shadow: -2px 0 10px rgba(0, 0, 0, 0.02) !important;
+        }
+        .admin-light-mode aside * {
+          color: #334155 !important;
+        }
+        .admin-light-mode aside div {
+          border-color: #e2e8f0 !important;
+        }
+        .admin-light-mode aside button:hover {
+          background-color: #f1f5f9 !important;
+        }
+        .admin-light-mode aside button.bg-white\\/5 {
+          background-color: #f1f5f9 !important;
+          color: #0f172a !important;
+        }
+        /* Active nav item */
+        .admin-light-mode aside button.bg-\\[\\#fbbf24\\]\\/10 {
+          background-color: #fbbf24 !important;
+          color: #000000 !important;
+        }
+        .admin-light-mode aside button.bg-\\[\\#fbbf24\\]\\/10 * {
+          color: #000000 !important;
+        }
+
+        /* Cards & Container Modules */
+        .admin-light-mode .admin-stagger-card,
+        .admin-light-mode .rounded-2xl,
+        .admin-light-mode .rounded-3xl,
+        .admin-light-mode .bg-\\[rgba\\(255\\,255\\,255\\,0\\.02\\)\\] {
+          background-color: #ffffff !important;
+          border-color: #e2e8f0 !important;
+          color: #1e293b !important;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        /* Sub-tab navigation bar */
+        .admin-light-mode .bg-white\\/\\[0\\.02\\] {
+          background-color: #f1f5f9 !important;
+          border-color: #cbd5e1 !important;
+        }
+        .admin-light-mode .bg-white\\/\\[0\\.02\\] button {
+          color: #475569 !important;
+        }
+        .admin-light-mode .bg-white\\/\\[0\\.02\\] button.bg-\\[\\#fbbf24\\] {
+          background-color: #fbbf24 !important;
+          color: #000000 !important;
+        }
+
+        /* Typographic elements */
+        .admin-light-mode h2,
+        .admin-light-mode h3,
+        .admin-light-mode h4,
+        .admin-light-mode th {
+          color: #0f172a !important;
+        }
+        .admin-light-mode p,
+        .admin-light-mode span,
+        .admin-light-mode td,
+        .admin-light-mode label {
+          color: #334155 !important;
+        }
+        .admin-light-mode .text-white,
+        .admin-light-mode .text-white\\/90,
+        .admin-light-mode .text-white\\/80,
+        .admin-light-mode .text-white\\/70,
+        .admin-light-mode .text-white\\/60 {
+          color: #1e293b !important;
+        }
+        .admin-light-mode .text-white\\/40,
+        .admin-light-mode .text-white\\/30,
+        .admin-light-mode .text-white\\/20 {
+          color: #64748b !important; /* Slate-500 */
+        }
+        .admin-light-mode .text-emerald-400 {
+          color: #059669 !important; /* Emerald-600 */
+        }
+        .admin-light-mode .text-red-400 {
+          color: #dc2626 !important; /* Red-600 */
+        }
+        .admin-light-mode .text-sky-400 {
+          color: #0284c7 !important; /* Sky-600 */
+        }
+        .admin-light-mode .text-purple-400 {
+          color: #7c3aed !important; /* Purple-600 */
+        }
+
+        /* Inputs, selects, and textareas */
+        .admin-light-mode input,
+        .admin-light-mode textarea,
+        .admin-light-mode select {
+          background-color: #ffffff !important;
+          border: 1px solid #cbd5e1 !important;
+          color: #0f172a !important;
+        }
+        .admin-light-mode input::placeholder,
+        .admin-light-mode textarea::placeholder {
+          color: #94a3b8 !important;
+        }
+        .admin-light-mode input:focus,
+        .admin-light-mode textarea:focus,
+        .admin-light-mode select:focus {
+          border-color: #fbbf24 !important;
+        }
+
+        /* Specialized card content */
+        .admin-light-mode .bg-white\\/\\[0\\.01\\],
+        .admin-light-mode .bg-white\\/5 {
+          background-color: #f8fafc !important;
+          border-color: #e2e8f0 !important;
+        }
+        .admin-light-mode .border-white\\/5,
+        .admin-light-mode .border-white\\/10,
+        .admin-light-mode .border-white\\/\\[0\\.06\\],
+        .admin-light-mode .border-white\\/\\[0\\.04\\],
+        .admin-light-mode .border-white\\/\\[0\\.03\\] {
+          border-color: #e2e8f0 !important;
+        }
+        .admin-light-mode .divide-white\\/5 > :not([hidden]) ~ :not([hidden]) {
+          border-color: #e2e8f0 !important;
+        }
+
+        /* Tables & Lists */
+        .admin-light-mode table {
+          background-color: #ffffff !important;
+        }
+        .admin-light-mode tr:hover {
+          background-color: #f8fafc !important;
+        }
+        .admin-light-mode tr {
+          border-color: #e2e8f0 !important;
+        }
+
+        /* Modals and overlay dialogs */
+        .admin-light-mode .bg-\\[\\#0c0d10\\],
+        .admin-light-mode .bg-\\[\\#0d111d\\],
+        .admin-light-mode .bg-black\\/80,
+        .admin-light-mode .bg-black\\/90 {
+          background-color: rgba(255, 255, 255, 0.95) !important;
+          border-color: #cbd5e1 !important;
+          color: #0f172a !important;
+        }
+
+        /* Badges */
+        .admin-light-mode .bg-purple-500\\/5 {
+          background-color: #faf5ff !important;
+          border-color: #f3e8ff !important;
+        }
+        .admin-light-mode .bg-\\[\\#fbbf24\\]\\/5 {
+          background-color: #fffbeb !important;
+          border-color: #fef3c7 !important;
+        }
+        .admin-light-mode .bg-sky-500\\/5 {
+          background-color: #f0f9ff !important;
+          border-color: #e0f2fe !important;
+        }
+
+        /* SVGs and Icons */
+        .admin-light-mode svg {
+          color: #64748b !important; /* slate-500 */
+        }
+        .admin-light-mode button svg,
+        .admin-light-mode a svg,
+        .admin-light-mode .bg-\\[\\#fbbf24\\] svg,
+        .admin-light-mode .text-sky-400 svg,
+        .admin-light-mode .text-emerald-400 svg,
+        .admin-light-mode .text-red-400 svg,
+        .admin-light-mode .text-[#fbbf24] svg {
+          color: inherit !important;
+        }
+      `}</style>
       {/* Main Dashboard Layout */}
       <div className="h-screen w-full flex overflow-hidden">
       {/* Sidebar Overlay for Mobile */}
