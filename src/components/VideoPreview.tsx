@@ -484,12 +484,12 @@ export function VideoPreview() {
         className={`absolute inset-0 rounded-[3rem] border-[8px] border-[#0A0A0A] shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden transition-colors duration-500 ${
           state.videoTemplate === "dossary_player" ? "bg-gradient-to-b from-zinc-950 via-zinc-900 to-black" : ""
         }`} 
-        style={{ backgroundColor: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player") ? "#000000" : "#0c0d10" }}
+        style={{ backgroundColor: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player" || state.videoTemplate === "basit_player") ? "#000000" : "#0c0d10" }}
       >
         
         {/* Background Media */}
         <div className="absolute inset-0 z-0 bg-black">
-          {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" ? (
+          {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "basit_player" ? (
             state.backgroundUrl ? (
               isVideoUrl(state.backgroundUrl) ? (
                 <video
@@ -522,6 +522,14 @@ export function VideoPreview() {
                 <div 
                   className="absolute top-[29.69%] bottom-[29.69%] left-0 right-0 bg-cover bg-center z-10"
                   style={{ backgroundImage: `url(https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782871516/12_gahaqi.png)` }}
+                />
+                <div className="absolute bottom-0 left-0 right-0 h-[29.69%] bg-black z-10" />
+              </>
+            ) : state.videoTemplate === "basit_player" ? (
+              <>
+                <div className="absolute top-0 left-0 right-0 h-[29.69%] bg-black z-10" />
+                <div 
+                  className="absolute top-[29.69%] bottom-[29.69%] left-0 right-0 bg-[#c5beb8] z-10"
                 />
                 <div className="absolute bottom-0 left-0 right-0 h-[29.69%] bg-black z-10" />
               </>
@@ -738,7 +746,7 @@ export function VideoPreview() {
         </div>
 
         {/* Static Surah Header pinned to top */}
-        {surahData && (
+        {surahData && state.videoTemplate !== "basit_player" && (
           <div className="absolute top-16 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 pointer-events-none">
             <div className="px-5 py-2 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-xl flex items-center gap-3 shadow-lg">
                 <BookOpen className="w-3.5 h-3.5 text-primary animate-pulse" />
@@ -753,8 +761,17 @@ export function VideoPreview() {
           </div>
         )}
 
+        {/* Custom Surah name for basit_player in bottom black section */}
+        {state.videoTemplate === "basit_player" && surahData && (
+          <div className="absolute bottom-[13%] left-0 right-0 flex justify-center z-30 pointer-events-none">
+            <span className="text-[25px] font-bold text-white tracking-wide" style={{ fontFamily: '"Noto Naskh Arabic", Amiri, serif' }}>
+              {surahData.name}
+            </span>
+          </div>
+        )}
+
         {/* Verse Number (Bottom) */}
-        {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && surahData && currentVerse && (
+        {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "basit_player" && surahData && currentVerse && (
           <div className="absolute bottom-[14%] left-0 right-0 flex justify-center z-30 pointer-events-none">
             <span className="text-[22px] font-bold text-primary drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" style={{ fontFamily: 'Amiri, serif' }}>
               {(() => {
@@ -1152,138 +1169,129 @@ export function VideoPreview() {
               </div>
             </div>
           ) : (state.videoTemplate as any) === "basit_player" ? (
-            <div className="w-[85%] aspect-[500/340] bg-black/65 backdrop-blur-md rounded-[2.5rem] p-6 flex flex-row items-center justify-between gap-6 shadow-2xl z-20 select-none animate-in fade-in duration-500 border border-white/10" dir="ltr">
-              {/* Left Side: Photo & Calligraphy */}
-              <div className="w-[42%] flex flex-col items-center gap-3 shrink-0">
-                <div 
-                  className="w-full aspect-[1/1.15] overflow-hidden bg-black border-[3px] border-white shadow-[0_0_20px_rgba(255,255,255,0.4)]"
-                  style={{ borderRadius: "2rem" }}
-                >
-                  <img
-                    src={getSheikhAsset(state.reciterId).photoUrl}
-                    alt={getSheikhAsset(state.reciterId).nameAr}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                {getSheikhAsset(state.reciterId).calligraphyUrl && (
-                  <img
-                    src={getSheikhAsset(state.reciterId).calligraphyUrl}
-                    alt=""
-                    className="h-10 object-contain invert brightness-[2]"
-                  />
-                )}
+            <div className="absolute top-[29.69%] bottom-[29.69%] left-0 right-0 z-20 flex flex-col justify-between py-8 px-8 select-none" dir="ltr">
+              {/* Photo - Horizontal Oval */}
+              <div className="w-[58%] aspect-[1.38] rounded-full overflow-hidden shadow-[0_4px_15px_rgba(0,0,0,0.15)] mx-auto bg-black shrink-0">
+                <img
+                  src={getSheikhAsset(state.reciterId).photoUrl}
+                  alt={getSheikhAsset(state.reciterId).nameAr}
+                  className="w-full h-full object-cover"
+                />
               </div>
 
-              {/* Right Side: Active Verse & Controls */}
-              <div className="flex-1 flex flex-col justify-between py-2 text-right h-full max-w-[53%]">
-                {/* Verse Text */}
-                <div className="flex-1 flex items-center justify-center">
-                  {currentVerse ? (() => {
-                    const lines = wrapTextHelper(currentVerse.text, Math.max(14, previewFontSize * 0.58), 160);
-                    const progress = duration > 0 ? (currentTime / duration) : 0;
-                    const activeLineIdx = Math.min(lines.length - 1, Math.floor(progress * lines.length));
-                    const activeLineText = lines[activeLineIdx] || currentVerse.text;
-                    return (
-                      <p
-                        className="text-white text-center w-full break-words leading-[1.8] drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] font-arabic"
-                        style={{
-                          fontSize: `${Math.max(14, previewFontSize * 0.58)}px`,
-                          fontFamily: '"Noto Naskh Arabic", serif',
-                          direction: 'rtl',
-                        }}
-                      >
-                        {activeLineText}
-                      </p>
-                    );
-                  })() : (
-                    <p className="text-white/40 text-sm font-arabic">لم يتم تحديد آية</p>
-                  )}
-                </div>
+              {/* Progress Bar (scrubber) */}
+              <div className="w-[75%] mx-auto mt-4 shrink-0">
+                <div 
+                  className="w-full h-[2.5px] bg-black/20 rounded-full relative cursor-pointer" 
+                  onClick={(e) => {
+                    if (audioRef.current && totalSelectedDuration > 0 && surahData) {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const clickX = e.clientX - rect.left;
+                      const pct = clickX / rect.width;
+                      const targetTime = pct * totalSelectedDuration;
 
-                {/* Progress Bar & Controls */}
-                <div className="flex flex-col gap-2 mt-2">
-                  {/* Progress Bar */}
-                  <div className="w-full">
-                    <div className="w-full h-[3px] bg-white/20 rounded-full relative cursor-pointer" onClick={(e) => {
-                      if (audioRef.current && totalSelectedDuration > 0 && surahData) {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        const clickX = e.clientX - rect.left;
-                        const pct = clickX / rect.width;
-                        const targetTime = pct * totalSelectedDuration;
-
-                        const versesInRange = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
-                        let accumulatedTime = 0;
-                        for (let v of versesInRange) {
-                          const vDur = verseDurations[v.id] || 5;
-                          if (targetTime <= accumulatedTime + vDur) {
-                            setCurrentAyahIndex(v.id);
-                            const seekOffset = targetTime - accumulatedTime;
-                            setTimeout(() => {
-                              if (audioRef.current) {
-                                audioRef.current.currentTime = seekOffset;
-                              }
-                            }, 80);
-                            break;
-                          }
-                          accumulatedTime += vDur;
+                      const versesInRange = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
+                      let accumulatedTime = 0;
+                      for (let v of versesInRange) {
+                        const vDur = verseDurations[v.id] || 5;
+                        if (targetTime <= accumulatedTime + vDur) {
+                          setCurrentAyahIndex(v.id);
+                          const seekOffset = targetTime - accumulatedTime;
+                          setTimeout(() => {
+                            if (audioRef.current) {
+                              audioRef.current.currentTime = seekOffset;
+                            }
+                          }, 80);
+                          break;
                         }
+                        accumulatedTime += vDur;
                       }
-                    }}>
-                      <div 
-                        ref={progressBarRef}
-                        className="h-full bg-white rounded-full transition-all duration-75" 
-                        style={{ width: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%` }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-[8px] text-white/50 font-mono mt-1" dir="ltr">
-                      <span ref={progressTextRef}>{formatTime(totalSelectedElapsed)}</span>
-                      <span>{formatTime(totalSelectedDuration)}</span>
-                    </div>
-                  </div>
-
-                  {/* Control Buttons */}
-                  <div className="flex items-center justify-between px-1" dir="ltr">
-                    {/* Heart */}
-                    <button className="text-white/60 hover:text-white transition active:scale-95">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-                    </button>
-
-                    {/* Prev */}
-                    <button 
-                      onClick={() => {
-                        if (audioRef.current) audioRef.current.currentTime = 0;
-                      }}
-                      className="text-white hover:scale-105 transition active:scale-95"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5" stroke="currentColor" strokeWidth="1.6"/></svg>
-                    </button>
-
-                    {/* Play/Pause Button */}
-                    <button 
-                      onClick={togglePlay}
-                      className="w-7 h-7 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 active:scale-95 transition shadow-lg shrink-0"
-                    >
-                      {isPlaying ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/></svg>
-                      ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-                      )}
-                    </button>
-
-                    {/* Next Button */}
-                    <button 
-                      onClick={handleAyahEnd}
-                      className="text-white hover:scale-105 transition active:scale-95"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19" stroke="currentColor" strokeWidth="1.6"/></svg>
-                    </button>
-
-                    {/* Minus Button */}
-                    <button className="text-white/60 hover:text-white transition active:scale-95">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-                    </button>
-                  </div>
+                    }
+                  }}
+                >
+                  <div 
+                    ref={progressBarRef}
+                    className="h-full bg-black rounded-full" 
+                    style={{ width: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%` }}
+                  />
+                  <div 
+                    ref={progressDotRef}
+                    className="w-2.5 h-2.5 bg-black rounded-full absolute -top-1 -ml-1 shadow-sm" 
+                    style={{ left: `${(totalSelectedElapsed / (totalSelectedDuration || 1)) * 100}%` }}
+                  />
                 </div>
+              </div>
+
+              {/* Controls */}
+              <div className="w-[75%] mx-auto flex items-center justify-between mt-3 px-1 text-black shrink-0" dir="ltr">
+                {/* Shuffle */}
+                <button className="text-black/85 hover:text-black transition active:scale-95">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="16 3 21 3 21 8"/>
+                    <line x1="4" y1="20" x2="21" y2="3"/>
+                    <polyline points="21 16 21 21 16 21"/>
+                    <line x1="15" y1="15" x2="21" y2="21"/>
+                    <line x1="4" y1="4" x2="9" y2="9"/>
+                  </svg>
+                </button>
+
+                {/* Prev */}
+                <button 
+                  onClick={() => {
+                    if (audioRef.current) audioRef.current.currentTime = 0;
+                  }}
+                  className="text-black hover:scale-105 transition active:scale-95"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="19 20 9 12 19 4 19 20"/>
+                    <line x1="5" x2="5" y1="19" y2="5" stroke="currentColor" strokeWidth="2.2"/>
+                  </svg>
+                </button>
+
+                {/* Play/Pause */}
+                <button 
+                  onClick={togglePlay}
+                  className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center hover:scale-105 active:scale-95 transition shadow-[0_2px_8px_rgba(0,0,0,0.25)] shrink-0"
+                >
+                  {isPlaying ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                      <rect x="5" y="4" width="4" height="16" rx="1"/>
+                      <rect x="15" y="4" width="4" height="16" rx="1"/>
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5">
+                      <polygon points="6 3 20 12 6 21 6 3"/>
+                    </svg>
+                  )}
+                </button>
+
+                {/* Next */}
+                <button 
+                  onClick={handleAyahEnd}
+                  className="text-black hover:scale-105 transition active:scale-95"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 4 15 12 5 20 5 4"/>
+                    <line x1="19" x2="19" y1="5" y2="19" stroke="currentColor" strokeWidth="2.2"/>
+                  </svg>
+                </button>
+
+                {/* Repeat */}
+                <button className="text-black/85 hover:text-black transition active:scale-95">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="17 1 21 5 17 9"/>
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                    <polyline points="7 23 3 19 7 15"/>
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                  </svg>
+                </button>
+              </div>
+
+              {/* Sheikh English Name */}
+              <div className="w-[85%] mx-auto text-center font-serif mt-2 shrink-0">
+                <p className="text-[12.5px] text-white font-semibold tracking-wide drop-shadow-[0_1px_3px_rgba(0,0,0,0.15)]">
+                  {getSheikhAsset(state.reciterId).nameEn}
+                </p>
               </div>
             </div>
           ) : state.videoTemplate === "minshawi_player" ? (

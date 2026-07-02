@@ -423,7 +423,8 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                 {[
                   { id: "default", label: "التصميم الافتراضي", desc: "آيات مع ترجمة منسقة", icon: Type },
                   { id: "minshawi_player", label: "تصميم زياد", desc: "مشغل زياد المخصص", icon: Sparkles },
-                  { id: "dossary_player", label: "تصميم 2", desc: "مشغل 2 المخصص", icon: Sparkles }
+                  { id: "dossary_player", label: "تصميم 2", desc: "مشغل 2 المخصص", icon: Sparkles },
+                  { id: "basit_player", label: "تصميم 3", desc: "مشغل 3 المخصص", icon: Sparkles }
                 ].map((t) => (
                   <button
                     key={t.id}
@@ -1132,10 +1133,11 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                 </button>
               </div>
               
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 {[
                   { id: "minshawi_player", name: "تصميم زياد", active: state.videoTemplate === "minshawi_player", img: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782848606/%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A_filgf2.jpg" },
                   { id: "dossary_player", name: "تصميم 2", active: state.videoTemplate === "dossary_player", img: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782863138/Sheikh_Yasser_Al_Dosari_qm0gsf.jpg" },
+                  { id: "basit_player", name: "تصميم 3", active: state.videoTemplate === "basit_player", img: "https://images.unsplash.com/photo-1608889175123-8ee362201f81?auto=format&fit=crop&w=200&h=150&q=80" },
                   { id: "default", name: "كلاسيك", active: state.videoTemplate === "default" || !state.videoTemplate, img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=200&h=150&q=80" }
                 ].map((temp) => (
                   <button
@@ -1152,6 +1154,12 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                           videoTemplate: "dossary_player",
                           textColor: "#ffffff",
                           fontFamily: "Noto Naskh Arabic"
+                        });
+                      } else if (temp.id === "basit_player") {
+                        updateState({
+                          videoTemplate: "basit_player",
+                          textColor: "#ffffff",
+                          fontFamily: "Amiri"
                         });
                       } else {
                         updateState({

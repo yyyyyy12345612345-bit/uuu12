@@ -531,109 +531,80 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
       </g>
     `;
   } else if (videoTemplate === "basit_player") {
-    const startAyah = settings.startAyah || 1;
-    const endAyah = settings.endAyah || 1;
     const elapsed = elapsedSeconds || 0;
     const total = totalDuration || 1;
     const progressPct = elapsed / total;
 
-    const formatTime = (secs) => {
-      if (isNaN(secs)) return "0:00";
-      const m = Math.floor(secs / 60);
-      const s = Math.floor(secs % 60);
-      return `${m}:${s < 10 ? '0' : ''}${s}`;
-    };
+    const ovalW = 360;
+    const ovalH = 260;
+    const ovalX = 360;
+    const ovalY = 525;
 
-    const cardW = 612;
-    const cardH = 416;
-    const cardX = (WIDTH - cardW) / 2;
-    const cardY = (HEIGHT - cardH) / 2;
-
-    const photoW = 257;
-    const photoH = 295;
-    const photoX = cardX + 24;
-    const photoY = cardY + 24;
-
-    const calligW = photoW;
-    const calligH = 40;
-    const calligX = photoX;
-    const calligY = photoY + photoH + 12;
-
-    const rightAreaX = photoX + photoW + 20;
-    const rightAreaW = cardW - (photoW + 68);
-    const textCenterX = rightAreaX + rightAreaW / 2;
-
-    const naskhStartY = cardY + 110;
-
-    const verseWords = (verse.text || "").split(/\s+/).filter(Boolean);
-    const wordsPerLine = 4;
-    const verseLines = [];
-    for (let i = 0; i < verseWords.length; i += wordsPerLine) {
-      verseLines.push(verseWords.slice(i, i + wordsPerLine).join(" "));
-    }
-    if (verseLines.length === 0 && verse.text) verseLines.push(verse.text);
-
-    const ayahProg = settings.ayahProgress || 0;
-    const activeLineIdx = Math.min(verseLines.length - 1, Math.floor(ayahProg * verseLines.length));
-    const activeLineText = verseLines[activeLineIdx] || verse.text || "";
-
-    const barWidth = rightAreaW - 20;
-    const progressWidth = barWidth * progressPct;
-    const barX = rightAreaX + 10;
-    const barY = cardY + cardH - 120;
-    const btnY = barY + 30;
+    const barX = 180;
+    const barY = 690;
+    const barW = 360;
+    const ctrlY = 740;
 
     innerContent = `
       <g opacity="${opacity}">
-        <rect x="${cardX}" y="${cardY}" width="${cardW}" height="${cardH}" rx="50" fill="rgba(0, 0, 0, 0.65)" stroke="rgba(255, 255, 255, 0.1)" stroke-width="2" filter="url(#softShadow)" />
-
-        <clipPath id="basitPhotoClip">
-          <rect x="${photoX}" y="${photoY}" width="${photoW}" height="${photoH}" rx="35" />
+        <!-- Oval Clip Path -->
+        <clipPath id="basitOvalClip">
+          <ellipse cx="${ovalX}" cy="${ovalY}" rx="${ovalW / 2}" ry="${ovalH / 2}" />
         </clipPath>
-        <rect x="${photoX}" y="${photoY}" width="${photoW}" height="${photoH}" rx="35" fill="none" stroke="#ffffff" stroke-width="4" filter="url(#whiteGlow)" />
-        <image href="data:image/jpeg;base64,${templatePhotoBase64}" x="${photoX}" y="${photoY}" width="${photoW}" height="${photoH}" preserveAspectRatio="xMidYMid slice" clip-path="url(#basitPhotoClip)" />
+        
+        <!-- Reciter Photo cropped to Oval -->
+        <image href="data:image/jpeg;base64,${templatePhotoBase64}" x="${ovalX - ovalW / 2}" y="${ovalY - ovalH / 2}" width="${ovalW}" height="${ovalH}" preserveAspectRatio="xMidYMid slice" clip-path="url(#basitOvalClip)" />
+        
+        <!-- Soft Oval Border -->
+        <ellipse cx="${ovalX}" cy="${ovalY}" rx="${ovalW / 2}" ry="${ovalH / 2}" fill="none" stroke="rgba(0, 0, 0, 0.08)" stroke-width="2" />
 
-        ${calligraphyBase64 ? `
-        <image href="data:image/png;base64,${calligraphyBase64}" x="${calligX}" y="${calligY}" width="${calligW}" height="${calligH}" preserveAspectRatio="xMidYMid contain" filter="invert(1) brightness(2)" />
-        ` : ""}
+        <!-- Progress Bar -->
+        <rect x="${barX}" y="${barY}" width="${barW}" height="2.5" rx="1.25" fill="rgba(0, 0, 0, 0.18)" />
+        <rect x="${barX}" y="${barY}" width="${barW * Math.min(1, Math.max(0, progressPct))}" height="2.5" rx="1.25" fill="#000000" />
+        <circle cx="${barX + barW * Math.min(1, Math.max(0, progressPct))}" cy="${barY + 1.25}" r="6" fill="#000000" />
 
-        ${verse.text ? `
-        <text x="${textCenterX}" y="${naskhStartY}" font-family="'Noto Naskh Arabic', serif" font-size="28" fill="#ffffff" text-anchor="middle" direction="rtl" filter="url(#textGlow)">
-          ${escapeXml(activeLineText)}
-        </text>
-        ` : ""}
-
-        <rect x="${barX}" y="${barY}" width="${barWidth}" height="4" rx="2" fill="rgba(255, 255, 255, 0.2)" />
-        <rect x="${barX}" y="${barY}" width="${progressWidth}" height="4" rx="2" fill="#ffffff" />
-        <circle cx="${barX + progressWidth}" cy="${barY + 2}" r="5" fill="#ffffff" />
-
-        <text x="${barX}" y="${barY + 20}" font-family="monospace" font-size="10" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">${formatTime(elapsed)}</text>
-        <text x="${barX + barWidth}" y="${barY + 20}" font-family="monospace" font-size="10" fill="rgba(255, 255, 255, 0.5)" text-anchor="end">${formatTime(total)}</text>
-
-        <g transform="translate(${barX}, ${btnY}) scale(0.8)">
-          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6"/>
+        <!-- Controls Row -->
+        <!-- Shuffle -->
+        <g transform="translate(220, ${ctrlY - 10}) scale(0.95)" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <polyline points="16 3 21 3 21 8"/>
+          <line x1="4" y1="20" x2="21" y2="3"/>
+          <polyline points="21 16 21 21 16 21"/>
+          <line x1="15" y1="15" x2="21" y2="21"/>
+          <line x1="4" y1="4" x2="9" y2="9"/>
         </g>
         
-        <g transform="translate(${barX + 50}, ${btnY}) scale(0.8)">
-          <path d="M19 20L9 12l10-8v16z" fill="#ffffff" />
-          <rect x="5" y="4" width="2" height="16" rx="0.5" fill="#ffffff" />
+        <!-- Prev -->
+        <g transform="translate(280, ${ctrlY - 10}) scale(0.95)" fill="#000000">
+          <path d="M19 20L9 12l10-8v16z" />
+          <rect x="5" y="4" width="2.5" height="16" rx="0.5" />
         </g>
         
-        <circle cx="${rightAreaX + rightAreaW / 2}" cy="${btnY + 10}" r="18" fill="#ffffff" />
-        <g transform="translate(${rightAreaX + rightAreaW / 2 - 9}, ${btnY - 1}) scale(0.75)">
-          <rect x="3" y="4" width="5" height="16" rx="1" fill="#000000" />
-          <rect x="12" y="4" width="5" height="16" rx="1" fill="#000000" />
+        <!-- Play Circle -->
+        <circle cx="360" cy="${ctrlY}" r="20" fill="#000000" />
+        <g transform="translate(352, ${ctrlY - 10}) scale(0.95)">
+          <rect x="1" y="3" width="4" height="14" rx="1" fill="#ffffff" />
+          <rect x="11" y="3" width="4" height="14" rx="1" fill="#ffffff" />
         </g>
         
-        <g transform="translate(${rightAreaX + rightAreaW - 75}, ${btnY}) scale(0.8)">
-          <path d="M5 4l10 8-10 8V4z" fill="#ffffff" />
-          <rect x="17" y="4" width="2" height="16" rx="0.5" fill="#ffffff" />
+        <!-- Next -->
+        <g transform="translate(420, ${ctrlY - 10}) scale(0.95)" fill="#000000">
+          <path d="M5 4l10 8-10 8V4z" />
+          <rect x="14" y="4" width="2.5" height="16" rx="0.5" />
         </g>
         
-        <g transform="translate(${rightAreaX + rightAreaW - 25}, ${btnY}) scale(0.8)">
-          <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6" />
-          <line x1="7" y1="12" x2="17" y2="12" stroke="#ffffff" stroke-width="2" opacity="0.6" />
+        <!-- Repeat -->
+        <g transform="translate(480, ${ctrlY - 10}) scale(0.95)" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <polyline points="17 1 21 5 17 9"/>
+          <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+          <polyline points="7 23 3 19 7 15"/>
+          <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
         </g>
+
+        <!-- Reciter English Name -->
+        <text x="360" y="825" font-family="'Times New Roman', Georgia, serif" font-size="22" font-weight="bold" fill="#ffffff" text-anchor="middle">${escapeXml(reciterName)}</text>
+
+        <!-- Surah Name (Bottom Black Section) -->
+        <text x="360" y="1090" font-family="'Noto Naskh Arabic', 'Amiri', sans-serif" font-size="34" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">${escapeXml(surahName || "سورة")}</text>
       </g>
     `;
   } else if (videoTemplate === "dossary_player") {
@@ -755,6 +726,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
 
   const isMinshawi = videoTemplate === "minshawi_player";
   const isDossary = videoTemplate === "dossary_player";
+  const isBasit = videoTemplate === "basit_player";
   const bgRects = isMinshawi ? `
     <rect x="0" y="0" width="${WIDTH}" height="380" fill="#000000" />
     <rect x="0" y="380" width="${WIDTH}" height="520" fill="#383838" />
@@ -763,7 +735,11 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
     <rect x="0" y="0" width="${WIDTH}" height="380" fill="#000000" />
     <image href="data:image/png;base64,${settings.dossaryBgBase64 || ''}" x="0" y="380" width="${WIDTH}" height="520" preserveAspectRatio="xMidYMid slice" />
     <rect x="0" y="900" width="${WIDTH}" height="380" fill="#000000" />
-  ` : `<rect width="${WIDTH}" height="${HEIGHT}" fill="url(#overlayGrad)"/>`);
+  ` : (isBasit ? `
+    <rect x="0" y="0" width="${WIDTH}" height="380" fill="#000000" />
+    <rect x="0" y="380" width="${WIDTH}" height="520" fill="#c5beb8" />
+    <rect x="0" y="900" width="${WIDTH}" height="380" fill="#000000" />
+  ` : `<rect width="${WIDTH}" height="${HEIGHT}" fill="url(#overlayGrad)"/>`));
 
   const svg = `<svg width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -786,7 +762,7 @@ async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg
   finalSvg = applyOverlayToSVG(finalSvg, overlay);
   const svgBuffer = Buffer.from(finalSvg);
 
-  if (videoTemplate === "minshawi_player" || videoTemplate === "dossary_player") {
+  if (videoTemplate === "minshawi_player" || videoTemplate === "dossary_player" || videoTemplate === "basit_player") {
     // رندرة خلفية سوداء بالكامل وتوليد تفاصيل التصميم داخل الـ SVG
     await sharp({
       create: { width: WIDTH, height: HEIGHT, channels: 3, background: { r: 0, g: 0, b: 0 } }

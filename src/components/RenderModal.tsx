@@ -590,6 +590,9 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             const sc = Math.max(canvas.width / bg.width, middleH / bg.height);
             ctx.drawImage(bg, (canvas.width - bg.width * sc) / 2, 380 + (middleH - bg.height * sc) / 2, bg.width * sc, bg.height * sc);
         }
+    } else if (state.videoTemplate === "basit_player") {
+        ctx.fillStyle = "#c5beb8";
+        ctx.fillRect(0, 380, canvas.width, 520);
     } else {
         if (video) {
             const sc = Math.max(canvas.width / video.videoWidth, canvas.height / video.videoHeight);
@@ -993,203 +996,133 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       ctx.fillText(rangeText, canvas.width / 2, 1170);
       ctx.restore();
     } else if (state.videoTemplate === "basit_player") {
-      // 1. Draw centered semi-transparent card (rounded rect)
-      const cardW = 612; // 85% of 720
-      const cardH = 416; // aspect aspect-[500/340] -> 612 * 340/500 = 416
-      const cardX = (canvas.width - cardW) / 2;
-      const cardY = (canvas.height - cardH) / 2;
-
-      ctx.save();
-      ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
-      ctx.lineWidth = 2;
-      ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-      ctx.shadowBlur = 30;
-
-      ctx.beginPath();
-      if (typeof ctx.roundRect === 'function') {
-        ctx.roundRect(cardX, cardY, cardW, cardH, 50); // rounded-[2.5rem] is roughly 50px
-      } else {
-        ctx.rect(cardX, cardY, cardW, cardH);
-      }
-      ctx.fill();
-      ctx.stroke();
-      ctx.restore();
-
-      // 2. Draw Sheikh Photo on the left of the card
-      const photoW = cardW * 0.42; // 257px
-      const photoH = photoW * 1.15; // 295px
-      const photoX = cardX + 24; // 24px padding
-      const photoY = cardY + 24;
-      const rx = 35; // rounded-[2rem]
+      // Draw centered oval/ellipse photo of reciter
+      // Center of oval: x = 360, y = 520 (middle section is from y = 380 to y = 900)
+      const ovalW = 360;
+      const ovalH = 260;
+      const ovalX = 360;
+      const ovalY = 525;
 
       if (templatePhoto) {
         ctx.save();
-        ctx.shadowColor = "rgba(255, 255, 255, 0.4)";
-        ctx.shadowBlur = 20;
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = 3;
-
         ctx.beginPath();
-        if (typeof ctx.roundRect === 'function') {
-          ctx.roundRect(photoX, photoY, photoW, photoH, rx);
-        } else {
-          ctx.rect(photoX, photoY, photoW, photoH);
-        }
-        ctx.closePath();
-        ctx.stroke();
-
+        ctx.ellipse(ovalX, ovalY, ovalW / 2, ovalH / 2, 0, 0, Math.PI * 2);
         ctx.clip();
-        ctx.drawImage(templatePhoto, photoX, photoY, photoW, photoH);
+        ctx.drawImage(templatePhoto, ovalX - ovalW / 2, ovalY - ovalH / 2, ovalW, ovalH);
         ctx.restore();
-      }
-
-      // 3. Draw Calligraphy Signature Name below photo
-      const calligW = photoW;
-      const calligH = 40;
-      const calligX = photoX;
-      const calligY = photoY + photoH + 12;
-
-      if (templateCalligraphy) {
+        
+        // Soft border around the oval
         ctx.save();
-        ctx.filter = "invert(1) brightness(2)";
-        ctx.drawImage(templateCalligraphy, calligX, calligY, calligW, calligH);
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.08)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(ovalX, ovalY, ovalW / 2, ovalH / 2, 0, 0, Math.PI * 2);
+        ctx.stroke();
         ctx.restore();
       }
 
-      // 4. Draw Right Side: Text & Controls
-      const rightAreaX = photoX + photoW + 20;
-      const rightAreaW = cardW - (photoW + 68); // ~267px
-      const textCenterX = rightAreaX + rightAreaW / 2;
-
-      // Active Verse Text (Top part of right area)
-      if (verse && verse.text) {
-        ctx.save();
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
-        ctx.shadowBlur = 15;
-        ctx.shadowOffsetY = 6;
-        ctx.fillStyle = "#ffffff";
-        ctx.font = `600 28px "Noto Naskh Arabic", serif`;
-
-        const lines = wrapText(ctx, verse.text, rightAreaW);
-        if (lines.length > 0) {
-          const progressPct = ayahProgress || 0;
-          const activeLineIdx = Math.min(lines.length - 1, Math.floor(progressPct * lines.length));
-          const activeLineText = lines[activeLineIdx];
-
-          const startY = cardY + 110;
-          ctx.fillText(activeLineText, textCenterX, startY);
-        }
-        ctx.restore();
-      }
-
-      // Progress Bar & Controls
+      // Progress bar below the oval
       const progressPct = ayahProgress || 0;
-      const barWidth = rightAreaW - 20;
-      const progressWidth = barWidth * progressPct;
-      const barX = rightAreaX + 10;
-      const barY = cardY + cardH - 120;
-
+      const barX = 180;
+      const barY = 690;
+      const barW = 360;
+      
       ctx.save();
-      ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
-      ctx.beginPath();
-      if (typeof ctx.roundRect === 'function') {
-        ctx.roundRect(barX, barY, barWidth, 3, 1.5);
-      } else {
-        ctx.rect(barX, barY, barWidth, 3);
-      }
-      ctx.fill();
-
-      ctx.fillStyle = "#ffffff";
-      ctx.beginPath();
-      if (typeof ctx.roundRect === 'function') {
-        ctx.roundRect(barX, barY, progressWidth, 3, 1.5);
-      } else {
-        ctx.rect(barX, barY, progressWidth, 3);
-      }
-      ctx.fill();
-      ctx.restore();
-
-      // Timestamps
-      ctx.save();
-      ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-      ctx.font = "10px monospace";
-      ctx.textAlign = "left";
-      ctx.fillText("0:00", barX, barY + 16);
-      ctx.textAlign = "right";
-      ctx.fillText("1:30", barX + barWidth, barY + 16);
-      ctx.restore();
-
-      // Controls Row (Prev / Play / Next / Heart / minus)
-      const btnY = barY + 30;
-      const scaleFactor = 0.8;
-
-      // Heart
-      ctx.save();
-      ctx.translate(rightAreaX + 10, btnY);
-      ctx.scale(scaleFactor, scaleFactor);
-      ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 2.2;
-      ctx.globalAlpha = 0.6;
-      ctx.beginPath();
-      ctx.moveTo(12, 6);
-      ctx.bezierCurveTo(12, 6, 11, 2, 6.5, 2);
-      ctx.bezierCurveTo(2, 2, 2, 7.5, 2, 7.5);
-      ctx.bezierCurveTo(2, 12, 12, 20, 12, 20);
-      ctx.bezierCurveTo(12, 20, 22, 12, 22, 7.5);
-      ctx.bezierCurveTo(22, 7.5, 22, 2, 17.5, 2);
-      ctx.bezierCurveTo(13, 2, 12, 6, 12, 6);
-      ctx.stroke();
-      ctx.restore();
-
-      // Prev
-      ctx.save();
-      ctx.fillStyle = "#ffffff";
-      ctx.translate(rightAreaX + 60, btnY);
-      ctx.scale(scaleFactor, scaleFactor);
-      ctx.beginPath();
-      ctx.moveTo(19, 20); ctx.lineTo(9, 12); ctx.lineTo(19, 4);
-      ctx.fill();
-      ctx.fillRect(5, 4, 2, 16);
-      ctx.restore();
-
-      // Play (Circle Pause)
-      ctx.save();
-      ctx.fillStyle = "#ffffff";
-      ctx.beginPath();
-      ctx.arc(rightAreaX + rightAreaW / 2, btnY + 10, 18, 0, Math.PI * 2);
-      ctx.fill();
+      // Track line (thin grey/black)
+      ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
+      ctx.fillRect(barX, barY, barW, 2.5);
+      // Progress line (solid black)
       ctx.fillStyle = "#000000";
-      ctx.fillRect(rightAreaX + rightAreaW / 2 - 5, btnY + 2, 3, 16);
-      ctx.fillRect(rightAreaX + rightAreaW / 2 + 2, btnY + 2, 3, 16);
+      ctx.fillRect(barX, barY, barW * progressPct, 2.5);
+      // Knob dot (black circle)
+      ctx.beginPath();
+      ctx.arc(barX + barW * progressPct, barY + 1.25, 6, 0, Math.PI * 2);
+      ctx.fill();
       ctx.restore();
 
-      // Next
+      // Controls Row (Shuffle / Prev / Play (Circle) / Next / Repeat) in Black
+      const ctrlY = 740;
+
+      // Play circle filled with black, white play/pause icon in center
+      ctx.save();
+      ctx.fillStyle = "#000000";
+      ctx.beginPath();
+      ctx.arc(360, ctrlY, 20, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Inside circle: white play/pause icon
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(353, ctrlY - 7, 4, 14);
+      ctx.fillRect(363, ctrlY - 7, 4, 14);
+      ctx.restore();
+
+      // Shuffle icon at x = 360 - 130 = 230
+      ctx.save();
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = 2.5;
+      ctx.translate(220, ctrlY - 10);
+      ctx.beginPath();
+      ctx.moveTo(0, 5); ctx.lineTo(5, 5); ctx.lineTo(13, 15); ctx.lineTo(18, 15);
+      ctx.moveTo(0, 15); ctx.lineTo(5, 15); ctx.lineTo(13, 5); ctx.lineTo(18, 5);
+      ctx.stroke();
+      // arrow heads
+      ctx.beginPath();
+      ctx.moveTo(15, 2); ctx.lineTo(18, 5); ctx.lineTo(15, 8);
+      ctx.moveTo(15, 12); ctx.lineTo(18, 15); ctx.lineTo(15, 18);
+      ctx.stroke();
+      ctx.restore();
+
+      // Prev icon at x = 360 - 70 = 290
+      ctx.save();
+      ctx.fillStyle = "#000000";
+      ctx.translate(280, ctrlY - 10);
+      ctx.beginPath();
+      ctx.moveTo(17, 18); ctx.lineTo(5, 10); ctx.lineTo(17, 2);
+      ctx.fill();
+      ctx.fillRect(4, 2, 2.5, 16);
+      ctx.restore();
+
+      // Next icon at x = 360 + 70 = 430
+      ctx.save();
+      ctx.fillStyle = "#000000";
+      ctx.translate(420, ctrlY - 10);
+      ctx.beginPath();
+      ctx.moveTo(2, 2); ctx.lineTo(14, 10); ctx.lineTo(2, 18);
+      ctx.fill();
+      ctx.fillRect(14, 2, 2.5, 16);
+      ctx.restore();
+
+      // Repeat icon at x = 360 + 130 = 490
+      ctx.save();
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = 2.5;
+      ctx.translate(480, ctrlY - 10);
+      ctx.beginPath();
+      ctx.arc(9, 10, 7, -Math.PI/4, 1.25 * Math.PI);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(13, 2); ctx.lineTo(16, 5); ctx.lineTo(13, 8);
+      ctx.stroke();
+      ctx.restore();
+
+      // Sheikh English Name below controls
       ctx.save();
       ctx.fillStyle = "#ffffff";
-      ctx.translate(rightAreaX + rightAreaW - 80, btnY);
-      ctx.scale(scaleFactor, scaleFactor);
-      ctx.beginPath();
-      ctx.moveTo(5, 4); ctx.lineTo(15, 12); ctx.lineTo(5, 20);
-      ctx.fill();
-      ctx.fillRect(17, 4, 2, 16);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
+      ctx.shadowBlur = 4;
+      ctx.font = "bold 22px 'Times New Roman', Georgia, serif";
+      ctx.fillText(getReciterEnglishName(state.reciterId), 360, 815);
       ctx.restore();
 
-      // Minus
+      // Draw Surah Name in bottom black section (y from 900 to 1280)
       ctx.save();
-      ctx.translate(rightAreaX + rightAreaW - 30, btnY);
-      ctx.scale(scaleFactor, scaleFactor);
-      ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 2.2;
-      ctx.globalAlpha = 0.6;
-      ctx.beginPath();
-      ctx.arc(12, 12, 10, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(7, 12); ctx.lineTo(17, 12);
-      ctx.stroke();
+      ctx.fillStyle = "#ffffff";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "bold 34px 'Noto Naskh Arabic', Amiri, sans-serif";
+      ctx.fillText(surahName || "سورة", 360, 1090);
       ctx.restore();
     } else if (state.videoTemplate === "minshawi_player") {
       // Draw Minshawi player
