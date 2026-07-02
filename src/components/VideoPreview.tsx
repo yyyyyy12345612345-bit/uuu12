@@ -956,6 +956,7 @@ export function VideoPreview() {
                     src={getSheikhAsset(state.reciterId).calligraphyUrl}
                     alt="calligraphy"
                     className="h-full object-contain"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
                   />
                 </div>
               )}
