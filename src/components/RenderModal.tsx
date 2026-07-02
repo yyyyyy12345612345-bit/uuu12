@@ -980,7 +980,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       ctx.stroke();
       ctx.restore();
 
-      // 6. Draw Sheikh Name above Photo (Aref Ruqaa font, permanent with writing animation)
+      // 6. Draw Sheikh Name on RIGHT side above verse text (permanent, right-to-left reveal)
       ctx.save();
       
       let writeProgress = 1.0;
@@ -988,25 +988,24 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         writeProgress = elapsedTime < 0.5 ? 0 : Math.min(1.0, (elapsedTime - 0.5) / 1.5);
       }
       
-      const textWidth = 405;
+      const textWidth = 440;
       const textHeight = 70;
       const clipW = textWidth * writeProgress;
-      const clipX = 450 - clipW; // reveal from right (450) to left (45)
+      const clipX = 990 - clipW; // grows from right (990) leftward
       
       ctx.beginPath();
       ctx.rect(clipX, 400, clipW, textHeight);
       ctx.closePath();
       ctx.clip();
       
-      ctx.textAlign = "left";
+      ctx.textAlign = "right";
       ctx.textBaseline = "middle";
       
       const nameText = `القارئ الشيخ ${getSheikhAsset(state.reciterId || "").nameAr}`;
       ctx.font = `bold 32px "Reem Kufi Fun", "Amiri", serif`;
       
       ctx.fillStyle = "#1a0f00";
-      // Draw at x = 45, y = 445
-      ctx.fillText(nameText, 45, 445);
+      ctx.fillText(nameText, 990, 445);
       
       ctx.restore();
     }

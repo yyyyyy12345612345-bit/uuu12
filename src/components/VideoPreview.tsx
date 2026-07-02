@@ -528,8 +528,8 @@ export function VideoPreview() {
             ) : state.videoTemplate === "youssef_player" ? (
               <div className="absolute inset-0 bg-black z-10">
                 <div 
-                  className="absolute top-[29.69%] bottom-[29.69%] inset-x-[2.7%] bg-cover bg-center rounded-[2.5rem]"
-                  style={{ backgroundImage: `url(https://res.cloudinary.com/dtuyo4gqm/image/upload/v1783004228/Untitled_design_zawi7h.png)` }}
+                  className="absolute top-[29.69%] bottom-[29.69%] bg-cover bg-center rounded-[2.5rem]"
+                  style={{ left: '2.7%', right: '2.7%', backgroundImage: `url(https://res.cloudinary.com/dtuyo4gqm/image/upload/v1783004228/Untitled_design_zawi7h.png)` }}
                 />
               </div>
             ) : null
@@ -898,13 +898,13 @@ export function VideoPreview() {
                   @import url('https://fonts.googleapis.com/css2?family=Reem+Kufi+Fun:wght@400..700&display=swap');
                 `}</style>
 
-                {/* Sheikh Name Tag above Photo */}
-                <div className="absolute top-[5%] left-5 right-0 z-30 pointer-events-none select-none" style={{ width: '40%' }}>
+                {/* Sheikh Name Tag - RIGHT side above verse text */}
+                <div className="absolute top-[5%] right-5 z-30 pointer-events-none select-none">
                   <span 
                     className="text-[15px] font-bold text-[#1a0f00] select-none tracking-wide block whitespace-nowrap"
                     style={{
                       fontFamily: '"Reem Kufi Fun", sans-serif',
-                      clipPath: `inset(0 ${Math.max(0, 100 - (currentTime < 0.5 ? 0 : Math.min(100, ((currentTime - 0.5) / 1.5) * 100)))}% 0 0)`,
+                      clipPath: `inset(0 0 0 ${Math.max(0, 100 - (currentTime < 0.5 ? 0 : Math.min(100, ((currentTime - 0.5) / 1.5) * 100)))}%)`,
                       transition: 'clip-path 0.08s linear',
                       direction: 'rtl',
                       textAlign: 'right',
