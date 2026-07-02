@@ -1189,8 +1189,7 @@ export function VideoPreview() {
                 </div>
               </div>
             </div>
-          )}
-          {(state.videoTemplate as any) === "basit_player" ? (
+          ) : (state.videoTemplate as any) === "basit_player" ? (
             <div className="absolute top-[29.69%] bottom-[29.69%] left-0 right-0 z-20 flex flex-col justify-between py-8 px-8 select-none" dir="ltr">
               {/* Photo - Horizontal Oval */}
               <div className="w-[58%] aspect-[1.38] rounded-full overflow-hidden shadow-[0_4px_15px_rgba(0,0,0,0.15)] mx-auto bg-black shrink-0">
