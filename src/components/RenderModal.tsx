@@ -829,10 +829,10 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     }
 
     if (state.videoTemplate === "youssef_player") {
-      // 1. Draw Sheikh Photo on the left (y=[430,740])
+      // 1. Draw Sheikh Photo on the left (y=[480,790])
       const rx = 35;
       const photoX = 45;
-      const photoY = 430;
+      const photoY = 480;
       const photoW = 235;
       const photoH = 310;
       
@@ -962,6 +962,48 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       ctx.arc(10, 10, 7, -Math.PI/4, 5*Math.PI/4);
       ctx.stroke();
       ctx.restore();
+
+      // 6. Draw Intro Sheikh Name at the top (Aref Ruqaa font, first 3.5s)
+      if (elapsedTime < 3.5) {
+        ctx.save();
+        
+        let introOpacity = 0;
+        let introScale = 1.0;
+        let introYOffset = 0;
+
+        if (elapsedTime < 1.0) {
+          const t = elapsedTime / 1.0;
+          introOpacity = t;
+          introScale = 0.7 + 0.3 * t;
+        } else if (elapsedTime < 2.5) {
+          introOpacity = 1.0;
+          introScale = 1.0;
+        } else {
+          const t = (elapsedTime - 2.5) / 1.0;
+          introOpacity = 1.0 - t;
+          introYOffset = -30 * t;
+        }
+
+        ctx.globalAlpha = introOpacity;
+        ctx.translate(540, 200 + introYOffset);
+        ctx.scale(introScale, introScale);
+        
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        
+        const nameText = `القارئ الشيخ ${getSheikhAsset(state.reciterId || "").nameAr}`;
+        ctx.font = `bold 44px "Aref Ruqaa", "Amiri", serif`;
+        
+        // Shadow
+        ctx.fillStyle = "#000000";
+        ctx.fillText(nameText, 2, 2);
+        
+        // Main Text
+        ctx.fillStyle = "#ffdf7a";
+        ctx.fillText(nameText, 0, 0);
+        
+        ctx.restore();
+      }
     }
 
     if (state.videoTemplate === "dossary_player") {
