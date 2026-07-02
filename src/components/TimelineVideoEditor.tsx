@@ -27,6 +27,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
   const { state, updateState } = useEditor();
   const { theme, toggleTheme } = useTheme();
   const { isFeatureLocked } = useUserPlan();
+  const isPlayerTemplate = ["minshawi_player", "dossary_player", "youssef_player", "basit_player"].includes(state.videoTemplate || "");
 
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -453,6 +454,19 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
             {activeLeftTab === "effects" && (
               <div className="flex flex-col gap-6">
                 
+                {isPlayerTemplate ? (
+                  <div className="flex flex-col items-center justify-center py-10 gap-3 text-center">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
+                      <Layers className="w-6 h-6 text-primary" />
+                    </div>
+                    <p className="text-white/50 text-xs leading-relaxed px-4">
+                      الفلاتر والمؤثرات غير متاحة مع التصميمات الجاهزة.
+                      <br />
+                      <span className="text-primary/70">اختر تصميم كلاسيك لتفعيلها.</span>
+                    </p>
+                  </div>
+                ) : (
+                  <>
                 {/* 1. Filters */}
                 <div className="space-y-3">
                   <span className="text-[10px] font-black text-primary tracking-widest block uppercase border-b border-white/5 pb-1">الفلاتر السينمائية</span>
@@ -510,6 +524,8 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                     ))}
                   </div>
                 </div>
+                  </>
+                )}
               </div>
             )}
 
@@ -1147,26 +1163,36 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                         updateState({
                           videoTemplate: "minshawi_player",
                           textColor: "#FFD700",
-                          fontFamily: "Amiri"
+                          fontFamily: "Amiri",
+                          filter: "none",
+                          overlay: "none",
+                          backgroundUrl: "",
                         });
                       } else if (temp.id === "dossary_player") {
                         updateState({
                           videoTemplate: "dossary_player",
                           textColor: "#ffffff",
-                          fontFamily: "Noto Naskh Arabic"
+                          fontFamily: "Noto Naskh Arabic",
+                          filter: "none",
+                          overlay: "none",
+                          backgroundUrl: "",
                         });
                       } else if (temp.id === "youssef_player") {
                         updateState({
                           videoTemplate: "youssef_player",
                           textColor: "#1a0f00",
-                          fontFamily: "Amiri"
+                          fontFamily: "Amiri",
+                          filter: "none",
+                          overlay: "none",
+                          backgroundUrl: "",
                         });
                       } else {
                         updateState({
                           videoTemplate: "default",
-                          fontFamily: "Amiri"
+                          fontFamily: "Amiri",
                         });
                       }
+
                     }}
                     className={`group relative h-20 rounded-xl overflow-hidden border transition-all ${
                       temp.active 
