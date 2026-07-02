@@ -22,6 +22,8 @@ export function AppBanner({ apkDownloadUrl = "https://yaqeenalquran.online/downl
   const checkDone = useRef(false);
 
   useEffect(() => {
+    // Disabled PWA/APK App Banner prompt completely
+    /*
     if (checkDone.current) return;
     checkDone.current = true;
 
@@ -74,6 +76,7 @@ export function AppBanner({ apkDownloadUrl = "https://yaqeenalquran.online/downl
     init();
 
     return () => window.removeEventListener("beforeinstallprompt", handler as any);
+    */
   }, []);
 
   const handleDismiss = () => {

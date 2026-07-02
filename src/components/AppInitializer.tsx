@@ -749,8 +749,8 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
       {children}
 
-      {/* Smart App Banner - Platform Aware */}
-      <AppBanner apkDownloadUrl="https://yaqeenalquran.online/download/" />
+      {/* Smart App Banner - Platform Aware (Disabled) */}
+      {/* <AppBanner apkDownloadUrl="https://yaqeenalquran.online/download/" /> */}
     </>
   );
 }

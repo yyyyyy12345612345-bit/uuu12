@@ -439,7 +439,24 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
 
       if (!isRenderingRef.current) return;
 
-      const recorder = new MediaRecorder(stream, { videoBitsPerSecond: 5000000 });
+      let mimeType = "video/webm";
+      let options: any = { videoBitsPerSecond: 5000000 };
+
+      if (typeof MediaRecorder.isTypeSupported === "function") {
+        if (MediaRecorder.isTypeSupported("video/mp4;codecs=h264")) {
+          mimeType = "video/mp4;codecs=h264";
+        } else if (MediaRecorder.isTypeSupported("video/mp4")) {
+          mimeType = "video/mp4";
+        } else if (MediaRecorder.isTypeSupported("video/webm;codecs=vp9")) {
+          mimeType = "video/webm;codecs=vp9";
+        } else if (MediaRecorder.isTypeSupported("video/webm;codecs=vp8")) {
+          mimeType = "video/webm;codecs=vp8";
+        }
+        options.mimeType = mimeType;
+        console.log("[RenderModal] Browser rendering using mimeType:", mimeType);
+      }
+
+      const recorder = new MediaRecorder(stream, options);
       const chunks: Blob[] = [];
       recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
       recorder.start(100);
@@ -501,7 +518,8 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
 
       recorder.stop();
       recorder.onstop = async () => {
-        const finalBlob = new Blob(chunks, { type: 'video/webm' });
+        const recordedMime = recorder.mimeType || mimeType || "video/webm";
+        const finalBlob = new Blob(chunks, { type: recordedMime });
         setDownloadUrl(URL.createObjectURL(finalBlob));
         setStatus("success");
         if (!auth?.currentUser) {
@@ -1346,17 +1364,20 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             <h3 className="font-['Amiri'] text-4xl font-black text-white mb-2">تجهيز العمل الفني</h3>
             <p className="text-white/40 text-xs text-center mb-10 uppercase tracking-widest">اختر دقة الإخراج والجودة المطلوبة</p>
             
-            <div className="w-full space-y-4 mb-10">
+            <div className="w-full space-y-4 mb-6">
                 <button onClick={() => setRenderMode("server")} className={`w-full p-6 rounded-[2rem] border-2 transition-all flex items-center justify-between gap-4 text-right ${renderMode === "server" ? "border-primary bg-primary/10" : "border-white/5 bg-white/5 hover:bg-white/10"}`}>
-                    <div className="flex flex-col items-start gap-1">
-                        <span className="text-base font-black text-white">الرندرة السحابية الفائقة</span>
-                        <span className="text-[10px] text-primary/60 font-bold uppercase tracking-widest">تصدير MP4 بجودة 4K احترافية</span>
+                    <div className="flex flex-col items-start gap-1 flex-1">
+                        <span className="text-base font-black text-white flex items-center gap-2">
+                          الرندرة السحابية الفائقة
+                          <span className="text-[9px] font-black text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full">موصى به</span>
+                        </span>
+                        <span className="text-[10px] text-primary/60 font-bold uppercase tracking-widest">فيديو MP4 حقيقي يعمل على كل الأجهزة والآيفون والواتساب بنسبة 100%</span>
                     </div>
-                    <Crown className="w-6 h-6 text-primary" />
+                    <Crown className="w-6 h-6 text-primary shrink-0" />
                 </button>
                 <button onClick={() => setRenderMode("browser")} className={`w-full p-6 rounded-[2rem] border-2 transition-all flex flex-col items-start gap-1 text-right ${renderMode === "browser" ? "border-primary bg-primary/10" : "border-white/5 bg-white/5 hover:bg-white/10"}`}>
                     <span className="text-base font-black text-white">رندرة المتصفح السريعة</span>
-                    <span className="text-[10px] text-primary/60 font-bold uppercase tracking-widest">تصدير فوري بجودة HD قياسية</span>
+                    <span className="text-[10px] text-primary/60 font-bold uppercase tracking-widest">تصدير فوري بصيغة WebM (قد لا يشتغل على بعض هواتف الآيفون والواتساب)</span>
                 </button>
             </div>
 
@@ -1402,7 +1423,12 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             )}
             
             {status === "error" && (
-              <button onClick={() => setStatus("idle")} className="w-full bg-white/5 text-white py-5 rounded-[1.5rem] font-black border border-white/10 hover:bg-white/10 transition-all">إعادة المحاولة</button>
+              <>
+                <p className="text-red-500 text-xs md:text-sm font-bold text-center mb-8 px-6 leading-relaxed font-arabic bg-red-500/10 p-4 rounded-2xl border border-red-500/20">
+                  {message || "حدث خطأ غير متوقع أثناء المعالجة."}
+                </p>
+                <button onClick={() => setStatus("idle")} className="w-full bg-white/5 text-white py-5 rounded-[1.5rem] font-black border border-white/10 hover:bg-white/10 transition-all">إعادة المحاولة</button>
+              </>
             )}
           </div>
         )}

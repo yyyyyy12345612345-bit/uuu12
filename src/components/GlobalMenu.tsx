@@ -20,9 +20,10 @@ interface GlobalMenuProps {
   onOpenPointsGuide: () => void;
   onOpenSettings?: () => void;
   onOpenAppSettings?: () => void;
+  onOpenAppInstall?: () => void;
 }
 
-export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onOpenPointsGuide, onOpenSettings, onOpenAppSettings }: GlobalMenuProps) {
+export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onOpenPointsGuide, onOpenSettings, onOpenAppSettings, onOpenAppInstall }: GlobalMenuProps) {
   const router = useRouter();
   const pathname = useInstantPathname();
   const { theme, toggleTheme } = useTheme();
@@ -64,9 +65,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
             navigator.share({ title: 'سكينة', text: 'تطبيق القرآن الكريم واستوديو الفيديو الجنائزي', url: window.location.href });
           }
         }},
-        { id: "install-apk", label: "تثبيت التطبيق (APK)", icon: Smartphone, onClick: () => {
-          window.open('https://yaqeenalquran.online/download/', '_blank');
-        }},
+        { id: "install-apk", label: "تنزيل التطبيق", icon: Smartphone, onClick: onOpenAppInstall },
         { id: "points-guide", label: "دليل النقاط", icon: MapIcon, onClick: onOpenPointsGuide },
         { id: "user-guide", label: "دليل استخدام المنصة 📖", icon: Info, onClick: () => {
           onClose();

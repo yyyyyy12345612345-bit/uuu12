@@ -37,6 +37,7 @@ const MushafChoice = nextDynamic(() => import("@/components/MushafChoice").then(
 const SubscriptionModal = nextDynamic(() => import("@/components/SubscriptionModal").then(mod => mod.SubscriptionModal), { ssr: false });
 const SocialFeed = nextDynamic(() => import("@/components/SocialFeed").then(mod => mod.SocialFeed), { ssr: false });
 const PointsGuideModal = nextDynamic(() => import("@/components/PointsGuideModal").then(mod => mod.PointsGuideModal), { ssr: false });
+const AppInstallModal = nextDynamic(() => import("@/components/AppInstallModal").then(mod => mod.AppInstallModal), { ssr: false });
 const ChatBot = nextDynamic(() => import("@/components/ChatBot").then(mod => mod.ChatBot), { ssr: false });
 const FeedbackButton = nextDynamic(() => import("@/components/FeedbackButton").then(mod => mod.FeedbackButton), { ssr: false });
 const SettingsModal = nextDynamic(() => import("@/components/SettingsModal").then(mod => mod.SettingsModal), { ssr: false });
@@ -114,6 +115,7 @@ function CatchAllContent() {
   const [isPointsGuideOpen, setIsPointsGuideOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAppSettingsOpen, setIsAppSettingsOpen] = useState(false);
+  const [isAppInstallOpen, setIsAppInstallOpen] = useState(false);
   const [selectedProfileUserId, setSelectedProfileUserId] = useState<string | null>(null);
   const [chatPartnerId, setChatPartnerId] = useState<string | null>(null);
 
@@ -431,6 +433,10 @@ function CatchAllContent() {
         onOpenAppSettings={() => {
           setIsAppSettingsOpen(true);
         }}
+        onOpenAppInstall={() => {
+          setIsMenuOpen(false);
+          setIsAppInstallOpen(true);
+        }}
       />
       <ProfileModal 
         isOpen={isProfileOpen} 
@@ -443,6 +449,7 @@ function CatchAllContent() {
         }} 
       />
       <PointsGuideModal isOpen={isPointsGuideOpen} onClose={() => setIsPointsGuideOpen(false)} />
+      <AppInstallModal isOpen={isAppInstallOpen} onClose={() => setIsAppInstallOpen(false)} />
       <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       <AppSettingsModal isOpen={isAppSettingsOpen} onClose={() => setIsAppSettingsOpen(false)} />
       
