@@ -51,19 +51,6 @@ const nextConfig = {
       },
     ];
   },
-  async rewrites() {
-    if (process.env.CAPACITOR_BUILD === 'true') return [];
-    return [
-      {
-        source: "/download/",
-        destination: "/download/index.html",
-      },
-      {
-        source: "/download",
-        destination: "/download/index.html",
-      },
-    ];
-  },
 };
 
 export default nextConfig;

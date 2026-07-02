@@ -13,6 +13,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { registerPlugin } from '@capacitor/core';
 import { AppBanner } from '@/components/AppBanner';
 import { initSmartNotifications, cleanupSmartNotifications } from '@/lib/smartNotifications';
+import { loadYearCalendar, getTodayTimes } from '@/lib/prayerCalendar';
 import dynamic from "next/dynamic";
 
 const OnboardingOverlay = dynamic(
@@ -299,7 +300,12 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     const syncPrayers = async () => {
       try {
         const settings = loadSettings();
-        await smartReschedule(settings, async () => null);
+        const cal = loadYearCalendar();
+        const todayTimes = cal ? getTodayTimes(cal) : null;
+        await smartReschedule(settings, async () => null, {
+          times: todayTimes,
+          calendar: cal,
+        });
         console.log("[App] Background Adhan checked/re-synced.");
       } catch (e) {
         console.error("[App] Initial prayer sync failed", e);

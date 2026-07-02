@@ -13,8 +13,14 @@ interface AppInstallModalProps {
 
 export function AppInstallModal({ isOpen, onClose }: AppInstallModalProps) {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isIOS, setIsIOS] = useState(false);
+  const [showHelperText, setShowHelperText] = useState(false);
 
   useEffect(() => {
+    // Detect iOS
+    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    setIsIOS(ios);
+
     // Listen for browser install prompt (Chrome/Android)
     const handler = (e: any) => {
       e.preventDefault();
@@ -39,12 +45,12 @@ export function AppInstallModal({ isOpen, onClose }: AppInstallModalProps) {
         console.error("PWA Prompt error:", err);
       }
     }
-    // Fallback if no deferred prompt: open the helper installation site directly
-    window.open("https://tubular-lebkuchen-c1ed75.netlify.app", "_blank");
+    // Show helper text if browser install prompt is not supported natively (like iOS or manually blocked)
+    setShowHelperText(true);
   };
 
   const handleAPKDownload = () => {
-    window.open("https://yaqeenalquran.online/download/", "_blank");
+    window.open("https://github.com/yyyyyy12345612345-bit/uuu12/releases/latest/download/app-debug.apk", "_blank");
   };
 
   return (
@@ -142,8 +148,17 @@ export function AppInstallModal({ isOpen, onClose }: AppInstallModalProps) {
                       className="w-full py-4 bg-white/5 hover:bg-primary hover:text-black text-white border border-white/10 hover:border-primary rounded-2xl font-black text-xs md:text-sm transition-all duration-300 flex items-center justify-center gap-2"
                     >
                       <Zap className="w-4 h-4" />
-                      <span>تنزيل تطبيق PWA</span>
+                      <span>تثبيت تطبيق PWA</span>
                     </button>
+
+                    {showHelperText && (
+                      <p className="text-[11px] font-bold text-primary/95 mt-3 text-center leading-relaxed animate-in fade-in duration-300">
+                        {isIOS 
+                          ? "💡 للآيفون: اضغط على زر المشاركة أسفل متصفح Safari ثم اختر \"إضافة للشاشة الرئيسية\"."
+                          : "💡 للتثبيت: اضغط على زر الخيارات (3 نقاط) في متصفحك ثم اختر \"تثبيت التطبيق\"."
+                        }
+                      </p>
+                    )}
                   </div>
 
                   {/* Option 2: APK */}
