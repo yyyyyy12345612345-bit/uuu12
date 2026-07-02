@@ -1604,26 +1604,16 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             )}
             
             {status === "success" && downloadUrl && (
-              <div className="w-full flex flex-col items-center gap-4 mb-4">
-                <div className="w-full max-h-[360px] rounded-2xl overflow-hidden bg-black border border-white/20 shadow-2xl relative">
-                  <video 
-                    src={downloadUrl} 
-                    controls 
-                    autoPlay 
-                    className="w-full h-full max-h-[360px] object-contain mx-auto"
-                  />
-                </div>
-                <a 
-                  href={downloadUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  download={`quran-video-${Date.now()}.mp4`} 
-                  className="w-full bg-white text-black py-4 rounded-[1.5rem] font-black flex items-center justify-center gap-3 hover:scale-105 transition-all shadow-2xl"
-                >
-                  <Download className="w-6 h-6" />
-                  تحميل الملف النهائي (MP4)
-                </a>
-              </div>
+              <a 
+                href={downloadUrl} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                download={`quran-video-${Date.now()}.mp4`} 
+                className="w-full bg-white text-black py-6 rounded-[1.5rem] font-black flex items-center justify-center gap-3 hover:scale-105 transition-all shadow-2xl"
+              >
+                <Download className="w-6 h-6" />
+                تحميل الملف النهائي
+              </a>
             )}
             
             {status === "error" && (
