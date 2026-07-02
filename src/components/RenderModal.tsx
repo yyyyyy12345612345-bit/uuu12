@@ -327,7 +327,14 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             setDownloadUrl(fullUrl);
             setStatus("success");
             setProgressPct(100);
-            setMessage("تم تجهيز الفيديو بنجاح! يمكن المعاينة والتحميل الآن.");
+            setMessage("تم تجهيز الفيديو بنجاح! جاري فتح الفيديو في المتصفح...");
+
+            // فتح رابط الفيديو مباشرة في تبويب جديد بصفحة المتصفح
+            try {
+              window.open(fullUrl, "_blank");
+            } catch (err) {
+              console.log("Auto popup blocked by browser", err);
+            }
 
             // Log successful completion in Firestore
             if (db) {
