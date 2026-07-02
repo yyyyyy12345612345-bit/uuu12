@@ -12,9 +12,9 @@ ENV REMOTION_CHROME_EXECUTABLE=/usr/bin/chromium
 WORKDIR /app
 
 # تهيئة مشروع npm جديد وتثبيت الحزم الأساسية فقط لخادم الرندرة لضمان عدم حدوث تداخل
-RUN npm init -y && npm install express cors sharp
+RUN npm init -y && npm install express cors sharp p-queue express-rate-limit
 
 COPY . .
 
 EXPOSE 7860
-CMD ["node", "render-server.mjs"]
+CMD ["node", "server.js"]
