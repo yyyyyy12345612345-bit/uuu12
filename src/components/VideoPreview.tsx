@@ -888,7 +888,7 @@ export function VideoPreview() {
           }}
         >
           {/* Youssef Player: content bounded exactly to card dimensions */}
-          {state.videoTemplate === "youssef_player" && (
+          {state.videoTemplate === "youssef_player" ? (
             <div 
               className="absolute z-20 select-none animate-in fade-in duration-500 flex flex-row items-center justify-between p-3"
               style={{ top: '34.37%', bottom: '35.15%', left: '3.47%', right: '3.47%' }}
@@ -1041,9 +1041,7 @@ export function VideoPreview() {
                 </div>
               </div>
             </div>
-          )}
-
-          {state.videoTemplate === "dossary_player" && (
+          ) : state.videoTemplate === "dossary_player" ? (
             <div className="w-full h-full flex flex-col justify-between z-20 select-none animate-in fade-in duration-500">
               {/* Top Area: Clean and Black */}
               <div className="h-[29.69%]" />
