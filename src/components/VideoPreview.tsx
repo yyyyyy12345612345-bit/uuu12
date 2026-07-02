@@ -745,7 +745,7 @@ export function VideoPreview() {
         </div>
 
         {/* Static Surah Header pinned to top */}
-        {surahData && state.videoTemplate !== "basit_player" && (
+        {surahData && state.videoTemplate !== "basit_player" && state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "youssef_player" && (
           <div className="absolute top-16 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 pointer-events-none">
             <div className="px-5 py-2 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-xl flex items-center gap-3 shadow-lg">
                 <BookOpen className="w-3.5 h-3.5 text-primary animate-pulse" />
@@ -1500,7 +1500,7 @@ export function VideoPreview() {
         </div>
 
         {/* Floating Play Control */}
-        {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && (
+        {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "youssef_player" && (
           <div className="absolute inset-x-0 bottom-32 flex flex-col items-center z-40">
             <button
               onClick={togglePlay}
