@@ -889,130 +889,155 @@ export function VideoPreview() {
         >
           {/* Youssef Player: content bounded exactly to card dimensions */}
           <div 
-            className="absolute z-20 select-none animate-in fade-in duration-500 flex flex-col justify-between p-4"
-            style={{ top: '29.69%', bottom: '29.69%', left: '2.7%', right: '2.7%' }}
+            className="absolute z-20 select-none animate-in fade-in duration-500 flex flex-row items-center justify-between p-3"
+            style={{ top: '34.37%', bottom: '35.15%', left: '3.47%', right: '3.47%' }}
             dir="ltr"
           >
-            <style>{`
-              @import url('https://fonts.googleapis.com/css2?family=Reem+Kufi+Fun:wght@400..700&display=swap');
-            `}</style>
+            {/* Left Side: Vintage Pill Tag + Sheikh Photo (Centered Vertically) */}
+            <div className="w-[34%] h-full flex flex-col justify-center items-center gap-1.5 shrink-0">
+              {/* Vintage Pill Tag above Photo (Sheikh Title) */}
+              <div className="w-full bg-black/10 border border-black/15 rounded-md py-0.5 text-center shrink-0">
+                <span className="text-[10px] font-bold text-black/70 tracking-wide font-arabic" style={{ fontFamily: '"Noto Naskh Arabic", serif' }}>
+                  {(() => {
+                    const name = getSheikhAsset(state.reciterId).nameAr || "";
+                    if (name.includes("المنشاوي")) return "الشيخ المنشاوي";
+                    if (name.includes("الدوسري")) return "الشيخ الدوسري";
+                    if (name.includes("الحصري")) return "الشيخ الحصري";
+                    if (name.includes("عبدالباسط") || name.includes("عبد الباسط")) return "الشيخ عبد الباسط";
+                    if (name.includes("المعيقلي")) return "الشيخ المعيقلي";
+                    return "الشيخ " + (name.split(/\s+/).pop() || "");
+                  })()}
+                </span>
+              </div>
 
-            {/* Sheikh Name Tag - RIGHT side top of card */}
-            <div className="absolute top-3 right-4 z-30 pointer-events-none select-none">
-              <span 
-                className="text-[15px] font-bold text-[#1a0f00] select-none tracking-wide block whitespace-nowrap"
-                style={{
-                  fontFamily: '"Reem Kufi Fun", sans-serif',
-                  clipPath: `inset(0 0 0 ${Math.max(0, 100 - (currentTime < 0.5 ? 0 : Math.min(100, ((currentTime - 0.5) / 1.5) * 100)))}%)`,
-                  transition: 'clip-path 0.08s linear',
-                  direction: 'rtl',
-                  textAlign: 'right',
-                }}
-              >
-                القارئ الشيخ {getSheikhAsset(state.reciterId).nameAr}
-              </span>
-            </div>
-            
-            {/* Top Half of Card: Photo (Left) and Calligraphy + Verse (Right) */}
-            <div className="flex flex-row items-center justify-between gap-4 w-full h-[65%]">
-              {/* Photo of Sheikh */}
+              {/* Sheikh Photo (Grayscale B&W) */}
               <div 
-                className="w-[38%] aspect-[3/4] overflow-hidden bg-black border-[2px] border-black/10 shadow-[0_5px_15px_rgba(0,0,0,0.15)] shrink-0 translate-y-8"
-                style={{ borderRadius: "2rem" }}
+                className="w-full h-[72%] overflow-hidden bg-black border border-black/15 shadow-sm shrink-0"
+                style={{ borderRadius: "1.3rem" }}
               >
                 <img
                   src={getSheikhAsset(state.reciterId).photoUrl}
                   alt={getSheikhAsset(state.reciterId).nameAr}
-                  className="w-full h-full object-cover grayscale brightness-110"
+                  className="w-full h-full object-cover grayscale brightness-105 contrast-110"
                 />
-              </div>
-
-              {/* Calligraphy and Active Verse Text */}
-              <div className="flex-1 flex flex-col justify-between h-full py-1 text-right max-w-[58%]">
-                {/* Calligraphy Name */}
-                {getSheikhAsset(state.reciterId).calligraphyUrl && (
-                  <div className="h-12 w-full flex items-center justify-center shrink-0">
-                    <img
-                      src={getSheikhAsset(state.reciterId).calligraphyUrl}
-                      alt="calligraphy"
-                      className="h-full object-contain"
-                    />
-                  </div>
-                )}
-
-                {/* Active Verse Text */}
-                <div className="flex-1 flex items-center justify-center">
-                  {currentVerse ? (() => {
-                    const lines = wrapTextHelper(currentVerse.text, Math.max(16, previewFontSize * 0.65), 180);
-                    const progress = duration > 0 ? (currentTime / duration) : 0;
-                    const activeLineIdx = Math.min(lines.length - 1, Math.floor(progress * lines.length));
-                    const activeLineText = lines[activeLineIdx] || currentVerse.text;
-                    return (
-                      <p
-                        className="text-[#1a0f00] text-center w-full break-words leading-[1.8] font-arabic"
-                        style={{
-                          fontSize: `${Math.max(15, previewFontSize * 0.62)}px`,
-                          fontFamily: '"Amiri", serif',
-                          direction: 'rtl',
-                        }}
-                      >
-                        {activeLineText}
-                      </p>
-                    );
-                  })() : (
-                    <p className="text-black/40 text-xs font-arabic">لم يتم تحديد آية</p>
-                  )}
-                </div>
               </div>
             </div>
 
-            {/* Bottom Half of Card: Visualizer + Controls */}
-            <div className="w-full flex flex-col gap-2.5 mt-2 h-[35%] justify-end">
-              {/* Fake/Animated Visualizer */}
-              <div className="w-[85%] mx-auto h-6 flex items-center justify-center gap-1">
-                {Array.from({ length: 32 }).map((_, i) => {
-                  const wave = Math.sin(i * 0.15 + (currentTime * 3)) * 0.4 + 0.6;
-                  const randH = (i % 3 === 0 ? 12 : i % 2 === 0 ? 25 : 8) * (isPlaying ? wave : 0.5);
+            {/* Right Side: Header Calligraphy, Verse Text, Visualizer & Player Controls */}
+            <div className="flex-1 flex flex-col justify-between h-full py-0.5 max-w-[62%]">
+              {/* Top Right: "القارئ الشيخ :" بخط Oi المخصص مع أنيميشن كتابة حرف بحرف */}
+              {(() => {
+                const rawName = getSheikhAsset(state.reciterId).nameAr || "";
+                const cleanName = rawName.replace(/^الشيخ\s*/, '');
+                const fullText = `القارئ الشيخ : ${cleanName}`;
+                const visibleCount = Math.min(fullText.length, Math.floor(currentTime * 18));
+                const animatedText = fullText.slice(0, visibleCount);
+                return (
+                  <div className="w-full text-right pr-0.5 pt-0.5">
+                    <style>{`@import url('https://fonts.googleapis.com/css2?family=Oi&display=swap');`}</style>
+                    <span 
+                      className="text-[12px] font-bold text-[#1a0f00] tracking-wide inline-block whitespace-nowrap"
+                      style={{
+                        fontFamily: '"Oi", "Aref Ruqaa", "Amiri", serif',
+                        direction: 'rtl',
+                      }}
+                    >
+                      {animatedText}
+                    </span>
+                  </div>
+                );
+              })()}
+
+              {/* Sheikh Calligraphy logo image if available */}
+              {getSheikhAsset(state.reciterId).calligraphyUrl && (
+                <div className="h-6 w-full flex items-center justify-end pr-1 shrink-0">
+                  <img
+                    src={getSheikhAsset(state.reciterId).calligraphyUrl}
+                    alt="calligraphy"
+                    className="h-full object-contain"
+                  />
+                </div>
+              )}
+
+              {/* Middle Right: Verse Text without brackets + Ayah Symbol ﴿١﴾ */}
+              <div className="flex-1 flex items-center justify-center py-1">
+                {currentVerse ? (() => {
+                  const rawVerseText = (currentVerse.text || "").replace(/[﴿﴾\uFD3F\uFD3E]/g, '').trim();
+                  const lines = wrapTextHelper(rawVerseText, Math.max(15, previewFontSize * 0.6), 160);
+                  const progress = duration > 0 ? (currentTime / duration) : 0;
+                  const activeLineIdx = Math.min(lines.length - 1, Math.floor(progress * lines.length));
+                  const activeLineText = lines[activeLineIdx] || rawVerseText;
+                  
+                  // رقم الآية الحقيقية للحالية
+                  const ayahNumRaw = currentVerse.verse_number || currentVerse.ayah_number || currentVerse.numberInSurah || currentVerse.id || currentAyahIndex || state.startAyah || 1;
+                  const arabicAyahNum = String(ayahNumRaw).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+
                   return (
-                    <div 
-                      key={i} 
-                      className="w-1 bg-white rounded-full transition-all duration-75"
-                      style={{ height: `${randH}px` }}
-                    />
+                    <p
+                      className="text-[#1a0f00] text-center w-full break-words leading-[1.7] font-arabic"
+                      style={{
+                        fontSize: `${Math.max(15, previewFontSize * 0.6)}px`,
+                        fontFamily: '"Scheherazade New", "Amiri", serif',
+                        fontWeight: 700,
+                        direction: 'rtl',
+                      }}
+                    >
+                      {activeLineText} ﴿{arabicAyahNum}﴾
+                    </p>
                   );
-                })}
+                })() : (
+                  <p className="text-black/40 text-xs font-arabic">لم يتم تحديد آية</p>
+                )}
               </div>
 
-              {/* Player Controls */}
-              <div className="flex items-center justify-center gap-6 px-1 text-white select-none">
-                <button className="opacity-70 hover:opacity-100 transition">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
-                </button>
-                <button 
-                  onClick={() => { if (audioRef.current) audioRef.current.currentTime = 0; }}
-                  className="hover:scale-105 transition active:scale-95"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5" stroke="currentColor" strokeWidth="2.2"/></svg>
-                </button>
-                <button 
-                  onClick={togglePlay}
-                  className="w-7 h-7 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 active:scale-95 transition shadow-md shrink-0"
-                >
-                  {isPlaying ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/></svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-                  )}
-                </button>
-                <button 
-                  onClick={handleAyahEnd}
-                  className="hover:scale-105 transition active:scale-95"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" x2="19" y2="19" stroke="currentColor" strokeWidth="2.2"/></svg>
-                </button>
-                <button className="opacity-70 hover:opacity-100 transition">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-                </button>
+              {/* Bottom Right: Dense Visualizer & Media Controls */}
+              <div className="w-full flex flex-col gap-1 justify-end pb-0.5">
+                {/* Visualizer bars */}
+                <div className="w-full h-4 flex items-center justify-center gap-0.5">
+                  {Array.from({ length: 36 }).map((_, i) => {
+                    const wave = Math.sin(i * 0.22 + (currentTime * 3.8)) * 0.45 + 0.55;
+                    const randH = (i % 4 === 0 ? 12 : i % 3 === 0 ? 9 : i % 2 === 0 ? 16 : 6) * (isPlaying ? wave : 0.5);
+                    return (
+                      <div 
+                        key={i} 
+                        className="w-[2px] bg-white rounded-full transition-all duration-75"
+                        style={{ height: `${randH}px` }}
+                      />
+                    );
+                  })}
+                </div>
+
+                {/* Player Controls */}
+                <div className="flex items-center justify-center gap-3 text-white select-none scale-95">
+                  <button className="opacity-85 hover:opacity-100 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+                  </button>
+                  <button 
+                    onClick={() => { if (audioRef.current) audioRef.current.currentTime = 0; }}
+                    className="hover:scale-105 transition active:scale-95"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5" stroke="currentColor" strokeWidth="2.2"/></svg>
+                  </button>
+                  <button 
+                    onClick={togglePlay}
+                    className="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 active:scale-95 transition shadow-md shrink-0"
+                  >
+                    {isPlaying ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/></svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                    )}
+                  </button>
+                  <button 
+                    onClick={handleAyahEnd}
+                    className="hover:scale-105 transition active:scale-95"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" x2="19" y2="19" stroke="currentColor" strokeWidth="2.2"/></svg>
+                  </button>
+                  <button className="opacity-85 hover:opacity-100 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
