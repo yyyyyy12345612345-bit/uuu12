@@ -598,11 +598,28 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     if (state.videoTemplate === "minshawi_player") {
         ctx.fillStyle = "#383838";
         ctx.fillRect(0, 380, canvas.width, 520);
-    } else if (state.videoTemplate === "dossary_player" || state.videoTemplate === "youssef_player") {
+    } else if (state.videoTemplate === "dossary_player") {
         if (bg) {
             const middleH = 520;
             const sc = Math.max(canvas.width / bg.width, middleH / bg.height);
             ctx.drawImage(bg, (canvas.width - bg.width * sc) / 2, 380 + (middleH - bg.height * sc) / 2, bg.width * sc, bg.height * sc);
+        }
+    } else if (state.videoTemplate === "youssef_player") {
+        if (bg) {
+            ctx.save();
+            ctx.beginPath();
+            if (typeof ctx.roundRect === 'function') {
+                ctx.roundRect(30, 380, 1020, 520, 45);
+            } else {
+                ctx.rect(30, 380, 1020, 520);
+            }
+            ctx.closePath();
+            ctx.clip();
+            
+            const middleH = 520;
+            const sc = Math.max(1020 / bg.width, middleH / bg.height);
+            ctx.drawImage(bg, 30 + (1020 - bg.width * sc) / 2, 380 + (middleH - bg.height * sc) / 2, bg.width * sc, bg.height * sc);
+            ctx.restore();
         }
     } else if (state.videoTemplate === "basit_player") {
         ctx.fillStyle = "#c5beb8";
@@ -963,45 +980,35 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       ctx.stroke();
       ctx.restore();
 
-      // 6. Draw Intro Sheikh Name in the middle (Aref Ruqaa font, first 3.5s with writing animation)
-      if (elapsedTime < 3.5) {
-        ctx.save();
-        
-        let introOpacity = 1.0;
-        if (elapsedTime > 2.8) {
-          introOpacity = Math.max(0.0, 1.0 - (elapsedTime - 2.8) / 0.7);
-        }
-
-        ctx.globalAlpha = introOpacity;
-        
-        // Setup clip path for right-to-left writing animation
-        // Animation starts at 0.5s and ends at 2.0s (1.5s duration)
-        let writeProgress = 0;
-        if (elapsedTime >= 0.5) {
-          writeProgress = Math.min(1.0, (elapsedTime - 0.5) / 1.5);
-        }
-        
-        const textWidth = 600;
-        const textHeight = 125;
-        const clipW = textWidth * writeProgress;
-        const clipX = 840 - clipW; // reveal from right (840) to left (240)
-        
-        ctx.beginPath();
-        ctx.rect(clipX, 580, clipW, textHeight);
-        ctx.closePath();
-        ctx.clip();
-        
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        
-        const nameText = `القارئ الشيخ ${getSheikhAsset(state.reciterId || "").nameAr}`;
-        ctx.font = `bold 52px "Aref Ruqaa", "Amiri", serif`;
-        
-        ctx.fillStyle = "#1a0f00";
-        ctx.fillText(nameText, 540, 640);
-        
-        ctx.restore();
+      // 6. Draw Sheikh Name above Photo (Aref Ruqaa font, permanent with writing animation)
+      ctx.save();
+      
+      let writeProgress = 1.0;
+      if (elapsedTime < 2.0) {
+        writeProgress = elapsedTime < 0.5 ? 0 : Math.min(1.0, (elapsedTime - 0.5) / 1.5);
       }
+      
+      const textWidth = 405;
+      const textHeight = 70;
+      const clipW = textWidth * writeProgress;
+      const clipX = 450 - clipW; // reveal from right (450) to left (45)
+      
+      ctx.beginPath();
+      ctx.rect(clipX, 400, clipW, textHeight);
+      ctx.closePath();
+      ctx.clip();
+      
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      
+      const nameText = `القارئ الشيخ ${getSheikhAsset(state.reciterId || "").nameAr}`;
+      ctx.font = `bold 32px "Reem Kufi Fun", "Amiri", serif`;
+      
+      ctx.fillStyle = "#1a0f00";
+      // Draw at x = 45, y = 445
+      ctx.fillText(nameText, 45, 445);
+      
+      ctx.restore();
     }
 
     if (state.videoTemplate === "dossary_player") {

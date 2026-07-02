@@ -528,7 +528,7 @@ export function VideoPreview() {
             ) : state.videoTemplate === "youssef_player" ? (
               <div className="absolute inset-0 bg-black z-10">
                 <div 
-                  className="absolute top-[29.69%] bottom-[29.69%] left-[2.7%] right-[2.7%] bg-cover bg-center rounded-[2.5rem]"
+                  className="absolute top-[29.69%] bottom-[29.69%] w-[94.6%] left-1/2 -translate-x-1/2 bg-cover bg-center rounded-[2.5rem]"
                   style={{ backgroundImage: `url(https://res.cloudinary.com/dtuyo4gqm/image/upload/v1783004228/Untitled_design_zawi7h.png)` }}
                 />
               </div>
@@ -760,31 +760,7 @@ export function VideoPreview() {
           </div>
         )}
 
-        {/* Intro Reciter Name Tag for youssef_player */}
-        {state.videoTemplate === "youssef_player" && currentTime < 3.5 && (
-          <>
-            <style>{`
-              @import url('https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&display=swap');
-            `}</style>
-            <div 
-              className="absolute top-[50%] left-0 right-0 -translate-y-1/2 flex flex-col items-center justify-center z-30 pointer-events-none"
-              style={{
-                opacity: currentTime > 2.8 ? Math.max(0, 1 - (currentTime - 2.8) / 0.7) : 1,
-              }}
-            >
-              <span 
-                className="text-[44px] font-bold text-[#1a0f00] font-arabic select-none tracking-wide text-center"
-                style={{
-                  fontFamily: '"Aref Ruqaa", Amiri, serif',
-                  clipPath: `inset(0 ${Math.max(0, 100 - (currentTime < 0.5 ? 0 : Math.min(100, ((currentTime - 0.5) / 1.5) * 100)))}% 0 0)`,
-                  transition: 'clip-path 0.1s linear',
-                }}
-              >
-                القارئ الشيخ {getSheikhAsset(state.reciterId).nameAr}
-              </span>
-            </div>
-          </>
-        )}
+
 
         {/* Custom Surah name for basit_player in bottom black section */}
         {state.videoTemplate === "basit_player" && surahData && (
@@ -918,6 +894,24 @@ export function VideoPreview() {
 
               {/* Middle Area: Photo on Left, Verses and Controls on Right */}
               <div className="h-[40.62%] flex flex-col justify-between p-5 relative" dir="ltr">
+                <style>{`
+                  @import url('https://fonts.googleapis.com/css2?family=Reem+Kufi+Fun:wght@400..700&display=swap');
+                `}</style>
+
+                {/* Sheikh Name Tag above Photo */}
+                <div className="absolute top-[8%] left-5 z-30 pointer-events-none select-none text-left">
+                  <span 
+                    className="text-[14px] font-bold text-[#1a0f00] font-arabic select-none tracking-wide text-left block"
+                    style={{
+                      fontFamily: '"Reem Kufi Fun", sans-serif',
+                      clipPath: `inset(0 ${Math.max(0, 100 - (currentTime < 0.5 ? 0 : Math.min(100, ((currentTime - 0.5) / 1.5) * 100)))}% 0 0)`,
+                      transition: 'clip-path 0.1s linear',
+                      direction: 'rtl',
+                    }}
+                  >
+                    القارئ الشيخ {getSheikhAsset(state.reciterId).nameAr}
+                  </span>
+                </div>
                 
                 {/* Top Half of Card: Photo (Left) and Calligraphy + Verse (Right) */}
                 <div className="flex flex-row items-center justify-between gap-4 w-full h-[65%]">
