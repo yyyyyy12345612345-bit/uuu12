@@ -526,14 +526,12 @@ export function VideoPreview() {
                 <div className="absolute bottom-0 left-0 right-0 h-[29.69%] bg-black z-10" />
               </>
             ) : state.videoTemplate === "youssef_player" ? (
-              <>
-                <div className="absolute top-0 left-0 right-0 h-[29.69%] bg-black z-10" />
+              <div className="absolute inset-0 bg-black z-10">
                 <div 
-                  className="absolute top-[29.69%] bottom-[29.69%] left-0 right-0 bg-cover bg-center z-10"
+                  className="absolute top-[29.69%] bottom-[29.69%] left-[2.7%] right-[2.7%] bg-cover bg-center rounded-[2.5rem]"
                   style={{ backgroundImage: `url(https://res.cloudinary.com/dtuyo4gqm/image/upload/v1783004228/Untitled_design_zawi7h.png)` }}
                 />
-                <div className="absolute bottom-0 left-0 right-0 h-[29.69%] bg-black z-10" />
-              </>
+              </div>
             ) : null
           )}
         </div>
@@ -764,23 +762,28 @@ export function VideoPreview() {
 
         {/* Intro Reciter Name Tag for youssef_player */}
         {state.videoTemplate === "youssef_player" && currentTime < 3.5 && (
-          <div 
-            className="absolute top-[14%] left-0 right-0 flex flex-col items-center justify-center z-30 pointer-events-none transition-all duration-300"
-            style={{
-              opacity: currentTime < 1.0 ? (currentTime / 1.0) : (currentTime > 2.5 ? (1.0 - (currentTime - 2.5) / 1.0) : 1.0),
-              transform: `scale(${currentTime < 1.0 ? (0.7 + 0.3 * currentTime) : 1.0}) translateY(${currentTime > 2.5 ? -30 * ((currentTime - 2.5) / 1.0) : 0}px)`,
-            }}
-          >
-            <span 
-              className="text-[30px] font-bold text-[#ffdf7a] font-arabic select-none tracking-wide text-center"
+          <>
+            <style>{`
+              @import url('https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&display=swap');
+            `}</style>
+            <div 
+              className="absolute top-[50%] left-0 right-0 -translate-y-1/2 flex flex-col items-center justify-center z-30 pointer-events-none"
               style={{
-                fontFamily: '"Aref Ruqaa", Amiri, serif',
-                textShadow: '0 4px 12px rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.8)',
+                opacity: currentTime > 2.8 ? Math.max(0, 1 - (currentTime - 2.8) / 0.7) : 1,
               }}
             >
-              القارئ الشيخ {getSheikhAsset(state.reciterId).nameAr}
-            </span>
-          </div>
+              <span 
+                className="text-[44px] font-bold text-[#1a0f00] font-arabic select-none tracking-wide text-center"
+                style={{
+                  fontFamily: '"Aref Ruqaa", Amiri, serif',
+                  clipPath: `inset(0 ${Math.max(0, 100 - (currentTime < 0.5 ? 0 : Math.min(100, ((currentTime - 0.5) / 1.5) * 100)))}% 0 0)`,
+                  transition: 'clip-path 0.1s linear',
+                }}
+              >
+                القارئ الشيخ {getSheikhAsset(state.reciterId).nameAr}
+              </span>
+            </div>
+          </>
         )}
 
         {/* Custom Surah name for basit_player in bottom black section */}

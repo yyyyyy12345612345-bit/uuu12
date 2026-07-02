@@ -963,44 +963,42 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       ctx.stroke();
       ctx.restore();
 
-      // 6. Draw Intro Sheikh Name at the top (Aref Ruqaa font, first 3.5s)
+      // 6. Draw Intro Sheikh Name in the middle (Aref Ruqaa font, first 3.5s with writing animation)
       if (elapsedTime < 3.5) {
         ctx.save();
         
-        let introOpacity = 0;
-        let introScale = 1.0;
-        let introYOffset = 0;
-
-        if (elapsedTime < 1.0) {
-          const t = elapsedTime / 1.0;
-          introOpacity = t;
-          introScale = 0.7 + 0.3 * t;
-        } else if (elapsedTime < 2.5) {
-          introOpacity = 1.0;
-          introScale = 1.0;
-        } else {
-          const t = (elapsedTime - 2.5) / 1.0;
-          introOpacity = 1.0 - t;
-          introYOffset = -30 * t;
+        let introOpacity = 1.0;
+        if (elapsedTime > 2.8) {
+          introOpacity = Math.max(0.0, 1.0 - (elapsedTime - 2.8) / 0.7);
         }
 
         ctx.globalAlpha = introOpacity;
-        ctx.translate(540, 200 + introYOffset);
-        ctx.scale(introScale, introScale);
+        
+        // Setup clip path for right-to-left writing animation
+        // Animation starts at 0.5s and ends at 2.0s (1.5s duration)
+        let writeProgress = 0;
+        if (elapsedTime >= 0.5) {
+          writeProgress = Math.min(1.0, (elapsedTime - 0.5) / 1.5);
+        }
+        
+        const textWidth = 600;
+        const textHeight = 125;
+        const clipW = textWidth * writeProgress;
+        const clipX = 840 - clipW; // reveal from right (840) to left (240)
+        
+        ctx.beginPath();
+        ctx.rect(clipX, 580, clipW, textHeight);
+        ctx.closePath();
+        ctx.clip();
         
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         
         const nameText = `القارئ الشيخ ${getSheikhAsset(state.reciterId || "").nameAr}`;
-        ctx.font = `bold 44px "Aref Ruqaa", "Amiri", serif`;
+        ctx.font = `bold 52px "Aref Ruqaa", "Amiri", serif`;
         
-        // Shadow
-        ctx.fillStyle = "#000000";
-        ctx.fillText(nameText, 2, 2);
-        
-        // Main Text
-        ctx.fillStyle = "#ffdf7a";
-        ctx.fillText(nameText, 0, 0);
+        ctx.fillStyle = "#1a0f00";
+        ctx.fillText(nameText, 540, 640);
         
         ctx.restore();
       }
