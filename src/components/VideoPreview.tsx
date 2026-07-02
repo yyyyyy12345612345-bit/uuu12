@@ -887,146 +887,137 @@ export function VideoPreview() {
             transform: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player" || state.videoTemplate === "basit_player" || state.videoTemplate === "youssef_player") ? 'none' : `translateY(${state.textVerticalOffset * 0.45}px)` 
           }}
         >
-          {state.videoTemplate === "youssef_player" ? (
-            <div className="w-full h-full flex flex-col justify-between z-20 select-none animate-in fade-in duration-500" dir="ltr">
-              {/* Top Area: Clean and Black */}
-              <div className="h-[29.69%]" />
+          {/* Youssef Player: content bounded exactly to card dimensions */}
+          <div 
+            className="absolute z-20 select-none animate-in fade-in duration-500 flex flex-col justify-between p-4"
+            style={{ top: '29.69%', bottom: '29.69%', left: '2.7%', right: '2.7%' }}
+            dir="ltr"
+          >
+            <style>{`
+              @import url('https://fonts.googleapis.com/css2?family=Reem+Kufi+Fun:wght@400..700&display=swap');
+            `}</style>
 
-              {/* Middle Area: Photo on Left, Verses and Controls on Right */}
-              <div className="h-[40.62%] flex flex-col justify-between p-5 relative" dir="ltr">
-                <style>{`
-                  @import url('https://fonts.googleapis.com/css2?family=Reem+Kufi+Fun:wght@400..700&display=swap');
-                `}</style>
-
-                {/* Sheikh Name Tag - RIGHT side above verse text */}
-                <div className="absolute top-[5%] right-5 z-30 pointer-events-none select-none">
-                  <span 
-                    className="text-[15px] font-bold text-[#1a0f00] select-none tracking-wide block whitespace-nowrap"
-                    style={{
-                      fontFamily: '"Reem Kufi Fun", sans-serif',
-                      clipPath: `inset(0 0 0 ${Math.max(0, 100 - (currentTime < 0.5 ? 0 : Math.min(100, ((currentTime - 0.5) / 1.5) * 100)))}%)`,
-                      transition: 'clip-path 0.08s linear',
-                      direction: 'rtl',
-                      textAlign: 'right',
-                    }}
-                  >
-                    القارئ الشيخ {getSheikhAsset(state.reciterId).nameAr}
-                  </span>
-                </div>
-                
-                {/* Top Half of Card: Photo (Left) and Calligraphy + Verse (Right) */}
-                <div className="flex flex-row items-center justify-between gap-4 w-full h-[65%]">
-                  {/* Photo of Sheikh */}
-                  <div 
-                    className="w-[38%] aspect-[3/4] overflow-hidden bg-black border-[2px] border-black/10 shadow-[0_5px_15px_rgba(0,0,0,0.15)] shrink-0 translate-y-8"
-                    style={{ borderRadius: "2rem" }}
-                  >
-                    <img
-                      src={getSheikhAsset(state.reciterId).photoUrl}
-                      alt={getSheikhAsset(state.reciterId).nameAr}
-                      className="w-full h-full object-cover grayscale brightness-110"
-                    />
-                  </div>
-
-                  {/* Calligraphy and Active Verse Text */}
-                  <div className="flex-1 flex flex-col justify-between h-full py-1 text-right max-w-[58%]">
-                    {/* Calligraphy Name */}
-                    {getSheikhAsset(state.reciterId).calligraphyUrl && (
-                      <div className="h-12 w-full flex items-center justify-center shrink-0">
-                        <img
-                          src={getSheikhAsset(state.reciterId).calligraphyUrl}
-                          alt="calligraphy"
-                          className="h-full object-contain"
-                        />
-                      </div>
-                    )}
-
-                    {/* Active Verse Text */}
-                    <div className="flex-1 flex items-center justify-center">
-                      {currentVerse ? (() => {
-                        const lines = wrapTextHelper(currentVerse.text, Math.max(16, previewFontSize * 0.65), 180);
-                        const progress = duration > 0 ? (currentTime / duration) : 0;
-                        const activeLineIdx = Math.min(lines.length - 1, Math.floor(progress * lines.length));
-                        const activeLineText = lines[activeLineIdx] || currentVerse.text;
-                        return (
-                          <p
-                            className="text-[#1a0f00] text-center w-full break-words leading-[1.8] font-arabic"
-                            style={{
-                              fontSize: `${Math.max(15, previewFontSize * 0.62)}px`,
-                              fontFamily: '"Amiri", serif',
-                              direction: 'rtl',
-                            }}
-                          >
-                            {activeLineText}
-                          </p>
-                        );
-                      })() : (
-                        <p className="text-black/40 text-xs font-arabic">لم يتم تحديد آية</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bottom Half of Card: Visualizer + Controls */}
-                <div className="w-full flex flex-col gap-2.5 mt-2 h-[35%] justify-end">
-                  {/* Fake/Animated Visualizer */}
-                  <div className="w-[85%] mx-auto h-6 flex items-center justify-center gap-1">
-                    {Array.from({ length: 32 }).map((_, i) => {
-                      const wave = Math.sin(i * 0.15 + (currentTime * 3)) * 0.4 + 0.6;
-                      const randH = (i % 3 === 0 ? 12 : i % 2 === 0 ? 25 : 8) * (isPlaying ? wave : 0.5);
-                      return (
-                        <div 
-                          key={i} 
-                          className="w-1 bg-white rounded-full transition-all duration-75"
-                          style={{ height: `${randH}px` }}
-                        />
-                      );
-                    })}
-                  </div>
-
-                  {/* Player Controls */}
-                  <div className="flex items-center justify-center gap-6 px-1 text-white select-none">
-                    {/* Shuffle */}
-                    <button className="opacity-70 hover:opacity-100 transition">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
-                    </button>
-                    {/* Prev */}
-                    <button 
-                      onClick={() => { if (audioRef.current) audioRef.current.currentTime = 0; }}
-                      className="hover:scale-105 transition active:scale-95"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5" stroke="currentColor" strokeWidth="2.2"/></svg>
-                    </button>
-                    {/* Play/Pause */}
-                    <button 
-                      onClick={togglePlay}
-                      className="w-7 h-7 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 active:scale-95 transition shadow-md shrink-0"
-                    >
-                      {isPlaying ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/></svg>
-                      ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-                      )}
-                    </button>
-                    {/* Next */}
-                    <button 
-                      onClick={handleAyahEnd}
-                      className="hover:scale-105 transition active:scale-95"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" x2="19" y2="19" stroke="currentColor" strokeWidth="2.2"/></svg>
-                    </button>
-                    {/* Repeat */}
-                    <button className="opacity-70 hover:opacity-100 transition">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-                    </button>
-                  </div>
-                </div>
+            {/* Sheikh Name Tag - RIGHT side top of card */}
+            <div className="absolute top-3 right-4 z-30 pointer-events-none select-none">
+              <span 
+                className="text-[15px] font-bold text-[#1a0f00] select-none tracking-wide block whitespace-nowrap"
+                style={{
+                  fontFamily: '"Reem Kufi Fun", sans-serif',
+                  clipPath: `inset(0 0 0 ${Math.max(0, 100 - (currentTime < 0.5 ? 0 : Math.min(100, ((currentTime - 0.5) / 1.5) * 100)))}%)`,
+                  transition: 'clip-path 0.08s linear',
+                  direction: 'rtl',
+                  textAlign: 'right',
+                }}
+              >
+                القارئ الشيخ {getSheikhAsset(state.reciterId).nameAr}
+              </span>
+            </div>
+            
+            {/* Top Half of Card: Photo (Left) and Calligraphy + Verse (Right) */}
+            <div className="flex flex-row items-center justify-between gap-4 w-full h-[65%]">
+              {/* Photo of Sheikh */}
+              <div 
+                className="w-[38%] aspect-[3/4] overflow-hidden bg-black border-[2px] border-black/10 shadow-[0_5px_15px_rgba(0,0,0,0.15)] shrink-0 translate-y-8"
+                style={{ borderRadius: "2rem" }}
+              >
+                <img
+                  src={getSheikhAsset(state.reciterId).photoUrl}
+                  alt={getSheikhAsset(state.reciterId).nameAr}
+                  className="w-full h-full object-cover grayscale brightness-110"
+                />
               </div>
 
-              {/* Bottom Area: Empty Black */}
-              <div className="h-[29.69%] bg-black" />
+              {/* Calligraphy and Active Verse Text */}
+              <div className="flex-1 flex flex-col justify-between h-full py-1 text-right max-w-[58%]">
+                {/* Calligraphy Name */}
+                {getSheikhAsset(state.reciterId).calligraphyUrl && (
+                  <div className="h-12 w-full flex items-center justify-center shrink-0">
+                    <img
+                      src={getSheikhAsset(state.reciterId).calligraphyUrl}
+                      alt="calligraphy"
+                      className="h-full object-contain"
+                    />
+                  </div>
+                )}
+
+                {/* Active Verse Text */}
+                <div className="flex-1 flex items-center justify-center">
+                  {currentVerse ? (() => {
+                    const lines = wrapTextHelper(currentVerse.text, Math.max(16, previewFontSize * 0.65), 180);
+                    const progress = duration > 0 ? (currentTime / duration) : 0;
+                    const activeLineIdx = Math.min(lines.length - 1, Math.floor(progress * lines.length));
+                    const activeLineText = lines[activeLineIdx] || currentVerse.text;
+                    return (
+                      <p
+                        className="text-[#1a0f00] text-center w-full break-words leading-[1.8] font-arabic"
+                        style={{
+                          fontSize: `${Math.max(15, previewFontSize * 0.62)}px`,
+                          fontFamily: '"Amiri", serif',
+                          direction: 'rtl',
+                        }}
+                      >
+                        {activeLineText}
+                      </p>
+                    );
+                  })() : (
+                    <p className="text-black/40 text-xs font-arabic">لم يتم تحديد آية</p>
+                  )}
+                </div>
+              </div>
             </div>
-          ) : state.videoTemplate === "dossary_player" ? (
+
+            {/* Bottom Half of Card: Visualizer + Controls */}
+            <div className="w-full flex flex-col gap-2.5 mt-2 h-[35%] justify-end">
+              {/* Fake/Animated Visualizer */}
+              <div className="w-[85%] mx-auto h-6 flex items-center justify-center gap-1">
+                {Array.from({ length: 32 }).map((_, i) => {
+                  const wave = Math.sin(i * 0.15 + (currentTime * 3)) * 0.4 + 0.6;
+                  const randH = (i % 3 === 0 ? 12 : i % 2 === 0 ? 25 : 8) * (isPlaying ? wave : 0.5);
+                  return (
+                    <div 
+                      key={i} 
+                      className="w-1 bg-white rounded-full transition-all duration-75"
+                      style={{ height: `${randH}px` }}
+                    />
+                  );
+                })}
+              </div>
+
+              {/* Player Controls */}
+              <div className="flex items-center justify-center gap-6 px-1 text-white select-none">
+                <button className="opacity-70 hover:opacity-100 transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+                </button>
+                <button 
+                  onClick={() => { if (audioRef.current) audioRef.current.currentTime = 0; }}
+                  className="hover:scale-105 transition active:scale-95"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5" stroke="currentColor" strokeWidth="2.2"/></svg>
+                </button>
+                <button 
+                  onClick={togglePlay}
+                  className="w-7 h-7 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 active:scale-95 transition shadow-md shrink-0"
+                >
+                  {isPlaying ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/></svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                  )}
+                </button>
+                <button 
+                  onClick={handleAyahEnd}
+                  className="hover:scale-105 transition active:scale-95"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" x2="19" y2="19" stroke="currentColor" strokeWidth="2.2"/></svg>
+                </button>
+                <button className="opacity-70 hover:opacity-100 transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {state.videoTemplate === "dossary_player" && (
             <div className="w-full h-full flex flex-col justify-between z-20 select-none animate-in fade-in duration-500">
               {/* Top Area: Clean and Black */}
               <div className="h-[29.69%]" />
@@ -1174,7 +1165,8 @@ export function VideoPreview() {
                 </div>
               </div>
             </div>
-          ) : (state.videoTemplate as any) === "basit_player" ? (
+          )}
+          {(state.videoTemplate as any) === "basit_player" ? (
             <div className="absolute top-[29.69%] bottom-[29.69%] left-0 right-0 z-20 flex flex-col justify-between py-8 px-8 select-none" dir="ltr">
               {/* Photo - Horizontal Oval */}
               <div className="w-[58%] aspect-[1.38] rounded-full overflow-hidden shadow-[0_4px_15px_rgba(0,0,0,0.15)] mx-auto bg-black shrink-0">
