@@ -924,7 +924,7 @@ export function AdminPanel() {
         const rec = j.reciterName || "غير معروف";
         vrReciters[rec] = (vrReciters[rec] || 0) + 1;
         
-        const temp = j.videoTemplate === "minshawi_player" ? "تصميم زياد (المنشاوي)" : (j.videoTemplate === "dossary_player" ? "تصميم 2 (الدوسري)" : (j.videoTemplate === "basit_player" ? "تصميم 3 (عبد الباسط)" : "التصميم الافتراضي"));
+        const temp = j.videoTemplate === "minshawi_player" ? "تصميم زياد (المنشاوي)" : (j.videoTemplate === "dossary_player" ? "تصميم 2 (الدوسري)" : (j.videoTemplate === "youssef_player" ? "تصميم يوسف" : "التصميم الافتراضي"));
         vrTemplates[temp] = (vrTemplates[temp] || 0) + 1;
 
         const p = j.userPlan || "free";
@@ -4195,7 +4195,7 @@ export function AdminPanel() {
                                               <span className="text-white/40 text-[10px]">{job.reciterName}</span>
                                             </td>
                                             <td className="py-4 pl-4 font-bold text-white/80">
-                                              {job.videoTemplate === "minshawi_player" ? "تصميم زياد (المنشاوي)" : (job.videoTemplate === "dossary_player" ? "تصميم 2" : (job.videoTemplate === "basit_player" ? "تصميم 3" : "التصميم الافتراضي"))}
+                                              {job.videoTemplate === "minshawi_player" ? "تصميم زياد (المنشاوي)" : (job.videoTemplate === "dossary_player" ? "تصميم 2" : (job.videoTemplate === "youssef_player" ? "تصميم يوسف" : "التصميم الافتراضي"))}
                                             </td>
                                             <td className="py-4 pl-4">
                                               {job.isVideoBg ? (

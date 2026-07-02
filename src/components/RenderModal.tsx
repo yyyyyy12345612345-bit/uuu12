@@ -409,30 +409,26 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
 
       const verses = surahData.verses.filter((v: any) => v.id >= state.startAyah && v.id <= state.endAyah);
       const dest = audioCtx.createMediaStreamDestination();
-      const stream = canvas.captureStream(30); 
-      const audioTracks = dest.stream.getAudioTracks();
-      if (audioTracks.length > 0) stream.addTrack(audioTracks[0]);
-
-      let bgImage: HTMLImageElement | null = null;
-      let bgVideo: HTMLVideoElement | null = null;
-      
+      const stream = canvas.captureStream(30);
       const isDossary = state.videoTemplate === "dossary_player";
+      const isYoussef = state.videoTemplate === "youssef_player";
       const dossaryBgUrl = "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782871516/12_gahaqi.png";
-      const actualBgUrl = isDossary ? dossaryBgUrl : state.backgroundUrl;
+      const youssefBgUrl = "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1783004228/Untitled_design_zawi7h.png";
+      const actualBgUrl = isDossary ? dossaryBgUrl : (isYoussef ? youssefBgUrl : state.backgroundUrl);
       
-      const isVideo = !isDossary && (/\.(mp4|webm|mov|ogg|m4v|3gp|flv|avi)(\?.*|#.*)?$/i.test(state.backgroundUrl) || state.backgroundUrl.includes("video"));
+      const isVideo = !isDossary && !isYoussef && (/\.(mp4|webm|mov|ogg|m4v|3gp|flv|avi)(\?.*|#.*)?$/i.test(state.backgroundUrl) || state.backgroundUrl.includes("video"));
 
       if (isVideo) bgVideo = await loadVideo(actualBgUrl);
       else bgImage = await loadImage(actualBgUrl); 
 
       let templatePhoto: HTMLImageElement | null = null;
       let templateCalligraphy: HTMLImageElement | null = null;
-      const isPlayerTemplate = ["dossary_player", "minshawi_player", "basit_player"].includes(state.videoTemplate || "");
+      const isPlayerTemplate = ["dossary_player", "minshawi_player", "youssef_player", "basit_player"].includes(state.videoTemplate || "");
 
       if (isPlayerTemplate) {
         const sheikh = getSheikhAsset(state.reciterId || "");
         templatePhoto = await loadImage(sheikh.photoUrl);
-        if (state.videoTemplate === "basit_player" && sheikh.calligraphyUrl) {
+        if ((state.videoTemplate === "youssef_player" || state.videoTemplate === "basit_player") && sheikh.calligraphyUrl) {
           templateCalligraphy = await loadImage(sheikh.calligraphyUrl);
         }
       }
@@ -602,7 +598,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     if (state.videoTemplate === "minshawi_player") {
         ctx.fillStyle = "#383838";
         ctx.fillRect(0, 380, canvas.width, 520);
-    } else if (state.videoTemplate === "dossary_player") {
+    } else if (state.videoTemplate === "dossary_player" || state.videoTemplate === "youssef_player") {
         if (bg) {
             const middleH = 520;
             const sc = Math.max(canvas.width / bg.width, middleH / bg.height);
@@ -830,6 +826,142 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         ctx.fillStyle = "#FFD700";
         ctx.fillText(text, canvas.width / 2, badgeY + 36);
         ctx.restore();
+    }
+
+    if (state.videoTemplate === "youssef_player") {
+      // 1. Draw Sheikh Photo on the left (y=[430,740])
+      const rx = 35;
+      const photoX = 45;
+      const photoY = 430;
+      const photoW = 235;
+      const photoH = 310;
+      
+      if (templatePhoto) {
+        ctx.save();
+        ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
+        ctx.shadowBlur = 15;
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.1)";
+        ctx.lineWidth = 2;
+        
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(photoX, photoY, photoW, photoH, rx);
+        } else {
+          ctx.rect(photoX, photoY, photoW, photoH);
+        }
+        ctx.closePath();
+        ctx.stroke();
+        
+        ctx.clip();
+        ctx.drawImage(templatePhoto, photoX, photoY, photoW, photoH);
+        ctx.restore();
+      }
+
+      // 2. Draw Calligraphy on the top right
+      if (templateCalligraphy) {
+        ctx.save();
+        const callW = 320;
+        const callH = 75;
+        const callX = 330;
+        const callY = 425;
+        ctx.drawImage(templateCalligraphy, callX, callY, callW, callH);
+        ctx.restore();
+      }
+
+      // 3. Draw Active Verse Text (Middle right)
+      if (verse && verse.text) {
+        ctx.save();
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#1a0f00"; // Dark ink
+        ctx.font = `600 32px "Amiri", serif`;
+        
+        const rightAreaW = 360;
+        const textCenterX = 310 + rightAreaW / 2; // 490
+        const lines = wrapText(ctx, verse.text, rightAreaW - 20);
+        if (lines.length > 0) {
+          const progressPct = ayahProgress || 0;
+          const activeLineIdx = Math.min(lines.length - 1, Math.floor(progressPct * lines.length));
+          const activeLineText = lines[activeLineIdx];
+          
+          const startY = 570;
+          ctx.fillText(activeLineText, textCenterX, startY);
+        }
+        ctx.restore();
+      }
+
+      // 4. Visualizer
+      ctx.save();
+      ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+      const visX = 295;
+      const visY = 740;
+      const barCount = 42;
+      const barW = 4;
+      const barGap = 5;
+      for (let i = 0; i < barCount; i++) {
+        const timeFactor = (elapsedTime || 0) * 3;
+        const wave = Math.sin(i * 0.15 + timeFactor) * 0.4 + 0.6;
+        const randomHeight = (i % 3 === 0 ? 12 : i % 2 === 0 ? 25 : 8) * wave;
+        const h = Math.max(3, randomHeight);
+        ctx.fillRect(visX + i * (barW + barGap), visY - h / 2, barW, h);
+      }
+      ctx.restore();
+
+      // 5. Player Controls
+      const ctrlY = 765;
+      const ctrlCenterX = 490;
+      
+      // Shuffle Icon
+      ctx.save();
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
+      ctx.lineWidth = 2.5;
+      ctx.translate(ctrlCenterX - 90, ctrlY);
+      ctx.beginPath();
+      ctx.moveTo(0, 4); ctx.bezierCurveTo(8, 4, 12, 16, 20, 16);
+      ctx.moveTo(0, 16); ctx.bezierCurveTo(8, 16, 12, 4, 20, 4);
+      ctx.stroke();
+      ctx.restore();
+
+      // Prev Icon
+      ctx.save();
+      ctx.fillStyle = "#ffffff";
+      ctx.translate(ctrlCenterX - 45, ctrlY);
+      ctx.beginPath();
+      ctx.moveTo(15, 17); ctx.lineTo(5, 10); ctx.lineTo(15, 3);
+      ctx.fill();
+      ctx.fillRect(2, 3, 2.5, 14);
+      ctx.restore();
+
+      // Play/Pause (Circle Pause)
+      ctx.save();
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(ctrlCenterX + 10, ctrlY + 10, 18, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#a88a50";
+      ctx.fillRect(ctrlCenterX + 5, ctrlY + 4, 3.5, 12);
+      ctx.fillRect(ctrlCenterX + 12, ctrlY + 4, 3.5, 12);
+      ctx.restore();
+
+      // Next Icon
+      ctx.save();
+      ctx.fillStyle = "#ffffff";
+      ctx.translate(ctrlCenterX + 50, ctrlY);
+      ctx.beginPath();
+      ctx.moveTo(5, 17); ctx.lineTo(15, 10); ctx.lineTo(5, 3);
+      ctx.fill();
+      ctx.fillRect(15.5, 3, 2.5, 14);
+      ctx.restore();
+
+      // Repeat Icon
+      ctx.save();
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
+      ctx.lineWidth = 2.5;
+      ctx.translate(ctrlCenterX + 85, ctrlY);
+      ctx.beginPath();
+      ctx.arc(10, 10, 7, -Math.PI/4, 5*Math.PI/4);
+      ctx.stroke();
+      ctx.restore();
     }
 
     if (state.videoTemplate === "dossary_player") {
