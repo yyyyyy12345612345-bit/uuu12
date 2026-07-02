@@ -672,7 +672,7 @@ export function VideoPreview() {
           <div className="absolute inset-0 pointer-events-none overflow-hidden z-10 opacity-[0.08] mix-blend-overlay">
             <div style={{
               position: 'absolute', top: '-50%', left: '-50%', width: '200%', height: '200%',
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+              backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")',
               animation: 'grainShift 0.4s steps(1) infinite'
             }} />
           </div>
@@ -831,7 +831,7 @@ export function VideoPreview() {
         )}
 
         {/* Keyframes for particles & overlays */}
-        <style>{`
+        <style dangerouslySetInnerHTML={{ __html: `
           @keyframes snowFall {
             0% { transform: translateY(-10px) translateX(0); opacity: 0; }
             10% { opacity: 1; }
@@ -875,7 +875,7 @@ export function VideoPreview() {
             0%, 100% { transform: skewY(-3deg) translateY(0); filter: hue-rotate(0deg); }
             50% { transform: skewY(3deg) translateY(-15px); filter: hue-rotate(40deg); }
           }
-        `}</style>
+        ` }} />
 
         {/* Content Layer */}
         <div 
@@ -888,7 +888,7 @@ export function VideoPreview() {
           }}
         >
           {/* Youssef Player: content bounded exactly to card dimensions */}
-          {state.videoTemplate === "youssef_player" ? (
+          {state.videoTemplate === "youssef_player" && (
             <div 
               className="absolute z-20 select-none animate-in fade-in duration-500 flex flex-row items-center justify-between p-3"
               style={{ top: '34.37%', bottom: '35.15%', left: '3.47%', right: '3.47%' }}
@@ -935,7 +935,7 @@ export function VideoPreview() {
                 const animatedText = fullText.slice(0, visibleCount);
                 return (
                   <div className="w-full text-right pr-0.5 pt-0.5">
-                    <style>{`@import url('https://fonts.googleapis.com/css2?family=Oi&display=swap');`}</style>
+                    <style dangerouslySetInnerHTML={{ __html: "@import url('https://fonts.googleapis.com/css2?family=Oi&display=swap');" }} />
                     <span 
                       className="text-[12px] font-bold text-[#1a0f00] tracking-wide inline-block whitespace-nowrap"
                       style={{
@@ -1041,7 +1041,10 @@ export function VideoPreview() {
                 </div>
               </div>
             </div>
-          ) : state.videoTemplate === "dossary_player" ? (
+          </div>
+        )}
+
+          {state.videoTemplate === "dossary_player" && (
             <div className="w-full h-full flex flex-col justify-between z-20 select-none animate-in fade-in duration-500">
               {/* Top Area: Clean and Black */}
               <div className="h-[29.69%]" />
@@ -1189,7 +1192,9 @@ export function VideoPreview() {
                 </div>
               </div>
             </div>
-          ) : (state.videoTemplate as any) === "basit_player" ? (
+          )}
+
+          {(state.videoTemplate as any) === "basit_player" && (
             <div className="absolute top-[29.69%] bottom-[29.69%] left-0 right-0 z-20 flex flex-col justify-between py-8 px-8 select-none" dir="ltr">
               {/* Photo - Horizontal Oval */}
               <div className="w-[58%] aspect-[1.38] rounded-full overflow-hidden shadow-[0_4px_15px_rgba(0,0,0,0.15)] mx-auto bg-black shrink-0">
@@ -1315,7 +1320,9 @@ export function VideoPreview() {
                 </p>
               </div>
             </div>
-          ) : state.videoTemplate === "minshawi_player" ? (
+          )}
+
+          {state.videoTemplate === "minshawi_player" && (
             <div className="w-[70%] aspect-[500/450] bg-black rounded-[2rem] p-5 pb-6 flex flex-col justify-between shadow-2xl z-20 text-left select-none animate-in fade-in duration-500 border border-white/5">
               {/* Photo */}
               <div className="w-[90%] mx-auto aspect-[450/185] rounded-[1.2rem] overflow-hidden bg-black border-[3px] border-[#8a8070]/40 shrink-0">
@@ -1421,7 +1428,10 @@ export function VideoPreview() {
                 </button>
               </div>
             </div>
-          ) : surahLoading ? (
+          )}
+
+          {(!state.videoTemplate || state.videoTemplate === "default") && (
+            surahLoading ? (
             <div className="flex flex-col items-center gap-6 py-20 animate-pulse">
               <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
               <span className="text-[10px] text-primary font-black uppercase tracking-[0.5em]">جاري جلب البيانات</span>
@@ -1467,7 +1477,7 @@ export function VideoPreview() {
                     color: state.textColor,
                     fontSize: `${previewFontSize}px`,
                     fontWeight: Number(state.fontWeight) || 700,
-                    fontFamily: `"${state.fontFamily || 'Amiri'}", "Amiri", serif`,
+                    fontFamily: `${state.fontFamily || 'Amiri'}, Amiri, serif`,
                     direction: 'rtl',
                     lineHeight: 2.2,
                     textShadow: '0 8px 30px rgba(0,0,0,0.9)'
@@ -1495,7 +1505,7 @@ export function VideoPreview() {
               <span className="text-sm font-black text-white/80">تعذر تحميل بيانات السورة</span>
               <button onClick={() => window.location.reload()} className="px-6 py-3 bg-white/5 rounded-xl text-[10px] text-white font-black hover:bg-white/10 transition-all uppercase tracking-widest">إعادة المحاولة</button>
             </div>
-          )}
+          ))}
         </div>
 
         {/* Floating Play Control */}
@@ -1523,7 +1533,6 @@ export function VideoPreview() {
           onEnded={handleAyahEnd}
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
-          onError={(e) => console.error("Audio load error:", e)}
         />
       </div>
     </div>
