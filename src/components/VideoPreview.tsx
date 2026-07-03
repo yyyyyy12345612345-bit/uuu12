@@ -937,10 +937,11 @@ export function VideoPreview() {
                   <div className="w-full text-right pr-0.5 pt-0.5">
                     <style dangerouslySetInnerHTML={{ __html: "@import url('https://fonts.googleapis.com/css2?family=Oi&display=swap');" }} />
                     <span 
-                      className="text-[12px] font-bold text-[#1a0f00] tracking-wide inline-block whitespace-nowrap"
+                      className="text-[12px] text-[#1a0f00] tracking-wide inline-block whitespace-nowrap"
                       style={{
                         fontFamily: '"SurahNameV2", "Oi", "Aref Ruqaa", "Amiri", serif',
                         direction: 'rtl',
+                        fontWeight: 'normal',
                       }}
                     >
                       {animatedText}
@@ -973,6 +974,7 @@ export function VideoPreview() {
                   // رقم الآية الحقيقية للحالية
                   const ayahNumRaw = currentVerse.verse_number || currentVerse.ayah_number || currentVerse.numberInSurah || currentVerse.id || currentAyahIndex || state.startAyah || 1;
                   const arabicAyahNum = String(ayahNumRaw).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+                  const isLastLine = activeLineIdx === lines.length - 1;
 
                   return (
                     <div className="flex flex-col items-center gap-1.5 w-full">
@@ -980,23 +982,19 @@ export function VideoPreview() {
                         className="text-[#1a0f00] text-center w-full break-words leading-[1.6] font-arabic"
                         style={{
                           fontSize: `${Math.max(14, previewFontSize * 0.55)}px`,
-                          fontFamily: '"Scheherazade New", "Amiri", serif',
+                          fontFamily: '"BasmalahVer01", "Scheherazade New", "Amiri", serif',
                           fontWeight: 700,
                           direction: 'rtl',
+                          unicodeBidi: 'embed',
                         }}
                       >
-                        {activeLineText}
+                        <span>{activeLineText}</span>
+                        {isLastLine && (
+                          <span style={{ fontFamily: 'Amiri, serif', fontSize: '80%', color: '#8c6d36', marginRight: '6px' }}>
+                            ﴿{arabicAyahNum}﴾
+                          </span>
+                        )}
                       </p>
-                      <svg width="34" height="34" viewBox="-25 -25 50 50" className="opacity-90 shrink-0">
-                        <circle cx="0" cy="0" r="17" fill="none" stroke="#8c6d36" strokeWidth="1.6"/>
-                        <path d="M -12 -14 C -8 -19 -4 -19 0 -16 C 4 -19 8 -19 12 -14 C 8 -16 4 -16 0 -16 C -4 -16 -8 -16 -12 -14" fill="#8c6d36"/>
-                        <circle cx="0" cy="-18" r="1.5" fill="#8c6d36"/>
-                        <path d="M -12 14 C -8 19 -4 19 0 16 C 4 19 8 19 12 14 C 8 15 4 15 0 15 C -4 15 -8 15 -12 14" fill="#8c6d36"/>
-                        <circle cx="0" cy="18" r="1.5" fill="#8c6d36"/>
-                        <text x="0" y={arabicAyahNum.length > 2 ? 4 : 5} fontFamily="Amiri, serif" fontSize={arabicAyahNum.length > 2 ? 10 : arabicAyahNum.length > 1 ? 12 : 14} fontWeight="bold" fill="#1a0f00" textAnchor="middle">
-                          {arabicAyahNum}
-                        </text>
-                      </svg>
                     </div>
                   );
 
