@@ -975,18 +975,31 @@ export function VideoPreview() {
                   const arabicAyahNum = String(ayahNumRaw).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 
                   return (
-                    <p
-                      className="text-[#1a0f00] text-center w-full break-words leading-[1.7] font-arabic"
-                      style={{
-                        fontSize: `${Math.max(15, previewFontSize * 0.6)}px`,
-                        fontFamily: '"Scheherazade New", "Amiri", serif',
-                        fontWeight: 700,
-                        direction: 'rtl',
-                      }}
-                    >
-                      {activeLineText} ﴿{arabicAyahNum}﴾
-                    </p>
+                    <div className="flex flex-col items-center gap-1.5 w-full">
+                      <p
+                        className="text-[#1a0f00] text-center w-full break-words leading-[1.6] font-arabic"
+                        style={{
+                          fontSize: `${Math.max(14, previewFontSize * 0.55)}px`,
+                          fontFamily: '"Scheherazade New", "Amiri", serif',
+                          fontWeight: 700,
+                          direction: 'rtl',
+                        }}
+                      >
+                        {activeLineText}
+                      </p>
+                      <svg width="34" height="34" viewBox="-25 -25 50 50" className="opacity-90 shrink-0">
+                        <circle cx="0" cy="0" r="17" fill="none" stroke="#8c6d36" strokeWidth="1.6"/>
+                        <path d="M -12 -14 C -8 -19 -4 -19 0 -16 C 4 -19 8 -19 12 -14 C 8 -16 4 -16 0 -16 C -4 -16 -8 -16 -12 -14" fill="#8c6d36"/>
+                        <circle cx="0" cy="-18" r="1.5" fill="#8c6d36"/>
+                        <path d="M -12 14 C -8 19 -4 19 0 16 C 4 19 8 19 12 14 C 8 15 4 15 0 15 C -4 15 -8 15 -12 14" fill="#8c6d36"/>
+                        <circle cx="0" cy="18" r="1.5" fill="#8c6d36"/>
+                        <text x="0" y={arabicAyahNum.length > 2 ? 4 : 5} fontFamily="Amiri, serif" fontSize={arabicAyahNum.length > 2 ? 10 : arabicAyahNum.length > 1 ? 12 : 14} fontWeight="bold" fill="#1a0f00" textAnchor="middle">
+                          {arabicAyahNum}
+                        </text>
+                      </svg>
+                    </div>
                   );
+
                 })() : (
                   <p className="text-black/40 text-xs font-arabic">لم يتم تحديد آية</p>
                 )}
@@ -995,7 +1008,8 @@ export function VideoPreview() {
               {/* Bottom Right: Dense Visualizer & Media Controls */}
               <div className="w-full flex flex-col gap-1 justify-end pb-0.5">
                 {/* Visualizer bars */}
-                <div className="w-full h-4 flex items-center justify-center gap-0.5">
+                <div className="w-full h-4 flex items-end justify-center gap-0.5">
+
                   {Array.from({ length: 36 }).map((_, i) => {
                     const wave = Math.sin(i * 0.22 + (currentTime * 3.8)) * 0.45 + 0.55;
                     const randH = (i % 4 === 0 ? 12 : i % 3 === 0 ? 9 : i % 2 === 0 ? 16 : 6) * (isPlaying ? wave : 0.5);
