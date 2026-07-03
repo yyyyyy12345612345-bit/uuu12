@@ -939,7 +939,7 @@ export function VideoPreview() {
                     <span 
                       className="text-[12px] font-bold text-[#1a0f00] tracking-wide inline-block whitespace-nowrap"
                       style={{
-                        fontFamily: '"Oi", "Aref Ruqaa", "Amiri", serif',
+                        fontFamily: '"SurahNameV2", "Oi", "Aref Ruqaa", "Amiri", serif',
                         direction: 'rtl',
                       }}
                     >

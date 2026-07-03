@@ -519,3 +519,19 @@ html:not(.dark) .border-white\/20 { border-color: rgba(0,0,0,0.3) !important; }
   animation: float-up-fade 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
   pointer-events: none;
 }
+
+@font-face {
+  font-family: "SurahNameV2";
+  src:
+    url("/fonts/Surah_Name_V2.woff2") format("woff2"),
+    url("/fonts/SurahNameV2.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "BasmalahVer01";
+  src:
+    url("/fonts/BasmalahVer01.otf") format("opentype"),
+    url("/fonts/BasmalahVer01.ttf") format("truetype");
+  font-display: swap;
+}
