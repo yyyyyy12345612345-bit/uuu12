@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { auth, db, initFirebase } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp } from "firebase/firestore";
-import { Film, Trash, Plus, Lock, ArrowLeft, Loader2, Check, Sparkles, Tag, Folder } from "lucide-react";
+import { Trash, Lock, ArrowLeft, Loader2, Check } from "lucide-react";
 import Link from "next/link";
 
 const ADMIN_EMAIL = "youssefosama@gmail.com";
@@ -73,7 +73,6 @@ export default function AdminBackgroundsPage() {
     setMessage(null);
 
     try {
-      // الـ src للخلفيات المرفوعة على تليجرام يتم توجيهها للـ API
       const srcUrl = `/api/background/${fileId.trim()}.mp4`;
       
       const tags = tagsInput
@@ -81,7 +80,6 @@ export default function AdminBackgroundsPage() {
         .map(t => t.trim())
         .filter(t => t.length > 0);
       
-      // إضافة قسم كـ tag تلقائيًا
       if (!tags.includes(category)) {
         tags.push(category);
       }
@@ -161,19 +159,12 @@ export default function AdminBackgroundsPage() {
 
   return (
     <div className="min-h-screen bg-[#05060a] text-white p-6 md:p-12 font-arabic text-right selection:bg-[#fbbf24]/30">
-      {/* Decorative Glows */}
-      <div className="fixed top-0 right-0 w-[30rem] h-[30rem] rounded-full bg-[#fbbf24]/5 blur-[120px] pointer-events-none" />
-      <div className="fixed bottom-0 left-0 w-[30rem] h-[30rem] rounded-full bg-[#fbbf24]/5 blur-[120px] pointer-events-none" />
-
-      <div className="max-w-6xl mx-auto relative z-10 space-y-12">
+      <div className="max-w-6xl mx-auto space-y-12">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-white/5">
           <div className="space-y-1">
-            <h1 className="text-3xl font-black tracking-tight flex items-center gap-3 justify-end">
-              <span>إدارة الخلفيات السحابية</span>
-              <Film className="w-8 h-8 text-[#fbbf24]" />
-            </h1>
-            <p className="text-white/40 text-xs font-bold">يقين — استخدام تليجرام كهارد ديسك مجاني وغير محدود للخلفيات</p>
+            <h1 className="text-2xl font-black tracking-tight">إدارة الخلفيات السحابية</h1>
+            <p className="text-white/40 text-xs font-bold">تخزين واستدعاء الفيديوهات عبر تليجرام</p>
           </div>
           <Link 
             href="/admin" 
@@ -201,11 +192,8 @@ export default function AdminBackgroundsPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Add form */}
-          <div className="lg:col-span-1 bg-white/[0.02] border border-white/[0.06] rounded-[2rem] p-8 space-y-6 backdrop-blur-xl">
-            <h2 className="text-lg font-black flex items-center gap-2 justify-end border-b border-white/5 pb-3">
-              <span>إضافة خلفية جديدة</span>
-              <Plus className="w-5 h-5 text-[#fbbf24]" />
-            </h2>
+          <div className="lg:col-span-1 bg-white/[0.02] border border-white/[0.06] rounded-[2rem] p-8 space-y-6">
+            <h2 className="text-base font-black border-b border-white/5 pb-3">إضافة خلفية جديدة</h2>
 
             <form onSubmit={handleAdd} className="space-y-5">
               <div className="space-y-2">
@@ -228,8 +216,8 @@ export default function AdminBackgroundsPage() {
                     onChange={e => setType(e.target.value as any)}
                     className="w-full bg-zinc-900 border border-white/[0.06] rounded-xl p-3.5 text-xs text-white outline-none text-right focus:border-[#fbbf24]/40 transition"
                   >
-                    <option value="video">فيديو (Video)</option>
-                    <option value="image">صورة (Image)</option>
+                    <option value="video">فيديو</option>
+                    <option value="image">صورة</option>
                   </select>
                 </div>
 
@@ -286,10 +274,7 @@ export default function AdminBackgroundsPage() {
                     <span>جاري الحفظ...</span>
                   </>
                 ) : (
-                  <>
-                    <Sparkles className="w-4 h-4" />
-                    <span>إضافة الخلفية</span>
-                  </>
+                  <span>إضافة الخلفية</span>
                 )}
               </button>
             </form>
@@ -298,11 +283,8 @@ export default function AdminBackgroundsPage() {
           {/* List of items */}
           <div className="lg:col-span-2 space-y-6">
             <div className="flex items-center justify-between">
-              <span className="text-white/40 text-xs font-bold">{items.length} خلفية ديناميكية</span>
-              <h2 className="text-lg font-black flex items-center gap-2 justify-end">
-                <span>الخلفيات السحابية المضافة</span>
-                <Folder className="w-5 h-5 text-[#fbbf24]" />
-              </h2>
+              <span className="text-white/40 text-xs font-bold">{items.length} خلفية مضافة</span>
+              <h2 className="text-base font-black">الخلفيات السحابية المضافة</h2>
             </div>
 
             {items.length === 0 ? (
@@ -314,21 +296,20 @@ export default function AdminBackgroundsPage() {
                 {items.map((item) => (
                   <div 
                     key={item.id} 
-                    className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-5 flex flex-col justify-between gap-4 hover:border-white/10 transition group"
+                    className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-5 flex flex-col justify-between gap-4 hover:border-white/10 transition"
                   >
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="px-2.5 py-1 rounded-md bg-white/5 border border-white/5 text-[10px] text-white/50 font-bold">
+                        <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/5 text-[9px] text-white/50 font-bold">
                           {item.type === "video" ? "فيديو" : "صورة"}
                         </span>
-                        <h3 className="font-bold text-sm text-white">{item.title}</h3>
+                        <h3 className="font-bold text-xs text-white">{item.title}</h3>
                       </div>
                       
                       <div className="flex flex-wrap gap-1 justify-end">
                         {item.tags?.map((tag: string, idx: number) => (
-                          <span key={idx} className="px-2 py-0.5 rounded bg-[#fbbf24]/5 border border-[#fbbf24]/10 text-[9px] text-[#fbbf24] font-medium flex items-center gap-0.5">
-                            <Tag className="w-2.5 h-2.5" />
-                            <span>{tag}</span>
+                          <span key={idx} className="px-2 py-0.5 rounded bg-[#fbbf24]/5 border border-[#fbbf24]/10 text-[9px] text-[#fbbf24] font-medium">
+                            {tag}
                           </span>
                         ))}
                       </div>
@@ -337,9 +318,9 @@ export default function AdminBackgroundsPage() {
                     <div className="flex items-center justify-between border-t border-white/5 pt-3">
                       <button 
                         onClick={() => handleDelete(item.id)}
-                        className="p-2 text-red-400/60 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition"
+                        className="p-1.5 text-red-400/60 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition"
                       >
-                        <Trash className="w-4 h-4" />
+                        <Trash className="w-3.5 h-3.5" />
                       </button>
                       
                       <span className="text-[10px] text-white/30 font-mono select-all truncate max-w-[12rem] cursor-pointer" title={item.fileId}>
