@@ -142,17 +142,24 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
     return () => unsub();
   }, []);
 
-  // Sync user current points in active duels
+  const lastSyncedPointsRef = useRef<number>(-1);
+
+  // Sync user current points in active duels only when points meaningfully change
   useEffect(() => {
     if (!auth?.currentUser || !db || duels.length === 0 || !userData) return;
     const myUid = auth.currentUser.uid;
+    const myCurrentPoints = Math.round(userData.totalPoints || 0);
+    if (lastSyncedPointsRef.current === myCurrentPoints) return;
+    lastSyncedPointsRef.current = myCurrentPoints;
+
     duels.forEach(async (duel) => {
-      if (duel.status === "active" && duel.participants.includes(myUid)) {
-        const myCurrentPoints = userData.totalPoints || 0;
-        if (Math.round(duel.currentPoints?.[myUid] || 0) !== Math.round(myCurrentPoints)) {
-          await updateDoc(doc(db, "duels", duel.id), {
-            [`currentPoints.${myUid}`]: myCurrentPoints
-          });
+      if (duel.status === "active" && duel.participants?.includes(myUid)) {
+        if (Math.round(duel.currentPoints?.[myUid] || 0) !== myCurrentPoints) {
+          try {
+            await updateDoc(doc(db, "duels", duel.id), {
+              [`currentPoints.${myUid}`]: myCurrentPoints
+            });
+          } catch (_) {}
         }
       }
     });

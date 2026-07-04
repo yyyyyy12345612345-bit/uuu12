@@ -21,7 +21,7 @@ export function Navigation() {
 
   return (
     <nav className={`fixed bottom-0 left-0 right-0 z-[1000] w-full px-0 pb-0 pt-1.5 pointer-events-none font-['Tajawal']`}>
-      <div className="max-w-lg mx-auto w-full h-[64px] bg-white/70 dark:bg-background/80 backdrop-blur-3xl border-t border-border rounded-t-[1.5rem] flex items-center justify-around px-1 shadow-[0_-20px_60px_rgba(0,0,0,0.1)] dark:shadow-[0_-20px_60px_rgba(0,0,0,0.6)] pointer-events-auto relative overflow-hidden group" style={{ willChange: "transform, opacity" }}>
+      <div className="max-w-lg mx-auto w-full h-[64px] bg-card/95 backdrop-blur-md border-t border-border rounded-t-[1.5rem] flex items-center justify-around px-1 shadow-lg pointer-events-auto relative overflow-hidden group gpu-layer">
         
         {/* Background Pattern */}
         <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />

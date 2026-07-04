@@ -504,12 +504,22 @@ export function AudioLibrary() {
     }
   }, [isPlaying]);
 
+  const lastTimeUpdateRef = useRef<number>(0);
+
   const onTimeUpdate = () => {
     const a = audioRef.current;
     if (a) {
-      setCurrentTime(a.currentTime);
-      setDuration(a.duration || 0);
-      setProgress(a.duration ? (a.currentTime / a.duration) * 100 : 0);
+      const now = Date.now();
+      if (now - lastTimeUpdateRef.current > 200 || a.ended) {
+        lastTimeUpdateRef.current = now;
+        setCurrentTime(a.currentTime);
+        setDuration(a.duration || 0);
+        const p = a.duration ? (a.currentTime / a.duration) * 100 : 0;
+        setProgress(p);
+        if (!isDragging) {
+          setLocalProgress(p);
+        }
+      }
       const ts = Math.floor(a.currentTime);
       if (ts > 0 && ts % 30 === 0 && lastAwardedTime.current !== ts) {
         addPoints("listen", 1);

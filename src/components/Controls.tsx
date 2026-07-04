@@ -236,13 +236,22 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                                      muted 
                                      loop 
                                      playsInline 
-                                     className="h-full w-full object-cover transition-transform duration-1000 group-hover/item:scale-110" 
+                                     preload="none"
+                                     poster={item.src.replace(/\.(mp4|webm|mov)$/i, '.jpg')}
+                                     onMouseEnter={(e) => (e.currentTarget as HTMLVideoElement).play().catch(() => {})}
+                                     onMouseLeave={(e) => {
+                                       const v = e.currentTarget as HTMLVideoElement;
+                                       v.pause();
+                                       v.currentTime = 0;
+                                     }}
+                                     className="h-full w-full object-cover transition-transform duration-500 group-hover/item:scale-110 gpu-layer" 
                                   />
                                   ) : (
                                   <img 
-                                     src={item.src.includes('pexels.com') ? `${item.src.split('?')[0]}?auto=compress&cs=tinysrgb&fit=crop&h=800&w=450` : item.src} 
+                                     src={item.src.includes('pexels.com') ? `${item.src.split('?')[0]}?auto=compress&cs=tinysrgb&fit=crop&h=400&w=225` : item.src} 
                                      alt="bg" 
-                                     className="h-full w-full object-cover transition-transform duration-1000 group-hover/item:scale-110" 
+                                     loading="lazy"
+                                     className="h-full w-full object-cover transition-transform duration-500 group-hover/item:scale-110 gpu-layer" 
                                   />
                                   )}
                                 <div className={`absolute inset-0 bg-black/40 group-hover/item:bg-transparent transition-colors duration-700 ${state.backgroundUrl === item.src ? 'bg-transparent' : ''}`} />

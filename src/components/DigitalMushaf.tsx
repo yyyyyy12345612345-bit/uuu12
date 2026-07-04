@@ -77,7 +77,8 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
             setPages(prev => {
                 const existingPageNums = new Set(prev.map(p => p.page));
                 const uniqueNewPages = newPagesData.filter(p => !existingPageNums.has(p.page));
-                return [...prev, ...uniqueNewPages];
+                const combined = [...prev, ...uniqueNewPages];
+                return combined.length > 6 ? combined.slice(combined.length - 6) : combined;
             });
         }
         if (newPagesData.length > 0) {
@@ -336,11 +337,11 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
       )}
 
       {/* Main Mushaf Content */}
-      <main className="flex-1 flex flex-col items-center overflow-y-auto no-scrollbar py-20 px-6">
-          <div className="max-w-4xl w-full flex flex-col items-center gap-24">
+      <main className="flex-1 flex flex-col items-center overflow-y-auto no-scrollbar py-12 px-4 md:px-6 scroll-smooth gpu-layer">
+          <div className="max-w-4xl w-full flex flex-col items-center gap-12">
               {pages.length > 0 ? (
                   pages.map((pData, pIdx) => (
-                      <div key={`p-${pData.page}`} className="w-full relative animate-in zoom-in-95 duration-1000">
+                      <div key={`p-${pData.page}`} className="w-full relative gpu-layer">
                           <MushafPage 
                               pData={pData}
                               pIdx={pIdx}

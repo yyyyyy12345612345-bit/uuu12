@@ -32,17 +32,24 @@ export function QiblaCompass({ qiblaAngle, distance, onRequestLocation, isLoadin
   const [requiresPermission, setRequiresPermission] = useState<boolean>(false);
   const [lastAligned, setLastAligned] = useState<boolean>(false);
 
-  // Compass listener callback
+  const lastHeadingRef = useRef<number>(0);
+  const lastHeadingTimeRef = useRef<number>(0);
+
+  // Compass listener callback throttled for 60fps smooth rendering without React state thrashing
   const handleOrientation = useCallback((e: any) => {
     let heading = null;
     if (e.webkitCompassHeading !== undefined) {
       heading = e.webkitCompassHeading;
     } else if (e.alpha !== null) {
-      // absolute alpha on Android
       heading = (360 - e.alpha) % 360;
     }
     if (heading !== null) {
-      setDeviceHeading(heading);
+      const now = Date.now();
+      if (now - lastHeadingTimeRef.current > 40 || Math.abs(heading - lastHeadingRef.current) > 1.5) {
+        lastHeadingTimeRef.current = now;
+        lastHeadingRef.current = heading;
+        setDeviceHeading(heading);
+      }
     }
   }, []);
 

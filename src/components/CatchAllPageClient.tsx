@@ -287,59 +287,58 @@ function CatchAllContent() {
           </motion.button>
         )}
 
-        {visited.mushaf && (
-          <div key="mushaf" className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'mushaf' ? 'block view-transition' : 'hidden'}`}>
+        {activeView === 'mushaf' && (
+          <div key="mushaf" className="h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent view-transition gpu-layer">
             <Mushaf />
           </div>
         )}
-        {visited['mushaf-full'] && (
-          <div key="mushaf-full" className={`h-full w-full pb-20 bg-transparent ${activeView === 'mushaf-full' ? 'block view-transition' : 'hidden'}`}>
+        {activeView === 'mushaf-full' && (
+          <div key="mushaf-full" className="h-full w-full pb-20 bg-transparent view-transition gpu-layer">
             <DigitalMushaf />
           </div>
         )}
-        {visited['mushaf-tafseer'] && (
-          <div key="mushaf-tafseer" className={`h-full w-full pb-20 bg-transparent ${activeView === 'mushaf-tafseer' ? 'block view-transition' : 'hidden'}`}>
+        {activeView === 'mushaf-tafseer' && (
+          <div key="mushaf-tafseer" className="h-full w-full pb-20 bg-transparent view-transition gpu-layer">
             <DigitalMushaf isTafseerMode={true} />
           </div>
         )}
-        {visited['mushaf-choice'] && (
-          <div key="mushaf-choice" className={`h-full w-full relative pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'mushaf-choice' ? 'block view-transition' : 'hidden'}`}>
+        {(activeView === 'mushaf-choice' || activeView === '') && (
+          <div key="mushaf-choice" className="h-full w-full relative pb-20 overflow-y-auto no-scrollbar bg-transparent view-transition gpu-layer">
             <MushafChoice />
           </div>
         )}
-        {visited.daily && (
-          <div key="daily" className={`h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent ${activeView === 'daily' ? 'block view-transition' : 'hidden'}`}>
+        {activeView === 'daily' && (
+          <div key="daily" className="h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent view-transition gpu-layer">
             <DailyHub />
           </div>
         )}
-        {visited.library && (
-          <div key="library" className={`h-full w-full pb-20 bg-transparent ${activeView === 'library' ? 'block view-transition' : 'hidden'}`}>
+        {activeView === 'library' && (
+          <div key="library" className="h-full w-full pb-20 bg-transparent view-transition gpu-layer">
             <AudioLibrary />
           </div>
         )}
-        {visited.prayers && (
-          <div key="prayers" className={`h-full w-full pb-20 bg-transparent ${activeView === 'prayers' ? 'block view-transition' : 'hidden'}`}>
+        {activeView === 'prayers' && (
+          <div key="prayers" className="h-full w-full pb-20 bg-transparent view-transition gpu-layer">
             <PrayerTimes />
           </div>
         )}
-        {visited.rank && (
-          <div key="rank" className={`h-full w-full pb-20 bg-transparent ${activeView === 'rank' ? 'block view-transition' : 'hidden'}`}>
+        {activeView === 'rank' && (
+          <div key="rank" className="h-full w-full pb-20 bg-transparent view-transition gpu-layer">
             <Leaderboard onEditProfile={() => setIsProfileOpen(true)} />
           </div>
         )}
-
-        {visited.feed && (
-          <div key="feed" className={`h-full w-full pb-20 bg-transparent ${activeView === 'feed' ? 'block view-transition' : 'hidden'}`}>
+        {activeView === 'feed' && (
+          <div key="feed" className="h-full w-full pb-20 bg-transparent view-transition gpu-layer">
             <SocialFeed />
           </div>
         )}
-        {visited.chat && (
-          <div key="chat" className={`h-full w-full pb-20 bg-transparent ${activeView === 'chat' ? 'block view-transition' : 'hidden'}`}>
+        {activeView === 'chat' && (
+          <div key="chat" className="h-full w-full pb-20 bg-transparent view-transition gpu-layer">
             <ChatBot />
           </div>
         )}
-        {visited.video && (
-          <div key="video" className={`h-full w-full ${activeView === 'video' ? 'block view-transition' : 'hidden'}`}>
+        {activeView === 'video' && (
+          <div key="video" className="h-full w-full block view-transition gpu-layer">
              {/* Desktop View: Full Featured Timeline Editor */}
              <div className="hidden lg:block w-full h-full">
                 <TimelineVideoEditor 
@@ -349,7 +348,7 @@ function CatchAllContent() {
              </div>
 
              {/* Mobile View: Classic Layout */}
-             <div className="lg:hidden flex flex-col h-full w-full bg-[#0c0d10] overflow-hidden">
+             <div className="lg:hidden flex flex-col h-full w-full bg-[#0c0d10] force-dark overflow-hidden">
                 {/* Mobile Header Controls */}
                 <div className="flex items-center justify-between px-6 pt-6 pb-4 shrink-0 relative z-50">
                    <button 
@@ -371,7 +370,7 @@ function CatchAllContent() {
                 
                 {/* Main Preview Area */}
                 <div className="flex-1 flex items-center justify-center p-4 relative z-10 min-h-0">
-                   <div className="scale-[0.8] md:scale-[0.95] h-full flex items-center justify-center transition-all duration-1000">
+                   <div className="scale-[0.8] md:scale-[0.95] h-full flex items-center justify-center transition-all duration-300 gpu-layer">
                      <VideoPreview />
                    </div>
                 </div>
