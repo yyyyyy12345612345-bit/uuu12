@@ -5,9 +5,9 @@ service cloud.firestore {
     // Functions
     // ----------------------------------------------------------------------
     
-    // Check if the user has admin claim
+    // Check if the user has admin claim or is the admin email
     function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
+      return request.auth != null && (request.auth.token.admin == true || request.auth.token.email == "youssefosama@gmail.com");
     }
     
     // Check if the user is authenticated
@@ -151,6 +151,12 @@ service cloud.firestore {
 
     // Admin configuration (maintenance status, etc.)
     match /admin/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Backgrounds
+    match /backgrounds/{document=**} {
       allow read: if true;
       allow write: if isAdmin();
     }

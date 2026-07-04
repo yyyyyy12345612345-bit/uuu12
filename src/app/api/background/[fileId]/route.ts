@@ -10,10 +10,10 @@ const CACHE_DURATION_MS = 50 * 60 * 1000; // 50 دقيقة (رابط تليجر�
 
 export async function GET(
   request: Request,
-  { params }: { params: { fileId: string } }
+  { params }: { params: Promise<{ fileId: string }> }
 ) {
   try {
-    const { fileId } = params;
+    const { fileId } = await params;
     if (!fileId) {
       return NextResponse.json({ error: "Missing fileId" }, { status: 400 });
     }
