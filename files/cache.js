@@ -43,14 +43,36 @@ function bgCachePath(backgroundUrl) {
 export async function getResizedBackground(backgroundUrl, rawBgPath) {
   const cached = bgCachePath(backgroundUrl);
   if (fs.existsSync(cached)) {
-    // نحدّث وقت آخر استخدام (لغرض الـ LRU البسيط) عبر إعادة لمس الملف
-    try { fs.utimesSync(cached, new Date(), new Date()); } catch {}
-    return cached;
+    try {
+      const stat = fs.statSync(cached);
+      if (stat.size > 1024) {
+        // نحدّث وقت آخر استخدام (لغرض الـ LRU البسيط) عبر إعادة لمس الملف
+        try { fs.utimesSync(cached, new Date(), new Date()); } catch {}
+        return cached;
+      } else {
+        // الملف تالف أو فارغ، نقوم بحذفه لإعادة إنتاجه
+        try { fs.unlinkSync(cached); } catch {}
+      }
+    } catch (e) {
+      try { fs.unlinkSync(cached); } catch {}
+    }
   }
-  await execAsync(
-    `ffmpeg -loglevel error -i "${rawBgPath}" -vf "scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT},setsar=1" -an -c:v libx264 -preset ultrafast -crf 20 "${cached}" -y`,
-    { timeout: 45000 }
-  );
+
+  try {
+    await execAsync(
+      `ffmpeg -loglevel error -i "${rawBgPath}" -vf "scale=${WIDTH}:${HEIGHT}:force_original_aspect_ratio=increase,crop=${WIDTH}:${HEIGHT},setsar=1" -an -c:v libx264 -preset ultrafast -crf 20 "${cached}" -y`,
+      { timeout: 75000 } // زيادة المهلة لتجنب الفشل على خوادم الاستضافة الضعيفة
+    );
+  } catch (err) {
+    // في حال فشل ffmpeg، نحذف أي ملف جزئي تالف تم إنشاؤه
+    try {
+      if (fs.existsSync(cached)) {
+        fs.unlinkSync(cached);
+      }
+    } catch {}
+    throw err;
+  }
+
   await evictOldBackgrounds();
   return cached;
 }
