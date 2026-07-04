@@ -266,6 +266,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           videoTemplate: state.videoTemplate || "default",
           reciterName: getReciterEnglishName(state.reciterId),
           reciterId: state.reciterId,
+          showVerseText: state.showVerseText !== false,
         }),
       });
 

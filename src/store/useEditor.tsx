@@ -116,6 +116,8 @@ export interface EditorState {
   bookmark?: { surahId: string; ayahId: number };
   /** الصلاة النشطة في الإعدادات */
   activeSettingsPrayer: string | null;
+  /** هل تم رندرة نص الآية */
+  showVerseText?: boolean;
   /** هل تم تحميل الحالة من التخزين المحلي */
   isHydrated: boolean;
 }
@@ -161,6 +163,7 @@ const initialState: Omit<EditorState, 'isHydrated'> = {
   ayahDecoration: "bracket1",
   activeSettingsPrayer: null,
   videoTemplate: "default",
+  showVerseText: true,
 };
 
 /**

@@ -682,7 +682,7 @@ export function VideoPreview() {
         )}
 
         {/* Verse Number (Bottom) */}
-        {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "basit_player" && state.videoTemplate !== "youssef_player" && surahData && currentVerse && (
+        {state.showVerseText !== false && state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "basit_player" && state.videoTemplate !== "youssef_player" && surahData && currentVerse && (
           <div className="absolute bottom-[14%] left-0 right-0 flex justify-center z-30 pointer-events-none">
             <span className="text-[22px] font-bold text-primary drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" style={{ fontFamily: 'Amiri, serif' }}>
               {(() => {
@@ -874,7 +874,7 @@ export function VideoPreview() {
 
               {/* Middle Right: Verse Text without brackets + Ayah Symbol ﴿١﴾ */}
               <div className="flex-1 flex items-center justify-center py-1">
-                {currentVerse ? (() => {
+                {state.showVerseText !== false && currentVerse ? (() => {
                   const rawVerseText = (currentVerse.text || "").replace(/[﴿﴾\uFD3F\uFD3E]/g, '').trim();
                   const lines = wrapTextHelper(rawVerseText, Math.max(15, previewFontSize * 0.6), 160);
                   const progress = duration > 0 ? (currentTime / duration) : 0;
@@ -990,7 +990,7 @@ export function VideoPreview() {
                 <div className="flex-1 flex flex-col justify-between py-2 text-right h-[320px] max-w-[55%]">
                   {/* Verse Text */}
                   <div className="flex-1 flex items-center justify-center">
-                    {currentVerse ? (() => {
+                    {state.showVerseText !== false && currentVerse ? (() => {
                       const lines = wrapTextHelper(currentVerse.text, Math.max(16, previewFontSize * 0.65), 180);
                       const progress = duration > 0 ? (currentTime / duration) : 0;
                       const activeLineIdx = Math.min(lines.length - 1, Math.floor(progress * lines.length));
@@ -1393,33 +1393,37 @@ export function VideoPreview() {
                   opacity: 0,
                 }}
               >
-                {/* Quranic Text */}
-                <p
-                  className={`text-white leading-[1.8] text-center w-full break-words`}
-                  style={{
-                    color: state.textColor,
-                    fontSize: `${previewFontSize}px`,
-                    fontWeight: Number(state.fontWeight) || 700,
-                    fontFamily: `${state.fontFamily || 'Amiri'}, Amiri, serif`,
-                    direction: 'rtl',
-                    lineHeight: 2.2,
-                    textShadow: '0 8px 30px rgba(0,0,0,0.9)'
-                  }}
-                >
-                  {currentVerse?.text || "لم يتم العثور على الآية"}
-                </p>
+                {state.showVerseText !== false && (
+                  <>
+                    {/* Quranic Text */}
+                    <p
+                      className={`text-white leading-[1.8] text-center w-full break-words`}
+                      style={{
+                        color: state.textColor,
+                        fontSize: `${previewFontSize}px`,
+                        fontWeight: Number(state.fontWeight) || 700,
+                        fontFamily: `${state.fontFamily || 'Amiri'}, Amiri, serif`,
+                        direction: 'rtl',
+                        lineHeight: 2.2,
+                        textShadow: '0 8px 30px rgba(0,0,0,0.9)'
+                      }}
+                    >
+                      {currentVerse?.text || "لم يتم العثور على الآية"}
+                    </p>
 
-                {/* Divider */}
-                <div className="flex items-center gap-4 self-center w-32">
-                   <div className="h-px flex-1 bg-gradient-to-r from-transparent to-primary/40" />
-                   <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
-                   <div className="h-px flex-1 bg-gradient-to-l from-transparent to-primary/40" />
-                </div>
+                    {/* Divider */}
+                    <div className="flex items-center gap-4 self-center w-32">
+                       <div className="h-px flex-1 bg-gradient-to-r from-transparent to-primary/40" />
+                       <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
+                       <div className="h-px flex-1 bg-gradient-to-l from-transparent to-primary/40" />
+                    </div>
 
-                {/* Translation */}
-                <p className="text-[15px] md:text-[17px] text-white/90 font-medium italic leading-loose text-center w-full line-clamp-5 px-4" style={{ textShadow: '0 4px 20px rgba(0,0,0,0.8)' }}>
-                  {currentVerse?.translation}
-                </p>
+                    {/* Translation */}
+                    <p className="text-[15px] md:text-[17px] text-white/90 font-medium italic leading-loose text-center w-full line-clamp-5 px-4" style={{ textShadow: '0 4px 20px rgba(0,0,0,0.8)' }}>
+                      {currentVerse?.translation}
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           ) : (

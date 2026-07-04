@@ -303,7 +303,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
       <div className="flex-1 flex w-full overflow-hidden relative">
 
         {/* 1. LEFT ICON SIDEBAR (TABS) */}
-        <aside className="w-16 shrink-0 bg-[#0a0b0f] border-l border-white/5 flex flex-col items-center py-4 gap-2 z-40">
+        <aside className="w-20 shrink-0 bg-[#0a0b0f] border-l border-white/5 flex flex-col items-center py-4 gap-3 z-40">
           {leftTabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeLeftTab === tab.id;
@@ -317,15 +317,15 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                     setActiveLeftTab(tab.id);
                   }
                 }}
-                className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center gap-1 transition-all ${
+                className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all ${
                   isActive 
                     ? "bg-primary text-black shadow-lg shadow-primary/20 scale-[1.02]" 
                     : "text-white/30 hover:text-white hover:bg-white/5"
                 }`}
                 title={tab.label}
               >
-                <Icon className="w-5 h-5" />
-                <span className="text-[8px] font-black">{tab.label}</span>
+                <Icon className="w-6 h-6" />
+                <span className="text-[10px] font-black">{tab.label}</span>
               </button>
             );
           })}
@@ -780,9 +780,26 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
               </div>
             )}
 
-            {/* TAB CONTENT: النصوص */}
             {activeLeftTab === "texts" && (
               <div className="flex flex-col gap-5">
+                {/* Show/Hide Verse Text Toggle */}
+                <div className="flex items-center justify-between p-3.5 bg-white/5 border border-white/5 rounded-xl">
+                  <div className="flex flex-col gap-0.5 text-right">
+                    <span className="text-xs font-bold text-white">إظهار نصوص الآيات</span>
+                    <span className="text-[9px] text-white/40">تعطيله يسرّع رندرة الفيديو بشكل كبير</span>
+                  </div>
+                  <button
+                    onClick={() => updateState({ showVerseText: state.showVerseText !== false ? false : true })}
+                    className={`w-10 h-6 rounded-full p-1 transition-all duration-300 ${
+                      state.showVerseText !== false ? 'bg-primary' : 'bg-white/10'
+                    }`}
+                  >
+                    <div className={`w-4 h-4 rounded-full bg-black transition-all duration-300 ${
+                      state.showVerseText !== false ? 'translate-x-4' : 'translate-x-0'
+                    }`} />
+                  </button>
+                </div>
+
                 {/* FontSize */}
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-[10px]">
