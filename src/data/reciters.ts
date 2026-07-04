@@ -71,6 +71,12 @@ export const RECITERS: Reciter[] = [
     "everyAyahFolder": "Yasser_Ad-Dussary_128kbps"
   },
   {
+    "id": "omar_diaa",
+    "name": "عمر ضياء الدين",
+    "folder": "omar_diaa",
+    "mp3quranServer": "archive.org/download/20231112_20231112_1610"
+  },
+  {
     "id": "afasy",
     "name": "مشاري العفاسي",
     "folder": "afs",

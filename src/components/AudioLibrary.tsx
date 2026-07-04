@@ -36,6 +36,71 @@ const normalizeArabic = (text: string) => {
     .trim();
 };
 
+const OMAR_DIAA_MAPPING: Record<number, string> = {
+  2: "002  2  الأكثر طلبا واستماعا - سورة البقرة - Surah Al-Baqarah.mp3",
+  4: "004  14  سورة إبراهيم - Surah Ibrahim.mp3",
+  7: "007   7  قصة أهل مدين من سورة الأعراف - تلاوة مرئية.mp3",
+  8: "008   8   سورة الأنفال - Surah Al-Anfal.mp3",
+  9: "009  29  سورة العنكبوت - Surah Al-'Ankabut.mp3",
+  12: "012   12  سورة يوسف - Surah Yusuf.mp3",
+  13: "013   13  ماتيسر من سورة الرعد - تلاوة مرئية.mp3",
+  14: "004  14  سورة إبراهيم - Surah Ibrahim.mp3",
+  16: "016  16  تلاوة ندية _ من سورة (النحل)_[القارئ عمر ضياء الدين].mp3",
+  18: "018   18  سورة الكهف - Surah Al-Kahf.mp3",
+  19: "019   19  سورة مريم - Surah Maryam.mp3",
+  20: "020   20  سورة طه - Surah Taha.mp3",
+  25: "0025   25  سورة الفرقان - Surah Al-Furqan.mp3",
+  27: "027   27  تحبير رائع من سورة النمل علي طريقة القطامي بصوت القارئ عمر ضياء الدين.mp3",
+  29: "009  29  سورة العنكبوت - Surah Al-'Ankabut.mp3",
+  31: "031   31  سورة لقمان - Surah Luqman.mp3",
+  32: "032   32  سورة السجدة - Surah As-Sajdah.mp3",
+  33: "033   33  سورة الأحزاب - Surah Al-Ahzab.mp3",
+  34: "034   34  سورة سبأ - Surah Saba.mp3",
+  35: "035   35  سورة فاطر - Surah Fatir - تم تنقية الصوت وازالة صوت النفس.mp3",
+  36: "036   36  سورة يس - Surah Ya-Sin.mp3",
+  37: "037   37  سورة الصافات - Surah As-Saffat.mp3",
+  38: "038   38  سورة ص - Surah Sad.mp3",
+  41: "041   41  سورة فصلت - Surah Fussilat.mp3",
+  44: "044   44  سورة الدخان - Surah Ad-Dukhan.mp3",
+  46: "046   46  سورة الأحقاف - Surah Al-Ahqaf.mp3",
+  47: "047    47  سورة محمد - Surah Muhammad.mp3",
+  55: "055   55  سورة الرحمن - Surah Ar-Rahman.mp3",
+  56: "056   56  سورة الواقعة - Surah Al-Waqi'ah.mp3",
+  57: "057  57  سورة الحديد - Surah Al-Hadid.mp3",
+  58: "058   58  سورة المجادلة - Surah Al-Mujadilah.mp3",
+  59: "059   59  سورة الحشر - Surah Al-Hashr.mp3",
+  60: "060    60  سورة الممتحنة - Surah Al-Mumtahanah.mp3",
+  61: "061    61  سورة الصف - Surah As-Saf.mp3",
+  62: "062   62  سورة الجمعة - Surah Al-Jumu'ah.mp3",
+  63: "063   63  سورة المنافقون - Surah Al-Munafiqun.mp3",
+  64: "064   64  سورة التغابن - Surah At-Taghabun.mp3",
+  66: "066   66  سورة التحريم - Surah At-Tahrim.mp3",
+  67: "067   67 سورة الملك - Surah Al-Mulk.mp3",
+  68: "068   68  سورة القلم - Surah Al-Qalam.mp3",
+  69: "069    69  سورة الحاقة - Surah Al-Haqqah.mp3",
+  70: "070    70  سورة المعارج - Surah Al-Ma'arij.mp3",
+  71: "037  71 سورة نوح - Surah Nuh.mp3",
+  73: "073   73  سورة المزمل - Surah Al-Muzzammil.mp3",
+  78: "078   78  سورة النبأ - تلاوة مرئية - Surah An-Naba.mp3"
+};
+
+const getReciterAudioUrl = (reciter: any, surahId: number): string => {
+  if (reciter.id === "omar_diaa") {
+    const filename = OMAR_DIAA_MAPPING[surahId];
+    if (filename) {
+      return `https://archive.org/download/20231112_20231112_1610/${encodeURIComponent(filename)}`;
+    }
+    const sId = surahId.toString().padStart(3, "0");
+    return `https://server8.mp3quran.net/afs/${sId}.mp3`;
+  }
+  const sId = surahId.toString().padStart(3, "0");
+  const server = reciter.mp3quranServer || "";
+  if (server.startsWith("http://") || server.startsWith("https://")) {
+    return `${server}/${sId}.mp3`;
+  }
+  return `https://${server}/${sId}.mp3`;
+};
+
 /* ─── NAV HEIGHT (px) ─── */
 const NAV_H = 72;
 
@@ -476,8 +541,7 @@ export function AudioLibrary() {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    const sId = currentSurah.id.toString().padStart(3, "0");
-    const newSrc = `https://${selectedReciter.mp3quranServer}/${sId}.mp3`;
+    const newSrc = getReciterAudioUrl(selectedReciter, currentSurah.id);
     if (audio.src !== newSrc) {
       audio.pause();
       audio.src = newSrc;
@@ -549,8 +613,7 @@ export function AudioLibrary() {
   };
 
   const downloadSurah = () => {
-    const sId = currentSurah.id.toString().padStart(3, "0");
-    const url = `https://${selectedReciter.mp3quranServer}/${sId}.mp3`;
+    const url = getReciterAudioUrl(selectedReciter, currentSurah.id);
     const a = document.createElement("a");
     a.href = url;
     a.download = `Surah_${currentSurah.transliteration}.mp3`;

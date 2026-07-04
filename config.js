@@ -67,7 +67,7 @@ export const ALLOWED_DOMAINS = [
   "images.pexels.com", "videos.pexels.com", "images.unsplash.com",
   "pexels.com", "pixabay.com", "cdn.pixabay.com",
   "player.vimeo.com", "vimeo.com", "res.cloudinary.com", "cloudinary.com",
-  "quranfonts.com",
+  "quranfonts.com", "dzcdn.net"
 ];
 
 export const SHEIKH_ASSETS = {
@@ -98,6 +98,13 @@ export const SHEIKH_ASSETS = {
     nameEn: "Abdul Basit Abdul Samad",
     photoUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782885144/%D8%B9%D8%A8%D8%AF_%D8%A7%D9%84%D8%A8%D8%A7%D8%B3%D8%B7_ykv3aw.jpg",
     calligraphyUrl: "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1782885233/%D8%AA%D9%88%D9%82%D9%8A%D8%B9_%D8%B9%D8%A8%D8%AF_%D8%A7%D9%84%D8%A8%D8%A7%D8%B3%D8%B7_m05p8o.png"
+  },
+  omar_diaa: {
+    id: "omar_diaa",
+    nameAr: "الشيخ عمر ضياء الدين",
+    nameEn: "Omar Bn DiaaAldeen",
+    photoUrl: "https://cdn-images.dzcdn.net/images/artist/184f40dccb738a6352d4ddcafeab0c0a/500x500-000000-80-0-0.jpg",
+    calligraphyUrl: ""
   }
 };
 
@@ -107,5 +114,6 @@ export function getSheikhAsset(reciterId) {
   if (cleanId.includes("yasser")) return SHEIKH_ASSETS.yasser;
   if (cleanId.includes("husr")) return SHEIKH_ASSETS.husr;
   if (cleanId.includes("basit")) return SHEIKH_ASSETS.basit;
+  if (cleanId.includes("omar")) return SHEIKH_ASSETS.omar_diaa;
   return SHEIKH_ASSETS.minsh;
 }
