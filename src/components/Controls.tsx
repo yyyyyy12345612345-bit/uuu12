@@ -12,6 +12,7 @@ import { Crown, Lock, ShieldCheck, Star, Search, Image as ImageIcon, Music, Type
 // مكتبة خلفيات إسلامية ثابتة — لن تتغير أبداً
 // ============================================================
 import { STATIC_BACKGROUNDS } from "@/data/backgrounds";
+import { useCustomBackgrounds } from "@/hooks/useCustomBackgrounds";
 
 export function Controls({ onOpenSubscription }: { onOpenSubscription: () => void }) {
   const [activeTab, setActiveTab] = useState("bg");
@@ -25,6 +26,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
   const { state, updateState } = useEditor();
   const { media, loading } = usePexelsBackgrounds(query, bgMode === "search" ? searchType : "both");
   const { userPlan, isFeatureLocked } = useUserPlan();
+  const { backgrounds } = useCustomBackgrounds();
 
   const isSearchLocked = isFeatureLocked("search");
   const isVideoLocked = isFeatureLocked("video_bg");
@@ -52,7 +54,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
 
   const filteredLibrary = useMemo(() => {
     const normalizedSearch = normalizeForSearch(librarySearch);
-    return STATIC_BACKGROUNDS.filter(item => {
+    return backgrounds.filter(item => {
       const itemTags = item.tags?.map(t => normalizeForSearch(t)) || [];
       const matchesCategory = libraryCategory === "الكل" || 
         item.tags?.some(tag => categoryMap[libraryCategory].some(catTag => normalizeForSearch(tag).includes(normalizeForSearch(catTag))));
@@ -60,9 +62,9 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
       const matchesSearch = !librarySearch || itemTags.some(tag => tag.includes(normalizedSearch));
       return matchesCategory && matchesSearch;
     });
-  }, [libraryCategory, librarySearch]);
+  }, [libraryCategory, librarySearch, backgrounds]);
 
-  const displayMedia = bgMode === "library" ? filteredLibrary : (media.length > 0 ? media : STATIC_BACKGROUNDS);
+  const displayMedia = bgMode === "library" ? filteredLibrary : (media.length > 0 ? media : backgrounds);
 
   const videoReciters = useMemo(() => {
     const cleanSearch = reciterSearch.trim().toLowerCase()

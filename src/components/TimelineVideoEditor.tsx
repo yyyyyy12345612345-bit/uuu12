@@ -5,6 +5,7 @@ import { useEditor } from "@/store/useEditor";
 import { useTheme } from "@/components/ThemeProvider";
 import { RECITERS } from "@/data/reciters";
 import { STATIC_BACKGROUNDS, STATIC_VIDEOS } from "@/data/backgrounds";
+import { useCustomBackgrounds } from "@/hooks/useCustomBackgrounds";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import surahsData from "@/data/surahs.json";
 import { VideoPreview } from "@/components/VideoPreview";
@@ -62,6 +63,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
   const { state, updateState } = useEditor();
   const { theme, toggleTheme } = useTheme();
   const { isFeatureLocked } = useUserPlan();
+  const { backgrounds, videos } = useCustomBackgrounds();
   const isPlayerTemplate = ["minshawi_player", "dossary_player", "youssef_player", "basit_player"].includes(state.videoTemplate || "");
 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -144,7 +146,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
   const filteredLibrary = useMemo(() => {
     if (bgMode === "colors") return [];
     const normalizedSearch = normalizeForSearch(librarySearch);
-    const sourceList = bgMode === "library" ? STATIC_BACKGROUNDS : STATIC_VIDEOS;
+    const sourceList = bgMode === "library" ? backgrounds : videos;
     return sourceList.filter(item => {
       const itemTags = item.tags?.map(t => normalizeForSearch(t)) || [];
       const matchesCategory = libraryCategory === "الكل" || 
@@ -153,7 +155,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
       const matchesSearch = !librarySearch || itemTags.some(tag => tag.includes(normalizedSearch));
       return matchesCategory && matchesSearch;
     });
-  }, [libraryCategory, librarySearch, bgMode]);
+  }, [libraryCategory, librarySearch, bgMode, backgrounds, videos]);
 
   const displayMedia = filteredLibrary;
 
