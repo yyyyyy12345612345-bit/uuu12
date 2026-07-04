@@ -603,3 +603,15 @@ html:not(.dark) .border-white\/20 { border-color: rgba(0,0,0,0.3) !important; }
 @keyframes vpPopIn { 0% { opacity: 0; transform: scale(0.4); } 70% { transform: scale(1.08); } 100% { opacity: 1; transform: scale(1); } }
 @keyframes vpShineGold { 0% { opacity: 0; filter: brightness(2) contrast(1.5); } 100% { opacity: 1; filter: brightness(1) contrast(1); } }
 
+.oi-regular {
+  font-family: "Oi", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.badeen-display-regular {
+  font-family: "Badeen Display", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+

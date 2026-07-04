@@ -154,6 +154,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link href="https://fonts.googleapis.com/css2?family=Badeen+Display&family=Oi&display=swap" rel="stylesheet" />
+
         {/* Static favicon links for Google crawler and browsers */}
         <link rel="icon" type="image/png" href="/favicon.ico" />
         <link rel="shortcut icon" type="image/png" href="/favicon.ico" />

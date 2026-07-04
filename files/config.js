@@ -55,6 +55,8 @@ export const FONT_MAP = {
   "Aref Ruqaa": "https://raw.githubusercontent.com/google/fonts/main/ofl/arefruqaa/ArefRuqaa-Regular.ttf",
   "Reem Kufi Fun": "https://raw.githubusercontent.com/google/fonts/main/ofl/reemkufifun/ReemKufiFun%5Bwght%5D.ttf",
   "Alexandria": "https://raw.githubusercontent.com/google/fonts/main/ofl/alexandria/Alexandria%5Bwght%5D.ttf",
+  "Badeen Display": "https://raw.githubusercontent.com/google/fonts/main/ofl/badeendisplay/BadeenDisplay-Regular.ttf",
+  "Oi": "https://raw.githubusercontent.com/google/fonts/main/ofl/oi/Oi-Regular.ttf",
 };
 
 export const ALLOWED_DOMAINS = [
