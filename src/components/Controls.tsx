@@ -468,30 +468,35 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                 <div className="space-y-6">
                     <div className="flex items-center gap-4">
                         <div className="h-px flex-1 bg-foreground/10" />
-                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">نمط الخط العربي</span>
+                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">مكتبة الخطوط القرآنية والعربية (16 خط)</span>
                         <div className="h-px flex-1 bg-foreground/10" />
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         {[
-                            { id: "Amiri", label: "أميري" },
-                            { id: "Noto Naskh Arabic", label: "نسخ" },
-                            { id: "Scheherazade New", label: "شهرزاد" },
+                            { id: "Uthman Taha Naskh", label: "عثمان طه (المصحف)" },
+                            { id: "Scheherazade New", label: "شهرزاد (قرآني)" },
+                            { id: "Amiri", label: "أميري (نسخ فاخر)" },
+                            { id: "Noto Naskh Arabic", label: "نوتو نسخ" },
+                            { id: "Lateef", label: "لطيف (قرآني مغربي)" },
+                            { id: "Aref Ruqaa", label: "عارف رقعة" },
+                            { id: "Noto Kufi Arabic", label: "نوتو كوفي" },
+                            { id: "Reem Kufi", label: "ريم كوفي" },
+                            { id: "Katibeh", label: "كتيبة (عربي)" },
+                            { id: "Harmattan", label: "هرمتان (إسلامي)" },
                             { id: "Cairo", label: "القاهرة" },
                             { id: "Tajawal", label: "تجوال" },
-                            { id: "Reem Kufi", label: "ريم كوفي" },
-                            { id: "Lalezar", label: "لاليزار" },
                             { id: "El Messiri", label: "المسيري" },
-                            { id: "Almarai", label: "المراعي" },
-                            { id: "Aref Ruqaa", label: "رقعة" },
-                            { id: "Alexandria", label: "إسكندرية" },
+                            { id: "Lalezar", label: "لاليزار" },
+                            { id: "Changa", label: "تشانغا" },
+                            { id: "Mada", label: "مدى" },
                         ].map((font) => (
                         <button
                             key={font.id}
                             onClick={() => updateState({ fontFamily: font.id })}
-                            className={`p-5 rounded-2xl border-2 transition-all duration-500 text-center ${state.fontFamily === font.id ? 'bg-primary/10 border-primary text-foreground' : 'bg-foreground/5 border-foreground/5 text-foreground/30 hover:bg-foreground/10'}`}
+                            className={`p-4 rounded-2xl border-2 transition-all duration-500 text-center ${state.fontFamily === font.id ? 'bg-primary/10 border-primary text-foreground shadow-lg' : 'bg-foreground/5 border-foreground/5 text-foreground/30 hover:bg-foreground/10'}`}
                         >
-                            <span className="text-xs font-black block mb-2">{font.label}</span>
-                            <span className="text-2xl" style={{ fontFamily: font.id, direction: 'rtl' }}>بسم الله</span>
+                            <span className="text-[10px] font-black block mb-1.5">{font.label}</span>
+                            <span className="text-xl block truncate" style={{ fontFamily: `"${font.id}", Amiri, serif`, direction: 'rtl' }}>بسم الله</span>
                         </button>
                         ))}
                     </div>

@@ -531,16 +531,24 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
 
             {/* TAB CONTENT: الخطوط */}
             {activeLeftTab === "fonts" && (
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-2 max-h-[60vh] overflow-y-auto no-scrollbar pr-1">
                 {[
-                  { id: "Amiri", label: "أميري" },
-                  { id: "Noto Naskh Arabic", label: "نسخ" },
-                  { id: "Scheherazade New", label: "شهرزاد" },
+                  { id: "Uthman Taha Naskh", label: "عثمان طه (المصحف)" },
+                  { id: "Scheherazade New", label: "شهرزاد (قرآني)" },
+                  { id: "Amiri", label: "أميري (نسخ فاخر)" },
+                  { id: "Noto Naskh Arabic", label: "نوتو نسخ" },
+                  { id: "Lateef", label: "لطيف (قرآني مغربي)" },
+                  { id: "Aref Ruqaa", label: "عارف رقعة" },
+                  { id: "Noto Kufi Arabic", label: "نوتو كوفي" },
+                  { id: "Reem Kufi", label: "ريم كوفي" },
+                  { id: "Katibeh", label: "كتيبة (عربي)" },
+                  { id: "Harmattan", label: "هرمتان (إسلامي)" },
                   { id: "Cairo", label: "القاهرة" },
                   { id: "Tajawal", label: "تجوال" },
-                  { id: "Reem Kufi", label: "ريم كوفي" },
-                  { id: "Lalezar", label: "لاليزار" },
                   { id: "El Messiri", label: "المسيري" },
+                  { id: "Lalezar", label: "لاليزار" },
+                  { id: "Changa", label: "تشانغا" },
+                  { id: "Mada", label: "مدى" },
                 ].map((f) => (
                   <button
                     key={f.id}
@@ -552,7 +560,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                     }`}
                   >
                     <span className="text-[10px] font-black block mb-1">{f.label}</span>
-                    <span className="text-lg block truncate" style={{ fontFamily: f.id }}>بسم الله</span>
+                    <span className="text-lg block truncate" style={{ fontFamily: `"${f.id}", Amiri, serif`, direction: 'rtl' }}>بسم الله</span>
                   </button>
                 ))}
               </div>
