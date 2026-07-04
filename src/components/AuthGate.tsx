@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import {
   Loader2, User, KeyRound, Eye, EyeOff, Check, ArrowLeft,
-  Phone, Wrench, Mail, RefreshCw, ShieldCheck, Sparkles
+  Phone, Wrench, Mail, RefreshCw, ShieldCheck, Sparkles,
+  MessageSquare, Send, X, MessageCircle
 } from "lucide-react";
 import { auth, db, initFirebase, fetchFirestoreDoc } from "@/lib/firebase";
 import {
@@ -12,10 +13,11 @@ import {
   onAuthStateChanged,
   sendPasswordResetEmail,
   User as FirebaseUser,
+  createUserWithEmailAndPassword,
 } from "firebase/auth";
 import {
   doc, getDoc, setDoc, collection, query, where,
-  getDocs, addDoc, onSnapshot,
+  getDocs, addDoc, onSnapshot, serverTimestamp
 } from "firebase/firestore";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -110,6 +112,14 @@ export function AuthGate({ children }: AuthGateProps) {
   const [forgotOtp, setForgotOtp] = useState("");
   const [forgotNewPassword, setForgotNewPassword] = useState("");
   const [resetToken, setResetToken] = useState("");
+
+  // Maintenance Contact States
+  const [showMaintenanceContact, setShowMaintenanceContact] = useState(false);
+  const [maintenanceContactStep, setMaintenanceContactStep] = useState<"options" | "complaint">("options");
+  const [maintenanceName, setMaintenanceName] = useState("");
+  const [maintenancePhone, setMaintenancePhone] = useState("");
+  const [maintenanceMessage, setMaintenanceMessage] = useState("");
+  const [maintenanceSubmitting, setMaintenanceSubmitting] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -441,7 +451,6 @@ export function AuthGate({ children }: AuthGateProps) {
     const origEmail = signupForm.email.trim().toLowerCase();
     try {
       await initFirebase();
-      const { createUserWithEmailAndPassword } = await import("firebase/auth");
       const rnd = Math.random().toString(36).slice(2,6);
       const authEmail = origEmail.replace("@", `+${rnd}@`);
       const cred = await createUserWithEmailAndPassword(auth, authEmail, signupForm.password);
@@ -483,6 +492,40 @@ export function AuthGate({ children }: AuthGateProps) {
     }
   }
 
+  async function handleMaintenanceSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!maintenanceMessage.trim()) return;
+
+    setMaintenanceSubmitting(true);
+    try {
+      await initFirebase();
+      if (!db) throw new Error("Firebase not initialized");
+
+      const ticketSubject = maintenanceMessage.length > 50 ? maintenanceMessage.substring(0, 50) + "..." : maintenanceMessage;
+
+      await addDoc(collection(db, "support_tickets"), {
+        userId: "guest",
+        userName: maintenanceName.trim() || "زائر (وضع الصيانة)",
+        phone: maintenancePhone.trim() || "غير محدد",
+        subject: ticketSubject.trim(),
+        message: maintenanceMessage.trim(),
+        status: "new",
+        createdAt: serverTimestamp()
+      });
+
+      alert("✅ تم إرسال شكواك/اقتراحك بنجاح! شكراً لك.");
+      setMaintenanceMessage("");
+      setMaintenanceName("");
+      setMaintenancePhone("");
+      setShowMaintenanceContact(false);
+    } catch (error) {
+      console.error("Error submitting support ticket in maintenance:", error);
+      alert("❌ حدث خطأ أثناء إرسال الشكوى. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setMaintenanceSubmitting(false);
+    }
+  }
+
   // ── Guards ──
   const isAdminRoute = pathname?.includes("admin");
 
@@ -497,8 +540,152 @@ export function AuthGate({ children }: AuthGateProps) {
           <p className="text-blue-600 font-bold">{maintenance.reason || "نعمل على تحسين التطبيق"}</p>
           {maintenance.message && <p className="text-slate-500 text-sm leading-relaxed">{maintenance.message}</p>}
           {maintenance.duration && <p className="text-slate-400 text-xs">المدة المتوقعة: {maintenance.duration}</p>}
-          <a href="/admin" className="inline-block mt-6 px-5 py-2.5 text-slate-500 rounded-xl border border-slate-200 text-xs font-bold hover:bg-slate-50 transition">دخول الإدارة</a>
+          <button
+            onClick={() => { setShowMaintenanceContact(true); setMaintenanceContactStep("options"); }}
+            className="inline-block mt-6 px-5 py-2.5 text-blue-600 rounded-xl border border-blue-200 bg-blue-50/50 text-xs font-bold hover:bg-blue-50 transition animate-bounce"
+          >
+            تواصل مع الأدمن
+          </button>
         </div>
+
+        {/* Contact Admin Modal */}
+        <AnimatePresence>
+          {showMaintenanceContact && (
+            <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
+              {/* Backdrop click to close */}
+              <div className="fixed inset-0" onClick={() => setShowMaintenanceContact(false)} />
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="relative w-full max-w-sm bg-white/90 backdrop-blur-xl border border-slate-200/80 rounded-[2rem] p-6 shadow-2xl font-arabic text-right z-10"
+              >
+                {/* Header */}
+                <div className="flex justify-between items-center mb-6">
+                  <button
+                    onClick={() => setShowMaintenanceContact(false)}
+                    className="text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                  <h3 className="text-lg font-bold text-slate-800">
+                    {maintenanceContactStep === "options" ? "تواصل مع الأدمن" : "تقديم شكوى أو استفسار"}
+                  </h3>
+                </div>
+
+                {maintenanceContactStep === "options" ? (
+                  <div className="flex flex-col gap-3">
+                    <p className="text-slate-500 text-xs leading-relaxed text-center mb-2">
+                      يسعدنا تواصلك معنا لحل أي مشكلة أو سماع اقتراحاتك أثناء فترة الصيانة.
+                    </p>
+
+                    {/* WhatsApp Button */}
+                    <a
+                      href="https://wa.me/201020451206"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full py-3 px-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-xl font-bold text-sm flex items-center justify-between hover:bg-emerald-500/25 transition-all"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
+                        <MessageCircle className="w-4 h-4 text-white" />
+                      </div>
+                      <span>الواتساب (WhatsApp)</span>
+                    </a>
+
+                    {/* Instagram Button */}
+                    <a
+                      href="https://www.instagram.com/youssef_osama04"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full py-3 px-4 bg-pink-500/10 border border-pink-500/20 text-pink-600 rounded-xl font-bold text-sm flex items-center justify-between hover:bg-pink-500/25 transition-all"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-yellow-500 via-pink-500 to-purple-600 flex items-center justify-center">
+                        <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                      </div>
+                      <span>إنستجرام (Instagram)</span>
+                    </a>
+
+                    {/* Support Complaint Button */}
+                    <button
+                      onClick={() => setMaintenanceContactStep("complaint")}
+                      className="w-full py-3 px-4 bg-blue-500/10 border border-blue-500/20 text-blue-600 rounded-xl font-bold text-sm flex items-center justify-between hover:bg-blue-500/25 transition-all"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center">
+                        <MessageSquare className="w-4 h-4 text-white" />
+                      </div>
+                      <span>تواصل مع الدعم (إرسال شكوى)</span>
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleMaintenanceSubmit} className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 mb-1">الاسم الكامل</label>
+                      <input
+                        type="text"
+                        value={maintenanceName}
+                        onChange={(e) => setMaintenanceName(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-xs focus:outline-none focus:border-blue-500 transition-colors text-right"
+                        placeholder="الاسم (اختياري)"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 mb-1">رقم الهاتف</label>
+                      <input
+                        type="tel"
+                        value={maintenancePhone}
+                        onChange={(e) => setMaintenancePhone(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-xs focus:outline-none focus:border-blue-500 transition-colors text-left"
+                        placeholder="01xxxxxxxxx (اختياري)"
+                        dir="ltr"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 mb-1">تفاصيل الشكوى أو الرسالة *</label>
+                      <textarea
+                        required
+                        rows={4}
+                        value={maintenanceMessage}
+                        onChange={(e) => setMaintenanceMessage(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-xs focus:outline-none focus:border-blue-500 transition-colors text-right resize-none"
+                        placeholder="اكتب رسالتك أو الشكوى هنا..."
+                      />
+                    </div>
+
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setMaintenanceContactStep("options")}
+                        className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
+                        <span>رجوع</span>
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={maintenanceSubmitting}
+                        className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5"
+                      >
+                        {maintenanceSubmitting ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Send className="w-3.5 h-3.5" />
+                        )}
+                        <span>إرسال</span>
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
