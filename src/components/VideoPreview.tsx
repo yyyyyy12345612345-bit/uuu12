@@ -659,7 +659,7 @@ export function VideoPreview() {
         {/* Custom Surah name for basit_player in bottom black section */}
         {state.videoTemplate === "basit_player" && surahData && (
           <div className="absolute bottom-[13%] left-0 right-0 flex justify-center z-30 pointer-events-none">
-            <span className="text-[25px] font-bold text-white tracking-wide" style={{ fontFamily: '"Noto Naskh Arabic", Amiri, serif' }}>
+            <span className="text-[25px] font-bold text-white tracking-wide" style={{ fontFamily: `"${state.fontFamily || 'Amiri'}", "Noto Naskh Arabic", serif` }}>
               {surahData.name}
             </span>
           </div>
@@ -866,8 +866,8 @@ export function VideoPreview() {
                   const activeLineText = lines[activeLineIdx] || rawVerseText;
                   
                   // رقم الآية الحقيقية للحالية
-                  const ayahNumRaw = currentVerse.verse_number || currentVerse.ayah_number || currentVerse.numberInSurah || currentVerse.id || currentAyahIndex || state.startAyah || 1;
-                  const arabicAyahNum = String(ayahNumRaw).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+                  const ayahNumRaw = (currentVerse as any).verse_number || (currentVerse as any).ayah_number || (currentVerse as any).numberInSurah || currentVerse.id || currentAyahIndex || state.startAyah || 1;
+                  const arabicAyahNum = String(ayahNumRaw).replace(/\d/g, d => ('٠١٢٣٤٥٦٧٨٩' as any)[d]);
                   const isLastLine = activeLineIdx === lines.length - 1;
 
                   return (
@@ -876,7 +876,7 @@ export function VideoPreview() {
                         className="text-[#1a0f00] text-center w-full break-words leading-[1.6] font-arabic"
                         style={{
                           fontSize: `${Math.max(14, previewFontSize * 0.55)}px`,
-                          fontFamily: `"${state.fontFamily || 'Uthman Taha Naskh'}", "Scheherazade New", "Amiri", serif`,
+                          fontFamily: `"${state.fontFamily || 'Amiri'}", "Scheherazade New", "Amiri", serif`,
                           fontWeight: 700,
                           direction: 'rtl',
                           unicodeBidi: 'embed',
@@ -940,7 +940,7 @@ export function VideoPreview() {
                     onClick={handleAyahEnd}
                     className="hover:scale-105 transition active:scale-95"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" x2="19" y2="19" stroke="currentColor" strokeWidth="2.2"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" strokeWidth="2.2"/></svg>
                   </button>
                   <button className="opacity-85 hover:opacity-100 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
@@ -984,7 +984,7 @@ export function VideoPreview() {
                           className="text-white text-center w-full break-words leading-[1.9] drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] font-arabic"
                           style={{
                             fontSize: `${Math.max(16, previewFontSize * 0.65)}px`,
-                            fontFamily: `"${state.fontFamily || 'Uthman Taha Naskh'}", "Noto Naskh Arabic", "Amiri", serif`,
+                            fontFamily: `"${state.fontFamily || 'Amiri'}", "Noto Naskh Arabic", "Amiri", serif`,
                             direction: 'rtl',
                           }}
                         >
@@ -1242,7 +1242,7 @@ export function VideoPreview() {
               
               {/* Title & Artist */}
               <div className="w-[90%] mx-auto text-left font-sans mt-2">
-                <h3 className="text-base font-bold text-white tracking-tight leading-tight" style={{ fontFamily: '"Noto Naskh Arabic", serif' }}>
+                <h3 className="text-base font-bold text-white tracking-tight leading-tight" style={{ fontFamily: `"${state.fontFamily || 'Amiri'}", "Noto Naskh Arabic", serif` }}>
                   {surahData ? surahData.name : "..."}
                 </h3>
                 <p className="text-[10px] text-white/50 mt-0.5 font-medium">{getSheikhAsset(state.reciterId).nameEn}</p>

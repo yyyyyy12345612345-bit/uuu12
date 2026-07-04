@@ -8,7 +8,7 @@ function formatTime(secs) {
   return `${m}:${s < 10 ? "0" : ""}${s}`;
 }
 
-export function renderMinshawiPlayer({ surahName, reciterName, opacity, elapsed, total, templatePhotoBase64 }) {
+export function renderMinshawiPlayer({ surahName, reciterName, opacity, elapsed, total, templatePhotoBase64, fontFamily = "Amiri" }) {
   const progressPct = elapsed / (total || 1);
   return `
     <g opacity="${opacity}">
@@ -17,7 +17,7 @@ export function renderMinshawiPlayer({ surahName, reciterName, opacity, elapsed,
         <rect x="190" y="475" width="340" height="200" rx="45" />
       </clipPath>
       <image href="data:image/jpeg;base64,${templatePhotoBase64}" x="190" y="475" width="340" height="200" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)" />
-      <text x="190" y="707" font-family="'Noto Naskh Arabic', serif" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="start">${escapeXml(surahName || "سورة")}</text>
+      <text x="190" y="707" font-family="'${escapeXml(fontFamily)}', 'Noto Naskh Arabic', serif" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="start">${escapeXml(surahName || "سورة")}</text>
       <text x="190" y="733" font-family="'Cairo', sans-serif" font-size="15" fill="rgba(255, 255, 255, 0.5)" text-anchor="start">${escapeXml(reciterName)}</text>
       <rect x="190" y="760" width="340" height="4" rx="2" fill="rgba(255, 255, 255, 0.2)" />
       <rect x="190" y="760" width="${340 * Math.min(1, Math.max(0, progressPct))}" height="4" rx="2" fill="#ffffff" />
@@ -48,7 +48,7 @@ export function renderMinshawiPlayer({ surahName, reciterName, opacity, elapsed,
   `;
 }
 
-export function renderBasitPlayer({ surahName, reciterName, opacity, elapsed, total, templatePhotoBase64 }) {
+export function renderBasitPlayer({ surahName, reciterName, opacity, elapsed, total, templatePhotoBase64, fontFamily = "Amiri" }) {
   const progressPct = elapsed / (total || 1);
   const ovalW = 360, ovalH = 260, ovalX = 360, ovalY = 525;
   const barX = 180, barY = 690, barW = 360, ctrlY = 740;
@@ -89,12 +89,12 @@ export function renderBasitPlayer({ surahName, reciterName, opacity, elapsed, to
         <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
       </g>
       <text x="360" y="825" font-family="'Times New Roman', Georgia, serif" font-size="22" font-weight="bold" fill="#ffffff" text-anchor="middle">${escapeXml(reciterName)}</text>
-      <text x="360" y="1090" font-family="'Noto Naskh Arabic', 'Amiri', sans-serif" font-size="34" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">${escapeXml(surahName || "سورة")}</text>
+      <text x="360" y="1090" font-family="'${escapeXml(fontFamily)}', 'Noto Naskh Arabic', 'Amiri', sans-serif" font-size="34" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">${escapeXml(surahName || "سورة")}</text>
     </g>
   `;
 }
 
-export function renderDossaryPlayer({ verse, opacity, elapsed, total, templatePhotoBase64, startAyah, endAyah, reciterId, ayahProgress }) {
+export function renderDossaryPlayer({ verse, opacity, elapsed, total, templatePhotoBase64, startAyah, endAyah, reciterId, ayahProgress, fontFamily = "Amiri" }) {
   const progressPct = elapsed / (total || 1);
   const rightAreaCenterX = 510;
   const scaledNaskhSize = 32;
@@ -115,7 +115,7 @@ export function renderDossaryPlayer({ verse, opacity, elapsed, total, templatePh
   return `
     <g opacity="${opacity}">
       ${verse.text ? `
-      <text x="${rightAreaCenterX}" y="${naskhStartY}" font-family="'Noto Naskh Arabic', serif" font-size="${scaledNaskhSize}" fill="#ffffff" text-anchor="middle" direction="rtl" filter="url(#textGlow)">
+      <text x="${rightAreaCenterX}" y="${naskhStartY}" font-family="'${escapeXml(fontFamily)}', 'Noto Naskh Arabic', serif" font-size="${scaledNaskhSize}" fill="#ffffff" text-anchor="middle" direction="rtl" filter="url(#textGlow)">
         ${escapeXml(activeLineText)}
       </text>
       ` : ""}

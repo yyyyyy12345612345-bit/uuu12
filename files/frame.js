@@ -52,15 +52,16 @@ export async function generateVerseFrame(verse, outputPath, settings, bgPath, is
 
   let innerContent = "";
   if (videoTemplate === "minshawi_player") {
-    innerContent = renderMinshawiPlayer({ surahName: settings.surahName, reciterName, opacity, elapsed: elapsedSeconds || 0, total: totalDuration || 1, templatePhotoBase64 });
+    innerContent = renderMinshawiPlayer({ surahName: settings.surahName, reciterName, opacity, elapsed: elapsedSeconds || 0, total: totalDuration || 1, templatePhotoBase64, fontFamily: settings.fontFamily });
   } else if (videoTemplate === "basit_player") {
-    innerContent = renderBasitPlayer({ surahName: settings.surahName, reciterName, opacity, elapsed: elapsedSeconds || 0, total: totalDuration || 1, templatePhotoBase64 });
+    innerContent = renderBasitPlayer({ surahName: settings.surahName, reciterName, opacity, elapsed: elapsedSeconds || 0, total: totalDuration || 1, templatePhotoBase64, fontFamily: settings.fontFamily });
   } else if (videoTemplate === "dossary_player") {
     const startAyah = settings.startAyah || 1;
     const endAyah = settings.endAyah || 1;
     innerContent = renderDossaryPlayer({
       verse, opacity, elapsed: elapsedSeconds || 0, total: totalDuration || 1,
       templatePhotoBase64, startAyah, endAyah, reciterId, ayahProgress: settings.ayahProgress,
+      fontFamily: settings.fontFamily
     });
   } else {
     const { inner } = buildDefaultLayout({ verse, settings, activeWordIdx, opacity, verticalOffset, scale });

@@ -40,16 +40,7 @@ export function buildDefaultLayout({ verse, settings, activeWordIdx, opacity, ve
 
   const verseY = curY;
   const verseTSpans = vLines.map((line, i) => {
-    if (activeWordIdx === -1) {
-      return `<tspan x="${centerX}" dy="${i === 0 ? 0 : lineH}">${escapeXml(line)}</tspan>`;
-    }
-    const words = line.split(" ");
-    const lineSpans = words.map((w, wIdx) => {
-      const isHighlighted = wIdx === activeWordIdx;
-      const color = isHighlighted ? "#FFD700" : escapeXml(textColor);
-      return `<tspan fill="${color}">${escapeXml(w)} </tspan>`;
-    }).join("");
-    return `<tspan x="${centerX}" dy="${i === 0 ? 0 : lineH}">${lineSpans}</tspan>`;
+    return `<tspan x="${centerX}" dy="${i === 0 ? 0 : lineH}">${escapeXml(line)}</tspan>`;
   }).join("");
   curY += VERSE_H;
 
