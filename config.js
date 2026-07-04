@@ -39,22 +39,22 @@ export const LIMITS = {
 };
 
 export const FONT_MAP = {
-  "Amiri": "https://github.com/google/fonts/raw/main/ofl/amiri/Amiri-Regular.ttf",
-  "Amiri-Bold": "https://github.com/google/fonts/raw/main/ofl/amiri/Amiri-Bold.ttf",
-  "Noto Naskh Arabic": "https://github.com/google/fonts/raw/main/ofl/notonaskharabic/NotoNaskhArabic%5Bwght%5D.ttf",
-  "Scheherazade New": "https://github.com/google/fonts/raw/main/ofl/scheherazadenew/ScheherazadeNew-Regular.ttf",
+  "Amiri": "https://raw.githubusercontent.com/google/fonts/main/ofl/amiri/Amiri-Regular.ttf",
+  "Amiri-Bold": "https://raw.githubusercontent.com/google/fonts/main/ofl/amiri/Amiri-Bold.ttf",
+  "Noto Naskh Arabic": "https://raw.githubusercontent.com/google/fonts/main/ofl/notonaskharabic/NotoNaskhArabic%5Bwght%5D.ttf",
+  "Scheherazade New": "https://raw.githubusercontent.com/google/fonts/main/ofl/scheherazadenew/ScheherazadeNew-Regular.ttf",
   "SurahNameV2": "https://raw.githubusercontent.com/yyyyyy12345612345-bit/uuu12/main/public/fonts/SurahNameV2.ttf",
   "BasmalahVer01": "https://raw.githubusercontent.com/yyyyyy12345612345-bit/uuu12/main/public/fonts/BasmalahVer01.ttf",
-  "Lateef": "https://github.com/google/fonts/raw/main/ofl/lateef/Lateef-Regular.ttf",
-  "Cairo": "https://github.com/google/fonts/raw/main/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf",
-  "Tajawal": "https://github.com/google/fonts/raw/main/ofl/tajawal/Tajawal-Regular.ttf",
-  "Reem Kufi": "https://github.com/google/fonts/raw/main/ofl/reemkufi/static/ReemKufi-Regular.ttf",
-  "Lalezar": "https://github.com/google/fonts/raw/main/ofl/lalezar/Lalezar-Regular.ttf",
-  "El Messiri": "https://github.com/google/fonts/raw/main/ofl/elmessiri/static/ElMessiri-Regular.ttf",
-  "Almarai": "https://github.com/google/fonts/raw/main/ofl/almarai/Almarai-Regular.ttf",
-  "Aref Ruqaa": "https://github.com/google/fonts/raw/main/ofl/arefruqaa/ArefRuqaa-Regular.ttf",
-  "Reem Kufi Fun": "https://github.com/google/fonts/raw/main/ofl/reemkufifun/ReemKufiFun%5Bwght%5D.ttf",
-  "Alexandria": "https://github.com/google/fonts/raw/main/ofl/alexandria/static/Alexandria-Regular.ttf",
+  "Lateef": "https://raw.githubusercontent.com/google/fonts/main/ofl/lateef/Lateef-Regular.ttf",
+  "Cairo": "https://raw.githubusercontent.com/google/fonts/main/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf",
+  "Tajawal": "https://raw.githubusercontent.com/google/fonts/main/ofl/tajawal/Tajawal-Regular.ttf",
+  "Reem Kufi": "https://raw.githubusercontent.com/google/fonts/main/ofl/reemkufi/ReemKufi%5Bwght%5D.ttf",
+  "Lalezar": "https://raw.githubusercontent.com/google/fonts/main/ofl/lalezar/Lalezar-Regular.ttf",
+  "El Messiri": "https://raw.githubusercontent.com/google/fonts/main/ofl/elmessiri/ElMessiri%5Bwght%5D.ttf",
+  "Almarai": "https://raw.githubusercontent.com/google/fonts/main/ofl/almarai/Almarai-Regular.ttf",
+  "Aref Ruqaa": "https://raw.githubusercontent.com/google/fonts/main/ofl/arefruqaa/ArefRuqaa-Regular.ttf",
+  "Reem Kufi Fun": "https://raw.githubusercontent.com/google/fonts/main/ofl/reemkufifun/ReemKufiFun%5Bwght%5D.ttf",
+  "Alexandria": "https://raw.githubusercontent.com/google/fonts/main/ofl/alexandria/Alexandria%5Bwght%5D.ttf",
 };
 
 export const ALLOWED_DOMAINS = [
