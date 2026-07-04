@@ -260,11 +260,14 @@ export function DailyHub() {
     }
 
     const id = Date.now() + Math.random();
-    setter(prev => [...prev, { id, text, x, y }]);
+    setter(prev => {
+      const next = [...prev, { id, text, x, y }];
+      return next.length > 5 ? next.slice(next.length - 5) : next;
+    });
 
     setTimeout(() => {
       setter(prev => prev.filter(t => t.id !== id));
-    }, 1000);
+    }, 800);
   };
 
   const handleSibhaClick = (e?: React.MouseEvent) => {
