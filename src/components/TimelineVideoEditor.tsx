@@ -23,6 +23,40 @@ interface TimelineVideoEditorProps {
   onOpenRender: () => void;
 }
 
+const SOLID_COLORS = [
+  { id: "color:#000000", label: "أسود", color: "#000000" },
+  { id: "color:#ffffff", label: "أبيض", color: "#ffffff" },
+  { id: "color:#000080", label: "كحلي", color: "#000080" },
+  { id: "color:#800020", label: "خمري", color: "#800020" },
+  { id: "color:#228B22", label: "غابة", color: "#228B22" },
+  { id: "color:#800080", label: "بنفسجي", color: "#800080" },
+  { id: "color:#0c0d10", label: "فارغ", color: "#0c0d10" },
+];
+
+const GRADIENTS = [
+  { id: "gradient:linear-gradient(to bottom, #111111, #000000)", label: "داكن", style: "linear-gradient(to bottom, #111111, #000000)" },
+  { id: "gradient:linear-gradient(to bottom, #020024, #090979, #00d4ff)", label: "تلاشي ليلي", style: "linear-gradient(to bottom, #020024, #090979, #00d4ff)" },
+  { id: "gradient:linear-gradient(to bottom, #ff7e5f, #feb47b)", label: "غروب", style: "linear-gradient(to bottom, #ff7e5f, #feb47b)" },
+  { id: "gradient:linear-gradient(to bottom, #2b5876, #4e4376)", label: "محيط", style: "linear-gradient(to bottom, #2b5876, #4e4376)" },
+  { id: "gradient:linear-gradient(to bottom, #bf953f, #fcf6ba, #b38728, #fcf6ba, #aa771c)", label: "ذهبي", style: "linear-gradient(to bottom, #bf953f, #fcf6ba, #b38728, #fcf6ba, #aa771c)" },
+  { id: "gradient:linear-gradient(to bottom, #f3904f, #3b4371)", label: "فجر", style: "linear-gradient(to bottom, #f3904f, #3b4371)" },
+  { id: "gradient:linear-gradient(to bottom, #ffd89b, #19547b)", label: "غسق", style: "linear-gradient(to bottom, #ffd89b, #19547b)" },
+  { id: "gradient:linear-gradient(to bottom, #0575e6, #00f260)", label: "زمردي", style: "linear-gradient(to bottom, #0575e6, #00f260)" },
+  { id: "gradient:linear-gradient(to bottom, #f857a6, #ff5858)", label: "وردي", style: "linear-gradient(to bottom, #f857a6, #ff5858)" },
+  { id: "gradient:linear-gradient(to bottom, #757f9a, #d7dde8)", label: "رمادي", style: "linear-gradient(to bottom, #757f9a, #d7dde8)" },
+  { id: "gradient:linear-gradient(to bottom, #0f2027, #203a43, #2c5364)", label: "منتصف الليل", style: "linear-gradient(to bottom, #0f2027, #203a43, #2c5364)" },
+  { id: "gradient:linear-gradient(to bottom, #ffe259, #ffa751)", label: "رملي", style: "linear-gradient(to bottom, #ffe259, #ffa751)" },
+  { id: "gradient:linear-gradient(to bottom, #11998e, #38ef7d)", label: "شفق", style: "linear-gradient(to bottom, #11998e, #38ef7d)" },
+  { id: "gradient:linear-gradient(to bottom, #f12711, #f5af19)", label: "جمر", style: "linear-gradient(to bottom, #f12711, #f5af19)" },
+  { id: "gradient:linear-gradient(to bottom, #3a7bd5, #3a6073)", label: "ضباب", style: "linear-gradient(to bottom, #3a7bd5, #3a6073)" },
+  { id: "gradient:linear-gradient(to bottom, #5B6346, #323624)", label: "زيتوني", style: "linear-gradient(to bottom, #5B6346, #323624)" },
+  { id: "gradient:linear-gradient(to bottom, #4e54c8, #8f94fb)", label: "برقوقي", style: "linear-gradient(to bottom, #4e54c8, #8f94fb)" },
+  { id: "gradient:linear-gradient(to bottom, #b87333, #5c3a21)", label: "نحاسي", style: "linear-gradient(to bottom, #b87333, #5c3a21)" },
+  { id: "gradient:linear-gradient(to bottom, #e0eafc, #cfdef3)", label: "جليدي", style: "linear-gradient(to bottom, #e0eafc, #cfdef3)" },
+  { id: "gradient:linear-gradient(to bottom, #9CAF88, #556B2F)", label: "Sage", style: "linear-gradient(to bottom, #9CAF88, #556B2F)" },
+  { id: "gradient:linear-gradient(to bottom, #00c6ff, #0072ff)", label: "أفق", style: "linear-gradient(to bottom, #00c6ff, #0072ff)" },
+];
+
 export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: TimelineVideoEditorProps) {
   const { state, updateState } = useEditor();
   const { theme, toggleTheme } = useTheme();
@@ -58,7 +92,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
   });
 
   // Background search states
-  const [bgMode, setBgMode] = useState<"library" | "videos">("library");
+  const [bgMode, setBgMode] = useState<"library" | "videos" | "colors">("library");
   const [librarySearch, setLibrarySearch] = useState("");
   const [libraryCategory, setLibraryCategory] = useState("الكل");
 
@@ -86,6 +120,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
   };
 
   const filteredLibrary = useMemo(() => {
+    if (bgMode === "colors") return [];
     const normalizedSearch = normalizeForSearch(librarySearch);
     const sourceList = bgMode === "library" ? STATIC_BACKGROUNDS : STATIC_VIDEOS;
     return sourceList.filter(item => {
@@ -291,95 +326,161 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                   >
                     فيديوهات
                   </button>
+                  <button
+                    onClick={() => setBgMode("colors")}
+                    className={`flex-1 py-2 text-[10px] font-black rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                      bgMode === "colors" ? "bg-primary text-black shadow-md" : "text-white/40 hover:text-white/70"
+                    }`}
+                  >
+                    ألوان وتدرجات
+                  </button>
                 </div>
 
-                <div className="flex flex-col gap-4">
-                  <div className="relative">
-                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 w-3.5 h-3.5" />
-                    <input
-                      value={librarySearch}
-                      onChange={(e) => setLibrarySearch(e.target.value)}
-                      placeholder="ابحث في التصنيفات..."
-                      className="w-full rounded-xl bg-white/5 border border-white/10 pr-9 pl-4 py-2 text-[11px] text-white outline-none focus:border-primary/40 transition-all font-arabic"
-                    />
-                  </div>
-                  {/* Category List */}
-                  <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
-                    {categories.map(cat => (
-                      <button
-                        key={cat}
-                        onClick={() => setLibraryCategory(cat)}
-                        className={`px-3 py-1 rounded-full text-[9px] font-black whitespace-nowrap transition-all border ${
-                          libraryCategory === cat 
-                            ? 'bg-primary/20 text-primary border-primary/30' 
-                            : 'bg-white/5 text-white/40 border-transparent hover:border-white/10'
-                        }`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Media Grid */}
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  {displayMedia.length === 0 ? (
-                    <div className="col-span-2 py-10 text-center text-white/30 text-[10px]">
-                      لا توجد نتائج مطابقة
+                {bgMode !== "colors" ? (
+                  <>
+                    <div className="flex flex-col gap-4">
+                      <div className="relative">
+                        <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 w-3.5 h-3.5" />
+                        <input
+                          value={librarySearch}
+                          onChange={(e) => setLibrarySearch(e.target.value)}
+                          placeholder="ابحث في التصنيفات..."
+                          className="w-full rounded-xl bg-white/5 border border-white/10 pr-9 pl-4 py-2 text-[11px] text-white outline-none focus:border-primary/40 transition-all font-arabic"
+                        />
+                      </div>
+                      {/* Category List */}
+                      <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                        {categories.map(cat => (
+                          <button
+                            key={cat}
+                            onClick={() => setLibraryCategory(cat)}
+                            className={`px-3 py-1 rounded-full text-[9px] font-black whitespace-nowrap transition-all border ${
+                              libraryCategory === cat 
+                                ? 'bg-primary/20 text-primary border-primary/30' 
+                                : 'bg-white/5 text-white/40 border-transparent hover:border-white/10'
+                            }`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  ) : (
-                    displayMedia.map((item, idx) => (
-                      <button
-                        key={`${item.src}-${idx}`}
-                        onClick={() => {
-                          if (item.type === 'video' && isVideoLocked) return;
-                          updateState({ backgroundUrl: item.src });
-                        }}
-                        className={`group relative h-32 rounded-xl overflow-hidden border transition-all ${
-                          state.backgroundUrl === item.src 
-                            ? 'border-primary shadow-lg shadow-primary/10' 
-                            : 'border-white/5 hover:border-white/20'
-                        }`}
-                      >
-                        {item.type === 'video' ? (
-                          <video 
-                            src={item.src}
-                            muted 
-                            loop 
-                            playsInline 
-                            className="h-full w-full object-cover" 
-                          />
-                        ) : (
-                          <img 
-                            src={item.src.includes('pexels.com') ? `${item.src.split('?')[0]}?auto=compress&cs=tinysrgb&fit=crop&h=300&w=200` : item.src} 
-                            alt="bg" 
-                            className="h-full w-full object-cover" 
-                          />
-                        )}
-                        <div className={`absolute inset-0 bg-black/40 group-hover:bg-black/10 transition-colors ${state.backgroundUrl === item.src ? 'bg-transparent' : ''}`} />
-                        
-                        {state.backgroundUrl === item.src && (
-                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center text-black">
-                            <Check className="w-3.5 h-3.5 stroke-[3.5px]" />
-                          </div>
-                        )}
 
-                        {item.type === "video" && (
-                          <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded bg-black/60 px-1.5 py-0.5 text-[8px] font-bold text-white border border-white/5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                            <span>متحرك</span>
-                          </div>
-                        )}
+                    {/* Media Grid */}
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      {displayMedia.length === 0 ? (
+                        <div className="col-span-2 py-10 text-center text-white/30 text-[10px]">
+                          لا توجد نتائج مطابقة
+                        </div>
+                      ) : (
+                        displayMedia.map((item, idx) => (
+                          <button
+                            key={`${item.src}-${idx}`}
+                            onClick={() => {
+                              if (item.type === 'video' && isVideoLocked) return;
+                              updateState({ backgroundUrl: item.src });
+                            }}
+                            className={`group relative h-32 rounded-xl overflow-hidden border transition-all ${
+                              state.backgroundUrl === item.src 
+                                ? 'border-primary shadow-lg shadow-primary/10' 
+                                : 'border-white/5 hover:border-white/20'
+                            }`}
+                          >
+                            {item.type === 'video' ? (
+                              <video 
+                                src={item.src}
+                                muted 
+                                loop 
+                                playsInline 
+                                className="h-full w-full object-cover" 
+                              />
+                            ) : (
+                              <img 
+                                src={item.src.includes('pexels.com') ? `${item.src.split('?')[0]}?auto=compress&cs=tinysrgb&fit=crop&h=300&w=200` : item.src} 
+                                alt="bg" 
+                                className="h-full w-full object-cover" 
+                              />
+                            )}
+                            <div className={`absolute inset-0 bg-black/40 group-hover:bg-black/10 transition-colors ${state.backgroundUrl === item.src ? 'bg-transparent' : ''}`} />
+                            
+                            {state.backgroundUrl === item.src && (
+                              <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center text-black">
+                                <Check className="w-3.5 h-3.5 stroke-[3.5px]" />
+                              </div>
+                            )}
 
-                        {item.type === 'video' && isVideoLocked && (
-                          <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-black/60 flex items-center justify-center text-white">
-                            <Lock className="w-2.5 h-2.5" />
-                          </div>
-                        )}
-                      </button>
-                    ))
-                  )}
-                </div>
+                            {item.type === "video" && (
+                              <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded bg-black/60 px-1.5 py-0.5 text-[8px] font-bold text-white border border-white/5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                                <span>متحرك</span>
+                              </div>
+                            )}
+
+                            {item.type === 'video' && isVideoLocked && (
+                              <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-black/60 flex items-center justify-center text-white">
+                                <Lock className="w-2.5 h-2.5" />
+                              </div>
+                            )}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <div className="space-y-4 max-h-[65vh] overflow-y-auto no-scrollbar pr-1">
+                    {/* Solid Colors */}
+                    <div className="space-y-2">
+                      <span className="text-[10px] text-white/40 block font-bold">ألوان ثابتة</span>
+                      <div className="grid grid-cols-4 gap-2">
+                        {SOLID_COLORS.map((col) => (
+                          <button
+                            key={col.id}
+                            onClick={() => updateState({ backgroundUrl: col.id })}
+                            className={`group relative h-16 rounded-xl overflow-hidden border transition-all flex flex-col items-center justify-center gap-1 ${
+                              state.backgroundUrl === col.id 
+                                ? 'border-primary shadow-lg shadow-primary/10' 
+                                : 'border-white/5 hover:border-white/20'
+                            }`}
+                            style={{ backgroundColor: col.color }}
+                          >
+                            {state.backgroundUrl === col.id && (
+                              <div className="absolute inset-0 bg-black/20 flex items-center justify-center text-primary">
+                                <Check className="w-5 h-5 stroke-[3.5px] drop-shadow" />
+                              </div>
+                            )}
+                            <span className="text-[9px] font-bold text-white drop-shadow bg-black/40 px-1 rounded absolute bottom-1">{col.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Gradients */}
+                    <div className="space-y-2">
+                      <span className="text-[10px] text-white/40 block font-bold">تدرّجات</span>
+                      <div className="grid grid-cols-2 gap-2">
+                        {GRADIENTS.map((grad) => (
+                          <button
+                            key={grad.id}
+                            onClick={() => updateState({ backgroundUrl: grad.id })}
+                            className={`group relative h-20 rounded-xl overflow-hidden border transition-all flex flex-col items-center justify-center gap-1 ${
+                              state.backgroundUrl === grad.id 
+                                ? 'border-primary shadow-lg shadow-primary/10' 
+                                : 'border-white/5 hover:border-white/20'
+                            }`}
+                            style={{ background: grad.style }}
+                          >
+                            {state.backgroundUrl === grad.id && (
+                              <div className="absolute inset-0 bg-black/20 flex items-center justify-center text-primary">
+                                <Check className="w-5 h-5 stroke-[3.5px] drop-shadow" />
+                              </div>
+                            )}
+                            <span className="text-[9px] font-bold text-white drop-shadow bg-black/40 px-2 py-0.5 rounded absolute bottom-2">{grad.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -640,6 +741,29 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                     onChange={(e) => updateState({ fontSize: Number(e.target.value) })}
                     className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary"
                   />
+                </div>
+
+                {/* Text Color */}
+                <div className="space-y-2">
+                  <span className="text-[10px] text-white/40 block font-bold">لون النص</span>
+                  <div className="grid grid-cols-7 gap-2">
+                    {[
+                      '#ffffff', '#FFD700', '#D4AF37', '#C0C0C0', '#F5F5DC', '#FFFDD0', '#E6E6FA',
+                      '#00FFC2', '#00E5FF', '#3B82F6', '#8B5CF6', '#F43F5E', '#FB923C', '#22C55E',
+                      '#1E293B', '#F8FAFC', '#E2E8F0', '#94A3B8', '#64748B', '#475569', '#334155'
+                    ].map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => updateState({ textColor: color })}
+                        style={{ backgroundColor: color }}
+                        className={`w-6 h-6 rounded-full border transition-all ${
+                          state.textColor === color 
+                            ? 'border-primary scale-110 ring-2 ring-primary/20' 
+                            : 'border-white/10 hover:scale-105'
+                        }`}
+                      />
+                    ))}
+                  </div>
                 </div>
 
                 {/* Text Position */}

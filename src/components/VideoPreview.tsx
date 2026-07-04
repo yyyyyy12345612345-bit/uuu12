@@ -385,7 +385,23 @@ export function VideoPreview() {
         <div className="absolute inset-0 z-0 bg-black">
           {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "basit_player" && state.videoTemplate !== "youssef_player" ? (
             state.backgroundUrl ? (
-              isVideoUrl(state.backgroundUrl) ? (
+              state.backgroundUrl.startsWith("color:") ? (
+                <div
+                  className="absolute inset-0 w-full h-full transition-[opacity,filter] duration-700"
+                  style={{
+                    backgroundColor: state.backgroundUrl.substring(6),
+                    filter: getFilterCSS(state.filter)
+                  }}
+                />
+              ) : state.backgroundUrl.startsWith("gradient:") ? (
+                <div
+                  className="absolute inset-0 w-full h-full transition-[opacity,filter] duration-700"
+                  style={{
+                    background: state.backgroundUrl.substring(9),
+                    filter: getFilterCSS(state.filter)
+                  }}
+                />
+              ) : isVideoUrl(state.backgroundUrl) ? (
                 <video
                   ref={videoRef}
                   src={state.backgroundUrl}

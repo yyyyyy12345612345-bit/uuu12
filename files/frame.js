@@ -4,6 +4,43 @@ import { escapeXml, applyFilterToSVG, applyOverlayToSVG } from "./svgUtils.js";
 import { buildDefaultLayout } from "./templates/defaultTemplate.js";
 import { renderMinshawiPlayer, renderBasitPlayer, renderDossaryPlayer } from "./templates/playerTemplates.js";
 
+function buildSvgBackground(backgroundUrl) {
+  if (!backgroundUrl) {
+    return {
+      defs: "",
+      rect: `<rect width="${WIDTH}" height="${HEIGHT}" fill="url(#overlayGrad)"/>`
+    };
+  }
+
+  if (backgroundUrl.startsWith("color:")) {
+    const color = backgroundUrl.substring(6);
+    return {
+      defs: "",
+      rect: `<rect width="${WIDTH}" height="${HEIGHT}" fill="${escapeXml(color)}"/>`
+    };
+  }
+
+  if (backgroundUrl.startsWith("gradient:")) {
+    const gradStr = backgroundUrl.substring(9);
+    const colorMatches = gradStr.match(/#(?:[0-9a-fA-F]{3}){1,2}\b|rgba?\([^)]+\)/g);
+    if (colorMatches && colorMatches.length > 0) {
+      let stops = "";
+      colorMatches.forEach((color, idx) => {
+        const offset = Math.round((idx / (colorMatches.length - 1)) * 100);
+        stops += `<stop offset="${offset}%" stop-color="${escapeXml(color)}"/>`;
+      });
+      const defs = `<linearGradient id="userBgGrad" x1="0%" y1="0%" x2="0%" y2="100%">${stops}</linearGradient>`;
+      const rect = `<rect width="${WIDTH}" height="${HEIGHT}" fill="url(#userBgGrad)"/>`;
+      return { defs, rect };
+    }
+  }
+
+  return {
+    defs: "",
+    rect: `<rect width="${WIDTH}" height="${HEIGHT}" fill="url(#overlayGrad)"/>`
+  };
+}
+
 // لو fontconfig شغال، مش محتاجين نضمّن @font-face أصلاً — الخط بيتلاقى بالاسم.
 // لو مش شغال (fallback)، بنضمّن الـ base64 اللي جالنا من ensureFont.
 function buildFontFaceBlock({ fontFamily, amiriFont, mainFont, naskhFont }) {
@@ -71,6 +108,7 @@ export async function generateVerseFrame(verse, outputPath, settings, bgPath, is
   const isMinshawi = videoTemplate === "minshawi_player";
   const isDossary = videoTemplate === "dossary_player";
   const isBasit = videoTemplate === "basit_player";
+  const bgSvg = buildSvgBackground(settings.backgroundUrl);
   const bgRects = isMinshawi ? `
     <rect x="0" y="0" width="${WIDTH}" height="380" fill="#000000" />
     <rect x="0" y="380" width="${WIDTH}" height="520" fill="#383838" />
@@ -83,7 +121,7 @@ export async function generateVerseFrame(verse, outputPath, settings, bgPath, is
     <rect x="0" y="0" width="${WIDTH}" height="380" fill="#000000" />
     <rect x="0" y="380" width="${WIDTH}" height="520" fill="#c5beb8" />
     <rect x="0" y="900" width="${WIDTH}" height="380" fill="#000000" />
-  ` : `<rect width="${WIDTH}" height="${HEIGHT}" fill="url(#overlayGrad)"/>`));
+  ` : bgSvg.rect));
 
   const svg = `<svg width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -93,6 +131,7 @@ export async function generateVerseFrame(verse, outputPath, settings, bgPath, is
     <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#BF953F"/><stop offset="30%" stop-color="#FCF6BA"/><stop offset="50%" stop-color="#D4AF37"/><stop offset="70%" stop-color="#FCF6BA"/><stop offset="100%" stop-color="#AA771C"/></linearGradient>
     <filter id="whiteGlow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#ffffff" flood-opacity="0.6"/></filter>
     ${overlayGradDef}
+    ${bgSvg.defs}
   </defs>
   ${bgRects}
   ${innerContent}

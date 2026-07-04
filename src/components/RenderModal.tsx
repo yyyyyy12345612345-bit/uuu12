@@ -411,6 +411,8 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     setProgressPct(0);
 
     try {
+      let bgVideo: HTMLVideoElement | null = null;
+      let bgImage: HTMLImageElement | null = null;
       const canvas = canvasRef.current;
       if (!canvas) throw new Error("Canvas missing");
       const ctx = canvas.getContext("2d", { alpha: false })!;
@@ -426,10 +428,11 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       const youssefBgUrl = "https://res.cloudinary.com/dtuyo4gqm/image/upload/v1783004228/Untitled_design_zawi7h.png";
       const actualBgUrl = isDossary ? dossaryBgUrl : (isYoussef ? youssefBgUrl : state.backgroundUrl);
       
-      const isVideo = !isDossary && !isYoussef && (/\.(mp4|webm|mov|ogg|m4v|3gp|flv|avi)(\?.*|#.*)?$/i.test(state.backgroundUrl) || state.backgroundUrl.includes("video"));
+      const isColorOrGradient = !!state.backgroundUrl?.startsWith("color:") || !!state.backgroundUrl?.startsWith("gradient:");
+      const isVideo = !isDossary && !isYoussef && !isColorOrGradient && (/\.(mp4|webm|mov|ogg|m4v|3gp|flv|avi)(\?.*|#.*)?$/i.test(state.backgroundUrl || "") || (state.backgroundUrl || "").includes("video"));
 
       if (isVideo) bgVideo = await loadVideo(actualBgUrl);
-      else bgImage = await loadImage(actualBgUrl); 
+      else if (isDossary || isYoussef || !isColorOrGradient) bgImage = await loadImage(actualBgUrl); 
 
       let templatePhoto: HTMLImageElement | null = null;
       let templateCalligraphy: HTMLImageElement | null = null;
@@ -556,6 +559,27 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     setDownloadUrl(null);
   };
 
+  const drawCanvasGradient = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, gradientStr: string) => {
+    const colors: string[] = [];
+    const colorMatches = gradientStr.match(/#(?:[0-9a-fA-F]{3}){1,2}\b|rgba?\([^)]+\)/g);
+    if (colorMatches && colorMatches.length > 0) {
+      colors.push(...colorMatches);
+    }
+    
+    if (colors.length === 0) {
+      ctx.fillStyle = "#0c0d10";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
+    
+    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    colors.forEach((color, idx) => {
+      grad.addColorStop(idx / (colors.length - 1), color);
+    });
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  };
+
   const renderFrame = (
     ctx: CanvasRenderingContext2D, 
     canvas: HTMLCanvasElement, 
@@ -568,7 +592,8 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     freqData: Uint8Array | null = null,
     surahName: string = "",
     templatePhoto: HTMLImageElement | null = null,
-    templateCalligraphy: HTMLImageElement | null = null
+    templateCalligraphy: HTMLImageElement | null = null,
+    elapsedTime: number = 0
   ) => {
     ctx.save();
     
@@ -635,7 +660,12 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         ctx.fillStyle = "#c5beb8";
         ctx.fillRect(0, 380, canvas.width, 520);
     } else {
-        if (video) {
+        if (state.backgroundUrl?.startsWith("color:")) {
+            ctx.fillStyle = state.backgroundUrl.substring(6);
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        } else if (state.backgroundUrl?.startsWith("gradient:")) {
+            drawCanvasGradient(ctx, canvas, state.backgroundUrl);
+        } else if (video) {
             const sc = Math.max(canvas.width / video.videoWidth, canvas.height / video.videoHeight);
             ctx.drawImage(video, (canvas.width - video.videoWidth * sc) / 2, (canvas.height - video.videoHeight * sc) / 2, video.videoWidth * sc, video.videoHeight * sc);
         } else if (bg) {
