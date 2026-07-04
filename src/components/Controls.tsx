@@ -307,7 +307,12 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                 {videoReciters.map((r) => (
                     <button
                         key={r.id}
-                        onClick={() => updateState({ reciterId: r.id })}
+                        onClick={() => {
+                          updateState({ reciterId: r.id });
+                          if (r.id === "omar_diaa") {
+                            window.alert("تنبيه: القارئ عمر ضياء الدين لا تتوفر له تلاوة مقسمة آية بآية. سيتم استخدام صوت العفاسي كبديل في الفيديو.");
+                          }
+                        }}
                         className={`flex items-center justify-between p-6 rounded-[2rem] border-2 transition-all duration-500 group/reciter ${state.reciterId === r.id ? 'bg-primary/10 border-primary shadow-2xl shadow-primary/10' : (r.isPremiumSync ? 'bg-[#D4AF37]/5 border-[#D4AF37]/20 hover:border-[#D4AF37]/50' : 'bg-foreground/5 border-foreground/5 hover:border-foreground/10')}`}
                     >
                         <div className="flex items-center gap-4">

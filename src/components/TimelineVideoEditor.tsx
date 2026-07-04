@@ -8,6 +8,7 @@ import { STATIC_BACKGROUNDS, STATIC_VIDEOS } from "@/data/backgrounds";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import surahsData from "@/data/surahs.json";
 import { VideoPreview } from "@/components/VideoPreview";
+import { AyahSearchModal } from "./AyahSearchModal";
 import { 
   FolderOpen, ImageIcon, Wand2, Type, Layout, Music, 
   ArrowLeftRight, FileText, Bookmark, 
@@ -74,6 +75,27 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
       window.removeEventListener("preview_play_state_changed", handlePlayState);
     };
   }, []);
+
+  const [isAyahSearchOpen, setIsAyahSearchOpen] = useState(false);
+  const [surahQuery, setSurahQuery] = useState("");
+  const filteredSurahs = useMemo(() => {
+    const cleanSearch = surahQuery.trim().toLowerCase()
+      .replace(/[أإآ]/g, "ا")
+      .replace(/ة/g, "ه")
+      .replace(/ى/g, "ي")
+      .replace(/[ًٌٍَُِّْ]/g, "");
+    if (!cleanSearch) return surahsData;
+    return surahsData.filter(s => {
+      const cleanName = s.name
+        .replace(/[أإآ]/g, "ا")
+        .replace(/ة/g, "ه")
+        .replace(/ى/g, "ي")
+        .replace(/[ًٌٍَُِّْ]/g, "")
+        .toLowerCase();
+      const cleanEnglish = s.english.toLowerCase();
+      return cleanName.includes(cleanSearch) || cleanEnglish.includes(cleanSearch) || s.id.toString() === cleanSearch;
+    });
+  }, [surahQuery]);
 
   // Navigation states
   const [activeLeftTab, setActiveLeftTab] = useState<string>("bg");
@@ -187,6 +209,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
 
   return (
     <div className="flex flex-col w-full h-full bg-[#08090c] text-foreground font-arabic overflow-hidden select-none">
+      <AyahSearchModal isOpen={isAyahSearchOpen} onClose={() => setIsAyahSearchOpen(false)} />
       
       {/* ── TOP CONTROL BAR ── */}
       <header className="h-16 shrink-0 bg-[#0c0d12] border-b border-white/5 flex items-center justify-between px-6 z-[100]">
@@ -517,7 +540,12 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                 {videoReciters.map((r) => (
                   <button
                     key={r.id}
-                    onClick={() => updateState({ reciterId: r.id })}
+                    onClick={() => {
+                      updateState({ reciterId: r.id });
+                      if (r.id === "omar_diaa") {
+                        window.alert("تنبيه: القارئ عمر ضياء الدين لا تتوفر له تلاوة مقسمة آية بآية. سيتم استخدام صوت العفاسي كبديل في الفيديو.");
+                      }
+                    }}
                     className={`flex items-center justify-between p-3.5 rounded-xl border transition-all text-right ${
                       state.reciterId === r.id 
                         ? 'bg-primary/10 border-primary' 
@@ -950,15 +978,39 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                   </button>
                   {openSections.content && (
                     <div className="p-4 flex flex-col gap-4 border-t border-white/5 bg-black/10">
+                      {/* Smart Verse Search Button */}
+                      <button
+                        onClick={() => setIsAyahSearchOpen(true)}
+                        className="w-full flex items-center justify-between p-3 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all text-right group"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-lg bg-primary text-black flex items-center justify-center group-hover:rotate-12 transition-transform">
+                            <Search className="w-3.5 h-3.5 stroke-[3px]" />
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-bold text-primary block">البحث الذكي عن الآيات</span>
+                            <span className="text-[8px] text-white/40 block">ابحث بكلمة أو جملة من الآية</span>
+                          </div>
+                        </div>
+                      </button>
+
                       {/* Surah dropdown */}
                       <div className="space-y-1.5">
+                        <label className="text-[10px] text-white/30 font-bold block">ابحث عن سورة</label>
+                        <input
+                          type="text"
+                          placeholder="ابحث باسم السورة أو رقمها..."
+                          value={surahQuery}
+                          onChange={(e) => setSurahQuery(e.target.value)}
+                          className="w-full bg-white/5 border border-white/10 p-3 rounded-xl text-xs text-white placeholder-white/30 outline-none focus:border-primary/30 mb-2"
+                        />
                         <label className="text-[10px] text-white/30 font-bold block">السورة الكريمة</label>
                         <select 
                           value={state.surahId}
                           onChange={(e) => updateState({ surahId: e.target.value })}
                           className="w-full bg-white/5 border border-white/10 p-3 rounded-xl text-xs font-bold text-white outline-none"
                         >
-                          {surahsData.map((s) => (
+                          {filteredSurahs.map((s) => (
                             <option key={s.id} value={s.id.toString()} className="bg-card text-foreground">
                               {s.id}. {s.name}
                             </option>
