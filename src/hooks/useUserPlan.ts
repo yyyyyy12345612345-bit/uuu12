@@ -57,7 +57,7 @@ export function useUserPlan() {
 
     const plan = userPlan.plan;
 
-    if (feature === "search") return plan === "free";
+    if (feature === "search") return false;
     if (feature === "video_bg") return plan === "free";
     if (feature === "unlimited_render") return plan === "free" || plan === "starter";
 

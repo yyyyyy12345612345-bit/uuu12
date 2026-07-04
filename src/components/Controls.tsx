@@ -19,6 +19,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
   const [searchType, setSearchType] = useState<"images" | "videos">("images");
   const [search, setSearch] = useState("");
   const [librarySearch, setLibrarySearch] = useState("");
+  const [reciterSearch, setReciterSearch] = useState("");
   const [libraryCategory, setLibraryCategory] = useState("الكل");
   const [query, setQuery] = useState("");
   const { state, updateState } = useEditor();
@@ -64,8 +65,24 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
   const displayMedia = bgMode === "library" ? filteredLibrary : (media.length > 0 ? media : STATIC_BACKGROUNDS);
 
   const videoReciters = useMemo(() => {
-    return RECITERS.filter(r => !!r.everyAyahFolder);
-  }, []);
+    const cleanSearch = reciterSearch.trim().toLowerCase()
+      .replace(/[أإآ]/g, "ا")
+      .replace(/ة/g, "ه")
+      .replace(/ى/g, "ي")
+      .replace(/[ًٌٍَُِّْ]/g, "");
+
+    return RECITERS.filter(r => {
+      const isAvailable = !!r.everyAyahFolder || r.id === "omar_diaa";
+      if (!isAvailable) return false;
+      if (!cleanSearch) return true;
+      const cleanName = r.name.toLowerCase()
+        .replace(/[أإآ]/g, "ا")
+        .replace(/ة/g, "ه")
+        .replace(/ى/g, "ي")
+        .replace(/[ًٌٍَُِّْ]/g, "");
+      return cleanName.includes(cleanSearch);
+    });
+  }, [reciterSearch]);
 
   const tabs = [
     { id: "bg", label: "الخلفية", icon: ImageIcon },
@@ -277,6 +294,15 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
 
           {activeTab === "reciter" && (
             <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="ابحث عن القارئ..."
+                    value={reciterSearch}
+                    onChange={(e) => setReciterSearch(e.target.value)}
+                    className="w-full bg-foreground/5 border-2 border-foreground/5 p-4 rounded-2xl outline-none text-xs text-foreground placeholder-foreground/30 transition-all duration-500 focus:border-primary/30 focus:bg-foreground/10 mb-1"
+                  />
+                </div>
                 <p className="text-[10px] font-black text-foreground/20 uppercase tracking-[0.3em] mb-4">اختر الصوت المناسب للمشهد</p>
                 {videoReciters.map((r) => (
                     <button

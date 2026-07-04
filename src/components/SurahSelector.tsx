@@ -26,6 +26,26 @@ export function SurahSelector() {
 
   const [startInput, setStartInput] = useState(state.startAyah.toString());
   const [endInput, setEndInput] = useState(state.endAyah.toString());
+  const [surahSearch, setSurahSearch] = useState("");
+
+  const filteredSurahs = React.useMemo(() => {
+    const cleanSearch = surahSearch.trim().toLowerCase()
+      .replace(/[أإآ]/g, "ا")
+      .replace(/ة/g, "ه")
+      .replace(/ى/g, "ي")
+      .replace(/[ًٌٍَُِّْ]/g, "");
+    if (!cleanSearch) return surahsData;
+    return surahsData.filter(s => {
+      const cleanName = s.name
+        .replace(/[أإآ]/g, "ا")
+        .replace(/ة/g, "ه")
+        .replace(/ى/g, "ي")
+        .replace(/[ًٌٍَُِّْ]/g, "")
+        .toLowerCase();
+      const cleanEnglish = s.english.toLowerCase();
+      return cleanName.includes(cleanSearch) || cleanEnglish.includes(cleanSearch) || s.id.toString() === cleanSearch;
+    });
+  }, [surahSearch]);
 
   useEffect(() => {
     setStartInput(state.startAyah.toString());
@@ -66,13 +86,22 @@ export function SurahSelector() {
             <div className="w-1 h-1 rounded-full bg-primary" />
             <label className="text-[9px] font-black uppercase tracking-[0.3em] text-foreground/40">السورة الكريمة</label>
         </div>
+        <div className="relative">
+          <input 
+            type="text" 
+            placeholder="ابحث عن السورة بالاسم أو الرقم..." 
+            value={surahSearch}
+            onChange={(e) => setSurahSearch(e.target.value)}
+            className="w-full bg-foreground/5 border-2 border-foreground/5 p-3 px-4 rounded-xl outline-none text-xs text-foreground placeholder-foreground/30 transition-all duration-500 focus:border-primary/30 focus:bg-foreground/10 mb-1"
+          />
+        </div>
         <div className="relative group">
           <select 
             value={state.surahId}
             onChange={(e) => updateState({ surahId: e.target.value })}
             className="w-full bg-foreground/5 border-2 border-foreground/5 p-4 rounded-2xl outline-none appearance-none cursor-pointer text-sm font-bold text-foreground transition-all duration-500 hover:border-foreground/10 focus:border-primary/50 focus:bg-foreground/10 shadow-xl"
           >
-            {surahsData.map((s) => (
+            {filteredSurahs.map((s) => (
               <option key={s.id} value={s.id.toString()} className="bg-card text-foreground">
                 {s.id}. {s.name}
               </option>

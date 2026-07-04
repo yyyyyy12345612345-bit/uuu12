@@ -135,9 +135,26 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
 
   const displayMedia = filteredLibrary;
 
+  const [reciterSearch, setReciterSearch] = useState("");
   const videoReciters = useMemo(() => {
-    return RECITERS.filter(r => !!r.everyAyahFolder);
-  }, []);
+    const cleanSearch = reciterSearch.trim().toLowerCase()
+      .replace(/[أإآ]/g, "ا")
+      .replace(/ة/g, "ه")
+      .replace(/ى/g, "ي")
+      .replace(/[ًٌٍَُِّْ]/g, "");
+
+    return RECITERS.filter(r => {
+      const isAvailable = !!r.everyAyahFolder || r.id === "omar_diaa";
+      if (!isAvailable) return false;
+      if (!cleanSearch) return true;
+      const cleanName = r.name.toLowerCase()
+        .replace(/[أإآ]/g, "ا")
+        .replace(/ة/g, "ه")
+        .replace(/ى/g, "ي")
+        .replace(/[ًٌٍَُِّْ]/g, "");
+      return cleanName.includes(cleanSearch);
+    });
+  }, [reciterSearch]);
 
   const [maxVerses, setMaxVerses] = useState(7);
   useEffect(() => {
@@ -487,6 +504,15 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
             {/* TAB CONTENT: الصوتيات */}
             {activeLeftTab === "audio" && (
               <div className="flex flex-col gap-3">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="ابحث عن القارئ..."
+                    value={reciterSearch}
+                    onChange={(e) => setReciterSearch(e.target.value)}
+                    className="w-full bg-white/5 border border-white/5 p-3 px-4 rounded-xl outline-none text-xs text-white placeholder-white/30 transition-all duration-300 focus:border-primary/30 focus:bg-white/10 mb-1"
+                  />
+                </div>
                 <span className="text-[10px] text-white/40 block mb-2">اختر قارئ الآيات للمقطع:</span>
                 {videoReciters.map((r) => (
                   <button
