@@ -536,6 +536,18 @@ html:not(.dark) .border-white\/20 { border-color: rgba(0,0,0,0.3) !important; }
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Uthman Taha Naskh";
+  src:
+    url("https://cdn.jsdelivr.net/gh/quran/quran.com-frontend-next@master/public/fonts/uthmanic_hafs/v22.woff2") format("woff2"),
+    url("https://fonts.cdnfonts.com/s/94639/UthmanTahaNaskh.woff") format("woff");
+  font-display: swap;
+}
+
+.font-uthman-taha {
+  font-family: "Uthman Taha Naskh", "Amiri", "Scheherazade New", serif !important;
+}
+
 /* ⚡ Mobile GPU & Hardware Performance Utilities */
 .gpu-layer {
   will-change: transform, opacity;

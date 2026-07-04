@@ -67,6 +67,28 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
         for (let i = 0; i < batchSize; i++) {
             const pageNum = startPage + i;
             if (pageNum > 604) break;
+            try {
+              const resCloud = await fetch(`https://api.alquran.cloud/v1/page/${pageNum}/quran-uthmani`);
+              if (resCloud.ok) {
+                const cloudJson = await resCloud.json();
+                if (cloudJson?.data?.ayahs) {
+                  const formattedVerses = cloudJson.data.ayahs.map((a: any) => ({
+                    id: a.numberInSurah,
+                    verse_key: `${a.surah.number}:${a.numberInSurah}`,
+                    text_uthmani: a.text,
+                    text: a.text,
+                    juz_number: a.juz,
+                    page_number: a.page,
+                    surah: a.surah
+                  }));
+                  newPagesData.push({ page: pageNum, verses: formattedVerses });
+                  continue;
+                }
+              }
+            } catch (cloudErr) {
+              console.warn("AlQuran Cloud fallback to API_ROOT", cloudErr);
+            }
+
             const response = await fetch(`${API_ROOT}/verses/by_page/${pageNum}?language=ar&words=true&word_fields=text_uthmani,char_type_name&fields=text_uthmani,verse_key,text_uthmani_tajweed&audio=${recitationId}`);
             const data = await response.json();
             if (data.verses) newPagesData.push({ page: pageNum, verses: data.verses });
@@ -666,18 +688,11 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                     onClick={() => playVerse(pIdx, vIdx)} 
                                     className={`inline transition-all duration-300 rounded-xl cursor-pointer py-1 px-2 ${isPlaying ? 'bg-primary/20 text-[#234d40] shadow-[0_0_30px_rgba(212,175,55,0.2)] scale-105 z-50' : 'hover:bg-[#234d40]/5 text-black'}`}
                                 >
-                                    <span className="font-['Amiri'] inline font-bold antialiased" style={{ fontSize: `${mushafFontSize}px` }}>
+                                    <span className="font-uthman-taha font-['Uthman_Taha_Naskh',_'Amiri'] inline font-bold antialiased" style={{ fontSize: `${mushafFontSize}px` }}>
                                         {verse.text_uthmani_tajweed ? (
                                             <span dangerouslySetInnerHTML={{ __html: verse.text_uthmani_tajweed.replace(/\s*<span class="?end"?[^>]*>.*?<\/span>/gi, '') }} />
                                         ) : (
-                                            verse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => {
-                                                const isAllah = word.text_uthmani?.includes('للَّ') || word.text_uthmani?.includes('اللَّ');
-                                                return (
-                                                    <span key={word.id} className={`inline-block mx-[2px] ${isAllah ? 'text-[#cd4d4d]' : 'currentColor'}`}>
-                                                        {word.text_uthmani}
-                                                    </span>
-                                                );
-                                            })
+                                            verse.text_uthmani || verse.text || verse.words?.filter((w: any) => w.char_type_name === 'word').map((w: any) => w.text_uthmani).join(" ")
                                         )}
                                         
                                         {/* Ornate End-of-Verse Marker (8-pointed Islamic Star Rub el Hizb) */}

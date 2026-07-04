@@ -92,15 +92,36 @@ export function Mushaf() {
             setLoading(true);
             setSurahContent(null);
             try {
-                const response = await fetch(`https://api.quran.com/api/v4/verses/by_chapter/${selectedSurah}?language=ar&words=true&word_fields=text_uthmani,audio_url,char_type_name&fields=text_uthmani&translations=131&per_page=500`);
-                const data = await response.json();
-                if (!data.verses || data.verses.length === 0) throw new Error("No verses found");
-                const formattedVerses = data.verses.map((v: any) => ({
-                    id: v.verse_number,
-                    text: v.text_uthmani || v.text_indopak || "نص الآية غير متوفر",
-                    words: v.words || [],
-                    translation: v.translations?.[0]?.text.replace(/<[^>]*>?/gm, '') || ""
-                }));
+                let formattedVerses: any[] = [];
+                try {
+                  const resCloud = await fetch(`https://api.alquran.cloud/v1/surah/${selectedSurah}/quran-uthmani`);
+                  if (resCloud.ok) {
+                    const cloudJson = await resCloud.json();
+                    if (cloudJson?.data?.ayahs) {
+                      formattedVerses = cloudJson.data.ayahs.map((a: any) => ({
+                        id: a.numberInSurah,
+                        text: a.text,
+                        translation: "",
+                        words: a.text.split(" ").map((w: string) => ({ text_uthmani: w, char_type_name: "word" }))
+                      }));
+                    }
+                  }
+                } catch (cErr) {
+                  console.warn("AlQuran Cloud surah fallback", cErr);
+                }
+
+                if (formattedVerses.length === 0) {
+                  const response = await fetch(`https://api.quran.com/api/v4/verses/by_chapter/${selectedSurah}?language=ar&words=true&word_fields=text_uthmani,audio_url,char_type_name&fields=text_uthmani&translations=131&per_page=500`);
+                  const data = await response.json();
+                  if (!data.verses || data.verses.length === 0) throw new Error("No verses found");
+                  formattedVerses = data.verses.map((v: any) => ({
+                      id: v.verse_number,
+                      text: v.text_uthmani || v.text_indopak || "نص الآية غير متوفر",
+                      words: v.words || [],
+                      translation: v.translations?.[0]?.text.replace(/<[^>]*>?/gm, '') || ""
+                  }));
+                }
+
                 const sData = surahsData.find(s => s.id.toString() === selectedSurah);
                 setSurahContent({
                     name: sData?.name,
@@ -546,12 +567,12 @@ export function Mushaf() {
                                     className="flex-1 flex items-center justify-center overflow-y-auto no-scrollbar py-4 px-2 min-h-0 text-center cursor-pointer hover:opacity-90 transition-opacity"
                                 >
                                     <div className="flex flex-wrap justify-center gap-x-3 gap-y-4 text-center leading-relaxed">
-                                        {currentVerse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any) => {
+                                        {currentVerse.words?.filter((w: any) => w.char_type_name === 'word').map((word: any, wIdx: number) => {
                                             const isAllah = word.text_uthmani?.includes('للَّ') || word.text_uthmani?.includes('اللَّ');
                                             return (
                                                 <span
-                                                    key={word.id}
-                                                    className={`font-['Amiri'] text-2xl md:text-3xl px-0.5 transition-colors ${isAllah ? 'text-red-600 dark:text-red-400 font-bold' : 'text-zinc-800 dark:text-zinc-100'}`}
+                                                    key={word.id || wIdx}
+                                                    className={`font-uthman-taha font-['Uthman_Taha_Naskh',_'Amiri'] text-2xl md:text-3xl px-0.5 transition-colors ${isAllah ? 'text-red-600 dark:text-red-400 font-bold' : 'text-zinc-800 dark:text-zinc-100'}`}
                                                 >
                                                     {word.text_uthmani}
                                                 </span>
