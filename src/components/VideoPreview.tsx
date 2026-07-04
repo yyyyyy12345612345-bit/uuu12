@@ -874,43 +874,45 @@ export function VideoPreview() {
 
               {/* Middle Right: Verse Text without brackets + Ayah Symbol ﴿١﴾ */}
               <div className="flex-1 flex items-center justify-center py-1">
-                {state.showVerseText !== false && currentVerse ? (() => {
-                  const rawVerseText = (currentVerse.text || "").replace(/[﴿﴾\uFD3F\uFD3E]/g, '').trim();
-                  const lines = wrapTextHelper(rawVerseText, Math.max(15, previewFontSize * 0.6), 160);
-                  const progress = duration > 0 ? (currentTime / duration) : 0;
-                  const activeLineIdx = Math.min(lines.length - 1, Math.floor(progress * lines.length));
-                  const activeLineText = lines[activeLineIdx] || rawVerseText;
-                  
-                  // رقم الآية الحقيقية للحالية
-                  const ayahNumRaw = (currentVerse as any).verse_number || (currentVerse as any).ayah_number || (currentVerse as any).numberInSurah || currentVerse.id || currentAyahIndex || state.startAyah || 1;
-                  const arabicAyahNum = String(ayahNumRaw).replace(/\d/g, d => ('٠١٢٣٤٥٦٧٨٩' as any)[d]);
-                  const isLastLine = activeLineIdx === lines.length - 1;
+                {state.showVerseText !== false ? (
+                  currentVerse ? (() => {
+                    const rawVerseText = (currentVerse.text || "").replace(/[﴿﴾\uFD3F\uFD3E]/g, '').trim();
+                    const lines = wrapTextHelper(rawVerseText, Math.max(15, previewFontSize * 0.6), 160);
+                    const progress = duration > 0 ? (currentTime / duration) : 0;
+                    const activeLineIdx = Math.min(lines.length - 1, Math.floor(progress * lines.length));
+                    const activeLineText = lines[activeLineIdx] || rawVerseText;
+                    
+                    // رقم الآية الحقيقية للحالية
+                    const ayahNumRaw = (currentVerse as any).verse_number || (currentVerse as any).ayah_number || (currentVerse as any).numberInSurah || currentVerse.id || currentAyahIndex || state.startAyah || 1;
+                    const arabicAyahNum = String(ayahNumRaw).replace(/\d/g, d => ('٠١٢٣٤٥٦٧٨٩' as any)[d]);
+                    const isLastLine = activeLineIdx === lines.length - 1;
 
-                  return (
-                    <div className="flex flex-col items-center gap-1.5 w-full">
-                      <p
-                        className="text-[#1a0f00] text-center w-full break-words leading-[1.6] font-arabic"
-                        style={{
-                          fontSize: `${Math.max(14, previewFontSize * 0.55)}px`,
-                          fontFamily: `"${state.fontFamily || 'Amiri'}", "Scheherazade New", "Amiri", serif`,
-                          fontWeight: 700,
-                          direction: 'rtl',
-                          unicodeBidi: 'embed',
-                        }}
-                      >
-                        <span>{activeLineText}</span>
-                        {isLastLine && (
-                          <span style={{ fontFamily: 'Amiri, serif', fontSize: '80%', color: '#8c6d36', marginRight: '6px' }}>
-                            ﴿{arabicAyahNum}﴾
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                  );
+                    return (
+                      <div className="flex flex-col items-center gap-1.5 w-full">
+                        <p
+                          className="text-[#1a0f00] text-center w-full break-words leading-[1.6] font-arabic"
+                          style={{
+                            fontSize: `${Math.max(14, previewFontSize * 0.55)}px`,
+                            fontFamily: `"${state.fontFamily || 'Amiri'}", "Scheherazade New", "Amiri", serif`,
+                            fontWeight: 700,
+                            direction: 'rtl',
+                            unicodeBidi: 'embed',
+                          }}
+                        >
+                          <span>{activeLineText}</span>
+                          {isLastLine && (
+                            <span style={{ fontFamily: 'Amiri, serif', fontSize: '80%', color: '#8c6d36', marginRight: '6px' }}>
+                              ﴿{arabicAyahNum}﴾
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    );
 
-                })() : (
-                  <p className="text-black/40 text-xs font-arabic">لم يتم تحديد آية</p>
-                )}
+                  })() : (
+                    <p className="text-black/40 text-xs font-arabic">لم يتم تحديد آية</p>
+                  )
+                ) : null}
               </div>
 
               {/* Bottom Right: Dense Visualizer & Media Controls */}
@@ -990,26 +992,28 @@ export function VideoPreview() {
                 <div className="flex-1 flex flex-col justify-between py-2 text-right h-[320px] max-w-[55%]">
                   {/* Verse Text */}
                   <div className="flex-1 flex items-center justify-center">
-                    {state.showVerseText !== false && currentVerse ? (() => {
-                      const lines = wrapTextHelper(currentVerse.text, Math.max(16, previewFontSize * 0.65), 180);
-                      const progress = duration > 0 ? (currentTime / duration) : 0;
-                      const activeLineIdx = Math.min(lines.length - 1, Math.floor(progress * lines.length));
-                      const activeLineText = lines[activeLineIdx] || currentVerse.text;
-                      return (
-                        <p
-                          className="text-white text-center w-full break-words leading-[1.9] drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] font-arabic"
-                          style={{
-                            fontSize: `${Math.max(16, previewFontSize * 0.65)}px`,
-                            fontFamily: `"${state.fontFamily || 'Amiri'}", "Noto Naskh Arabic", "Amiri", serif`,
-                            direction: 'rtl',
-                          }}
-                        >
-                          {activeLineText}
-                        </p>
-                      );
-                    })() : (
-                      <p className="text-white/40 text-sm font-arabic">لم يتم تحديد آية</p>
-                    )}
+                    {state.showVerseText !== false ? (
+                      currentVerse ? (() => {
+                        const lines = wrapTextHelper(currentVerse.text, Math.max(16, previewFontSize * 0.65), 180);
+                        const progress = duration > 0 ? (currentTime / duration) : 0;
+                        const activeLineIdx = Math.min(lines.length - 1, Math.floor(progress * lines.length));
+                        const activeLineText = lines[activeLineIdx] || currentVerse.text;
+                        return (
+                          <p
+                            className="text-white text-center w-full break-words leading-[1.9] drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] font-arabic"
+                            style={{
+                              fontSize: `${Math.max(16, previewFontSize * 0.65)}px`,
+                              fontFamily: `"${state.fontFamily || 'Amiri'}", "Noto Naskh Arabic", "Amiri", serif`,
+                              direction: 'rtl',
+                            }}
+                          >
+                            {activeLineText}
+                          </p>
+                        );
+                      })() : (
+                        <p className="text-white/40 text-sm font-arabic">لم يتم تحديد آية</p>
+                      )
+                    ) : null}
                   </div>
 
                   {/* Player Controls inside the Right Side! */}
