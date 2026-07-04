@@ -876,7 +876,7 @@ export function VideoPreview() {
                         className="text-[#1a0f00] text-center w-full break-words leading-[1.6] font-arabic"
                         style={{
                           fontSize: `${Math.max(14, previewFontSize * 0.55)}px`,
-                          fontFamily: '"BasmalahVer01", "Scheherazade New", "Amiri", serif',
+                          fontFamily: `"${state.fontFamily || 'Uthman Taha Naskh'}", "Scheherazade New", "Amiri", serif`,
                           fontWeight: 700,
                           direction: 'rtl',
                           unicodeBidi: 'embed',
@@ -984,7 +984,7 @@ export function VideoPreview() {
                           className="text-white text-center w-full break-words leading-[1.9] drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] font-arabic"
                           style={{
                             fontSize: `${Math.max(16, previewFontSize * 0.65)}px`,
-                            fontFamily: '"Noto Naskh Arabic", serif',
+                            fontFamily: `"${state.fontFamily || 'Uthman Taha Naskh'}", "Noto Naskh Arabic", "Amiri", serif`,
                             direction: 'rtl',
                           }}
                         >
