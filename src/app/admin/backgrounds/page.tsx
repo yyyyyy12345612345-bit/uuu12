@@ -61,6 +61,23 @@ export default function AdminBackgroundsPage() {
     };
   }, []);
 
+  // Enable scrolling for this page (bypassing global.css overflow: hidden)
+  useEffect(() => {
+    document.documentElement.style.setProperty("overflow", "auto", "important");
+    document.documentElement.style.setProperty("height", "auto", "important");
+    document.body.style.setProperty("overflow", "auto", "important");
+    document.body.style.setProperty("height", "auto", "important");
+    document.body.style.setProperty("position", "static", "important");
+
+    return () => {
+      document.documentElement.style.removeProperty("overflow");
+      document.documentElement.style.removeProperty("height");
+      document.body.style.removeProperty("overflow");
+      document.body.style.removeProperty("height");
+      document.body.style.removeProperty("position");
+    };
+  }, []);
+
   const fetchItems = async () => {
     try {
       if (!db) return;
