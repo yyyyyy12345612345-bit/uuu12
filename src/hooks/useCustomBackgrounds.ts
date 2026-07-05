@@ -40,8 +40,8 @@ export function useCustomBackgrounds() {
           const customBgs = fetchedItems.filter(item => item.type === "image");
           const customVideos = fetchedItems.filter(item => item.type === "video");
 
-          setBackgrounds([...STATIC_BACKGROUNDS, ...customBgs]);
-          setVideos([...STATIC_VIDEOS, ...customVideos]);
+          setBackgrounds([...customBgs, ...STATIC_BACKGROUNDS]);
+          setVideos([...customVideos, ...STATIC_VIDEOS]);
         }
       } catch (e) {
         console.error("[useCustomBackgrounds] Failed to fetch custom backgrounds:", e);

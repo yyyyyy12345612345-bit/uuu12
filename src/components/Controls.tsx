@@ -16,7 +16,7 @@ import { useCustomBackgrounds } from "@/hooks/useCustomBackgrounds";
 
 export function Controls({ onOpenSubscription }: { onOpenSubscription: () => void }) {
   const [activeTab, setActiveTab] = useState("bg");
-  const [bgMode, setBgMode] = useState<"library" | "search">("library");
+  const [bgMode, setBgMode] = useState<"library" | "videos">("library");
   const [searchType, setSearchType] = useState<"images" | "videos">("images");
   const [search, setSearch] = useState("");
   const [librarySearch, setLibrarySearch] = useState("");
@@ -24,9 +24,9 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
   const [libraryCategory, setLibraryCategory] = useState("الكل");
   const [query, setQuery] = useState("");
   const { state, updateState } = useEditor();
-  const { media, loading } = usePexelsBackgrounds(query, bgMode === "search" ? searchType : "both");
+  const { media, loading } = usePexelsBackgrounds(query, "both");
   const { userPlan, isFeatureLocked } = useUserPlan();
-  const { backgrounds } = useCustomBackgrounds();
+  const { backgrounds, videos } = useCustomBackgrounds();
 
   const isSearchLocked = isFeatureLocked("search");
   const isVideoLocked = isFeatureLocked("video_bg");
@@ -54,7 +54,8 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
 
   const filteredLibrary = useMemo(() => {
     const normalizedSearch = normalizeForSearch(librarySearch);
-    return backgrounds.filter(item => {
+    const sourceList = bgMode === "library" ? backgrounds : videos;
+    return sourceList.filter(item => {
       const itemTags = item.tags?.map(t => normalizeForSearch(t)) || [];
       const matchesCategory = libraryCategory === "الكل" || 
         item.tags?.some(tag => categoryMap[libraryCategory].some(catTag => normalizeForSearch(tag).includes(normalizeForSearch(catTag))));
@@ -62,9 +63,9 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
       const matchesSearch = !librarySearch || itemTags.some(tag => tag.includes(normalizedSearch));
       return matchesCategory && matchesSearch;
     });
-  }, [libraryCategory, librarySearch, backgrounds]);
+  }, [libraryCategory, librarySearch, bgMode, backgrounds, videos]);
 
-  const displayMedia = bgMode === "library" ? filteredLibrary : (media.length > 0 ? media : backgrounds);
+  const displayMedia = filteredLibrary;
 
   const videoReciters = useMemo(() => {
     const cleanSearch = reciterSearch.trim().toLowerCase()
@@ -149,91 +150,41 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                         المكتبة الذكية (1000+)
                     </button>
                     <button
-                        onClick={() => !isSearchLocked && setBgMode("search")}
-                        className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 flex items-center justify-center gap-2 ${bgMode === "search" ? "bg-primary text-black shadow-xl" : "text-foreground/20 hover:text-foreground/40"} ${isSearchLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        onClick={() => setBgMode("videos")}
+                        className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 flex items-center justify-center gap-2 ${bgMode === "videos" ? "bg-primary text-black shadow-xl" : "text-foreground/20 hover:text-foreground/40"}`}
                     >
-                        {isSearchLocked && <Lock className="w-3 h-3 text-primary" />}
-                        بحث عالمي
+                        فيديوهات
                     </button>
                 </div>
 
-                {bgMode === "library" && (
-                  <div className="space-y-6 animate-in slide-in-from-top-4 duration-500">
-                     {/* Smart Search for Library */}
-                     <div className="relative">
-                        <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-primary/40 w-4 h-4" />
-                        <input
-                            value={librarySearch}
-                            onChange={(e) => setLibrarySearch(e.target.value)}
-                            placeholder="بحث ذكي في المكتبة (ثلج، بحر، هدوء...)"
-                            className="w-full rounded-xl bg-white/5 border border-white/10 pr-12 pl-6 py-3 text-xs text-white outline-none focus:border-primary/50 transition-all font-arabic"
-                        />
-                     </div>
-                     {/* Category Chips */}
-                     <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-                        {categories.map(cat => (
-                           <button
-                              key={cat}
-                              onClick={() => setLibraryCategory(cat)}
-                              className={`px-6 py-2 rounded-full text-[10px] font-black whitespace-nowrap transition-all duration-500 border ${libraryCategory === cat ? 'bg-primary text-black border-primary shadow-lg shadow-primary/20 scale-105' : 'bg-white/5 text-white/40 border-white/5 hover:border-white/20'}`}
-                           >
-                              {cat}
-                           </button>
-                        ))}
-                     </div>
-                  </div>
-                )}
-
-                {bgMode === "search" && (
-                <div className="space-y-4 animate-in slide-in-from-top-4 duration-500">
-                    <div className="flex items-center gap-2 p-1 bg-white/5 rounded-xl border border-white/5">
-                        <button 
-                            onClick={() => setSearchType("images")}
-                            className={`flex-1 py-2 rounded-lg text-[10px] font-bold transition-all ${searchType === "images" ? "bg-primary text-black" : "text-white/40 hover:text-white"}`}
-                        >
-                            صور
-                        </button>
-                        <button 
-                            onClick={() => setSearchType("videos")}
-                            className={`flex-1 py-2 rounded-lg text-[10px] font-bold transition-all ${searchType === "videos" ? "bg-primary text-black" : "text-white/40 hover:text-white"}`}
-                        >
-                            فيديوهات
-                        </button>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="relative flex-1">
-                            <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-foreground/20 w-5 h-5" />
-                            <input
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                onKeyDown={(e) => e.key === "Enter" && setQuery(search)}
-                                placeholder={`ابحث عن ${searchType === 'images' ? 'صور' : 'فيديوهات'} (مكة، سماء...)`}
-                                className="w-full rounded-2xl bg-foreground/5 border border-foreground/10 pr-14 pl-6 py-4 text-sm text-white outline-none focus:border-primary/50 transition-all font-arabic placeholder:text-foreground/20"
-                            />
-                        </div>
-                        <button
-                            onClick={() => setQuery(search)}
-                            className="bg-primary text-black px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/10"
-                        >
-                            بحث
-                        </button>
-                    </div>
-                    {query && !loading && displayMedia.length === 0 && (
-                        <p className="text-[9px] text-red-400/60 text-center font-bold uppercase tracking-tighter">
-                            إذا لم تظهر نتائج، تأكد من إعداد PEXELS_API_KEY في ملف .env.local
-                        </p>
-                    )}
+                <div className="space-y-6 animate-in slide-in-from-top-4 duration-500">
+                   {/* Smart Search for Library */}
+                   <div className="relative">
+                      <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-primary/40 w-4 h-4" />
+                      <input
+                          value={librarySearch}
+                          onChange={(e) => setLibrarySearch(e.target.value)}
+                          placeholder="بحث ذكي في المكتبة (ثلج، بحر، هدوء...)"
+                          className="w-full rounded-xl bg-white/5 border border-white/10 pr-12 pl-6 py-3 text-xs text-white outline-none focus:border-primary/50 transition-all font-arabic"
+                      />
+                   </div>
+                   {/* Category Chips */}
+                   <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+                      {categories.map(cat => (
+                         <button
+                            key={cat}
+                            onClick={() => setLibraryCategory(cat)}
+                            className={`px-6 py-2 rounded-full text-[10px] font-black whitespace-nowrap transition-all duration-500 border ${libraryCategory === cat ? 'bg-primary text-black border-primary shadow-lg shadow-primary/20 scale-105' : 'bg-white/5 text-white/40 border-white/5 hover:border-white/20'}`}
+                         >
+                            {cat}
+                         </button>
+                      ))}
+                   </div>
                 </div>
-                )}
 
                 {/* Media Grid */}
                 <div className="grid grid-cols-2 gap-4">
-                    {loading && bgMode === "search" ? (
-                        <div className="col-span-2 py-20 flex flex-col items-center justify-center gap-4">
-                            <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                            <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest">جاري البحث في المكتبة العالمية...</p>
-                        </div>
-                    ) : displayMedia.length === 0 ? (
+                    {displayMedia.length === 0 ? (
                         <div className="col-span-2 py-20 flex flex-col items-center justify-center gap-4 text-center">
                             <Search className="w-12 h-12 text-foreground/5" />
                             <p className="text-sm font-arabic text-foreground/20">لا توجد نتائج.. جرب كلمات بحث أخرى (مثل: مكة، طبيعة، بحر)</p>
