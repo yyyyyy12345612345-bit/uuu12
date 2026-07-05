@@ -6,6 +6,7 @@ import { useSurahData } from "@/hooks/useSurahData";
 import { getAudioUrl } from "@/lib/quranUtils";
 import { RECITERS, getReciterEnglishName, getSheikhAsset } from "@/data/reciters";
 import { Play, Pause, Loader2, BookOpen, AlertCircle } from "lucide-react";
+import { useCustomBackgrounds } from "@/hooks/useCustomBackgrounds";
 
 const isVideoUrl = (url: string) => {
   if (!url) return false;
@@ -70,6 +71,13 @@ const formatTime = (secs: number) => {
 export function VideoPreview() {
   const { state } = useEditor();
   const { data: surahData, loading: surahLoading } = useSurahData(state.surahId);
+  const { backgrounds, videos } = useCustomBackgrounds();
+  const isContainFit = useMemo(() => {
+    if (state.backgroundFit === "contain") return true;
+    const allBgs = [...backgrounds, ...videos];
+    const currentItem = allBgs.find(b => b.src === state.backgroundUrl);
+    return currentItem?.fit === "contain";
+  }, [backgrounds, videos, state.backgroundUrl, state.backgroundFit]);
 
   const [currentAyahIndex, setCurrentAyahIndex] = useState(state.startAyah);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -405,7 +413,7 @@ export function VideoPreview() {
                 <video
                   ref={videoRef}
                   src={state.backgroundUrl}
-                  className={`absolute inset-0 w-full h-full transition-all duration-1000 ${state.backgroundFit === 'contain' ? 'object-contain bg-black' : 'object-cover'}`}
+                  className={`absolute inset-0 w-full h-full transition-all duration-1000 ${isContainFit ? 'object-contain bg-black' : 'object-cover'}`}
                   style={{ filter: getFilterCSS(state.filter) }}
                   loop
                   muted={false}
@@ -413,7 +421,7 @@ export function VideoPreview() {
                 />
               ) : (
                 <div
-                  className="absolute inset-0 bg-cover bg-center transition-[opacity,filter] duration-700"
+                  className={`absolute inset-0 bg-center bg-no-repeat transition-[opacity,filter] duration-700 ${isContainFit ? 'bg-contain bg-black' : 'bg-cover'}`}
                   style={{ 
                     backgroundImage: `url(${state.backgroundUrl.includes('pexels.com') ? `${state.backgroundUrl.split('?')[0]}?auto=compress&cs=tinysrgb&fit=crop&h=1280&w=720` : state.backgroundUrl})`, 
                     filter: getFilterCSS(state.filter) 

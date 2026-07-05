@@ -6,6 +6,7 @@ import { useEditor } from "@/store/useEditor";
 import { useSurahData } from "@/hooks/useSurahData";
 import { RECITERS, getReciterEnglishName, getSheikhAsset } from "@/data/reciters";
 import { getAudioUrl } from "@/lib/quranUtils";
+import { useCustomBackgrounds } from "@/hooks/useCustomBackgrounds";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { incrementVideoRenderCount } from "@/lib/points";
@@ -18,6 +19,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
 }) {
   const { state } = useEditor();
   const { data: surahData } = useSurahData(state.surahId);
+  const { backgrounds, videos } = useCustomBackgrounds();
   
   const isRenderingRef = useRef(false);
   const activeAudiosRef = useRef<HTMLAudioElement[]>([]);
@@ -244,6 +246,10 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         finalBackgroundUrl = `${baseUrl.replace(/\/$/, "")}${state.backgroundUrl}`;
       }
 
+      const allBgs = [...backgrounds, ...videos];
+      const currentBgItem = allBgs.find(b => b.src === state.backgroundUrl);
+      const resolvedFit = currentBgItem?.fit || state.backgroundFit || "cover";
+
       const response = await fetch("https://yousef891238-render-server.hf.space/render", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -252,7 +258,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           surahName: surahData.name,
           verses,
           backgroundUrl: finalBackgroundUrl,
-          backgroundFit: state.backgroundFit || "cover",
+          backgroundFit: resolvedFit,
           textColor: state.textColor,
           fontSize: state.fontSize,
           fontWeight: state.fontWeight,
