@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { auth, db, initFirebase } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp } from "firebase/firestore";
-import { Trash, Lock, ArrowLeft, Loader2, Check } from "lucide-react";
+import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp, updateDoc } from "firebase/firestore";
+import { Trash, Lock, ArrowLeft, Loader2, Check, Video, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 
 const ADMIN_EMAIL = "youssefosama@gmail.com";
@@ -96,6 +96,7 @@ export default function AdminBackgroundsPage() {
         fileId: fileId.trim(),
         category,
         tags,
+        fit: "cover",
         createdAt: serverTimestamp(),
       };
 
@@ -111,6 +112,18 @@ export default function AdminBackgroundsPage() {
       setMessage({ text: `حدث خطأ أثناء الحفظ: ${error.message}`, type: "error" });
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleToggleFit = async (id: string, currentFit: string) => {
+    try {
+      if (!db) return;
+      const nextFit = currentFit === "contain" ? "cover" : "contain";
+      await updateDoc(doc(db, "backgrounds", id), { fit: nextFit });
+      fetchItems();
+    } catch (error: any) {
+      console.error("Error toggling aspect fit:", error);
+      setMessage({ text: `فشل تعديل المظهر: ${error.message}`, type: "error" });
     }
   };
 
@@ -298,7 +311,7 @@ export default function AdminBackgroundsPage() {
                     key={item.id} 
                     className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-5 flex flex-col justify-between gap-4 hover:border-white/10 transition"
                   >
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/5 text-[9px] text-white/50 font-bold">
                           {item.type === "video" ? "فيديو" : "صورة"}
@@ -306,12 +319,25 @@ export default function AdminBackgroundsPage() {
                         <h3 className="font-bold text-xs text-white">{item.title}</h3>
                       </div>
                       
-                      <div className="flex flex-wrap gap-1 justify-end">
-                        {item.tags?.map((tag: string, idx: number) => (
-                          <span key={idx} className="px-2 py-0.5 rounded bg-[#fbbf24]/5 border border-[#fbbf24]/10 text-[9px] text-[#fbbf24] font-medium">
-                            {tag}
-                          </span>
-                        ))}
+                      <div className="flex items-center justify-between">
+                        <button 
+                          onClick={() => handleToggleFit(item.id, item.fit || "cover")}
+                          className={`px-2 py-1 rounded-md text-[9px] font-bold border transition ${
+                            item.fit === "contain" 
+                              ? "bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/20" 
+                              : "bg-white/5 border border-white/10 text-white/50 hover:bg-white/10 hover:text-white"
+                          }`}
+                        >
+                          المظهر: {item.fit === "contain" ? "عرضي (كامل)" : "طبيعي (ملء)"}
+                        </button>
+                        
+                        <div className="flex flex-wrap gap-1 justify-end">
+                          {item.tags?.map((tag: string, idx: number) => (
+                            <span key={idx} className="px-2 py-0.5 rounded bg-[#fbbf24]/5 border border-[#fbbf24]/10 text-[9px] text-[#fbbf24] font-medium">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     </div>
 

@@ -32,6 +32,7 @@ export function useCustomBackgrounds() {
             src: data.src,
             poster: data.poster || "",
             tags: data.tags || [],
+            fit: data.fit || "cover",
           });
         });
 

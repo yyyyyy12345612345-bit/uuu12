@@ -6,6 +6,7 @@ export type BackgroundItem = {
   src: string;
   poster?: string;
   tags?: string[];
+  fit?: "cover" | "contain";
 };
 
 const STATIC_CORE: BackgroundItem[] = [

@@ -245,7 +245,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                                 onClick={() => {
                                     if (item.type === 'video' && isVideoLocked) return;
                                     console.log("Selected Background URL:", item.src);
-                                    updateState({ backgroundUrl: item.src });
+                                    updateState({ backgroundUrl: item.src, backgroundFit: (item as any).fit || 'cover' });
                                 }}
                                 className="group/item relative h-48 rounded-3xl overflow-hidden border-2 transition-all duration-500 border-white/5 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/20"
                             >

@@ -420,7 +420,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                             key={`${item.src}-${idx}`}
                             onClick={() => {
                               if (item.type === 'video' && isVideoLocked) return;
-                              updateState({ backgroundUrl: item.src });
+                              updateState({ backgroundUrl: item.src, backgroundFit: item.fit || 'cover' });
                             }}
                             className={`group relative h-32 rounded-xl overflow-hidden border transition-all ${
                               state.backgroundUrl === item.src 

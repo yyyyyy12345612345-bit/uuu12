@@ -405,7 +405,7 @@ export function VideoPreview() {
                 <video
                   ref={videoRef}
                   src={state.backgroundUrl}
-                  className="absolute inset-0 w-full h-full object-cover transition-all duration-1000"
+                  className={`absolute inset-0 w-full h-full transition-all duration-1000 ${state.backgroundFit === 'contain' ? 'object-contain bg-black' : 'object-cover'}`}
                   style={{ filter: getFilterCSS(state.filter) }}
                   loop
                   muted={false}

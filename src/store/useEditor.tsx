@@ -74,6 +74,8 @@ export interface EditorState {
   endAyah: number;
   /** رابط الخلفية */
   backgroundUrl: string;
+  /** مظهر الخلفية: ملء الشاشة أو احتواء */
+  backgroundFit?: "cover" | "contain";
   /** معرف القارئ */
   reciterId: string;
   /** لون النص */
@@ -143,6 +145,7 @@ const initialState: Omit<EditorState, 'isHydrated'> = {
   startAyah: 1,
   endAyah: 7,
   backgroundUrl: "/mushaf-bg.jpg.png",
+  backgroundFit: "cover",
   reciterId: "afasy",
   textColor: "#ffffff",
   fontSize: 50,

@@ -85,15 +85,16 @@ export async function POST(request: Request) {
       const existingDoc = querySnap.docs[0];
       await existingDoc.ref.update(itemData);
       console.log(`[Telegram Webhook] Updated existing background: ${existingDoc.id}`);
-      return NextResponse.json({ success: true, action: "updated", id: existingDoc.id });
+      return NextResponse.json({ success: true, message: "Background updated successfully", action: "updated", id: existingDoc.id });
     } else {
       // إضافة خلفية جديدة
       const newDocRef = await backgroundsCol.add({
         ...itemData,
+        fit: "cover",
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       });
       console.log(`[Telegram Webhook] Added new background: ${newDocRef.id}`);
-      return NextResponse.json({ success: true, action: "added", id: newDocRef.id });
+      return NextResponse.json({ success: true, message: "Background added successfully", action: "added", id: newDocRef.id });
     }
   } catch (error: any) {
     console.error("[Telegram Webhook] Error processing webhook:", error);

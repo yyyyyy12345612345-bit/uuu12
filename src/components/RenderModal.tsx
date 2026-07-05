@@ -252,6 +252,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           surahName: surahData.name,
           verses,
           backgroundUrl: finalBackgroundUrl,
+          backgroundFit: state.backgroundFit || "cover",
           textColor: state.textColor,
           fontSize: state.fontSize,
           fontWeight: state.fontWeight,
