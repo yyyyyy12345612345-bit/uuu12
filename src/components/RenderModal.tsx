@@ -245,7 +245,9 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         body: JSON.stringify({
           surahName: surahData.name,
           verses,
-          backgroundUrl: state.backgroundUrl,
+          backgroundUrl: state.backgroundUrl && state.backgroundUrl.startsWith("/") 
+            ? `${window.location.origin}${state.backgroundUrl}` 
+            : state.backgroundUrl,
           textColor: state.textColor,
           fontSize: state.fontSize,
           fontWeight: state.fontWeight,
