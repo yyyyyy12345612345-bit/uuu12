@@ -238,6 +238,21 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           };
         });
 
+      let finalBackgroundUrl = state.backgroundUrl;
+      if (state.backgroundUrl && state.backgroundUrl.startsWith("/api/background/")) {
+        try {
+          const bgRes = await fetch(`${state.backgroundUrl}?json=true`);
+          if (bgRes.ok) {
+            const bgData = await bgRes.json();
+            if (bgData.url) {
+              finalBackgroundUrl = bgData.url;
+            }
+          }
+        } catch (e) {
+          console.error("Failed to resolve direct Telegram background URL", e);
+        }
+      }
+
       const response = await fetch("https://yousef891238-render-server.hf.space/render", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -245,9 +260,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         body: JSON.stringify({
           surahName: surahData.name,
           verses,
-          backgroundUrl: state.backgroundUrl && state.backgroundUrl.startsWith("/") 
-            ? `${window.location.origin}${state.backgroundUrl}` 
-            : state.backgroundUrl,
+          backgroundUrl: finalBackgroundUrl,
           textColor: state.textColor,
           fontSize: state.fontSize,
           fontWeight: state.fontWeight,

@@ -69,7 +69,7 @@ export const ALLOWED_DOMAINS = [
   "images.pexels.com", "videos.pexels.com", "images.unsplash.com",
   "pexels.com", "pixabay.com", "cdn.pixabay.com",
   "player.vimeo.com", "vimeo.com", "res.cloudinary.com", "cloudinary.com",
-  "quranfonts.com", "dzcdn.net", "yaqeenalquran.online", "yaqeen-app.vercel.app"
+  "quranfonts.com", "dzcdn.net", "yaqeenalquran.online", "yaqeen-app.vercel.app", "api.telegram.org"
 ];
 
 export const SHEIKH_ASSETS = {
