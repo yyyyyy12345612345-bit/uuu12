@@ -784,6 +784,34 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                     )}
                 </div>
 
+                {/* تناسب الخلفية (Background Fit) */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <div className="h-px flex-1 bg-foreground/10" />
+                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">أبعاد وتناسب الخلفية</span>
+                        <div className="h-px flex-1 bg-foreground/10" />
+                    </div>
+                    <div className="flex gap-3">
+                        {[
+                            { id: "cover", label: "ملء الشاشة (قص الأطراف)", icon: "📺" },
+                            { id: "contain", label: "احتواء كامل (شريط أسود)", icon: "↕️" },
+                        ].map((fitOpt) => (
+                            <button
+                                key={fitOpt.id}
+                                onClick={() => updateState({ backgroundFit: fitOpt.id as "cover" | "contain" })}
+                                className={`flex-1 flex flex-col items-center gap-1.5 py-4 rounded-2xl border-2 text-[11px] font-black transition-all duration-500 ${
+                                    (state.backgroundFit || "cover") === fitOpt.id
+                                        ? 'border-primary bg-primary/10 text-white shadow-xl shadow-primary/10'
+                                        : 'border-white/5 text-white/40 hover:border-white/20'
+                                }`}
+                            >
+                                <span className="text-lg">{fitOpt.icon}</span>
+                                <span>{fitOpt.label}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
                 {/* Social Layers */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-4">
