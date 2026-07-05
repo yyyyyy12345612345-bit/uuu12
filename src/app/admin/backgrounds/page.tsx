@@ -513,7 +513,7 @@ export default function AdminBackgroundsPage() {
       </div>
 
       {/* Edit Settings Modal */}
-      {isEditOpen && editingItem && (
+      {isEditOpen && !!editingItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
           <div className="bg-white border border-slate-100 w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl relative animate-in zoom-in-95 duration-300 font-arabic text-right">
             
@@ -550,7 +550,7 @@ export default function AdminBackgroundsPage() {
                   <label className="text-xs font-black text-slate-500">النوع *</label>
                   <select 
                     value={editType} 
-                    onChange={e => setEditType(e.target.value as any)}
+                    onChange={e => setEditType(e.target.value as "video" | "image")}
                     className="w-full bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 text-xs text-slate-800 outline-none text-right focus:border-[#fbbf24]/50 focus:bg-white focus:shadow-sm transition"
                   >
                     <option value="video">فيديو</option>
