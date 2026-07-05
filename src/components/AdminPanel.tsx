@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { LayoutDashboard, BellRing, Activity, UserCircle, CreditCard, Swords, Settings, GalleryHorizontalEnd, BarChart3, History, HeadphonesIcon, Megaphone, AlertCircle, BookOpen, FlaskConical, Package, ShieldCheck, Loader2, X, MenuIcon, Users, UserCheck, Mail, TrendingUp, RefreshCw, Bell, Trophy, Ban, CheckCircle, Phone, AlertTriangle, Trash2, Copy, KeyRound, MessageSquare, Sparkles, Volume2, Play, Pause, Database, SkipForward } from "lucide-react";
+import { LayoutDashboard, BellRing, Activity, UserCircle, CreditCard, Swords, Settings, GalleryHorizontalEnd, BarChart3, History, HeadphonesIcon, Megaphone, AlertCircle, BookOpen, FlaskConical, Package, ShieldCheck, Loader2, X, MenuIcon, Users, UserCheck, Mail, TrendingUp, RefreshCw, Bell, Trophy, Ban, CheckCircle, Phone, AlertTriangle, Trash2, Copy, KeyRound, MessageSquare, Sparkles, Volume2, Play, Pause, Database, SkipForward, Image as ImageIcon } from "lucide-react";
 import { gsap } from "gsap";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import surahsData from "@/data/surahs.json";
 import { auth, db, initFirebase } from "@/lib/firebase";
 import {
@@ -19,6 +20,7 @@ const ADMIN_EMAIL = "youssefosama@gmail.com";
 
 const NAV_ITEMS = [
   { id: 'stats', label: 'الإحصائيات', icon: LayoutDashboard },
+  { id: 'backgrounds', label: 'الخلفيات السحابية 🖼️', icon: ImageIcon, isLink: true, href: '/admin/backgrounds' },
   { id: 'push', label: 'الإشعارات', icon: BellRing },
   { id: 'performance', label: 'الأداء', icon: Activity },
   { id: 'reciters', label: 'مراجعة القراء 🎙️', icon: Volume2 },
@@ -2062,20 +2064,43 @@ export function AdminPanel() {
           </button>
         </div>
         <nav className="flex-1 p-3 space-y-1">
-          {NAV_ITEMS.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => { setActiveTab(tab.id); setSidebarOpen(false); }}
-              className={`admin-stagger-card w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                activeTab === tab.id
-                  ? 'bg-[#fbbf24]/10 text-[#fbbf24] border border-[#fbbf24]/20 shadow-[0_0_20px_rgba(251,191,36,0.05)]'
-                  : 'text-white/30 hover:text-white/60 hover:bg-white/[0.03] border border-transparent'
-              }`}
-            >
-              <tab.icon className="w-4 h-4 shrink-0" />
-              {tab.label}
-            </button>
-          ))}
+          {NAV_ITEMS.map(tab => {
+            const isSelected = activeTab === tab.id;
+            const content = (
+              <>
+                <tab.icon className="w-4 h-4 shrink-0" />
+                {tab.label}
+              </>
+            );
+            const classes = `admin-stagger-card w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
+              isSelected
+                ? 'bg-[#fbbf24]/10 text-[#fbbf24] border border-[#fbbf24]/20 shadow-[0_0_20px_rgba(251,191,36,0.05)]'
+                : 'text-white/30 hover:text-white/60 hover:bg-white/[0.03] border border-transparent'
+            }`;
+
+            if ('isLink' in tab && tab.isLink) {
+              return (
+                <Link
+                  key={tab.id}
+                  href={tab.href}
+                  onClick={() => setSidebarOpen(false)}
+                  className={classes}
+                >
+                  {content}
+                </Link>
+              );
+            }
+
+            return (
+              <button
+                key={tab.id}
+                onClick={() => { setActiveTab(tab.id); setSidebarOpen(false); }}
+                className={classes}
+              >
+                {content}
+              </button>
+            );
+          })}
         </nav>
         <div className="p-4 border-t border-white/[0.06]">
           <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white/[0.03]">
@@ -2103,11 +2128,26 @@ export function AdminPanel() {
               <span className="text-sm font-black">التحكم</span>
             </div>
             <div className="flex gap-1 overflow-x-auto no-scrollbar">
-              {NAV_ITEMS.slice(0, 4).map(tab => (
-                <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap ${activeTab === tab.id ? 'bg-[#fbbf24]/10 text-[#fbbf24]' : 'text-white/30'}`}>
-                  {tab.label}
-                </button>
-              ))}
+              {NAV_ITEMS.slice(0, 5).map(tab => {
+                const isSelected = activeTab === tab.id;
+                const classes = `px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap ${
+                  isSelected ? 'bg-[#fbbf24]/10 text-[#fbbf24]' : 'text-white/30'
+                }`;
+
+                if ('isLink' in tab && tab.isLink) {
+                  return (
+                    <Link key={tab.id} href={tab.href} className={classes}>
+                      {tab.label}
+                    </Link>
+                  );
+                }
+
+                return (
+                  <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={classes}>
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
