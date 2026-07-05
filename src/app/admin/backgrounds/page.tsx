@@ -236,6 +236,7 @@ export default function AdminBackgroundsPage() {
     }
   };
 
+  // عرض مؤشر التحميل أثناء التحقق من الصلاحيات
   if (loading) {
     return (
       <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-50 text-slate-800 font-arabic">
