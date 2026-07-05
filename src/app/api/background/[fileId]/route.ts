@@ -18,11 +18,8 @@ export async function GET(
       return NextResponse.json({ error: "Missing fileId" }, { status: 400 });
     }
 
-    // استخراج معرّفات الاستعلام (Query Parameters)
     const { searchParams } = new URL(request.url);
     const returnJson = searchParams.get("json") === "true";
-
-    // تنظيف كود الملف من لاحقة .mp4 في حال تم إرسالها لتمويه المتصفح وكاش الفيديو
     const cleanFileId = fileId.replace(/\.mp4$/, "");
 
     const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -34,43 +31,55 @@ export async function GET(
     const now = Date.now();
     const cached = urlCache.get(cleanFileId);
 
-    // إذا كان الرابط مخزناً وصالحاً، نعمل إعادة توجيه فورية أو نرجعه كـ JSON
+    let directDownloadUrl = "";
+
     if (cached && cached.expiresAt > now) {
-      if (returnJson) {
-        return NextResponse.json({ url: cached.url });
+      directDownloadUrl = cached.url;
+    } else {
+      // طلب مسار الملف من تليجرام
+      const getFileUrl = `https://api.telegram.org/bot${token}/getFile?file_id=${cleanFileId}`;
+      const fileRes = await fetch(getFileUrl, { next: { revalidate: 0 } });
+      
+      if (!fileRes.ok) {
+        const errText = await fileRes.text();
+        console.error(`[Telegram API] getFile failed: status ${fileRes.status}`, errText);
+        return NextResponse.json({ error: "Failed to get file from Telegram" }, { status: fileRes.status });
       }
-      return NextResponse.redirect(cached.url, 307);
+
+      const fileData = await fileRes.json();
+      if (!fileData.ok || !fileData.result?.file_path) {
+        console.error("[Telegram API] Telegram returned error or missing path:", fileData);
+        return NextResponse.json({ error: "Invalid file data from Telegram" }, { status: 400 });
+      }
+
+      const filePath = fileData.result.file_path;
+      directDownloadUrl = `https://api.telegram.org/file/bot${token}/${filePath}`;
+
+      // تخزين الرابط في الكاش
+      urlCache.set(cleanFileId, {
+        url: directDownloadUrl,
+        expiresAt: now + CACHE_DURATION_MS,
+      });
     }
-
-    // طلب مسار الملف من تليجرام
-    const getFileUrl = `https://api.telegram.org/bot${token}/getFile?file_id=${cleanFileId}`;
-    const fileRes = await fetch(getFileUrl, { next: { revalidate: 0 } });
-    
-    if (!fileRes.ok) {
-      const errText = await fileRes.text();
-      console.error(`[Telegram API] getFile failed: status ${fileRes.status}`, errText);
-      return NextResponse.json({ error: "Failed to get file from Telegram" }, { status: fileRes.status });
-    }
-
-    const fileData = await fileRes.json();
-    if (!fileData.ok || !fileData.result?.file_path) {
-      console.error("[Telegram API] Telegram returned error or missing path:", fileData);
-      return NextResponse.json({ error: "Invalid file data from Telegram" }, { status: 400 });
-    }
-
-    const filePath = fileData.result.file_path;
-    const directDownloadUrl = `https://api.telegram.org/file/bot${token}/${filePath}`;
-
-    // تخزين الرابط في الكاش
-    urlCache.set(cleanFileId, {
-      url: directDownloadUrl,
-      expiresAt: now + CACHE_DURATION_MS,
-    });
 
     if (returnJson) {
       return NextResponse.json({ url: directDownloadUrl });
     }
-    return NextResponse.redirect(directDownloadUrl, 307);
+
+    // بدلاً من عمل إعادة توجيه (Redirect) قد تحجبه خوادم الرندرة أو جدران الحماية،
+    // نقوم بعمل بث (Stream) محتوى الفيديو مباشرة من تليجرام ليمر عبر Vercel
+    const videoRes = await fetch(directDownloadUrl);
+    if (!videoRes.ok) {
+      return NextResponse.json({ error: "Failed to stream video content" }, { status: videoRes.status });
+    }
+
+    return new Response(videoRes.body, {
+      headers: {
+        "Content-Type": videoRes.headers.get("content-type") || "video/mp4",
+        "Content-Length": videoRes.headers.get("content-length") || "",
+        "Cache-Control": "public, max-age=31536000, immutable",
+      },
+    });
   } catch (error: any) {
     console.error("[Telegram API] Error resolving background video:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

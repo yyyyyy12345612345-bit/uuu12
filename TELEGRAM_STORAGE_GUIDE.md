@@ -37,10 +37,11 @@ graph TD
     ```
 
 ### 3. حظر جدار حماية Vercel لسيرفر الرندر (Vercel Firewall & AWS IPs)
-*   **المشكلة**: عند تصدير الفيديو، كان سيرفر الرندر (Hugging Face) يحاول تحميل الخلفية من `/api/background/[fileId].mp4`. جدار حماية Vercel يقوم بحجب خوادم Hugging Face (لأن آي بي الخوادم مشبوه كـ Bot/Scraper) مما سبب فشل التحميل بـ `fetch failed`.
+*   **المشكلة**: عند تصدير الفيديو، كان سيرفر الرندر (Hugging Face) يحاول تحميل الخلفية من `/api/background/[fileId].mp4`. جدار حماية Vercel يقوم بحجب خوادم Hugging Face (لأن آي بي الخوادم مشبوه كـ Bot/Scraper) مما سبب فشل التحميل بـ `fetch failed`. وعند محاولة التحميل مباشرة من تليجرام، تم الحظر أيضاً لأن Hugging Face يحظر الاتصال المباشر بـ `telegram.org`.
 *   **الحل**:
-    1. تمكين الـ API من إرجاع رابط تليجرام المباشر عند تمرير المعامل `?json=true`.
-    2. تعديل كود المتصفح ليقوم بطلب الرابط المباشر أولاً من موقعه، ثم يمرر رابط تليجرام الأصلي والموثوق (`https://api.telegram.org/file/bot...`) لسيرفر الرندر ليقوم بالتحميل المباشر من تليجرام دون المرور بـ Vercel.
+    1. تحويل الـ API في Vercel ليقوم بعمل **بث مباشر (Stream Proxy)** لمحتوى الفيديو من تليجرام بدلاً من عمل إعادة توجيه (Redirect).
+    2. تعديل كود المتصفح ليمرر رابط السيرفر المطلق المبني على الدومين الرئيسي الموثوق (`yaqeen-app.vercel.app/api/background/...`) لسيرفر الرندر.
+    3. يقوم سيرفر الرندر بالتحميل مباشرة من Vercel، وVercel تجلب المحتوى من تليجرام وتمرره له، مما يحل مشاكل الحجب وDNS تماماً!
 
 ### 4. صلاحيات Firestore ومفتاح الأدمن التالف
 *   **المشكلة**: قواعد الحماية لـ Firestore كانت تمنع كتابة الخلفيات بدون صلاحية الأدمن، ولم يكن البوت يستطيع الكتابة لعدم تطابق مفتاح الـ Firebase Admin SDK (بسبب حرف زائد `n` وتداخل سطور المفتاح أثناء التخزين).
@@ -52,7 +53,7 @@ graph TD
 
 ## 💾 الأكواد البرمجية المعتمدة (Source Code Reference)
 
-### 1. الـ API الرئيسي لحل روابط الفيديوهات والكاش:
+### 1. الـ API الرئيسي لبث محتوى الفيديوهات والكاش:
 **المسار**: `src/app/api/background/[fileId]/route.ts`
 
 ```typescript
@@ -83,28 +84,40 @@ export async function GET(
     const now = Date.now();
     const cached = urlCache.get(cleanFileId);
 
+    let directDownloadUrl = "";
+
     if (cached && cached.expiresAt > now) {
-      if (returnJson) return NextResponse.json({ url: cached.url });
-      return NextResponse.redirect(cached.url, 307);
+      directDownloadUrl = cached.url;
+    } else {
+      const getFileUrl = `https://api.telegram.org/bot${token}/getFile?file_id=${cleanFileId}`;
+      const fileRes = await fetch(getFileUrl, { next: { revalidate: 0 } });
+      
+      if (!fileRes.ok) return NextResponse.json({ error: "Failed to get file" }, { status: fileRes.status });
+
+      const fileData = await fileRes.json();
+      if (!fileData.ok || !fileData.result?.file_path) {
+        return NextResponse.json({ error: "Invalid file data" }, { status: 400 });
+      }
+
+      const filePath = fileData.result.file_path;
+      directDownloadUrl = `https://api.telegram.org/file/bot${token}/${filePath}`;
+
+      urlCache.set(cleanFileId, { url: directDownloadUrl, expiresAt: now + CACHE_DURATION_MS });
     }
-
-    const getFileUrl = `https://api.telegram.org/bot${token}/getFile?file_id=${cleanFileId}`;
-    const fileRes = await fetch(getFileUrl, { next: { revalidate: 0 } });
-    
-    if (!fileRes.ok) return NextResponse.json({ error: "Failed to get file" }, { status: fileRes.status });
-
-    const fileData = await fileRes.json();
-    if (!fileData.ok || !fileData.result?.file_path) {
-      return NextResponse.json({ error: "Invalid file data" }, { status: 400 });
-    }
-
-    const filePath = fileData.result.file_path;
-    const directDownloadUrl = `https://api.telegram.org/file/bot${token}/${filePath}`;
-
-    urlCache.set(cleanFileId, { url: directDownloadUrl, expiresAt: now + CACHE_DURATION_MS });
 
     if (returnJson) return NextResponse.json({ url: directDownloadUrl });
-    return NextResponse.redirect(directDownloadUrl, 307);
+
+    // البث المباشر للمحتوى (Stream Proxy)
+    const videoRes = await fetch(directDownloadUrl);
+    if (!videoRes.ok) return NextResponse.json({ error: "Failed to stream video" }, { status: videoRes.status });
+
+    return new Response(videoRes.body, {
+      headers: {
+        "Content-Type": videoRes.headers.get("content-type") || "video/mp4",
+        "Content-Length": videoRes.headers.get("content-length") || "",
+        "Cache-Control": "public, max-age=31536000, immutable",
+      },
+    });
   } catch (error: any) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

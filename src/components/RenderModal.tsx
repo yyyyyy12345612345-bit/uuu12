@@ -239,18 +239,9 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         });
 
       let finalBackgroundUrl = state.backgroundUrl;
-      if (state.backgroundUrl && state.backgroundUrl.startsWith("/api/background/")) {
-        try {
-          const bgRes = await fetch(`${state.backgroundUrl}?json=true`);
-          if (bgRes.ok) {
-            const bgData = await bgRes.json();
-            if (bgData.url) {
-              finalBackgroundUrl = bgData.url;
-            }
-          }
-        } catch (e) {
-          console.error("Failed to resolve direct Telegram background URL", e);
-        }
+      if (state.backgroundUrl && state.backgroundUrl.startsWith("/")) {
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+        finalBackgroundUrl = `${baseUrl.replace(/\/$/, "")}${state.backgroundUrl}`;
       }
 
       const response = await fetch("https://yousef891238-render-server.hf.space/render", {
