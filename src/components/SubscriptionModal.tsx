@@ -403,6 +403,19 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                   )}
                 </div>
 
+                {/* Free Subscription Notice */}
+                <div className="p-4 rounded-[1.5rem] bg-gradient-to-r from-amber-500/10 to-yellow-500/5 border border-amber-500/20 text-right flex items-start gap-3.5 shadow-lg">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <Sparkles className="w-5 h-5 animate-pulse" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-black text-xs text-amber-400 mb-1">تنبيه هام (الاشتراك المجاني متاح) 💡</h4>
+                    <p className="text-[11px] text-white/70 leading-relaxed font-bold">
+                      التبرع ليس إجبارياً لاستخدام ميزات صنع الفيديو. يمكنك كتابة أي بيانات عشوائية (Fake Data) في الخطوة التالية وإرسال الطلب، وسيتم تفعيل الاشتراك لك مجاناً بالكامل!
+                    </p>
+                  </div>
+                </div>
+
                 {/* Payment Methods */}
                 <motion.div 
                   variants={containerVariants}

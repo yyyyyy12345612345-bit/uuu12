@@ -239,7 +239,7 @@ async function renderFinalStable(jobId, data) {
 
     // blend + overlay لدمج النص فوق الخلفية مع الحفاظ على الشفافية
     const filterParts = [
-      `[0:v]scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280,setsar=1[bg]`,
+      `[0:v]scale=720:1280:force_original_aspect_ratio=increase:force_divisible_by=2,crop=720:1280,setsar=1[bg]`,
       `[1:v]scale=720:1280[txt]`,
       `[bg][txt]blend=all_mode=screen:all_opacity=1,format=yuv420p[out]`
     ];
