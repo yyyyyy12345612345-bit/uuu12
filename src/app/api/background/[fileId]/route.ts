@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+export const runtime = "edge";
+
 // كاش بسيط في الذاكرة لتخزين الروابط المباشرة وتجنب تكرار الاتصال بتليجرام
 interface CacheEntry {
   url: string;
