@@ -277,7 +277,7 @@ export function Mushaf() {
     };
 
     const filteredSurahs = surahsData.filter(s =>
-        s.name.includes(search) || s.transliteration.toLowerCase().includes(search.toLowerCase())
+        (s.name || "").includes(search) || (s.transliteration || "").toLowerCase().includes((search || "").toLowerCase())
     );
 
     // ── SURAH INDEX VIEW (if !selectedSurah) ──

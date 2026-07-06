@@ -243,7 +243,9 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
     }
   };
 
-  const filteredSurahs = surahsData.filter(s => s.name.includes(searchQuery) || s.transliteration.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredSurahs = surahsData.filter(s => 
+    (s.name || "").includes(searchQuery) || (s.transliteration || "").toLowerCase().includes((searchQuery || "").toLowerCase())
+  );
 
   return (
     <div className={`h-full w-full flex flex-col bg-[#edf2ef] text-[#234d40] font-['Tajawal'] relative overflow-hidden`}>
