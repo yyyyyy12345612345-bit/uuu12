@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { LayoutDashboard, BellRing, Activity, UserCircle, CreditCard, Swords, Settings, GalleryHorizontalEnd, BarChart3, History, HeadphonesIcon, Megaphone, AlertCircle, BookOpen, FlaskConical, Package, ShieldCheck, Loader2, X, MenuIcon, Users, UserCheck, Mail, TrendingUp, RefreshCw, Bell, Trophy, Ban, CheckCircle, Phone, AlertTriangle, Trash2, Copy, KeyRound, MessageSquare, Sparkles, Volume2, Play, Pause, Database, SkipForward, Image as ImageIcon } from "lucide-react";
+import { LayoutDashboard, BellRing, Activity, UserCircle, CreditCard, Swords, Settings, GalleryHorizontalEnd, BarChart3, History, HeadphonesIcon, Megaphone, AlertCircle, BookOpen, FlaskConical, Package, ShieldCheck, Loader2, X, MenuIcon, Users, UserCheck, Mail, TrendingUp, RefreshCw, Bell, Trophy, Ban, CheckCircle, Phone, AlertTriangle, Trash2, Copy, KeyRound, MessageSquare, Sparkles, Volume2, Play, Pause, Database, SkipForward, Image as ImageIcon, Video, Plus } from "lucide-react";
 import { gsap } from "gsap";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -39,6 +39,7 @@ const NAV_ITEMS = [
   { id: 'versions', label: 'الإصدار', icon: Package },
   { id: 'analytics', label: 'التحليلات المتقدمة', icon: BarChart3 },
   { id: 'moderation', label: 'رقابة المنشورات', icon: AlertTriangle },
+  { id: 'tiktok', label: 'إدارة تيك توك 📱', icon: Video },
   { id: 'tests', label: 'اختبارات التشخيص 🧪', icon: ShieldCheck },
 ];
 
@@ -156,6 +157,75 @@ export function AdminPanel() {
   const [isSavingMaintenance, setIsSavingMaintenance] = useState(false);
   const [isSavingRenderConfig, setIsSavingRenderConfig] = useState(false);
   const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false);
+
+  // TikTok State Variables
+  const [tiktokAccounts, setTiktokAccounts] = useState<any[]>([]);
+  const [tiktokLogs, setTiktokLogs] = useState<any[]>([]);
+  const [isTiktokLoading, setIsTiktokLoading] = useState(false);
+
+  const fetchTikTokData = async () => {
+    if (!db) return;
+    setIsTiktokLoading(true);
+    try {
+      const accountsSnap = await getDocs(collection(db, "tiktok_accounts"));
+      const accList: any[] = [];
+      accountsSnap.forEach(d => accList.push(d.data()));
+      setTiktokAccounts(accList);
+
+      const logsSnap = await getDocs(
+        query(collection(db, "tiktok_logs"), orderBy("createdAt", "desc"), limit(50))
+      );
+      const logList: any[] = [];
+      logsSnap.forEach(d => logList.push({ id: d.id, ...d.data() }));
+      setTiktokLogs(logList);
+    } catch (e) {
+      console.error("Error fetching TikTok data:", e);
+    } finally {
+      setIsTiktokLoading(false);
+    }
+  };
+
+  const handleUnlinkTikTok = async (accountId: string) => {
+    if (!confirm("هل أنت متأكد من إلغاء ربط هذا الحساب؟")) return;
+    if (!db) return;
+    try {
+      await deleteDoc(doc(db, "tiktok_accounts", accountId));
+      alert("تم إلغاء ربط الحساب بنجاح.");
+      fetchTikTokData();
+    } catch (e: any) {
+      alert(`فشل إلغاء الربط: ${e.message}`);
+    }
+  };
+
+  const handleLinkTikTok = async () => {
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) {
+        alert("فشل التحقق من الجلسة. يرجى تسجيل الدخول مجدداً.");
+        return;
+      }
+      const width = 600;
+      const height = 700;
+      const left = window.screen.width / 2 - width / 2;
+      const top = window.screen.height / 2 - height / 2;
+      
+      const popup = window.open(
+        `/api/auth/tiktok?token=${encodeURIComponent(token)}`,
+        "TikTokAuth",
+        `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes`
+      );
+
+      const handleMessage = (event: MessageEvent) => {
+        if (event.data?.type === "TIKTOK_LINKED" && event.data?.success) {
+          fetchTikTokData();
+          window.removeEventListener("message", handleMessage);
+        }
+      };
+      window.addEventListener("message", handleMessage);
+    } catch (e: any) {
+      alert(`خطأ: ${e.message}`);
+    }
+  };
   
   const [renderConfig, setRenderConfig] = useState<{
     enabled: boolean;
@@ -586,6 +656,7 @@ export function AdminPanel() {
       versions: async () => { await fetchVersionSettings(); },
       analytics: async () => { await fetchAnalyticsData(); },
       moderation: async () => { await fetchReportedPosts(); },
+      tiktok: async () => { await fetchTikTokData(); },
     };
 
     if (loaders[tab]) {
@@ -5267,6 +5338,146 @@ export function AdminPanel() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'tiktok' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/[0.02] border border-white/[0.06] p-6 rounded-3xl">
+                <div className="text-right flex-1">
+                  <h2 className="text-2xl font-black text-white">إدارة حسابات تيك توك 📱</h2>
+                  <p className="text-xs text-white/40 mt-1">ربط حسابات TikTok ونشر الفيديوهات الملتئمة تلقائياً أو جدولتها ومراقبة السجلات</p>
+                </div>
+                <button
+                  onClick={handleLinkTikTok}
+                  className="flex items-center gap-2 px-6 py-3.5 bg-[#fbbf24] text-black font-black rounded-xl hover:brightness-110 active:scale-95 transition text-xs shadow-lg shadow-[#fbbf24]/10"
+                >
+                  <Plus className="w-4 h-4 text-black" />
+                  ربط حساب TikTok جديد
+                </button>
+              </div>
+
+              {/* Accounts List */}
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {tiktokAccounts.length === 0 ? (
+                  <div className="col-span-full rounded-2xl border border-white/5 bg-white/[0.01] p-12 text-center text-white/30 text-sm font-bold">
+                    لا توجد حسابات TikTok مربوطة حالياً. اضغط على الزر أعلاه للربط.
+                  </div>
+                ) : (
+                  tiktokAccounts.map((acc) => (
+                    <div key={acc.id} className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 flex flex-col justify-between hover:border-white/20 transition duration-300 relative overflow-hidden group">
+                      <div className="flex items-start gap-4">
+                        <div className="relative w-14 h-14 rounded-2xl overflow-hidden border border-white/10 bg-white/5">
+                          {acc.avatar ? (
+                            <img src={acc.avatar} alt={acc.displayName} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-xl">👤</div>
+                          )}
+                        </div>
+                        <div className="text-right flex-1 space-y-1">
+                          <h3 className="text-base font-bold text-white leading-tight">{acc.displayName}</h3>
+                          <p className="text-xs text-white/40 font-mono">@{acc.username}</p>
+                          <span className="inline-block px-2.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[9px] text-emerald-400 font-black tracking-wider">
+                            ✔ CONNECTED
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between border-t border-white/5 mt-6 pt-4">
+                        <div className="text-right">
+                          <span className="text-[10px] text-white/30 block uppercase tracking-wider">الحالة</span>
+                          <span className="text-xs font-bold text-white/80">نشط</span>
+                        </div>
+                        <button
+                          onClick={() => handleUnlinkTikTok(acc.id)}
+                          className="px-4 py-2 bg-red-500/10 border border-transparent hover:border-red-500/20 hover:bg-red-500 text-red-400 hover:text-white rounded-xl text-xs font-black transition duration-300 cursor-pointer"
+                        >
+                          إلغاء الربط
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Logs / Publication History */}
+              <div className="rounded-3xl border border-white/[0.06] bg-white/[0.02] p-6">
+                <h3 className="text-lg font-black text-white mb-6">سجل وجدولة منشورات تيك توك 📋</h3>
+                
+                {isTiktokLoading ? (
+                  <div className="p-12 text-center">
+                    <Loader2 className="w-8 h-8 animate-spin text-[#fbbf24] mx-auto" />
+                  </div>
+                ) : tiktokLogs.length === 0 ? (
+                  <div className="p-12 text-center text-white/30 text-sm font-bold">
+                    لا يوجد منشورات أو مجدولات مسجلة بعد.
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-right text-xs">
+                      <thead>
+                        <tr className="border-b border-white/5 pb-3 text-white/40 font-black">
+                          <th className="pb-3 text-right">الفيديو والوصف</th>
+                          <th className="pb-3 text-right">الحساب المستهدف</th>
+                          <th className="pb-3 text-right">الحالة</th>
+                          <th className="pb-3 text-right">تاريخ الجدولة / النشر</th>
+                          <th className="pb-3 text-left">رابط المشاهدة</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {tiktokLogs.map((log) => {
+                          const targetAcc = tiktokAccounts.find(a => a.id === log.accountId);
+                          return (
+                            <tr key={log.id} className="border-b border-white/[0.02] hover:bg-white/[0.01] transition-colors">
+                              <td className="py-4">
+                                <div className="space-y-1 max-w-xs">
+                                  <p className="font-bold text-white truncate" title={log.caption}>{log.caption}</p>
+                                  <a href={log.videoUrl} target="_blank" rel="noreferrer" className="text-[10px] text-sky-400 hover:underline truncate block">
+                                    {log.videoUrl}
+                                  </a>
+                                </div>
+                              </td>
+                              <td className="py-4 font-bold text-white/80">
+                                {targetAcc ? `@${targetAcc.username}` : log.accountId}
+                              </td>
+                              <td className="py-4">
+                                <span className={`inline-block px-2.5 py-0.5 rounded-full text-[9px] font-black border ${
+                                  log.status === "completed" 
+                                    ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                                    : log.status === "pending"
+                                    ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                                    : log.status === "failed"
+                                    ? "bg-red-500/10 border-red-500/20 text-red-400"
+                                    : "bg-white/10 border-white/10 text-white/60"
+                                }`}>
+                                  {log.status === "completed" && "تم النشر"}
+                                  {log.status === "pending" && "مجدول"}
+                                  {log.status === "failed" && "فشل النشر"}
+                                  {log.status === "uploading" && "جاري الرفع"}
+                                </span>
+                                {log.error && <p className="text-[9px] text-red-400/80 mt-1 max-w-[200px] whitespace-normal">{log.error}</p>}
+                              </td>
+                              <td className="py-4 text-white/60">
+                                {log.scheduledFor 
+                                  ? `مجدول لـ ${log.scheduledFor.toDate().toLocaleString("ar-EG")}`
+                                  : (log.publishedAt ? log.publishedAt.toDate().toLocaleString("ar-EG") : log.createdAt?.toDate().toLocaleString("ar-EG"))
+                                }
+                              </td>
+                              <td className="py-4 text-left">
+                                {log.publishId && log.status === "completed" ? (
+                                  <span className="text-[10px] text-white/40 font-mono">Job: {log.publishId.slice(0, 10)}...</span>
+                                ) : (
+                                  <span className="text-white/20">-</span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
           )}

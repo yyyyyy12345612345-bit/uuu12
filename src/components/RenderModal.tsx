@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Download, Loader2, CheckCircle2, AlertCircle, Play, Crown, Lock, Info, Sparkles, ChevronLeft, X } from "lucide-react";
+import { Download, Loader2, CheckCircle2, AlertCircle, Play, Crown, Lock, Info, Sparkles, ChevronLeft, X, Clock, Video, Send } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
 import { useSurahData } from "@/hooks/useSurahData";
 import { RECITERS, getReciterEnglishName, getSheikhAsset } from "@/data/reciters";
 import { getAudioUrl } from "@/lib/quranUtils";
 import { useCustomBackgrounds } from "@/hooks/useCustomBackgrounds";
 import { db, auth } from "@/lib/firebase";
-import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp, getDocs, collection } from "firebase/firestore";
 import { incrementVideoRenderCount } from "@/lib/points";
 
 
@@ -31,6 +31,99 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
   const [message, setMessage] = useState("");
   const [progressPct, setProgressPct] = useState(0);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+
+  // TikTok Publishing States
+  const isAdmin = auth?.currentUser?.email === "youssefosama@gmail.com";
+  const [tiktokAccounts, setTiktokAccounts] = useState<any[]>([]);
+  const [selectedAccountId, setSelectedAccountId] = useState<string>("");
+  const [tiktokCaption, setTiktokCaption] = useState("");
+  const [isScheduled, setIsScheduled] = useState(false);
+  const [scheduledTime, setScheduledTime] = useState("");
+  const [tiktokPublishing, setTiktokPublishing] = useState(false);
+  const [tiktokPublishSuccess, setTiktokPublishSuccess] = useState(false);
+  const [tiktokPublishError, setTiktokPublishError] = useState("");
+
+  useEffect(() => {
+    if (isOpen && isAdmin && db) {
+      // Fetch linked TikTok accounts
+      getDocs(collection(db, "tiktok_accounts")).then((snap: any) => {
+        const list: any[] = [];
+        snap.forEach((d: any) => list.push(d.data()));
+        setTiktokAccounts(list);
+        if (list.length > 0) {
+          setSelectedAccountId(list[0].id);
+        }
+      }).catch((e: any) => console.error("Error fetching tiktok accounts in modal:", e));
+    }
+  }, [isOpen, isAdmin]);
+
+  useEffect(() => {
+    if (status === "success" && surahData) {
+      const reciter = RECITERS.find(r => r.id === state.reciterId);
+      const sName = surahData.name || "";
+      const rName = reciter?.name || "";
+      const sTag = sName.replace(/\s+/g, "_").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي");
+      const rTag = rName.split(" (")[0]?.replace(/\s+/g, "_").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي") || "";
+      
+      const defaultCaption = `تلاوة خاشعة بصوت الشيخ ${rName} - سورة ${sName} 📖✨\n#سورة_${sTag} #الشيخ_${rTag} #يقين #القرآن_الكريم`;
+      setTiktokCaption(defaultCaption);
+      setTiktokPublishSuccess(false);
+      setTiktokPublishError("");
+      setIsScheduled(false);
+      setScheduledTime("");
+    }
+  }, [status, surahData, state.reciterId]);
+
+  const handlePublishToTikTok = async () => {
+    if (!selectedAccountId) {
+      alert("يرجى اختيار حساب تيك توك أولاً.");
+      return;
+    }
+    if (!tiktokCaption.trim()) {
+      alert("يرجى كتابة وصف للفيديو.");
+      return;
+    }
+    if (isScheduled && !scheduledTime) {
+      alert("يرجى تحديد وقت الجدولة.");
+      return;
+    }
+
+    setTiktokPublishing(true);
+    setTiktokPublishError("");
+    setTiktokPublishSuccess(false);
+
+    try {
+      const adminToken = await auth.currentUser?.getIdToken();
+      if (!adminToken) {
+        throw new Error("فشل التحقق من جلسة المسؤول.");
+      }
+
+      const res = await fetch("/api/tiktok/publish", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          accountId: selectedAccountId,
+          videoUrl: downloadUrl,
+          caption: tiktokCaption,
+          scheduledFor: isScheduled ? scheduledTime : null,
+          adminToken,
+        }),
+      });
+
+      const resData = await res.json();
+      if (!res.ok) {
+        throw new Error(resData.error || "فشل نشر الفيديو على تيك توك");
+      }
+
+      setTiktokPublishSuccess(true);
+    } catch (e: any) {
+      setTiktokPublishError(e.message || "حدث خطأ غير متوقع.");
+    } finally {
+      setTiktokPublishing(false);
+    }
+  };
 
   const [userPlan, setUserPlan] = useState<any>(null);
   const [isLimitReached, setIsLimitReached] = useState(false);
@@ -1658,6 +1751,111 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                 <Download className="w-6 h-6" />
                 تحميل الملف النهائي
               </a>
+            )}
+
+            {status === "success" && downloadUrl && isAdmin && (
+              <div className="w-full mt-6 border-t border-white/10 pt-6 space-y-4 text-right">
+                <h4 className="text-sm font-black text-white flex items-center justify-end gap-2">
+                  <span>نشر على تيك توك 📱</span>
+                  <Video className="w-4 h-4 text-primary" />
+                </h4>
+
+                {tiktokAccounts.length === 0 ? (
+                  <p className="text-[11px] text-white/40 leading-relaxed">
+                    لم تقم بربط أي حساب تيك توك بعد. يرجى الذهاب إلى لوحة التحكم لربط حسابك أولاً.
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Account Selector */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black text-white/40 block">حساب النشر</label>
+                      <select
+                        value={selectedAccountId}
+                        onChange={(e) => setSelectedAccountId(e.target.value)}
+                        className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl p-3 text-xs text-white outline-none text-right focus:border-[#fbbf24]/40"
+                      >
+                        {tiktokAccounts.map((acc) => (
+                          <option key={acc.id} value={acc.id}>
+                            @{acc.username} ({acc.displayName})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Caption Textarea */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black text-white/40 block">وصف الفيديو والهاشتاجات</label>
+                      <textarea
+                        value={tiktokCaption}
+                        onChange={(e) => setTiktokCaption(e.target.value)}
+                        rows={4}
+                        className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl p-3 text-xs text-white outline-none resize-none text-right focus:border-[#fbbf24]/40 placeholder:text-white/20"
+                        placeholder="اكتب وصفاً جذاباً للفيديو..."
+                      />
+                    </div>
+
+                    {/* Scheduling Toggle */}
+                    <div className="flex items-center justify-between bg-white/[0.02] border border-white/[0.04] rounded-xl p-3">
+                      <input
+                        type="checkbox"
+                        id="schedule-toggle"
+                        checked={isScheduled}
+                        onChange={(e) => setIsScheduled(e.target.checked)}
+                        className="w-4 h-4 rounded border-white/10 accent-primary cursor-pointer"
+                      />
+                      <label htmlFor="schedule-toggle" className="text-xs font-bold text-white/80 cursor-pointer flex items-center gap-2">
+                        جدولة النشر لاحقاً
+                        <Clock className="w-3.5 h-3.5 text-primary" />
+                      </label>
+                    </div>
+
+                    {/* Scheduled Time Input */}
+                    {isScheduled && (
+                      <div className="space-y-1.5 animate-in fade-in slide-in-from-top-3 duration-300">
+                        <label className="text-[10px] font-black text-white/40 block">وقت وتاريخ النشر المجدول</label>
+                        <input
+                          type="datetime-local"
+                          value={scheduledTime}
+                          onChange={(e) => setScheduledTime(e.target.value)}
+                          className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl p-3 text-xs text-white outline-none text-right focus:border-[#fbbf24]/40"
+                        />
+                      </div>
+                    )}
+
+                    {/* Feedback Messages */}
+                    {tiktokPublishError && (
+                      <p className="text-[11px] text-red-500 font-bold bg-red-500/10 border border-red-500/20 p-3 rounded-xl leading-relaxed">
+                        {tiktokPublishError}
+                      </p>
+                    )}
+                    {tiktokPublishSuccess && (
+                      <p className="text-[11px] text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl leading-relaxed flex items-center justify-center gap-1.5">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        {isScheduled ? "تمت جدولة الفيديو للنشر بنجاح! 🎉" : "تم نشر الفيديو بنجاح على حسابك! 🎉"}
+                      </p>
+                    )}
+
+                    {/* Publish Button */}
+                    <button
+                      onClick={handlePublishToTikTok}
+                      disabled={tiktokPublishing || tiktokPublishSuccess}
+                      className="w-full py-4 bg-primary hover:brightness-110 text-black font-black rounded-xl transition disabled:opacity-50 text-xs flex items-center justify-center gap-2 shadow-lg shadow-primary/10"
+                    >
+                      {tiktokPublishing ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin text-black" />
+                          جاري {isScheduled ? "الجدولة..." : "النشر على تيك توك..."}
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4" />
+                          {isScheduled ? "جدولة النشر" : "نشر الآن على TikTok"}
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
             
             {status === "error" && (
