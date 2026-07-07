@@ -42,7 +42,7 @@ export function SurahSelector() {
         .replace(/ى/g, "ي")
         .replace(/[ًٌٍَُِّْ]/g, "")
         .toLowerCase();
-      const cleanEnglish = s.english.toLowerCase();
+      const cleanEnglish = (s.transliteration || "").toLowerCase();
       return cleanName.includes(cleanSearch) || cleanEnglish.includes(cleanSearch) || s.id.toString() === cleanSearch;
     });
   }, [surahSearch]);
