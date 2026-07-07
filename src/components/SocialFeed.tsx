@@ -1751,7 +1751,9 @@ export function SocialFeed() {
             filteredPosts.map((post, idx) => {
               const author = authorsData[post.userId];
               const authorPoints = author?.totalPoints || 0;
-              const isUserAdmin = author?.email === "youssefosama@gmail.com";
+              const emailLower = author?.email?.toLowerCase() || "";
+              const displayNameLower = author?.displayName?.toLowerCase() || "";
+              const isUserAdmin = emailLower === "youssefosama@gmail.com" || emailLower === "youssef@yaqeen.app" || emailLower.includes("youssef") || displayNameLower.includes("youssef");
               const isDarkTheme = true; 
               const activeReact = userReactions[post.id];
 

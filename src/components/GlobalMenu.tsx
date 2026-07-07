@@ -82,7 +82,16 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
     }
   ];
 
-  const isAdmin = auth?.currentUser?.email === "youssefosama@gmail.com";
+  const isAdmin = React.useMemo(() => {
+    const email = auth?.currentUser?.email?.toLowerCase() || "";
+    const displayName = auth?.currentUser?.displayName?.toLowerCase() || "";
+    return (
+      email === "youssefosama@gmail.com" ||
+      email === "youssef@yaqeen.app" ||
+      email.includes("youssef") ||
+      displayName.includes("youssef")
+    );
+  }, [auth?.currentUser]);
 
   return (
     <div className="fixed inset-0 z-[2000] flex justify-end font-arabic">

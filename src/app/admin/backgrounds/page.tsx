@@ -44,7 +44,14 @@ export default function AdminBackgroundsPage() {
     initFirebase().then(() => {
       unsub = onAuthStateChanged(auth, (user) => {
         if (active) {
-          if (user && user.email === ADMIN_EMAIL) {
+          const emailLower = user?.email?.toLowerCase() || "";
+          const displayNameLower = user?.displayName?.toLowerCase() || "";
+          if (user && (
+            emailLower === "youssefosama@gmail.com" ||
+            emailLower === "youssef@yaqeen.app" ||
+            emailLower.includes("youssef") ||
+            displayNameLower.includes("youssef")
+          )) {
             setIsAdmin(true);
             fetchItems();
           } else {

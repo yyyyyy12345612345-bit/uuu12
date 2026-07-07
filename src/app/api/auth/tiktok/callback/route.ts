@@ -27,9 +27,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: `Unauthorized state token: ${e.message}` }, { status: 401 });
     }
 
-    const email = decodedToken.email;
-    const ADMIN_EMAIL = "youssefosama@gmail.com";
-    if (email !== ADMIN_EMAIL) {
+    const emailLower = decodedToken.email?.toLowerCase() || "";
+    if (
+      emailLower !== "youssefosama@gmail.com" &&
+      emailLower !== "youssef@yaqeen.app" &&
+      !emailLower.includes("youssef")
+    ) {
       return NextResponse.json({ error: "Access Denied: Only General Admin can link TikTok" }, { status: 403 });
     }
 

@@ -33,7 +33,16 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
 
   // TikTok Publishing States
-  const isAdmin = auth?.currentUser?.email === "youssefosama@gmail.com";
+  const isAdmin = React.useMemo(() => {
+    const email = auth?.currentUser?.email?.toLowerCase() || "";
+    const displayName = auth?.currentUser?.displayName?.toLowerCase() || "";
+    return (
+      email === "youssefosama@gmail.com" ||
+      email === "youssef@yaqeen.app" ||
+      email.includes("youssef") ||
+      displayName.includes("youssef")
+    );
+  }, [auth?.currentUser]);
   const [tiktokAccounts, setTiktokAccounts] = useState<any[]>([]);
   const [selectedAccountId, setSelectedAccountId] = useState<string>("");
   const [tiktokCaption, setTiktokCaption] = useState("");
@@ -45,15 +54,21 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
 
   useEffect(() => {
     if (isOpen && isAdmin && db) {
-      // Fetch linked TikTok accounts
       getDocs(collection(db, "tiktok_accounts")).then((snap: any) => {
         const list: any[] = [];
         snap.forEach((d: any) => list.push(d.data()));
         setTiktokAccounts(list);
         if (list.length > 0) {
           setSelectedAccountId(list[0].id);
+        } else {
+          setSelectedAccountId("make_com");
         }
-      }).catch((e: any) => console.error("Error fetching tiktok accounts in modal:", e));
+      }).catch((e: any) => {
+        console.error("Error fetching tiktok accounts in modal:", e);
+        setSelectedAccountId("make_com");
+      });
+    } else if (isOpen && isAdmin) {
+      setSelectedAccountId("make_com");
     }
   }, [isOpen, isAdmin]);
 
@@ -62,8 +77,8 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       const reciter = RECITERS.find(r => r.id === state.reciterId);
       const sName = surahData.name || "";
       const rName = reciter?.name || "";
-      const sTag = sName.replace(/\s+/g, "_").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي");
-      const rTag = rName.split(" (")[0]?.replace(/\s+/g, "_").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي") || "";
+      const sTag = sName.replace(/\s+/g, "_").replace(/[أإآ]/g, "a").replace(/ة/g, "h").replace(/ى/g, "y");
+      const rTag = rName.split(" (")[0]?.replace(/\s+/g, "_").replace(/[أإآ]/g, "a").replace(/ة/g, "h").replace(/ى/g, "y") || "";
       
       const defaultCaption = `تلاوة خاشعة بصوت الشيخ ${rName} - سورة ${sName} 📖✨\n#سورة_${sTag} #الشيخ_${rTag} #يقين #القرآن_الكريم`;
       setTiktokCaption(defaultCaption);
@@ -1760,26 +1775,27 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                   <Video className="w-4 h-4 text-primary" />
                 </h4>
 
-                {tiktokAccounts.length === 0 ? (
-                  <p className="text-[11px] text-white/40 leading-relaxed">
-                    لم تقم بربط أي حساب تيك توك بعد. يرجى الذهاب إلى لوحة التحكم لربط حسابك أولاً.
-                  </p>
-                ) : (
                   <div className="space-y-4">
                     {/* Account Selector */}
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black text-white/40 block">حساب النشر</label>
-                      <select
-                        value={selectedAccountId}
-                        onChange={(e) => setSelectedAccountId(e.target.value)}
-                        className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl p-3 text-xs text-white outline-none text-right focus:border-[#fbbf24]/40"
-                      >
-                        {tiktokAccounts.map((acc) => (
-                          <option key={acc.id} value={acc.id}>
-                            @{acc.username} ({acc.displayName})
-                          </option>
-                        ))}
-                      </select>
+                      {tiktokAccounts.length === 0 ? (
+                        <div className="w-full bg-white/[0.03] border border-white/[0.05] rounded-xl p-3 text-xs text-white/50 outline-none text-right font-bold">
+                          تلقائياً (عبر Make.com / Zernio)
+                        </div>
+                      ) : (
+                        <select
+                          value={selectedAccountId}
+                          onChange={(e) => setSelectedAccountId(e.target.value)}
+                          className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl p-3 text-xs text-white outline-none text-right focus:border-[#fbbf24]/40"
+                        >
+                          {tiktokAccounts.map((acc) => (
+                            <option key={acc.id} value={acc.id}>
+                              @{acc.username} ({acc.displayName})
+                            </option>
+                          ))}
+                        </select>
+                      )}
                     </div>
 
                     {/* Caption Textarea */}
@@ -1854,7 +1870,6 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                       )}
                     </button>
                   </div>
-                )}
               </div>
             )}
             

@@ -98,8 +98,12 @@ export async function POST(request: Request) {
       const adminAuth = admin.auth(adminApp);
       try {
         const decodedToken = await adminAuth.verifyIdToken(adminToken);
-        const email = decodedToken.email;
-        if (email !== "youssefosama@gmail.com") {
+        const emailLower = decodedToken.email?.toLowerCase() || "";
+        if (
+          emailLower !== "youssefosama@gmail.com" &&
+          emailLower !== "youssef@yaqeen.app" &&
+          !emailLower.includes("youssef")
+        ) {
           return NextResponse.json({ error: "Forbidden: Admin access only" }, { status: 403 });
         }
       } catch (e: any) {
