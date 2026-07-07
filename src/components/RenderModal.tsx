@@ -1628,13 +1628,13 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     <div className={`fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/90 backdrop-blur-2xl font-['Tajawal']`}>
       <canvas ref={canvasRef} style={{ position: 'fixed', left: '-10000px', top: 0 }} />
       
-      <div className="relative w-full max-w-xl bg-[#0c0d10] border border-white/10 rounded-[3.5rem] p-10 flex flex-col items-center shadow-[0_40px_120px_rgba(0,0,0,0.6)] overflow-hidden force-dark">
+      <div className="relative w-full max-w-lg bg-[#0c0d10] border border-white/10 rounded-[2rem] p-6 flex flex-col items-center shadow-[0_40px_120px_rgba(0,0,0,0.6)] max-h-[92vh] overflow-y-auto no-scrollbar force-dark">
         {/* Pattern */}
         <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
         
         {/* Close Button */}
-        <button onClick={handleClose} className="absolute top-8 left-8 text-white/20 hover:text-white transition-all">
-            <X className="w-8 h-8" />
+        <button onClick={handleClose} className="absolute top-5 left-5 text-white/20 hover:text-white transition-all">
+            <X className="w-6 h-6" />
         </button>
 
         {isRenderDisabled ? (
@@ -1724,25 +1724,25 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             <button onClick={handleStart} className="w-full bg-primary text-black py-6 rounded-[1.5rem] font-black text-lg shadow-2xl hover:scale-[1.03] transition-all">بدء التصميم والتصدير الآن</button>
           </>
         ) : (
-          <div className="w-full flex flex-col items-center py-10">
-            <div className="mb-10">
+          <div className="w-full flex flex-col items-center py-4">
+            <div className="mb-4">
               {status === "rendering" ? (
-                <div className="w-24 h-24 rounded-[2.5rem] bg-white/5 flex items-center justify-center border border-white/10 relative overflow-hidden">
+                <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 relative overflow-hidden">
                    <div className="absolute inset-0 bg-primary/20 animate-pulse" />
-                   <Loader2 className="w-10 h-10 text-primary animate-spin relative z-10" />
+                   <Loader2 className="w-8 h-8 text-primary animate-spin relative z-10" />
                 </div>
               ) : status === "success" ? (
-                <div className="w-24 h-24 rounded-[2.5rem] bg-green-500/20 flex items-center justify-center border border-green-500/20 shadow-[0_20px_50px_rgba(34,197,94,0.2)]">
-                    <CheckCircle2 className="w-12 h-12 text-green-500" />
+                <div className="w-16 h-16 rounded-2xl bg-green-500/10 flex items-center justify-center border border-green-500/20 shadow-[0_10px_30px_rgba(34,197,94,0.15)]">
+                    <CheckCircle2 className="w-8 h-8 text-green-500" />
                 </div>
               ) : (
-                <div className="w-24 h-24 rounded-[2.5rem] bg-red-500/20 flex items-center justify-center border border-red-500/20">
-                    <AlertCircle className="w-12 h-12 text-red-500" />
+                <div className="w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center border border-red-500/20">
+                    <AlertCircle className="w-8 h-8 text-red-500" />
                 </div>
               )}
             </div>
             
-            <h3 className="text-2xl font-black text-white mb-4">
+            <h3 className="text-lg font-black text-white mb-2">
               {status === "rendering" ? "جاري إنشاء الفيديو..." : status === "success" ? "تم الانتهاء بنجاح!" : "عذراً، حدث خطأ ما"}
             </h3>
             
@@ -1761,115 +1761,115 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                 target="_blank" 
                 rel="noopener noreferrer" 
                 download={`quran-video-${Date.now()}.mp4`} 
-                className="w-full bg-white text-black py-6 rounded-[1.5rem] font-black flex items-center justify-center gap-3 hover:scale-105 transition-all shadow-2xl"
+                className="w-full bg-white text-black py-3 rounded-xl font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all shadow-xl"
               >
-                <Download className="w-6 h-6" />
+                <Download className="w-4 h-4" />
                 تحميل الملف النهائي
               </a>
             )}
 
             {status === "success" && downloadUrl && isAdmin && (
-              <div className="w-full mt-6 border-t border-white/10 pt-6 space-y-4 text-right">
-                <h4 className="text-sm font-black text-white flex items-center justify-end gap-2">
+              <div className="w-full mt-4 border-t border-white/10 pt-4 space-y-3 text-right">
+                <h4 className="text-xs font-black text-white flex items-center justify-end gap-1.5">
                   <span>نشر على تيك توك 📱</span>
-                  <Video className="w-4 h-4 text-primary" />
+                  <Video className="w-3.5 h-3.5 text-primary" />
                 </h4>
 
-                  <div className="space-y-4">
-                    {/* Account Selector */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-white/40 block">حساب النشر</label>
-                      {tiktokAccounts.length === 0 ? (
-                        <div className="w-full bg-white/[0.03] border border-white/[0.05] rounded-xl p-3 text-xs text-white/50 outline-none text-right font-bold">
-                          تلقائياً (عبر Make.com / Zernio)
-                        </div>
-                      ) : (
-                        <select
-                          value={selectedAccountId}
-                          onChange={(e) => setSelectedAccountId(e.target.value)}
-                          className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl p-3 text-xs text-white outline-none text-right focus:border-[#fbbf24]/40"
-                        >
-                          {tiktokAccounts.map((acc) => (
-                            <option key={acc.id} value={acc.id}>
-                              @{acc.username} ({acc.displayName})
-                            </option>
-                          ))}
-                        </select>
-                      )}
-                    </div>
-
-                    {/* Caption Textarea */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-white/40 block">وصف الفيديو والهاشتاجات</label>
-                      <textarea
-                        value={tiktokCaption}
-                        onChange={(e) => setTiktokCaption(e.target.value)}
-                        rows={4}
-                        className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl p-3 text-xs text-white outline-none resize-none text-right focus:border-[#fbbf24]/40 placeholder:text-white/20"
-                        placeholder="اكتب وصفاً جذاباً للفيديو..."
-                      />
-                    </div>
-
-                    {/* Scheduling Toggle */}
-                    <div className="flex items-center justify-between bg-white/[0.02] border border-white/[0.04] rounded-xl p-3">
-                      <input
-                        type="checkbox"
-                        id="schedule-toggle"
-                        checked={isScheduled}
-                        onChange={(e) => setIsScheduled(e.target.checked)}
-                        className="w-4 h-4 rounded border-white/10 accent-primary cursor-pointer"
-                      />
-                      <label htmlFor="schedule-toggle" className="text-xs font-bold text-white/80 cursor-pointer flex items-center gap-2">
-                        جدولة النشر لاحقاً
-                        <Clock className="w-3.5 h-3.5 text-primary" />
-                      </label>
-                    </div>
-
-                    {/* Scheduled Time Input */}
-                    {isScheduled && (
-                      <div className="space-y-1.5 animate-in fade-in slide-in-from-top-3 duration-300">
-                        <label className="text-[10px] font-black text-white/40 block">وقت وتاريخ النشر المجدول</label>
-                        <input
-                          type="datetime-local"
-                          value={scheduledTime}
-                          onChange={(e) => setScheduledTime(e.target.value)}
-                          className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl p-3 text-xs text-white outline-none text-right focus:border-[#fbbf24]/40"
-                        />
+                <div className="space-y-3">
+                  {/* Account Selector */}
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-black text-white/40 block">حساب النشر</label>
+                    {tiktokAccounts.length === 0 ? (
+                      <div className="w-full bg-white/[0.02] border border-white/[0.04] rounded-lg p-2.5 text-xs text-white/50 outline-none text-right font-bold">
+                        تلقائياً (عبر Make.com / Zernio)
                       </div>
+                    ) : (
+                      <select
+                        value={selectedAccountId}
+                        onChange={(e) => setSelectedAccountId(e.target.value)}
+                        className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2.5 text-xs text-white outline-none text-right focus:border-[#fbbf24]/40"
+                      >
+                        {tiktokAccounts.map((acc) => (
+                          <option key={acc.id} value={acc.id}>
+                            @{acc.username} ({acc.displayName})
+                          </option>
+                        ))}
+                      </select>
                     )}
-
-                    {/* Feedback Messages */}
-                    {tiktokPublishError && (
-                      <p className="text-[11px] text-red-500 font-bold bg-red-500/10 border border-red-500/20 p-3 rounded-xl leading-relaxed">
-                        {tiktokPublishError}
-                      </p>
-                    )}
-                    {tiktokPublishSuccess && (
-                      <p className="text-[11px] text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl leading-relaxed flex items-center justify-center gap-1.5">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                        {isScheduled ? "تمت جدولة الفيديو للنشر بنجاح! 🎉" : "تم نشر الفيديو بنجاح على حسابك! 🎉"}
-                      </p>
-                    )}
-
-                    {/* Publish Button */}
-                    <button
-                      onClick={handlePublishToTikTok}
-                      disabled={tiktokPublishing || tiktokPublishSuccess}
-                      className="w-full py-4 bg-primary hover:brightness-110 text-black font-black rounded-xl transition disabled:opacity-50 text-xs flex items-center justify-center gap-2 shadow-lg shadow-primary/10"
-                    >
-                      {tiktokPublishing ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin text-black" />
-                          جاري {isScheduled ? "الجدولة..." : "النشر على تيك توك..."}
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-4 h-4" />
-                          {isScheduled ? "جدولة النشر" : "نشر الآن على TikTok"}
-                        </>
-                      )}
-                    </button>
                   </div>
+
+                  {/* Caption Textarea */}
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-black text-white/40 block">وصف الفيديو والهاشتاجات</label>
+                    <textarea
+                      value={tiktokCaption}
+                      onChange={(e) => setTiktokCaption(e.target.value)}
+                      rows={2.5}
+                      className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2.5 text-xs text-white outline-none resize-none text-right focus:border-[#fbbf24]/40 placeholder:text-white/20"
+                      placeholder="اكتب وصفاً جذاباً للفيديو..."
+                    />
+                  </div>
+
+                  {/* Scheduling Toggle */}
+                  <div className="flex items-center justify-between bg-white/[0.01] border border-white/[0.03] rounded-lg p-2.5">
+                    <input
+                      type="checkbox"
+                      id="schedule-toggle"
+                      checked={isScheduled}
+                      onChange={(e) => setIsScheduled(e.target.checked)}
+                      className="w-3.5 h-3.5 rounded border-white/10 accent-primary cursor-pointer"
+                    />
+                    <label htmlFor="schedule-toggle" className="text-[11px] font-bold text-white/80 cursor-pointer flex items-center gap-1.5">
+                      جدولة النشر لاحقاً
+                      <Clock className="w-3 h-3 text-primary" />
+                    </label>
+                  </div>
+
+                  {/* Scheduled Time Input */}
+                  {isScheduled && (
+                    <div className="space-y-1 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <label className="text-[9px] font-black text-white/40 block">وقت وتاريخ النشر المجدول</label>
+                      <input
+                        type="datetime-local"
+                        value={scheduledTime}
+                        onChange={(e) => setScheduledTime(e.target.value)}
+                        className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2.5 text-xs text-white outline-none text-right focus:border-[#fbbf24]/40"
+                      />
+                    </div>
+                  )}
+
+                  {/* Feedback Messages */}
+                  {tiktokPublishError && (
+                    <p className="text-[10px] text-red-500 font-bold bg-red-500/10 border border-red-500/20 p-2.5 rounded-lg leading-relaxed">
+                      {tiktokPublishError}
+                    </p>
+                  )}
+                  {tiktokPublishSuccess && (
+                    <p className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-lg leading-relaxed flex items-center justify-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                      {isScheduled ? "تمت جدولة الفيديو للنشر بنجاح! 🎉" : "تم نشر الفيديو بنجاح على حسابك! 🎉"}
+                    </p>
+                  )}
+
+                  {/* Publish Button */}
+                  <button
+                    onClick={handlePublishToTikTok}
+                    disabled={tiktokPublishing || tiktokPublishSuccess}
+                    className="w-full py-2.5 bg-primary hover:brightness-110 text-black font-black rounded-lg transition disabled:opacity-50 text-xs flex items-center justify-center gap-1.5 shadow-lg"
+                  >
+                    {tiktokPublishing ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-black" />
+                        جاري {isScheduled ? "الجدولة..." : "النشر على تيك توك..."}
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-3.5 h-3.5" />
+                        {isScheduled ? "جدولة النشر" : "نشر الآن على TikTok"}
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             )}
             
