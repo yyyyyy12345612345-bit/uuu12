@@ -171,7 +171,7 @@ export async function POST(request: Request) {
     // ==========================================
     // OPTION A: FORWARD TO MAKE.COM WEBHOOK (IF DEFINED)
     // ==========================================
-    const makeWebhookUrl = process.env.MAKE_WEBHOOK_URL;
+    const makeWebhookUrl = process.env.MAKE_WEBHOOK_URL || "https://hook.eu1.make.com/tl01y7q4wfa8k1rzg1lvggvb93yolmf4";
     if (makeWebhookUrl) {
       console.log(`[TikTok Publish] Forwarding payload to Make.com Webhook: ${makeWebhookUrl}`);
       
