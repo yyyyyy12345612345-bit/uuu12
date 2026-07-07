@@ -83,25 +83,29 @@ export async function POST(request: Request) {
     if (!accountId || !videoUrl || !caption) {
       return NextResponse.json({ error: "Missing required fields: accountId, videoUrl, caption" }, { status: 400 });
     }
+    const authHeader = request.headers.get("Authorization");
+    const cronSecret = process.env.CRON_SECRET;
+    const isCronBypass = cronSecret && authHeader === `Bearer ${cronSecret}`;
 
-    if (!adminToken) {
+    if (!adminToken && !isCronBypass) {
       return NextResponse.json({ error: "Unauthorized: Missing token" }, { status: 401 });
     }
 
     const adminApp = getAdminApp();
-    const adminAuth = admin.auth(adminApp);
     const adminDb = admin.firestore(adminApp);
 
-    try {
-      const decodedToken = await adminAuth.verifyIdToken(adminToken);
-      const email = decodedToken.email;
-      if (email !== "youssefosama@gmail.com") {
-        return NextResponse.json({ error: "Forbidden: Admin access only" }, { status: 403 });
+    if (!isCronBypass) {
+      const adminAuth = admin.auth(adminApp);
+      try {
+        const decodedToken = await adminAuth.verifyIdToken(adminToken);
+        const email = decodedToken.email;
+        if (email !== "youssefosama@gmail.com") {
+          return NextResponse.json({ error: "Forbidden: Admin access only" }, { status: 403 });
+        }
+      } catch (e: any) {
+        return NextResponse.json({ error: `Unauthorized session: ${e.message}` }, { status: 401 });
       }
-    } catch (e: any) {
-      return NextResponse.json({ error: `Unauthorized session: ${e.message}` }, { status: 401 });
     }
-
     // 1. If it's a scheduled post, save to Firestore queue
     if (scheduledFor) {
       const scheduledTime = new Date(scheduledFor);
