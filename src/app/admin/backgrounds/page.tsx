@@ -467,17 +467,17 @@ export default function AdminBackgroundsPage() {
                     <div className="p-4 md:p-5 space-y-4">
                       <div className="space-y-1">
                         <h3 className="font-black text-xs md:text-sm text-slate-800 truncate" title={item.title}>{item.title}</h3>
-                        <p className="text-[9px] text-slate-400 font-mono select-all truncate max-w-full" title={item.fileId}>
+                        <p className="text-[10px] text-slate-400 font-mono select-all truncate max-w-full" title={item.fileId}>
                           ID: {item.fileId}
                         </p>
                       </div>
                       
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-100 pt-3">
-                        <div className="flex flex-wrap gap-1.5">
+                      <div className="flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
+                        <div className="flex flex-wrap gap-2">
                           {/* Toggle Fit Button */}
                           <button 
                             onClick={() => handleToggleFit(item.id, item.fit || "cover")}
-                            className={`px-2 py-1 rounded-lg text-[9px] font-black border transition-all duration-300 cursor-pointer ${
+                            className={`px-3 py-1.5 rounded-xl text-xs font-black border transition-all duration-300 cursor-pointer ${
                               item.fit === "contain" 
                                 ? "bg-amber-50/80 border-amber-100 text-amber-700 hover:bg-amber-100/80" 
                                 : "bg-slate-50 border border-slate-200/60 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
@@ -490,22 +490,20 @@ export default function AdminBackgroundsPage() {
                           {/* Quick Settings Gear */}
                           <button
                             onClick={() => openEditModal(item)}
-                            className="px-2 py-1 rounded-lg text-[9px] font-black border border-slate-200/60 bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-800 transition-all duration-300 flex items-center gap-1 cursor-pointer"
+                            className="px-3 py-1.5 rounded-xl text-xs font-black border border-slate-200/60 bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-800 transition-all duration-300 flex items-center gap-1.5 cursor-pointer"
                           >
-                            <Settings className="w-2.5 h-2.5 text-slate-500" />
+                            <Settings className="w-3.5 h-3.5 text-slate-500" />
                             <span>تعديل</span>
                           </button>
                         </div>
                         
-                        <div className="flex justify-end">
-                          <button 
-                            onClick={() => handleDelete(item.id)}
-                            className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-100 rounded-lg transition-all duration-300 cursor-pointer"
-                            title="حذف الخلفية"
-                          >
-                            <Trash className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                        <button 
+                          onClick={() => handleDelete(item.id)}
+                          className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50/50 border border-transparent hover:border-red-100 rounded-xl transition-all duration-300 cursor-pointer"
+                          title="حذف الخلفية"
+                        >
+                          <Trash className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -518,23 +516,28 @@ export default function AdminBackgroundsPage() {
 
       {/* Edit Settings Modal */}
       {isEditOpen && !!editingItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-white border border-slate-100 w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl relative animate-in zoom-in-95 duration-300 font-arabic text-right">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div 
+            className="bg-white border border-slate-100 w-full rounded-[2.5rem] p-6 md:p-8 shadow-2xl relative animate-in zoom-in-95 duration-300 font-arabic text-right"
+            style={{ maxWidth: "520px" }}
+          >
             
             {/* Close Button */}
             <button 
               onClick={closeEditModal}
-              className="absolute top-6 left-6 p-2 rounded-full bg-slate-50 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+              className="absolute top-6 left-6 p-2 rounded-xl bg-slate-50 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer border border-slate-200/40"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="space-y-2 mb-6 border-b border-slate-100 pb-4">
-              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                <Settings className="w-5 h-5 text-[#d97706]" />
-                <span>إعدادات الخلفية</span>
-              </h3>
-              <p className="text-[10px] text-slate-400 font-bold">تعديل جرافيك وشكل ومظهر الخلفية المحددة</p>
+            <div className="flex items-center gap-3 border-b border-slate-100 pb-5 mb-6">
+              <div className="w-10 h-10 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 border border-amber-100">
+                <Settings className="w-5 h-5" />
+              </div>
+              <div className="space-y-0.5 text-right">
+                <h3 className="text-lg font-black text-slate-900">إعدادات الخلفية</h3>
+                <p className="text-[10px] text-slate-400 font-bold">تعديل جرافيك وشكل ومظهر الخلفية المحددة</p>
+              </div>
             </div>
 
             <form onSubmit={handleUpdate} className="space-y-5">
@@ -544,7 +547,7 @@ export default function AdminBackgroundsPage() {
                   type="text" 
                   value={editTitle} 
                   onChange={e => setEditTitle(e.target.value)} 
-                  className="w-full bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 text-xs text-slate-800 outline-none focus:border-[#fbbf24]/50 focus:bg-white focus:shadow-sm transition text-right"
+                  className="w-full bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 text-xs text-slate-800 outline-none focus:border-[#fbbf24] focus:ring-4 focus:ring-amber-400/10 focus:bg-white transition-all duration-300 text-right"
                   required
                 />
               </div>
@@ -555,7 +558,7 @@ export default function AdminBackgroundsPage() {
                   <select 
                     value={editType} 
                     onChange={e => setEditType(e.target.value as "video" | "image")}
-                    className="w-full bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 text-xs text-slate-800 outline-none text-right focus:border-[#fbbf24]/50 focus:bg-white focus:shadow-sm transition"
+                    className="w-full bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 text-xs text-slate-800 outline-none text-right focus:border-[#fbbf24] focus:ring-4 focus:ring-amber-400/10 focus:bg-white transition-all duration-300"
                   >
                     <option value="video">فيديو</option>
                     <option value="image">صورة</option>
@@ -567,7 +570,7 @@ export default function AdminBackgroundsPage() {
                   <select 
                     value={editCategory} 
                     onChange={e => setEditCategory(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 text-xs text-slate-800 outline-none text-right focus:border-[#fbbf24]/50 focus:bg-white focus:shadow-sm transition"
+                    className="w-full bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 text-xs text-slate-800 outline-none text-right focus:border-[#fbbf24] focus:ring-4 focus:ring-amber-400/10 focus:bg-white transition-all duration-300"
                   >
                     <option value="طبيعة">طبيعة</option>
                     <option value="مساجد">مساجد</option>
@@ -607,7 +610,7 @@ export default function AdminBackgroundsPage() {
                   value={editFileId} 
                   onChange={e => setEditFileId(e.target.value)} 
                   rows={2}
-                  className="w-full bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 text-xs text-slate-800 outline-none focus:border-[#fbbf24]/50 focus:bg-white focus:shadow-sm transition font-mono text-right"
+                  className="w-full bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 text-xs text-slate-800 outline-none focus:border-[#fbbf24] focus:ring-4 focus:ring-amber-400/10 focus:bg-white transition-all duration-300 font-mono text-right"
                   required
                 />
               </div>
@@ -618,15 +621,15 @@ export default function AdminBackgroundsPage() {
                   type="text" 
                   value={editTagsInput} 
                   onChange={e => setEditTagsInput(e.target.value)} 
-                  className="w-full bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 text-xs text-slate-800 outline-none focus:border-[#fbbf24]/50 focus:bg-white focus:shadow-sm transition text-right"
+                  className="w-full bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 text-xs text-slate-800 outline-none focus:border-[#fbbf24] focus:ring-4 focus:ring-amber-400/10 focus:bg-white transition-all duration-300 text-right"
                 />
               </div>
 
-              <div className="flex gap-3 pt-2">
+              <div className="flex gap-3 pt-3 border-t border-slate-100">
                 <button 
                   type="submit" 
                   disabled={updating}
-                  className="flex-1 py-3.5 bg-[#fbbf24] hover:bg-[#f59e0b] text-slate-900 rounded-2xl font-black text-xs active:scale-98 transition flex items-center justify-center gap-2 cursor-pointer"
+                  className="flex-[2] py-4 bg-[#fbbf24] hover:bg-[#f59e0b] text-slate-900 rounded-2xl font-black text-xs hover:scale-[1.02] hover:shadow-lg hover:shadow-amber-500/10 active:scale-98 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {updating ? (
                     <>
@@ -643,7 +646,7 @@ export default function AdminBackgroundsPage() {
                 <button 
                   type="button" 
                   onClick={closeEditModal}
-                  className="flex-1 py-3.5 bg-slate-50 border border-slate-200/60 text-slate-600 rounded-2xl font-black text-xs hover:bg-slate-100 active:scale-98 transition cursor-pointer"
+                  className="flex-1 py-4 bg-slate-50 border border-slate-200 text-slate-600 rounded-2xl font-black text-xs hover:bg-slate-100 hover:text-slate-800 active:scale-98 transition duration-300 cursor-pointer"
                 >
                   إلغاء
                 </button>
