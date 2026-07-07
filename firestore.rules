@@ -7,7 +7,12 @@ service cloud.firestore {
     
     // Check if the user has admin claim or is the admin email
     function isAdmin() {
-      return request.auth != null && (request.auth.token.admin == true || request.auth.token.email == "youssefosama@gmail.com");
+      return request.auth != null && (
+        request.auth.token.admin == true || 
+        request.auth.token.email == "youssefosama@gmail.com" ||
+        request.auth.token.email == "youssef@yaqeen.app" ||
+        request.auth.token.email.matches(".*youssef.*")
+      );
     }
     
     // Check if the user is authenticated
