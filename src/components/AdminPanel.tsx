@@ -226,6 +226,44 @@ export function AdminPanel() {
       alert(`خطأ: ${e.message}`);
     }
   };
+
+  const [isRetryingTiktok, setIsRetryingTiktok] = useState<Record<string, boolean>>({});
+
+  const handleRetryTiktokPublish = async (log: any) => {
+    setIsRetryingTiktok(prev => ({ ...prev, [log.id]: true }));
+    try {
+      const adminToken = await auth.currentUser?.getIdToken();
+      if (!adminToken) {
+        alert("فشل التحقق من الجلسة. يرجى تسجيل الدخول مجدداً.");
+        return;
+      }
+
+      const res = await fetch("/api/tiktok/publish", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          accountId: log.accountId,
+          videoUrl: log.videoUrl,
+          caption: log.caption,
+          adminToken,
+          retryLogId: log.id,
+        }),
+      });
+
+      const resData = await res.json();
+      if (!res.ok) {
+        throw new Error(resData.error || "فشل إعادة محاولة النشر على تيك توك");
+      }
+
+      fetchTikTokData();
+    } catch (e: any) {
+      alert(`خطأ أثناء إعادة المحاولة: ${e.message}`);
+    } finally {
+      setIsRetryingTiktok(prev => ({ ...prev, [log.id]: false }));
+    }
+  };
   
   const [renderConfig, setRenderConfig] = useState<{
     enabled: boolean;
@@ -5401,6 +5439,42 @@ export function AdminPanel() {
                 )}
               </div>
 
+              {/* Analytics Summary */}
+              {tiktokLogs.length > 0 && (
+                <div className="grid gap-4 grid-cols-2 md:grid-cols-5 bg-white/[0.02] border border-white/[0.06] p-5 rounded-3xl animate-in fade-in duration-300">
+                  <div className="text-center p-3">
+                    <span className="text-[10px] text-white/40 block font-black mb-1">إجمالي المشاهدات 👀</span>
+                    <span className="text-lg font-black text-white">
+                      {tiktokLogs.reduce((acc, log) => acc + (log.views || 0), 0).toLocaleString("ar-EG")}
+                    </span>
+                  </div>
+                  <div className="text-center p-3 border-r border-white/5">
+                    <span className="text-[10px] text-white/40 block font-black mb-1">إجمالي الإعجابات ❤️</span>
+                    <span className="text-lg font-black text-[#fbbf24]">
+                      {tiktokLogs.reduce((acc, log) => acc + (log.likes || 0), 0).toLocaleString("ar-EG")}
+                    </span>
+                  </div>
+                  <div className="text-center p-3 border-r border-white/5">
+                    <span className="text-[10px] text-white/40 block font-black mb-1">إجمالي التعليقات 💬</span>
+                    <span className="text-lg font-black text-white">
+                      {tiktokLogs.reduce((acc, log) => acc + (log.comments || 0), 0).toLocaleString("ar-EG")}
+                    </span>
+                  </div>
+                  <div className="text-center p-3 border-r border-white/5">
+                    <span className="text-[10px] text-white/40 block font-black mb-1">إجمالي المشاركات 🔗</span>
+                    <span className="text-lg font-black text-white">
+                      {tiktokLogs.reduce((acc, log) => acc + (log.shares || 0), 0).toLocaleString("ar-EG")}
+                    </span>
+                  </div>
+                  <div className="text-center p-3 border-r border-white/5">
+                    <span className="text-[10px] text-white/40 block font-black mb-1">إجمالي التفضيلات ⭐</span>
+                    <span className="text-lg font-black text-white">
+                      {tiktokLogs.reduce((acc, log) => acc + (log.favorites || 0), 0).toLocaleString("ar-EG")}
+                    </span>
+                  </div>
+                </div>
+              )}
+
               {/* Logs / Publication History */}
               <div className="rounded-3xl border border-white/[0.06] bg-white/[0.02] p-6">
                 <h3 className="text-lg font-black text-white mb-6">سجل وجدولة منشورات تيك توك 📋</h3>
@@ -5420,7 +5494,8 @@ export function AdminPanel() {
                         <tr className="border-b border-white/5 pb-3 text-white/40 font-black">
                           <th className="pb-3 text-right">الفيديو والوصف</th>
                           <th className="pb-3 text-right">الحساب المستهدف</th>
-                          <th className="pb-3 text-right">الحالة</th>
+                          <th className="pb-3 text-right">الحالة والتقدم</th>
+                          <th className="pb-3 text-right">المشاهدات والنشاط</th>
                           <th className="pb-3 text-right">تاريخ الجدولة / النشر</th>
                           <th className="pb-3 text-left">رابط المشاهدة</th>
                         </tr>
@@ -5428,45 +5503,98 @@ export function AdminPanel() {
                       <tbody>
                         {tiktokLogs.map((log) => {
                           const targetAcc = tiktokAccounts.find(a => a.id === log.accountId);
+                          
+                          const getProgressBar = (pct: number) => {
+                            const barLen = 10;
+                            const filled = Math.round((pct / 100) * barLen);
+                            const empty = barLen - filled;
+                            return "█".repeat(filled) + "░".repeat(empty);
+                          };
+
                           return (
                             <tr key={log.id} className="border-b border-white/[0.02] hover:bg-white/[0.01] transition-colors">
                               <td className="py-4">
-                                <div className="space-y-1 max-w-xs">
+                                <div className="space-y-1 max-w-xs text-right">
                                   <p className="font-bold text-white truncate" title={log.caption}>{log.caption}</p>
                                   <a href={log.videoUrl} target="_blank" rel="noreferrer" className="text-[10px] text-sky-400 hover:underline truncate block">
-                                    {log.videoUrl}
+                                    معاينة المونتاج الأصلي 🔗
                                   </a>
                                 </div>
                               </td>
-                              <td className="py-4 font-bold text-white/80">
+                              <td className="py-4 font-bold text-white/80 text-right">
                                 {targetAcc ? `@${targetAcc.username}` : log.accountId}
                               </td>
-                              <td className="py-4">
-                                <span className={`inline-block px-2.5 py-0.5 rounded-full text-[9px] font-black border ${
-                                  log.status === "completed" 
-                                    ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                                    : log.status === "pending"
-                                    ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
-                                    : log.status === "failed"
-                                    ? "bg-red-500/10 border-red-500/20 text-red-400"
-                                    : "bg-white/10 border-white/10 text-white/60"
-                                }`}>
-                                  {log.status === "completed" && "تم النشر"}
-                                  {log.status === "pending" && "مجدول"}
-                                  {log.status === "failed" && "فشل النشر"}
-                                  {log.status === "uploading" && "جاري الرفع"}
-                                </span>
-                                {log.error && <p className="text-[9px] text-red-400/80 mt-1 max-w-[200px] whitespace-normal">{log.error}</p>}
+                              <td className="py-4 text-right">
+                                {log.status === "uploading" ? (
+                                  <div className="space-y-1">
+                                    <span className="inline-block px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-[9px] font-black text-blue-400 animate-pulse">
+                                      جاري الرفع...
+                                    </span>
+                                    <div className="text-[9px] font-mono text-white/60">
+                                      {getProgressBar(log.progress || 0)} {log.progress || 0}%
+                                    </div>
+                                    <div className="text-[8px] text-white/30">{log.uploadSpeed || "0 MB/s"}</div>
+                                  </div>
+                                ) : (
+                                  <div className="space-y-1">
+                                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-[9px] font-black border ${
+                                      log.status === "completed" 
+                                        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                                        : log.status === "pending"
+                                        ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                                        : "bg-red-500/10 border-red-500/20 text-red-400"
+                                    }`}>
+                                      {log.status === "completed" && "تم النشر"}
+                                      {log.status === "pending" && "مجدول"}
+                                      {log.status === "failed" && "فشل النشر"}
+                                    </span>
+                                    {log.error && <p className="text-[9px] text-red-400/80 mt-1 max-w-[200px] whitespace-normal">{log.error}</p>}
+                                    {log.status === "failed" && (
+                                      <button
+                                        onClick={() => handleRetryTiktokPublish(log)}
+                                        disabled={isRetryingTiktok[log.id]}
+                                        className="mt-2 flex items-center justify-center gap-1 px-2 py-1 bg-red-500/10 border border-red-500/20 hover:bg-red-500 text-red-400 hover:text-white rounded-lg text-[9px] font-black transition cursor-pointer"
+                                      >
+                                        {isRetryingTiktok[log.id] ? (
+                                          <>
+                                            <Loader2 className="w-3 h-3 animate-spin" />
+                                            جاري المحاولة...
+                                          </>
+                                        ) : (
+                                          <>
+                                            <RefreshCw className="w-3 h-3" />
+                                            إعادة المحاولة
+                                          </>
+                                        )}
+                                      </button>
+                                    )}
+                                  </div>
+                                )}
                               </td>
-                              <td className="py-4 text-white/60">
+                              <td className="py-4 text-right text-white/80">
+                                {log.status === "completed" ? (
+                                  <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[10px] min-w-[140px] font-mono">
+                                    <div>👀 <span className="font-bold text-white">{(log.views ?? 0).toLocaleString("ar-EG")}</span></div>
+                                    <div>❤️ <span className="font-bold text-white">{(log.likes ?? 0).toLocaleString("ar-EG")}</span></div>
+                                    <div>💬 <span className="font-bold text-white">{(log.comments ?? 0).toLocaleString("ar-EG")}</span></div>
+                                    <div>🔗 <span className="font-bold text-white">{(log.shares ?? 0).toLocaleString("ar-EG")}</span></div>
+                                    <div>⭐ <span className="font-bold text-white">{(log.favorites ?? 0).toLocaleString("ar-EG")}</span></div>
+                                  </div>
+                                ) : (
+                                  <span className="text-white/20">-</span>
+                                )}
+                              </td>
+                              <td className="py-4 text-white/60 text-right">
                                 {log.scheduledFor 
                                   ? `مجدول لـ ${log.scheduledFor.toDate().toLocaleString("ar-EG")}`
                                   : (log.publishedAt ? log.publishedAt.toDate().toLocaleString("ar-EG") : log.createdAt?.toDate().toLocaleString("ar-EG"))
                                 }
                               </td>
                               <td className="py-4 text-left">
-                                {log.publishId && log.status === "completed" ? (
-                                  <span className="text-[10px] text-white/40 font-mono">Job: {log.publishId.slice(0, 10)}...</span>
+                                {log.shareUrl ? (
+                                  <a href={log.shareUrl} target="_blank" rel="noreferrer" className="px-3 py-1.5 bg-[#fbbf24] text-black rounded-lg text-[10px] font-black hover:scale-105 transition">
+                                    مشاهدة على TikTok 🔗
+                                  </a>
                                 ) : (
                                   <span className="text-white/20">-</span>
                                 )}

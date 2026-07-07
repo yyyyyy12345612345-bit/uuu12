@@ -75,7 +75,6 @@ async function getValidAccessToken(accountId: string, db: admin.firestore.Firest
 
 export async function GET(request: Request) {
   try {
-    // 1. Optional: Verify cron secret if defined in env
     const authHeader = request.headers.get("Authorization");
     const cronSecret = process.env.CRON_SECRET;
     if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
@@ -85,32 +84,42 @@ export async function GET(request: Request) {
     const adminApp = getAdminApp();
     const db = admin.firestore(adminApp);
 
-    // 2. Fetch pending jobs scheduled for now or in the past
+    // ==========================================
+    // PHASE 1: PROCESS PENDING SCHEDULED POSTS
+    // ==========================================
     const now = admin.firestore.Timestamp.now();
     const querySnap = await db.collection("tiktok_logs")
       .where("status", "==", "pending")
       .where("scheduledFor", "<=", now)
-      .limit(10) // Process max 10 jobs per cron run to avoid timeout
+      .limit(3) // Process up to 3 posts at a time to prevent server timeouts
       .get();
 
-    if (querySnap.empty) {
-      return NextResponse.json({ success: true, message: "No pending scheduled posts found." });
-    }
-
-    console.log(`[TikTok Cron] Found ${querySnap.size} pending posts to publish.`);
-    const results = [];
+    const uploadResults = [];
 
     for (const docSnap of querySnap.docs) {
       const jobData = docSnap.data();
       const jobRef = docSnap.ref;
       
       try {
-        // Update status to uploading first to prevent duplicate processing
-        await jobRef.update({ status: "uploading" });
+        await jobRef.update({
+          status: "uploading",
+          progress: 0,
+          uploadSpeed: "0 MB/s",
+        });
+
+        // 1. Download video
+        const videoRes = await fetch(jobData.videoUrl);
+        if (!videoRes.ok) throw new Error("Failed to download video file");
+        const videoBuffer = Buffer.from(await videoRes.arrayBuffer());
+        const fileSize = videoBuffer.length;
+
+        // 2. Initialize chunk parameters
+        const CHUNK_SIZE = 5 * 1024 * 1024;
+        const totalChunks = Math.ceil(fileSize / CHUNK_SIZE);
 
         const accessToken = await getValidAccessToken(jobData.accountId, db);
 
-        // Call TikTok publish init
+        // 3. Call TikTok publish init
         const publishInitUrl = "https://open.tiktokapis.com/v2/post/publish/video/init/";
         const publishBody = {
           post_info: {
@@ -121,8 +130,10 @@ export async function GET(request: Request) {
             disable_stitch: false,
           },
           source_info: {
-            source: "PULL_FROM_URL",
-            video_url: jobData.videoUrl,
+            source: "FILE_UPLOAD",
+            video_size: fileSize,
+            chunk_size: totalChunks > 1 ? CHUNK_SIZE : fileSize,
+            total_chunk_count: totalChunks,
           },
         };
 
@@ -137,20 +148,53 @@ export async function GET(request: Request) {
 
         const resText = await publishRes.text();
         if (!publishRes.ok) {
-          throw new Error(`TikTok API publish init failed: ${resText}`);
+          throw new Error(`TikTok API init failed: ${resText}`);
         }
 
         const publishData = JSON.parse(resText);
-        const publishId = publishData.data?.publish_id;
+        const { upload_url, publish_id } = publishData.data;
 
+        // 4. Upload chunks
+        for (let i = 0; i < totalChunks; i++) {
+          const start = i * CHUNK_SIZE;
+          const end = Math.min((i + 1) * CHUNK_SIZE - 1, fileSize - 1);
+          const chunkBuffer = videoBuffer.slice(start, end + 1);
+
+          const chunkStartTime = Date.now();
+          const uploadChunkRes = await fetch(upload_url, {
+            method: "PUT",
+            headers: {
+              "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+              "Content-Length": chunkBuffer.length.toString(),
+              "Content-Type": "video/mp4",
+            },
+            body: chunkBuffer,
+          });
+
+          if (!uploadChunkRes.ok) {
+            const err = await uploadChunkRes.text();
+            throw new Error(`Failed chunk ${i+1}: ${err}`);
+          }
+
+          const durationSec = (Date.now() - chunkStartTime) / 1000;
+          const speedMbps = durationSec > 0 ? (chunkBuffer.length / (1024 * 1024)) / durationSec : 0;
+          const progress = Math.round(((end + 1) / fileSize) * 100);
+
+          await jobRef.update({
+            progress,
+            uploadSpeed: `${speedMbps.toFixed(1)} MB/s`,
+          });
+        }
+
+        // Complete!
         await jobRef.update({
           status: "completed",
-          publishId: publishId || "direct_pull",
+          publishId: publish_id,
           publishedAt: admin.firestore.FieldValue.serverTimestamp(),
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
 
-        results.push({ id: docSnap.id, success: true, publishId });
+        uploadResults.push({ id: docSnap.id, success: true, publishId: publish_id });
       } catch (err: any) {
         console.error(`[TikTok Cron] Error processing job ${docSnap.id}:`, err.message);
         await jobRef.update({
@@ -158,11 +202,110 @@ export async function GET(request: Request) {
           error: err.message || "Unknown error",
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
-        results.push({ id: docSnap.id, success: false, error: err.message });
+        uploadResults.push({ id: docSnap.id, success: false, error: err.message });
       }
     }
 
-    return NextResponse.json({ success: true, processed: results });
+    // ==========================================
+    // PHASE 2: SYNCHRONIZE VIDEO ANALYTICS
+    // ==========================================
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    
+    // Fetch recently completed videos (last 7 days) to update views, likes, shares, comments
+    const completedSnap = await db.collection("tiktok_logs")
+      .where("status", "==", "completed")
+      .where("publishedAt", ">=", admin.firestore.Timestamp.fromDate(sevenDaysAgo))
+      .limit(10) // Limit to 10 analytics queries per cron run
+      .get();
+
+    const analyticsResults = [];
+
+    for (const docSnap of completedSnap.docs) {
+      const logData = docSnap.data();
+      const logRef = docSnap.ref;
+      let publicVideoId = logData.publicVideoId;
+      let shareUrl = logData.shareUrl || "";
+
+      try {
+        const accessToken = await getValidAccessToken(logData.accountId, db);
+
+        // 1. If we don't have publicVideoId yet, fetch publish status from TikTok
+        if (!publicVideoId && logData.publishId) {
+          const statusUrl = "https://open.tiktokapis.com/v2/post/publish/status/get/";
+          const statusRes = await fetch(statusUrl, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${accessToken}`,
+              "Content-Type": "application/json; charset=UTF-8",
+            },
+            body: JSON.stringify({ publish_id: logData.publishId }),
+          });
+
+          if (statusRes.ok) {
+            const statusData = await statusRes.json();
+            const postStatus = statusData.data?.status;
+            if (postStatus === "SUCCESS") {
+              publicVideoId = statusData.data.public_video_id;
+              shareUrl = statusData.data.share_url || shareUrl;
+            }
+          }
+        }
+
+        // 2. Fetch analytics if publicVideoId is available
+        if (publicVideoId) {
+          const queryUrl = "https://open.tiktokapis.com/v2/video/query/";
+          const queryRes = await fetch(queryUrl, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${accessToken}`,
+              "Content-Type": "application/json; charset=UTF-8",
+            },
+            body: JSON.stringify({
+              filters: {
+                video_ids: [publicVideoId]
+              }
+            }),
+          });
+
+          if (queryRes.ok) {
+            const queryData = await queryRes.json();
+            const videoData = queryData.data?.videos?.[0];
+
+            if (videoData) {
+              await logRef.update({
+                publicVideoId,
+                shareUrl: videoData.share_url || shareUrl,
+                views: videoData.view_count ?? 0,
+                likes: videoData.like_count ?? 0,
+                comments: videoData.comment_count ?? 0,
+                shares: videoData.share_count ?? 0,
+                favorites: videoData.favorites_count ?? videoData.bookmark_count ?? 0,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+              });
+              analyticsResults.push({ id: docSnap.id, status: "updated", views: videoData.view_count });
+              continue;
+            }
+          }
+        }
+
+        // If we didn't fetch analytics, just save publicVideoId if it was resolved
+        if (publicVideoId !== logData.publicVideoId) {
+          await logRef.update({ publicVideoId, shareUrl });
+        }
+        analyticsResults.push({ id: docSnap.id, status: "pending_status" });
+
+      } catch (err: any) {
+        console.error(`[TikTok Cron] Analytics error for job ${docSnap.id}:`, err.message);
+        analyticsResults.push({ id: docSnap.id, status: "error", error: err.message });
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      processedUploads: uploadResults,
+      synchronizedAnalytics: analyticsResults,
+    });
 
   } catch (error: any) {
     console.error("[TikTok Cron Error]:", error);

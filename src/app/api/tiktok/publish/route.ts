@@ -12,14 +12,12 @@ async function getValidAccessToken(accountId: string, db: admin.firestore.Firest
 
   const data = accountDoc.data()!;
   const now = Date.now();
-  
-  // If token is still valid (with a 5-minute safety buffer), return it
   const expiresAt = data.expiresAt.toDate().getTime();
+  
   if (expiresAt - now > 5 * 60 * 1000) {
     return data.accessToken;
   }
 
-  // Token is expired or about to expire, refresh it
   console.log(`[TikTok Token] Refreshing access token for account: ${data.username}`);
   const clientKey = process.env.TIKTOK_CLIENT_KEY;
   const clientSecret = process.env.TIKTOK_CLIENT_SECRET;
@@ -68,7 +66,6 @@ async function getValidAccessToken(accountId: string, db: admin.firestore.Firest
     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
   };
 
-  // Sometime TikTok returns a new refresh token, update it if present
   if (refresh_token) {
     updateData.refreshToken = refresh_token;
     updateData.refreshTokenExpiresAt = admin.firestore.Timestamp.fromMillis(now + refresh_expires_in * 1000);
@@ -81,13 +78,12 @@ async function getValidAccessToken(accountId: string, db: admin.firestore.Firest
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { accountId, videoUrl, caption, scheduledFor, adminToken } = body;
+    const { accountId, videoUrl, caption, scheduledFor, adminToken, retryLogId } = body;
 
     if (!accountId || !videoUrl || !caption) {
       return NextResponse.json({ error: "Missing required fields: accountId, videoUrl, caption" }, { status: 400 });
     }
 
-    // 1. Verify that the requester is the Admin
     if (!adminToken) {
       return NextResponse.json({ error: "Unauthorized: Missing token" }, { status: 401 });
     }
@@ -106,30 +102,82 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `Unauthorized session: ${e.message}` }, { status: 401 });
     }
 
-    // 2. If it's a scheduled post, just save to queue
+    // 1. If it's a scheduled post, save to Firestore queue
     if (scheduledFor) {
       const scheduledTime = new Date(scheduledFor);
       if (isNaN(scheduledTime.getTime()) || scheduledTime.getTime() <= Date.now()) {
         return NextResponse.json({ error: "Invalid scheduled date/time. Must be in the future." }, { status: 400 });
       }
 
-      const logRef = await adminDb.collection("tiktok_logs").add({
-        videoUrl,
-        accountId,
-        caption,
-        status: "pending",
-        scheduledFor: admin.firestore.Timestamp.fromDate(scheduledTime),
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        publishedAt: null,
-      });
+      let logRef;
+      if (retryLogId) {
+        logRef = adminDb.collection("tiktok_logs").doc(retryLogId);
+        await logRef.update({
+          status: "pending",
+          scheduledFor: admin.firestore.Timestamp.fromDate(scheduledTime),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          error: admin.firestore.FieldValue.delete(),
+        });
+      } else {
+        logRef = await adminDb.collection("tiktok_logs").add({
+          videoUrl,
+          accountId,
+          caption,
+          status: "pending",
+          progress: 0,
+          uploadSpeed: "0 MB/s",
+          scheduledFor: admin.firestore.Timestamp.fromDate(scheduledTime),
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          publishedAt: null,
+        });
+      }
 
       return NextResponse.json({ success: true, message: "Video scheduled successfully", jobId: logRef.id });
     }
 
-    // 3. Publish immediately
+    // 2. Initialize/Update log document first with status 'uploading'
+    let logRef;
+    if (retryLogId) {
+      logRef = adminDb.collection("tiktok_logs").doc(retryLogId);
+      await logRef.update({
+        status: "uploading",
+        progress: 0,
+        uploadSpeed: "0 MB/s",
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        error: admin.firestore.FieldValue.delete(),
+      });
+    } else {
+      logRef = await adminDb.collection("tiktok_logs").add({
+        videoUrl,
+        accountId,
+        caption,
+        status: "uploading",
+        progress: 0,
+        uploadSpeed: "0 MB/s",
+        scheduledFor: null,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        publishedAt: null,
+      });
+    }
+
+    // 3. Download the video into a memory buffer
+    console.log(`[TikTok Publish] Downloading video: ${videoUrl}`);
+    const videoRes = await fetch(videoUrl);
+    if (!videoRes.ok) {
+      const errText = `Failed to download video file: ${videoRes.statusText}`;
+      await logRef.update({ status: "failed", error: errText });
+      return NextResponse.json({ error: errText }, { status: 400 });
+    }
+    const videoBuffer = Buffer.from(await videoRes.arrayBuffer());
+    const fileSize = videoBuffer.length;
+
+    // 4. Initialize chunk parameters
+    const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks (minimum supported by TikTok)
+    const totalChunks = Math.ceil(fileSize / CHUNK_SIZE);
+
     const accessToken = await getValidAccessToken(accountId, adminDb);
 
-    // Initialize Direct Post with TikTok
+    // Call TikTok publish init
     const publishInitUrl = "https://open.tiktokapis.com/v2/post/publish/video/init/";
     const publishBody = {
       post_info: {
@@ -140,8 +188,10 @@ export async function POST(request: Request) {
         disable_stitch: false,
       },
       source_info: {
-        source: "PULL_FROM_URL",
-        video_url: videoUrl,
+        source: "FILE_UPLOAD",
+        video_size: fileSize,
+        chunk_size: totalChunks > 1 ? CHUNK_SIZE : fileSize,
+        total_chunk_count: totalChunks,
       },
     };
 
@@ -157,29 +207,64 @@ export async function POST(request: Request) {
     const resText = await publishRes.text();
     if (!publishRes.ok) {
       console.error("[TikTok API] Video publish init failed:", resText);
+      await logRef.update({ status: "failed", error: `TikTok Init failed: ${resText}` });
       return NextResponse.json({ error: `TikTok API failed: ${resText}` }, { status: publishRes.status });
     }
 
     const publishData = JSON.parse(resText);
-    const publishId = publishData.data?.publish_id;
+    const { upload_url, publish_id } = publishData.data;
 
-    // Log the success in database
-    const logRef = await adminDb.collection("tiktok_logs").add({
-      videoUrl,
-      accountId,
-      caption,
+    if (!upload_url || !publish_id) {
+      await logRef.update({ status: "failed", error: "TikTok response missing upload details" });
+      return NextResponse.json({ error: "Missing upload details in TikTok response" }, { status: 500 });
+    }
+
+    // 5. Upload chunks sequentially and update progress
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * CHUNK_SIZE;
+      const end = Math.min((i + 1) * CHUNK_SIZE - 1, fileSize - 1);
+      const chunkBuffer = videoBuffer.slice(start, end + 1);
+
+      const chunkStartTime = Date.now();
+      const uploadChunkRes = await fetch(upload_url, {
+        method: "PUT",
+        headers: {
+          "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+          "Content-Length": chunkBuffer.length.toString(),
+          "Content-Type": "video/mp4",
+        },
+        body: chunkBuffer,
+      });
+
+      if (!uploadChunkRes.ok) {
+        const err = await uploadChunkRes.text();
+        console.error(`[TikTok API] Failed to upload chunk ${i+1}/${totalChunks}:`, err);
+        await logRef.update({ status: "failed", error: `Failed chunk ${i+1}: ${err}` });
+        return NextResponse.json({ error: `Failed to upload chunk ${i+1}/${totalChunks}: ${err}` }, { status: 400 });
+      }
+
+      const durationSec = (Date.now() - chunkStartTime) / 1000;
+      const speedMbps = durationSec > 0 ? (chunkBuffer.length / (1024 * 1024)) / durationSec : 0;
+      const progress = Math.round(((end + 1) / fileSize) * 100);
+
+      await logRef.update({
+        progress,
+        uploadSpeed: `${speedMbps.toFixed(1)} MB/s`,
+      });
+    }
+
+    // 6. Finalize publish status in DB
+    await logRef.update({
       status: "completed",
-      publishId: publishId || "direct_pull",
-      scheduledFor: null,
+      publishId: publish_id,
       publishedAt: admin.firestore.FieldValue.serverTimestamp(),
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
     return NextResponse.json({
       success: true,
       message: "Video published successfully to TikTok",
       jobId: logRef.id,
-      publishId,
+      publishId: publish_id,
     });
 
   } catch (error: any) {
