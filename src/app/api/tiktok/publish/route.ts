@@ -160,7 +160,55 @@ export async function POST(request: Request) {
       });
     }
 
-    // 3. Download the video into a memory buffer
+    // ==========================================
+    // OPTION A: FORWARD TO MAKE.COM WEBHOOK (IF DEFINED)
+    // ==========================================
+    const makeWebhookUrl = process.env.MAKE_WEBHOOK_URL;
+    if (makeWebhookUrl) {
+      console.log(`[TikTok Publish] Forwarding payload to Make.com Webhook: ${makeWebhookUrl}`);
+      
+      await logRef.update({
+        status: "uploading",
+        progress: 50,
+        uploadSpeed: "Make.com Flow",
+      });
+
+      const makeRes = await fetch(makeWebhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          videoUrl,
+          caption,
+          accountId,
+          jobId: logRef.id,
+        }),
+      });
+
+      if (!makeRes.ok) {
+        const errText = await makeRes.text();
+        await logRef.update({ status: "failed", error: `Make.com Webhook failed: ${errText}` });
+        return NextResponse.json({ error: `Make.com Webhook failed: ${errText}` }, { status: makeRes.status });
+      }
+
+      await logRef.update({
+        status: "completed",
+        progress: 100,
+        publishId: "make_com",
+        publishedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: "Video published via Make.com successfully",
+        jobId: logRef.id,
+      });
+    }
+
+    // ==========================================
+    // OPTION B: NATIVE TIKTOK API CHUNK UPLOADER
+    // ==========================================
     console.log(`[TikTok Publish] Downloading video: ${videoUrl}`);
     const videoRes = await fetch(videoUrl);
     if (!videoRes.ok) {
@@ -171,13 +219,11 @@ export async function POST(request: Request) {
     const videoBuffer = Buffer.from(await videoRes.arrayBuffer());
     const fileSize = videoBuffer.length;
 
-    // 4. Initialize chunk parameters
-    const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks (minimum supported by TikTok)
+    const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks
     const totalChunks = Math.ceil(fileSize / CHUNK_SIZE);
 
     const accessToken = await getValidAccessToken(accountId, adminDb);
 
-    // Call TikTok publish init
     const publishInitUrl = "https://open.tiktokapis.com/v2/post/publish/video/init/";
     const publishBody = {
       post_info: {
@@ -186,6 +232,7 @@ export async function POST(request: Request) {
         disable_comment: false,
         disable_duet: false,
         disable_stitch: false,
+        video_cover_timestamp_ms: 1500, // Cover at 1.5 seconds mark (1080x1920)
       },
       source_info: {
         source: "FILE_UPLOAD",
@@ -219,7 +266,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing upload details in TikTok response" }, { status: 500 });
     }
 
-    // 5. Upload chunks sequentially and update progress
     for (let i = 0; i < totalChunks; i++) {
       const start = i * CHUNK_SIZE;
       const end = Math.min((i + 1) * CHUNK_SIZE - 1, fileSize - 1);
@@ -253,7 +299,6 @@ export async function POST(request: Request) {
       });
     }
 
-    // 6. Finalize publish status in DB
     await logRef.update({
       status: "completed",
       publishId: publish_id,

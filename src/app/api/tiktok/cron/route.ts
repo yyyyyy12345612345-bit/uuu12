@@ -91,7 +91,7 @@ export async function GET(request: Request) {
     const querySnap = await db.collection("tiktok_logs")
       .where("status", "==", "pending")
       .where("scheduledFor", "<=", now)
-      .limit(3) // Process up to 3 posts at a time to prevent server timeouts
+      .limit(3)
       .get();
 
     const uploadResults = [];
@@ -107,19 +107,62 @@ export async function GET(request: Request) {
           uploadSpeed: "0 MB/s",
         });
 
-        // 1. Download video
+        // ------------------------------------------
+        // OPTION A: MAKE.COM WEBHOOK FOR SCHEDULED POSTS
+        // ------------------------------------------
+        const makeWebhookUrl = process.env.MAKE_WEBHOOK_URL;
+        if (makeWebhookUrl) {
+          console.log(`[TikTok Cron] Forwarding scheduled post ${docSnap.id} to Make.com Webhook`);
+          
+          await jobRef.update({
+            status: "uploading",
+            progress: 50,
+            uploadSpeed: "Make.com Flow",
+          });
+
+          const makeRes = await fetch(makeWebhookUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              videoUrl: jobData.videoUrl,
+              caption: jobData.caption,
+              accountId: jobData.accountId,
+              jobId: docSnap.id,
+            }),
+          });
+
+          if (!makeRes.ok) {
+            const errText = await makeRes.text();
+            throw new Error(`Make.com Webhook failed: ${errText}`);
+          }
+
+          await jobRef.update({
+            status: "completed",
+            progress: 100,
+            publishId: "make_com",
+            publishedAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+
+          uploadResults.push({ id: docSnap.id, success: true, publishId: "make_com" });
+          continue;
+        }
+
+        // ------------------------------------------
+        // OPTION B: NATIVE CHUNK UPLOADER FOR SCHEDULED POSTS
+        // ------------------------------------------
         const videoRes = await fetch(jobData.videoUrl);
         if (!videoRes.ok) throw new Error("Failed to download video file");
         const videoBuffer = Buffer.from(await videoRes.arrayBuffer());
         const fileSize = videoBuffer.length;
 
-        // 2. Initialize chunk parameters
         const CHUNK_SIZE = 5 * 1024 * 1024;
         const totalChunks = Math.ceil(fileSize / CHUNK_SIZE);
 
         const accessToken = await getValidAccessToken(jobData.accountId, db);
 
-        // 3. Call TikTok publish init
         const publishInitUrl = "https://open.tiktokapis.com/v2/post/publish/video/init/";
         const publishBody = {
           post_info: {
@@ -128,6 +171,7 @@ export async function GET(request: Request) {
             disable_comment: false,
             disable_duet: false,
             disable_stitch: false,
+            video_cover_timestamp_ms: 1500, // Cover at 1.5 seconds mark (1080x1920)
           },
           source_info: {
             source: "FILE_UPLOAD",
@@ -154,7 +198,6 @@ export async function GET(request: Request) {
         const publishData = JSON.parse(resText);
         const { upload_url, publish_id } = publishData.data;
 
-        // 4. Upload chunks
         for (let i = 0; i < totalChunks; i++) {
           const start = i * CHUNK_SIZE;
           const end = Math.min((i + 1) * CHUNK_SIZE - 1, fileSize - 1);
@@ -186,7 +229,6 @@ export async function GET(request: Request) {
           });
         }
 
-        // Complete!
         await jobRef.update({
           status: "completed",
           publishId: publish_id,
@@ -212,11 +254,10 @@ export async function GET(request: Request) {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     
-    // Fetch recently completed videos (last 7 days) to update views, likes, shares, comments
     const completedSnap = await db.collection("tiktok_logs")
       .where("status", "==", "completed")
       .where("publishedAt", ">=", admin.firestore.Timestamp.fromDate(sevenDaysAgo))
-      .limit(10) // Limit to 10 analytics queries per cron run
+      .limit(10)
       .get();
 
     const analyticsResults = [];
@@ -227,10 +268,15 @@ export async function GET(request: Request) {
       let publicVideoId = logData.publicVideoId;
       let shareUrl = logData.shareUrl || "";
 
+      // If published via Make.com and lacks status/ID, skip native analytics sync unless webhook provides it
+      if (logData.publishId === "make_com") {
+        analyticsResults.push({ id: docSnap.id, status: "make_com_bypass" });
+        continue;
+      }
+
       try {
         const accessToken = await getValidAccessToken(logData.accountId, db);
 
-        // 1. If we don't have publicVideoId yet, fetch publish status from TikTok
         if (!publicVideoId && logData.publishId) {
           const statusUrl = "https://open.tiktokapis.com/v2/post/publish/status/get/";
           const statusRes = await fetch(statusUrl, {
@@ -252,7 +298,6 @@ export async function GET(request: Request) {
           }
         }
 
-        // 2. Fetch analytics if publicVideoId is available
         if (publicVideoId) {
           const queryUrl = "https://open.tiktokapis.com/v2/video/query/";
           const queryRes = await fetch(queryUrl, {
@@ -289,7 +334,6 @@ export async function GET(request: Request) {
           }
         }
 
-        // If we didn't fetch analytics, just save publicVideoId if it was resolved
         if (publicVideoId !== logData.publicVideoId) {
           await logRef.update({ publicVideoId, shareUrl });
         }
