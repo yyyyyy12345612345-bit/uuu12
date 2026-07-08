@@ -352,7 +352,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
        }
     };
 
-   const AVATARS = {
+   const AVATARS: Record<string, string[]> = {
       male: [
          "https://api.dicebear.com/9.x/avataaars/svg?seed=Ahmed&top=shortFlat&facialHairProbability=100&accessoriesProbability=0",
          "https://api.dicebear.com/9.x/avataaars/svg?seed=Omar&top=shortRound&facialHairProbability=100&accessoriesProbability=0",

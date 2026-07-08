@@ -33,7 +33,8 @@ import {
   onSnapshot,
   increment,
   addDoc,
-  serverTimestamp
+  serverTimestamp,
+  deleteDoc
 } from "firebase/firestore";
 
 const COUNTRIES = [

@@ -12,7 +12,7 @@ const SENDER_ACCOUNTS = [
   { user: process.env.GMAIL_USER || "yo1685081@gmail.com", pass: process.env.GMAIL_APP_PASSWORD },
   { user: process.env.GMAIL_USER_2, pass: process.env.GMAIL_APP_PASSWORD_2 },
   { user: process.env.GMAIL_USER_3, pass: process.env.GMAIL_APP_PASSWORD_3 },
-].filter(acc => acc.user && acc.pass);
+].filter((acc): acc is { user: string; pass: string } => !!(acc.user && acc.pass));
 
 function generateCode(email: string): string {
   const slot = Math.floor(Date.now() / 300000);
