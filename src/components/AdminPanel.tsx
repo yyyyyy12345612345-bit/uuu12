@@ -14,6 +14,8 @@ import {
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { checkAndAwardBadges } from "@/lib/badges";
 import { RECITERS } from "@/data/reciters";
+import TasksManagerPanel from "./admin/tasks/TasksManagerPanel";
+import { PushNotificationSender } from "./admin/tasks/PushNotificationSender";
 
 
 const ADMIN_EMAIL = "youssefosama@gmail.com";
