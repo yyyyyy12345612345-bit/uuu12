@@ -44,6 +44,17 @@ src/components/admin/
     *   يرتبط بقائمة سور القرآن لتأكيد رقم واسم السورة المطلوبة عند اختيار نوع تحدي السورة.
 *   **الفائدة**: خفيف الوزن ومقاوم لعمليات إعادة التجميع (Re-rendering) لبقية لوحة التحكم.
 
+### 4️⃣ [tasks/PushNotificationSender.tsx](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/Quran-main/src/components/admin/tasks/PushNotificationSender.tsx)
+*   **النوع**: مكون عرض فرعي (UI Component).
+*   **الوظيفة**:
+    *   تصميم ومعاينة الإشعارات الفورية (Push Notifications) بشكل مرئي يطابق الهواتف الذكية.
+    *   إرسال الإشعارات إلى مجموعة `admin_push_notifications` في Firestore ليقوم خادم السحاب بمعالجتها وتوزيعها.
+    *   **إدارة السجل القديم**: يقوم بجلب وعرض آخر 50 إشعار تم إرساله من مجموعة `admin_push_notifications` مرتبة تنازليًا حسب تاريخ الإرسال (`sentAt`).
+    *   **حماية ومعدل الإرسال (Rate Limiting)**: 
+        *   *برمجيًا (Client-side)*: يتم حظر زر الإرسال فورًا وتفعيل مؤشر تحميل وتغيير حالة `isSendingPush` لمنع الأدمن من النقر المتكرر أو إرسال إشعارات مكررة عن طريق الخطأ.
+        *   *أمنيًا ورقابيًا (Security & Logs)*: يتم تسجيل العملية في مجموعة سجلات الإدارة `admin_logs` لتتبع العمليات من قِبل المشرفين الآخرين.
+*   **الفائدة**: تنظيم متكامل لعمليات الإشعار وتوفير قوالب جاهزة (مثل سورة الكهف والورد اليومي) لتوفير وقت الإدخال.
+
 ### 5️⃣ [tasks/TasksManagerPanel.tsx](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/Quran-main/src/components/admin/tasks/TasksManagerPanel.tsx)
 *   **النوع**: مكون حاوٍ رئيسي (Parent Component).
 *   **الوظيفة**: يدمج خطاف الـ State الخاص بـ `useTasksAdmin` مع نموذج `DailyChallengeForm` وقائمة التحديات النشطة مع إمكانية حذفها الفوري.
