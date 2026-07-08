@@ -77,17 +77,21 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       const reciter = RECITERS.find(r => r.id === state.reciterId);
       const sName = surahData.name || "";
       const rName = reciter?.name || "";
-      const sTag = sName.replace(/\s+/g, "_").replace(/[أإآ]/g, "a").replace(/ة/g, "h").replace(/ى/g, "y");
-      const rTag = rName.split(" (")[0]?.replace(/\s+/g, "_").replace(/[أإآ]/g, "a").replace(/ة/g, "h").replace(/ى/g, "y") || "";
+      const startAyah = state.startAyah || 1;
+      const endAyah = state.endAyah || 1;
+      const ayahText = startAyah === endAyah ? `آية ${startAyah}` : `الآيات من ${startAyah} إلى ${endAyah}`;
       
-      const defaultCaption = `تلاوة خاشعة بصوت الشيخ ${rName} - سورة ${sName} 📖✨\n#سورة_${sTag} #الشيخ_${rTag} #يقين #القرآن_الكريم`;
+      const sTag = sName.replace(/\s+/g, "_");
+      const rTag = rName.split(" (")[0]?.trim().replace(/\s+/g, "_") || "";
+      
+      const defaultCaption = `سورة ${sName} - ${ayahText} - الشيخ ${rName} 📖✨\nتم تصميم الفيديو بواسطة موقع يقين (الرابط في البايو) 🔗\n\n#يقين_القران #يقين__القران #yaqeenalquran #قرآن #قران #سورة_${sTag} #الشيخ_${rTag}`;
       setTiktokCaption(defaultCaption);
       setTiktokPublishSuccess(false);
       setTiktokPublishError("");
       setIsScheduled(false);
       setScheduledTime("");
     }
-  }, [status, surahData, state.reciterId]);
+  }, [status, surahData, state.reciterId, state.startAyah, state.endAyah]);
 
   const handlePublishToTikTok = async () => {
     if (!selectedAccountId) {
@@ -1771,7 +1775,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             {status === "success" && downloadUrl && isAdmin && (
               <div className="w-full mt-4 border-t border-white/10 pt-4 space-y-3 text-right">
                 <h4 className="text-xs font-black text-white flex items-center justify-end gap-1.5">
-                  <span>نشر على تيك توك 📱</span>
+                  <span>نشر على تيك توك وإنستجرام 📱✨</span>
                   <Video className="w-3.5 h-3.5 text-primary" />
                 </h4>
 
@@ -1860,12 +1864,12 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                     {tiktokPublishing ? (
                       <>
                         <Loader2 className="w-3.5 h-3.5 animate-spin text-black" />
-                        جاري {isScheduled ? "الجدولة..." : "النشر على تيك توك..."}
+                        جاري {isScheduled ? "الجدولة..." : "النشر..."}
                       </>
                     ) : (
                       <>
                         <Send className="w-3.5 h-3.5" />
-                        {isScheduled ? "جدولة النشر" : "نشر الآن على TikTok"}
+                        {isScheduled ? "جدولة النشر" : "نشر الآن (TikTok & Instagram)"}
                       </>
                     )}
                   </button>
