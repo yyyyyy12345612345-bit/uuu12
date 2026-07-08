@@ -61,6 +61,26 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // TikTok Accounts
+    match /tiktok_accounts/{document=**} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // TikTok Scheduled/Published Jobs
+    match /tiktok_jobs/{document=**} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // TikTok Logs
+    match /tiktok_logs/{document=**} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+
+
     // Email Logs
     match /emailLogs/{document=**} {
       allow read: if isAdmin(); // Stronger: only admin should read logs
