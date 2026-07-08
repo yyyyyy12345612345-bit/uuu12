@@ -8,7 +8,7 @@ import { RECITERS, getReciterEnglishName, getSheikhAsset } from "@/data/reciters
 import { getAudioUrl } from "@/lib/quranUtils";
 import { useCustomBackgrounds } from "@/hooks/useCustomBackgrounds";
 import { db, auth } from "@/lib/firebase";
-import { doc, getDoc, setDoc, updateDoc, serverTimestamp, getDocs, collection } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp, getDocs, collection, addDoc } from "firebase/firestore";
 import { incrementVideoRenderCount } from "@/lib/points";
 
 
@@ -131,6 +131,18 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       const resData = await res.json();
       if (!res.ok) {
         throw new Error(resData.error || "فشل نشر الفيديو على تيك توك");
+      }
+
+      // Automatically add to Showcase collection on successful publish
+      if (db && downloadUrl) {
+        await addDoc(collection(db, "showcase"), {
+          videoUrl: downloadUrl,
+          userName: auth.currentUser?.displayName || "مشرف يقين",
+          surahName: surahData?.name || "تلاوة قرآنية",
+          createdAt: serverTimestamp()
+        }).catch((err) => {
+          console.error("Failed to auto-add to showcase:", err);
+        });
       }
 
       setTiktokPublishSuccess(true);
