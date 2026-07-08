@@ -110,8 +110,12 @@ export async function GET(request: Request) {
         // ------------------------------------------
         // OPTION A: MAKE.COM WEBHOOK FOR SCHEDULED POSTS
         // ------------------------------------------
-        const makeWebhookUrl = process.env.MAKE_WEBHOOK_URL;
-        if (makeWebhookUrl) {
+        if (jobData.accountId === "make_com") {
+          const makeWebhookUrl = process.env.MAKE_WEBHOOK_URL;
+          if (!makeWebhookUrl) {
+            throw new Error("Missing MAKE_WEBHOOK_URL environment variable for automatic publishing");
+          }
+
           console.log(`[TikTok Cron] Forwarding scheduled post ${docSnap.id} to Make.com Webhook`);
           
           await jobRef.update({
