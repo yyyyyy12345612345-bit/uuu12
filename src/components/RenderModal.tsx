@@ -35,12 +35,9 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
   // TikTok Publishing States
   const isAdmin = React.useMemo(() => {
     const email = auth?.currentUser?.email?.toLowerCase() || "";
-    const displayName = auth?.currentUser?.displayName?.toLowerCase() || "";
     return (
       email === "youssefosama@gmail.com" ||
-      email === "youssef@yaqeen.app" ||
-      email.includes("youssef") ||
-      displayName.includes("youssef")
+      email === "youssef@yaqeen.app"
     );
   }, [auth?.currentUser]);
   const [tiktokAccounts, setTiktokAccounts] = useState<any[]>([]);
