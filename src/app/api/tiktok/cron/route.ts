@@ -111,7 +111,7 @@ export async function GET(request: Request) {
         // OPTION A: MAKE.COM WEBHOOK FOR SCHEDULED POSTS
         // ------------------------------------------
         if (jobData.accountId === "make_com") {
-          const makeWebhookUrl = process.env.MAKE_WEBHOOK_URL;
+          const makeWebhookUrl = process.env.MAKE_WEBHOOK_URL || "https://hook.eu1.make.com/tl01y7q4wfa8k1rzg1lvggvb93yolmf4";
           if (!makeWebhookUrl) {
             throw new Error("Missing MAKE_WEBHOOK_URL environment variable for automatic publishing");
           }

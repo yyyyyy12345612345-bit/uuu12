@@ -172,7 +172,7 @@ export async function POST(request: Request) {
     // OPTION A: FORWARD TO MAKE.COM WEBHOOK (IF CHOSEN)
     // ==========================================
     if (accountId === "make_com") {
-      const makeWebhookUrl = process.env.MAKE_WEBHOOK_URL;
+      const makeWebhookUrl = process.env.MAKE_WEBHOOK_URL || "https://hook.eu1.make.com/tl01y7q4wfa8k1rzg1lvggvb93yolmf4";
       if (!makeWebhookUrl) {
         const errText = "عذراً، لم يتم إعداد رابط الويب هوك (MAKE_WEBHOOK_URL) في السيرفر بعد.";
         await logRef.update({ status: "failed", error: errText });
