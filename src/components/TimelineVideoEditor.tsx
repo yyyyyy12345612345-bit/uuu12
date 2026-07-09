@@ -184,9 +184,30 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
   useEffect(() => {
     const surah = surahsData.find(s => s.id.toString() === state.surahId);
     if (surah) {
-      setMaxVerses(surah.total_verses);
+      const total = surah.total_verses;
+      setMaxVerses(total);
+      let correctedStart = state.startAyah;
+      let correctedEnd = state.endAyah;
+      let needsUpdate = false;
+      
+      if (state.startAyah > total) {
+        correctedStart = 1;
+        needsUpdate = true;
+      }
+      if (state.endAyah > total) {
+        correctedEnd = total;
+        needsUpdate = true;
+      }
+      if (correctedEnd < correctedStart) {
+        correctedEnd = correctedStart;
+        needsUpdate = true;
+      }
+      
+      if (needsUpdate) {
+        updateState({ startAyah: correctedStart, endAyah: correctedEnd });
+      }
     }
-  }, [state.surahId]);
+  }, [state.surahId, state.startAyah, state.endAyah, updateState]);
 
   const toggleSection = (section: string) => {
     setOpenSections(prev => ({
@@ -1051,7 +1072,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                             <input 
                               type="number" 
                               value={state.startAyah} 
-                              onChange={(e) => updateState({ startAyah: Number(e.target.value) })}
+                              onChange={(e) => { const v = Number(e.target.value); if (!isNaN(v)) updateState({ startAyah: Math.max(1, Math.min(maxVerses, v)) }); }}
                               className="w-full text-center bg-transparent outline-none text-xs font-bold font-mono text-white"
                             />
                             <button 
@@ -1075,7 +1096,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                             <input 
                               type="number" 
                               value={state.endAyah} 
-                              onChange={(e) => updateState({ endAyah: Number(e.target.value) })}
+                              onChange={(e) => { const v = Number(e.target.value); if (!isNaN(v)) updateState({ endAyah: Math.max(state.startAyah, Math.min(maxVerses, v)) }); }}
                               className="w-full text-center bg-transparent outline-none text-xs font-bold font-mono text-white"
                             />
                             <button 

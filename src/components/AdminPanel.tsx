@@ -522,12 +522,12 @@ export function AdminPanel() {
       try {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
           const email = user?.email?.toLowerCase() || "";
-          const displayName = user?.displayName?.toLowerCase() || "";
+          // Removed displayName check
           if (user && (
             email === "youssefosama@gmail.com" ||
             email === "youssef@yaqeen.app" ||
-            email.includes("youssef") ||
-            displayName.includes("youssef")
+            email.includes("youssef")
+            // no-op
           )) {
             setIsAdmin(true);
             // Only fetch stats on mount (other tabs lazy-load when activated)

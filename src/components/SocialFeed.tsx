@@ -1753,7 +1753,7 @@ export function SocialFeed() {
               const authorPoints = author?.totalPoints || 0;
               const emailLower = author?.email?.toLowerCase() || "";
               const displayNameLower = author?.displayName?.toLowerCase() || "";
-              const isUserAdmin = emailLower === "youssefosama@gmail.com" || emailLower === "youssef@yaqeen.app" || emailLower.includes("youssef") || displayNameLower.includes("youssef");
+              const isUserAdmin = emailLower === "youssefosama@gmail.com" || emailLower === "youssef@yaqeen.app" || emailLower.includes("youssef");
               const isDarkTheme = true; 
               const activeReact = userReactions[post.id];
 

@@ -128,12 +128,19 @@ export function SurahSelector() {
                     const val = e.target.value;
                     setStartInput(val);
                     const value = parseInt(val, 10);
-                    if (!Number.isNaN(value)) updateState({ startAyah: value });
+                    if (!Number.isNaN(value)) {
+                        const capped = Math.max(1, Math.min(maxVerses, value));
+                        updateState({ startAyah: capped });
+                    }
                 }}
                 onBlur={() => {
-                    if (!startInput || parseInt(startInput) < 1) {
+                    const valNum = parseInt(startInput, 10);
+                    if (!startInput || isNaN(valNum) || valNum < 1) {
                         setStartInput("1");
                         updateState({ startAyah: 1 });
+                    } else if (valNum > maxVerses) {
+                        setStartInput(maxVerses.toString());
+                        updateState({ startAyah: maxVerses });
                     }
                 }}
                 className="w-full bg-foreground/5 border-2 border-foreground/5 p-4 rounded-xl outline-none transition-all duration-500 text-sm font-bold text-foreground text-center focus:border-primary/50 focus:bg-foreground/10"
@@ -157,12 +164,22 @@ export function SurahSelector() {
                     const val = e.target.value;
                     setEndInput(val);
                     const value = parseInt(val, 10);
-                    if (!Number.isNaN(value)) updateState({ endAyah: value });
+                    if (!Number.isNaN(value)) {
+                        const capped = Math.max(1, Math.min(maxVerses, value));
+                        updateState({ endAyah: capped });
+                    }
                 }}
                 onBlur={() => {
-                    if (!endInput || parseInt(endInput) < 1) {
+                    const valNum = parseInt(endInput, 10);
+                    if (!endInput || isNaN(valNum) || valNum < 1) {
                         setEndInput(maxVerses.toString());
                         updateState({ endAyah: maxVerses });
+                    } else if (valNum > maxVerses) {
+                        setEndInput(maxVerses.toString());
+                        updateState({ endAyah: maxVerses });
+                    } else if (valNum < state.startAyah) {
+                        setEndInput(state.startAyah.toString());
+                        updateState({ endAyah: state.startAyah });
                     }
                 }}
                 className="w-full bg-foreground/5 border-2 border-foreground/5 p-4 rounded-xl outline-none transition-all duration-500 text-sm font-bold text-foreground text-center focus:border-primary/50 focus:bg-foreground/10"

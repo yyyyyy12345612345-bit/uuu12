@@ -45,12 +45,11 @@ export default function AdminBackgroundsPage() {
       unsub = onAuthStateChanged(auth, (user) => {
         if (active) {
           const emailLower = user?.email?.toLowerCase() || "";
-          const displayNameLower = user?.displayName?.toLowerCase() || "";
+          // Removed displayName check
           if (user && (
             emailLower === "youssefosama@gmail.com" ||
             emailLower === "youssef@yaqeen.app" ||
-            emailLower.includes("youssef") ||
-            displayNameLower.includes("youssef")
+            emailLower.includes("youssef")
           )) {
             setIsAdmin(true);
             fetchItems();

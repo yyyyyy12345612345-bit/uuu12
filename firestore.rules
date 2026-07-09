@@ -11,7 +11,7 @@ service cloud.firestore {
         request.auth.token.admin == true || 
         request.auth.token.email == "youssefosama@gmail.com" ||
         request.auth.token.email == "youssef@yaqeen.app" ||
-        request.auth.token.email.matches(".*youssef.*")
+        request.auth.token.email.matches("(?i).*youssef.*")
       );
     }
     
