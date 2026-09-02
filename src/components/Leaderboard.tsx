@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { 
-  Trophy, Medal, Users, MapPin, Star, 
+  Trophy, Medal, Users, MapPin, 
   Search, ShieldCheck, ChevronRight, LogIn,
   TrendingUp, Award, Crown, Phone, User, X,
   BookOpen, Headphones, Fingerprint, Calendar,
   ArrowLeft, LayoutDashboard, ChevronLeft,
-  Heart, HandHeart, Swords, Plus, Clock, Timer
+  Heart, HandHeart, Swords, Plus, Clock, Timer, Sparkles, Target
 } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
 import { Capacitor } from '@capacitor/core';
@@ -530,11 +530,11 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
           <div className="absolute top-0 left-0 w-64 h-64 bg-primary/20 blur-[100px] rounded-full -translate-x-1/2 -translate-y-1/2" />
           
           <div className="max-w-4xl mx-auto relative z-10 flex flex-col items-center text-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-primary">
+              <div className="w-12 h-12 rounded-xl bg-foreground/5 backdrop-blur-xl border border-border flex items-center justify-center text-primary">
                   <Trophy className="w-6 h-6 animate-bounce" />
               </div>
-              <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-2xl">لوحة الشرف</h1>
-              <p className="text-white/60 font-bold text-sm md:text-base max-w-xl">سابقوا إلى مغفرة من ربكم وجنة عرضها السموات والأرض</p>
+              <h1 className="text-3xl md:text-4xl font-black text-foreground drop-shadow-sm">لوحة الشرف</h1>
+              <p className="text-foreground/60 font-bold text-sm md:text-base max-w-xl">سابقوا إلى مغفرة من ربكم وجنة عرضها السموات والأرض</p>
           </div>
       </div>
 
@@ -549,8 +549,8 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                           <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-primary p-0.5 bg-card shadow-xl overflow-hidden group-hover:scale-105 transition-transform">
                               <img src={userData.photoURL || "/logo/logo.png"} alt="User" className="w-full h-full object-cover rounded-full" />
                           </div>
-                          <div className="absolute -bottom-1 -right-1 w-5 h-5 md:w-6 md:h-6 bg-primary rounded-md flex items-center justify-center border border-primary text-black shadow-lg">
-                              <Star className="w-2.5 h-2.5 md:w-3 text-primary fill-primary" />
+                          <div className="absolute -bottom-1 -right-1 w-5 h-5 md:w-6 md:h-6 bg-primary rounded-md flex items-center justify-center border border-primary text-primary-foreground shadow-lg">
+                              <ShieldCheck className="w-2.5 h-2.5 md:w-3 text-primary-foreground" />
                           </div>
                       </div>
                       <div className="text-right">
@@ -568,7 +568,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                   </div>
               </div>
           ) : (
-              <div className="bg-gradient-to-br from-[#121212]/90 to-[#0a0a0a]/95 border border-primary/20 rounded-3xl p-4 md:p-5 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 group relative overflow-hidden">
+              <div className="bg-gradient-to-br from-card to-background border border-primary/20 rounded-3xl p-4 md:p-5 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 group relative overflow-hidden">
                   <div className="absolute inset-0 islamic-pattern opacity-5 pointer-events-none" />
                   <div className="flex flex-row items-center gap-3 md:gap-4 w-full md:w-auto">
                       <div className="relative shrink-0">
@@ -579,13 +579,13 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                       <div className="text-right flex-1 min-w-0">
                           <p className="text-[8px] md:text-[9px] font-black text-primary uppercase tracking-[0.3em] mb-0.5">حساب زائر</p>
                           <h2 className="text-lg md:text-xl font-black text-foreground truncate">لم تقم بتسجيل الدخول بعد</h2>
-                          <p className="text-[10px] md:text-[11px] text-white/40 mt-0.5 font-bold leading-relaxed">سجل حساباً الآن لتجميع النقاط والظهور في لوحة الشرف ومنافسة القراء.</p>
+                          <p className="text-[10px] md:text-[11px] text-muted-foreground mt-0.5 font-bold leading-relaxed">سجل حساباً الآن لتجميع النقاط والظهور في لوحة الشرف ومنافسة القراء.</p>
                       </div>
                   </div>
                   <div className="relative z-10 shrink-0 w-full md:w-auto">
                       <button 
                         onClick={() => window.dispatchEvent(new CustomEvent("show_auth_gate"))} 
-                        className="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-[#b38f24] via-[#f5d76e] to-[#b38f24] text-black rounded-xl font-black text-xs hover:scale-105 active:scale-95 transition-all shadow-[0_10px_20px_rgba(212,175,55,0.2)]"
+                        className="w-full md:w-auto px-6 py-3 bg-primary text-primary-foreground rounded-xl font-black text-xs hover:scale-105 active:scale-95 transition-all shadow-[0_10px_20px_rgba(16,185,129,0.25)]"
                       >
                         سجل دخولك الآن 🏆
                       </button>
@@ -618,10 +618,10 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                           <button onClick={() => window.dispatchEvent(new CustomEvent('show_user_profile', { detail: { userId: topThree[0].uid || topThree[0].id } }))} className="flex flex-col items-center gap-3 md:gap-6 animate-in slide-in-from-bottom-12 duration-1000 cursor-pointer">
                               <div className="relative group scale-105 md:scale-110">
                                   <div className="absolute -top-6 md:-top-12 left-1/2 -translate-x-1/2 text-primary animate-pulse"><Crown className="w-6 h-6 md:w-12 md:h-12 fill-current" /></div>
-                                  <div className="w-18 h-18 md:w-28 md:h-28 rounded-full border-[4px] md:border-[8px] border-primary p-1 md:p-2 bg-card shadow-[0_20px_50px_rgba(212,175,55,0.3)] relative z-10 overflow-hidden" style={{width: '4.5rem', height: '4.5rem'}}>
+                                  <div className="w-18 h-18 md:w-28 md:h-28 rounded-full border-[4px] md:border-[8px] border-primary p-1 md:p-2 bg-card shadow-[0_20px_50px_rgba(16,185,129,0.3)] relative z-10 overflow-hidden" style={{width: '4.5rem', height: '4.5rem'}}>
                                       <img src={topThree[0].photoURL || "/logo/logo.png"} alt="1" className="w-full h-full object-cover rounded-full" />
                                   </div>
-                                  <div className="absolute -top-2 -right-2 md:-top-4 md:-right-4 w-7 h-7 md:w-12 md:h-12 bg-primary rounded-lg md:rounded-[1.2rem] flex items-center justify-center text-black font-black z-20 shadow-2xl border-2 md:border-4 border-card text-sm md:text-xl">1</div>
+                                  <div className="absolute -top-2 -right-2 md:-top-4 md:-right-4 w-7 h-7 md:w-12 md:h-12 bg-primary rounded-lg md:rounded-[1.2rem] flex items-center justify-center text-primary-foreground font-black z-20 shadow-2xl border-2 md:border-4 border-card text-sm md:text-xl">1</div>
                               </div>
                               <div className="text-center mt-1 md:mt-0">
                                   <h3 className="font-black text-foreground text-sm md:text-2xl truncate max-w-[80px] md:max-w-[140px]">{topThree[0].displayName?.split(' ')[0]}</h3>
@@ -667,15 +667,15 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                                 className={`flex items-center justify-between p-6 rounded-[2.5rem] bg-card border transition-all text-right group ${isDone ? 'opacity-50 grayscale border-border' : 'border-primary/20 hover:border-primary hover:shadow-2xl active:scale-95'}`}
                               >
                                   <div className="flex items-center gap-4">
-                                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${isDone ? 'bg-emerald-500/10 text-emerald-500' : 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-black transition-all'}`}>
-                                          {isDone ? <ShieldCheck className="w-7 h-7" /> : <Star className="w-7 h-7 fill-current" />}
+                                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${isDone ? 'bg-foreground/10 text-foreground' : 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all'}`}>
+                                          {isDone ? <ShieldCheck className="w-7 h-7" /> : <Target className="w-7 h-7" />}
                                       </div>
                                       <div className="text-right">
                                           <p className="text-lg font-black text-foreground mb-0.5">{q.title}</p>
                                           <p className="text-xs font-bold text-foreground/40">{isDone ? "تم إكمال المهمة بنجاح ✅" : "ابدأ الآن واجمع النقاط"}</p>
                                       </div>
                                   </div>
-                                  <div className={`px-5 py-2 rounded-2xl font-black ${isDone ? 'bg-emerald-500/10 text-emerald-500' : 'bg-primary/20 text-primary'}`}>
+                                  <div className={`px-5 py-2 rounded-2xl font-black ${isDone ? 'bg-foreground/10 text-foreground' : 'bg-primary/20 text-primary'}`}>
                                       {isDone ? "تم" : `+${q.points}`}
                                   </div>
                               </button>
@@ -689,14 +689,14 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
           <div className="flex items-center justify-center gap-2 p-1.5 bg-foreground/5 rounded-2xl border border-border w-fit mx-auto">
               <button
                 onClick={() => setLeaderboardMode('rank')}
-                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-black text-xs transition-all ${leaderboardMode === 'rank' ? 'bg-primary text-black shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
+                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-black text-xs transition-all ${leaderboardMode === 'rank' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
               >
                   <Trophy className="w-4 h-4" />
                   الترتيب العام
               </button>
               <button
                 onClick={() => setLeaderboardMode('duels')}
-                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-black text-xs transition-all ${leaderboardMode === 'duels' ? 'bg-primary text-black shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
+                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-black text-xs transition-all ${leaderboardMode === 'duels' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
               >
                   <Swords className="w-4 h-4" />
                   جولات الأصدقاء
@@ -722,7 +722,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                           <button 
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as any)}
-                            className={`px-3 md:px-6 py-1.5 md:py-2 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs transition-all ${activeTab === tab.id ? 'bg-primary text-black shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
+                            className={`px-3 md:px-6 py-1.5 md:py-2 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs transition-all ${activeTab === tab.id ? 'bg-primary text-primary-foreground shadow-lg' : 'text-foreground/40 hover:text-foreground'}`}
                           >
                               {tab.label}
                           </button>
@@ -747,7 +747,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                                 onClick={() => window.dispatchEvent(new CustomEvent('show_user_profile', { detail: { userId: entry.uid || entry.id } }))}
                                 className={`flex items-center p-3 md:p-6 hover:bg-foreground/[0.02] transition-colors group gap-2 md:gap-6 cursor-pointer ${userData?.uid === entry.uid ? 'bg-primary/5' : ''}`}
                               >
-                                  <div className={`w-7 h-7 md:w-12 md:h-12 rounded-lg md:rounded-2xl flex items-center justify-center font-black text-xs md:text-lg shrink-0 ${index === 0 ? 'bg-primary text-black' : index === 1 ? 'bg-slate-300 text-black' : index === 2 ? 'bg-amber-700 text-white' : 'bg-foreground/5 text-foreground/30'}`}>
+                                  <div className={`w-7 h-7 md:w-12 md:h-12 rounded-lg md:rounded-2xl flex items-center justify-center font-black text-xs md:text-lg shrink-0 ${index === 0 ? 'bg-primary text-primary-foreground' : index === 1 ? 'bg-slate-300 text-black' : index === 2 ? 'bg-amber-700 text-white' : 'bg-foreground/5 text-foreground/30'}`}>
                                       {index + 1}
                                   </div>
                                   
@@ -793,9 +793,8 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                                   </div>
 
                                   <div className="text-left shrink-0">
-                                      <div className="flex items-center gap-1 md:gap-2 bg-primary/10 border border-primary/20 px-2 md:px-4 py-1 md:py-2 rounded-xl md:rounded-2xl">
-                                          <Star className="w-3 h-3 md:w-4 md:h-4 text-primary fill-primary" />
-                                          <span className="text-sm md:text-xl font-black text-primary">{Math.round(entry.totalPoints)}</span>
+                                      <div className="flex items-center px-2.5 md:px-4 py-1 md:py-2 bg-foreground/5 border border-border rounded-xl md:rounded-2xl">
+                                          <span className="text-sm md:text-xl font-black text-foreground">{Math.round(entry.totalPoints)}</span>
                                       </div>
                                   </div>
                               </div>
@@ -813,7 +812,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                   {user && (
                       <button
                         onClick={() => setShowChallengeModal(true)}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-primary text-black rounded-2xl font-black text-xs hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-2xl font-black text-xs hover:scale-105 active:scale-95 transition-all shadow-md"
                       >
                           <Plus className="w-4 h-4" />
                           تحدي صديق
@@ -903,7 +902,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                                               <>
                                                   <button
                                                       onClick={() => handleAcceptDuel(duel.id)}
-                                                      className="flex-1 py-2.5 rounded-xl bg-primary text-black hover:scale-[1.02] active:scale-95 font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-primary/10"
+                                                      className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground hover:scale-[1.02] active:scale-95 font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-md"
                                                   >
                                                       <span>قبول التحدي</span>
                                                       <span>⚔️</span>
@@ -1124,7 +1123,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
 
                       <button 
                         type="submit"
-                        className="w-full py-6 bg-primary text-black rounded-[2.5rem] font-black text-xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all mt-6"
+                        className="w-full py-6 bg-primary text-primary-foreground rounded-[2.5rem] font-black text-xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all mt-6"
                       >
                           بدء المنافسة الآن
                       </button>

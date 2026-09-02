@@ -104,7 +104,7 @@ export function PWAInstallButton() {
         href="https://tubular-lebkuchen-c1ed75.netlify.app"
         target="_blank"
         rel="noopener noreferrer"
-        className="group relative flex items-center gap-2 bg-primary/10 hover:bg-primary text-primary hover:text-black border border-primary/20 hover:border-primary px-5 py-2.5 rounded-2xl transition-all duration-500 shadow-xl overflow-hidden"
+        className="group relative flex items-center gap-2 bg-primary/10 hover:bg-primary text-primary hover:text-primary-foreground border border-primary/20 hover:border-primary px-5 py-2.5 rounded-2xl transition-all duration-500 shadow-xl overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shimmer" />
         <Download className="w-4 h-4 group-hover:scale-110 transition-transform" />
@@ -181,7 +181,7 @@ export function PWAInstallButton() {
                 <div className="mt-12 flex flex-col gap-4">
                     <button 
                         onClick={() => setShowInstructions(false)}
-                        className="w-full py-5 bg-primary text-black rounded-3xl font-bold text-lg shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+                        className="w-full py-5 bg-primary text-primary-foreground rounded-3xl font-bold text-lg shadow-md hover:scale-[1.02] active:scale-95 transition-all"
                     >
                         فهمت، شكراً
                     </button>

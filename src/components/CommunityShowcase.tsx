@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Star, ArrowUpRight, Play, Users, Plus, X, Video, Loader2 } from "lucide-react";
+import { ArrowUpRight, Play, Users, Plus, X, Video, Loader2 } from "lucide-react";
 import { db, auth } from "@/lib/firebase";
 import { collection, getDocs, query, orderBy, limit, addDoc, serverTimestamp } from "firebase/firestore";
 

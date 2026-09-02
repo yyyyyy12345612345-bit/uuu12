@@ -3,7 +3,7 @@
 import React from "react";
 import { 
   X, MessageCircle, Moon, Sun, BookOpen, ScrollText, 
-  Calendar, Headphones, Timer, Video, Share2, Heart, Smartphone, Trophy, ShieldCheck, Star,
+  Calendar, Headphones, Timer, Video, Share2, Heart, Smartphone, Trophy, ShieldCheck,
   ChevronLeft, LayoutDashboard, Settings, Info, LogOut, Map as MapIcon, Bell
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -11,6 +11,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useInstantPathname, navigateInstantly } from "@/lib/navigation";
+import { YaqeenLogo } from "@/components/YaqeenLogo";
 
 interface GlobalMenuProps {
   isOpen: boolean;
@@ -37,6 +38,15 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
     }
   }, [isOpen]);
 
+  const isAdmin = React.useMemo(() => {
+    const email = auth?.currentUser?.email?.toLowerCase() || "";
+    return (
+      email === "youssefosama@gmail.com" ||
+      email === "youssef@yaqeen.app" ||
+      email.includes("youssef")
+    );
+  }, [auth?.currentUser]);
+
   if (!isOpen) return null;
 
   const navigate = (path: string) => {
@@ -46,50 +56,34 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
 
   const menuGroups = [
     {
-      title: "الأقسام الرئيسية",
+      title: "الأقسام المميزة",
       items: [
         { id: "mushaf", label: "المصحف الشريف", icon: BookOpen, path: "/" },
-        { id: "daily", label: "يومياتي (الأذكار)", icon: Calendar, path: "/daily" },
-        { id: "rank", label: "لوحة المتصدرين", icon: Trophy, path: "/rank" },
-        { id: "library", label: "المكتبة الصوتية", icon: Headphones, path: "/library" },
-        { id: "prayers", label: "مواقيت الصلاة", icon: Timer, path: "/prayers" },
-        { id: "video", label: "استوديو الفيديو", icon: Video, path: "/video" },
+        { id: "daily", label: "يومياتي (الأذكار والورد)", icon: Calendar, path: "/daily" },
+        { id: "rank", label: "لوحة المتصدرين والأبطال", icon: Trophy, path: "/rank" },
+        { id: "library", label: "المكتبة الصوتية الشاملة", icon: Headphones, path: "/library" },
+        { id: "prayers", label: "مواقيت الصلاة والأذان", icon: Timer, path: "/prayers" },
+        { id: "video", label: "استوديو الفيديو القرآني", icon: Video, path: "/video" },
+        { id: "points-guide", label: "دليل النقاط والأوسمة", icon: MapIcon, onClick: onOpenPointsGuide },
+        { id: "install-apk", label: "تنزيل تطبيق الموبايل", icon: Smartphone, onClick: onOpenAppInstall },
       ]
     },
     {
-      title: "التفاعلات",
+      title: "الإعدادات والملف الشخصي",
       items: [
-        { id: "feedback", label: "أخبرنا برأيك", icon: MessageCircle, onClick: onOpenFeedback },
-        { id: "share", label: "شارك التطبيق", icon: Share2, onClick: () => {
-          if (navigator.share) {
-            navigator.share({ title: 'سكينة', text: 'تطبيق القرآن الكريم واستوديو الفيديو الجنائزي', url: window.location.href });
-          }
-        }},
-        { id: "install-apk", label: "تنزيل التطبيق", icon: Smartphone, onClick: onOpenAppInstall },
-        { id: "points-guide", label: "دليل النقاط", icon: MapIcon, onClick: onOpenPointsGuide },
-        { id: "user-guide", label: "دليل استخدام المنصة 📖", icon: Info, onClick: () => {
-          onClose();
-          window.dispatchEvent(new CustomEvent("show_onboarding"));
-        }},
-      ]
-    },
-    {
-      title: "الإعدادات",
-      items: [
-        { id: "settings", label: "إعدادات التطبيق", icon: Settings, onClick: () => { onOpenAppSettings?.(); } },
-        { id: "notifications-settings", label: "إعدادات الإشعارات", icon: Bell, onClick: () => { onOpenSettings?.(); } },
+        { 
+          id: "settings", 
+          label: "الإعدادات العامة (الملف، الإشعارات، المظهر)", 
+          icon: Settings, 
+          onClick: () => { 
+            onClose();
+            if (onOpenSettings) onOpenSettings();
+            else if (onOpenAppSettings) onOpenAppSettings();
+          } 
+        },
       ]
     }
   ];
-
-  const isAdmin = React.useMemo(() => {
-    const email = auth?.currentUser?.email?.toLowerCase() || "";
-    return (
-      email === "youssefosama@gmail.com" ||
-      email === "youssef@yaqeen.app" ||
-      email.includes("youssef")
-    );
-  }, [auth?.currentUser]);
 
   return (
     <div className="fixed inset-0 z-[2000] flex justify-end font-arabic">
@@ -121,7 +115,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
                 onClick={toggleTheme}
                 className="w-12 h-12 rounded-[1.5rem] bg-foreground/5 border border-foreground/10 flex items-center justify-center text-foreground/40 hover:text-foreground hover:bg-foreground/10 hover:-rotate-12 transition-all duration-500 active:scale-90 shadow-xl"
             >
-                {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-indigo-500" />}
+                {theme === 'dark' ? <Sun className="w-5 h-5 text-primary" /> : <Moon className="w-5 h-5 text-slate-700" />}
             </button>
           </div>
 
@@ -155,31 +149,31 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
                 {/* Separate Premium Points Card */}
                 <button
                   onClick={onOpenPointsGuide}
-                  className="w-full p-3.5 px-4 rounded-[1.5rem] bg-gradient-to-l from-primary/10 via-primary/5 to-transparent border border-primary/20 flex items-center justify-between group hover:border-primary/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.15)] transition-all duration-300 text-right cursor-pointer"
+                  className="w-full p-3.5 px-4 rounded-[1.5rem] bg-foreground/[0.03] border border-border/80 flex items-center justify-between group hover:border-foreground/30 hover:bg-foreground/[0.06] transition-all duration-300 text-right cursor-pointer shadow-sm"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center text-primary shadow-inner group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-9 h-9 rounded-xl bg-foreground/10 flex items-center justify-center text-foreground shadow-inner group-hover:scale-110 transition-transform duration-300">
                       <Trophy className="w-4.5 h-4.5" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black text-primary/70 uppercase tracking-wider">رصيد النقاط</p>
-                      <p className="text-base font-black text-white">{Number((userData.totalPoints || 0).toFixed(1))} نقطة</p>
+                      <p className="text-[10px] font-black text-foreground/60 uppercase tracking-wider">رصيد النقاط</p>
+                      <p className="text-base font-black text-foreground">{Number((userData.totalPoints || 0).toFixed(1))} نقطة</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 text-[10px] font-black text-primary/80 group-hover:text-white transition-colors">
+                  <div className="flex items-center gap-1 text-[10px] font-black text-foreground/80 group-hover:text-foreground transition-colors">
                     <span>دليل النقاط</span>
                     <ChevronLeft className="w-3.5 h-3.5" />
                   </div>
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-4 p-3 px-4 rounded-[1.5rem] bg-foreground/[0.03] border border-foreground/5">
+              <div className="flex items-center gap-4 p-3 px-4 rounded-[1.5rem] bg-foreground/[0.03] border border-border/60">
                 <div className="w-11 h-11 rounded-xl bg-foreground/5 border border-foreground/10 flex items-center justify-center p-2 shadow-inner">
                   <img src="/logo/logo.png" alt="Logo" className="w-full h-full object-contain opacity-80" />
                 </div>
                 <div className="text-right">
-                  <h3 className="text-base font-black text-foreground/90">سكينة</h3>
-                  <p className="text-[9px] text-primary font-black uppercase tracking-[0.25em] mt-0.5">تطبيق القرآن الكريم</p>
+                  <h3 className="text-base font-black text-foreground/90">يقين القرآن</h3>
+                  <p className="text-[9px] text-foreground/50 font-black uppercase tracking-[0.25em] mt-0.5">المنصة الإسلامية الشاملة</p>
                 </div>
               </div>
             )}
@@ -191,7 +185,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
           {menuGroups.map((group, idx) => (
              <div key={idx} className="space-y-3.5">
                   <div className="flex items-center justify-between gap-3">
-                     <h4 className="text-[10px] font-black text-primary/60 tracking-[0.15em] uppercase">{group.title}</h4>
+                     <h4 className="text-[10px] font-black text-foreground/60 tracking-[0.15em] uppercase">{group.title}</h4>
                      <div className="h-[1px] flex-1 bg-gradient-to-l from-foreground/10 to-transparent" />
                   </div>
                   <div className="space-y-2">
@@ -207,25 +201,19 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
                               }}
                               className={`relative w-full group flex items-center justify-between p-3.5 px-4 rounded-2xl transition-all duration-200 border overflow-hidden ${
                                 isActive 
-                                  ? 'bg-primary/10 border-primary/20 shadow-[0_0_20px_rgba(212,175,55,0.1)] scale-[1.01]' 
-                                  : 'bg-foreground/[0.02] border-foreground/[0.04] hover:bg-foreground/[0.04] hover:border-primary/20'
+                                  ? 'bg-foreground text-background border-foreground shadow-md scale-[1.01]' 
+                                  : 'bg-foreground/[0.02] border-border/60 hover:bg-foreground/[0.06] hover:border-foreground/30'
                               }`}
                             >
-                              {isActive && (
-                                 <div className="absolute inset-0 bg-gradient-to-l from-primary/20 via-transparent to-transparent opacity-50" />
-                              )}
-                              {isActive && (
-                                 <div className="absolute right-0 top-1/2 -translate-y-1/2 h-1/2 w-1.5 bg-primary rounded-l-full shadow-[0_0_15px_rgba(212,175,55,1)]" />
-                              )}
                               <div className="flex items-center gap-4 relative z-10 w-full">
                                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 shadow-inner shrink-0 ${
-                                   isActive ? 'bg-primary shadow-primary/30 text-primary-foreground scale-105' : 'bg-foreground/5 text-foreground/40 group-hover:text-primary group-hover:bg-primary/10'
+                                   isActive ? 'bg-background text-foreground scale-105' : 'bg-foreground/5 text-foreground/50 group-hover:text-foreground group-hover:bg-foreground/10'
                                  }`}>
                                     <item.icon className="w-[18px] h-[18px]" />
                                  </div>
-                                 <span className={`text-base font-black truncate text-right ${isActive ? 'text-primary' : 'text-foreground/80 group-hover:text-foreground'}`}>{item.label}</span>
+                                 <span className={`text-base font-black truncate text-right ${isActive ? 'text-background' : 'text-foreground/80 group-hover:text-foreground'}`}>{item.label}</span>
                               </div>
-                              <ChevronLeft className={`w-4 h-4 transition-transform duration-300 relative z-10 ${isActive ? 'text-primary -translate-x-1 opacity-100' : 'text-foreground/10 group-hover:-translate-x-0.5 group-hover:text-foreground/40 opacity-0 group-hover:opacity-100'}`} />
+                              <ChevronLeft className={`w-4 h-4 transition-transform duration-300 relative z-10 ${isActive ? 'text-background -translate-x-1 opacity-100' : 'text-foreground/10 group-hover:-translate-x-0.5 group-hover:text-foreground/50 opacity-0 group-hover:opacity-100'}`} />
                             </button>
                         );
                      })}

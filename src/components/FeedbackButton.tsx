@@ -30,7 +30,7 @@ export function FeedbackButton() {
 
     const setupAuth = async () => {
       await initFirebase();
-      if (!isMounted) return;
+      if (!isMounted || !auth) return;
 
       unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
         if (user) {

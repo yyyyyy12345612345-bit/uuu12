@@ -15,6 +15,10 @@ export function useUserPlan() {
 
     const setup = async () => {
       await initFirebase();
+      if (!auth) {
+        setLoading(false);
+        return;
+      }
       unsubscribeAuth = onAuthStateChanged(auth, (user) => {
         if (user) {
           // Use onSnapshot for real-time updates when admin approves
@@ -32,6 +36,9 @@ export function useUserPlan() {
                 count: data.videoRendersCount || 0
               });
             }
+            setLoading(false);
+          }, (err) => {
+            console.warn("[Plan] user snapshot error:", err.message);
             setLoading(false);
           });
         } else {

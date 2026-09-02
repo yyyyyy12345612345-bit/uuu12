@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 76" width="320" height="76">
+  <defs>
+    <!-- Dark Mode Gradient -->
+    <linearGradient id="yaqeenDarkGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stopColor="#FFFFFF"/>
+      <stop offset="50%" stopColor="#F4F4F5"/>
+      <stop offset="100%" stopColor="#E4E4E7"/>
+    </linearGradient>
+
+    <!-- Light Mode Gradient -->
+    <linearGradient id="yaqeenLightGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stopColor="#09090B"/>
+      <stop offset="50%" stopColor="#18181B"/>
+      <stop offset="100%" stopColor="#27272A"/>
+    </linearGradient>
+
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@700;900&amp;display=swap');
+      
+      /* Default (Light Mode / White Canvas) */
+      .brand-title {
+        font-family: 'Amiri', 'Traditional Arabic', serif;
+        font-size: 38px;
+        font-weight: 900;
+        fill: url(#yaqeenLightGrad);
+        letter-spacing: -0.5px;
+      }
+      .brand-line {
+        stroke: #18181B;
+        opacity: 0.5;
+      }
+      .brand-dot {
+        fill: #09090B;
+      }
+      .brand-sub {
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 8px;
+        font-weight: 800;
+        letter-spacing: 0.28em;
+        fill: #52525B;
+      }
+      .brand-arabic-sub {
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 8.5px;
+        font-weight: 700;
+        fill: #71717A;
+      }
+
+      /* Automatic Dark Mode Adaptation */
+      @media (prefers-color-scheme: dark) {
+        .brand-title {
+          fill: url(#yaqeenDarkGrad);
+        }
+        .brand-line {
+          stroke: #E4E4E7;
+          opacity: 0.6;
+        }
+        .brand-dot {
+          fill: #FFFFFF;
+        }
+        .brand-sub {
+          fill: #A1A1AA;
+        }
+        .brand-arabic-sub {
+          fill: #A1A1AA;
+        }
+      }
+    </style>
+  </defs>
+
+  <!-- Adaptive Logo (يتغير تلقائياً حسب الوضع المظلم أو الفاتح) -->
+  <g>
+    <!-- 1. The Main Arabic Wordmark: يَقِينُ القُرْآن -->
+    <text x="160" y="40" text-anchor="middle" class="brand-title">
+      يَقِـينُ القُـرْآن
+    </text>
+
+    <!-- 2. Minimalist Accent Line -->
+    <line x1="50" y1="50" x2="270" y2="50" class="brand-line" stroke-width="1.2" stroke-linecap="round"/>
+    <circle cx="160" cy="50" r="2" class="brand-dot"/>
+
+    <!-- 3. Subtitle: YAQEEN AL-QURAN • نُورٌ وَهُدَى -->
+    <text x="160" y="64" text-anchor="middle">
+      <tspan class="brand-sub">YAQEEN AL-QURAN</tspan>
+      <tspan fill="#71717A">  •  </tspan>
+      <tspan class="brand-arabic-sub">نُورٌ وَهُدَى</tspan>
+    </text>
+  </g>
+</svg>

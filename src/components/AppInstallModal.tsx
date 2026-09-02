@@ -71,7 +71,7 @@ export function AppInstallModal({ isOpen, onClose }: AppInstallModalProps) {
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="relative w-full max-w-3xl bg-[#0c0d10] border border-primary/20 rounded-[3rem] shadow-[0_0_100px_rgba(212,175,55,0.15)] overflow-hidden flex flex-col max-h-[90vh] force-dark animate-in duration-300"
+            className="relative w-full max-w-3xl bg-[#0c0d10] border border-primary/20 rounded-[3rem] shadow-[0_0_100px_rgba(16,185,129,0.15)] overflow-hidden flex flex-col max-h-[90vh] force-dark animate-in duration-300"
           >
             {/* Background Pattern */}
             <div className="absolute inset-0 islamic-pattern opacity-[0.04] pointer-events-none" />

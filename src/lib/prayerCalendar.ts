@@ -64,32 +64,40 @@ function calendarUrl(meta: PrayerLocationMeta, year: number, month: number): str
 }
 
 async function fetchMonth(meta: PrayerLocationMeta, year: number, month: number): Promise<Record<string, PrayerTimesData>> {
-  const res = await fetch(calendarUrl(meta, year, month));
-  const contentType = res.headers.get('content-type') || '';
+  try {
+    const url = calendarUrl(meta, year, month);
+    let res = await fetch(url);
 
-  if (!res.ok) {
-    const body = await res.text();
-    console.warn(`Calendar API request failed ${res.status} ${res.statusText}: ${body.slice(0, 300)}`);
+    // If coordinates failed or returned 404, fallback to city endpoint
+    if (!res.ok && (meta.latitude != null || meta.longitude != null)) {
+      const city = meta.city || "Cairo";
+      const country = meta.country || "Egypt";
+      const fallbackUrl = `https://api.aladhan.com/v1/calendarByCity/${year}/${month + 1}?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${METHOD}`;
+      res = await fetch(fallbackUrl);
+    }
+
+    if (!res.ok) {
+      return {};
+    }
+
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return {};
+    }
+
+    const json = await res.json();
+    if (json.code !== 200 || !Array.isArray(json.data)) {
+      return {};
+    }
+    const out: Record<string, PrayerTimesData> = {};
+    for (const entry of json.data) {
+      const key = gregorianToKey(entry.date.gregorian.date);
+      out[key] = mapTimings(entry.timings);
+    }
+    return out;
+  } catch {
     return {};
   }
-
-  if (!contentType.includes('application/json')) {
-    const body = await res.text();
-    console.warn(`Calendar API returned non-JSON content for ${year}-${month + 1}: ${body.slice(0, 300)}`);
-    return {};
-  }
-
-  const json = await res.json();
-  if (json.code !== 200 || !Array.isArray(json.data)) {
-    console.warn(`Calendar API failed for ${year}-${month + 1}`);
-    return {};
-  }
-  const out: Record<string, PrayerTimesData> = {};
-  for (const entry of json.data) {
-    const key = gregorianToKey(entry.date.gregorian.date);
-    out[key] = mapTimings(entry.timings);
-  }
-  return out;
 }
 
 export async function fetchYearCalendar(
@@ -99,15 +107,23 @@ export async function fetchYearCalendar(
 ): Promise<PrayerYearCalendar> {
   const y = year ?? new Date().getFullYear();
   const days: Record<string, PrayerTimesData> = {};
-  const months = Array.from({ length: 12 }, (_, i) => i);
+  const currentMonth = new Date().getMonth();
 
-  await Promise.all(
-    months.map(async (month, idx) => {
-      const chunk = await fetchMonth(meta, y, month);
-      Object.assign(days, chunk);
-      onProgress?.(idx + 1, 12);
-    })
-  );
+  // 1. Fetch current month first for immediate UI response
+  const currentChunk = await fetchMonth(meta, y, currentMonth);
+  Object.assign(days, currentChunk);
+  onProgress?.(1, 12);
+
+  // 2. Fetch remaining months in gentle batches of 3
+  const remainingMonths = Array.from({ length: 12 }, (_, i) => i).filter(m => m !== currentMonth);
+  const BATCH_SIZE = 3;
+  for (let i = 0; i < remainingMonths.length; i += BATCH_SIZE) {
+    const batch = remainingMonths.slice(i, i + BATCH_SIZE);
+    const results = await Promise.all(batch.map(m => fetchMonth(meta, y, m)));
+    results.forEach(chunk => Object.assign(days, chunk));
+    onProgress?.(Math.min(12, 1 + i + batch.length), 12);
+    await new Promise(r => setTimeout(r, 80));
+  }
 
   const calendar: PrayerYearCalendar = {
     meta,

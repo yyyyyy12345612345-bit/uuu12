@@ -3,8 +3,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Play, Pause, ChevronRight, Search, Bookmark, 
-  User, Star, BookOpen, ChevronLeft, Volume2, Menu
+  User, BookOpen, ChevronLeft, Volume2, Menu, Layers, Sun, Moon
 } from "lucide-react";
+import { navigateInstantly } from "@/lib/navigation";
 import { RECITERS } from "@/data/reciters";
 import { useEditor } from "@/store/useEditor";
 import surahsData from "@/data/surahs.json";
@@ -310,87 +311,69 @@ export function Mushaf() {
                     </svg>
                 </div>
 
-                {/* Custom Top Header Bar */}
-                <header className="relative z-10 w-full h-14 shrink-0 flex items-center justify-between px-2 md:px-4 pt-2">
-                    {/* Right: Guest profile */}
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/70 dark:bg-[#0c0d10]/70 border border-zinc-200/50 dark:border-zinc-800/80 shadow-sm text-xs font-bold text-zinc-700 dark:text-zinc-300 font-arabic">
-                        <span className="text-zinc-400 dark:text-zinc-500 text-sm">👤</span>
-                        <span>زائر</span>
-                    </div>
+                {/* Sleek & Compact Top Header Bar */}
+                <header className="relative z-10 w-full shrink-0 flex items-center justify-between px-3 md:px-6 pt-2 pb-1">
+                    {/* Right: Change Mushaf Button */}
+                    <button
+                        onClick={() => navigateInstantly('/mushaf-choice')}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 dark:bg-[#0c0d10]/80 border border-zinc-200/60 dark:border-zinc-800/80 shadow-sm text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-900 active:scale-95 transition-all font-arabic shrink-0"
+                        title="تغيير نوع المصحف"
+                    >
+                        <Layers className="w-3.5 h-3.5 text-primary" />
+                        <span>تغيير المصحف</span>
+                    </button>
 
-                    {/* Center: Open book logo */}
+                    {/* Center: Clean Title & Subtitle */}
                     <div className="flex flex-col items-center select-none text-center">
-                        <div className="flex items-center gap-1.5 text-[#B8860B] dark:text-[#E9C46A]">
-                            <span className="text-xs">📖</span>
-                            <span className="font-arabic font-black text-xs md:text-sm tracking-wide">المصحف الشريف</span>
+                        <div className="flex items-center gap-1.5 text-foreground font-black text-xs md:text-sm">
+                            <BookOpen className="w-3.5 h-3.5 text-primary" />
+                            <span>المصحف الشريف</span>
                         </div>
-                        <span className="text-[8px] font-bold text-zinc-400 dark:text-zinc-500 mt-0.5">نور على قلبك وقرآن</span>
+                        <span className="text-[8px] font-bold text-foreground/50">اقرأ وتدبر كلام الله عز وجل</span>
                     </div>
 
                     {/* Left: Menu Toggle */}
-                    <div className="flex items-center gap-2">
-                        <button 
-                          onClick={() => { window.location.hash = 'menu'; }}
-                          className="w-8 h-8 rounded-full bg-white/70 dark:bg-[#0c0d10]/70 border border-zinc-200/50 dark:border-zinc-800/80 shadow-sm flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 active:scale-95 transition-all"
-                        >
-                            <Menu className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
-                        </button>
-                    </div>
+                    <button 
+                      onClick={() => { window.location.hash = 'menu'; }}
+                      className="w-8 h-8 rounded-full bg-white/70 dark:bg-[#0c0d10]/70 border border-zinc-200/50 dark:border-zinc-800/80 shadow-sm flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 active:scale-95 transition-all shrink-0"
+                      title="القائمة"
+                    >
+                        <Menu className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
+                    </button>
                 </header>
 
+                {/* Compact Search Bar */}
+                <div className="relative z-10 w-full max-w-lg shrink-0 px-4 my-1.5">
+                    <div className="relative w-full group">
+                        <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-foreground transition-all w-3.5 h-3.5" />
+                        <input
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder="ابحث عن سورة بالاسم أو الرقم..."
+                            className="w-full bg-white/90 dark:bg-[#0c0d10]/80 border border-zinc-200/60 dark:border-zinc-800/80 shadow-sm rounded-full py-1.5 pr-9 pl-4 text-zinc-800 dark:text-zinc-100 text-xs outline-none focus:border-foreground/40 transition-all text-right font-arabic placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
+                        />
+                    </div>
+                </div>
+
                 {/* Main Content Area */}
-                <div className="relative z-10 flex-1 w-full flex flex-col items-center min-h-0 mt-2 px-2 md:px-4">
-                    {/* Header */}
-                    <div className="text-center flex flex-col items-center select-none shrink-0 mb-3">
-                        <h1 className="text-2xl md:text-3xl font-black text-zinc-800 dark:text-zinc-100 mb-1">المصحف الشريف</h1>
-                        <div className="flex items-center justify-center gap-3">
-                            <div className="h-px w-8 bg-[#B8860B]/30 dark:bg-[#E9C46A]/30" />
-                            <span className="text-[9px] font-bold text-[#B8860B] dark:text-[#E9C46A] tracking-wider font-arabic">اقرأ وتدبر كلام الله عز وجل</span>
-                            <div className="h-px w-8 bg-[#B8860B]/30 dark:bg-[#E9C46A]/30" />
-                        </div>
-                    </div>
-
-                    {/* Search */}
-                    <div className="w-full max-w-xl shrink-0 mb-4 px-2">
-                        <div className="relative group">
-                            <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-[#B8860B] transition-all w-4 h-4" />
-                            <input
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                placeholder="ابحث عن سورة..."
-                                className="w-full bg-white/90 dark:bg-[#0c0d10]/60 border border-zinc-200/60 dark:border-zinc-800/80 shadow-sm rounded-full py-2.5 pr-11 pl-6 text-zinc-800 dark:text-zinc-100 text-xs outline-none focus:border-[#B8860B]/40 transition-all text-right font-arabic placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Elegant Divider */}
-                    <div className="flex flex-col items-center gap-1 mb-3 select-none shrink-0">
-                        <h2 className="text-xs font-black text-zinc-700 dark:text-zinc-300">السور</h2>
-                        <div className="flex items-center gap-1 scale-75">
-                          <div className="h-[1px] w-10 bg-gradient-to-r from-transparent to-[#B8860B]/40 dark:to-[#E9C46A]/40" />
-                          <div className="w-2.5 h-2.5 rounded-full border border-[#B8860B]/50 dark:border-[#E9C46A]/50 flex items-center justify-center rotate-45">
-                            <div className="w-1 h-1 bg-[#B8860B] dark:bg-[#E9C46A]" />
-                          </div>
-                          <div className="h-[1px] w-10 bg-gradient-to-l from-transparent to-[#B8860B]/40 dark:to-[#E9C46A]/40" />
-                        </div>
-                    </div>
+                <div className="relative z-10 flex-1 w-full flex flex-col items-center min-h-0 px-2 md:px-4">
 
                     {/* Scrollable Surah Grid */}
                     <div className="flex-1 w-full overflow-y-auto no-scrollbar pb-4 max-w-6xl">
                         {state.bookmark && (
-                            <div className="mb-4 p-3 rounded-2xl bg-[#B8860B]/10 border border-[#B8860B]/20 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm max-w-4xl mx-auto">
+                            <div className="mb-4 p-3 rounded-2xl bg-foreground/5 border border-foreground/15 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm max-w-4xl mx-auto">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-[#B8860B] text-white flex items-center justify-center shadow-md">
+                                    <div className="w-8 h-8 rounded-xl bg-foreground text-background flex items-center justify-center shadow-md">
                                         <Bookmark className="w-4 h-4 fill-current" />
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-[7px] font-black text-[#B8860B] uppercase tracking-widest">وردك المحفوظ</p>
-                                        <p className="text-xs font-bold text-zinc-800 dark:text-zinc-200">سورة {surahsData.find(s => s.id.toString() === state.bookmark?.surahId)?.name} - آية {state.bookmark.ayahId}</p>
+                                        <p className="text-[7px] font-black text-foreground/50 uppercase tracking-widest">وردك المحفوظ</p>
+                                        <p className="text-xs font-bold text-foreground">سورة {surahsData.find(s => s.id.toString() === state.bookmark?.surahId)?.name} - آية {state.bookmark.ayahId}</p>
                                     </div>
                                 </div>
                                 <button
                                     onClick={() => setSelectedSurah(state.bookmark?.surahId || "1")}
-                                    className="bg-[#B8860B] hover:bg-[#B8860B]/90 text-white px-4 py-1.5 rounded-xl font-bold text-xs hover:scale-105 active:scale-95 transition-all shadow-md"
+                                    className="bg-primary text-primary-foreground px-4 py-1.5 rounded-xl font-bold text-xs hover:scale-105 active:scale-95 transition-all shadow-md"
                                 >
                                     مواصلة القراءة
                                 </button>
@@ -402,45 +385,27 @@ export function Mushaf() {
                                 <button
                                     key={surah.id}
                                     onClick={() => setSelectedSurah(surah.id.toString())}
-                                    className="group relative p-3 rounded-2xl bg-white/95 dark:bg-zinc-900/60 backdrop-blur-md border border-zinc-200/50 dark:border-zinc-800/60 hover:border-[#B8860B]/50 dark:hover:border-[#E9C46A]/50 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-between gap-3 text-right"
+                                    className="group relative p-3 rounded-2xl bg-card/90 backdrop-blur-md border border-border hover:border-foreground/30 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-between gap-3 text-right"
                                 >
-                                    {/* Left Side: Star Badge */}
-                                    <div className="flex flex-col items-center gap-1 shrink-0 select-none">
-                                        <div className="relative w-8 h-8 flex items-center justify-center">
-                                            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-[#B8860B] opacity-85 group-hover:opacity-100 transition-opacity">
-                                                <path d="M50 5 L62 38 L95 50 L62 62 L50 95 L38 62 L5 50 L38 38 Z" fill="none" stroke="currentColor" strokeWidth="6" />
-                                                <path d="M50 12 L60 40 L88 50 L60 60 L50 88 L40 60 L12 50 L40 40 Z" fill="currentColor" fillOpacity="0.1" />
-                                            </svg>
-                                            <span className="relative z-10 text-[9px] font-black text-[#B8860B] dark:text-[#E9C46A]">{surah.id.toString().padStart(2, '0')}</span>
-                                        </div>
-                                        <span className="text-[9px] text-zinc-300 dark:text-zinc-700 group-hover:text-[#B8860B] dark:group-hover:text-[#E9C46A] transition-colors">📖</span>
+                                    {/* Left Side: Modern Geometric Surah Index Badge */}
+                                    <div className="w-8 h-8 rounded-xl bg-foreground/5 border border-foreground/10 group-hover:bg-foreground group-hover:text-background flex items-center justify-center font-mono font-black text-[11px] text-foreground transition-all duration-300 shadow-sm shrink-0 select-none">
+                                        {surah.id.toString().padStart(2, '0')}
                                     </div>
 
                                     {/* Right Side: Details */}
                                     <div className="text-right flex-1 min-w-0 pr-1 space-y-0.5">
-                                        <h3 className="text-xs md:text-sm font-black text-zinc-800 dark:text-zinc-100 group-hover:text-[#B8860B] dark:group-hover:text-[#E9C46A] transition-colors">سورة {surah.name}</h3>
-                                        <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500">{surah.total_verses} آية</p>
+                                        <h3 className="text-xs md:text-sm font-black text-foreground transition-colors">
+                                            سورة {surah.name}
+                                        </h3>
+                                        <p className="text-[10px] font-bold text-foreground/50">
+                                            {surah.total_verses} آية
+                                        </p>
                                     </div>
                                 </button>
                             ))}
                         </div>
                     </div>
                 </div>
-
-                {/* Footer */}
-                <footer className="relative z-10 w-full flex flex-col items-center justify-center gap-2 pt-3 border-t border-zinc-200/10 dark:border-zinc-800/40 select-none text-center shrink-0">
-                    <div className="flex items-center gap-4 text-[#B8860B]/70 dark:text-[#E9C46A]/60 text-xs">
-                        <span className="hover:text-[#B8860B] cursor-pointer">📘</span>
-                        <span className="hover:text-[#B8860B] cursor-pointer">🐦</span>
-                        <span className="hover:text-[#B8860B] cursor-pointer">📸</span>
-                        <span className="hover:text-[#B8860B] cursor-pointer">📺</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2 text-[9px] text-zinc-400 dark:text-zinc-500">
-                        <div className="h-px w-5 bg-[#B8860B]/30" />
-                        <span className="font-bold">جميع الحقوق محفوظة © 2025</span>
-                        <div className="h-px w-5 bg-[#B8860B]/30" />
-                    </div>
-                </footer>
             </div>
         );
     }
@@ -467,19 +432,29 @@ export function Mushaf() {
 
             {/* Custom Top Header Bar */}
             <header className="relative z-10 w-full h-14 shrink-0 flex items-center justify-between px-2 md:px-4 pt-2">
-                {/* Right: Back Button */}
-                <button
-                    onClick={() => setSelectedSurah(null)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 dark:bg-[#0c0d10]/70 border border-zinc-200/50 dark:border-zinc-800/80 shadow-sm text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 active:scale-95 transition-all font-arabic"
-                >
-                    <ChevronRight className="w-4 h-4 text-[#B8860B] dark:text-[#E9C46A]" />
-                    <span>الفهرس</span>
-                </button>
+                {/* Right: Back Button & Change Mushaf */}
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setSelectedSurah(null)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 dark:bg-[#0c0d10]/70 border border-zinc-200/50 dark:border-zinc-800/80 shadow-sm text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 active:scale-95 transition-all font-arabic"
+                    >
+                        <ChevronRight className="w-4 h-4 text-primary" />
+                        <span>الفهرس</span>
+                    </button>
+                    <button
+                        onClick={() => navigateInstantly('/mushaf-choice')}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 dark:bg-[#0c0d10]/70 border border-zinc-200/50 dark:border-zinc-800/80 shadow-sm text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 active:scale-95 transition-all font-arabic"
+                        title="تغيير نوع المصحف"
+                    >
+                        <Layers className="w-3.5 h-3.5 text-primary" />
+                        <span>المصاحف</span>
+                    </button>
+                </div>
 
                 {/* Center: Surah details */}
                 <div className="flex flex-col items-center select-none text-center">
-                    <span className="text-[8px] font-black text-[#B8860B] dark:text-[#E9C46A] tracking-[0.3em] uppercase block">سُورَةُ</span>
-                    <h2 className="font-['Amiri'] text-lg md:text-xl font-black text-zinc-800 dark:text-zinc-100">
+                    <span className="text-[8px] font-black text-foreground/50 tracking-[0.3em] uppercase block">سُورَةُ</span>
+                    <h2 className="font-['Amiri'] text-lg md:text-xl font-black text-foreground">
                         {surahContent?.name || "..."}
                     </h2>
                 </div>
@@ -489,7 +464,7 @@ export function Mushaf() {
                   onClick={() => setShowReciterPicker(!showReciterPicker)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 dark:bg-[#0c0d10]/70 border border-zinc-200/50 dark:border-zinc-800/80 shadow-sm text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 active:scale-95 transition-all font-arabic"
                 >
-                    <User className="w-3.5 h-3.5 text-[#B8860B] dark:text-[#E9C46A]" />
+                    <User className="w-3.5 h-3.5 text-primary" />
                     <span className="max-w-[70px] truncate">{selectedReciter.name.split(" ").slice(0, 2).join(" ")}</span>
                 </button>
             </header>
@@ -497,15 +472,15 @@ export function Mushaf() {
             {/* Reciter Picker Popover */}
             {showReciterPicker && (
                 <div className="absolute top-16 left-6 w-72 bg-white/95 dark:bg-[#0c0d10]/98 backdrop-blur-2xl border border-black/10 dark:border-white/10 rounded-[2rem] shadow-xl z-50 p-4 animate-in zoom-in-95 duration-200">
-                    <p className="text-[8px] font-black text-[#B8860B] dark:text-[#E9C46A] uppercase tracking-widest text-center mb-3">اختر قارئ المصحف</p>
+                    <p className="text-[8px] font-black text-foreground/50 uppercase tracking-widest text-center mb-3">اختر قارئ المصحف</p>
                     <div className="flex flex-col gap-1 max-h-[40vh] overflow-y-auto no-scrollbar">
                         {RECITERS.map(reciter => (
                             <button
                                 key={reciter.id}
                                 onClick={() => { updateState({ reciterId: reciter.id }); setShowReciterPicker(false); }}
-                                className={`flex items-center gap-2.5 p-2 rounded-xl transition-all ${state.reciterId === reciter.id ? 'bg-[#B8860B] text-white' : 'hover:bg-black/5 dark:hover:bg-white/5 text-gray-700 dark:text-white/40'}`}
+                                className={`flex items-center gap-2.5 p-2 rounded-xl transition-all ${state.reciterId === reciter.id ? 'bg-primary text-primary-foreground' : 'hover:bg-black/5 dark:hover:bg-white/5 text-foreground/70'}`}
                             >
-                                <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${state.reciterId === reciter.id ? 'bg-black/10' : 'bg-black/5 dark:bg-white/5'}`}>
+                                <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${state.reciterId === reciter.id ? 'bg-background/20' : 'bg-black/5 dark:bg-white/5'}`}>
                                     <User className="w-3.5 h-3.5" />
                                 </div>
                                 <span className="font-bold text-xs text-right flex-1">{reciter.name}</span>
@@ -536,7 +511,7 @@ export function Mushaf() {
                                     x: { type: "spring", stiffness: 300, damping: 30 },
                                     opacity: { duration: 0.15 }
                                 }}
-                                className="w-full bg-white/80 dark:bg-[#0c0d10]/75 backdrop-blur-md border border-[#B8860B]/15 dark:border-zinc-800 rounded-[2.5rem] p-6 md:p-8 shadow-[0_20px_50px_rgba(212,175,55,0.04)] flex flex-col justify-between min-h-[320px] md:min-h-[420px] max-h-[500px]"
+                                className="w-full bg-card/90 dark:bg-card/75 backdrop-blur-md border border-border/70 rounded-[2.5rem] p-6 md:p-8 shadow-[0_20px_50px_rgba(16,185,129,0.05)] flex flex-col justify-between min-h-[320px] md:min-h-[420px] max-h-[500px]"
                             >
                                 
                                 {/* Card Top Actions */}
@@ -546,18 +521,15 @@ export function Mushaf() {
                                         onClick={() => {
                                             updateState({ bookmark: { surahId: selectedSurah, ayahId: currentVerse.id } });
                                         }}
-                                        className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-[9px] font-black transition-all ${state.bookmark?.surahId === selectedSurah && state.bookmark?.ayahId === currentVerse.id ? 'bg-[#B8860B] border-[#B8860B] text-white' : 'border-zinc-200 dark:border-zinc-800 text-zinc-400 dark:text-zinc-500 hover:bg-black/5 dark:hover:bg-white/5'}`}
+                                        className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-[9px] font-black transition-all ${state.bookmark?.surahId === selectedSurah && state.bookmark?.ayahId === currentVerse.id ? 'bg-primary border-primary text-primary-foreground' : 'border-border text-muted-foreground hover:bg-foreground/5'}`}
                                     >
                                         <Bookmark className="w-3 h-3" />
                                         <span>{state.bookmark?.surahId === selectedSurah && state.bookmark?.ayahId === currentVerse.id ? 'وردك المحفوظ' : 'حفظ كورد'}</span>
                                     </button>
 
-                                    {/* Ayah Star Badge */}
-                                    <div className="w-8 h-8 relative flex items-center justify-center">
-                                        <svg className="absolute inset-0 w-full h-full text-[#B8860B] opacity-20" viewBox="0 0 100 100">
-                                            <path d="M50 5 L62 38 L95 50 L62 62 L50 95 L38 62 L5 50 L38 38 Z" fill="currentColor" />
-                                        </svg>
-                                        <span className="relative z-10 text-[10px] font-black text-[#B8860B] dark:text-[#E9C46A]">{currentVerse.id}</span>
+                                    {/* Ayah Number Badge */}
+                                    <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                                        <span className="text-[10px] font-black text-primary">{currentVerse.id}</span>
                                     </div>
                                 </div>
 
@@ -604,9 +576,9 @@ export function Mushaf() {
                                         <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed font-arabic font-medium truncate">
                                             {currentVerse.translation}
                                         </p>
-                                        <div className="mt-1.5 flex items-center justify-end gap-1.5 text-[#B8860B]/80 group-hover/tafsir:text-[#B8860B] transition-colors">
-                                            <span className="text-[7.5px] font-black uppercase tracking-wider">إظهار التفسير والترجمات</span>
-                                            <ChevronLeft className="w-3 h-3" />
+                                        <div className="mt-1.5 flex items-center justify-end gap-1.5 text-primary group-hover/tafsir:text-primary transition-colors">
+                                            <span className="text-[9px] font-bold tracking-wider">عرض التفسير والتدبر الكامل</span>
+                                            <ChevronLeft className="w-3.5 h-3.5" />
                                         </div>
                                     </div>
                                 </div>

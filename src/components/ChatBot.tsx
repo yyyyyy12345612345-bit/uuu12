@@ -17,7 +17,11 @@ interface Message {
 export function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { id: "initial", role: "assistant", content: "السلام عليكم! أنا مساعدك الذكي يقين 🌸. كيف يمكنني مساعدتك في استكشاف التطبيق أو الإجابة عن استفساراتك اليوم؟" }
+    { 
+      id: "initial", 
+      role: "assistant", 
+      content: "السلام عليكم ورحمة الله وبركاته! أنا مساعدك الذكي «يقين». 🤍\n\nيسعدني الإجابة عن استفساراتك حول التطبيق، والأسئلة الدينية العامة، معاني الكلمات والمفردات، قصص الأنبياء والسيرة، وتدبر الآيات.\n\n⚠️ ملاحظة: بصفتي ذكاءً اصطناعياً، يسعدني شرح المعاني والقصص والآيات، ولكن لا أُصدر أحكاماً فقهية أو فتاوى شرعية ملزمة. كيف أستطيع مساعدتك اليوم؟" 
+    }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -39,6 +43,7 @@ export function ChatBot() {
 
   // Load user data
   useEffect(() => {
+    if (!auth) return;
     let unsubFirestore: (() => void) | undefined;
 
     const unsubAuth = onAuthStateChanged(auth, async (user) => {
@@ -70,7 +75,7 @@ export function ChatBot() {
                   activeQuranPlan: data.activeQuranPlan || null
                 });
               }
-            });
+            }, (err) => console.error("ChatBot snapshot error:", err));
           }
         } catch (e) {
           console.error("Error loading user data from Firestore in ChatBot:", e);
@@ -79,7 +84,7 @@ export function ChatBot() {
     });
 
     return () => {
-      unsubAuth();
+      if (unsubAuth) unsubAuth();
       if (unsubFirestore) unsubFirestore();
     };
   }, []);
@@ -299,81 +304,39 @@ export function ChatBot() {
 
   const isFullPage = pathname === "/chat" || pathname === "/chatbot";
 
-  // State to track if it is mobile and viewport constraints
   const [isMobile, setIsMobile] = useState(false);
-  const [dragConstraints, setDragConstraints] = useState({ left: -400, right: 0, top: -600, bottom: 0 });
-
-  // Motion values to share coordinates between floating button and modal
-  const dragX = useMotionValue(0);
-  const dragY = useMotionValue(0);
-
-  // Drag ref to prevent click action on end drag
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const isDraggingRef = useRef(false);
   const dragStartPos = useRef({ x: 0, y: 0 });
-
+  const [modalCoords, setModalCoords] = useState<{ top?: number; bottom?: number; left?: number; right?: number }>({ bottom: 32, right: 24 });
   const modalRef = useRef<HTMLDivElement>(null);
-  const [modalOffset, setModalOffset] = useState({ x: 0, y: 0 });
 
-  const clampModalPosition = () => {
-    if (!modalRef.current) return;
-
-    const rect = modalRef.current.getBoundingClientRect();
-    const modalWidth = rect.width || 380;
-    const modalHeight = rect.height || 550;
-
-    const currentX = dragX.get();
-    const currentY = dragY.get();
-
-    // Default starting positions relative to viewport
-    // bottom-28 (112px from bottom) and right-6 (24px from right)
-    const defaultRight = window.innerWidth - 24;
-    const defaultLeft = defaultRight - modalWidth;
-    const defaultBottom = window.innerHeight - 112;
-    const defaultTop = defaultBottom - modalHeight;
-
-    // Calculate limits for x and y translations
-    const minX = 16 - defaultLeft;
-    const maxX = (window.innerWidth - 16) - defaultRight;
-
-    const minY = 16 - defaultTop;
-    const maxY = (window.innerHeight - 16) - defaultBottom;
-
-    const clampedX = Math.max(minX, Math.min(maxX, currentX));
-    const clampedY = Math.max(minY, Math.min(maxY, currentY));
-
-    setModalOffset({ x: clampedX, y: clampedY });
-  };
+  // Dynamic explicit pixel constraints for flawless movement in all directions
+  const [dragBounds, setDragBounds] = useState({ left: -10, right: 1000, top: -800, bottom: 50 });
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const checkMobile = () => {
+    const updateConstraints = () => {
       const mobile = window.innerWidth < 640;
       setIsMobile(mobile);
-      setDragConstraints({
-        left: -window.innerWidth + 80,
-        right: 0,
-        top: -window.innerHeight + 150,
-        bottom: 0
+      const btnSize = mobile ? 48 : 64;
+      const padding = 12;
+      const startLeft = mobile ? 16 : 24;
+      const startBottom = mobile ? 80 : 32;
+      const startTop = window.innerHeight - startBottom - btnSize;
+
+      setDragBounds({
+        left: -(startLeft - padding),
+        right: Math.max(0, window.innerWidth - startLeft - btnSize - padding),
+        top: -Math.max(0, startTop - padding),
+        bottom: Math.max(0, startBottom - padding)
       });
     };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+
+    updateConstraints();
+    window.addEventListener("resize", updateConstraints);
+    return () => window.removeEventListener("resize", updateConstraints);
   }, []);
-
-  // Clamp modal position on resize/drag coordinates changes when open
-  useEffect(() => {
-    if (typeof window === "undefined" || !isOpen || isFullPage || isMobile) return;
-
-    // Run after a short timeout to let the modal mount and get its correct height
-    const timer = setTimeout(clampModalPosition, 50);
-
-    window.addEventListener("resize", clampModalPosition);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("resize", clampModalPosition);
-    };
-  }, [isOpen, isFullPage, isMobile, dragX, dragY]);
 
   // Click outside to close chatbot
   useEffect(() => {
@@ -403,7 +366,7 @@ export function ChatBot() {
       info.point.x - dragStartPos.current.x,
       info.point.y - dragStartPos.current.y
     );
-    if (distance > 15) {
+    if (distance > 8) {
       isDraggingRef.current = true;
     }
   };
@@ -411,7 +374,7 @@ export function ChatBot() {
   const handleDragEnd = () => {
     setTimeout(() => {
       isDraggingRef.current = false;
-    }, 100);
+    }, 150);
   };
 
   const handleButtonClick = (e: React.MouseEvent) => {
@@ -420,66 +383,128 @@ export function ChatBot() {
       e.preventDefault();
       return;
     }
-    // Clamp coordinates immediately to avoid layout jumps
-    clampModalPosition();
+
+    if (buttonRef.current && !isMobile) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const modalW = 390;
+      const modalH = 580;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
+      // Smart X alignment (Open next to button or align to screen bounds)
+      let left: number | undefined;
+      let right: number | undefined;
+
+      if (rect.left + modalW < vw - 24) {
+        left = Math.max(16, rect.left);
+      } else {
+        right = Math.max(16, vw - rect.right);
+      }
+
+      // Smart Y alignment (Open above or below button)
+      let top: number | undefined;
+      let bottom: number | undefined;
+
+      if (rect.top - modalH > 24) {
+        bottom = vh - rect.top + 8;
+      } else if (rect.bottom + modalH < vh - 24) {
+        top = rect.bottom + 8;
+      } else {
+        // Fallback clamped within screen
+        top = Math.max(16, Math.min(vh - modalH - 16, rect.top - 200));
+      }
+
+      setModalCoords({ left, right, top, bottom });
+    }
+
     setIsOpen(true);
   };
 
   if (pathname === "/video") return null; // Hide in video editor
 
-  // CSS Class adjustments for Light/Dark mode and Mobile/Desktop/FullPage modes
-  const modalClassName = isFullPage
-    ? "relative w-full h-full flex flex-col bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-900/50 rounded-none shadow-none"
-    : isMobile
-      ? `fixed bottom-0 left-0 right-0 z-[1100] w-full h-[80vh] flex flex-col bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 rounded-t-3xl shadow-2xl transition-all duration-300 origin-bottom ${
-          isOpen ? 'translate-y-0 opacity-100 pointer-events-auto' : 'translate-y-full opacity-0 pointer-events-none'
-        }`
-      : `fixed bottom-28 right-6 z-[1100] w-[350px] sm:w-[400px] max-h-[600px] flex flex-col bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl transition-all duration-500 origin-bottom-right ${
-          isOpen ? 'scale-100 opacity-100 pointer-events-auto' : 'scale-0 opacity-0 pointer-events-none'
-        }`;
-
   return (
     <>
-      {/* Floating Button (Hide in full page mode) */}
+      {/* Floating Draggable Mascot AI Button (Frameless & Transparent) */}
       {!isFullPage && (
         <motion.button
+          ref={buttonRef}
           drag={true}
-          dragConstraints={dragConstraints}
+          dragConstraints={dragBounds}
           dragMomentum={false}
+          dragElastic={0.08}
           onDragStart={handleDragStart}
           onDrag={handleDrag}
           onDragEnd={handleDragEnd}
           onClick={handleButtonClick}
-          style={{ x: dragX, y: dragY }}
-          whileDrag={{ scale: 1.1, cursor: "grabbing" }}
-          className={`fixed bottom-28 right-6 z-50 p-3.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100 cursor-grab active:cursor-grabbing'}`}
+          whileDrag={{ scale: 1.15, cursor: "grabbing" }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          className={`fixed bottom-20 sm:bottom-24 md:bottom-8 left-4 md:left-6 z-50 p-0 bg-transparent border-0 shadow-none outline-none group select-none ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100 cursor-grab active:cursor-grabbing'}`}
+          title="اسحبني لأي مكان في الشاشة أو انقر للتحدث مع يقين AI"
+          style={{ touchAction: "none", userSelect: "none" }}
         >
-          <Bot size={22} />
+          {/* Pure Frameless Mascot Icon */}
+          <div className="relative w-12 h-12 md:w-16 md:h-16 flex items-center justify-center select-none pointer-events-none">
+            <img 
+              src="/im/chat.png" 
+              alt="المساعد يقين" 
+              className="w-full h-full object-contain drop-shadow-[0_8px_20px_rgba(0,0,0,0.5)] select-none pointer-events-none" 
+              draggable={false}
+            />
+          </div>
         </motion.button>
       )}
 
+      {/* Chat Window Modal */}
       <motion.div
         ref={modalRef}
-        style={{ x: (!isFullPage && !isMobile) ? modalOffset.x : 0, y: (!isFullPage && !isMobile) ? modalOffset.y : 0 }}
-        className={modalClassName}
+        style={
+          isFullPage 
+            ? {} 
+            : isMobile 
+              ? {} 
+              : {
+                  position: 'fixed',
+                  top: modalCoords.top !== undefined ? `${modalCoords.top}px` : undefined,
+                  bottom: modalCoords.bottom !== undefined ? `${modalCoords.bottom}px` : undefined,
+                  left: modalCoords.left !== undefined ? `${modalCoords.left}px` : undefined,
+                  right: modalCoords.right !== undefined ? `${modalCoords.right}px` : undefined,
+                }
+        }
+        className={
+          isFullPage
+            ? "relative w-full h-full flex flex-col bg-card border border-border rounded-none shadow-none"
+            : isMobile
+              ? `fixed bottom-0 left-0 right-0 z-[1100] w-full h-[82vh] flex flex-col bg-card/95 backdrop-blur-2xl border-t border-border rounded-t-[2.5rem] shadow-2xl transition-all duration-300 origin-bottom ${
+                  isOpen ? 'translate-y-0 opacity-100 pointer-events-auto' : 'translate-y-full opacity-0 pointer-events-none'
+                }`
+              : `z-[1100] w-[390px] max-h-[580px] h-[580px] flex flex-col bg-card/95 backdrop-blur-2xl border border-foreground/15 rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.6)] transition-all duration-300 ${
+                  isOpen ? 'scale-100 opacity-100 pointer-events-auto' : 'scale-0 opacity-0 pointer-events-none'
+                }`
+        }
       >
         
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200/50 dark:border-gray-800/50 bg-gradient-to-r from-emerald-500/10 to-teal-600/10 rounded-t-2xl shrink-0">
+        <div className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-foreground/5 via-foreground/[0.02] to-transparent rounded-t-3xl shrink-0 select-none">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white shadow-md">
-              <Bot size={20} />
+            <div className="w-11 h-11 rounded-2xl bg-foreground/5 border border-foreground/15 flex items-center justify-center shadow-md overflow-hidden p-0.5">
+              <img src="/im/chat.png" alt="المساعد يقين" className="w-full h-full object-contain" />
             </div>
             <div>
-              <h3 className="font-bold text-gray-800 dark:text-gray-100">المساعد يقين</h3>
-              <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">متصل الآن - AI</p>
+              <h3 className="font-bold text-foreground text-sm">
+                المساعد يقين
+              </h3>
+              <p className="text-[11px] text-foreground/70 font-bold flex items-center gap-1.5 mt-0.5">
+                <span className="w-2 h-2 rounded-full bg-foreground shadow-sm animate-pulse inline-block" />
+                متصل الآن - ذكاء اصطناعي قرآني
+              </p>
             </div>
           </div>
           {!isFullPage && (
             <button 
               type="button"
               onClick={() => setIsOpen(false)} 
-              className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-full transition-colors"
+              className="p-2 text-foreground/40 hover:text-foreground hover:bg-foreground/10 rounded-full transition-colors"
             >
               <X size={20} />
             </button>
@@ -492,15 +517,15 @@ export function ChatBot() {
         }`}>
           {messages.map((msg, idx) => (
             <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
-              <div className={`max-w-[85%] rounded-2xl p-3 shadow-sm ${msg.role === "user" ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-br-sm" : "bg-gray-100/80 dark:bg-gray-800/80 text-gray-800 dark:text-gray-200 rounded-bl-sm"}`}>
+              <div className={`max-w-[85%] rounded-2xl p-3 shadow-sm ${msg.role === "user" ? "bg-foreground text-background rounded-br-sm font-medium" : "bg-foreground/5 text-foreground border border-foreground/5 rounded-bl-sm"}`}>
                 <p className="text-sm leading-relaxed whitespace-pre-wrap">
                   {msg.role === "assistant" ? renderMessageContent(msg.content) : msg.content}
                 </p>
                 {msg.content === "" && msg.role === "assistant" && (
                   <div className="flex gap-1 items-center h-5">
-                    <div className="w-1.5 h-1.5 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-bounce"></div>
-                    <div className="w-1.5 h-1.5 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-bounce delay-100"></div>
-                    <div className="w-1.5 h-1.5 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-bounce delay-200"></div>
+                    <div className="w-1.5 h-1.5 bg-foreground/50 rounded-full animate-bounce"></div>
+                    <div className="w-1.5 h-1.5 bg-foreground/50 rounded-full animate-bounce delay-100"></div>
+                    <div className="w-1.5 h-1.5 bg-foreground/50 rounded-full animate-bounce delay-200"></div>
                   </div>
                 )}
               </div>
@@ -510,20 +535,20 @@ export function ChatBot() {
         </div>
 
         {/* Input */}
-        <form onSubmit={handleSubmit} className="p-3 pb-[calc(12px+env(safe-area-inset-bottom,0px))] border-t border-gray-200/50 dark:border-gray-800/50 bg-gray-50/50 dark:bg-gray-950/50 rounded-b-2xl shrink-0">
+        <form onSubmit={handleSubmit} className="p-3 pb-[calc(12px+env(safe-area-inset-bottom,0px))] border-t border-border bg-card rounded-b-2xl shrink-0">
           <div className="relative flex items-center">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="اسألني عن أي شيء..."
-              className="w-full pl-12 pr-4 py-3 bg-gray-100 dark:bg-gray-850 border border-gray-200 dark:border-gray-750 focus:border-emerald-500 focus:bg-white dark:focus:bg-gray-900 rounded-xl text-sm transition-all outline-none text-gray-800 dark:text-gray-200"
+              className="w-full pl-12 pr-4 py-3 bg-foreground/[0.03] border border-border focus:border-foreground/30 focus:bg-background rounded-xl text-sm transition-all outline-none text-foreground"
               dir="rtl"
             />
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
-              className="absolute left-2 p-2 text-white bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:cursor-not-allowed rounded-lg transition-colors"
+              className="absolute left-2 p-2 text-background bg-foreground hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg transition-all"
             >
               {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} className="rtl:rotate-180" />}
             </button>

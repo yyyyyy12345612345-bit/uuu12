@@ -108,7 +108,7 @@ export function PrayerSettingsSheet({ prayerId, draft, onChange, onClose, onSave
           <button
             type="button"
             onClick={onSave}
-            className="flex-[1.4] py-4 rounded-2xl bg-primary text-black font-black text-sm shadow-lg shadow-primary/20"
+            className="flex-[1.4] py-4 rounded-2xl bg-primary text-primary-foreground font-black text-sm shadow-md"
           >
             حفظ الإعدادات
           </button>

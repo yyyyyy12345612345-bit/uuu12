@@ -393,7 +393,7 @@ export function ReflectionCardGenerator({
             <button
               disabled={sharing}
               onClick={handleShareToCommunity}
-              className="w-full py-4.5 rounded-2xl bg-primary text-black flex items-center justify-center gap-3 text-sm font-black transition-all shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
+              className="w-full py-4.5 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center gap-3 text-sm font-black transition-all shadow-md hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
             >
               {sharing ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

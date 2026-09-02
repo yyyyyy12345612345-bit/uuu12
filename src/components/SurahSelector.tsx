@@ -63,7 +63,7 @@ export function SurahSelector() {
       >
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         <div className="flex items-center gap-3 relative z-10">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 ${isSearchLocked ? 'bg-foreground/5 text-foreground/10' : 'bg-primary text-black shadow-xl shadow-primary/20 group-hover:rotate-12'}`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 ${isSearchLocked ? 'bg-foreground/5 text-foreground/10' : 'bg-primary text-primary-foreground shadow-md group-hover:rotate-12'}`}>
                 {isSearchLocked ? <Lock className="w-4 h-4" /> : <Search className="w-4 h-4 stroke-[3px]" />}
             </div>
             <div className="text-right">

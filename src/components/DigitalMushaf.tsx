@@ -3,14 +3,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Loader2, Play, Search, List, User, X, 
-  ChevronRight, ChevronLeft, Book, Star, 
+  ChevronRight, ChevronLeft, Book,
   Download, BookOpen, Settings, Volume2,
-  Maximize2, Menu
+  Maximize2, Menu, Layers
 } from "lucide-react";
+import { navigateInstantly } from "@/lib/navigation";
 import surahsData from "@/data/surahs.json";
 import { RECITERS } from "@/data/reciters";
 import { useEditor } from "@/store/useEditor";
-import { getAudioUrl } from "@/lib/quranUtils";
+import { getAudioUrl, fetchVerseTafsir } from "@/lib/quranUtils";
 import { logAppEvent } from "@/lib/firebase";
 import { setupMediaSession, setPlaybackState } from "@/lib/mediaSession";
 import { startPageTimer, endPageTimer } from "@/lib/points";
@@ -39,12 +40,21 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedVerseForDetail, setSelectedVerseForDetail] = useState<{verseKey: string, surahName: string} | null>(null);
   const [showTafseerDrawer, setShowTafseerDrawer] = useState(true);
+  const [quickTafseerText, setQuickTafseerText] = useState<string>("");
 
   useEffect(() => {
-    if (currentPlayingVerse) {
+    if (currentPlayingVerse && pages[currentPlayingVerse.pageIndex]?.verses[currentPlayingVerse.verseIndex]) {
       setShowTafseerDrawer(true);
+      const verse = pages[currentPlayingVerse.pageIndex].verses[currentPlayingVerse.verseIndex];
+      if (verse?.verse_key) {
+        setQuickTafseerText("جاري جلب التفسير الميسر...");
+        fetchVerseTafsir(verse.verse_key, 14).then(res => {
+          if (res?.text) setQuickTafseerText(res.text.replace(/<[^>]*>?/gm, ''));
+          else setQuickTafseerText("التفسير غير متوفر حالياً");
+        }).catch(() => setQuickTafseerText(""));
+      }
     }
-  }, [currentPlayingVerse]);
+  }, [currentPlayingVerse, pages]);
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const observerTarget = useRef(null);
@@ -263,8 +273,17 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
               <button 
                 onClick={() => setIsIndexOpen(true)}
                 className="w-9 h-9 rounded-xl bg-[#234d40]/10 hover:bg-[#234d40]/20 flex items-center justify-center text-[#234d40] transition-all active:scale-90 border border-[#234d40]/10"
+                title="الفهرس"
               >
                   <Menu className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => navigateInstantly('/mushaf-choice')}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#234d40]/10 hover:bg-[#234d40]/20 text-[#234d40] text-xs font-bold transition-all border border-[#234d40]/10 active:scale-95 font-arabic"
+                title="تغيير نوع المصحف"
+              >
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>تغيير المصحف</span>
               </button>
           </div>
 
@@ -274,7 +293,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
               </h1>
               <div className="flex items-center gap-2">
                   <div className="h-[1px] w-5 bg-[#234d40]/30" />
-                  <Star className="w-1.5 h-1.5 text-[#234d40] fill-[#234d40]" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                   <div className="h-[1px] w-5 bg-[#234d40]/30" />
               </div>
           </div>
@@ -299,9 +318,9 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
                       <button 
                         key={reciter.id} 
                         onClick={() => { updateState({ reciterId: reciter.id }); setShowReciterPicker(false); }}
-                        className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${state.reciterId === reciter.id ? 'bg-primary text-black' : 'hover:bg-black/5 dark:hover:bg-white/5 text-gray-700 dark:text-white/60'}`}
+                        className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${state.reciterId === reciter.id ? 'bg-primary text-primary-foreground shadow-md' : 'hover:bg-black/5 dark:hover:bg-white/5 text-foreground/80'}`}
                       >
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${state.reciterId === reciter.id ? 'bg-black/10' : 'bg-black/5 dark:bg-white/5'}`}>
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${state.reciterId === reciter.id ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-black/5 dark:bg-white/5'}`}>
                               <User className="w-5 h-5" />
                           </div>
                           <span className="font-bold text-sm text-right flex-1">{reciter.name}</span>
@@ -378,7 +397,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
                   ))
               ) : (
                   <div className="flex flex-col items-center gap-8 py-40 text-center">
-                      <div className="w-20 h-20 border-4 border-primary/20 border-t-primary rounded-full animate-spin shadow-[0_0_40px_rgba(212,175,55,0.2)]" />
+                      <div className="w-20 h-20 border-4 border-primary/20 border-t-primary rounded-full animate-spin shadow-[0_0_40px_rgba(16,185,129,0.2)]" />
                       <p className="text-white/40 font-black text-lg tracking-[0.4em] uppercase">جاري صبغ الصفحات...</p>
                   </div>
               )}
@@ -387,7 +406,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
       </main>
 
       {/* Floating Action Bar */}
-      <footer className="force-dark fixed bottom-20 left-1/2 -translate-x-1/2 bg-[#0c0d10]/90 backdrop-blur-3xl border border-white/10 rounded-2xl px-4 py-2 flex items-center gap-3 shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-[100]">
+      <footer className="force-dark fixed bottom-20 md:bottom-8 left-1/2 -translate-x-1/2 bg-[#0c0d10]/90 backdrop-blur-3xl border border-white/10 rounded-2xl px-4 py-2 flex items-center gap-3 shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-[100]">
           <div className="flex items-center gap-1.5">
               <button 
                 onClick={() => updateState({ mushafFontSize: Math.max(16, state.mushafFontSize - 2) })}
@@ -437,7 +456,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
                         fetchPageBatch(target, true);
                     }
                 }}
-                className={`w-7 h-7 rounded-lg bg-primary text-black hover:scale-110 flex items-center justify-center transition-all shadow-[0_0_12px_rgba(212,175,55,0.3)] ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`w-7 h-7 rounded-lg bg-primary text-primary-foreground hover:scale-110 flex items-center justify-center transition-all shadow-[0_0_12px_rgba(16,185,129,0.3)] ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                   {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <ChevronLeft className="w-4 h-4" />}
               </button>
@@ -455,7 +474,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
                     playVerse(0, 0);
                 }
             }}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md ${isPlayingPage ? 'bg-red-500 text-white' : 'bg-primary text-black hover:scale-110'}`}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md ${isPlayingPage ? 'bg-red-500 text-white' : 'bg-primary text-primary-foreground hover:scale-110'}`}
           >
               {isPlayingPage ? <X className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
           </button>
@@ -478,7 +497,7 @@ export function DigitalMushaf({ isTafseerMode = false }: { isTafseerMode?: boole
                   </button>
 
                   <p className="text-xs md:text-sm text-zinc-800 font-arabic font-bold text-center leading-relaxed pt-2 px-4">
-                      {pages[currentPlayingVerse.pageIndex].verses[currentPlayingVerse.verseIndex].translations?.[0]?.text.replace(/<[^>]*>?/gm, '') || "جاري جلب التفسير..."}
+                      {quickTafseerText || "جاري جلب التفسير..."}
                   </p>
                   <button 
                     onClick={() => {
@@ -539,104 +558,67 @@ const SurahHeaderLine = ({ isLeft }: { isLeft: boolean }) => (
 
 const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mushafFontSize, onShowDetail }: any) => {
     const firstVerse = pData.verses[0];
-    const juzNumber = firstVerse?.juz_number || 1;
     const sId = firstVerse ? parseInt(firstVerse.verse_key.split(':')[0]) : 1;
     const surahInfo = surahsData.find(s => s.id === sId);
-    const surahTranslit = surahInfo?.transliteration || "";
     const pageNum = pData.page;
 
     return (
         <div 
             data-page={pData.page}
-            className="flex flex-col relative w-full min-h-[900px] md:min-h-[1100px] bg-[#fbfaf7] border border-[#bcdad0] rounded-[2rem] shadow-[0_20px_50px_rgba(35,77,64,0.12)] overflow-hidden"
+            className="flex flex-col relative w-full min-h-[900px] md:min-h-[1100px] bg-[#FCFBF7] dark:bg-[#07080c] border border-[#bcdad0] dark:border-emerald-500/20 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden transition-colors duration-300"
         >
             {/* Paper Texture Overlay */}
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.04] mix-blend-multiply bg-[radial-gradient(#c5d1cb_1px,transparent_1px)] [background-size:16px_16px]" />
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] dark:opacity-[0.02] mix-blend-multiply dark:mix-blend-screen bg-[radial-gradient(#000_1px,transparent_1px)] dark:bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]" />
             
             {/* Ornate Borders */}
             <div className="absolute inset-0 z-10 pointer-events-none">
-                <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 800 1200">
-                    <defs>
-                        <linearGradient id="mushafBorderColor" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#234d40" />
-                            <stop offset="100%" stopColor="#1e3f34" />
-                        </linearGradient>
-                    </defs>
-                    
-                    {/* Outer border (with rounded concave corners) */}
+                <svg className="absolute inset-0 w-full h-full text-foreground/30 dark:text-foreground/25" preserveAspectRatio="none" viewBox="0 0 800 1200">
+                    {/* Outer border */}
                     <path 
-                      d="
-                        M 50 20 
-                        L 750 20 
-                        A 30 30 0 0 0 780 50 
-                        L 780 1150 
-                        A 30 30 0 0 0 750 1180 
-                        L 50 1180 
-                        A 30 30 0 0 0 20 1150 
-                        L 20 50 
-                        A 30 30 0 0 0 50 20 
-                        Z
-                      " 
+                      d="M 50 20 L 750 20 A 30 30 0 0 0 780 50 L 780 1150 A 30 30 0 0 0 750 1180 L 50 1180 A 30 30 0 0 0 20 1150 L 20 50 A 30 30 0 0 0 50 20 Z" 
                       fill="none" 
-                      stroke="url(#mushafBorderColor)" 
+                      stroke="currentColor" 
                       strokeWidth="2.5" 
-                      opacity="0.9" 
+                      opacity="0.85" 
                     />
                     
-                    {/* Inner border (spaced 8px inside) */}
+                    {/* Inner border */}
                     <path 
-                      d="
-                        M 54 28 
-                        L 746 28 
-                        A 26 26 0 0 0 772 54 
-                        L 772 1146 
-                        A 26 26 0 0 0 746 1172 
-                        L 54 1172 
-                        A 26 26 0 0 0 28 1146 
-                        L 28 54 
-                        A 26 26 0 0 0 54 28 
-                        Z
-                      " 
+                      d="M 54 28 L 746 28 A 26 26 0 0 0 772 54 L 772 1146 A 26 26 0 0 0 746 1172 L 54 1172 A 26 26 0 0 0 28 1146 L 28 54 A 26 26 0 0 0 54 28 Z" 
                       fill="none" 
-                      stroke="url(#mushafBorderColor)" 
+                      stroke="currentColor" 
                       strokeWidth="0.8" 
-                      opacity="0.6" 
+                      opacity="0.5" 
                     />
                     
-                    {/* Corner concentric circle ornaments */}
-                    <circle cx="50" cy="50" r="3" fill="#234d40" />
-                    <circle cx="50" cy="50" r="6" stroke="#234d40" strokeWidth="0.5" fill="none" />
-
-                    <circle cx="750" cy="50" r="3" fill="#234d40" />
-                    <circle cx="750" cy="50" r="6" stroke="#234d40" strokeWidth="0.5" fill="none" />
-
-                    <circle cx="50" cy="1150" r="3" fill="#234d40" />
-                    <circle cx="50" cy="1150" r="6" stroke="#234d40" strokeWidth="0.5" fill="none" />
-
-                    <circle cx="750" cy="1150" r="3" fill="#234d40" />
-                    <circle cx="750" cy="1150" r="6" stroke="#234d40" strokeWidth="0.5" fill="none" />
+                    {/* Corner ornaments */}
+                    <circle cx="50" cy="50" r="3" fill="currentColor" />
+                    <circle cx="50" cy="50" r="6" stroke="currentColor" strokeWidth="0.5" fill="none" />
+                    <circle cx="750" cy="50" r="3" fill="currentColor" />
+                    <circle cx="750" cy="50" r="6" stroke="currentColor" strokeWidth="0.5" fill="none" />
+                    <circle cx="50" cy="1150" r="3" fill="currentColor" />
+                    <circle cx="50" cy="1150" r="6" stroke="currentColor" strokeWidth="0.5" fill="none" />
+                    <circle cx="750" cy="1150" r="3" fill="currentColor" />
+                    <circle cx="750" cy="1150" r="6" stroke="currentColor" strokeWidth="0.5" fill="none" />
                 </svg>
             </div>
 
-            {/* Page Header (Matching screenshot pill shape and decorative lines) */}
+            {/* Page Header (Surah Name Pill) */}
             <div className="relative h-20 flex items-center justify-center px-16 z-20 mt-6 pointer-events-none select-none" dir="rtl">
-                {/* Horizontal left decorative line */}
                 <SurahHeaderLine isLeft={true} />
 
-                {/* Center: Surah Name pill */}
-                <div className="flex items-center justify-center bg-[#e8f2ee] border border-[#bcdad0] rounded-full px-8 py-1.5 shadow-sm min-w-[200px] mx-4">
-                    <span className="font-['Amiri'] text-lg font-bold text-[#1e4a3e] leading-none">
+                <div className="flex items-center justify-center bg-foreground/[0.04] dark:bg-foreground/[0.06] border border-border/80 rounded-full px-8 py-1.5 shadow-xs min-w-[200px] mx-4">
+                    <span className="font-['Amiri'] text-lg font-bold text-foreground leading-none">
                         سورة {surahInfo?.name} {toArabicNumerals(sId)}
                     </span>
                 </div>
                 
-                {/* Horizontal right decorative line */}
                 <SurahHeaderLine isLeft={false} />
             </div>
 
             {/* Quran Text Area */}
             <div className="relative z-10 w-full flex flex-col items-center px-6 sm:px-[12%] md:px-[15%] pt-6 pb-28 flex-1">
-                <div className="w-full text-justify [text-align-last:justify] leading-[3] md:leading-[3.6] text-black" style={{ textJustify: 'inter-word', wordSpacing: '0.35em' }}>
+                <div className="w-full text-justify [text-align-last:justify] leading-[3] md:leading-[3.6] text-foreground" style={{ textJustify: 'inter-word', wordSpacing: '0.35em' }}>
                     {pData.verses.map((verse: any, vIdx: number) => {
                         const [sIdStr, vId] = verse.verse_key.split(':');
                         const isFirstVerse = vId === "1";
@@ -644,42 +626,36 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                         const isPlaying = currentPlayingVerse?.pageIndex === pIdx && currentPlayingVerse?.verseIndex === vIdx;
 
                         return (
-                            <React.Fragment key={verse.id}>
+                            <React.Fragment key={verse.id || `${sIdStr}-${vId}`}>
                                 {isFirstVerse && (
-                                    <div className="w-full flex flex-col items-center gap-4 my-10 animate-in fade-in duration-1000 select-none">
+                                    <div className="w-full flex flex-col items-center gap-4 my-8 animate-in fade-in duration-700 select-none">
                                         {/* Ornate Surah Title Header Banner */}
-                                        <div className="relative w-full max-w-[620px] h-[70px] flex items-center justify-between px-8 bg-[#e8f2ee]/60 border-4 border-double border-[#234d40]/60 rounded-2xl my-6">
+                                        <div className="relative w-full max-w-[620px] h-[70px] flex items-center justify-between px-8 bg-foreground/[0.04] dark:bg-foreground/[0.06] border-4 border-double border-border rounded-2xl my-4">
                                             {/* Left Box: Verse count */}
-                                            <div className="flex items-center justify-center border border-[#234d40]/30 rounded-lg px-3 py-0.5 bg-[#234d40]/5 min-w-[90px]">
-                                                <span className="font-['Amiri'] text-xs font-bold text-[#1e4a3e]">
+                                            <div className="flex items-center justify-center border border-border rounded-lg px-3 py-0.5 bg-foreground/[0.03] min-w-[90px]">
+                                                <span className="font-['Amiri'] text-xs font-bold text-foreground/80">
                                                     آيَاتُهَا {toArabicNumerals(surahInfo?.total_verses || 0)}
                                                 </span>
                                             </div>
                                             
                                             {/* Center: Surah Title */}
                                             <div className="flex-1 text-center">
-                                                <h3 className="font-['Amiri'] text-2xl font-black text-[#1e4a3e]">
+                                                <h3 className="font-['Amiri'] text-2xl font-black text-foreground">
                                                     سُورَةُ {surahName}
                                                 </h3>
                                             </div>
                                             
                                             {/* Right Box: Revelation Type */}
-                                            <div className="flex items-center justify-center border border-[#234d40]/30 rounded-lg px-3 py-0.5 bg-[#234d40]/5 min-w-[90px]">
-                                                <span className="font-['Amiri'] text-xs font-bold text-[#1e4a3e]">
+                                            <div className="flex items-center justify-center border border-border rounded-lg px-3 py-0.5 bg-foreground/[0.03] min-w-[90px]">
+                                                <span className="font-['Amiri'] text-xs font-bold text-foreground/80">
                                                     {surahInfo?.type === 'meccan' ? 'مَكِّيَّةٌ' : 'مَدَنِيةٌ'}
                                                 </span>
                                             </div>
-
-                                            {/* Corner dot ornaments */}
-                                            <div className="absolute top-1.5 left-1.5 w-1.5 h-1.5 rounded-full bg-[#d4af37]" />
-                                            <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#d4af37]" />
-                                            <div className="absolute bottom-1.5 left-1.5 w-1.5 h-1.5 rounded-full bg-[#d4af37]" />
-                                            <div className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#d4af37]" />
                                         </div>
 
                                         {/* Basmalah */}
                                         {sId !== 1 && sId !== 9 && (
-                                            <div className="font-['Amiri'] text-4xl py-6 font-bold text-[#1e4a3e] opacity-95">
+                                            <div className="font-['Amiri'] text-3xl md:text-4xl py-4 font-bold text-foreground opacity-95 text-center">
                                                 بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
                                             </div>
                                         )}
@@ -688,30 +664,32 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
                                 
                                 <span 
                                     onClick={() => playVerse(pIdx, vIdx)} 
-                                    className={`inline transition-all duration-300 rounded-xl cursor-pointer py-1 px-2 ${isPlaying ? 'bg-primary/20 text-[#234d40] shadow-[0_0_30px_rgba(212,175,55,0.2)] scale-105 z-50' : 'hover:bg-[#234d40]/5 text-black'}`}
+                                    className={`inline transition-all duration-300 rounded-xl cursor-pointer py-1 px-1.5 ${
+                                      isPlaying 
+                                        ? 'bg-foreground/15 text-foreground shadow-sm font-bold' 
+                                        : 'hover:bg-foreground/10 text-foreground'
+                                    }`}
                                 >
-                                    <span className="font-uthman-taha font-['Uthman_Taha_Naskh',_'Amiri'] inline font-bold antialiased" style={{ fontSize: `${mushafFontSize}px` }}>
+                                    <span className="font-uthman-taha font-['Uthman_Taha_Naskh',_'Amiri'] inline font-bold antialiased leading-[3] md:leading-[3.6]" style={{ fontSize: `${mushafFontSize}px` }}>
                                         {verse.text_uthmani_tajweed ? (
                                             <span dangerouslySetInnerHTML={{ __html: verse.text_uthmani_tajweed.replace(/\s*<span class="?end"?[^>]*>.*?<\/span>/gi, '') }} />
                                         ) : (
                                             verse.text_uthmani || verse.text || verse.words?.filter((w: any) => w.char_type_name === 'word').map((w: any) => w.text_uthmani).join(" ")
                                         )}
                                         
-                                        {/* Ornate End-of-Verse Marker (8-pointed Islamic Star Rub el Hizb) */}
+                                        {/* Ornate End-of-Verse Marker */}
                                         <span 
                                             onClick={(e) => { e.stopPropagation(); onShowDetail(verse.verse_key, surahName); }}
-                                            className="inline-block mx-2 relative cursor-help select-none align-middle"
-                                            style={{ width: `${mushafFontSize * 1.2}px`, height: `${mushafFontSize * 1.2}px` }}
+                                            className="inline-block mx-1.5 relative cursor-help select-none align-middle"
+                                            style={{ width: `${mushafFontSize * 1.15}px`, height: `${mushafFontSize * 1.15}px` }}
+                                            title="اضغط لعرض التفسير والتدبر"
                                         >
-                                            <svg className={`absolute inset-0 w-full h-full transition-colors ${isPlaying ? 'text-[#d4af37]' : 'text-[#234d40]'}`} viewBox="0 0 100 100" fill="none">
-                                                {/* First square */}
+                                            <svg className={`absolute inset-0 w-full h-full transition-colors ${isPlaying ? 'text-foreground' : 'text-foreground/40'}`} viewBox="0 0 100 100" fill="none">
                                                 <rect x="23" y="23" width="54" height="54" rx="4" fill="currentColor" />
-                                                {/* Second square rotated 45 deg */}
                                                 <rect x="23" y="23" width="54" height="54" rx="4" fill="currentColor" transform="rotate(45 50 50)" />
-                                                {/* Inner circle with light page background fill */}
-                                                <circle cx="50" cy="50" r="21" fill="#fbfaf7" stroke="currentColor" strokeWidth="2" />
+                                                <circle cx="50" cy="50" r="21" className="fill-[#FCFBF7] dark:fill-[#07080c]" stroke="currentColor" strokeWidth="2" />
                                             </svg>
-                                            <span className={`absolute inset-0 flex items-center justify-center font-bold font-arabic transition-colors ${isPlaying ? 'text-[#b08b20]' : 'text-[#1e4a3e]'}`} style={{ fontSize: `${mushafFontSize * 0.45}px`, fontFamily: 'Amiri, serif' }}>
+                                            <span className={`absolute inset-0 flex items-center justify-center font-bold font-arabic transition-colors ${isPlaying ? 'text-foreground font-black' : 'text-foreground/80'}`} style={{ fontSize: `${mushafFontSize * 0.42}px`, fontFamily: 'Amiri, serif' }}>
                                               {toArabicNumerals(vId)}
                                             </span>
                                         </span>
@@ -724,9 +702,9 @@ const MushafPage = React.memo(({ pData, pIdx, currentPlayingVerse, playVerse, mu
             </div>
 
             {/* Page Number Pill at bottom center */}
-            <div className="absolute bottom-6 left-0 right-0 z-20 flex justify-center items-center pointer-events-none select-none">
-                <div className="flex items-center justify-center bg-[#e8f2ee] border border-[#bcdad0] rounded-full px-5 py-0.5 shadow-sm min-w-[50px]">
-                    <span className="font-['Amiri'] text-xs font-bold text-[#1e4a3e]">{toArabicNumerals(pageNum)}</span>
+            <div className="absolute bottom-5 left-0 right-0 z-20 flex justify-center items-center pointer-events-none select-none">
+                <div className="flex items-center justify-center bg-foreground/[0.04] dark:bg-foreground/[0.06] border border-border/80 rounded-full px-5 py-0.5 shadow-xs min-w-[50px]">
+                    <span className="font-['Amiri'] text-xs font-bold text-foreground">{toArabicNumerals(pageNum)}</span>
                 </div>
             </div>
         </div>

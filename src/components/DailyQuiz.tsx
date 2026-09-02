@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Brain, Trophy, CheckCircle2, AlertCircle, ArrowLeft, RefreshCw, Star, Sparkles, Loader2, Clock } from "lucide-react";
+import { Brain, Trophy, CheckCircle2, AlertCircle, ArrowLeft, RefreshCw, Sparkles, Loader2, Clock } from "lucide-react";
 import { addPoints } from "@/lib/points";
 import { auth } from "@/lib/firebase";
 
@@ -803,7 +803,7 @@ export function DailyQuiz() {
             <div className="pt-4 max-w-xs mx-auto">
               <button 
                 onClick={() => setMode("score")}
-                className="w-full py-4 bg-primary text-black font-black text-xs rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+                className="w-full py-4 bg-primary text-primary-foreground font-black text-xs rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-md flex items-center justify-center gap-2"
               >
                 <span>عرض تفاصيل درجاتك ونقاطك اليوم 🏆</span>
               </button>
@@ -933,10 +933,9 @@ export function DailyQuiz() {
           {showExplanation && (
             <div className="bg-foreground/[0.03] dark:bg-[#0c0d10] border border-border dark:border-white/5 rounded-2xl p-5 space-y-2 animate-in slide-in-from-bottom-2 duration-300 text-right">
               <span className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-1.5 justify-end">
-                <Sparkles className="w-3.5 h-3.5 text-primary" />
                 <span>
                   {selectedOpt === currentQ?.correctAnswerIndex 
-                    ? "إجابة صحيحة متميزة! 🎉 (+5 نقاط)" 
+                    ? "إجابة صحيحة متميزة! (+5 نقاط)" 
                     : selectedOpt === -1 
                       ? "للأسف، انتهى الوقت! ⏱️" 
                       : "إجابة خاطئة! 💡"}
@@ -952,7 +951,7 @@ export function DailyQuiz() {
           {isAnswered && (
             <button
               onClick={handleNext}
-              className="w-full py-4 bg-primary text-black font-black text-sm rounded-2xl hover:scale-[1.01] active:scale-95 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+              className="w-full py-4 bg-primary text-primary-foreground font-black text-sm rounded-2xl hover:scale-[1.01] active:scale-95 transition-all shadow-md flex items-center justify-center gap-2"
             >
               <span>
                 {playedCount >= 20 

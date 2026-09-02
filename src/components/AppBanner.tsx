@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { X, Download, Smartphone, Star, Zap } from "lucide-react";
+import { X, Download, Smartphone, Zap } from "lucide-react";
 import {
   getPlatform,
   getBannerDismissed,
@@ -138,18 +138,14 @@ export function AppBanner({ apkDownloadUrl = "https://yaqeenalquran.online/downl
             {/* Content */}
             <div className="flex-1 min-w-0 text-right">
               <div className="flex items-center justify-end gap-2 mb-0.5">
-                <span className="text-[9px] font-black text-[#d4af37] uppercase tracking-[0.2em] bg-[#d4af37]/10 px-2 py-0.5 rounded-full">
+                <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em] bg-primary/10 px-2 py-0.5 rounded-full">
                   تطبيق أصلي
                 </span>
               </div>
-              <p className="text-white font-black text-xs md:text-sm leading-tight">ثبّت تطبيق سكينة</p>
+              <p className="text-white font-black text-xs md:text-sm leading-tight">ثبّت تطبيق يقين القرآن</p>
               <p className="text-white/40 text-[9px] md:text-[11px] font-bold mt-0.5">تجربة أفضل · أذان تلقائي · بدون إنترنت</p>
-              {/* Stars */}
-              <div className="flex items-center justify-end gap-0.5 mt-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-2.5 h-2.5 text-[#d4af37] fill-[#d4af37]" />
-                ))}
-                <span className="text-[9px] text-white/30 mr-1">5.0</span>
+              <div className="flex items-center justify-end gap-1 mt-1">
+                <span className="text-[9px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-md">تقييم ممتاز 5.0</span>
               </div>
             </div>
 

@@ -14,6 +14,7 @@ import { registerPlugin } from '@capacitor/core';
 import { AppBanner } from '@/components/AppBanner';
 import { initSmartNotifications, cleanupSmartNotifications } from '@/lib/smartNotifications';
 import { loadYearCalendar, getTodayTimes } from '@/lib/prayerCalendar';
+import { initGlobalErrorTracking } from '@/lib/errorTracker';
 import dynamic from "next/dynamic";
 
 const OnboardingOverlay = dynamic(
@@ -64,6 +65,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
   const [confirmData, setConfirmData] = useState<{ message: string; resolve: (val: boolean) => void } | null>(null);
 
   useEffect(() => {
+    initGlobalErrorTracking();
     setMounted(true);
     // Override window.alert
     window.alert = (message: string) => {
@@ -345,6 +347,8 @@ export default function AppInitializer({ children }: { children: React.ReactNode
             setMandatoryAnnouncement(null);
           }
         }
+      }, (err) => {
+        console.warn("[App] settings/global listener error:", err.message);
       });
 
       unsubscribeAlerts = onSnapshot(doc(db, "settings", "alerts"), (snapshot) => {
@@ -374,14 +378,18 @@ export default function AppInitializer({ children }: { children: React.ReactNode
         } else {
           setGlobalAlert(null);
         }
+      }, (err) => {
+        console.warn("[App] settings/alerts listener error:", err.message);
       });
 
-      unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-        if (user && Capacitor.isNativePlatform()) {
-          console.log("[App] User detected, re-initializing push token...");
-          initializePushNotifications();
-        }
-      });
+      if (auth) {
+        unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+          if (user && Capacitor.isNativePlatform()) {
+            console.log("[App] User detected, re-initializing push token...");
+            initializePushNotifications();
+          }
+        });
+      }
 
       unsubscribeVersion = onSnapshot(doc(db, "settings", "version"), (snapshot) => {
         if (snapshot.exists()) {
@@ -393,6 +401,8 @@ export default function AppInitializer({ children }: { children: React.ReactNode
             setShowUpdateModal(true);
           }
         }
+      }, (err) => {
+        console.warn("[App] settings/version listener error:", err.message);
       });
     };
     setupListeners();
@@ -514,7 +524,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
                  <button 
                    onClick={requestAllPermissions}
-                   className="w-full py-5 bg-primary text-black rounded-[2rem] font-black text-lg shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                   className="w-full py-5 bg-primary text-primary-foreground rounded-[2rem] font-black text-lg shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
                  >
                     <span>سماح بالصلاحيات الآن</span>
                     <ArrowRight className="w-5 h-5" />
@@ -603,7 +613,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
                 <button 
                   onClick={() => window.open(updateInfo?.downloadUrl, '_blank')}
-                  className="w-full py-5 bg-primary text-black rounded-[1.5rem] font-bold text-lg shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                  className="w-full py-5 bg-primary text-primary-foreground rounded-[1.5rem] font-bold text-lg shadow-md hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
                 >
                   <Download className="w-5 h-5" />
                   تحديث الآن

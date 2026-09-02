@@ -1681,7 +1681,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                 window.dispatchEvent(new CustomEvent("show_auth_gate"));
                 onClose();
               }} 
-              className="w-full bg-primary text-black py-5 rounded-[1.5rem] font-black shadow-2xl hover:scale-105 transition-all"
+              className="w-full bg-primary text-primary-foreground py-5 rounded-[1.5rem] font-black shadow-md hover:scale-105 transition-all"
             >
               تسجيل الدخول الآن
             </button>
@@ -1689,13 +1689,13 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         ) : isLimitReached ? (
           <div className="animate-in fade-in zoom-in duration-500 flex flex-col items-center py-10">
             <div className="w-24 h-24 rounded-[2rem] bg-amber-500/10 flex items-center justify-center mb-8 border border-amber-500/20">
-              <Sparkles className="w-12 h-12 text-amber-500" />
+              <Clock className="w-12 h-12 text-amber-500" />
             </div>
             <h3 className="text-2xl font-black text-white mb-4">فترة انتظار التصدير</h3>
             <p className="text-white/40 text-sm text-center mb-10 px-8 leading-relaxed font-arabic">
               طبقاً لخطة تبرعك الحالي، يرجى الانتظار <span className="text-primary font-bold font-mono">{cooldownTimeLeft !== null ? `${Math.floor(cooldownTimeLeft / 60)} دقيقة و ${cooldownTimeLeft % 60} ثانية` : '15 دقيقة'}</span> قبل تصدير الفيديو التالي. نطبق فترات الانتظار لضمان استقرار السيرفرات السحابية وتوزيع الموارد بشكل عادل، لنحافظ على مجانية الموقع ونساعد أكبر عدد من المستخدمين في تصميم ونشر القرآن الكريم.
             </p>
-            <button onClick={() => { onClose(); onOpenSubscription(); }} className="w-full bg-primary text-black py-5 rounded-[1.5rem] font-black shadow-2xl hover:scale-105 transition-all">ترقية خطة التبرع لسرعة أكبر</button>
+            <button onClick={() => { onClose(); onOpenSubscription(); }} className="w-full bg-primary text-primary-foreground py-5 rounded-[1.5rem] font-black shadow-md hover:scale-105 transition-all">ترقية خطة التبرع لسرعة أكبر</button>
           </div>
         ) : status === "idle" ? (
           <>
@@ -1711,8 +1711,8 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                 </div>
             </div>
 
-            <div className="w-24 h-24 rounded-[2.5rem] bg-primary flex items-center justify-center mb-10 shadow-[0_20px_50px_rgba(212,175,55,0.2)]">
-              <Play className="w-10 h-10 text-black fill-current" />
+            <div className="w-24 h-24 rounded-[2.5rem] bg-primary flex items-center justify-center mb-10 shadow-lg">
+              <Play className="w-10 h-10 text-primary-foreground fill-current" />
             </div>
             
             <h3 className="font-['Amiri'] text-4xl font-black text-white mb-2">تجهيز العمل الفني</h3>
@@ -1735,7 +1735,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                 </button>
             </div>
 
-            <button onClick={handleStart} className="w-full bg-primary text-black py-6 rounded-[1.5rem] font-black text-lg shadow-2xl hover:scale-[1.03] transition-all">بدء التصميم والتصدير الآن</button>
+            <button onClick={handleStart} className="w-full bg-primary text-primary-foreground py-6 rounded-[1.5rem] font-black text-lg shadow-md hover:scale-[1.03] transition-all">بدء التصميم والتصدير الآن</button>
           </>
         ) : (
           <div className="w-full flex flex-col items-center py-4">

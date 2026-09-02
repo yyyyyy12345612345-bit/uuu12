@@ -410,22 +410,27 @@ export function AudioLibrary() {
 
   /* ── Auth & Firestore ── */
   useEffect(() => {
+    if (!auth) return;
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       if (u) {
-        const snap = await getDoc(doc(db, "users", u.uid));
-        if (snap.exists()) {
-          const d = snap.data();
-          if (d.audioFavorites) setFavorites(d.audioFavorites);
-          if (d.audioHistory) setRecentlyPlayed(d.audioHistory);
-        } else {
-          const saved = localStorage.getItem("quran_favorites");
-          const savedH = localStorage.getItem("quran_history");
-          const favs = saved ? JSON.parse(saved) : [];
-          const hist = savedH ? JSON.parse(savedH) : [];
-          setFavorites(favs);
-          setRecentlyPlayed(hist);
-          await setDoc(doc(db, "users", u.uid), { audioFavorites: favs, audioHistory: hist }, { merge: true });
+        try {
+          const snap = await getDoc(doc(db, "users", u.uid));
+          if (snap.exists()) {
+            const d = snap.data();
+            if (d.audioFavorites) setFavorites(d.audioFavorites);
+            if (d.audioHistory) setRecentlyPlayed(d.audioHistory);
+          } else {
+            const saved = localStorage.getItem("quran_favorites");
+            const savedH = localStorage.getItem("quran_history");
+            const favs = saved ? JSON.parse(saved) : [];
+            const hist = savedH ? JSON.parse(savedH) : [];
+            setFavorites(favs);
+            setRecentlyPlayed(hist);
+            await setDoc(doc(db, "users", u.uid), { audioFavorites: favs, audioHistory: hist }, { merge: true });
+          }
+        } catch (e) {
+          console.error("Error fetching user audio profile:", e);
         }
       } else {
         const saved = localStorage.getItem("quran_favorites");

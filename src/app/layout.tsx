@@ -134,6 +134,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import AppInitializer from "@/components/AppInitializer";
 import Script from "next/script";
 import { ErrorDebug } from "@/components/ErrorDebug";
+import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 
 const GA_ID = "G-M167S42G7X";
 
@@ -222,7 +223,9 @@ export default function RootLayout({
         <ThemeProvider>
           <EditorProvider>
             <AppInitializer>
-              {children}
+              <GlobalErrorBoundary>
+                {children}
+              </GlobalErrorBoundary>
             </AppInitializer>
           </EditorProvider>
         </ThemeProvider>

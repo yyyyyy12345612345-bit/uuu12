@@ -3,49 +3,67 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* Light Theme (Neutral/Premium) */
-  --background: 220 20% 98%;
-  --foreground: 220 30% 10%;
+  /* Crisp White Light Theme - Pure Monochrome */
+  --background: 0 0% 100%;
+  --foreground: 0 0% 9%;
   
   --card: 0 0% 100%;
-  --card-foreground: 220 30% 10%;
+  --card-foreground: 0 0% 9%;
   
-  --primary: 43 66% 45%; /* Sophisticated Gold */
-  --primary-foreground: 220 30% 10%; /* Dark Charcoal for contrast on gold */
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 9%;
   
-  --secondary: 43 30% 12%; /* Deep Warm Slate/Bronze */
-  --secondary-foreground: 0 0% 100%;
+  --primary: 0 0% 9%; /* Pure Deep Black in Light Mode */
+  --primary-foreground: 0 0% 100%;
   
-  --accent: 220 20% 90%;
-  --accent-foreground: 220 30% 10%;
+  --secondary: 0 0% 95%;
+  --secondary-foreground: 0 0% 9%;
   
-  --border: 220 20% 90%;
-  --input: 220 20% 90%;
-  --ring: 43 66% 45%;
+  --muted: 0 0% 95%;
+  --muted-foreground: 0 0% 45%;
   
-  --radius: 1.5rem;
+  --accent: 0 0% 90%;
+  --accent-foreground: 0 0% 9%;
+  
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  
+  --border: 0 0% 88%;
+  --input: 0 0% 88%;
+  --ring: 0 0% 20%;
+  
+  --radius: 1.25rem;
 }
 
 .dark {
-  /* Dark Theme (Midnight Charcoal & Gold) */
-  --background: 220 25% 4%; /* Deep Midnight Charcoal */
-  --foreground: 210 20% 98%;
+  /* True Pure Pitch-Black OLED Dark Theme - Pure Monochrome */
+  --background: 0 0% 0%;
+  --foreground: 0 0% 98%;
   
-  --card: 220 25% 6%;
-  --card-foreground: 210 20% 98%;
+  --card: 0 0% 4%;
+  --card-foreground: 0 0% 98%;
   
-  --primary: 43 66% 52%; /* Radiant Gold */
-  --primary-foreground: 220 25% 4%;
+  --popover: 0 0% 4%;
+  --popover-foreground: 0 0% 98%;
   
-  --secondary: 43 30% 15%; /* Deep Warm Slate/Bronze Accent */
-  --secondary-foreground: 210 20% 98%;
+  --primary: 0 0% 98%; /* Crisp Pure White in Dark Mode */
+  --primary-foreground: 0 0% 0%;
   
-  --accent: 215 25% 12%;
-  --accent-foreground: 43 66% 52%;
+  --secondary: 0 0% 9%;
+  --secondary-foreground: 0 0% 98%;
   
-  --border: 215 25% 12%;
-  --input: 215 25% 12%;
-  --ring: 43 66% 52%;
+  --muted: 0 0% 8%;
+  --muted-foreground: 0 0% 60%;
+  
+  --accent: 0 0% 14%;
+  --accent-foreground: 0 0% 98%;
+  
+  --destructive: 0 62% 30%;
+  --destructive-foreground: 0 0% 98%;
+  
+  --border: 0 0% 12%;
+  --input: 0 0% 12%;
+  --ring: 0 0% 80%;
 }
 
 @theme inline {
@@ -61,10 +79,20 @@
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
   --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
   --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
   --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
   --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
   --radius-custom: var(--radius);
 }
 
@@ -142,20 +170,20 @@ body {
 }
 
 .islamic-pattern {
-  background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.1'%3E%3Cpath d='M40 40l10-10 10 10-10 10-10-10zm-30-30l5-5 5 5-5 5-5-5zm60 0l5-5 5 5-5 5-5-5zm0 60l5-5 5 5-5 5-5-5zm-60 0l5-5 5 5-5 5-5-5zm30-15l7.5-7.5 7.5 7.5-7.5 7.5-7.5-7.5zm-15-15l7.5-7.5 7.5 7.5-7.5 7.5-7.5-7.5zM15 45l7.5-7.5 7.5 7.5-7.5 7.5-7.5-7.5zm30 0l7.5-7.5 7.5 7.5-7.5 7.5-7.5-7.5z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23a1a1aa' fill-opacity='0.05'%3E%3Cpath d='M40 40l10-10 10 10-10 10-10-10zm-30-30l5-5 5 5-5 5-5-5zm60 0l5-5 5 5-5 5-5-5zm0 60l5-5 5 5-5 5-5-5zm-60 0l5-5 5 5-5 5-5-5zm30-15l7.5-7.5 7.5 7.5-7.5 7.5-7.5-7.5zm-15-15l7.5-7.5 7.5 7.5-7.5 7.5-7.5-7.5zM15 45l7.5-7.5 7.5 7.5-7.5 7.5-7.5-7.5zm30 0l7.5-7.5 7.5 7.5-7.5 7.5-7.5-7.5z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
 .mushaf-pattern {
-  background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M60 0l15 45h45L82 72l15 48-37-28-37 28 15-48L0 45h45L60 0z' fill='%23d4af37' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M60 0l15 45h45L82 72l15 48-37-28-37 28 15-48L0 45h45L60 0z' fill='%23a1a1aa' fill-opacity='0.04' fill-rule='evenodd'/%3E%3C/svg%3E");
   background-size: 120px 120px;
 }
 
 
-.gold-shimmer {
+.emerald-shimmer {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(212, 175, 55, 0.3),
+    rgba(255, 255, 255, 0.15),
     transparent
   );
   background-size: 200% 100%;
@@ -164,17 +192,17 @@ body {
 
 /* Redefined premium-card without using @apply on custom classes */
 .premium-card {
-  background: hsl(var(--foreground) / 0.01);
+  background: hsl(var(--card));
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
-  border: 1px solid hsl(var(--foreground) / 0.05);
-  box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.1);
-  border-radius: 2rem;
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.05);
+  border-radius: 1.5rem;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .premium-card:hover {
-  border-color: rgba(212, 175, 55, 0.3);
+  border-color: hsl(var(--foreground) / 0.3);
   transform: translateY(-2px);
 }
 
@@ -220,25 +248,25 @@ body {
   border: 1px solid hsl(var(--foreground) / 0.1);
 }
 
-@keyframes shimmer-gold {
+@keyframes shimmer-emerald {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
 
-.gold-shimmer-pro {
+.emerald-shimmer-pro, .gold-shimmer-pro {
   background: linear-gradient(
     90deg, 
-    #d4af37 0%, 
-    #fff 25%, 
-    #d4af37 50%, 
-    #fff 75%, 
-    #d4af37 100%
+    #ffffff 0%, 
+    #a1a1aa 25%, 
+    #71717a 50%, 
+    #d4d4d8 75%, 
+    #ffffff 100%
   );
   background-size: 200% auto;
   color: transparent;
   -webkit-background-clip: text;
   background-clip: text;
-  animation: shimmer-gold 4s linear infinite;
+  animation: shimmer-emerald 4s linear infinite;
 }
 
 @keyframes fadeIn {
@@ -467,19 +495,19 @@ html:not(.dark) .border-white\/20 { border-color: rgba(0,0,0,0.3) !important; }
 /* force-dark: Use this class on containers with hard-coded dark backgrounds */
 .force-dark {
   color-scheme: dark;
-  --background: 220 25% 4%;
-  --foreground: 210 20% 98%;
-  --card: 220 25% 6%;
-  --card-foreground: 210 20% 98%;
-  --primary: 43 66% 52%;
-  --primary-foreground: 220 25% 4%;
-  --secondary: 43 30% 15%;
-  --secondary-foreground: 210 20% 98%;
-  --accent: 215 25% 12%;
-  --accent-foreground: 43 66% 52%;
-  --border: 215 25% 12%;
-  --input: 215 25% 12%;
-  --ring: 43 66% 52%;
+  --background: 0 0% 0%;
+  --foreground: 0 0% 98%;
+  --card: 0 0% 4%;
+  --card-foreground: 0 0% 98%;
+  --primary: 0 0% 98%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 0 0% 9%;
+  --secondary-foreground: 0 0% 98%;
+  --accent: 0 0% 14%;
+  --accent-foreground: 0 0% 98%;
+  --border: 0 0% 12%;
+  --input: 0 0% 12%;
+  --ring: 0 0% 80%;
 }
 
 /* Exempt elements with .force-dark and their children — keep/restore original dark theme styling */
@@ -581,9 +609,9 @@ html:not(.dark) .border-white\/20 { border-color: rgba(0,0,0,0.3) !important; }
    100% { transform: translate(-40px, 40px) scale(1); opacity: 0.2; }
 }
 @keyframes goldGlow {
-    0% { box-shadow: 0 0 20px rgba(212,175,55,0.2); }
-    50% { box-shadow: 0 0 50px rgba(212,175,55,0.5); }
-    100% { box-shadow: 0 0 20px rgba(212,175,55,0.2); }
+    0% { box-shadow: 0 0 20px rgba(16,185,129,0.2); }
+    50% { box-shadow: 0 0 50px rgba(16,185,129,0.5); }
+    100% { box-shadow: 0 0 20px rgba(16,185,129,0.2); }
 }
 
 @keyframes vpFadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
@@ -596,7 +624,7 @@ html:not(.dark) .border-white\/20 { border-color: rgba(0,0,0,0.3) !important; }
 @keyframes vpRotateIn { 0% { opacity: 0; transform: rotate(-10deg) scale(0.85); } 100% { opacity: 1; transform: rotate(0) scale(1); } }
 @keyframes vpFlipX { 0% { opacity: 0; transform: perspective(400px) rotateX(90deg); } 100% { opacity: 1; transform: perspective(400px) rotateX(0); } }
 @keyframes vpBounce { 0% { opacity: 0; transform: translateY(40px); } 60% { transform: translateY(-10px); } 100% { opacity: 1; transform: translateY(0); } }
-@keyframes vpGlowPulse { 0% { opacity: 0; filter: drop-shadow(0 0 0px rgba(212,175,55,0)); } 100% { opacity: 1; filter: drop-shadow(0 0 25px rgba(212,175,55,0.8)); } }
+@keyframes vpGlowPulse { 0% { opacity: 0; filter: drop-shadow(0 0 0px rgba(16,185,129,0)); } 100% { opacity: 1; filter: drop-shadow(0 0 25px rgba(16,185,129,0.8)); } }
 @keyframes vpTypewriter { 0% { opacity: 0; transform: scale(0.96); } 100% { opacity: 1; transform: scale(1); } }
 @keyframes vpWave { 0% { opacity: 0; transform: translateY(20px) skewY(2deg); } 100% { opacity: 1; transform: translateY(0) skewY(0); } }
 @keyframes vpPerspective { 0% { opacity: 0; transform: perspective(600px) translateZ(-150px) rotateY(15deg); } 100% { opacity: 1; transform: perspective(600px) translateZ(0) rotateY(0); } }

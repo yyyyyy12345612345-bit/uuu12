@@ -6,7 +6,9 @@ import nextDynamic from "next/dynamic";
 import { useEditor } from "@/store/useEditor";
 import { useRouter } from "next/navigation";
 import { useInstantPathname, getViewFromPathname, navigateInstantly } from "@/lib/navigation";
-import { Settings, X, Download, Menu } from "lucide-react";
+import { Settings, X, Download, Menu, User, Sun, Moon } from "lucide-react";
+import { useTheme } from "@/components/ThemeProvider";
+import { YaqeenLogo } from "@/components/YaqeenLogo";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
@@ -77,7 +79,7 @@ class CatchAllErrorBoundary extends React.Component<{ children: React.ReactNode 
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="px-6 py-3 bg-primary text-black rounded-xl font-black text-sm hover:brightness-110 transition"
+              className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-black text-sm hover:brightness-110 transition shadow-md"
             >
               إعادة التحميل
             </button>
@@ -104,6 +106,7 @@ export function CatchAllPageClient() {
 
 function CatchAllContent() {
   const { state } = useEditor();
+  const { theme, toggleTheme } = useTheme();
   const pathname = useInstantPathname();
   const router = useRouter();
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
@@ -234,106 +237,106 @@ function CatchAllContent() {
         </div>
       )}
 
-      {/* Global Top Bar - Logo + Install + Feedback */}
+      {/* Mobile Top Bar (Only on smartphones, since desktop has top Navigation) */}
       {activeView !== 'mushaf' && activeView !== 'mushaf-full' && activeView !== 'mushaf-tafseer' && activeView !== 'feed' && (
-        <header className={`h-14 shrink-0 bg-transparent px-4 md:px-8 flex items-center justify-between z-[200] ${activeView === 'video' ? 'lg:hidden' : ''}`}>
+        <header className={`md:hidden h-14 shrink-0 bg-card/80 dark:bg-background/80 backdrop-blur-md border-b border-border/60 px-3 flex items-center justify-between z-[200] ${activeView === 'video' ? 'hidden' : ''}`}>
           <button 
             onClick={() => navigateInstantly('/')} 
-            className="flex items-center gap-2 hover:opacity-85 active:scale-95 transition-all text-right"
+            className="flex items-center hover:opacity-85 active:scale-95 transition-all text-right"
+            title="يقين القرآن - الرئيسية"
           >
-            <img src="/logo/logo.png?v=25" alt="يقين القرآن" className="w-7 h-7 rounded-full border border-primary/20 p-0.5" />
-            <span className="text-xs font-bold font-arabic text-primary hidden sm:block">يقين القرآن</span>
+            <YaqeenLogo size="sm" variant="compact" />
           </button>
-          <div className="flex items-center gap-2">
+          
+          <div className="flex items-center gap-1.5">
+            {/* White Mode / Dark Mode Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-xl bg-foreground/5 hover:bg-foreground/10 border border-border text-foreground transition-all active:scale-95"
+              title={theme === "dark" ? "تفعيل الوضع النهاري (الوايت مود)" : "تفعيل الوضع الليلي (الدارك مود)"}
+            >
+              {theme === "dark" ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-foreground" />
+              )}
+            </button>
+
             <PWAInstallButton />
-            {activeView === 'video' && (
-              <button 
-                onClick={() => setIsRenderOpen(true)}
-                className="hidden lg:flex items-center gap-2 bg-primary text-black px-6 py-2.5 rounded-2xl font-bold text-[11px] hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20"
-              >
-                <Download className="w-4 h-4" />
-                <span className="font-arabic">تصدير الفيديو</span>
-              </button>
-            )}
+            
+            {/* User Profile Button */}
+            <button
+              onClick={() => setIsProfileOpen(true)}
+              className="flex items-center gap-1 bg-foreground/5 hover:bg-foreground/10 border border-border p-1.5 px-2 rounded-xl transition-all text-foreground/70 hover:text-foreground active:scale-95"
+              title="الملف الشخصي"
+            >
+              <User className="w-4 h-4 text-foreground" />
+              <span className="font-bold text-[11px] font-arabic">حسابي</span>
+            </button>
             <button 
               onClick={() => {
                 window.location.hash = 'menu';
                 setIsMenuOpen(true);
               }}
-              className="flex items-center gap-2 bg-foreground/5 hover:bg-foreground/10 border border-border px-4 py-2 rounded-2xl transition-all text-foreground/40 hover:text-foreground group"
+              className="flex items-center gap-1.5 bg-foreground/5 hover:bg-foreground/10 border border-border px-2.5 py-1.5 rounded-xl transition-all text-foreground/70 hover:text-foreground active:scale-95"
             >
-              <Menu className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
-              <span className="font-bold text-[11px] font-arabic hidden sm:block">القائمة</span>
+              <Menu className="w-4 h-4 text-foreground" />
+              <span className="font-bold text-[11px] font-arabic">القائمة</span>
             </button>
           </div>
         </header>
       )}
 
-
-
-      <main className="flex-1 relative overflow-hidden bg-transparent">
-        {(activeView === 'mushaf' || activeView === 'mushaf-full' || activeView === 'mushaf-tafseer') && (
-          <motion.button 
-            drag
-            dragConstraints={{ left: 0, right: 0, top: -500, bottom: 100 }}
-            dragElastic={0.1}
-            dragMomentum={false}
-            onClick={() => navigateInstantly('/mushaf-choice')}
-            className="absolute bottom-24 left-4 z-[200] flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-black/40 dark:bg-black/60 backdrop-blur-md border border-white/10 text-white/70 hover:text-white hover:bg-black/70 hover:scale-105 active:scale-95 shadow-xl transition-all text-xs font-bold font-arabic cursor-move"
-            title="العودة واختيار مصحف آخر (اسحب لتغيير المكان)"
-          >
-            <X className="w-4 h-4 pointer-events-none" />
-            <span className="pointer-events-none">تغيير المصحف</span>
-          </motion.button>
-        )}
+      {/* Main Content Area: Adjusted for Desktop Top Nav & Mobile Bottom Dock */}
+      <main className="flex-1 relative overflow-hidden bg-transparent md:pt-16 pb-20 md:pb-4">
 
         {activeView === 'mushaf' && (
-          <div key="mushaf" className="h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent view-transition gpu-layer">
+          <div key="mushaf" className="h-full w-full overflow-y-auto no-scrollbar bg-transparent view-transition gpu-layer">
             <Mushaf />
           </div>
         )}
         {activeView === 'mushaf-full' && (
-          <div key="mushaf-full" className="h-full w-full pb-20 bg-transparent view-transition gpu-layer">
+          <div key="mushaf-full" className="h-full w-full bg-transparent view-transition gpu-layer">
             <DigitalMushaf />
           </div>
         )}
         {activeView === 'mushaf-tafseer' && (
-          <div key="mushaf-tafseer" className="h-full w-full pb-20 bg-transparent view-transition gpu-layer">
+          <div key="mushaf-tafseer" className="h-full w-full bg-transparent view-transition gpu-layer">
             <DigitalMushaf isTafseerMode={true} />
           </div>
         )}
         {(activeView === 'mushaf-choice' || activeView === '') && (
-          <div key="mushaf-choice" className="h-full w-full relative pb-20 overflow-y-auto no-scrollbar bg-transparent view-transition gpu-layer">
+          <div key="mushaf-choice" className="h-full w-full relative overflow-y-auto no-scrollbar bg-transparent view-transition gpu-layer">
             <MushafChoice />
           </div>
         )}
         {activeView === 'daily' && (
-          <div key="daily" className="h-full w-full pb-20 overflow-y-auto no-scrollbar bg-transparent view-transition gpu-layer">
+          <div key="daily" className="h-full w-full overflow-y-auto no-scrollbar bg-transparent view-transition gpu-layer">
             <DailyHub />
           </div>
         )}
         {activeView === 'library' && (
-          <div key="library" className="h-full w-full pb-20 bg-transparent view-transition gpu-layer">
+          <div key="library" className="h-full w-full bg-transparent view-transition gpu-layer">
             <AudioLibrary />
           </div>
         )}
         {activeView === 'prayers' && (
-          <div key="prayers" className="h-full w-full pb-20 bg-transparent view-transition gpu-layer">
+          <div key="prayers" className="h-full w-full bg-transparent view-transition gpu-layer">
             <PrayerTimes />
           </div>
         )}
         {activeView === 'rank' && (
-          <div key="rank" className="h-full w-full pb-20 bg-transparent view-transition gpu-layer">
+          <div key="rank" className="h-full w-full bg-transparent view-transition gpu-layer">
             <Leaderboard onEditProfile={() => setIsProfileOpen(true)} />
           </div>
         )}
         {activeView === 'feed' && (
-          <div key="feed" className="h-full w-full pb-20 bg-transparent view-transition gpu-layer">
+          <div key="feed" className="h-full w-full bg-transparent view-transition gpu-layer">
             <SocialFeed />
           </div>
         )}
         {activeView === 'chat' && (
-          <div key="chat" className="h-full w-full pb-20 bg-transparent view-transition gpu-layer">
+          <div key="chat" className="h-full w-full bg-transparent view-transition gpu-layer">
             <ChatBot />
           </div>
         )}
@@ -361,7 +364,7 @@ function CatchAllContent() {
                    
                    <button 
                       onClick={() => setIsRenderOpen(true)}
-                      className="flex items-center gap-3 px-6 py-3.5 bg-primary text-black rounded-[1.5rem] font-black text-[10px] active:scale-95 transition-all shadow-[0_20px_50px_rgba(212,175,55,0.2)] uppercase tracking-widest"
+                      className="flex items-center gap-3 px-6 py-3.5 bg-primary text-primary-foreground rounded-[1.5rem] font-black text-[10px] active:scale-95 transition-all shadow-md uppercase tracking-widest"
                    >
                       <Download className="w-5 h-5" />
                       <span className="font-arabic">تصدير الفيديو</span>
@@ -427,10 +430,12 @@ function CatchAllContent() {
           setIsPointsGuideOpen(true);
         }}
         onOpenSettings={() => {
+          setIsMenuOpen(false);
           setIsSettingsOpen(true);
         }}
         onOpenAppSettings={() => {
-          setIsAppSettingsOpen(true);
+          setIsMenuOpen(false);
+          setIsSettingsOpen(true);
         }}
         onOpenAppInstall={() => {
           setIsMenuOpen(false);
@@ -449,8 +454,18 @@ function CatchAllContent() {
       />
       <PointsGuideModal isOpen={isPointsGuideOpen} onClose={() => setIsPointsGuideOpen(false)} />
       <AppInstallModal isOpen={isAppInstallOpen} onClose={() => setIsAppInstallOpen(false)} />
-      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
-      <AppSettingsModal isOpen={isAppSettingsOpen} onClose={() => setIsAppSettingsOpen(false)} />
+      <SettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+        onOpenProfile={() => {
+          setIsSettingsOpen(false);
+          setIsProfileOpen(true);
+        }}
+        onOpenFeedback={() => {
+          setIsSettingsOpen(false);
+          setIsFeedbackOpen(true);
+        }}
+      />
       
       {/* User Profile Modal (triggered from Leaderboard / SocialFeed clicks) */}
       {selectedProfileUserId && (

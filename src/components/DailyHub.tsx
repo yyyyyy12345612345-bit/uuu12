@@ -11,7 +11,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { 
   CheckCircle2, RotateCcw, Target, Fingerprint, 
   ArrowUpRight, ChevronRight, ChevronLeft, 
-  Sun, Moon, Bed, BookOpen, Compass, MapPin, Search, Clock, Star, Video, Crown,
+  Sun, Moon, Bed, BookOpen, Compass, MapPin, Search, Clock, Award, Video, Crown,
   Sparkles, Heart, HandHeart, Brain, Trophy
 } from "lucide-react";
 import { db, auth } from "@/lib/firebase";
@@ -53,37 +53,37 @@ export function DailyHub() {
     error: string | null;
     loading: boolean;
   }>({ heading: null, angle: null, distance: null, error: null, loading: false });
-  const [scrollState, setScrollState] = useState({ left: false, right: false });
+  const [scrollState, setScrollState] = useState({ left: true, right: false });
   const [activeTab, setActiveTab] = useState<"dashboard" | "tasbeeh" | "istighfar" | "salawat" | "morning" | "evening" | "sleep" | "library" | "qibla" | "quiz">("dashboard");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const checkScroll = useCallback(() => {
     if (scrollRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      const isRTL = getComputedStyle(scrollRef.current).direction === 'rtl';
-      if (isRTL) {
-        setScrollState({
-          left: Math.abs(scrollLeft) < scrollWidth - clientWidth - 5,
-          right: Math.abs(scrollLeft) > 5
-        });
-      } else {
-        setScrollState({
-          left: scrollLeft > 5,
-          right: scrollLeft < scrollWidth - clientWidth - 5
-        });
-      }
+      const absLeft = Math.abs(scrollLeft);
+      const maxScroll = scrollWidth - clientWidth;
+      setScrollState({
+        left: absLeft < maxScroll - 15,
+        right: absLeft > 15
+      });
     }
   }, []);
 
   useEffect(() => {
     checkScroll();
+    const t = setTimeout(checkScroll, 400);
     window.addEventListener('resize', checkScroll);
-    return () => window.removeEventListener('resize', checkScroll);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('resize', checkScroll);
+    };
   }, [checkScroll]);
 
-  const scrollBy = (amount: number) => {
+  const scrollByAmount = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
+      const amount = direction === 'left' ? -260 : 260;
       scrollRef.current.scrollBy({ left: amount, behavior: 'smooth' });
+      setTimeout(checkScroll, 300);
     }
   };
 
@@ -95,6 +95,8 @@ export function DailyHub() {
         if (snap.exists()) {
           setUserData(snap.data());
         }
+      }, (err) => {
+        console.warn("[DailyHub] user snapshot error:", err.message);
       });
     }
 
@@ -500,7 +502,7 @@ export function DailyHub() {
               <p className="text-foreground/40 font-bold text-base">السلام عليكم ورحمة الله وبركاته</p>
           </div>
           <div className="flex flex-row md:flex-col items-center gap-3 bg-card border border-border p-4 md:p-6 rounded-[2rem] shadow-xl">
-              <Star className="w-6 h-6 text-primary" />
+              <Award className="w-6 h-6 text-primary" />
               <div className="flex flex-col items-center">
                   <span className="text-xl md:text-2xl font-black leading-none">{Number((userData?.totalPoints || 0).toFixed(1))}</span>
                   <span className="text-[8px] font-black text-foreground/30 uppercase tracking-widest">نقطة</span>
@@ -508,13 +510,55 @@ export function DailyHub() {
           </div>
       </div>
 
-      {/* Tabs Navigation */}
-      <div className="relative w-full max-w-4xl mx-auto mb-10 z-10 group">
-        <div ref={scrollRef} onScroll={checkScroll} className="flex w-full rounded-[2.5rem] p-2 bg-card border border-border overflow-x-auto horizontal-scroll no-scrollbar snap-x">
+      {/* Tabs Navigation with Animated Mobile Scroll Cues */}
+      <div className="relative w-full max-w-4xl mx-auto mb-8 z-10 group">
+        {/* Left Animated Arrow (مؤشر سهم تفاعلي متحرك لليمين/اليسار لتنبيه المستخدم بوجود أقسام مخفية) */}
+        {scrollState.left && (
+          <div className="absolute left-1.5 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5">
+            <button
+              onClick={() => scrollByAmount('left')}
+              className="w-10 h-10 rounded-full bg-card/95 dark:bg-black/95 border border-border/80 shadow-xl backdrop-blur-md flex items-center justify-center text-foreground hover:scale-110 active:scale-95 transition-all group/btn"
+              title="اسحب أو اضغط لرؤية باقي الأقسام"
+            >
+              <ChevronLeft className="w-5 h-5 text-primary animate-pulse transition-transform group-hover/btn:-translate-x-1" />
+            </button>
+            {/* Animated Swiping Pill on mobile */}
+            <span className="inline-flex md:hidden items-center gap-1 text-[8px] font-black text-primary bg-background/95 px-2 py-0.5 rounded-full border border-primary/20 animate-bounce pointer-events-none whitespace-nowrap shadow-md">
+              اسحب ‹‹
+            </span>
+          </div>
+        )}
+
+        {/* Right Scroll Back Arrow */}
+        {scrollState.right && (
+          <div className="absolute right-1.5 top-1/2 -translate-y-1/2 z-20">
+            <button
+              onClick={() => scrollByAmount('right')}
+              className="w-10 h-10 rounded-full bg-card/95 dark:bg-black/95 border border-border/80 shadow-xl backdrop-blur-md flex items-center justify-center text-foreground hover:scale-110 active:scale-95 transition-all group/btn"
+              title="الرجوع للبداية"
+            >
+              <ChevronRight className="w-5 h-5 text-primary transition-transform group-hover/btn:translate-x-1" />
+            </button>
+          </div>
+        )}
+
+        {/* Soft edge fade masks for peek effect */}
+        {scrollState.left && (
+          <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-background via-background/60 to-transparent pointer-events-none z-10 rounded-l-[2.5rem]" />
+        )}
+        {scrollState.right && (
+          <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-background via-background/60 to-transparent pointer-events-none z-10 rounded-r-[2.5rem]" />
+        )}
+
+        <div
+          ref={scrollRef}
+          onScroll={checkScroll}
+          className="flex w-full rounded-[2.5rem] p-2 bg-card border border-border overflow-x-auto horizontal-scroll no-scrollbar snap-x scroll-smooth"
+        >
           {[
-            { id: "dashboard", icon: Star, label: "الرئيسية" },
+            { id: "dashboard", icon: Target, label: "الرئيسية" },
             { id: "quiz", icon: Brain, label: "التحدي اليومي 🧠" },
-            { id: "tasbeeh", icon: Sparkles, label: "التسبيح" },
+            { id: "tasbeeh", icon: Fingerprint, label: "التسبيح" },
             { id: "istighfar", icon: Heart, label: "الاستغفار" },
             { id: "salawat", icon: HandHeart, label: "الصلاة على النبي" },
             
@@ -526,7 +570,10 @@ export function DailyHub() {
           ].map((t) => (
             <button
               key={t.id}
-              onClick={() => setActiveTab(t.id as any)}
+              onClick={(e) => {
+                setActiveTab(t.id as any);
+                e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+              }}
               className={`flex-1 flex items-center justify-center gap-3 py-4 px-6 rounded-[2rem] transition-all whitespace-nowrap snap-center min-w-[120px] ${
                 activeTab === t.id ? 'bg-primary text-primary-foreground shadow-xl' : 'text-foreground/40 hover:text-foreground'
               }`}
@@ -545,7 +592,7 @@ export function DailyHub() {
                 {userData?.activeQuranPlan && (
                   <div className="md:col-span-2 bg-card text-foreground border border-primary/30 rounded-[3rem] p-8 relative overflow-hidden shadow-xl group">
                     <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
-                      <Star className="w-24 h-24 text-primary animate-pulse" />
+                      <BookOpen className="w-24 h-24 text-primary" />
                     </div>
                     <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-6">
                       <div>
@@ -709,11 +756,11 @@ export function DailyHub() {
                                 // Map target to UI assets
                                 const questConfig: any = {
                                     'mushaf': { icon: BookOpen, color: 'text-primary', bg: 'bg-primary/10', label: 'قراءة' },
-                                    'mushaf-full': { icon: BookOpen, color: 'text-amber-500', bg: 'bg-amber-500/10', label: 'المصحف' },
-                                    'daily': { icon: Sun, color: 'text-emerald-500', bg: 'bg-emerald-500/10', label: 'أذكار' },
-                                    'video': { icon: Video, color: 'text-indigo-500', bg: 'bg-indigo-500/10', label: 'فيديو' },
-                                    'surah': { icon: Clock, color: 'text-rose-500', bg: 'bg-rose-500/10', label: 'استماع' },
-                                    'rank': { icon: Target, color: 'text-blue-500', bg: 'bg-blue-500/10', label: 'ترتيب' }
+                                    'mushaf-full': { icon: BookOpen, color: 'text-foreground', bg: 'bg-foreground/10', label: 'المصحف' },
+                                    'daily': { icon: Sun, color: 'text-foreground', bg: 'bg-foreground/10', label: 'أذكار' },
+                                    'video': { icon: Video, color: 'text-foreground', bg: 'bg-foreground/10', label: 'فيديو' },
+                                    'surah': { icon: Clock, color: 'text-foreground', bg: 'bg-foreground/10', label: 'استماع' },
+                                    'rank': { icon: Target, color: 'text-foreground', bg: 'bg-foreground/10', label: 'ترتيب' }
                                 };
                                 
                                 const config = questConfig[q.target?.toLowerCase()] || questConfig['mushaf'];
@@ -726,7 +773,7 @@ export function DailyHub() {
                                         className={`flex items-center justify-between p-5 rounded-[2.5rem] border transition-all duration-300 cursor-pointer group active:scale-[0.98] ${
                                             isCompleted 
                                             ? 'bg-foreground/[0.02] border-border/40 opacity-60 grayscale' 
-                                            : 'bg-card border-border hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/5'
+                                            : 'bg-card border-border hover:border-foreground/40 hover:shadow-2xl hover:shadow-foreground/5'
                                         }`}
                                     >
                                         <div className="flex items-center gap-5">
@@ -738,23 +785,23 @@ export function DailyHub() {
                                                     <span className={`text-[8px] font-black uppercase tracking-tighter px-2 py-0.5 rounded-full ${config.bg} ${config.color}`}>
                                                         {config.label}
                                                     </span>
-                                                    {isCompleted && <span className="text-[8px] font-black text-emerald-500 uppercase">تم الإنجاز</span>}
+                                                    {isCompleted && <span className="text-[8px] font-black text-foreground/70 uppercase">تم الإنجاز</span>}
                                                 </div>
                                                 <h4 className="text-lg font-black text-foreground group-hover:text-primary transition-colors">{q.title}</h4>
-                                                <p className="text-[10px] text-foreground/40 font-bold uppercase">المكافأة: <span className="text-primary">{q.points} نقطة</span></p>
+                                                <p className="text-[10px] text-foreground/40 font-bold uppercase">المكافأة: <span className="text-primary font-black">{q.points} نقطة</span></p>
                                             </div>
                                         </div>
 
                                         <div className="flex items-center gap-4">
                                             {isCompleted ? (
-                                                <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center">
-                                                    <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                                                <div className="w-12 h-12 bg-foreground/10 rounded-full flex items-center justify-center">
+                                                    <CheckCircle2 className="w-6 h-6 text-foreground" />
                                                 </div>
                                             ) : (
                                                 <div className="flex items-center gap-2">
                                                     <button 
                                                         onClick={(e) => handleClaimQuest(e, q)}
-                                                        className="px-6 py-3 bg-primary text-black rounded-2xl text-[10px] font-black hover:scale-105 active:scale-90 transition-all shadow-lg shadow-primary/20"
+                                                        className="px-6 py-3 bg-primary text-primary-foreground rounded-2xl text-[10px] font-black hover:scale-105 active:scale-90 transition-all shadow-md"
                                                     >
                                                         استلام الجائزة
                                                     </button>

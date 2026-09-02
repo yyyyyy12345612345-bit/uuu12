@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Check, CreditCard, Send, Loader2, Crown, Zap, Gift, Star, Smartphone, Copy, ArrowLeft, Sparkles, Trophy, User, Hash, FileText, Link2, DollarSign } from "lucide-react";
+import { X, Check, CreditCard, Send, Loader2, Crown, Zap, Gift, Smartphone, Copy, ArrowLeft, Sparkles, Trophy, User, Hash, FileText, Link2, DollarSign } from "lucide-react";
 import { db, auth, initFirebase } from "@/lib/firebase";
 import { doc, getDoc, addDoc, collection, serverTimestamp, query, where, getDocs, limit, setDoc } from "firebase/firestore";
 import { useUserPlan } from "@/hooks/useUserPlan";
@@ -269,7 +269,6 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
         <div className="w-full lg:w-[45%] p-6 lg:p-10 border-b lg:border-b-0 lg:border-r border-white/5 overflow-visible lg:overflow-y-auto lg:no-scrollbar bg-black/20 backdrop-blur-3xl relative z-10 shrink-0">
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-3">
-              <Sparkles className="w-6 h-6 text-primary animate-pulse" />
               <h2 className="text-3xl lg:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-primary to-white">ادعم يقين القرآن</h2>
             </div>
             <p className="text-[11px] text-primary/60 font-black uppercase tracking-[0.2em] mt-2">ساهم في استمرار المشروع واحصل على ميزات إضافية</p>
@@ -316,7 +315,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                     <div className="text-right">
                       <div className="flex items-center gap-2">
                         <span className={`font-black text-base ${isSelected ? 'text-white' : 'text-white/60'}`}>{p.name}</span>
-                        {isCurrent && <span className="text-[8px] font-black px-2 py-0.5 bg-primary text-black rounded-full shadow-lg shadow-primary/20">المفعّلة</span>}
+                        {isCurrent && <span className="text-[8px] font-black px-2 py-0.5 bg-primary text-primary-foreground rounded-full shadow-md">المفعّلة</span>}
                       </div>
                       <span className="text-[10px] text-primary/50 font-black uppercase tracking-widest mt-1 block">
                         {p.id === 'custom' ? "تبرع بأي مبلغ تختاره" : `مساهمة بقيمة ${p.price} ج.م`}
@@ -342,7 +341,6 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
             <div className="flex-1 relative z-10">
               <h5 className="font-black text-sm text-white flex items-center gap-2">
                 تحدي الهمة: احصل على الميزات مجاناً! 🏆
-                <Sparkles className="w-4 h-4 text-primary animate-spin-slow" />
               </h5>
               <p className="text-[11px] text-white/60 leading-relaxed mt-2">
                 اجمع 10,000 نقطة من الأنشطة اليومية (قراءة، أذكار، استماع)، وسيتم فتح جميع الميزات المميزة لك مجاناً بالكامل دون أي تبرع!
@@ -406,7 +404,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                 {/* Free Subscription Notice */}
                 <div className="p-4 rounded-[1.5rem] bg-gradient-to-r from-amber-500/10 to-yellow-500/5 border border-amber-500/20 text-right flex items-start gap-3.5 shadow-lg">
                   <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
-                    <Sparkles className="w-5 h-5 animate-pulse" />
+                    <Zap className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
                     <h4 className="font-black text-xs text-amber-400 mb-1">تنبيه هام (الاشتراك المجاني متاح) 💡</h4>
@@ -461,18 +459,18 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                             </div>
                           </div>
                         </div>
-                        <ArrowLeft className="w-5 h-5 text-white/20 group-hover:text-primary transition-all group-hover:translate-x-[-4px]" />
+                        <ArrowLeft className="w-5 h-5 text-white/20 group-hover:text-emerald-500 transition-all group-hover:translate-x-[-4px]" />
                       </div>
                     </motion.button>
                   ))}
                 </motion.div>
 
                 {isPending ? (
-                  <div className="p-10 rounded-[2.5rem] bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/30 flex flex-col items-center gap-6 text-center shadow-2xl">
-                    <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                  <div className="p-10 rounded-[2.5rem] bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border-2 border-emerald-500/30 flex flex-col items-center gap-6 text-center shadow-2xl">
+                    <Loader2 className="w-12 h-12 text-emerald-500 animate-spin" />
                     <div>
-                      <p className="text-lg font-black text-primary">الطلب قيد المراجعة</p>
-                      <p className="text-[11px] text-primary/40 uppercase tracking-widest mt-2">سيتم التفعيل تلقائياً فور التأكد</p>
+                      <p className="text-lg font-black text-emerald-500">الطلب قيد المراجعة</p>
+                      <p className="text-[11px] text-emerald-500/40 uppercase tracking-widest mt-2">سيتم التفعيل تلقائياً فور التأكد</p>
                     </div>
                   </div>
                 ) : (
@@ -485,7 +483,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
                       }
                       setActiveTab("pay");
                     }}
-                    className="w-full py-6 bg-gradient-to-r from-primary via-yellow-400 to-primary text-black rounded-[2rem] font-black text-lg shadow-[0_20px_60px_rgba(212,175,55,0.4)] hover:scale-[1.03] active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed relative overflow-hidden group"
+                    className="w-full py-6 bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 text-white rounded-[2rem] font-black text-lg shadow-[0_20px_60px_rgba(16,185,129,0.4)] hover:scale-[1.03] active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed relative overflow-hidden group"
                   >
                     <span className="relative z-10">
                       {currentPlanData?.plan === selectedPlan && selectedPlan !== 'custom' ? 'مستوى مفعّل حالياً' : 'تأكيد الدعم وإرسال إثبات التحويل'}

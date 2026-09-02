@@ -5,7 +5,7 @@ import { useEditor } from "@/store/useEditor";
 import { usePexelsBackgrounds, PexelsMediaItem } from "@/hooks/usePexelsBackgrounds";
 import { RECITERS } from "@/data/reciters";
 import { useUserPlan } from "@/hooks/useUserPlan";
-import { Crown, Lock, ShieldCheck, Star, Search, Image as ImageIcon, Music, Type, MessageSquare, Check, Loader2, Sparkles } from "lucide-react";
+import { Crown, Lock, ShieldCheck, Search, Image as ImageIcon, Music, Type, MessageSquare, Check, Loader2, Heart } from "lucide-react";
 
 
 // ============================================================
@@ -100,11 +100,11 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
       {/* Premium Subscription Card */}
       <button 
         onClick={onOpenSubscription}
-        className="relative overflow-hidden group p-6 rounded-[2.5rem] border border-primary/20 bg-primary/10 hover:bg-primary/20 transition-all flex items-center justify-between shadow-[0_20px_50px_rgba(212,175,55,0.1)]"
+        className="relative overflow-hidden group p-6 rounded-[2.5rem] border border-primary/20 bg-primary/10 hover:bg-primary/20 transition-all flex items-center justify-between shadow-[0_20px_50px_rgba(16,185,129,0.1)]"
       >
          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-transparent" />
          <div className="flex items-center gap-5 relative z-10">
-            <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center text-black shadow-xl shadow-primary/20 group-hover:scale-110 transition-transform duration-500">
+            <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground shadow-xl shadow-primary/20 group-hover:scale-110 transition-transform duration-500">
                <Crown className="w-7 h-7 fill-current" />
             </div>
             <div className="text-right">
@@ -114,8 +114,8 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                </p>
             </div>
          </div>
-         <div className="w-10 h-10 rounded-2xl bg-foreground/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-black transition-all duration-500">
-            <Star className="w-4 h-4 fill-current" />
+         <div className="w-10 h-10 rounded-2xl bg-foreground/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500">
+            <Heart className="w-4 h-4" />
          </div>
       </button>
 
@@ -125,7 +125,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 flex flex-col items-center gap-2 py-4 rounded-[1.5rem] transition-all duration-500 ${activeTab === tab.id ? 'bg-primary text-black shadow-2xl shadow-primary/30 scale-[1.02]' : 'text-foreground/20 hover:text-foreground/40'}`}
+            className={`flex-1 flex flex-col items-center gap-2 py-4 rounded-[1.5rem] transition-all duration-500 ${activeTab === tab.id ? 'bg-primary text-primary-foreground shadow-xl scale-[1.02]' : 'text-foreground/20 hover:text-foreground/40'}`}
           >
             <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'animate-bounce' : ''}`} />
             <span className="text-[10px] font-black uppercase tracking-widest">{tab.label}</span>
@@ -145,13 +145,13 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                 <div className="flex p-1.5 bg-foreground/5 rounded-2xl border border-foreground/5 gap-2">
                     <button
                         onClick={() => setBgMode("library")}
-                        className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 ${bgMode === "library" ? "bg-primary text-black shadow-xl" : "text-foreground/20 hover:text-foreground/40"}`}
+                        className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 ${bgMode === "library" ? "bg-primary text-primary-foreground shadow-md" : "text-foreground/20 hover:text-foreground/40"}`}
                     >
                         المكتبة الذكية (1000+)
                     </button>
                     <button
                         onClick={() => setBgMode("videos")}
-                        className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 flex items-center justify-center gap-2 ${bgMode === "videos" ? "bg-primary text-black shadow-xl" : "text-foreground/20 hover:text-foreground/40"}`}
+                        className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 flex items-center justify-center gap-2 ${bgMode === "videos" ? "bg-primary text-primary-foreground shadow-md" : "text-foreground/20 hover:text-foreground/40"}`}
                     >
                         فيديوهات
                     </button>
@@ -174,7 +174,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                          <button
                             key={cat}
                             onClick={() => setLibraryCategory(cat)}
-                            className={`px-6 py-2 rounded-full text-[10px] font-black whitespace-nowrap transition-all duration-500 border ${libraryCategory === cat ? 'bg-primary text-black border-primary shadow-lg shadow-primary/20 scale-105' : 'bg-white/5 text-white/40 border-white/5 hover:border-white/20'}`}
+                            className={`px-6 py-2 rounded-full text-[10px] font-black whitespace-nowrap transition-all duration-500 border ${libraryCategory === cat ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-105' : 'bg-white/5 text-white/40 border-white/5 hover:border-white/20'}`}
                          >
                             {cat}
                          </button>
@@ -269,7 +269,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                         className={`flex items-center justify-between p-6 rounded-[2rem] border-2 transition-all duration-500 group/reciter ${state.reciterId === r.id ? 'bg-primary/10 border-primary shadow-2xl shadow-primary/10' : (r.isPremiumSync ? 'bg-[#D4AF37]/5 border-[#D4AF37]/20 hover:border-[#D4AF37]/50' : 'bg-foreground/5 border-foreground/5 hover:border-foreground/10')}`}
                     >
                         <div className="flex items-center gap-4">
-                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${state.reciterId === r.id ? 'bg-primary text-black shadow-xl shadow-primary/20' : (r.isPremiumSync ? 'bg-[#D4AF37]/20 text-[#D4AF37]' : 'bg-foreground/5 text-foreground/20')}`}>
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${state.reciterId === r.id ? 'bg-primary text-primary-foreground shadow-md' : (r.isPremiumSync ? 'bg-[#D4AF37]/20 text-[#D4AF37]' : 'bg-foreground/5 text-foreground/20')}`}>
                                 <Music className="w-5 h-5" />
                             </div>
                             <div className="text-right">
@@ -324,7 +324,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                         >
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
-                                    <Sparkles className="w-5 h-5" />
+                                    <Music className="w-5 h-5" />
                                 </div>
                                 <div>
                                     <span className="text-sm font-black block font-arabic text-foreground">تصميم المنشاوي</span>
@@ -364,7 +364,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                         >
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
-                                    <Sparkles className="w-5 h-5" />
+                                    <Music className="w-5 h-5" />
                                 </div>
                                 <div>
                                     <span className="text-sm font-black block font-arabic text-foreground">تصميم الدوسري</span>
@@ -404,7 +404,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                         >
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
-                                    <Sparkles className="w-5 h-5" />
+                                    <Music className="w-5 h-5" />
                                 </div>
                                 <div>
                                     <span className="text-sm font-black block font-arabic text-foreground">تصميم يوسف</span>
@@ -866,7 +866,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                         href="https://www.instagram.com/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-4 w-full py-5 rounded-2xl bg-primary text-black font-black text-xs uppercase tracking-[0.3em] transition-all hover:scale-[1.02] shadow-xl shadow-primary/20"
+                        className="flex items-center justify-center gap-4 w-full py-5 rounded-2xl bg-primary text-primary-foreground font-black text-xs uppercase tracking-[0.3em] transition-all hover:scale-[1.02] shadow-md"
                     >
                         <span>تواصل معنا على انستجرام</span>
                     </a>

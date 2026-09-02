@@ -5,7 +5,7 @@ import {
    X, Camera, User, Phone, Calendar, Eye, EyeOff,
    MapPin, Save, Loader2, CheckCircle, Image as ImageIcon, LogOut, ShieldCheck,
    BookOpen, Headphones, Trophy, PlayCircle, Compass, Settings, AlertTriangle, Trash2,
-   FileText, Crown, MessageCircle, Heart, Users, UserPlus, UserMinus, UserCheck, ShieldAlert, Search, Video
+   FileText, Crown, MessageCircle, Heart, Users, UserPlus, UserMinus, UserCheck, ShieldAlert, Search, Video, Flame
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { auth, db, storage } from "@/lib/firebase";
@@ -614,10 +614,6 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                             <Trophy className="w-3.5 h-3.5" />
                             <span>الإحصائيات</span>
                           </button>
-                          <button type="button" onClick={() => setActiveTab("posts")} className={`flex-1 py-3 px-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${activeTab === 'posts' ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'text-foreground/40 hover:text-foreground'}`}>
-                            <FileText className="w-3.5 h-3.5" />
-                            <span>منشوراتي</span>
-                          </button>
                           <button type="button" onClick={() => setActiveTab("social")} className={`flex-1 py-3 px-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${activeTab === 'social' ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'text-foreground/40 hover:text-foreground'}`}>
                             <Users className="w-3.5 h-3.5" />
                             <span>الأصدقاء</span>
@@ -821,7 +817,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                      <button
                                         type="button"
                                         onClick={() => setFormData(prev => ({ ...prev, gender: "female" }))}
-                                        className={`flex-1 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.gender === "female" ? "bg-primary text-black shadow-md shadow-primary/20" : "text-foreground/30 hover:text-foreground hover:bg-foreground/5 dark:hover:bg-white/5"}`}
+                                        className={`flex-1 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.gender === "female" ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" : "text-foreground/30 hover:text-foreground hover:bg-foreground/5 dark:hover:bg-white/5"}`}
                                      >
                                         أنثى
                                      </button>
@@ -834,8 +830,8 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                   type="submit"
                                   disabled={saving || success}
                                   className={`w-full py-5 rounded-[1.5rem] font-black text-sm transition-all duration-500 flex items-center justify-center gap-3 shadow-xl ${success
-                                     ? 'force-dark bg-emerald-500 text-white shadow-emerald-500/20'
-                                     : 'bg-primary text-black hover:scale-[1.02] active:scale-95 shadow-primary/20'
+                                     ? 'bg-foreground text-background shadow-md'
+                                     : 'bg-primary text-primary-foreground hover:scale-[1.02] active:scale-95 shadow-md'
                                      }`}
                                >
                                   {saving ? (
@@ -902,7 +898,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                   <Trophy className="w-4 h-4 text-primary" />
                                   <h4 className="text-foreground font-black text-xs">الأوسمة والإنجازات 🏆</h4>
                                </div>
-                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                                   {BADGES.map((badge) => {
                                      const isUnlocked = userStats?.badges?.includes(badge.id);
                                      
@@ -913,9 +909,18 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                      if (badge.id === "streak_7") {
                                         currentVal = userStats?.streak || 0;
                                         targetVal = 7;
-                                     } else if (badge.id === "comments_10") {
-                                        currentVal = userStats?.commentsCount || 0;
-                                        targetVal = 10;
+                                     } else if (badge.id === "streak_30") {
+                                        currentVal = userStats?.streak || 0;
+                                        targetVal = 30;
+                                     } else if (badge.id === "ayahs_100") {
+                                        currentVal = userStats?.readAyahs || 0;
+                                        targetVal = 100;
+                                     } else if (badge.id === "ayahs_500") {
+                                        currentVal = userStats?.readAyahs || 0;
+                                        targetVal = 500;
+                                     } else if (badge.id === "surahs_5") {
+                                        currentVal = userStats?.completedSurahsCount || 0;
+                                        targetVal = 5;
                                      } else if (badge.id === "videos_5") {
                                         currentVal = userStats?.videoRendersCount || 0;
                                         targetVal = 5;
@@ -925,35 +930,36 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                      return (
                                         <div 
                                            key={badge.id}
-                                           className={`relative rounded-xl border p-3 flex flex-col items-center text-center gap-2.5 transition-all duration-300 ${
+                                           className={`relative rounded-2xl border p-4 flex flex-col items-center text-center gap-3 transition-all duration-300 ${
                                               isUnlocked 
-                                                 ? 'bg-primary/5 border-primary/20 shadow-[0_0_15px_rgba(230,190,70,0.05)] hover:scale-[1.02]' 
-                                                 : 'bg-foreground/[0.01] border-border opacity-60'
+                                                 ? 'bg-foreground/5 border-primary/30 shadow-md hover:scale-[1.02]' 
+                                                 : 'bg-foreground/[0.02] border-border/50 opacity-60'
                                            }`}
                                         >
                                            {/* Badge Icon */}
-                                           <div className={`w-10 h-10 rounded-full flex items-center justify-center relative ${
+                                           <div className={`w-12 h-12 rounded-2xl flex items-center justify-center relative ${
                                               isUnlocked 
-                                                 ? 'bg-gradient-to-br from-primary to-amber-500 text-black shadow-md' 
+                                                 ? 'bg-primary text-primary-foreground shadow-md' 
                                                  : 'bg-foreground/5 text-foreground/30'
                                            }`}>
                                               {badge.iconType === "quran" && <BookOpen className="w-5 h-5" />}
-                                              {badge.iconType === "community" && <Users className="w-5 h-5" />}
+                                              {badge.iconType === "streak" && <Flame className="w-5 h-5" />}
+                                              {badge.iconType === "surah" && <PlayCircle className="w-5 h-5" />}
                                               {badge.iconType === "video" && <Video className="w-5 h-5" />}
                                               
                                               {isUnlocked && (
-                                                 <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-emerald-500 rounded-full border border-card flex items-center justify-center text-[8px] text-white force-dark font-bold">
+                                                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-foreground text-background rounded-full border border-card flex items-center justify-center text-[9px] font-black">
                                                     ✓
                                                  </span>
                                               )}
                                            </div>
 
                                            {/* Badge Info */}
-                                           <div className="space-y-0.5">
-                                              <span className={`block text-[10px] font-black ${isUnlocked ? 'text-primary' : 'text-foreground/60'}`}>
+                                           <div className="space-y-1">
+                                              <span className={`block text-xs font-black ${isUnlocked ? 'text-foreground' : 'text-foreground/60'}`}>
                                                  {badge.name}
                                               </span>
-                                              <p className="text-[8px] text-foreground/45 leading-normal text-center">
+                                              <p className="text-[9px] text-foreground/50 leading-relaxed text-center font-medium">
                                                  {badge.description}
                                               </p>
                                            </div>
@@ -961,13 +967,13 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                            {/* Progress Bar (if locked) */}
                                            {!isUnlocked && (
                                               <div className="w-full mt-1 space-y-1">
-                                                 <div className="flex justify-between text-[7px] text-foreground/30 font-bold font-mono">
+                                                 <div className="flex justify-between text-[8px] text-foreground/40 font-bold font-mono">
                                                     <span>{progress}%</span>
                                                     <span>{currentVal}/{targetVal}</span>
                                                  </div>
-                                                 <div className="w-full h-1 bg-foreground/5 rounded-full overflow-hidden">
+                                                 <div className="w-full h-1.5 bg-foreground/10 rounded-full overflow-hidden">
                                                     <div 
-                                                       className="h-full bg-white/20 rounded-full transition-all duration-500" 
+                                                       className="h-full bg-primary rounded-full transition-all duration-500" 
                                                        style={{ width: `${progress}%` }}
                                                     />
                                                  </div>
@@ -978,57 +984,6 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                   })}
                                </div>
                             </div>
-                         </div>
-                      )}
-
-                      {/* Posts Tab */}
-                      {activeTab === 'posts' && (
-                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-4">
-                            {loadingMyPosts ? (
-                               <div className="py-12 flex flex-col items-center gap-4">
-                                  <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                                  <p className="text-foreground/40 text-xs font-bold">جاري تحميل منشوراتك...</p>
-                               </div>
-                            ) : myPosts.length === 0 ? (
-                               <div className="py-12 text-center text-foreground/30 space-y-3 bg-foreground/5 border border-border rounded-3xl">
-                                  <FileText className="w-10 h-10 text-foreground/10 mx-auto" />
-                                  <p className="text-sm font-bold">لم تقم بنشر أي منشور بعد</p>
-                                  <p className="text-xs text-foreground/20">منشوراتك التي تنشرها في المجتمع ستظهر هنا</p>
-                               </div>
-                            ) : (
-                               <div className="space-y-4 max-h-[50vh] overflow-y-auto no-scrollbar p-1">
-                                  {myPosts.map((post) => (
-                                     <div key={post.id} className="bg-foreground/5 border border-border rounded-3xl p-5 relative group/post hover:bg-foreground/10 transition-colors shadow-lg">
-                                        <div className="flex justify-between items-start gap-4 mb-3">
-                                           <div className="text-right">
-                                              <span className="block text-[10px] text-foreground/30 font-mono">
-                                                 {post.createdAt ? (post.createdAt.toDate ? post.createdAt.toDate().toLocaleDateString('ar-EG') : new Date(post.createdAt).toLocaleDateString('ar-EG')) : ''}
-                                              </span>
-                                           </div>
-                                           <button 
-                                              type="button"
-                                              onClick={() => handleDeleteMyPost(post.id)}
-                                              className="p-2 bg-red-500/10 text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-all scale-90 group-hover/post:scale-100 opacity-80 hover:opacity-100"
-                                           >
-                                              <Trash2 className="w-4 h-4" />
-                                           </button>
-                                        </div>
-                                        <p className="text-sm text-foreground/85 leading-relaxed text-right font-medium whitespace-pre-wrap break-words">{post.content}</p>
-                                        
-                                        <div className="flex items-center gap-6 mt-4 pt-3 border-t border-border text-xs text-foreground/40">
-                                           <div className="flex items-center gap-1.5">
-                                              <Heart className="w-3.5 h-3.5 fill-current text-red-500/80" />
-                                              <span>{post.likesCount || 0} أعجبني</span>
-                                           </div>
-                                           <div className="flex items-center gap-1.5">
-                                              <MessageCircle className="w-3.5 h-3.5 text-primary" />
-                                              <span>{post.commentsCount || 0} تعليق</span>
-                                           </div>
-                                        </div>
-                                     </div>
-                                  ))}
-                               </div>
-                            )}
                          </div>
                       )}
 
@@ -1044,7 +999,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                   onClick={() => setShowSearchSection(!showSearchSection)}
                                   className={`p-3 rounded-2xl border transition-all flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 ${
                                      showSearchSection
-                                        ? 'bg-primary text-black border-primary shadow-lg shadow-primary/20 scale-105'
+                                        ? 'bg-primary text-primary-foreground border-primary shadow-md scale-105'
                                         : 'bg-foreground/5 border-border text-foreground/70 hover:bg-foreground/10 hover:text-foreground'
                                   }`}
                                   title="البحث عن أصدقاء"
@@ -1058,7 +1013,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                   onClick={() => setShowRequestsSection(!showRequestsSection)}
                                   className={`relative p-3 rounded-2xl border transition-all flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 ${
                                      showRequestsSection
-                                        ? 'bg-primary text-black border-primary shadow-lg shadow-primary/20 scale-105'
+                                        ? 'bg-primary text-primary-foreground border-primary shadow-md scale-105'
                                         : 'bg-foreground/5 border-border text-foreground/70 hover:bg-foreground/10 hover:text-foreground'
                                   }`}
                                   title="طلبات الصداقة"
@@ -1124,7 +1079,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                                     onClick={() => {
                                                        window.dispatchEvent(new CustomEvent("show_user_profile", { detail: { userId: user.uid } }));
                                                     }}
-                                                    className="px-3 py-2 bg-primary/10 hover:bg-primary text-primary hover:text-black rounded-xl transition-all text-xs font-black flex items-center gap-1.5 border border-primary/20"
+                                                    className="px-3 py-2 bg-primary/10 hover:bg-primary text-primary hover:text-primary-foreground rounded-xl transition-all text-xs font-black flex items-center gap-1.5 border border-primary/20"
                                                  >
                                                     <User className="w-3.5 h-3.5" />
                                                     <span>الملف الشخصي</span>

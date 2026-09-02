@@ -1,8 +1,8 @@
-const CACHE_NAME = 'quran-pwa-v21';
-const STATIC_CACHE_NAME = 'quran-static-assets-v1';
-const AUDIO_CACHE_NAME = 'quran-audio-v1';
-const FONT_CACHE_NAME = 'quran-fonts-v1';
-const API_CACHE_NAME = 'quran-api-v1';
+const CACHE_NAME = 'quran-pwa-v22';
+const STATIC_CACHE_NAME = 'quran-static-assets-v2';
+const AUDIO_CACHE_NAME = 'quran-audio-v2';
+const FONT_CACHE_NAME = 'quran-fonts-v2';
+const API_CACHE_NAME = 'quran-api-v2';
 
 const ASSETS_TO_CACHE = [
   '/',
@@ -43,6 +43,22 @@ self.addEventListener('fetch', (event) => {
 
   // Skip chrome-extension:// and other unsupported URL schemes
   if (!request.url.startsWith('http://') && !request.url.startsWith('https://')) return;
+
+  // Bypass service worker caching on localhost / development environment
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.port === '3000') return;
+
+  // Bypass external APIs and third-party services
+  if (
+    url.hostname.includes('aladhan.com') ||
+    url.hostname.includes('openstreetmap.org') ||
+    url.hostname.includes('ipwho.is') ||
+    url.hostname.includes('ip-api.com') ||
+    url.hostname.includes('ipapi.co') ||
+    url.hostname.includes('googleapis.com') ||
+    url.hostname.includes('firebaseio.com')
+  ) {
+    return;
+  }
 
   // 1. Audio files (.mp3) - Cache on demand (Cache-First)
   if (url.pathname.endsWith('.mp3') || request.destination === 'audio') {

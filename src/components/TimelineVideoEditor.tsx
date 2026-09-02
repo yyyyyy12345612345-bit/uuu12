@@ -342,7 +342,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                 }}
                 className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all ${
                   isActive 
-                    ? "bg-primary text-black shadow-lg shadow-primary/20 scale-[1.02]" 
+                    ? "bg-primary text-primary-foreground shadow-md scale-[1.02]" 
                     : "text-white/30 hover:text-white hover:bg-white/5"
                 }`}
                 title={tab.label}
@@ -376,7 +376,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                   <button
                     onClick={() => setBgMode("library")}
                     className={`flex-1 py-2 text-[10px] font-black rounded-lg transition-all ${
-                      bgMode === "library" ? "bg-primary text-black shadow-md" : "text-white/40 hover:text-white/70"
+                      bgMode === "library" ? "bg-primary text-primary-foreground shadow-md" : "text-white/40 hover:text-white/70"
                     }`}
                   >
                     المكتبة الذكية
@@ -384,7 +384,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                   <button
                     onClick={() => setBgMode("videos")}
                     className={`flex-1 py-2 text-[10px] font-black rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                      bgMode === "videos" ? "bg-primary text-black shadow-md" : "text-white/40 hover:text-white/70"
+                      bgMode === "videos" ? "bg-primary text-primary-foreground shadow-md" : "text-white/40 hover:text-white/70"
                     }`}
                   >
                     فيديوهات
@@ -392,7 +392,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                   <button
                     onClick={() => setBgMode("colors")}
                     className={`flex-1 py-2 text-[10px] font-black rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                      bgMode === "colors" ? "bg-primary text-black shadow-md" : "text-white/40 hover:text-white/70"
+                      bgMode === "colors" ? "bg-primary text-primary-foreground shadow-md" : "text-white/40 hover:text-white/70"
                     }`}
                   >
                     ألوان وتدرجات
@@ -577,7 +577,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                        state.reciterId === r.id ? 'bg-primary text-black' : 'bg-white/5 text-white/40'
+                        state.reciterId === r.id ? 'bg-primary text-primary-foreground' : 'bg-white/5 text-white/40'
                       }`}>
                         <Music className="w-4 h-4" />
                       </div>
@@ -587,7 +587,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                       </div>
                     </div>
                     {state.reciterId === r.id && (
-                      <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center text-black">
+                      <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
                         <Check className="w-3 h-3 stroke-[3px]" />
                       </div>
                     )}
@@ -601,9 +601,9 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
               <div className="grid grid-cols-1 gap-3">
                 {[
                   { id: "default", label: "التصميم الافتراضي", desc: "آيات مع ترجمة منسقة", icon: Type },
-                  { id: "minshawi_player", label: "تصميم زياد", desc: "مشغل زياد المخصص", icon: Sparkles },
-                  { id: "dossary_player", label: "تصميم 2", desc: "مشغل 2 المخصص", icon: Sparkles },
-                  { id: "youssef_player", label: "تصميم يوسف", desc: "مشغل يوسف الفاخر", icon: Sparkles }
+                  { id: "minshawi_player", label: "تصميم زياد", desc: "مشغل زياد المخصص", icon: Music },
+                  { id: "dossary_player", label: "تصميم 2", desc: "مشغل 2 المخصص", icon: Music },
+                  { id: "youssef_player", label: "تصميم يوسف", desc: "مشغل يوسف الفاخر", icon: Music }
                 ].map((t) => (
                   <button
                     key={t.id}
@@ -615,7 +615,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                     }`}
                   >
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                      state.videoTemplate === t.id ? 'bg-primary text-black' : 'bg-white/5 text-white/40'
+                      state.videoTemplate === t.id ? 'bg-primary text-primary-foreground' : 'bg-white/5 text-white/40'
                     }`}>
                       <t.icon className="w-5 h-5" />
                     </div>
@@ -1024,7 +1024,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                         className="w-full flex items-center justify-between p-3 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all text-right group"
                       >
                         <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-lg bg-primary text-black flex items-center justify-center group-hover:rotate-12 transition-transform">
+                          <div className="w-7 h-7 rounded-lg bg-primary text-primary-foreground flex items-center justify-center group-hover:rotate-12 transition-transform">
                             <Search className="w-3.5 h-3.5 stroke-[3px]" />
                           </div>
                           <div>

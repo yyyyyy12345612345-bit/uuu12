@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X, ArrowLeft, ArrowRight, BookOpen, Video, Trophy, Headphones,
   Sparkles, ShieldCheck, UserCheck, Users, HelpCircle, CheckCircle, Info,
-  MapPin, Bell, Star, MessageCircle, Heart, Share2, Compass, AlertCircle, Timer
+  MapPin, Bell, MessageCircle, Heart, Share2, Compass, AlertCircle, Timer
 } from "lucide-react";
 import { navigateInstantly } from "@/lib/navigation";
 
@@ -288,7 +288,7 @@ export function OnboardingOverlay({ onClose }: OnboardingOverlayProps) {
                 className="flex flex-col items-center text-center gap-5 py-4"
               >
                 <div className="relative w-18 h-18 bg-gradient-to-br from-[#d4af37]/10 to-transparent p-4 rounded-2xl border border-[#d4af37]/25 shadow-md flex items-center justify-center">
-                  <Sparkles className="w-9 h-9 text-[#b8860b] animate-pulse" />
+                  <BookOpen className="w-9 h-9 text-[#b8860b]" />
                   <div className="absolute inset-0 rounded-2xl border border-zinc-200 animate-ping opacity-25" />
                 </div>
 

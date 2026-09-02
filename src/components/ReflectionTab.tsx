@@ -153,9 +153,9 @@ export function ReflectionTab({ verseText, verseKey, surahName }: ReflectionTabP
           <button
             onClick={() => setShowGenerator(true)}
             disabled={!reflectionText.trim()}
-            className="flex-1 py-4 rounded-xl bg-primary text-black font-black text-sm flex items-center justify-center gap-3 transition-all shadow-xl shadow-primary/10 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 disabled:hover:scale-100"
+            className="flex-1 py-4 rounded-xl bg-primary text-primary-foreground font-black text-sm flex items-center justify-center gap-3 transition-all shadow-md hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 disabled:hover:scale-100"
           >
-            <Sparkles className="w-4 h-4 fill-current" />
+            <PenTool className="w-4 h-4" />
             <span>صناعة بطاقة دعوية</span>
           </button>
         </div>

@@ -149,7 +149,7 @@ export function AuthGate({ children }: AuthGateProps) {
     let unsub: (() => void) | null = null;
     (async () => {
       await initFirebase();
-      if (!isMounted) return;
+      if (!isMounted || !auth) return;
       unsub = onAuthStateChanged(auth, async (u) => {
         if (!isMounted) return;
         if (u && db) {
@@ -913,7 +913,6 @@ export function AuthGate({ children }: AuthGateProps) {
                   <Dots total={3} current={0} />
                   <div className="text-center mb-5">
                     <div className="inline-flex items-center gap-1.5 mb-2">
-                      <Sparkles className="w-4 h-4 text-[#3b82f6]" />
                       <h2 className="text-lg font-black text-slate-900 font-bold">إنشاء حساب جديد</h2>
                     </div>
                     <p className="text-slate-400 text-[11px]">المعلومات الأساسية · الخطوة 1 من 3</p>
@@ -940,7 +939,7 @@ export function AuthGate({ children }: AuthGateProps) {
                           ? { borderColor: "rgba(59,130,246,0.45)", color: "#2563eb", background: "rgba(59,130,246,0.08)" }
                           : { borderColor: "rgba(15,23,42,0.08)", color: "rgba(15,23,42,0.4)", background: "rgba(15,23,42,0.02)" }}
                       >
-                        <span className="text-[11px] font-black">✨ تسجيل مباشر</span>
+                        <span className="text-[11px] font-black">تسجيل مباشر</span>
                         <span className="text-[8px] opacity-75 font-bold">كود تحقق (استرجاع متاح)</span>
                       </button>
                     </div>

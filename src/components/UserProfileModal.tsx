@@ -49,6 +49,9 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
         onClose();
       }
       setLoading(false);
+    }, (err) => {
+      console.warn("[Profile] user snapshot error:", err.message);
+      setLoading(false);
     });
 
     // 2. Fetch current user data (to pass their name/avatar when sending requests or starting duels)
@@ -57,7 +60,7 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
         if (snap.exists()) {
           setCurrentUserData(snap.data());
         }
-      });
+      }).catch((e) => console.warn(e));
     }
 
     // 3. Listen to relationship state
@@ -84,10 +87,12 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
                 } else {
                   setRelation("none");
                 }
-              });
+              }).catch(() => setRelation("none"));
             }
-          });
+          }).catch(() => setRelation("none"));
         }
+      }, (err) => {
+        console.warn("[Profile] friendship snapshot error:", err.message);
       });
     } else {
       setRelation("none");
@@ -97,16 +102,22 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
     const qFollowers = query(collection(db, "follows"), where("followingId", "==", userId));
     const unsubFollowers = onSnapshot(qFollowers, (snap) => {
       setFollowersCount(snap.size);
+    }, (err) => {
+      console.warn("[Profile] followers snapshot error:", err.message);
     });
 
     const qFollowing = query(collection(db, "follows"), where("followerId", "==", userId));
     const unsubFollowing = onSnapshot(qFollowing, (snap) => {
       setFollowingCount(snap.size);
+    }, (err) => {
+      console.warn("[Profile] following snapshot error:", err.message);
     });
 
     const qPosts = query(collection(db, "posts"), where("userId", "==", userId));
     const unsubPosts = onSnapshot(qPosts, (snap) => {
       setPostsCount(snap.size);
+    }, (err) => {
+      console.warn("[Profile] posts snapshot error:", err.message);
     });
 
     let unsubIsFollowing = () => {};
@@ -114,6 +125,8 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
       const followDocId = `${myUid}_${userId}`;
       unsubIsFollowing = onSnapshot(doc(db, "follows", followDocId), (followSnap) => {
         setIsFollowing(followSnap.exists());
+      }, (err) => {
+        console.warn("[Profile] follow state snapshot error:", err.message);
       });
     }
 
@@ -501,7 +514,7 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
                   window.dispatchEvent(new CustomEvent("show_auth_gate"));
                   onClose();
                 }}
-                className="w-full py-4 bg-primary text-black rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+                className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-md flex items-center justify-center gap-2"
               >
                 سجّل دخولك للتفاعل مع هذا القارئ
               </button>
@@ -509,14 +522,14 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
               <div className="w-full space-y-3">
                 <div className="w-full py-3.5 bg-primary/10 border border-primary/20 text-primary rounded-2xl font-black text-sm text-center flex items-center justify-center gap-2">
                   <User className="w-4 h-4" />
-                  هذا هو حسابك الشخصي ✨
+                  هذا هو حسابك الشخصي
                 </div>
                 <button
                   onClick={() => {
                     window.dispatchEvent(new CustomEvent("open_profile_settings"));
                     onClose();
                   }}
-                  className="w-full py-4 bg-primary text-black rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-md flex items-center justify-center gap-2"
                 >
                   تعديل الملف الشخصي وإدارة الأصدقاء ⚙️
                 </button>
@@ -548,7 +561,7 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
                       <button
                         onClick={handleAddFriend}
                         disabled={actionLoading}
-                        className="w-full py-4 bg-primary text-black rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+                        className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-md flex items-center justify-center gap-2"
                       >
                         {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
                         إرسال طلب صداقة
@@ -593,7 +606,7 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
                           <button
                             onClick={handleStartChat}
                             disabled={actionLoading}
-                            className="flex-1 py-4 bg-primary text-black rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2"
+                            className="flex-1 py-4 bg-primary text-primary-foreground rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-md flex items-center justify-center gap-2"
                           >
                             <MessageCircle className="w-4 h-4" />
                             محادثة

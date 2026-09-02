@@ -245,7 +245,7 @@ export function QiblaCompass({ qiblaAngle, distance, onRequestLocation, isLoadin
 
         {/* Center Point */}
         <div className="relative w-12 h-12 rounded-full bg-[#0c0f19] border border-white/10 shadow-xl flex items-center justify-center z-40">
-          <div className={`w-2.5 h-2.5 rounded-full transition-all duration-500 ${isAligned ? 'bg-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.8)] scale-110' : 'bg-white/20'}`} />
+          <div className={`w-2.5 h-2.5 rounded-full transition-all duration-500 ${isAligned ? 'bg-primary shadow-[0_0_15px_rgba(16,185,129,0.8)] scale-110' : 'bg-white/20'}`} />
         </div>
       </div>
 

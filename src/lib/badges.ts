@@ -6,28 +6,49 @@ export interface Badge {
   name: string;
   description: string;
   requirement: string;
-  iconType: "quran" | "community" | "video";
+  iconType: "quran" | "streak" | "video" | "surah";
 }
 
 export const BADGES: Badge[] = [
   {
     id: "streak_7",
     name: "الحافظ المواظب",
-    description: "تلاوة القرآن الكريم لـ 7 أيام متتالية",
+    description: "تلاوة القرآن والورد اليومي لـ 7 أيام متتالية",
     requirement: "نشاط متتالي 7 أيام",
+    iconType: "streak"
+  },
+  {
+    id: "streak_30",
+    name: "حليف القرآن",
+    description: "الاستمرار في تلاوة القرآن والورد لـ 30 يوماً متواصلاً",
+    requirement: "نشاط متتالي 30 يوماً",
+    iconType: "streak"
+  },
+  {
+    id: "ayahs_100",
+    name: "ورتّل القرآن",
+    description: "قراءة وتدبر أكثر من 100 آية مباركة",
+    requirement: "قراءة 100 آية",
     iconType: "quran"
   },
   {
-    id: "comments_10",
-    name: "خادم المجتمع",
-    description: "كتابة 10 تعليقات قيمة للمساهمة في بناء البيئة الإيمانية",
-    requirement: "10 تعليقات قيمة",
-    iconType: "community"
+    id: "ayahs_500",
+    name: "نور الآيات",
+    description: "قراءة وتدبر أكثر من 500 آية من كتاب الله",
+    requirement: "قراءة 500 آية",
+    iconType: "quran"
+  },
+  {
+    id: "surahs_5",
+    name: "متقن السور",
+    description: "الاستماع لتلاوة 5 سور كاملة بتدبر وخشوع",
+    requirement: "إتمام 5 سور",
+    iconType: "surah"
   },
   {
     id: "videos_5",
     name: "تأثير الخير",
-    description: "صناعة ورندر 5 فيديوهات دعوية باستخدام محرر الفيديوهات",
+    description: "صناعة ورندر 5 فيديوهات دعوية لنشر آيات القرآن الكريم",
     requirement: "رندر 5 فيديوهات",
     iconType: "video"
   }
@@ -51,19 +72,35 @@ export async function checkAndAwardBadges(userId: string): Promise<string[]> {
     
     // Get metrics
     const streak = data.streak || 0;
-    const commentsCount = data.commentsCount || 0;
+    const readAyahs = data.readAyahs || 0;
+    const completedSurahsCount = data.completedSurahsCount || 0;
     const videoRendersCount = data.videoRendersCount || 0;
 
     const newBadges: string[] = [];
 
-    // Check Streak Badge
+    // Check Streak 7
     if (streak >= 7 && !currentBadges.includes("streak_7")) {
       newBadges.push("streak_7");
     }
 
-    // Check Comments Badge
-    if (commentsCount >= 10 && !currentBadges.includes("comments_10")) {
-      newBadges.push("comments_10");
+    // Check Streak 30
+    if (streak >= 30 && !currentBadges.includes("streak_30")) {
+      newBadges.push("streak_30");
+    }
+
+    // Check 100 Ayahs
+    if (readAyahs >= 100 && !currentBadges.includes("ayahs_100")) {
+      newBadges.push("ayahs_100");
+    }
+
+    // Check 500 Ayahs
+    if (readAyahs >= 500 && !currentBadges.includes("ayahs_500")) {
+      newBadges.push("ayahs_500");
+    }
+
+    // Check 5 Surahs
+    if (completedSurahsCount >= 5 && !currentBadges.includes("surahs_5")) {
+      newBadges.push("surahs_5");
     }
 
     // Check Videos Badge

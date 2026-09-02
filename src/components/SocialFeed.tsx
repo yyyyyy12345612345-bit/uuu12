@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Send, Heart, MessageCircle, Share2, MoreHorizontal, Trash2,
   Loader2, User, EyeOff, X, AlertCircle, Bookmark, BookmarkCheck,
-  Crown, Star, Sparkles, BookOpen, HandHeart, Award, Users, Search,
+  Crown, Sparkles, BookOpen, HandHeart, Award, Users, Search,
   Trophy, Shield, Ban, Flag, Check, Image as ImageIcon, Video, HelpCircle,
   FileText, ArrowRight, Sparkle, UserCheck, UserPlus, LogOut, Info,
   Home, Folder, Menu
@@ -307,15 +307,22 @@ export function SocialFeed() {
       try { setBookmarkedPosts(new Set(JSON.parse(saved))); } catch (e) { console.error(e); }
     }
 
-    const unsub = onAuthStateChanged(auth, async (u) => {
-      setUser(u);
-      if (u) {
-        // Listen to active user profile details
-        const snap = await getDoc(doc(db, "users", u.uid));
-        if (snap.exists()) setUserData(snap.data());
-      }
-    });
-    return () => unsub();
+    let unsub: (() => void) | undefined;
+    if (auth) {
+      unsub = onAuthStateChanged(auth, async (u) => {
+        setUser(u);
+        if (u && db) {
+          try {
+            // Listen to active user profile details
+            const snap = await getDoc(doc(db, "users", u.uid));
+            if (snap.exists()) setUserData(snap.data());
+          } catch (err) {
+            console.error("SocialFeed profile fetch error:", err);
+          }
+        }
+      });
+    }
+    return () => { if (unsub) unsub(); };
   }, []);
 
   // Fetch / Seed real groups
@@ -337,6 +344,8 @@ export function SocialFeed() {
         const grpList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as RealGroup));
         setGroups(grpList);
       }
+    }, (err) => {
+      console.warn("[SocialFeed] groups snapshot error:", err.message);
     });
     return () => unsub();
   }, []);
@@ -348,6 +357,8 @@ export function SocialFeed() {
     const unsubMembers = onSnapshot(qMembers, (snap) => {
       const ids = new Set(snap.docs.map(doc => doc.data().groupId));
       setJoinedGroupIds(ids);
+    }, (err) => {
+      console.warn("[SocialFeed] group_members snapshot error:", err.message);
     });
     return () => unsubMembers();
   }, [user]);
@@ -360,6 +371,8 @@ export function SocialFeed() {
     const qFollowers = query(collection(db, "follows"), where("followingId", "==", user.uid));
     const unsubFollowers = onSnapshot(qFollowers, (snap) => {
       setUserFollowersCount(snap.size);
+    }, (err) => {
+      console.warn("[SocialFeed] followers snapshot error:", err.message);
     });
 
     // Following query
@@ -368,12 +381,16 @@ export function SocialFeed() {
       setUserFollowingCount(snap.size);
       const uids = snap.docs.map(doc => doc.data().followingId);
       setFollowingUids(uids);
+    }, (err) => {
+      console.warn("[SocialFeed] following snapshot error:", err.message);
     });
 
     // User's own posts count query
     const qPosts = query(collection(db, "posts"), where("userId", "==", user.uid));
     const unsubPosts = onSnapshot(qPosts, (snap) => {
       setUserPostsCount(snap.size);
+    }, (err) => {
+      console.warn("[SocialFeed] posts snapshot error:", err.message);
     });
 
     return () => {
@@ -1780,18 +1797,18 @@ export function SocialFeed() {
                         <div className="flex items-center gap-2">
                           <p className="text-sm font-black truncate text-slate-800 dark:text-white">{post.userName}</p>
                           
-                          {/* Crown/Star Badges */}
+                          {/* Badges */}
                           {isUserAdmin ? (
                             <span className="inline-flex items-center gap-0.5 text-[8px] font-black bg-red-500/20 text-red-400 border border-red-500/20 px-1.5 py-0.5 rounded-md">
                               <Crown className="w-2.5 h-2.5" /> مشرف
                             </span>
                           ) : authorPoints > 1000 ? (
-                            <span className="inline-flex items-center gap-0.5 text-[8px] font-black bg-[#fbbf24]/20 text-[#fbbf24] border border-[#fbbf24]/20 px-1.5 py-0.5 rounded-md">
-                              <Star className="w-2.5 h-2.5" /> طالب علم
+                            <span className="inline-flex items-center text-[8px] font-black bg-primary/20 text-primary border border-primary/20 px-1.5 py-0.5 rounded-md">
+                              طالب علم
                             </span>
                           ) : authorPoints > 500 ? (
-                            <span className="inline-flex items-center gap-0.5 text-[8px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded-md">
-                              <Sparkles className="w-2.5 h-2.5" /> نشط
+                            <span className="inline-flex items-center text-[8px] font-black bg-foreground/10 text-foreground border border-border px-1.5 py-0.5 rounded-md">
+                              نشط
                             </span>
                           ) : null}
 
@@ -1870,7 +1887,6 @@ export function SocialFeed() {
                     {post.isReflection ? (
                       <div className="p-6 md:p-8 rounded-[2rem] border border-[#fbbf24]/20 relative overflow-hidden text-center bg-gradient-to-br from-[#faf6ee] via-white to-[#faf6ee] dark:from-[#0a0e1c] dark:via-[#05070e] dark:to-[#010204] shadow-inner mt-2">
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#fbbf24]/5 blur-[70px] rounded-full pointer-events-none" />
-                        <div className="absolute top-3 left-4 text-[#fbbf24]/30 text-xs font-serif select-none pointer-events-none">✨</div>
                         
                         <div className="relative z-10 space-y-4">
                           <p className="font-arabic text-xl md:text-2xl font-black text-[#fbbf24] leading-relaxed text-shadow-md select-text" dir="rtl">
@@ -2306,17 +2322,17 @@ export function SocialFeed() {
         <aside className={`lg:col-span-3 flex-col h-full overflow-y-auto no-scrollbar pb-6 gap-6 ${activeMobileTab === "dashboard" ? "flex" : "hidden lg:flex"}`}>
           {/* User Profile Card (Dynamic real statistics counts) */}
           {user ? (
-            <div className="bg-gradient-to-b from-white to-slate-50 dark:from-[#181a24] dark:to-[#0c0d12] border border-slate-200 dark:border-[#fbbf24]/20 rounded-[2.5rem] p-6 shadow-2xl relative overflow-hidden text-center flex flex-col items-center shrink-0">
-              {/* Gold Ornament Mandala Background */}
-              <div className="absolute top-0 inset-x-0 h-36 bg-[radial-gradient(circle_at_top,rgba(212,175,55,0.15)_0%,transparent_75%)] select-none pointer-events-none" />
+            <div className="bg-card border border-border rounded-[2.5rem] p-6 shadow-2xl relative overflow-hidden text-center flex flex-col items-center shrink-0">
+              {/* Emerald Ornament Mandala Background */}
+              <div className="absolute top-0 inset-x-0 h-36 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.15)_0%,transparent_75%)] select-none pointer-events-none" />
               <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 blur-[50px] rounded-full pointer-events-none" />
               
               <div className="relative mt-4">
-                <div className="absolute -inset-3 rounded-full border border-dashed border-[#fbbf24]/20 animate-spin-slow" />
+                <div className="absolute -inset-3 rounded-full border border-dashed border-primary/20 animate-spin-slow" />
                 <img
                   src={userData?.photoURL || user.photoURL || `https://api.dicebear.com/9.x/avataaars/svg?seed=${user.uid}`}
                   alt=""
-                  className="w-20 h-20 rounded-full border-2 border-[#fbbf24]/50 object-cover bg-slate-50 dark:bg-white/5 relative z-10"
+                  className="w-20 h-20 rounded-full border-2 border-primary/50 object-cover bg-card relative z-10"
                 />
               </div>
 

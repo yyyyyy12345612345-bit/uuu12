@@ -56,6 +56,9 @@ export function DirectChatModal({ partnerId, onClose }: DirectChatModalProps) {
         setPartner(snap.data());
       }
       setLoadingPartner(false);
+    }, (err) => {
+      console.warn("[DirectChat] partner snapshot error:", err.message);
+      setLoadingPartner(false);
     });
     return () => unsub();
   }, [partnerId]);
@@ -89,7 +92,10 @@ export function DirectChatModal({ partnerId, onClose }: DirectChatModalProps) {
             });
           }
         }
-      });
+      }).catch((e) => console.warn(e));
+    }, (err) => {
+      console.warn("[DirectChat] messages snapshot error:", err.message);
+      setLoadingMessages(false);
     });
 
     return () => unsub();
@@ -203,11 +209,11 @@ export function DirectChatModal({ partnerId, onClose }: DirectChatModalProps) {
                 <div key={msg.id} className={`flex w-full ${isMe ? "justify-start" : "justify-end"}`}>
                   <div className={`max-w-[75%] rounded-[1.8rem] px-5 py-3 shadow-lg relative group ${
                     isMe 
-                      ? "bg-primary text-black rounded-tl-sm text-right" 
+                      ? "bg-primary text-primary-foreground rounded-tl-sm text-right" 
                       : "bg-white/5 border border-white/5 text-white rounded-tr-sm text-right"
                   }`}>
                     <p className="text-sm leading-relaxed font-bold break-words whitespace-pre-wrap">{msg.text}</p>
-                    <span className={`block text-[8px] mt-1 font-mono ${isMe ? "text-black/55" : "text-white/35"}`}>
+                    <span className={`block text-[8px] mt-1 font-mono ${isMe ? "text-primary-foreground/70" : "text-white/35"}`}>
                       {formatMessageTime(msg.createdAt)}
                     </span>
                   </div>
@@ -231,7 +237,7 @@ export function DirectChatModal({ partnerId, onClose }: DirectChatModalProps) {
             <button 
               type="submit"
               disabled={!inputText.trim() || sending}
-              className="w-12 h-12 bg-primary text-black rounded-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed shadow-lg shadow-primary/15"
+              className="w-12 h-12 bg-primary text-primary-foreground rounded-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed shadow-md"
             >
               {sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 rotate-180" />}
             </button>
