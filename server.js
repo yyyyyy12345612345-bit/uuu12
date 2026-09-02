@@ -28,6 +28,12 @@ import { startOutputCleanup } from "./lib/cleanup.js";
 const app = express();
 app.set("trust proxy", 1);
 app.use(cors());
+
+// Hugging Face Space probe & root endpoints (prevents unhandled errors from Space healthcheck probes)
+app.all(["/", "/api/predict"], (req, res) => {
+  res.json({ status: "ok", service: "hyper-render-v23" });
+});
+
 app.use(express.json({ limit: "5mb" }));
 
 const renderLimiter = rateLimit({

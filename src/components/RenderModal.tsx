@@ -405,7 +405,11 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         }),
       });
 
-      if (!response.ok) throw new Error("فشل التواصل مع السيرفر");
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        const detailedMsg = errData.details?.join(" - ") || errData.error || "فشل التواصل مع سيرفر الرندرة";
+        throw new Error(detailedMsg);
+      }
       const { jobId } = await response.json();
       const startTime = Date.now();
 
