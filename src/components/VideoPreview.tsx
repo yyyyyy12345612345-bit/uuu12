@@ -379,15 +379,15 @@ export function VideoPreview() {
   const previewFontSize = Math.min(Math.round(state.fontSize * 0.55), 68);
 
   return (
-    <div className={`relative aspect-[9/16] h-full max-h-[78vh] group select-none font-['Tajawal'] gpu-layer`} id="video-render-container">
+    <div className={`relative aspect-[9/16] h-full max-h-[62vh] group select-none font-['Tajawal'] gpu-layer`} id="video-render-container">
       {/* Premium Frame */}
-      <div className="absolute inset-[-12px] rounded-[3.5rem] border-[1px] border-primary/20 bg-primary/5 pointer-events-none" />
+      <div className="absolute inset-[-10px] rounded-[3.2rem] border-[1px] border-primary/20 bg-primary/5 pointer-events-none" />
       
       <div 
-        className={`absolute inset-0 rounded-[3rem] border-[8px] border-[#0A0A0A] shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden transition-colors duration-500 ${
+        className={`absolute inset-0 rounded-[2.6rem] border-[7px] border-[#0A0A0A] shadow-[0_30px_80px_rgba(0,0,0,0.85)] overflow-hidden transition-colors duration-500 ${
           (state.videoTemplate === "dossary_player" || state.videoTemplate === "youssef_player") ? "bg-gradient-to-b from-zinc-950 via-zinc-900 to-black" : ""
         }`} 
-        style={{ backgroundColor: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player" || state.videoTemplate === "basit_player" || state.videoTemplate === "youssef_player") ? "#000000" : "#0c0d10" }}
+        style={{ backgroundColor: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player" || state.videoTemplate === "basit_player" || state.videoTemplate === "youssef_player" || state.videoTemplate === "brainrot_detox") ? "#000000" : "#0c0d10" }}
       >
         
         {/* Background Media */}
@@ -640,7 +640,7 @@ export function VideoPreview() {
         )}
 
         {/* Vignette & Gradients */}
-        {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && (
+        {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "brainrot_detox" && (
           <>
             <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 z-[5]" />
             <div className="absolute inset-0 shadow-[inset_0_0_150px_rgba(0,0,0,0.6)] z-[5]" />
@@ -648,6 +648,7 @@ export function VideoPreview() {
         )}
 
         {/* Social Handles */}
+        {state.videoTemplate !== "brainrot_detox" && (
         <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center gap-2 z-[6] pointer-events-none">
            {state.tiktokHandle && (
               <div className="flex items-center gap-2 bg-black/40 px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-sm">
@@ -662,6 +663,7 @@ export function VideoPreview() {
               </div>
            )}
         </div>
+        )}
 
         {/* Static Surah Header pinned to top */}
         {surahData && state.videoTemplate !== "basit_player" && state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "youssef_player" && state.videoTemplate !== "brainrot_detox" && (
@@ -800,10 +802,10 @@ export function VideoPreview() {
         <div 
           className="absolute inset-0 flex flex-col items-center px-10 text-center z-20 transition-all duration-700 ease-out"
           style={{ 
-            justifyContent: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player" || state.videoTemplate === "basit_player" || state.videoTemplate === "youssef_player") ? 'center' : (state.textPosition === 'top' ? 'flex-start' : state.textPosition === 'bottom' ? 'flex-end' : 'center'),
-            paddingTop: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player" || state.videoTemplate === "basit_player" || state.videoTemplate === "youssef_player") ? '0px' : (state.textPosition === 'top' ? '180px' : '60px'),
-            paddingBottom: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player" || state.videoTemplate === "basit_player" || state.videoTemplate === "youssef_player") ? '0px' : (state.textPosition === 'bottom' ? '160px' : '60px'),
-            transform: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player" || state.videoTemplate === "basit_player" || state.videoTemplate === "youssef_player") ? 'none' : `translateY(${state.textVerticalOffset * 0.45}px)` 
+            justifyContent: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player" || state.videoTemplate === "basit_player" || state.videoTemplate === "youssef_player" || state.videoTemplate === "brainrot_detox") ? 'center' : (state.textPosition === 'top' ? 'flex-start' : state.textPosition === 'bottom' ? 'flex-end' : 'center'),
+            paddingTop: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player" || state.videoTemplate === "basit_player" || state.videoTemplate === "youssef_player" || state.videoTemplate === "brainrot_detox") ? '0px' : (state.textPosition === 'top' ? '180px' : '60px'),
+            paddingBottom: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player" || state.videoTemplate === "basit_player" || state.videoTemplate === "youssef_player" || state.videoTemplate === "brainrot_detox") ? '0px' : (state.textPosition === 'bottom' ? '160px' : '60px'),
+            transform: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player" || state.videoTemplate === "basit_player" || state.videoTemplate === "youssef_player" || state.videoTemplate === "brainrot_detox") ? 'none' : `translateY(${state.textVerticalOffset * 0.45}px)` 
           }}
         >
           {/* Youssef Player: content bounded exactly to card dimensions */}
@@ -1371,6 +1373,7 @@ export function VideoPreview() {
               totalDuration={totalSelectedDuration}
               currentElapsed={totalSelectedElapsed}
               isPlaying={isPlaying}
+              onTogglePlay={togglePlay}
               showTitle={state.showDetoxTitle !== false}
               titleText={state.detoxTitleText || "علاج التعفن الدماغي"}
               showTimer={state.showDetoxTimer !== false}
@@ -1464,7 +1467,7 @@ export function VideoPreview() {
         </div>
 
         {/* Floating Play Control */}
-        {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "youssef_player" && (
+        {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "youssef_player" && state.videoTemplate !== "brainrot_detox" && (
           <div className="absolute inset-x-0 bottom-32 flex flex-col items-center z-40">
             <button
               onClick={togglePlay}

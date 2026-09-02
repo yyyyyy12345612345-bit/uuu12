@@ -373,7 +373,7 @@ function CatchAllContent() {
                 
                 {/* Main Preview Area */}
                 <div className="flex-1 flex items-center justify-center p-4 relative z-10 min-h-0">
-                   <div className="scale-[0.8] md:scale-[0.95] h-full flex items-center justify-center transition-all duration-300 gpu-layer">
+                   <div className="scale-[0.68] md:scale-[0.78] h-full flex items-center justify-center transition-all duration-300 gpu-layer">
                      <VideoPreview />
                    </div>
                 </div>
