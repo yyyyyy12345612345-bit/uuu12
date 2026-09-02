@@ -1,5 +1,5 @@
-const CACHE_NAME = 'quran-pwa-v22';
-const STATIC_CACHE_NAME = 'quran-static-assets-v2';
+const CACHE_NAME = 'quran-pwa-v23';
+const STATIC_CACHE_NAME = 'quran-static-assets-v3';
 const AUDIO_CACHE_NAME = 'quran-audio-v2';
 const FONT_CACHE_NAME = 'quran-fonts-v2';
 const API_CACHE_NAME = 'quran-api-v2';
@@ -8,6 +8,7 @@ const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
   '/logo/logo.png',
+  '/im/chat.png',
   '/data/surahs.json',
   '/mushaf-bg.jpg.png'
 ];

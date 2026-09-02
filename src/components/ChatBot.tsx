@@ -40,6 +40,8 @@ export function ChatBot() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
+  const [imgFailed, setImgFailed] = useState(false);
+  const [imgSrc, setImgSrc] = useState("/im/chat.png");
 
   // Load user data
   useEffect(() => {
@@ -445,12 +447,27 @@ export function ChatBot() {
         >
           {/* Pure Frameless Mascot Icon */}
           <div className="relative w-12 h-12 md:w-16 md:h-16 flex items-center justify-center select-none pointer-events-none">
-            <img 
-              src="/im/chat.png" 
-              alt="المساعد يقين" 
-              className="w-full h-full object-contain drop-shadow-[0_8px_20px_rgba(0,0,0,0.5)] select-none pointer-events-none" 
-              draggable={false}
-            />
+            {!imgFailed ? (
+              <img 
+                src={imgSrc} 
+                alt="" 
+                onError={() => {
+                  if (imgSrc === "/im/chat.png") {
+                    setImgSrc("/logo/yaqeen_bot.png");
+                  } else {
+                    setImgFailed(true);
+                  }
+                }}
+                className="w-full h-full object-contain drop-shadow-[0_8px_20px_rgba(0,0,0,0.5)] select-none pointer-events-none" 
+                draggable={false}
+              />
+            ) : (
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-amber-400 p-0.5 shadow-2xl flex items-center justify-center pointer-events-auto">
+                <div className="w-full h-full rounded-[14px] bg-zinc-950 flex items-center justify-center">
+                  <Bot className="w-6 h-6 md:w-7 md:h-7 text-emerald-400" />
+                </div>
+              </div>
+            )}
           </div>
         </motion.button>
       )}
@@ -488,7 +505,22 @@ export function ChatBot() {
         <div className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-foreground/5 via-foreground/[0.02] to-transparent rounded-t-3xl shrink-0 select-none">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl bg-foreground/5 border border-foreground/15 flex items-center justify-center shadow-md overflow-hidden p-0.5">
-              <img src="/im/chat.png" alt="المساعد يقين" className="w-full h-full object-contain" />
+              {!imgFailed ? (
+                <img 
+                  src={imgSrc} 
+                  alt="" 
+                  onError={() => {
+                    if (imgSrc === "/im/chat.png") {
+                      setImgSrc("/logo/yaqeen_bot.png");
+                    } else {
+                      setImgFailed(true);
+                    }
+                  }}
+                  className="w-full h-full object-contain" 
+                />
+              ) : (
+                <Bot className="w-5 h-5 text-primary" />
+              )}
             </div>
             <div>
               <h3 className="font-bold text-foreground text-sm">
