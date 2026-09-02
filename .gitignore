@@ -49,3 +49,4 @@ next-env.d.ts
 # renders
 /public/renders/
 .open-next/
+.hf_token

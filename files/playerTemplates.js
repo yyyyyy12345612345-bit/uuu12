@@ -158,3 +158,36 @@ export function renderDossaryPlayer({ verse, opacity, elapsed, total, templatePh
     </g>
   `;
 }
+
+export function renderBrainrotDetox({ opacity = 1, elapsed = 0, total = 300, showTitle = true, titleText = "علاج التعفن الدماغي", showTimer = true, showProgressBar = true }) {
+  const remaining = Math.max(0, Math.ceil(total - elapsed));
+  const m = Math.floor(remaining / 60);
+  const s = remaining % 60;
+  const timeStr = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+  const progressRatio = Math.min(1, Math.max(0, elapsed / (total || 1)));
+
+  return `
+    <g opacity="${opacity}">
+      ${showTitle ? `
+      <!-- Title: علاج التعفن الدماغي -->
+      <text x="360" y="540" font-family="'Cairo', 'Amiri', sans-serif" font-size="48" font-weight="900" fill="#ffffff" text-anchor="middle" filter="url(#textGlow)">
+        ${escapeXml(titleText || "علاج التعفن الدماغي")}
+      </text>
+      ` : ""}
+
+      ${showTimer ? `
+      <!-- Huge Bold Countdown Timer in Impact / Anton font -->
+      <text x="360" y="700" font-family="'Impact', 'Anton', 'Bebas Neue', 'Oswald', sans-serif" font-size="145" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="2">
+        ${timeStr}
+      </text>
+      ` : ""}
+
+      ${showProgressBar ? `
+      <!-- Minimalist Progress Bar -->
+      <rect x="190" y="735" width="340" height="5" rx="2.5" fill="rgba(255, 255, 255, 0.25)" />
+      <rect x="190" y="735" width="${340 * progressRatio}" height="5" rx="2.5" fill="#ffffff" filter="url(#whiteGlow)" />
+      ` : ""}
+    </g>
+  `;
+}
+

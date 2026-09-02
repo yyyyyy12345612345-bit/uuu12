@@ -5,7 +5,7 @@ import { useEditor } from "@/store/useEditor";
 import { usePexelsBackgrounds, PexelsMediaItem } from "@/hooks/usePexelsBackgrounds";
 import { RECITERS } from "@/data/reciters";
 import { useUserPlan } from "@/hooks/useUserPlan";
-import { Crown, Lock, ShieldCheck, Search, Image as ImageIcon, Music, Type, MessageSquare, Check, Loader2, Heart } from "lucide-react";
+import { Crown, Lock, ShieldCheck, Search, Image as ImageIcon, Music, Type, MessageSquare, Check, Loader2, Heart, Clock } from "lucide-react";
 
 
 // ============================================================
@@ -421,11 +421,50 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                         <button
                             onClick={() => {
                                 updateState({
+                                    videoTemplate: "brainrot_detox",
+                                    fontFamily: "Amiri",
+                                    textColor: "#ffffff",
+                                    fontSize: 54,
+                                    filter: "none",
+                                    overlay: "none",
+                                    animation: "fade",
+                                    textPosition: "center",
+                                    showVisualizer: true,
+                                    visualizerColor: "#ffffff",
+                                    visualizerStyle: "wave",
+                                    ayahDecoration: "none"
+                                });
+                            }}
+                            className={`relative overflow-hidden group p-5 rounded-2xl border-2 transition-all duration-500 text-right flex items-center justify-between ${
+                                state.videoTemplate === "brainrot_detox"
+                                    ? 'bg-emerald-500/10 border-emerald-500 shadow-xl'
+                                    : 'bg-foreground/5 border-foreground/5 hover:bg-foreground/10'
+                            }`}
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+                                    <Clock className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <span className="text-sm font-black block font-arabic text-foreground">علاج التعفن الدماغي</span>
+                                    <p className="text-[9px] text-foreground/40 font-arabic mt-0.5">عدّاد تنازلي ضخم واستشفاء قرآني</p>
+                                </div>
+                            </div>
+                            {state.videoTemplate === "brainrot_detox" && (
+                                <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-black">
+                                    <Check className="w-3.5 h-3.5 stroke-[4px]" />
+                                </div>
+                            )}
+                        </button>
+
+                        <button
+                            onClick={() => {
+                                updateState({
                                     videoTemplate: "default"
                                 });
                             }}
                             className={`relative overflow-hidden group p-5 rounded-2xl border-2 transition-all duration-500 text-right flex items-center justify-between ${
-                                (state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "youssef_player")
+                                (state.videoTemplate === "default" || !state.videoTemplate)
                                     ? 'bg-primary/10 border-primary shadow-xl'
                                     : 'bg-foreground/5 border-foreground/5 hover:bg-foreground/10'
                             }`}
@@ -439,13 +478,93 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                                     <p className="text-[9px] text-foreground/40 font-arabic mt-0.5">عرض الآيات والترجمة الكلاسيكية</p>
                                 </div>
                             </div>
-                            {state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "youssef_player" && (
+                            {(state.videoTemplate === "default" || !state.videoTemplate) && (
                                 <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-black">
                                     <Check className="w-3.5 h-3.5 stroke-[4px]" />
                                 </div>
                             )}
                         </button>
                     </div>
+
+                    {/* Brainrot Detox Customization Panel */}
+                    {state.videoTemplate === "brainrot_detox" && (
+                        <div className="p-6 rounded-3xl bg-emerald-500/10 border border-emerald-500/30 space-y-4 animate-in fade-in duration-300">
+                            <div className="flex items-center justify-between pb-2 border-b border-emerald-500/20">
+                                <span className="text-xs font-black text-emerald-400 font-arabic flex items-center gap-2">
+                                    <Clock className="w-4 h-4" />
+                                    خيارات تخصيص «علاج التعفن الدماغي»
+                                </span>
+                            </div>
+
+                            {/* 1. Toggle & Edit Title */}
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs font-bold text-foreground font-arabic">إظهار العنوان العلوي</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => updateState({ showDetoxTitle: state.showDetoxTitle === false ? true : false })}
+                                        className={`w-12 h-6 rounded-full transition-colors p-1 flex items-center ${state.showDetoxTitle !== false ? 'bg-emerald-500 justify-end' : 'bg-foreground/20 justify-start'}`}
+                                    >
+                                        <div className="w-4 h-4 rounded-full bg-white shadow-md" />
+                                    </button>
+                                </div>
+                                {state.showDetoxTitle !== false && (
+                                    <input
+                                        type="text"
+                                        value={state.detoxTitleText || "علاج التعفن الدماغي"}
+                                        onChange={(e) => updateState({ detoxTitleText: e.target.value })}
+                                        placeholder="اكتب العنوان المخصص (مثل: علاج التعفن الدماغي)..."
+                                        className="w-full bg-background/60 border border-foreground/15 rounded-xl px-3.5 py-2 text-xs text-foreground font-arabic outline-none focus:border-emerald-500 transition-all"
+                                    />
+                                )}
+                            </div>
+
+                            {/* 2. Toggle Countdown Timer */}
+                            <div className="flex items-center justify-between pt-2 border-t border-foreground/10">
+                                <div>
+                                    <span className="text-xs font-bold text-foreground font-arabic block">العدّاد التنازلي الضخم بالثواني</span>
+                                    <p className="text-[10px] text-foreground/50 font-arabic">إظهار أو إخفاء التايمر من الفيديو</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => updateState({ showDetoxTimer: state.showDetoxTimer === false ? true : false })}
+                                    className={`w-12 h-6 rounded-full transition-colors p-1 flex items-center ${state.showDetoxTimer !== false ? 'bg-emerald-500 justify-end' : 'bg-foreground/20 justify-start'}`}
+                                >
+                                    <div className="w-4 h-4 rounded-full bg-white shadow-md" />
+                                </button>
+                            </div>
+
+                            {/* 3. Toggle Progress Bar */}
+                            <div className="flex items-center justify-between pt-2 border-t border-foreground/10">
+                                <div>
+                                    <span className="text-xs font-bold text-foreground font-arabic block">شريط تقدم الوقت</span>
+                                    <p className="text-[10px] text-foreground/50 font-arabic">مؤشر التقدم الانسيابي الهادئ</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => updateState({ showDetoxProgressBar: state.showDetoxProgressBar === false ? true : false })}
+                                    className={`w-12 h-6 rounded-full transition-colors p-1 flex items-center ${state.showDetoxProgressBar !== false ? 'bg-emerald-500 justify-end' : 'bg-foreground/20 justify-start'}`}
+                                >
+                                    <div className="w-4 h-4 rounded-full bg-white shadow-md" />
+                                </button>
+                            </div>
+
+                            {/* 4. Toggle Verse Text */}
+                            <div className="flex items-center justify-between pt-2 border-t border-foreground/10">
+                                <div>
+                                    <span className="text-xs font-bold text-foreground font-arabic block">إظهار نص الآيات القرآني</span>
+                                    <p className="text-[10px] text-foreground/50 font-arabic">عرض الآيات المقروءة أسفل التايمر</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => updateState({ showVerseText: state.showVerseText ? false : true })}
+                                    className={`w-12 h-6 rounded-full transition-colors p-1 flex items-center ${state.showVerseText ? 'bg-emerald-500 justify-end' : 'bg-foreground/20 justify-start'}`}
+                                >
+                                    <div className="w-4 h-4 rounded-full bg-white shadow-md" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Font Family */}

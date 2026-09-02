@@ -113,13 +113,21 @@ export interface EditorState {
   /** زخرفة الآية */
   ayahDecoration: AyahDecoration;
   /** قالب الفيديو النشط */
-  videoTemplate?: "default" | "minshawi_player" | "dossary_player" | "basit_player" | "youssef_player";
+  videoTemplate?: "default" | "minshawi_player" | "dossary_player" | "basit_player" | "youssef_player" | "brainrot_detox";
   /** الإشارة المرجعية الحالية */
   bookmark?: { surahId: string; ayahId: number };
   /** الصلاة النشطة في الإعدادات */
   activeSettingsPrayer: string | null;
   /** هل تم رندرة نص الآية */
   showVerseText?: boolean;
+  /** إظهار عنوان علاج التعفن الدماغي */
+  showDetoxTitle?: boolean;
+  /** نص عنوان علاج التعفن الدماغي */
+  detoxTitleText?: string;
+  /** إظهار العدّاد التنازلي الضخم */
+  showDetoxTimer?: boolean;
+  /** إظهار شريط التقدم */
+  showDetoxProgressBar?: boolean;
   /** هل تم تحميل الحالة من التخزين المحلي */
   isHydrated: boolean;
 }
@@ -167,6 +175,10 @@ const initialState: Omit<EditorState, 'isHydrated'> = {
   activeSettingsPrayer: null,
   videoTemplate: "default",
   showVerseText: true,
+  showDetoxTitle: true,
+  detoxTitleText: "علاج التعفن الدماغي",
+  showDetoxTimer: true,
+  showDetoxProgressBar: true,
 };
 
 /**

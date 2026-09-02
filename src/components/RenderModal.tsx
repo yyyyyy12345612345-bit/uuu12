@@ -639,7 +639,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           while (isRenderingRef.current && !item.audio.ended && (Date.now() - startTime) < (item.duration * 1000 + 1000)) {
             analyser.getByteFrequencyData(dataArray);
             const ayahProgress = item.audio.currentTime / item.duration;
-             renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, dataArray, surahData?.name || "", templatePhoto, templateCalligraphy);
+            renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, dataArray, surahData?.name || "", templatePhoto, templateCalligraphy, elapsed + item.audio.currentTime, totalDuration);
             const progress = Math.min(99, Math.round(((elapsed + item.audio.currentTime) / totalDuration) * 100));
             setProgressPct(progress);
             setMessage(`جاري التصميم: ${progress}%`);
@@ -652,7 +652,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           for (let s = 0; s < 5 * 30; s++) {
             if (!isRenderingRef.current) break;
             const ayahProgress = s / (5 * 30);
-             renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, null, surahData?.name || "", templatePhoto, templateCalligraphy);
+            renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, null, surahData?.name || "", templatePhoto, templateCalligraphy, elapsed + (s/30), totalDuration);
             const progress = Math.min(99, Math.round(((elapsed + (s/30)) / totalDuration) * 100));
             setProgressPct(progress);
             await new Promise(r => setTimeout(r, 33));
@@ -729,7 +729,8 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     surahName: string = "",
     templatePhoto: HTMLImageElement | null = null,
     templateCalligraphy: HTMLImageElement | null = null,
-    elapsedTime: number = 0
+    elapsedTime: number = 0,
+    totalTime: number = 0
   ) => {
     ctx.save();
     
@@ -988,7 +989,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     }
 
     // 4.7 Draw Surah Name Badge at the top
-    if (surahName && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "minshawi_player") {
+    if (surahName && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "brainrot_detox") {
         ctx.save();
         ctx.textAlign = "center";
         ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
@@ -1561,6 +1562,91 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       ctx.fillRect(351, 799, 4, 12);
       ctx.fillRect(359, 799, 4, 12);
       ctx.restore();
+    } else if (state.videoTemplate === "brainrot_detox") {
+      // 1. Title: "علاج التعفن الدماغي"
+      if (state.showDetoxTitle !== false) {
+        ctx.save();
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
+        ctx.shadowBlur = 30;
+        ctx.shadowOffsetY = 6;
+        ctx.font = `900 48px "Cairo", "Amiri", sans-serif`;
+        ctx.fillText(state.detoxTitleText || "علاج التعفن الدماغي", canvas.width / 2, 540);
+        ctx.restore();
+      }
+
+      // 2. Huge Countdown Timer (MM:SS) in Impact/Anton Bold Font!
+      if (state.showDetoxTimer !== false) {
+        const totalDurationSecs = totalTime > 0 ? totalTime : 300;
+        const remainingSecs = Math.max(0, Math.ceil(totalDurationSecs - elapsedTime));
+        const mins = Math.floor(remainingSecs / 60);
+        const secs = remainingSecs % 60;
+        const timerText = `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
+        ctx.save();
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
+        ctx.shadowBlur = 40;
+        ctx.shadowOffsetY = 10;
+        // Exact bold condensed font from user's screenshot!
+        ctx.font = "900 150px 'Impact', 'Anton', 'Bebas Neue', 'Oswald', sans-serif";
+        ctx.fillText(timerText, canvas.width / 2, 700);
+        ctx.restore();
+      }
+
+      // 3. Sleek minimalist progress line
+      if (state.showDetoxProgressBar !== false) {
+        const progressW = 340;
+        const progressH = 5;
+        const progressX = (canvas.width - progressW) / 2;
+        const progressY = 740;
+        const totalDurationSecs = totalTime > 0 ? totalTime : 300;
+        const progressRatio = Math.min(1, Math.max(0, elapsedTime / totalDurationSecs));
+
+        ctx.save();
+        // Track
+        ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(progressX, progressY, progressW, progressH, 3);
+        } else {
+          ctx.rect(progressX, progressY, progressW, progressH);
+        }
+        ctx.fill();
+
+        // Active
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowColor = "rgba(255, 255, 255, 0.9)";
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(progressX, progressY, progressW * progressRatio, progressH, 3);
+        } else {
+          ctx.rect(progressX, progressY, progressW * progressRatio, progressH);
+        }
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // 4. Optional Quranic Verse Text below
+      if (state.showVerseText === true && verse?.text) {
+        ctx.save();
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
+        ctx.shadowBlur = 15;
+        ctx.shadowOffsetY = 4;
+        ctx.font = `700 36px "Amiri", serif`;
+        const vLines = wrapText(ctx, verse.text, canvas.width - 160);
+        let vStartY = 810;
+        for (const vLine of vLines) {
+          ctx.fillText(vLine, canvas.width / 2, vStartY);
+          vStartY += 52;
+        }
+        ctx.restore();
+      }
     } else {
       // 5. Text Animation & Rendering
       // ayahProgress goes from 0 to 1

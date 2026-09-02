@@ -7,6 +7,7 @@ import { getAudioUrl } from "@/lib/quranUtils";
 import { RECITERS, getReciterEnglishName, getSheikhAsset } from "@/data/reciters";
 import { Play, Pause, Loader2, BookOpen, AlertCircle } from "lucide-react";
 import { useCustomBackgrounds } from "@/hooks/useCustomBackgrounds";
+import { BrainrotDetoxDesign } from "./BrainrotDetoxDesign";
 
 const isVideoUrl = (url: string) => {
   if (!url) return false;
@@ -663,7 +664,7 @@ export function VideoPreview() {
         </div>
 
         {/* Static Surah Header pinned to top */}
-        {surahData && state.videoTemplate !== "basit_player" && state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "youssef_player" && (
+        {surahData && state.videoTemplate !== "basit_player" && state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "youssef_player" && state.videoTemplate !== "brainrot_detox" && (
           <div className="absolute top-16 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 pointer-events-none">
             <div className="px-5 py-2 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-xl flex items-center gap-3 shadow-lg">
                 <BookOpen className="w-3.5 h-3.5 text-primary animate-pulse" />
@@ -690,7 +691,7 @@ export function VideoPreview() {
         )}
 
         {/* Verse Number (Bottom) */}
-        {state.showVerseText !== false && state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "basit_player" && state.videoTemplate !== "youssef_player" && surahData && currentVerse && (
+        {state.showVerseText !== false && state.videoTemplate !== "minshawi_player" && state.videoTemplate !== "dossary_player" && state.videoTemplate !== "basit_player" && state.videoTemplate !== "youssef_player" && state.videoTemplate !== "brainrot_detox" && surahData && currentVerse && (
           <div className="absolute bottom-[14%] left-0 right-0 flex justify-center z-30 pointer-events-none">
             <span className="text-[22px] font-bold text-primary drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" style={{ fontFamily: 'Amiri, serif' }}>
               {(() => {
@@ -1363,6 +1364,21 @@ export function VideoPreview() {
                 </button>
               </div>
             </div>
+          )}
+
+          {state.videoTemplate === "brainrot_detox" && (
+            <BrainrotDetoxDesign
+              totalDuration={totalSelectedDuration}
+              currentElapsed={totalSelectedElapsed}
+              isPlaying={isPlaying}
+              showTitle={state.showDetoxTitle !== false}
+              titleText={state.detoxTitleText || "علاج التعفن الدماغي"}
+              showTimer={state.showDetoxTimer !== false}
+              showProgressBar={state.showDetoxProgressBar !== false}
+              reciterName={getSheikhAsset(state.reciterId).nameAr}
+              verseText={currentVerse?.text}
+              showVerseText={state.showVerseText === true}
+            />
           )}
 
           {(!state.videoTemplate || state.videoTemplate === "default") && (
