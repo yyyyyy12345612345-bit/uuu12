@@ -1,8 +1,9 @@
+import fs from "fs";
 import sharp from "sharp";
 import { WIDTH, HEIGHT, getSheikhAsset } from "../config.js";
 import { escapeXml, applyFilterToSVG, applyOverlayToSVG } from "./svgUtils.js";
 import { buildDefaultLayout } from "./templates/defaultTemplate.js";
-import { renderMinshawiPlayer, renderBasitPlayer, renderDossaryPlayer } from "./templates/playerTemplates.js";
+import { renderMinshawiPlayer, renderBasitPlayer, renderDossaryPlayer, renderBrainrotDetox } from "./templates/playerTemplates.js";
 
 function buildSvgBackground(backgroundUrl) {
   if (!backgroundUrl) {
@@ -88,7 +89,17 @@ export async function generateVerseFrame(verse, outputPath, settings, bgPath, is
   });
 
   let innerContent = "";
-  if (videoTemplate === "minshawi_player") {
+  if (videoTemplate === "brainrot_detox") {
+    innerContent = renderBrainrotDetox({
+      opacity,
+      elapsed: elapsedSeconds || 0,
+      total: totalDuration || 300,
+      showTitle: settings.showDetoxTitle !== false,
+      titleText: settings.detoxTitleText || "علاج التعفن الدماغي",
+      showTimer: settings.showDetoxTimer !== false,
+      showProgressBar: settings.showDetoxProgressBar !== false,
+    });
+  } else if (videoTemplate === "minshawi_player") {
     innerContent = renderMinshawiPlayer({ surahName: settings.surahName, reciterName, opacity, elapsed: elapsedSeconds || 0, total: totalDuration || 1, templatePhotoBase64, fontFamily: settings.fontFamily });
   } else if (videoTemplate === "basit_player") {
     innerContent = renderBasitPlayer({ surahName: settings.surahName, reciterName, opacity, elapsed: elapsedSeconds || 0, total: totalDuration || 1, templatePhotoBase64, fontFamily: settings.fontFamily });
@@ -108,6 +119,7 @@ export async function generateVerseFrame(verse, outputPath, settings, bgPath, is
   const isMinshawi = videoTemplate === "minshawi_player";
   const isDossary = videoTemplate === "dossary_player";
   const isBasit = videoTemplate === "basit_player";
+  const isDetox = videoTemplate === "brainrot_detox";
   const bgSvg = buildSvgBackground(settings.backgroundUrl);
   const bgRects = isMinshawi ? `
     <rect x="0" y="0" width="${WIDTH}" height="380" fill="#000000" />
@@ -121,7 +133,9 @@ export async function generateVerseFrame(verse, outputPath, settings, bgPath, is
     <rect x="0" y="0" width="${WIDTH}" height="380" fill="#000000" />
     <rect x="0" y="380" width="${WIDTH}" height="520" fill="#c5beb8" />
     <rect x="0" y="900" width="${WIDTH}" height="380" fill="#000000" />
-  ` : bgSvg.rect));
+  ` : (isDetox ? `
+    <rect x="0" y="0" width="${WIDTH}" height="${HEIGHT}" fill="#000000" />
+  ` : bgSvg.rect)));
 
   const svg = `<svg width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -142,7 +156,9 @@ export async function generateVerseFrame(verse, outputPath, settings, bgPath, is
   finalSvg = applyOverlayToSVG(finalSvg, overlay);
   const svgBuffer = Buffer.from(finalSvg);
 
-  if (videoTemplate.endsWith("_player")) {
+  const hasBgFile = bgPath && fs.existsSync(bgPath);
+
+  if (videoTemplate.endsWith("_player") || videoTemplate === "brainrot_detox" || !hasBgFile) {
     await sharp({ create: { width: WIDTH, height: HEIGHT, channels: 3, background: { r: 0, g: 0, b: 0 } } })
       .composite([{ input: svgBuffer, blend: "over" }])
       .jpeg({ quality: 85 })
@@ -153,8 +169,9 @@ export async function generateVerseFrame(verse, outputPath, settings, bgPath, is
       .png({ compressionLevel: 1 })
       .toFile(outputPath);
   } else {
+    const fit = settings.backgroundFit || "cover";
     await sharp(bgPath)
-      .resize(WIDTH, HEIGHT, { fit: "cover", position: "center" })
+      .resize(WIDTH, HEIGHT, { fit, background: { r: 0, g: 0, b: 0 }, position: "center" })
       .composite([{ input: svgBuffer, blend: "over" }])
       .jpeg({ quality: 85 })
       .toFile(outputPath);
