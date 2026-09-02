@@ -50,3 +50,4 @@ next-env.d.ts
 /public/renders/
 .open-next/
 .hf_token
+.hf_deploy_cache
