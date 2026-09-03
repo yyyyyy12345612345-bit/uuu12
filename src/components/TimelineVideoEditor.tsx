@@ -1016,22 +1016,6 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                   </button>
                   {openSections.content && (
                     <div className="p-4 flex flex-col gap-4 border-t border-white/5 bg-black/10">
-                      {/* Smart Verse Search Button */}
-                      <button
-                        onClick={() => setIsAyahSearchOpen(true)}
-                        className="w-full flex items-center justify-between p-3 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all text-right group"
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-lg bg-primary text-primary-foreground flex items-center justify-center group-hover:rotate-12 transition-transform">
-                            <Search className="w-3.5 h-3.5 stroke-[3px]" />
-                          </div>
-                          <div>
-                            <span className="text-[10px] font-bold text-primary block">البحث الذكي عن الآيات</span>
-                            <span className="text-[8px] text-white/40 block">ابحث بكلمة أو جملة من الآية</span>
-                          </div>
-                        </div>
-                      </button>
-
                       {/* Surah dropdown */}
                       <div className="space-y-1.5">
                         <label className="text-[10px] text-white/30 font-bold block">ابحث عن سورة</label>
@@ -1415,8 +1399,8 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                           fontFamily: "Amiri",
                           filter: "none",
                           overlay: "none",
-                          showVisualizer: true,
-                          visualizerStyle: "wave",
+                          showVisualizer: false,
+                          backgroundUrl: state.backgroundUrl || "/mushaf-bg.jpg.png",
                         });
                       } else if (temp.id === "minshawi_player") {
                         updateState({
@@ -1425,7 +1409,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                           fontFamily: "Amiri",
                           filter: "none",
                           overlay: "none",
-                          backgroundUrl: "",
+                          backgroundUrl: state.backgroundUrl || "",
                         });
                       } else if (temp.id === "dossary_player") {
                         updateState({
@@ -1434,7 +1418,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                           fontFamily: "Noto Naskh Arabic",
                           filter: "none",
                           overlay: "none",
-                          backgroundUrl: "",
+                          backgroundUrl: state.backgroundUrl || "",
                         });
                       } else if (temp.id === "youssef_player") {
                         updateState({
@@ -1443,12 +1427,13 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                           fontFamily: "Amiri",
                           filter: "none",
                           overlay: "none",
-                          backgroundUrl: "",
+                          backgroundUrl: state.backgroundUrl || "",
                         });
                       } else {
                         updateState({
                           videoTemplate: "default",
                           fontFamily: "Amiri",
+                          backgroundUrl: state.backgroundUrl || "/mushaf-bg.jpg.png",
                         });
                       }
 

@@ -128,17 +128,9 @@ export const MainVideo: React.FC<MainVideoProps> = ({
   ayahDecoration = "bracket1",
   videoTemplate = "default",
   showDetoxTitle = true,
-  detoxTitleText = "علاج التعفن الدماغي:",
+  detoxTitleText = "علاج التعفن الدماغي",
   showDetoxTimer = true,
   showDetoxProgressBar = true,
-  showTiktokUI = true,
-  tiktokLikes = "22.2 ألف",
-  tiktokComments = "285",
-  tiktokBookmarks = "1639",
-  tiktokShares = "1061",
-  tiktokAccountName = "قرآن | Quran · 30-06",
-  tiktokCaption = "علاج التعفن الدماغي 5 دقايق من القرآن الكريم #اجر_لي_ولكم #ناصر_القطامي #fyp #قرآن ... المزيد",
-  tiktokSearchQuery = "health benefits of quran recitation",
   showVerseText = false,
 }) => {
   const { durationInFrames, fps } = useVideoConfig();
@@ -160,7 +152,7 @@ export const MainVideo: React.FC<MainVideoProps> = ({
     <AbsoluteFill style={{ backgroundColor: backgroundUrl ? 'black' : 'transparent' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=${fontImport}&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Cairo:wght@700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Rubik:wght@700;800;900&family=Inter:wght@800;900&family=IBM+Plex+Sans+Arabic:wght@700;800&display=swap');
         
         @keyframes dustMove {
           0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }

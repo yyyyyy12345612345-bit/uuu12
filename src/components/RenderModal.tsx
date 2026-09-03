@@ -1593,10 +1593,8 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         ctx.fillStyle = "#ffffff";
         ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
         ctx.shadowBlur = 35;
-        ctx.shadowOffsetY = 8;
-        // Exact bold modern geometric font from user's latest screenshot!
-        ctx.font = "900 170px 'Montserrat', 'Inter', 'Poppins', sans-serif";
-        ctx.fillText(timerText, canvas.width / 2, 700);
+        ctx.font = "900 145px 'Montserrat', 'Inter', 'Poppins', sans-serif";
+        ctx.fillText(timerText, canvas.width / 2, 690);
         ctx.restore();
       }
 

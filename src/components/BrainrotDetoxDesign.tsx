@@ -46,7 +46,7 @@ export function BrainrotDetoxDesign({
     return Math.max(0, Math.ceil(total - currentElapsed));
   }, [totalDuration, currentElapsed]);
 
-  // تنسيق الوقت كـ MM:SS (مثال: 00:46)
+  // تنسيق الوقت كـ MM:SS (مثال: 00:35)
   const formattedTime = useMemo(() => {
     const m = Math.floor(remainingSecs / 60);
     const s = remainingSecs % 60;
@@ -62,7 +62,7 @@ export function BrainrotDetoxDesign({
   return (
     <div 
       onClick={onTogglePlay}
-      className="absolute inset-0 w-full h-full flex flex-col items-center justify-center select-none cursor-pointer z-30 px-4 text-center overflow-hidden"
+      className="absolute inset-0 w-full h-full flex flex-col items-center justify-center select-none cursor-pointer z-30 px-3 sm:px-6 text-center overflow-hidden [container-type:inline-size]"
     >
       {/* استيراد الخطوط الجديدة المطابقة تماماً للصورة */}
       <style>{`
@@ -71,30 +71,30 @@ export function BrainrotDetoxDesign({
         .modern-timer-numbers {
           font-family: 'Montserrat', 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
           font-weight: 900;
-          letter-spacing: -0.01em;
-          line-height: 1;
+          letter-spacing: -0.02em;
+          line-height: 0.95;
         }
 
         .modern-detox-title {
-          font-family: 'Rubik', 'IBM Plex Sans Arabic', 'Tajawal', sans-serif;
+          font-family: 'Rubik', 'IBM Plex Sans Arabic', 'Tajawal', -apple-system, sans-serif;
           font-weight: 800;
         }
       `}</style>
 
-      {/* 1. العنوان: «علاج التعفن الدماغي» - بخط أصغر وأنيق ومطابق تماماً للصورة */}
+      {/* 1. العنوان: «علاج التعفن الدماغي» - حجم متناسق لا يخرج عن الإطار أبداً على الحاسوب أو الجوال */}
       {showTitle && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="mb-1.5 sm:mb-2.5"
+          className="mb-1 sm:mb-2 max-w-[90%]"
         >
           <h2
-            className="modern-detox-title text-white tracking-normal leading-tight"
+            className="modern-detox-title text-white tracking-normal leading-tight select-none"
             style={{
-              fontSize: "clamp(1.15rem, 3.8vw, 1.85rem)",
+              fontSize: "clamp(0.95rem, 5.2cqi, 1.35rem)",
               fontWeight: 800,
-              textShadow: "0 2px 14px rgba(0,0,0,0.9)",
+              textShadow: "0 2px 14px rgba(0,0,0,0.95)",
             }}
           >
             {titleText || "علاج التعفن الدماغي"}
@@ -102,20 +102,20 @@ export function BrainrotDetoxDesign({
         </motion.div>
       )}
 
-      {/* 2. العدّاد التنازلي الضخم العريض (00:46) بفونت Montserrat/Inter Black 900 المطابق للصورة */}
+      {/* 2. العدّاد التنازلي (00:35) - قياس متجاوب مع حاوية الهاتف بدقة cqi ليناسب اللابتوب والموبايل */}
       {showTimer && (
         <motion.div
           initial={{ scale: 0.96, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="relative flex items-center justify-center my-0.5"
+          className="relative flex items-center justify-center my-0.5 w-full max-w-full"
         >
           <span
-            className="modern-timer-numbers text-white select-none inline-block"
+            className="modern-timer-numbers text-white select-none inline-block whitespace-nowrap"
             style={{
-              fontSize: "clamp(5.2rem, 20vw, 8.8rem)",
+              fontSize: "clamp(2.8rem, 20cqi, 4.4rem)",
               fontWeight: 900,
-              textShadow: "0 4px 25px rgba(0,0,0,0.95)",
+              textShadow: "0 4px 28px rgba(0,0,0,0.98), 0 2px 10px rgba(0,0,0,0.9)",
             }}
           >
             {formattedTime}
@@ -123,15 +123,15 @@ export function BrainrotDetoxDesign({
         </motion.div>
       )}
 
-      {/* 3. شريط التقدم النحيف الدقيق أسفل الأرقام مباشرة بنفس العرض */}
+      {/* 3. شريط التقدم النحيف الدقيق أسفل الأرقام مباشرة متناسق مع عرض الأرقام */}
       {showProgressBar && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="w-48 sm:w-64 h-[2.5px] bg-white/25 rounded-full mt-2.5 sm:mt-3 overflow-hidden"
+          className="w-[55%] max-w-[210px] min-w-[140px] h-[2.5px] bg-white/25 rounded-full mt-2 sm:mt-2.5 overflow-hidden backdrop-blur-sm"
         >
           <div
-            className="h-full bg-white rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(255,255,255,0.9)]"
+            className="h-full bg-white rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(255,255,255,0.95)]"
             style={{ width: `${progressRatio * 100}%` }}
           />
         </motion.div>
@@ -142,12 +142,11 @@ export function BrainrotDetoxDesign({
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-6 max-w-sm px-4"
+          className="mt-5 max-w-[85%] px-2"
         >
           <p
-            className="text-base sm:text-lg font-bold leading-relaxed drop-shadow-[0_2px_15px_rgba(0,0,0,0.95)]"
+            className="text-xs sm:text-sm font-bold leading-relaxed drop-shadow-[0_2px_15px_rgba(0,0,0,0.95)] text-white"
             style={{
-              color: "#FFFFFF",
               fontFamily: '"Amiri", serif',
             }}
           >
