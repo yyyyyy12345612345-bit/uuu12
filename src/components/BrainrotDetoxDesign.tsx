@@ -34,9 +34,9 @@ export function BrainrotDetoxDesign({
   isPlaying = false,
   onTogglePlay,
   showTitle = true,
-  titleText = "علاج التعفن الدماغي:",
+  titleText = "علاج التعفن الدماغي",
   showTimer = true,
-  showProgressBar = false,
+  showProgressBar = true,
   verseText,
   showVerseText = false,
 }: BrainrotDetoxDesignProps) {
@@ -46,7 +46,7 @@ export function BrainrotDetoxDesign({
     return Math.max(0, Math.ceil(total - currentElapsed));
   }, [totalDuration, currentElapsed]);
 
-  // تنسيق الوقت كـ MM:SS بالضبط مثل لقطة الشاشة (مثال: 04:57)
+  // تنسيق الوقت كـ MM:SS (مثال: 00:46)
   const formattedTime = useMemo(() => {
     const m = Math.floor(remainingSecs / 60);
     const s = remainingSecs % 60;
@@ -64,62 +64,58 @@ export function BrainrotDetoxDesign({
       onClick={onTogglePlay}
       className="absolute inset-0 w-full h-full flex flex-col items-center justify-center select-none cursor-pointer z-30 px-4 text-center overflow-hidden"
     >
-      {/* استيراد الخطوط المطابقة للشاشة تماماً */}
+      {/* استيراد الخطوط الجديدة المطابقة تماماً للصورة */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Cairo:wght@700;800;900&family=Oswald:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Rubik:wght@700;800;900&family=Inter:wght@800;900&family=IBM+Plex+Sans+Arabic:wght@700;800&display=swap');
         
-        .timer-font {
-          font-family: 'Anton', 'Bebas Neue', 'Oswald', 'Impact', sans-serif;
-          letter-spacing: 0.03em;
-          line-height: 0.9;
+        .modern-timer-numbers {
+          font-family: 'Montserrat', 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+          font-weight: 900;
+          letter-spacing: -0.01em;
+          line-height: 1;
         }
 
-        .detox-title-font {
-          font-family: 'Cairo', 'Tajawal', 'Alexandria', -apple-system, sans-serif;
+        .modern-detox-title {
+          font-family: 'Rubik', 'IBM Plex Sans Arabic', 'Tajawal', sans-serif;
+          font-weight: 800;
         }
       `}</style>
 
-      {/* 1. العنوان: «علاج التعفن الدماغي:» */}
+      {/* 1. العنوان: «علاج التعفن الدماغي» - بخط أصغر وأنيق ومطابق تماماً للصورة */}
       {showTitle && (
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="mb-1 sm:mb-2"
+          transition={{ duration: 0.3 }}
+          className="mb-1.5 sm:mb-2.5"
         >
-          <h1
-            className="detox-title-font font-black tracking-wide leading-tight drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]"
+          <h2
+            className="modern-detox-title text-white tracking-normal leading-tight"
             style={{
-              color: "#FFFFFF",
-              fontWeight: 900,
-              fontSize: "clamp(1.6rem, 5.5vw, 2.9rem)",
-              letterSpacing: "0.01em",
-              textShadow: "0 4px 28px rgba(0,0,0,0.95), 0 2px 10px rgba(0,0,0,0.9)",
+              fontSize: "clamp(1.15rem, 3.8vw, 1.85rem)",
+              fontWeight: 800,
+              textShadow: "0 2px 14px rgba(0,0,0,0.9)",
             }}
           >
-            {titleText || "علاج التعفن الدماغي:"}
-          </h1>
+            {titleText || "علاج التعفن الدماغي"}
+          </h2>
         </motion.div>
       )}
 
-      {/* 2. العدّاد التنازلي الحي الضخم في منتصف الشاشة مطابق 100% للصورة */}
+      {/* 2. العدّاد التنازلي الضخم العريض (00:46) بفونت Montserrat/Inter Black 900 المطابق للصورة */}
       {showTimer && (
         <motion.div
-          initial={{ scale: 0.95, opacity: 0 }}
+          initial={{ scale: 0.96, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.4 }}
-          className="relative flex items-center justify-center my-1"
+          transition={{ duration: 0.3 }}
+          className="relative flex items-center justify-center my-0.5"
         >
           <span
-            className="timer-font select-none"
+            className="modern-timer-numbers text-white select-none inline-block"
             style={{
-              color: "#FFFFFF",
-              fontSize: "clamp(4.8rem, 18vw, 8.5rem)",
+              fontSize: "clamp(5.2rem, 20vw, 8.8rem)",
               fontWeight: 900,
-              display: "inline-block",
-              lineHeight: 0.88,
-              transform: "scaleX(1.1)",
-              filter: "drop-shadow(0 10px 45px rgba(0,0,0,0.98)) drop-shadow(0 2px 12px rgba(0,0,0,0.9))",
+              textShadow: "0 4px 25px rgba(0,0,0,0.95)",
             }}
           >
             {formattedTime}
@@ -127,15 +123,15 @@ export function BrainrotDetoxDesign({
         </motion.div>
       )}
 
-      {/* 3. مؤشر التقدم الانسيابي الهادئ (اختياري) */}
+      {/* 3. شريط التقدم النحيف الدقيق أسفل الأرقام مباشرة بنفس العرض */}
       {showProgressBar && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="w-40 sm:w-56 h-1.5 bg-white/20 rounded-full mt-4 overflow-hidden backdrop-blur-md border border-white/15 shadow-lg"
+          className="w-48 sm:w-64 h-[2.5px] bg-white/25 rounded-full mt-2.5 sm:mt-3 overflow-hidden"
         >
           <div
-            className="h-full bg-white rounded-full transition-all duration-300 shadow-[0_0_12px_rgba(255,255,255,0.95)]"
+            className="h-full bg-white rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(255,255,255,0.9)]"
             style={{ width: `${progressRatio * 100}%` }}
           />
         </motion.div>

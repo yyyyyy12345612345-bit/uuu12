@@ -1573,14 +1573,14 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         ctx.textAlign = "center";
         ctx.fillStyle = "#ffffff";
         ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
-        ctx.shadowBlur = 30;
-        ctx.shadowOffsetY = 6;
-        ctx.font = `900 48px "Cairo", "Amiri", sans-serif`;
+        ctx.shadowBlur = 20;
+        ctx.shadowOffsetY = 4;
+        ctx.font = `800 36px "Rubik", "IBM Plex Sans Arabic", "Tajawal", sans-serif`;
         ctx.fillText(state.detoxTitleText || "علاج التعفن الدماغي", canvas.width / 2, 540);
         ctx.restore();
       }
 
-      // 2. Huge Countdown Timer (MM:SS) in Impact/Anton Bold Font!
+      // 2. Huge Countdown Timer (MM:SS) in Montserrat/Inter Black Font!
       if (state.showDetoxTimer !== false) {
         const totalDurationSecs = totalTime > 0 ? totalTime : 300;
         const remainingSecs = Math.max(0, Math.ceil(totalDurationSecs - elapsedTime));
@@ -1592,20 +1592,20 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         ctx.textAlign = "center";
         ctx.fillStyle = "#ffffff";
         ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
-        ctx.shadowBlur = 40;
-        ctx.shadowOffsetY = 10;
-        // Exact bold condensed font from user's screenshot!
-        ctx.font = "900 150px 'Impact', 'Anton', 'Bebas Neue', 'Oswald', sans-serif";
+        ctx.shadowBlur = 35;
+        ctx.shadowOffsetY = 8;
+        // Exact bold modern geometric font from user's latest screenshot!
+        ctx.font = "900 170px 'Montserrat', 'Inter', 'Poppins', sans-serif";
         ctx.fillText(timerText, canvas.width / 2, 700);
         ctx.restore();
       }
 
       // 3. Sleek minimalist progress line
       if (state.showDetoxProgressBar !== false) {
-        const progressW = 340;
-        const progressH = 5;
+        const progressW = 260;
+        const progressH = 3;
         const progressX = (canvas.width - progressW) / 2;
-        const progressY = 740;
+        const progressY = 730;
         const totalDurationSecs = totalTime > 0 ? totalTime : 300;
         const progressRatio = Math.min(1, Math.max(0, elapsedTime / totalDurationSecs));
 
@@ -1614,7 +1614,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
         ctx.beginPath();
         if (typeof ctx.roundRect === 'function') {
-          ctx.roundRect(progressX, progressY, progressW, progressH, 3);
+          ctx.roundRect(progressX, progressY, progressW, progressH, 2);
         } else {
           ctx.rect(progressX, progressY, progressW, progressH);
         }
@@ -1623,10 +1623,10 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         // Active
         ctx.fillStyle = "#ffffff";
         ctx.shadowColor = "rgba(255, 255, 255, 0.9)";
-        ctx.shadowBlur = 12;
+        ctx.shadowBlur = 10;
         ctx.beginPath();
         if (typeof ctx.roundRect === 'function') {
-          ctx.roundRect(progressX, progressY, progressW * progressRatio, progressH, 3);
+          ctx.roundRect(progressX, progressY, progressW * progressRatio, progressH, 2);
         } else {
           ctx.rect(progressX, progressY, progressW * progressRatio, progressH);
         }

@@ -498,29 +498,28 @@ export const MainVideo: React.FC<MainVideoProps> = ({
             zIndex: 30
           }}>
             {showDetoxTitle && (
-              <h1 style={{
+              <h2 style={{
                 color: '#ffffff',
-                fontSize: '56px',
-                fontFamily: '"Cairo", "Tajawal", sans-serif',
-                fontWeight: 900,
-                margin: '0 0 16px 0',
-                textShadow: '0 6px 30px rgba(0,0,0,0.95), 0 2px 10px rgba(0,0,0,0.9)',
-                letterSpacing: '1px'
+                fontSize: '38px',
+                fontFamily: '"Rubik", "IBM Plex Sans Arabic", "Tajawal", sans-serif',
+                fontWeight: 800,
+                margin: '0 0 10px 0',
+                textShadow: '0 4px 18px rgba(0,0,0,0.95)',
+                letterSpacing: '0px'
               }}>
-                {detoxTitleText || "علاج التعفن الدماغي:"}
-              </h1>
+                {detoxTitleText || "علاج التعفن الدماغي"}
+              </h2>
             )}
 
             {showDetoxTimer && (
               <div style={{
                 color: '#ffffff',
-                fontSize: '200px',
-                fontFamily: "'Anton', 'Bebas Neue', 'Oswald', 'Impact', sans-serif",
+                fontSize: '220px',
+                fontFamily: "'Montserrat', 'Inter', 'Poppins', sans-serif",
                 fontWeight: 900,
-                lineHeight: 0.88,
-                letterSpacing: '4px',
-                transform: 'scaleX(1.1)',
-                textShadow: '0 12px 50px rgba(0,0,0,0.98), 0 4px 15px rgba(0,0,0,0.9)'
+                lineHeight: 0.95,
+                letterSpacing: '-2px',
+                textShadow: '0 8px 35px rgba(0,0,0,0.98)'
               }}>
                 {formattedTimer}
               </div>
@@ -528,19 +527,19 @@ export const MainVideo: React.FC<MainVideoProps> = ({
 
             {showDetoxProgressBar && (
               <div style={{
-                width: '320px',
-                height: '8px',
+                width: '260px',
+                height: '4px',
                 backgroundColor: 'rgba(255,255,255,0.25)',
-                borderRadius: '4px',
-                marginTop: '30px',
+                borderRadius: '2px',
+                marginTop: '16px',
                 overflow: 'hidden',
-                boxShadow: '0 4px 15px rgba(0,0,0,0.5)'
+                boxShadow: '0 2px 10px rgba(0,0,0,0.5)'
               }}>
                 <div style={{
                   width: `${progressRatio * 100}%`,
                   height: '100%',
                   backgroundColor: '#ffffff',
-                  boxShadow: '0 0 15px rgba(255,255,255,0.9)'
+                  boxShadow: '0 0 10px rgba(255,255,255,0.9)'
                 }} />
               </div>
             )}

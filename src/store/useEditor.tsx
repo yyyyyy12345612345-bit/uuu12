@@ -192,7 +192,7 @@ const initialState: Omit<EditorState, 'isHydrated'> = {
   videoTemplate: "default",
   showVerseText: true,
   showDetoxTitle: true,
-  detoxTitleText: "علاج التعفن الدماغي:",
+  detoxTitleText: "علاج التعفن الدماغي",
   showDetoxTimer: true,
   showDetoxProgressBar: true,
   showTiktokUI: true,
