@@ -57,6 +57,12 @@ export const FONT_MAP = {
   "Alexandria": "https://raw.githubusercontent.com/google/fonts/main/ofl/alexandria/Alexandria%5Bwght%5D.ttf",
   "Badeen Display": "https://raw.githubusercontent.com/google/fonts/main/ofl/badeendisplay/BadeenDisplay-Regular.ttf",
   "Oi": "https://raw.githubusercontent.com/google/fonts/main/ofl/oi/Oi-Regular.ttf",
+  "Rubik": "https://raw.githubusercontent.com/google/fonts/main/ofl/rubik/Rubik%5Bwght%5D.ttf",
+  "Montserrat": "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/Montserrat%5Bwght%5D.ttf",
+  "Montserrat-Black": "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/static/Montserrat-Black.ttf",
+  "Inter": "https://raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf",
+  "Anton": "https://raw.githubusercontent.com/google/fonts/main/ofl/anton/Anton-Regular.ttf",
+  "Impact": "https://raw.githubusercontent.com/google/fonts/main/ofl/anton/Anton-Regular.ttf",
 };
 
 export const ALLOWED_DOMAINS = [

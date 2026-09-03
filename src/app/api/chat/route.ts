@@ -74,7 +74,14 @@ async function callAIDirectly(
 
   // 1. Try Groq first
   if (hasGroq) {
-    const groqModels = ["llama-3.3-70b-versatile", "llama-3.3-70b-specdec", "llama-3.1-8b-instant"];
+    const groqModels = [
+      "llama-3.3-70b-versatile",
+      "llama-3.1-8b-instant",
+      "llama3-70b-8192",
+      "llama3-8b-8192",
+      "gemma2-9b-it",
+      "deepseek-r1-distill-llama-70b"
+    ];
     for (const gModel of groqModels) {
       try {
         const groqMessages = [
@@ -128,7 +135,13 @@ async function callAIDirectly(
 
   // 2. Fallback: Gemini
   if (hasGemini) {
-    const geminiModels = ["gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-2.5-flash"];
+    const geminiModels = [
+      "gemini-3.6-flash",
+      "gemini-3.5-flash-lite",
+      "gemini-2.5-flash",
+      "gemini-2.0-flash",
+      "gemini-2.0-flash-lite"
+    ];
     for (const model of geminiModels) {
       for (let attempt = 0; attempt < 2; attempt++) {
         try {
