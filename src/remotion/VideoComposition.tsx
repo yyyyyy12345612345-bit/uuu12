@@ -487,54 +487,20 @@ export const MainVideo: React.FC<MainVideoProps> = ({
 
       {/* ── Brainrot Detox Template ── */}
       {videoTemplate === "brainrot_detox" ? (
-        <AbsoluteFill style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '40px', boxSizing: 'border-box', overflow: 'hidden' }}>
-          {/* Top Status & Search Mock */}
-          {showTiktokUI && (
-            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px', zIndex: 40 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'rgba(255,255,255,0.85)', fontSize: '20px', fontWeight: 600 }}>
-                <span>03:37</span>
-                <span>13.0 KB/s 🔋</span>
-              </div>
-
-              <div style={{
-                width: '100%',
-                height: '56px',
-                borderRadius: '30px',
-                backgroundColor: 'rgba(255,255,255,0.18)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '0 24px',
-                boxSizing: 'border-box',
-                color: '#ffffff',
-                fontSize: '20px'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ opacity: 0.6 }}>بحث</span>
-                  <span style={{ opacity: 0.4 }}>|</span>
-                  <span>quran recitation for relaxation...</span>
-                </div>
-                <span>🔍 ⭐</span>
-              </div>
-            </div>
-          )}
-
+        <AbsoluteFill style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', boxSizing: 'border-box', overflow: 'hidden' }}>
           {/* Center Title & Huge Timer */}
           <div style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            margin: 'auto 0',
             textAlign: 'center',
             zIndex: 30
           }}>
             {showDetoxTitle && (
               <h1 style={{
                 color: '#ffffff',
-                fontSize: '54px',
+                fontSize: '56px',
                 fontFamily: '"Cairo", "Tajawal", sans-serif',
                 fontWeight: 900,
                 margin: '0 0 16px 0',
@@ -548,11 +514,12 @@ export const MainVideo: React.FC<MainVideoProps> = ({
             {showDetoxTimer && (
               <div style={{
                 color: '#ffffff',
-                fontSize: '180px',
-                fontFamily: "'Anton', 'Bebas Neue', 'Oswald', sans-serif",
+                fontSize: '200px',
+                fontFamily: "'Anton', 'Bebas Neue', 'Oswald', 'Impact', sans-serif",
                 fontWeight: 900,
-                lineHeight: 0.9,
+                lineHeight: 0.88,
                 letterSpacing: '4px',
+                transform: 'scaleX(1.1)',
                 textShadow: '0 12px 50px rgba(0,0,0,0.98), 0 4px 15px rgba(0,0,0,0.9)'
               }}>
                 {formattedTimer}
@@ -603,136 +570,6 @@ export const MainVideo: React.FC<MainVideoProps> = ({
               </div>
             )}
           </div>
-
-          {/* TikTok Right Action Sidebar */}
-          {showTiktokUI && (
-            <div style={{
-              position: 'absolute',
-              right: '30px',
-              bottom: '180px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '24px',
-              zIndex: 40,
-              textAlign: 'center'
-            }}>
-              {/* Avatar */}
-              <div style={{
-                width: '65px',
-                height: '65px',
-                borderRadius: '50%',
-                backgroundColor: '#8B2500',
-                border: '3px solid #ffffff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '22px',
-                fontWeight: 'bold',
-                position: 'relative'
-              }}>
-                محمد
-                <div style={{
-                  position: 'absolute',
-                  bottom: '-8px',
-                  width: '24px',
-                  height: '24px',
-                  borderRadius: '50%',
-                  backgroundColor: '#FE2C55',
-                  color: '#ffffff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  border: '2px solid #ffffff'
-                }}>+</div>
-              </div>
-
-              {/* Like */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <span style={{ fontSize: '38px', color: '#ffffff', textShadow: '0 4px 10px rgba(0,0,0,0.5)' }}>♥</span>
-                <span style={{ fontSize: '16px', fontWeight: 'bold', fontFamily: '"Cairo", sans-serif' }}>{tiktokLikes}</span>
-              </div>
-
-              {/* Comment */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <span style={{ fontSize: '34px', color: '#ffffff', textShadow: '0 4px 10px rgba(0,0,0,0.5)' }}>💬</span>
-                <span style={{ fontSize: '16px', fontWeight: 'bold', fontFamily: '"Cairo", sans-serif' }}>{tiktokComments}</span>
-              </div>
-
-              {/* Bookmark */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <span style={{ fontSize: '34px', color: '#ffffff', textShadow: '0 4px 10px rgba(0,0,0,0.5)' }}>🔖</span>
-                <span style={{ fontSize: '16px', fontWeight: 'bold', fontFamily: '"Cairo", sans-serif' }}>{tiktokBookmarks}</span>
-              </div>
-
-              {/* Share */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <span style={{ fontSize: '34px', color: '#ffffff', textShadow: '0 4px 10px rgba(0,0,0,0.5)' }}>↗</span>
-                <span style={{ fontSize: '16px', fontWeight: 'bold', fontFamily: '"Cairo", sans-serif' }}>{tiktokShares}</span>
-              </div>
-            </div>
-          )}
-
-          {/* TikTok Bottom Metadata */}
-          {showTiktokUI && (
-            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '14px', zIndex: 40 }}>
-              {/* Fullscreen pill */}
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <div style={{
-                  padding: '10px 24px',
-                  borderRadius: '25px',
-                  backgroundColor: 'rgba(0,0,0,0.5)',
-                  border: '1px solid rgba(255,255,255,0.25)',
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  fontFamily: '"Cairo", sans-serif',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  <span>⛶</span>
-                  <span>شاشة كاملة</span>
-                </div>
-              </div>
-
-              {/* Title & Caption */}
-              <div style={{ maxWidth: '75%', display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'right', direction: 'rtl' }}>
-                <span style={{ fontSize: '22px', fontWeight: 900, fontFamily: '"Cairo", sans-serif' }}>
-                  {tiktokAccountName}
-                </span>
-                <p style={{ fontSize: '18px', fontWeight: 500, fontFamily: '"Cairo", sans-serif', margin: 0, opacity: 0.95, lineHeight: 1.5 }}>
-                  {tiktokCaption}
-                </p>
-              </div>
-
-              {/* Search Pill */}
-              <div style={{
-                width: '100%',
-                height: '46px',
-                borderRadius: '12px',
-                backgroundColor: 'rgba(0,0,0,0.6)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '0 18px',
-                boxSizing: 'border-box',
-                fontSize: '16px',
-                color: 'rgba(255,255,255,0.85)'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ opacity: 0.4 }}>&lt;</span>
-                  <span>{tiktokSearchQuery}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.7 }}>
-                  <span style={{ fontSize: '14px', fontFamily: '"Cairo", sans-serif' }}>البحث</span>
-                  <span>🔍</span>
-                </div>
-              </div>
-            </div>
-          )}
         </AbsoluteFill>
       ) : (
         /* ── Default Quran Video Template ── */
