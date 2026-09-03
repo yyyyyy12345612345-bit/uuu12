@@ -379,12 +379,12 @@ export function VideoPreview() {
   const previewFontSize = Math.min(Math.round(state.fontSize * 0.55), 68);
 
   return (
-    <div className={`relative aspect-[9/16] h-full max-h-[62vh] group select-none font-['Tajawal'] gpu-layer`} id="video-render-container">
-      {/* Premium Frame */}
-      <div className="absolute inset-[-10px] rounded-[3.2rem] border-[1px] border-primary/20 bg-primary/5 pointer-events-none" />
-      
+    <div 
+      className="relative aspect-[9/16] h-full max-h-[64vh] group select-none font-['Tajawal'] gpu-layer rounded-[2.8rem] border-[6px] border-[#18181b] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] overflow-hidden transition-all duration-300" 
+      id="video-render-container"
+    >
       <div 
-        className={`absolute inset-0 rounded-[2.6rem] border-[7px] border-[#0A0A0A] shadow-[0_30px_80px_rgba(0,0,0,0.85)] overflow-hidden transition-colors duration-500 ${
+        className={`absolute inset-0 overflow-hidden transition-colors duration-500 ${
           (state.videoTemplate === "dossary_player" || state.videoTemplate === "youssef_player") ? "bg-gradient-to-b from-zinc-950 via-zinc-900 to-black" : ""
         }`} 
         style={{ backgroundColor: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player" || state.videoTemplate === "basit_player" || state.videoTemplate === "youssef_player" || state.videoTemplate === "brainrot_detox") ? "#000000" : "#0c0d10" }}

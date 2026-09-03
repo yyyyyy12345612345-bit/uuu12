@@ -966,10 +966,8 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
             </div>
 
             {/* Video preview render container */}
-            <div className="w-[320px] aspect-[9/16] rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl relative bg-black flex items-center justify-center">
-              <div className="w-full h-full scale-[1.01]">
-                <VideoPreview />
-              </div>
+            <div className="w-full flex-1 flex items-center justify-center relative min-h-0 -translate-y-3">
+              <VideoPreview />
             </div>
 
           </div>

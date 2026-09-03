@@ -68,15 +68,17 @@ export function BrainrotDetoxDesign({
           initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-4 sm:mb-6"
+          className="mb-3 sm:mb-5"
         >
           <h1
-            className="font-black tracking-wide leading-tight drop-shadow-[0_4px_25px_rgba(0,0,0,0.95)]"
+            className="font-black tracking-wide leading-tight"
             style={{
               color: "#FFFFFF",
               WebkitTextFillColor: "#FFFFFF",
-              fontFamily: '"Cairo", "Amiri", sans-serif',
-              fontSize: "clamp(1.4rem, 4.5vw, 2.5rem)",
+              fontFamily: '"Cairo", "Tajawal", sans-serif',
+              fontWeight: 900,
+              fontSize: "clamp(1.5rem, 5vw, 2.7rem)",
+              letterSpacing: "0.01em",
               textShadow: "0 4px 28px rgba(0,0,0,0.95), 0 2px 10px rgba(0,0,0,0.9)",
             }}
           >
@@ -85,7 +87,7 @@ export function BrainrotDetoxDesign({
         </motion.div>
       )}
 
-      {/* 2. العدّاد التنازلي الحي الضخم (نفس الفونت العريض المكثف في الصورة بلون أبيض ناصع) */}
+      {/* 2. العدّاد التنازلي الحي الضخم بفونت عريض وقوي */}
       {showTimer && (
         <motion.div
           initial={{ scale: 0.95, opacity: 0 }}
@@ -94,14 +96,17 @@ export function BrainrotDetoxDesign({
           className="relative flex items-center justify-center my-1"
         >
           <span
-            className="font-black select-none tracking-normal"
+            className="font-black select-none"
             style={{
               color: "#FFFFFF",
               WebkitTextFillColor: "#FFFFFF",
-              fontFamily: "'Anton', 'Impact', 'Bebas Neue', 'Oswald', sans-serif",
-              fontSize: "clamp(4.2rem, 16vw, 7.8rem)",
-              letterSpacing: "0.02em",
-              lineHeight: 0.95,
+              fontFamily: "'Montserrat', 'Outfit', 'Changa', 'Arial Black', sans-serif",
+              fontWeight: 900,
+              fontSize: "clamp(3.4rem, 13vw, 5.8rem)",
+              letterSpacing: "0.06em",
+              transform: "scaleX(1.15)",
+              display: "inline-block",
+              lineHeight: 1,
               filter: "drop-shadow(0 8px 35px rgba(0,0,0,0.95)) drop-shadow(0 2px 10px rgba(0,0,0,0.9))",
             }}
           >
