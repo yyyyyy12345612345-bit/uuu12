@@ -128,6 +128,22 @@ export interface EditorState {
   showDetoxTimer?: boolean;
   /** إظهار شريط التقدم */
   showDetoxProgressBar?: boolean;
+  /** إظهار واجهة تيك توك التفاعلية */
+  showTiktokUI?: boolean;
+  /** عدد الإعجابات في واجهة تيك توك */
+  tiktokLikes?: string;
+  /** عدد التعليقات في واجهة تيك توك */
+  tiktokComments?: string;
+  /** عدد الحفظ في واجهة تيك توك */
+  tiktokBookmarks?: string;
+  /** عدد المشاركات في واجهة تيك توك */
+  tiktokShares?: string;
+  /** اسم الحساب في واجهة تيك توك */
+  tiktokAccountName?: string;
+  /** وصف الفيديو والهاشتاغات */
+  tiktokCaption?: string;
+  /** نص شريط البحث في الأسفل */
+  tiktokSearchQuery?: string;
   /** هل تم تحميل الحالة من التخزين المحلي */
   isHydrated: boolean;
 }
@@ -176,9 +192,17 @@ const initialState: Omit<EditorState, 'isHydrated'> = {
   videoTemplate: "default",
   showVerseText: true,
   showDetoxTitle: true,
-  detoxTitleText: "علاج التعفن الدماغي",
+  detoxTitleText: "علاج التعفن الدماغي:",
   showDetoxTimer: true,
   showDetoxProgressBar: true,
+  showTiktokUI: true,
+  tiktokLikes: "22.2 ألف",
+  tiktokComments: "285",
+  tiktokBookmarks: "1639",
+  tiktokShares: "1061",
+  tiktokAccountName: "قرآن | Quran · 30-06",
+  tiktokCaption: "علاج التعفن الدماغي 5 دقايق من القرآن الكريم #اجر_لي_ولكم #ناصر_القطامي #fyp #قرآن ... المزيد",
+  tiktokSearchQuery: "health benefits of quran recitation",
 };
 
 /**

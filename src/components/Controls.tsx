@@ -563,6 +563,69 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                                     <div className="w-4 h-4 rounded-full bg-white shadow-md" />
                                 </button>
                             </div>
+
+                            {/* 5. Toggle & Custom TikTok UI Overlay */}
+                            <div className="space-y-3 pt-3 border-t border-emerald-500/20">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <span className="text-xs font-bold text-emerald-400 font-arabic block">محاكي واجهة تيك توك / ريلز</span>
+                                        <p className="text-[10px] text-foreground/50 font-arabic">إظهار أزرار الإعجاب، الحفظ، الوصف، والبحث</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => updateState({ showTiktokUI: state.showTiktokUI === false ? true : false })}
+                                        className={`w-12 h-6 rounded-full transition-colors p-1 flex items-center ${state.showTiktokUI !== false ? 'bg-emerald-500 justify-end' : 'bg-foreground/20 justify-start'}`}
+                                    >
+                                        <div className="w-4 h-4 rounded-full bg-white shadow-md" />
+                                    </button>
+                                </div>
+
+                                {state.showTiktokUI !== false && (
+                                    <div className="space-y-2.5 pt-1">
+                                        <div>
+                                            <label className="text-[10px] text-foreground/70 font-arabic block mb-1">اسم الحساب / القناة</label>
+                                            <input
+                                                type="text"
+                                                value={state.tiktokAccountName || "قرآن | Quran · 30-06"}
+                                                onChange={(e) => updateState({ tiktokAccountName: e.target.value })}
+                                                placeholder="قرآن | Quran · 30-06"
+                                                className="w-full bg-background/60 border border-foreground/15 rounded-xl px-3 py-1.5 text-xs text-foreground font-arabic outline-none focus:border-emerald-500 transition-all"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="text-[10px] text-foreground/70 font-arabic block mb-1">وصف الفيديو والهاشتاغات</label>
+                                            <textarea
+                                                rows={2}
+                                                value={state.tiktokCaption || "علاج التعفن الدماغي 5 دقايق من القرآن الكريم #اجر_لي_ولكم #ناصر_القطامي #fyp #قرآن ... المزيد"}
+                                                onChange={(e) => updateState({ tiktokCaption: e.target.value })}
+                                                className="w-full bg-background/60 border border-foreground/15 rounded-xl px-3 py-1.5 text-xs text-foreground font-arabic outline-none focus:border-emerald-500 transition-all resize-none"
+                                            />
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label className="text-[10px] text-foreground/70 font-arabic block mb-1">عدد الإعجابات ❤️</label>
+                                                <input
+                                                    type="text"
+                                                    value={state.tiktokLikes || "22.2 ألف"}
+                                                    onChange={(e) => updateState({ tiktokLikes: e.target.value })}
+                                                    className="w-full bg-background/60 border border-foreground/15 rounded-xl px-2.5 py-1 text-xs text-foreground font-arabic outline-none focus:border-emerald-500"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-foreground/70 font-arabic block mb-1">عدد الحفظ 🔖</label>
+                                                <input
+                                                    type="text"
+                                                    value={state.tiktokBookmarks || "1639"}
+                                                    onChange={(e) => updateState({ tiktokBookmarks: e.target.value })}
+                                                    className="w-full bg-background/60 border border-foreground/15 rounded-xl px-2.5 py-1 text-xs text-foreground font-arabic outline-none focus:border-emerald-500"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>

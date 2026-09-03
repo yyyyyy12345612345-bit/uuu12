@@ -95,6 +95,20 @@ interface MainVideoProps {
   textVerticalOffset?: number;
   userPlan?: string;
   ayahDecoration?: string;
+  videoTemplate?: string;
+  showDetoxTitle?: boolean;
+  detoxTitleText?: string;
+  showDetoxTimer?: boolean;
+  showDetoxProgressBar?: boolean;
+  showTiktokUI?: boolean;
+  tiktokLikes?: string;
+  tiktokComments?: string;
+  tiktokBookmarks?: string;
+  tiktokShares?: string;
+  tiktokAccountName?: string;
+  tiktokCaption?: string;
+  tiktokSearchQuery?: string;
+  showVerseText?: boolean;
 }
 
 export const MainVideo: React.FC<MainVideoProps> = ({
@@ -112,16 +126,41 @@ export const MainVideo: React.FC<MainVideoProps> = ({
   textVerticalOffset = 0,
   userPlan = "free",
   ayahDecoration = "bracket1",
+  videoTemplate = "default",
+  showDetoxTitle = true,
+  detoxTitleText = "علاج التعفن الدماغي:",
+  showDetoxTimer = true,
+  showDetoxProgressBar = true,
+  showTiktokUI = true,
+  tiktokLikes = "22.2 ألف",
+  tiktokComments = "285",
+  tiktokBookmarks = "1639",
+  tiktokShares = "1061",
+  tiktokAccountName = "قرآن | Quran · 30-06",
+  tiktokCaption = "علاج التعفن الدماغي 5 دقايق من القرآن الكريم #اجر_لي_ولكم #ناصر_القطامي #fyp #قرآن ... المزيد",
+  tiktokSearchQuery = "health benefits of quran recitation",
+  showVerseText = false,
 }) => {
-  const { durationInFrames } = useVideoConfig();
+  const { durationInFrames, fps } = useVideoConfig();
+  const frame = useCurrentFrame();
   const resolvedBg = resolveMedia(backgroundUrl);
   const cssFilter = FILTER_MAP[filter] || "none";
   const fontImport = FONT_IMPORTS[fontFamily] || FONT_IMPORTS["Amiri"];
+
+  // Detox Timer calculation
+  const totalSeconds = durationInFrames / (fps || 30);
+  const elapsedSeconds = frame / (fps || 30);
+  const remainingSeconds = Math.max(0, Math.ceil(totalSeconds - elapsedSeconds));
+  const mins = Math.floor(remainingSeconds / 60);
+  const secs = remainingSeconds % 60;
+  const formattedTimer = `${mins < 10 ? "0" : ""}${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  const progressRatio = Math.min(1, Math.max(0, elapsedSeconds / (totalSeconds || 1)));
 
   return (
     <AbsoluteFill style={{ backgroundColor: backgroundUrl ? 'black' : 'transparent' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=${fontImport}&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Cairo:wght@700;800;900&display=swap');
         
         @keyframes dustMove {
           0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
@@ -431,68 +470,335 @@ export const MainVideo: React.FC<MainVideoProps> = ({
 
       <AbsoluteFill style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.95), transparent, rgba(0,0,0,0.6))' }} />
 
-      {/* ── Audio Visualizer (Waves) ── */}
-      <AbsoluteFill style={{ 
-        justifyContent: 'flex-end', 
-        alignItems: 'center', 
-        paddingBottom: '80px',
-        pointerEvents: 'none' 
-      }}>
-         <AudioVisualizer color={textColor} />
-      </AbsoluteFill>
-
-      <AbsoluteFill>
+      {/* ── Audio Tracks (Sequences) ── */}
+      <AbsoluteFill style={{ pointerEvents: 'none' }}>
         {verses.map((verse, index) => {
-          const startFrame = verse.startFrame ?? Math.floor(index * (durationInFrames / verses.length));
-          const actualDuration = verse.durationInFrames ?? Math.floor(durationInFrames / verses.length);
+          const startFrame = verse.startFrame ?? Math.floor(index * (durationInFrames / (verses.length || 1)));
+          const actualDuration = verse.durationInFrames ?? Math.floor(durationInFrames / (verses.length || 1));
           const resolvedAudio = resolveMedia(verse.audio);
 
           return (
-            <Sequence key={`${verse.id}-${index}`} from={startFrame} durationInFrames={actualDuration}>
+            <Sequence key={`audio-${verse.id}-${index}`} from={startFrame} durationInFrames={actualDuration}>
               {resolvedAudio && <Audio src={resolvedAudio} />}
-              <VerseComponent
-                verse={verse}
-                surahName={surahName}
-                textColor={textColor}
-                fontSize={fontSize}
-                fontWeight={fontWeight}
-                fontFamily={fontFamily}
-                animation={animation}
-                textPosition={textPosition}
-                textVerticalOffset={textVerticalOffset}
-                totalVerseFrames={actualDuration}
-                ayahDecoration={ayahDecoration}
-              />
             </Sequence>
           );
         })}
       </AbsoluteFill>
 
-      {/* Static Surah Name Badge at the top */}
-      {surahName && (
-        <AbsoluteFill style={{
-          justifyContent: 'flex-start',
-          alignItems: 'center',
-          paddingTop: '80px',
-          pointerEvents: 'none',
-          zIndex: 50
-        }}>
+      {/* ── Brainrot Detox Template ── */}
+      {videoTemplate === "brainrot_detox" ? (
+        <AbsoluteFill style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '40px', boxSizing: 'border-box', overflow: 'hidden' }}>
+          {/* Top Status & Search Mock */}
+          {showTiktokUI && (
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px', zIndex: 40 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'rgba(255,255,255,0.85)', fontSize: '20px', fontWeight: 600 }}>
+                <span>03:37</span>
+                <span>13.0 KB/s 🔋</span>
+              </div>
+
+              <div style={{
+                width: '100%',
+                height: '56px',
+                borderRadius: '30px',
+                backgroundColor: 'rgba(255,255,255,0.18)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '0 24px',
+                boxSizing: 'border-box',
+                color: '#ffffff',
+                fontSize: '20px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ opacity: 0.6 }}>بحث</span>
+                  <span style={{ opacity: 0.4 }}>|</span>
+                  <span>quran recitation for relaxation...</span>
+                </div>
+                <span>🔍 ⭐</span>
+              </div>
+            </div>
+          )}
+
+          {/* Center Title & Huge Timer */}
           <div style={{
-            padding: '10px 30px',
-            borderRadius: '25px',
-            backgroundColor: 'rgba(0,0,0,0.45)',
-            border: '1px solid rgba(255,255,255,0.15)',
-            color: '#FFD700',
-            fontSize: '32px',
-            fontWeight: 800,
-            textShadow: '0 0 20px rgba(255,215,0,0.4)',
-            fontFamily: `"${fontFamily}", serif`,
-            letterSpacing: '2px',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: 'auto 0',
+            textAlign: 'center',
+            zIndex: 30
           }}>
-            سورة {surahName}
+            {showDetoxTitle && (
+              <h1 style={{
+                color: '#ffffff',
+                fontSize: '54px',
+                fontFamily: '"Cairo", "Tajawal", sans-serif',
+                fontWeight: 900,
+                margin: '0 0 16px 0',
+                textShadow: '0 6px 30px rgba(0,0,0,0.95), 0 2px 10px rgba(0,0,0,0.9)',
+                letterSpacing: '1px'
+              }}>
+                {detoxTitleText || "علاج التعفن الدماغي:"}
+              </h1>
+            )}
+
+            {showDetoxTimer && (
+              <div style={{
+                color: '#ffffff',
+                fontSize: '180px',
+                fontFamily: "'Anton', 'Bebas Neue', 'Oswald', sans-serif",
+                fontWeight: 900,
+                lineHeight: 0.9,
+                letterSpacing: '4px',
+                textShadow: '0 12px 50px rgba(0,0,0,0.98), 0 4px 15px rgba(0,0,0,0.9)'
+              }}>
+                {formattedTimer}
+              </div>
+            )}
+
+            {showDetoxProgressBar && (
+              <div style={{
+                width: '320px',
+                height: '8px',
+                backgroundColor: 'rgba(255,255,255,0.25)',
+                borderRadius: '4px',
+                marginTop: '30px',
+                overflow: 'hidden',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.5)'
+              }}>
+                <div style={{
+                  width: `${progressRatio * 100}%`,
+                  height: '100%',
+                  backgroundColor: '#ffffff',
+                  boxShadow: '0 0 15px rgba(255,255,255,0.9)'
+                }} />
+              </div>
+            )}
+
+            {/* Optional Current Verse Text */}
+            {showVerseText && (
+              <div style={{ marginTop: '30px', maxWidth: '80%' }}>
+                {verses.map((verse, index) => {
+                  const startFrame = verse.startFrame ?? Math.floor(index * (durationInFrames / (verses.length || 1)));
+                  const actualDuration = verse.durationInFrames ?? Math.floor(durationInFrames / (verses.length || 1));
+                  const isCurrent = frame >= startFrame && frame < (startFrame + actualDuration);
+                  if (!isCurrent) return null;
+                  return (
+                    <p key={verse.id} style={{
+                      color: '#ffffff',
+                      fontSize: '32px',
+                      fontWeight: 700,
+                      fontFamily: `"${fontFamily}", serif`,
+                      lineHeight: 1.8,
+                      margin: 0,
+                      textShadow: '0 4px 20px rgba(0,0,0,0.95)'
+                    }}>
+                      {verse.text}
+                    </p>
+                  );
+                })}
+              </div>
+            )}
           </div>
+
+          {/* TikTok Right Action Sidebar */}
+          {showTiktokUI && (
+            <div style={{
+              position: 'absolute',
+              right: '30px',
+              bottom: '180px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '24px',
+              zIndex: 40,
+              textAlign: 'center'
+            }}>
+              {/* Avatar */}
+              <div style={{
+                width: '65px',
+                height: '65px',
+                borderRadius: '50%',
+                backgroundColor: '#8B2500',
+                border: '3px solid #ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '22px',
+                fontWeight: 'bold',
+                position: 'relative'
+              }}>
+                محمد
+                <div style={{
+                  position: 'absolute',
+                  bottom: '-8px',
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  backgroundColor: '#FE2C55',
+                  color: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  border: '2px solid #ffffff'
+                }}>+</div>
+              </div>
+
+              {/* Like */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <span style={{ fontSize: '38px', color: '#ffffff', textShadow: '0 4px 10px rgba(0,0,0,0.5)' }}>♥</span>
+                <span style={{ fontSize: '16px', fontWeight: 'bold', fontFamily: '"Cairo", sans-serif' }}>{tiktokLikes}</span>
+              </div>
+
+              {/* Comment */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <span style={{ fontSize: '34px', color: '#ffffff', textShadow: '0 4px 10px rgba(0,0,0,0.5)' }}>💬</span>
+                <span style={{ fontSize: '16px', fontWeight: 'bold', fontFamily: '"Cairo", sans-serif' }}>{tiktokComments}</span>
+              </div>
+
+              {/* Bookmark */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <span style={{ fontSize: '34px', color: '#ffffff', textShadow: '0 4px 10px rgba(0,0,0,0.5)' }}>🔖</span>
+                <span style={{ fontSize: '16px', fontWeight: 'bold', fontFamily: '"Cairo", sans-serif' }}>{tiktokBookmarks}</span>
+              </div>
+
+              {/* Share */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <span style={{ fontSize: '34px', color: '#ffffff', textShadow: '0 4px 10px rgba(0,0,0,0.5)' }}>↗</span>
+                <span style={{ fontSize: '16px', fontWeight: 'bold', fontFamily: '"Cairo", sans-serif' }}>{tiktokShares}</span>
+              </div>
+            </div>
+          )}
+
+          {/* TikTok Bottom Metadata */}
+          {showTiktokUI && (
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '14px', zIndex: 40 }}>
+              {/* Fullscreen pill */}
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <div style={{
+                  padding: '10px 24px',
+                  borderRadius: '25px',
+                  backgroundColor: 'rgba(0,0,0,0.5)',
+                  border: '1px solid rgba(255,255,255,0.25)',
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  fontFamily: '"Cairo", sans-serif',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <span>⛶</span>
+                  <span>شاشة كاملة</span>
+                </div>
+              </div>
+
+              {/* Title & Caption */}
+              <div style={{ maxWidth: '75%', display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'right', direction: 'rtl' }}>
+                <span style={{ fontSize: '22px', fontWeight: 900, fontFamily: '"Cairo", sans-serif' }}>
+                  {tiktokAccountName}
+                </span>
+                <p style={{ fontSize: '18px', fontWeight: 500, fontFamily: '"Cairo", sans-serif', margin: 0, opacity: 0.95, lineHeight: 1.5 }}>
+                  {tiktokCaption}
+                </p>
+              </div>
+
+              {/* Search Pill */}
+              <div style={{
+                width: '100%',
+                height: '46px',
+                borderRadius: '12px',
+                backgroundColor: 'rgba(0,0,0,0.6)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '0 18px',
+                boxSizing: 'border-box',
+                fontSize: '16px',
+                color: 'rgba(255,255,255,0.85)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ opacity: 0.4 }}>&lt;</span>
+                  <span>{tiktokSearchQuery}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.7 }}>
+                  <span style={{ fontSize: '14px', fontFamily: '"Cairo", sans-serif' }}>البحث</span>
+                  <span>🔍</span>
+                </div>
+              </div>
+            </div>
+          )}
         </AbsoluteFill>
+      ) : (
+        /* ── Default Quran Video Template ── */
+        <>
+          {/* Audio Visualizer (Waves) */}
+          <AbsoluteFill style={{ 
+            justifyContent: 'flex-end', 
+            alignItems: 'center', 
+            paddingBottom: '80px',
+            pointerEvents: 'none' 
+          }}>
+             <AudioVisualizer color={textColor} />
+          </AbsoluteFill>
+
+          <AbsoluteFill>
+            {verses.map((verse, index) => {
+              const startFrame = verse.startFrame ?? Math.floor(index * (durationInFrames / (verses.length || 1)));
+              const actualDuration = verse.durationInFrames ?? Math.floor(durationInFrames / (verses.length || 1));
+
+              return (
+                <Sequence key={`${verse.id}-${index}`} from={startFrame} durationInFrames={actualDuration}>
+                  <VerseComponent
+                    verse={verse}
+                    surahName={surahName}
+                    textColor={textColor}
+                    fontSize={fontSize}
+                    fontWeight={fontWeight}
+                    fontFamily={fontFamily}
+                    animation={animation}
+                    textPosition={textPosition}
+                    textVerticalOffset={textVerticalOffset}
+                    totalVerseFrames={actualDuration}
+                    ayahDecoration={ayahDecoration}
+                  />
+                </Sequence>
+              );
+            })}
+          </AbsoluteFill>
+
+          {/* Static Surah Name Badge at the top */}
+          {surahName && (
+            <AbsoluteFill style={{
+              justifyContent: 'flex-start',
+              alignItems: 'center',
+              paddingTop: '80px',
+              pointerEvents: 'none',
+              zIndex: 50
+            }}>
+              <div style={{
+                padding: '10px 30px',
+                borderRadius: '25px',
+                backgroundColor: 'rgba(0,0,0,0.45)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                color: '#FFD700',
+                fontSize: '32px',
+                fontWeight: 800,
+                textShadow: '0 0 20px rgba(255,215,0,0.4)',
+                fontFamily: `"${fontFamily}", serif`,
+                letterSpacing: '2px',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+              }}>
+                سورة {surahName}
+              </div>
+            </AbsoluteFill>
+          )}
+        </>
       )}
 
 

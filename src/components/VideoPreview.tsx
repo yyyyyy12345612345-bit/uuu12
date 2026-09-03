@@ -1375,12 +1375,20 @@ export function VideoPreview() {
               isPlaying={isPlaying}
               onTogglePlay={togglePlay}
               showTitle={state.showDetoxTitle !== false}
-              titleText={state.detoxTitleText || "علاج التعفن الدماغي"}
+              titleText={state.detoxTitleText || "علاج التعفن الدماغي:"}
               showTimer={state.showDetoxTimer !== false}
               showProgressBar={state.showDetoxProgressBar !== false}
               reciterName={getSheikhAsset(state.reciterId).nameAr}
               verseText={currentVerse?.text}
               showVerseText={state.showVerseText === true}
+              showTiktokUI={state.showTiktokUI !== false}
+              tiktokLikes={state.tiktokLikes || "22.2 ألف"}
+              tiktokComments={state.tiktokComments || "285"}
+              tiktokBookmarks={state.tiktokBookmarks || "1639"}
+              tiktokShares={state.tiktokShares || "1061"}
+              tiktokAccountName={state.tiktokAccountName || "قرآن | Quran · 30-06"}
+              tiktokCaption={state.tiktokCaption || "علاج التعفن الدماغي 5 دقايق من القرآن الكريم #اجر_لي_ولكم #ناصر_القطامي #fyp #قرآن ... المزيد"}
+              tiktokSearchQuery={state.tiktokSearchQuery || "health benefits of quran recitation"}
             />
           )}
 

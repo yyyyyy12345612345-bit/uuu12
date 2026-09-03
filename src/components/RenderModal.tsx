@@ -1651,6 +1651,104 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         }
         ctx.restore();
       }
+
+      // 5. Optional TikTok UI Simulation overlay on export
+      if (state.showTiktokUI !== false) {
+        ctx.save();
+        // Right Action Bar Icons
+        const rx = canvas.width - 70;
+        let ry = canvas.height - 340;
+
+        // Avatar
+        ctx.fillStyle = "#8B2500";
+        ctx.beginPath();
+        ctx.arc(rx, ry, 24, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = 'bold 18px "Cairo", sans-serif';
+        ctx.textAlign = "center";
+        ctx.fillText("محمد", rx, ry + 6);
+
+        // Red Plus Badge
+        ctx.fillStyle = "#FE2C55";
+        ctx.beginPath();
+        ctx.arc(rx, ry + 22, 9, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#ffffff";
+        ctx.font = 'bold 14px sans-serif';
+        ctx.fillText("+", rx, ry + 27);
+
+        // Heart Like
+        ry += 65;
+        ctx.fillStyle = "#ffffff";
+        ctx.font = 'bold 22px sans-serif';
+        ctx.fillText("♥", rx, ry);
+        ctx.font = 'bold 11px "Cairo", sans-serif';
+        ctx.fillText(state.tiktokLikes || "22.2 ألف", rx, ry + 16);
+
+        // Comment
+        ry += 52;
+        ctx.font = 'bold 20px sans-serif';
+        ctx.fillText("💬", rx, ry);
+        ctx.font = 'bold 11px "Cairo", sans-serif';
+        ctx.fillText(state.tiktokComments || "285", rx, ry + 16);
+
+        // Bookmark
+        ry += 52;
+        ctx.font = 'bold 20px sans-serif';
+        ctx.fillText("🔖", rx, ry);
+        ctx.font = 'bold 11px "Cairo", sans-serif';
+        ctx.fillText(state.tiktokBookmarks || "1639", rx, ry + 16);
+
+        // Share
+        ry += 52;
+        ctx.font = 'bold 20px sans-serif';
+        ctx.fillText("↗", rx, ry);
+        ctx.font = 'bold 11px "Cairo", sans-serif';
+        ctx.fillText(state.tiktokShares || "1061", rx, ry + 16);
+
+        // Bottom Account & Caption
+        ctx.textAlign = "right";
+        ctx.font = '900 18px "Cairo", sans-serif';
+        ctx.fillText(state.tiktokAccountName || "قرآن | Quran · 30-06", canvas.width - 140, canvas.height - 110);
+        
+        ctx.font = '600 13px "Cairo", sans-serif';
+        ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+        const captionLines = wrapText(ctx, state.tiktokCaption || "علاج التعفن الدماغي 5 دقايق من القرآن الكريم #اجر_لي_ولكم #ناصر_القطامي #fyp", canvas.width - 180);
+        let capY = canvas.height - 85;
+        for (const cl of captionLines.slice(0, 2)) {
+          ctx.fillText(cl, canvas.width - 140, capY);
+          capY += 18;
+        }
+
+        // Fullscreen pill button
+        const pillW = 120;
+        const pillH = 28;
+        const pillX = (canvas.width - pillW) / 2;
+        const pillY = canvas.height - 170;
+        ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(pillX, pillY, pillW, pillH, 14);
+        } else {
+          ctx.rect(pillX, pillY, pillW, pillH);
+        }
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.textAlign = "center";
+        ctx.font = 'bold 12px "Cairo", sans-serif';
+        ctx.fillText("⛶ شاشة كاملة", canvas.width / 2, pillY + 18);
+
+        ctx.restore();
+      }
     } else {
       // 5. Text Animation & Rendering
       // ayahProgress goes from 0 to 1
