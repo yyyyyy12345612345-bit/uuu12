@@ -242,7 +242,7 @@ export async function POST(req: NextRequest) {
           messages: trimmedMessages,
           systemContext: systemPrompt
         }),
-        signal: AbortSignal.timeout(8000) // 8 second timeout
+        signal: AbortSignal.timeout(25000) // 25 second timeout to allow model fallbacks
       });
 
       if (!response.ok) {
