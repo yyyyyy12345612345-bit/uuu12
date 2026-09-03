@@ -402,6 +402,10 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           reciterName: getReciterEnglishName(state.reciterId),
           reciterId: state.reciterId,
           showVerseText: state.showVerseText !== false,
+          showDetoxTitle: state.showDetoxTitle !== false,
+          detoxTitleText: state.detoxTitleText || "علاج التعفن الدماغي",
+          showDetoxTimer: state.showDetoxTimer !== false,
+          showDetoxProgressBar: state.showDetoxProgressBar !== false,
         }),
       });
 
@@ -1567,16 +1571,16 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       ctx.fillRect(359, 799, 4, 12);
       ctx.restore();
     } else if (state.videoTemplate === "brainrot_detox") {
-      // 1. Title: "علاج التعفن الدماغي"
+      // 1. Title: "علاج التعفن الدماغي" (Smaller and elegant)
       if (state.showDetoxTitle !== false) {
         ctx.save();
         ctx.textAlign = "center";
         ctx.fillStyle = "#ffffff";
         ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
-        ctx.shadowBlur = 20;
-        ctx.shadowOffsetY = 4;
-        ctx.font = `800 36px "Rubik", "IBM Plex Sans Arabic", "Tajawal", sans-serif`;
-        ctx.fillText(state.detoxTitleText || "علاج التعفن الدماغي", canvas.width / 2, 540);
+        ctx.shadowBlur = 15;
+        ctx.shadowOffsetY = 3;
+        ctx.font = `800 26px "Rubik", "IBM Plex Sans Arabic", "Tajawal", sans-serif`;
+        ctx.fillText(state.detoxTitleText || "علاج التعفن الدماغي", canvas.width / 2, 545);
         ctx.restore();
       }
 
@@ -1592,18 +1596,18 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         ctx.textAlign = "center";
         ctx.fillStyle = "#ffffff";
         ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
-        ctx.shadowBlur = 35;
-        ctx.font = "900 145px 'Montserrat', 'Inter', 'Poppins', sans-serif";
-        ctx.fillText(timerText, canvas.width / 2, 690);
+        ctx.shadowBlur = 30;
+        ctx.font = "900 150px 'Montserrat', 'Inter', 'Poppins', sans-serif";
+        ctx.fillText(timerText, canvas.width / 2, 680);
         ctx.restore();
       }
 
       // 3. Sleek minimalist progress line
       if (state.showDetoxProgressBar !== false) {
-        const progressW = 260;
-        const progressH = 3;
+        const progressW = 240;
+        const progressH = 3.5;
         const progressX = (canvas.width - progressW) / 2;
-        const progressY = 730;
+        const progressY = 715;
         const totalDurationSecs = totalTime > 0 ? totalTime : 300;
         const progressRatio = Math.min(1, Math.max(0, elapsedTime / totalDurationSecs));
 

@@ -51,11 +51,27 @@ async function main() {
   try {
     console.log(`🎬 Starting render job for: ${config.surahName || "Quran Video"}`);
 
-    // 1. Download Background if any
-    const isVideoBg = /\.(mp4|webm|mov|m4v)/i.test(config.backgroundUrl || "");
+    // 1. Download or copy Background
+    const bgUrl = config.backgroundUrl || "";
+    const isVideoBg = /\.(mp4|webm|mov|ogg|m4v|3gp|flv|avi)(\?.*|#.*)?$/i.test(bgUrl) || 
+                      bgUrl.includes("video") || 
+                      bgUrl.includes("pexels.com/video") || 
+                      bgUrl.includes("videos.pexels.com");
     const bgPath = path.join(tempWorkDir, isVideoBg ? "bg.mp4" : "bg.jpg");
-    if (config.backgroundUrl && (config.backgroundUrl.startsWith("http://") || config.backgroundUrl.startsWith("https://"))) {
-      await downloadFile(config.backgroundUrl, bgPath);
+
+    if (bgUrl) {
+      if (bgUrl.startsWith("http://") || bgUrl.startsWith("https://")) {
+        try {
+          await downloadFile(bgUrl, bgPath);
+        } catch (err) {
+          console.warn(`[render.mjs] Warning: Failed to download background: ${err.message}`);
+        }
+      } else {
+        const localPath = path.join(process.cwd(), "public", bgUrl.replace(/^\//, ""));
+        if (fs.existsSync(localPath)) {
+          fs.copyFileSync(localPath, bgPath);
+        }
+      }
     }
 
     // 2. Download Verse Audios

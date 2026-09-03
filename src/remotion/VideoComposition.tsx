@@ -492,11 +492,11 @@ export const MainVideo: React.FC<MainVideoProps> = ({
             {showDetoxTitle && (
               <h2 style={{
                 color: '#ffffff',
-                fontSize: '38px',
+                fontSize: '26px',
                 fontFamily: '"Rubik", "IBM Plex Sans Arabic", "Tajawal", sans-serif',
                 fontWeight: 800,
-                margin: '0 0 10px 0',
-                textShadow: '0 4px 18px rgba(0,0,0,0.95)',
+                margin: '0 0 12px 0',
+                textShadow: '0 2px 14px rgba(0,0,0,0.95)',
                 letterSpacing: '0px'
               }}>
                 {detoxTitleText || "علاج التعفن الدماغي"}
@@ -506,12 +506,12 @@ export const MainVideo: React.FC<MainVideoProps> = ({
             {showDetoxTimer && (
               <div style={{
                 color: '#ffffff',
-                fontSize: '220px',
+                fontSize: '155px',
                 fontFamily: "'Montserrat', 'Inter', 'Poppins', sans-serif",
                 fontWeight: 900,
-                lineHeight: 0.95,
+                lineHeight: 0.92,
                 letterSpacing: '-2px',
-                textShadow: '0 8px 35px rgba(0,0,0,0.98)'
+                textShadow: '0 6px 30px rgba(0,0,0,0.98)'
               }}>
                 {formattedTimer}
               </div>
@@ -519,11 +519,11 @@ export const MainVideo: React.FC<MainVideoProps> = ({
 
             {showDetoxProgressBar && (
               <div style={{
-                width: '260px',
-                height: '4px',
+                width: '240px',
+                height: '3.5px',
                 backgroundColor: 'rgba(255,255,255,0.25)',
                 borderRadius: '2px',
-                marginTop: '16px',
+                marginTop: '14px',
                 overflow: 'hidden',
                 boxShadow: '0 2px 10px rgba(0,0,0,0.5)'
               }}>
