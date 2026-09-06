@@ -81,18 +81,18 @@ export function BrainrotDetoxDesign({
         }
       `}</style>
 
-      {/* 1. العنوان: «علاج التعفن الدماغي» - حجم متناسق لا يخرج عن الإطار أبداً على الحاسوب أو الجوال */}
+      {/* 1. العنوان: «علاج التعفن الدماغي» */}
       {showTitle && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="mb-1 sm:mb-2 max-w-[90%]"
+          className="mb-1 sm:mb-2 max-w-[95%]"
         >
           <h2
-            className="modern-detox-title text-white tracking-normal leading-tight select-none"
+            className="modern-detox-title text-white tracking-normal leading-tight select-none whitespace-nowrap"
             style={{
-              fontSize: "clamp(0.95rem, 5.2cqi, 1.35rem)",
+              fontSize: "clamp(1.1rem, 3.6vw, 1.8rem)",
               fontWeight: 800,
               textShadow: "0 2px 14px rgba(0,0,0,0.95)",
             }}
@@ -102,7 +102,7 @@ export function BrainrotDetoxDesign({
         </motion.div>
       )}
 
-      {/* 2. العدّاد التنازلي (00:35) - قياس متجاوب مع حاوية الهاتف بدقة cqi ليناسب اللابتوب والموبايل */}
+      {/* 2. العدّاد التنازلي (00:35) */}
       {showTimer && (
         <motion.div
           initial={{ scale: 0.96, opacity: 0 }}
@@ -113,7 +113,7 @@ export function BrainrotDetoxDesign({
           <span
             className="modern-timer-numbers text-white select-none inline-block whitespace-nowrap"
             style={{
-              fontSize: "clamp(2.8rem, 20cqi, 4.4rem)",
+              fontSize: "clamp(3.2rem, 12vw, 5.2rem)",
               fontWeight: 900,
               textShadow: "0 4px 28px rgba(0,0,0,0.98), 0 2px 10px rgba(0,0,0,0.9)",
             }}
@@ -123,12 +123,12 @@ export function BrainrotDetoxDesign({
         </motion.div>
       )}
 
-      {/* 3. شريط التقدم النحيف الدقيق أسفل الأرقام مباشرة متناسق مع عرض الأرقام */}
+      {/* 3. شريط التقدم */}
       {showProgressBar && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="w-[55%] max-w-[210px] min-w-[140px] h-[2.5px] bg-white/25 rounded-full mt-2 sm:mt-2.5 overflow-hidden backdrop-blur-sm"
+          className="w-[45%] max-w-[280px] min-w-[160px] h-[3px] sm:h-[4px] bg-white/25 rounded-full mt-2 sm:mt-3 overflow-hidden backdrop-blur-sm"
         >
           <div
             className="h-full bg-white rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(255,255,255,0.95)]"

@@ -416,9 +416,9 @@ export function VideoPreview() {
       <div 
         className={`relative ${
           isLandscape 
-            ? "aspect-[16/9] w-full max-w-[840px] max-h-[54vh] rounded-[1.8rem] bg-black" 
-            : "aspect-[9/16] h-full max-h-[62vh] rounded-[2.8rem]"
-        } group select-none font-['Tajawal'] gpu-layer border-[6px] border-[#18181b] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] overflow-hidden transition-all duration-500`} 
+            ? "aspect-[16/9] w-full max-w-[960px] xl:max-w-[1100px] max-h-[66vh] rounded-[2rem] bg-black" 
+            : "aspect-[9/16] h-full max-h-[68vh] rounded-[2.8rem]"
+        } group select-none font-['Tajawal'] gpu-layer border-[6px] border-[#18181b] shadow-[0_30px_90px_-15px_rgba(0,0,0,0.95)] overflow-hidden transition-all duration-500`} 
         id="video-render-container"
       >
       <div 

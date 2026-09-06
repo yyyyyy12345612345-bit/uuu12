@@ -107,21 +107,21 @@ export default function WideStudioFullPage() {
       {/* ── Main Studio Work Area ── */}
       <main className="flex-1 flex flex-col overflow-hidden relative">
         {/* Desktop View: 3-column Studio (Surah Selector + Preview + Controls) */}
-        <div className="hidden lg:grid grid-cols-[380px_1fr_420px] h-full w-full overflow-hidden">
+        <div className="hidden lg:grid grid-cols-[340px_1fr_380px] xl:grid-cols-[360px_1fr_400px] h-full w-full overflow-hidden">
           {/* Right Column: Surahs & Verses */}
-          <div className="border-l border-border bg-card/20 backdrop-blur-md overflow-y-auto no-scrollbar p-6">
+          <div className="border-l border-border bg-card/20 backdrop-blur-md overflow-y-auto no-scrollbar p-5">
             <SurahSelector />
           </div>
 
-          {/* Middle Column: Interactive Video Preview */}
-          <div className="flex flex-col items-center justify-center p-6 bg-[#0c0d10] force-dark relative overflow-hidden">
-            <div className="scale-[0.88] xl:scale-[0.98] transition-all duration-300 gpu-layer flex items-center justify-center h-full">
+          {/* Middle Column: Interactive Video Preview (Spacious & Big) */}
+          <div className="flex flex-col items-center justify-center p-2 lg:p-4 bg-[#0c0d10] force-dark relative overflow-hidden h-full w-full">
+            <div className="w-full h-full flex flex-col items-center justify-center transition-all duration-300 gpu-layer">
               <VideoPreview />
             </div>
           </div>
 
           {/* Left Column: Backgrounds, Reciters & Styling */}
-          <div className="border-r border-border bg-card/20 backdrop-blur-md overflow-y-auto no-scrollbar p-6">
+          <div className="border-r border-border bg-card/20 backdrop-blur-md overflow-y-auto no-scrollbar p-5">
             <Controls onOpenSubscription={() => setIsSubscriptionOpen(true)} />
           </div>
         </div>
