@@ -34,7 +34,7 @@ const SubscriptionModal = nextDynamic(
 );
 
 export default function WideStudioFullPage() {
-  const { state } = useEditor();
+  const { state, updateState } = useEditor();
   const [isRenderOpen, setIsRenderOpen] = useState(false);
   const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
   const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
@@ -42,6 +42,7 @@ export default function WideStudioFullPage() {
 
   useEffect(() => {
     setIsClient(true);
+    updateState({ aspectRatio: "16:9" });
   }, []);
 
   if (!isClient) {
@@ -59,9 +60,37 @@ export default function WideStudioFullPage() {
         <div className="flex items-center gap-3">
           <YaqeenLogo size="md" variant="full" />
           <div className="hidden sm:flex items-center gap-2 mr-2 px-3 py-1 rounded-full bg-red-600/10 border border-red-600/20 text-red-500 text-xs font-black">
-            <span>استوديو يوتيوب وتيك توك الكامل</span>
+            <span>استوديو يوتيوب وتيك توك</span>
             <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
           </div>
+        </div>
+
+        {/* Aspect Ratio Switcher (طولي / عرضي) */}
+        <div className="flex items-center gap-1 bg-foreground/5 dark:bg-white/5 p-1 rounded-2xl border border-border/60">
+          <button
+            onClick={() => updateState({ aspectRatio: "9:16" })}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              state.aspectRatio !== "16:9"
+                ? "bg-[#fbbf24] text-black font-black shadow-sm"
+                : "text-foreground/60 hover:text-foreground"
+            }`}
+          >
+            <span>📱</span>
+            <span className="hidden sm:inline">طولي (9:16)</span>
+            <span className="sm:hidden">9:16</span>
+          </button>
+          <button
+            onClick={() => updateState({ aspectRatio: "16:9" })}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              state.aspectRatio === "16:9"
+                ? "bg-red-600 text-white font-black shadow-sm shadow-red-600/30"
+                : "text-foreground/60 hover:text-foreground"
+            }`}
+          >
+            <span>🖥️</span>
+            <span className="hidden sm:inline">عرضي (16:9)</span>
+            <span className="sm:hidden">16:9</span>
+          </button>
         </div>
 
         <div className="flex items-center gap-3">

@@ -144,6 +144,8 @@ export interface EditorState {
   tiktokCaption?: string;
   /** نص شريط البحث في الأسفل */
   tiktokSearchQuery?: string;
+  /** أبعاد الفيديو: طولي 9:16 أو عرضي 16:9 */
+  aspectRatio?: "9:16" | "16:9";
   /** هل تم تحميل الحالة من التخزين المحلي */
   isHydrated: boolean;
 }
@@ -203,6 +205,7 @@ const initialState: Omit<EditorState, 'isHydrated'> = {
   tiktokAccountName: "قرآن | Quran · 30-06",
   tiktokCaption: "علاج التعفن الدماغي 5 دقايق من القرآن الكريم #اجر_لي_ولكم #ناصر_القطامي #fyp #قرآن ... المزيد",
   tiktokSearchQuery: "health benefits of quran recitation",
+  aspectRatio: "9:16",
 };
 
 /**

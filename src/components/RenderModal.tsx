@@ -17,7 +17,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
   onClose: () => void;
   onOpenSubscription: () => void;
 }) {
-  const { state } = useEditor();
+  const { state, updateState } = useEditor();
   const { data: surahData } = useSurahData(state.surahId);
   const { backgrounds, videos } = useCustomBackgrounds();
   
@@ -435,6 +435,10 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           verses,
           backgroundUrl: finalBackgroundUrl,
           backgroundFit: resolvedFit,
+          aspectRatio: state.aspectRatio || "9:16",
+          orientation: state.aspectRatio === "16:9" ? "landscape" : "portrait",
+          width: state.aspectRatio === "16:9" ? 1920 : 720,
+          height: state.aspectRatio === "16:9" ? 1080 : 1280,
           textColor: state.textColor,
           fontSize: state.fontSize,
           fontWeight: state.fontWeight,
@@ -614,8 +618,9 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       const canvas = canvasRef.current;
       if (!canvas) throw new Error("Canvas missing");
       const ctx = canvas.getContext("2d", { alpha: false })!;
-      canvas.width = 720;
-      canvas.height = 1280;
+      const isWide = state.aspectRatio === "16:9";
+      canvas.width = isWide ? 1920 : 720;
+      canvas.height = isWide ? 1080 : 1280;
 
       const verses = surahData.verses.filter((v: any) => v.id >= state.startAyah && v.id <= state.endAyah);
       const dest = audioCtx.createMediaStreamDestination();
@@ -1862,8 +1867,41 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             </div>
             
             <h3 className="font-['Amiri'] text-4xl font-black text-white mb-2">تجهيز العمل الفني</h3>
-            <p className="text-white/40 text-xs text-center mb-10 uppercase tracking-widest">اختر دقة الإخراج والجودة المطلوبة</p>
+            <p className="text-white/40 text-xs text-center mb-6 uppercase tracking-widest">اختر أبعاد الفيديو ودقة الإخراج</p>
             
+            {/* أبعاد ومقاس الفيديو (طولي 9:16 أو عرضي 16:9) */}
+            <div className="w-full mb-6 bg-white/[0.03] border border-white/10 rounded-[1.8rem] p-3 text-right">
+              <span className="text-[11px] font-black text-white/60 mb-2 block px-2">
+                📐 أبعاد وتنسيق الفيديو:
+              </span>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => updateState({ aspectRatio: "9:16" })}
+                  className={`py-3 px-3 rounded-xl text-xs font-black transition-all flex flex-col items-center justify-center gap-1 border ${
+                    (state.aspectRatio || "9:16") === "9:16"
+                      ? "bg-primary text-primary-foreground border-primary shadow-lg scale-[1.02]"
+                      : "bg-white/5 text-white/60 border-white/5 hover:bg-white/10"
+                  }`}
+                >
+                  <span className="text-sm">📱 طولي (9:16)</span>
+                  <span className="text-[9px] opacity-80">تيك توك • ريلز • شورتس</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateState({ aspectRatio: "16:9" })}
+                  className={`py-3 px-3 rounded-xl text-xs font-black transition-all flex flex-col items-center justify-center gap-1 border ${
+                    state.aspectRatio === "16:9"
+                      ? "bg-red-600 text-white border-red-500 shadow-lg scale-[1.02]"
+                      : "bg-white/5 text-white/60 border-white/5 hover:bg-white/10"
+                  }`}
+                >
+                  <span className="text-sm">🖥️ عرضي (16:9)</span>
+                  <span className="text-[9px] opacity-80">يوتيوب كامل • شاشات</span>
+                </button>
+              </div>
+            </div>
+
             <div className="w-full space-y-4 mb-6">
                 <button onClick={() => setRenderMode("server")} className={`w-full p-6 rounded-[2rem] border-2 transition-all flex items-center justify-between gap-4 text-right ${renderMode === "server" ? "border-primary bg-primary/10" : "border-white/5 bg-white/5 hover:bg-white/10"}`}>
                     <div className="flex flex-col items-start gap-1 flex-1">

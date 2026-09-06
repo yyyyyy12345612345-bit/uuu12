@@ -70,7 +70,7 @@ const formatTime = (secs: number) => {
 };
 
 export function VideoPreview() {
-  const { state } = useEditor();
+  const { state, updateState } = useEditor();
   const { data: surahData, loading: surahLoading } = useSurahData(state.surahId);
   const { backgrounds, videos } = useCustomBackgrounds();
   const isContainFit = useMemo(() => {
@@ -378,11 +378,47 @@ export function VideoPreview() {
   // Scale font size for preview (preview is ~40% of final render size)
   const previewFontSize = Math.min(Math.round(state.fontSize * 0.55), 68);
 
+  const isLandscape = state.aspectRatio === "16:9";
+
   return (
-    <div 
-      className="relative aspect-[9/16] h-full max-h-[64vh] group select-none font-['Tajawal'] gpu-layer rounded-[2.8rem] border-[6px] border-[#18181b] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] overflow-hidden transition-all duration-300" 
-      id="video-render-container"
-    >
+    <div className="flex flex-col items-center justify-center h-full w-full relative">
+      {/* ── Aspect Ratio Switcher (طولي 9:16 / عرضي 16:9) ── */}
+      <div className="flex items-center gap-1 mb-2 bg-black/80 backdrop-blur-xl border border-white/10 p-1 rounded-2xl z-30 shadow-xl shrink-0">
+        <button
+          onClick={() => updateState({ aspectRatio: "9:16" })}
+          className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all flex items-center gap-1.5 ${
+            !isLandscape
+              ? "bg-[#fbbf24] text-black font-black shadow-md shadow-amber-500/20"
+              : "text-white/60 hover:text-white hover:bg-white/5"
+          }`}
+          title="فيديو طولي تيك توك وريلز وشورتس (9:16)"
+        >
+          <span>📱</span>
+          <span>طولي (9:16)</span>
+        </button>
+
+        <button
+          onClick={() => updateState({ aspectRatio: "16:9" })}
+          className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all flex items-center gap-1.5 ${
+            isLandscape
+              ? "bg-red-600 text-white font-black shadow-md shadow-red-600/30"
+              : "text-white/60 hover:text-white hover:bg-white/5"
+          }`}
+          title="فيديو عرضي يوتيوب وشاشات كاملة (16:9)"
+        >
+          <span>🖥️</span>
+          <span>عرضي (16:9)</span>
+        </button>
+      </div>
+
+      <div 
+        className={`relative ${
+          isLandscape 
+            ? "aspect-[16/9] w-full max-w-[820px] max-h-[54vh] rounded-[1.8rem]" 
+            : "aspect-[9/16] h-full max-h-[62vh] rounded-[2.8rem]"
+        } group select-none font-['Tajawal'] gpu-layer border-[6px] border-[#18181b] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] overflow-hidden transition-all duration-500`} 
+        id="video-render-container"
+      >
       <div 
         className={`absolute inset-0 overflow-hidden transition-colors duration-500 ${
           (state.videoTemplate === "dossary_player" || state.videoTemplate === "youssef_player") ? "bg-gradient-to-b from-zinc-950 via-zinc-900 to-black" : ""
@@ -1493,6 +1529,7 @@ export function VideoPreview() {
           onLoadedMetadata={handleLoadedMetadata}
         />
       </div>
+    </div>
     </div>
   );
 }
