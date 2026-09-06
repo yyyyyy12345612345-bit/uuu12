@@ -54,6 +54,15 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
 
   // YouTube Publishing States
   const [publishTab, setPublishTab] = useState<"tiktok" | "youtube">("tiktok");
+  const [ytAccounts, setYtAccounts] = useState<any[]>([
+    {
+      id: "6a9cfafb77555aae01e37454",
+      channelId: "UCN3RoN1VmXVeIQ5TmnVJ5uQ",
+      channelTitle: "يقين القرآن",
+      channelHandle: "@yaqeenalquran1",
+    }
+  ]);
+  const [ytChannelId, setYtChannelId] = useState<string>("6a9cfafb77555aae01e37454");
   const [ytTitle, setYtTitle] = useState("");
   const [ytDescription, setYtDescription] = useState("");
   const [ytTags, setYtTags] = useState("");
@@ -64,7 +73,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
   const [ytPublishError, setYtPublishError] = useState("");
 
   useEffect(() => {
-    if (isOpen && isAdmin && db) {
+    if (isOpen && db) {
       // Fetch TikTok accounts
       getDocs(collection(db, "tiktok_accounts")).then((snap: any) => {
         const list: any[] = [];
@@ -79,10 +88,20 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         console.error("Error fetching tiktok accounts in modal:", e);
         setSelectedAccountId("make_com");
       });
-    } else if (isOpen && isAdmin) {
+
+      // Fetch YouTube accounts
+      getDocs(collection(db, "youtube_accounts")).then((snap: any) => {
+        if (!snap.empty) {
+          const list: any[] = [];
+          snap.forEach((d: any) => list.push({ id: d.id, ...d.data() }));
+          setYtAccounts(list);
+          if (list.length > 0) setYtChannelId(list[0].id);
+        }
+      }).catch(() => {});
+    } else if (isOpen) {
       setSelectedAccountId("make_com");
     }
-  }, [isOpen, isAdmin]);
+  }, [isOpen]);
 
   useEffect(() => {
     if (status === "success" && surahData) {
@@ -1909,7 +1928,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
               </a>
             )}
 
-            {status === "success" && downloadUrl && isAdmin && (
+            {status === "success" && downloadUrl && (
               <div className="w-full mt-4 border-t border-white/10 pt-4 space-y-3 text-right">
                 {/* Platform Tabs */}
                 <div className="flex gap-2">
@@ -2115,13 +2134,12 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                         if (ytScheduled && !ytScheduledTime) { alert("يرجى تحديد وقت الجدولة"); return; }
                         setYtPublishing(true); setYtPublishError(""); setYtPublishSuccess(false);
                         try {
-                          const adminToken = await auth.currentUser?.getIdToken();
-                          if (!adminToken) throw new Error("فشل التحقق من الجلسة");
+                          const adminToken = (await auth?.currentUser?.getIdToken().catch(() => null)) || undefined;
                           const res = await fetch("/api/youtube/publish", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
-                              channelId: ytChannelId || ytAccounts[0]?.id,
+                              channelId: ytChannelId || ytAccounts[0]?.id || "6a9cfafb77555aae01e37454",
                               videoUrl: downloadUrl,
                               title: ytTitle.substring(0, 100),
                               description: ytDescription,

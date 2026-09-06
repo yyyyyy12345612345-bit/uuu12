@@ -1,415 +1,171 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import {
-  Download, Loader2, CheckCircle2, AlertCircle, Send, Clock,
-  ChevronLeft, X, Play, RefreshCw
-} from "lucide-react";
-import { db, auth } from "@/lib/firebase";
-import {
-  getDocs, collection, addDoc, serverTimestamp
-} from "firebase/firestore";
+import React, { useState, useEffect } from "react";
+import nextDynamic from "next/dynamic";
+import { useEditor } from "@/store/useEditor";
+import { Settings, Download, X } from "lucide-react";
+import { YaqeenLogo } from "@/components/YaqeenLogo";
 
-// Custom YouTube SVG icon
-const YouTubeIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-  </svg>
+const ComponentLoader = () => (
+  <div className="flex h-full w-full items-center justify-center p-8">
+    <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+  </div>
 );
 
-// ==========================================
-// YAQEEN WIDE STUDIO — Secret YouTube Page
-// Route: /qvz7mxk9 (hidden, not in nav/sitemap)
-// Purpose: Render + publish 1920x1080 YouTube videos
-// ==========================================
+const SurahSelector = nextDynamic(
+  () => import("@/components/SurahSelector").then((mod) => mod.SurahSelector),
+  { loading: () => <ComponentLoader />, ssr: false }
+);
+const VideoPreview = nextDynamic(
+  () => import("@/components/VideoPreview").then((mod) => mod.VideoPreview),
+  { loading: () => <ComponentLoader />, ssr: false }
+);
+const Controls = nextDynamic(
+  () => import("@/components/Controls").then((mod) => mod.Controls),
+  { loading: () => <ComponentLoader />, ssr: false }
+);
+const RenderModal = nextDynamic(
+  () => import("@/components/RenderModal").then((mod) => mod.RenderModal),
+  { ssr: false }
+);
+const SubscriptionModal = nextDynamic(
+  () => import("@/components/SubscriptionModal").then((mod) => mod.SubscriptionModal),
+  { ssr: false }
+);
 
-type Status = "idle" | "rendering" | "success" | "error";
+export default function WideStudioFullPage() {
+  const { state } = useEditor();
+  const [isRenderOpen, setIsRenderOpen] = useState(false);
+  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
+  const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
-interface YoutubeAccount {
-  id: string;
-  channelId: string;
-  channelTitle: string;
-  channelHandle: string;
-  avatar: string;
-  subscriberCount: number;
-}
-
-const DEFAULT_YOUTUBE_ACCOUNT: YoutubeAccount = {
-  id: "6a9cfafb77555aae01e37454",
-  channelId: "UCN3RoN1VmXVeIQ5TmnVJ5uQ",
-  channelTitle: "يقين القرآن",
-  channelHandle: "@yaqeenalquran1",
-  avatar: "",
-  subscriberCount: 0,
-};
-
-export default function WideStudioPage() {
-  const [status, setStatus] = useState<Status>("idle");
-  const [message, setMessage] = useState("");
-  const [progressPct, setProgressPct] = useState(0);
-  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
-  const [error, setError] = useState("");
-
-  // YouTube publish states
-  const [ytAccounts, setYtAccounts] = useState<YoutubeAccount[]>([DEFAULT_YOUTUBE_ACCOUNT]);
-  const [selectedChannelId, setSelectedChannelId] = useState("6a9cfafb77555aae01e37454");
-  const [ytTitle, setYtTitle] = useState("");
-  const [ytDescription, setYtDescription] = useState("");
-  const [ytTags, setYtTags] = useState("");
-  const [isScheduled, setIsScheduled] = useState(false);
-  const [scheduledTime, setScheduledTime] = useState("");
-  const [publishing, setPublishing] = useState(false);
-  const [publishSuccess, setPublishSuccess] = useState(false);
-  const [publishError, setPublishError] = useState("");
-
-  // Video config
-  const [surahName, setSurahName] = useState("الفاتحة");
-  const [reciterName, setReciterName] = useState("مشاري العفاسي");
-  const [startAyah, setStartAyah] = useState(1);
-  const [endAyah, setEndAyah] = useState(7);
-  const [videoUrl, setVideoUrl] = useState(""); // paste rendered video URL
-
-  // Load YouTube accounts from Firestore if available
   useEffect(() => {
-    if (!db) return;
-    getDocs(collection(db, "youtube_accounts"))
-      .then((snap) => {
-        if (!snap.empty) {
-          const list: YoutubeAccount[] = [];
-          snap.forEach((d) => list.push({ id: d.id, ...d.data() } as any));
-          setYtAccounts(list);
-          if (list.length > 0) setSelectedChannelId(list[0].id);
-        }
-      })
-      .catch(() => {});
+    setIsClient(true);
   }, []);
 
-  // Auto-generate YouTube caption when success
-  useEffect(() => {
-    if (status === "success") {
-      const ayahText =
-        startAyah === endAyah
-          ? `آية ${startAyah}`
-          : `الآيات من ${startAyah} إلى ${endAyah}`;
-
-      const sTag = surahName.replace(/\s+/g, "_");
-      const rTag = reciterName.split(" (")[0]?.trim().replace(/\s+/g, "_") || "";
-
-      setYtTitle(`سورة ${surahName} - ${ayahText} - الشيخ ${reciterName} 📖`);
-      setYtDescription(
-        `📖 سورة ${surahName} | ${ayahText}\n` +
-        `🎙 تلاوة بصوت الشيخ ${reciterName}\n\n` +
-        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
-        `🌟 اشترك في القناة وفعّل الجرس 🔔 للمزيد من التلاوات القرآنية\n\n` +
-        `📱 صنع الفيديو مجاناً على موقع يقين القرآن:\n` +
-        `🔗 yaqeenalquran.online\n\n` +
-        `⭐ يمكنك تصميم فيديوهاتك القرآنية بنفسك في أقل من 3 دقائق!\n\n` +
-        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
-        `#قرآن #قران_كريم #تلاوة_قرآنية #سورة_${sTag} #${rTag} ` +
-        `#Quran #QuranRecitation #Islam #islamicvideo #قرآن_كريم #يقين_القران`
-      );
-      setYtTags(
-        `قرآن, قران كريم, تلاوة قرآنية, سورة ${surahName}, ${reciterName}, Quran, QuranRecitation, Islam, يقين القران, yaqeenalquran`
-      );
-      setPublishSuccess(false);
-      setPublishError("");
-      setIsScheduled(false);
-      setScheduledTime("");
-    }
-  }, [status, surahName, reciterName, startAyah, endAyah]);
-
-  // Trigger wide render (1920x1080)
-  const handleRender = async () => {
-    setStatus("rendering");
-    setProgressPct(10);
-    setMessage("جاري إرسال طلب الرندرة العريضة...");
-    setError("");
-    setDownloadUrl(null);
-
-    try {
-      const fakeConfig = {
-        surahId: "1",
-        reciterId: "mishary",
-        startAyah,
-        endAyah,
-        width: 1920,
-        height: 1080,
-        orientation: "landscape",
-      };
-
-      setProgressPct(30);
-      setMessage("جاري رندرة فيديو 1920×1080...");
-
-      const res = await fetch("/api/render-wide", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(fakeConfig),
-      });
-
-      setProgressPct(80);
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({ error: "Server error" }));
-        throw new Error(errData.error || "Wide render failed");
-      }
-
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      setDownloadUrl(url);
-      setProgressPct(100);
-      setMessage("تم الانتهاء!");
-      setStatus("success");
-    } catch (e: any) {
-      setError(e.message || "حدث خطأ غير متوقع");
-      setStatus("error");
-    }
-  };
-
-  const handlePublishToYouTube = async () => {
-    const urlToPublish = downloadUrl || videoUrl;
-    if (!urlToPublish) {
-      alert("يرجى رندرة الفيديو أو إدخال رابط الفيديو أولاً.");
-      return;
-    }
-    if (!ytTitle.trim()) {
-      alert("يرجى كتابة عنوان الفيديو.");
-      return;
-    }
-    if (isScheduled && !scheduledTime) {
-      alert("يرجى تحديد وقت الجدولة.");
-      return;
-    }
-
-    setPublishing(true);
-    setPublishError("");
-    setPublishSuccess(false);
-
-    try {
-      const adminToken = (await auth?.currentUser?.getIdToken().catch(() => null)) || undefined;
-
-      const res = await fetch("/api/youtube/publish", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          channelId: selectedChannelId || ytAccounts[0]?.id || "6a9cfafb77555aae01e37454",
-          videoUrl: urlToPublish,
-          title: ytTitle.substring(0, 100),
-          description: ytDescription,
-          tags: ytTags.split(",").map((t) => t.trim()).filter(Boolean),
-          scheduledFor: isScheduled ? scheduledTime : null,
-          adminToken,
-        }),
-      });
-
-      const resData = await res.json();
-      if (!res.ok) throw new Error(resData.error || "فشل نشر الفيديو على يوتيوب");
-
-      setPublishSuccess(true);
-    } catch (e: any) {
-      setPublishError(e.message || "حدث خطأ غير متوقع.");
-    } finally {
-      setPublishing(false);
-    }
-  };
-
-  const handleLinkYouTube = async () => {
-    const token = await auth.currentUser?.getIdToken().catch(() => null);
-    if (!token) {
-      alert("يرجى تسجيل الدخول أولاً لربط قناة جديدة.");
-      return;
-    }
-    const width = 600, height = 700;
-    const left = window.screen.width / 2 - width / 2;
-    const top = window.screen.height / 2 - height / 2;
-    const popup = window.open(
-      `/api/auth/youtube?token=${encodeURIComponent(token)}`,
-      "YouTubeAuth",
-      `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes`
+  if (!isClient) {
+    return (
+      <div className="fixed inset-0 bg-[#0a0a0a] flex items-center justify-center">
+        <div className="w-10 h-10 border-2 border-red-500/20 border-t-red-500 rounded-full animate-spin" />
+      </div>
     );
-    const handleMsg = (event: MessageEvent) => {
-      if (event.data?.type === "YOUTUBE_LINKED" && event.data?.success) {
-        window.location.reload();
-        window.removeEventListener("message", handleMsg);
-      }
-    };
-    window.addEventListener("message", handleMsg);
-  };
-
+  }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white p-6 font-arabic" dir="rtl">
-      <div className="max-w-3xl mx-auto space-y-8">
-
-        {/* Header */}
-        <div className="flex items-center gap-4 border-b border-white/10 pb-6">
-          <div className="w-12 h-12 rounded-2xl bg-red-600 flex items-center justify-center shadow-lg shadow-red-600/30">
-            <YouTubeIcon className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl font-black text-white">استوديو يوتيوب العريض 🎬</h1>
-            <p className="text-xs text-white/40 font-bold">رندرة ونشر فيديوهات 1920×1080 على يوتيوب</p>
+    <div className="fixed inset-0 text-foreground flex flex-col w-full h-[100dvh] font-arabic overflow-hidden bg-background" dir="rtl">
+      {/* ── Studio Header Bar ── */}
+      <header className="h-16 shrink-0 bg-card/90 dark:bg-black/90 backdrop-blur-xl border-b border-border/70 px-4 md:px-8 flex items-center justify-between z-[100]">
+        <div className="flex items-center gap-3">
+          <YaqeenLogo size="md" variant="full" />
+          <div className="hidden sm:flex items-center gap-2 mr-2 px-3 py-1 rounded-full bg-red-600/10 border border-red-600/20 text-red-500 text-xs font-black">
+            <span>استوديو يوتيوب وتيك توك الكامل</span>
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
           </div>
         </div>
 
-        {/* YouTube Account */}
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-3xl p-6 space-y-4">
-          <h2 className="text-sm font-black text-white flex items-center gap-2">
-            <YouTubeIcon className="w-4 h-4 text-red-500" />
-            حساب يوتيوب
-          </h2>
-          {ytAccounts.length === 0 ? (
-            <button
-              onClick={handleLinkYouTube}
-              className="flex items-center gap-2 px-5 py-3 bg-red-600 text-white font-black rounded-xl hover:brightness-110 transition text-xs"
-            >
-              <YouTubeIcon className="w-4 h-4" />
-              ربط قناة يوتيوب
-            </button>
-          ) : (
-            <div className="space-y-2">
-              <select
-                value={selectedChannelId}
-                onChange={(e) => setSelectedChannelId(e.target.value)}
-                className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl p-3 text-sm text-white outline-none"
-              >
-                {ytAccounts.map((acc) => (
-                  <option key={acc.id} value={acc.id}>
-                    {acc.channelTitle} {acc.channelHandle ? `(${acc.channelHandle})` : ""}
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={handleLinkYouTube}
-                className="text-xs text-white/40 hover:text-white/60 transition font-bold flex items-center gap-1"
-              >
-                <RefreshCw className="w-3 h-3" />
-                ربط قناة أخرى
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Video URL (paste from render output or HF server) */}
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-3xl p-6 space-y-4">
-          <h2 className="text-sm font-black text-white">رابط الفيديو العريض</h2>
-          <input
-            type="url"
-            value={videoUrl}
-            onChange={(e) => setVideoUrl(e.target.value)}
-            placeholder="https://... رابط مباشر لملف MP4 الفيديو العريض"
-            className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl p-3 text-sm text-white outline-none placeholder:text-white/20 focus:border-red-500/40"
-          />
-          <p className="text-[10px] text-white/30 font-bold">
-            الصق رابط الفيديو العريض الذي حصلت عليه من سيرفر الرندرة أو من جهازك
-          </p>
-        </div>
-
-        {/* YouTube Caption */}
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-3xl p-6 space-y-4">
-          <h2 className="text-sm font-black text-white">تفاصيل المنشور على يوتيوب 📝</h2>
-
-          <div className="space-y-1">
-            <label className="text-[10px] font-black text-white/40 block">عنوان الفيديو (Title) — أقصى 100 حرف</label>
-            <input
-              type="text"
-              value={ytTitle}
-              onChange={(e) => setYtTitle(e.target.value)}
-              maxLength={100}
-              placeholder="سورة الفاتحة - آيات 1-7 - الشيخ مشاري العفاسي 📖"
-              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl p-3 text-sm text-white outline-none focus:border-red-500/40 placeholder:text-white/20"
-            />
-            <span className="text-[9px] text-white/20">{ytTitle.length}/100</span>
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-[10px] font-black text-white/40 block">وصف الفيديو (Description) — أقوى وصف ممكن</label>
-            <textarea
-              value={ytDescription}
-              onChange={(e) => setYtDescription(e.target.value)}
-              rows={8}
-              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl p-3 text-sm text-white outline-none resize-none focus:border-red-500/40 placeholder:text-white/20 leading-relaxed"
-              placeholder="اكتب وصفاً شاملاً للفيديو مع الهاشتاجات..."
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-[10px] font-black text-white/40 block">
-              Tags (مفصولة بفاصلة ,)
-            </label>
-            <input
-              type="text"
-              value={ytTags}
-              onChange={(e) => setYtTags(e.target.value)}
-              placeholder="قرآن, تلاوة, Quran..."
-              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl p-3 text-sm text-white outline-none focus:border-red-500/40 placeholder:text-white/20"
-            />
-          </div>
-
-          {/* Scheduling */}
-          <div className="flex items-center justify-between bg-white/[0.02] border border-white/[0.04] rounded-xl p-3">
-            <input
-              type="checkbox"
-              id="yt-schedule"
-              checked={isScheduled}
-              onChange={(e) => setIsScheduled(e.target.checked)}
-              className="w-4 h-4 accent-red-500 cursor-pointer"
-            />
-            <label htmlFor="yt-schedule" className="text-xs font-bold text-white/80 cursor-pointer flex items-center gap-1.5">
-              جدولة النشر لاحقاً
-              <Clock className="w-3.5 h-3.5 text-red-500" />
-            </label>
-          </div>
-
-          {isScheduled && (
-            <input
-              type="datetime-local"
-              value={scheduledTime}
-              onChange={(e) => setScheduledTime(e.target.value)}
-              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl p-3 text-sm text-white outline-none focus:border-red-500/40"
-            />
-          )}
-
-          {/* Feedback */}
-          {publishError && (
-            <p className="text-xs text-red-400 font-bold bg-red-500/10 border border-red-500/20 p-3 rounded-xl">
-              {publishError}
-            </p>
-          )}
-          {publishSuccess && (
-            <p className="text-xs text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4" />
-              {isScheduled ? "تمت جدولة الفيديو على يوتيوب بنجاح! 🎉" : "تم رفع الفيديو على يوتيوب بنجاح! 🎉"}
-            </p>
-          )}
-
-          {/* Publish Button */}
+        <div className="flex items-center gap-3">
           <button
-            onClick={handlePublishToYouTube}
-            disabled={publishing || publishSuccess || (!videoUrl && !downloadUrl)}
-            className="w-full py-4 bg-red-600 hover:brightness-110 text-white font-black rounded-2xl transition disabled:opacity-40 text-sm flex items-center justify-center gap-2 shadow-lg shadow-red-600/20"
+            onClick={() => setIsRenderOpen(true)}
+            className="flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl font-black text-xs active:scale-95 transition-all shadow-lg shadow-red-600/30"
           >
-            {publishing ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                {isScheduled ? "جاري الجدولة..." : "جاري الرفع على يوتيوب..."}
-              </>
-            ) : (
-              <>
-                <YouTubeIcon className="w-4 h-4" />
-                {isScheduled ? "جدولة على يوتيوب" : "نشر الآن على يوتيوب"}
-              </>
-            )}
+            <Download className="w-4 h-4" />
+            <span>رندرة وتصدير الفيديو</span>
           </button>
         </div>
+      </header>
 
-        {/* Status/Error */}
-        {status === "error" && (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 text-sm text-red-400 font-bold text-center">
-            {error}
+      {/* ── Main Studio Work Area ── */}
+      <main className="flex-1 flex flex-col overflow-hidden relative">
+        {/* Desktop View: 3-column Studio (Surah Selector + Preview + Controls) */}
+        <div className="hidden lg:grid grid-cols-[380px_1fr_420px] h-full w-full overflow-hidden">
+          {/* Right Column: Surahs & Verses */}
+          <div className="border-l border-border bg-card/20 backdrop-blur-md overflow-y-auto no-scrollbar p-6">
+            <SurahSelector />
           </div>
-        )}
 
-      </div>
+          {/* Middle Column: Interactive Video Preview */}
+          <div className="flex flex-col items-center justify-center p-6 bg-[#0c0d10] force-dark relative overflow-hidden">
+            <div className="scale-[0.88] xl:scale-[0.98] transition-all duration-300 gpu-layer flex items-center justify-center h-full">
+              <VideoPreview />
+            </div>
+          </div>
+
+          {/* Left Column: Backgrounds, Reciters & Styling */}
+          <div className="border-r border-border bg-card/20 backdrop-blur-md overflow-y-auto no-scrollbar p-6">
+            <Controls onOpenSubscription={() => setIsSubscriptionOpen(true)} />
+          </div>
+        </div>
+
+        {/* Mobile / Tablet View */}
+        <div className="lg:hidden flex flex-col h-full w-full bg-[#0c0d10] force-dark overflow-hidden">
+          {/* Mobile Header Controls */}
+          <div className="flex items-center justify-between px-6 pt-4 pb-2 shrink-0 relative z-50">
+            <button
+              onClick={() => setIsMobileControlsOpen(true)}
+              className="flex items-center gap-2.5 px-5 py-3 bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl active:scale-95 transition-all text-xs font-black text-primary"
+            >
+              <Settings className="w-4 h-4" />
+              <span>إعدادات التصميم والقارئ</span>
+            </button>
+
+            <button
+              onClick={() => setIsRenderOpen(true)}
+              className="flex items-center gap-2 px-5 py-3 bg-red-600 text-white rounded-2xl font-black text-xs active:scale-95 transition-all shadow-md"
+            >
+              <Download className="w-4 h-4" />
+              <span>تصدير ونشر</span>
+            </button>
+          </div>
+
+          {/* Mobile Preview Area */}
+          <div className="flex-1 flex items-center justify-center p-2 relative z-10 min-h-0">
+            <div className="scale-[0.72] md:scale-[0.85] h-full flex items-center justify-center transition-all duration-300 gpu-layer">
+              <VideoPreview />
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Mobile Controls Drawer */}
+      {isMobileControlsOpen && (
+        <div className="fixed inset-0 z-[300] lg:hidden">
+          <div
+            className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+            onClick={() => setIsMobileControlsOpen(false)}
+          />
+          <div className="absolute inset-0 bg-background flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
+              <button
+                onClick={() => setIsMobileControlsOpen(false)}
+                className="p-2.5 bg-foreground/5 rounded-full"
+              >
+                <X className="w-5 h-5 text-foreground/50" />
+              </button>
+              <h2 className="text-base font-black font-arabic">إعدادات الفيديو</h2>
+              <div className="w-10" />
+            </div>
+            <div className="flex-1 overflow-y-auto no-scrollbar px-4 pb-6 pt-2">
+              <SurahSelector />
+              <div className="h-4" />
+              <Controls onOpenSubscription={() => setIsSubscriptionOpen(true)} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Render & Publishing Modal (TikTok + YouTube Full Tabs) ── */}
+      <RenderModal
+        isOpen={isRenderOpen}
+        onClose={() => setIsRenderOpen(false)}
+        onOpenSubscription={() => setIsSubscriptionOpen(true)}
+      />
+
+      {/* Subscription Modal */}
+      <SubscriptionModal
+        isOpen={isSubscriptionOpen}
+        onClose={() => setIsSubscriptionOpen(false)}
+      />
     </div>
   );
 }
