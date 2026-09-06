@@ -17,4 +17,4 @@ RUN npm init -y && npm install express cors sharp p-queue express-rate-limit
 COPY . .
 
 EXPOSE 7860
-CMD ["node", "server.js"]
+CMD ["node", "--max-old-space-size=8192", "server.js"]
