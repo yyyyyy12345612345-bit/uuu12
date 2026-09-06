@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import WideStudioPage from "./page";
 
 // Secret route — noindex to prevent search engine discovery
 export const metadata: Metadata = {
-  title: "Studio",
+  title: "استوديو يوتيوب العريض | يقين القرآن",
   robots: {
     index: false,
     follow: false,
@@ -14,4 +13,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default WideStudioPage;
+export default function StudioLayout({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
+}

@@ -128,7 +128,9 @@ export async function POST(request: Request) {
 
     // Forward to Make.com Webhook — Make.com posts to YouTube
     const makeWebhookUrl =
-      process.env.MAKE_YOUTUBE_WEBHOOK_URL || process.env.MAKE_WEBHOOK_URL || "";
+      process.env.MAKE_YOUTUBE_WEBHOOK_URL ||
+      process.env.MAKE_WEBHOOK_URL ||
+      "https://hook.eu1.make.com/tl01y7q4wfa8k1rzg1lvggvb93yolmf4";
 
     if (!makeWebhookUrl) {
       const errText = "Missing MAKE_YOUTUBE_WEBHOOK_URL environment variable";
