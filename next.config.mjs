@@ -15,7 +15,8 @@ const nextConfig = {
   },
   allowedDevOrigins: ['192.168.1.8'],
   outputFileTracingIncludes: process.env.CAPACITOR_BUILD === 'true' ? {} : {
-    "/api/render": ["./node_modules/@remotion/renderer/**/*", "./node_modules/@remotion/bundler/**/*", "./node_modules/remotion/**/*"]
+    "/api/render": ["./node_modules/@remotion/renderer/**/*", "./node_modules/@remotion/bundler/**/*", "./node_modules/remotion/**/*"],
+    "/api/render-wide": ["./node_modules/@remotion/renderer/**/*", "./node_modules/@remotion/bundler/**/*", "./node_modules/remotion/**/*"]
   },
   experimental: {
     serverActions: {

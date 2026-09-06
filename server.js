@@ -15,6 +15,8 @@
 import express from "express";
 import cors from "cors";
 import crypto from "crypto";
+import fs from "fs";
+import path from "path";
 import rateLimit from "express-rate-limit";
 
 import { PORT, RENDERS_DIR, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS } from "./config.js";
@@ -44,6 +46,68 @@ const renderLimiter = rateLimit({
   message: { error: "طلبات كتير أوي، حاول تاني بعد شوية" },
 });
 
+// Video Streaming & Download handler with full Range and HEAD support for TikTok/Instagram/Zernio
+app.head("/download/:filename", (req, res) => {
+  const filePath = path.resolve(RENDERS_DIR, req.params.filename);
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).end();
+  }
+  const stat = fs.statSync(filePath);
+  res.setHeader("Content-Type", "video/mp4");
+  res.setHeader("Content-Length", stat.size);
+  res.setHeader("Accept-Ranges", "bytes");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+  res.setHeader("Cache-Control", "public, max-age=86400, immutable");
+  res.status(200).end();
+});
+
+app.get("/download/:filename", (req, res) => {
+  const filePath = path.resolve(RENDERS_DIR, req.params.filename);
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: "الفيديو غير موجود أو انتهت صلاحيته" });
+  }
+
+  const stat = fs.statSync(filePath);
+  const fileSize = stat.size;
+  const range = req.headers.range;
+
+  res.setHeader("Content-Type", "video/mp4");
+  res.setHeader("Accept-Ranges", "bytes");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+  res.setHeader("Cache-Control", "public, max-age=86400, immutable");
+
+  if (range) {
+    const parts = range.replace(/bytes=/, "").split("-");
+    const start = parseInt(parts[0], 10);
+    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+
+    if (start >= fileSize || end >= fileSize) {
+      res.setHeader("Content-Range", `bytes */${fileSize}`);
+      return res.status(416).end();
+    }
+
+    const chunksize = end - start + 1;
+    res.writeHead(206, {
+      "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+      "Accept-Ranges": "bytes",
+      "Content-Length": chunksize,
+      "Content-Type": "video/mp4",
+    });
+
+    const fileStream = fs.createReadStream(filePath, { start, end });
+    fileStream.pipe(res);
+  } else {
+    res.writeHead(200, {
+      "Content-Length": fileSize,
+      "Content-Type": "video/mp4",
+      "Accept-Ranges": "bytes",
+    });
+    fs.createReadStream(filePath).pipe(res);
+  }
+});
 app.use("/download", express.static(RENDERS_DIR, { maxAge: "1h" }));
 
 app.get("/health", (req, res) => {
