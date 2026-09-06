@@ -9,7 +9,6 @@ import { db, auth } from "@/lib/firebase";
 import {
   getDocs, collection, addDoc, serverTimestamp
 } from "firebase/firestore";
-import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 
 // Custom YouTube SVG icon
 const YouTubeIcon = ({ className }: { className?: string }) => (
