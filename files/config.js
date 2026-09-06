@@ -29,7 +29,7 @@ export const BG_CACHE_DIR = path.resolve(os.tmpdir(), "bg_cache");
 
 // حدود صحة الطلب — تحمي السيرفر من طلبات ضخمة تعلّقه أو تستهلك الديسك
 export const LIMITS = {
-  MAX_VERSES: 60,
+  MAX_VERSES: 300,
   MAX_VERSE_TEXT_LEN: 2000,
   MAX_TRANSLATION_LEN: 2000,
   MAX_HANDLE_LEN: 60,
@@ -57,6 +57,12 @@ export const FONT_MAP = {
   "Alexandria": "https://raw.githubusercontent.com/google/fonts/main/ofl/alexandria/Alexandria%5Bwght%5D.ttf",
   "Badeen Display": "https://raw.githubusercontent.com/google/fonts/main/ofl/badeendisplay/BadeenDisplay-Regular.ttf",
   "Oi": "https://raw.githubusercontent.com/google/fonts/main/ofl/oi/Oi-Regular.ttf",
+  "Rubik": "https://raw.githubusercontent.com/google/fonts/main/ofl/rubik/Rubik%5Bwght%5D.ttf",
+  "Montserrat": "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/Montserrat%5Bwght%5D.ttf",
+  "Montserrat-Black": "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/Montserrat%5Bwght%5D.ttf",
+  "Inter": "https://raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf",
+  "Anton": "https://raw.githubusercontent.com/google/fonts/main/ofl/anton/Anton-Regular.ttf",
+  "Impact": "https://raw.githubusercontent.com/google/fonts/main/ofl/anton/Anton-Regular.ttf",
 };
 
 export const ALLOWED_DOMAINS = [
@@ -68,7 +74,8 @@ export const ALLOWED_DOMAINS = [
   "ia800601.us.archive.org", "archive.org",
   "images.pexels.com", "videos.pexels.com", "images.unsplash.com",
   "pexels.com", "pixabay.com", "cdn.pixabay.com",
-  "player.vimeo.com", "vimeo.com", "res.cloudinary.com", "cloudinary.com", "dzcdn.net"
+  "player.vimeo.com", "vimeo.com", "res.cloudinary.com", "cloudinary.com",
+  "quranfonts.com", "dzcdn.net", "yaqeenalquran.online", "yaqeen-app.vercel.app", "api.telegram.org"
 ];
 
 export const SHEIKH_ASSETS = {

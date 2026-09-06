@@ -20,7 +20,7 @@ const sl = (s) => s.replace(/\\/g, "/");
 
 export async function startRender(jobId, data) {
   const {
-    verses, backgroundUrl, surahName, reciterName = "Sheikh Muhammad Siddiq Al-Minshawi",
+    verses, backgroundUrl, backgroundFit = "cover", surahName, reciterName = "Sheikh Muhammad Siddiq Al-Minshawi",
     textColor = "#ffffff", fontSize = 50, fontWeight = 700, fontFamily = "Amiri",
     filter = "none", overlay = "none", animation = "fade", textPosition = "center",
     textVerticalOffset = 0, userPlan = "free", instaHandle = "", tiktokHandle = "",
@@ -39,13 +39,21 @@ export async function startRender(jobId, data) {
     const isMinshawiPlayer = videoTemplate === "minshawi_player";
     const isDossaryPlayer = videoTemplate === "dossary_player";
     const isBasitPlayer = videoTemplate === "basit_player";
+    const isDetox = videoTemplate === "brainrot_detox";
     const isPlayerTemplate = isMinshawiPlayer || isDossaryPlayer || isBasitPlayer;
 
     let naskhFont = null;
+    let rubikFont = null;
+    let montserratFont = null;
+
     if (isDossaryPlayer || isBasitPlayer) {
       naskhFont = await ensureFont("Noto Naskh Arabic");
     }
-    await refreshFontCache(); // نضمن إن fontconfig شاف كل الخطوط اللي هنستخدمها قبل أول رندرة
+    if (isDetox) {
+      rubikFont = await ensureFont("Rubik");
+      montserratFont = await ensureFont("Montserrat-Black");
+    }
+    await refreshFontCache();
 
     const isVideoBg = backgroundUrl && (
       /\.(mp4|webm|mov|m4v)(\?.*|#.*)?$/i.test(backgroundUrl) ||
@@ -64,7 +72,7 @@ export async function startRender(jobId, data) {
 
     const parallelDownloads = [];
     if (hasNetworkBg) {
-      parallelDownloads.push(downloadFile(backgroundUrl, bgPath));
+      parallelDownloads.push(downloadFile(backgroundUrl, bgPath, { timeoutMs: 120000 }));
     }
 
     if (isPlayerTemplate) {
@@ -102,11 +110,19 @@ export async function startRender(jobId, data) {
     const tw = Math.floor(WIDTH * 0.82);
     const frameEntries = [];
     const ext = isVideoBg ? "png" : "jpg";
-    const renderPromises = [];
-    const fonts = { mainFont, amiriFont, naskhFont };
+    const renderTasks = [];
+    const fonts = { mainFont, amiriFont, naskhFont, rubikFont, montserratFont };
 
     const processLineWithAnim = async (lineVerse, lineDur, fBaseName) => {
-      const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, videoTemplate, reciterName };
+      const settings = { 
+        fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, 
+        surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, 
+        videoTemplate, reciterName, backgroundFit,
+        showDetoxTitle: data.showDetoxTitle,
+        detoxTitleText: data.detoxTitleText,
+        showDetoxTimer: data.showDetoxTimer,
+        showDetoxProgressBar: data.showDetoxProgressBar
+      };
       const hasTransition = animation && animation !== "none" && animation !== "fade";
       let remainingDur = lineDur;
 
@@ -124,7 +140,7 @@ export async function startRender(jobId, data) {
 
           const fPath = path.resolve(tempDir, `${fBaseName}-anim-${f}.${ext}`);
           const frameElapsed = currentElapsed;
-          renderPromises.push(generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fonts, animState, frameElapsed, audioTotal, templatePhotoBase64));
+          renderTasks.push(() => generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fonts, animState, frameElapsed, audioTotal, templatePhotoBase64));
           frameEntries.push({ fPath, dur: frameDur });
           currentElapsed += frameDur;
           remainingDur -= frameDur;
@@ -139,7 +155,7 @@ export async function startRender(jobId, data) {
           const animState = { opacity: 1, offsetY: 0, scale: 1, activeWordIndex: w };
           const fPath = path.resolve(tempDir, `${fBaseName}-word-${w}.${ext}`);
           const frameElapsed = currentElapsed;
-          renderPromises.push(generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fonts, animState, frameElapsed, audioTotal, templatePhotoBase64));
+          renderTasks.push(() => generateVerseFrame(lineVerse, fPath, settings, bgPath, isVideoBg, fonts, animState, frameElapsed, audioTotal, templatePhotoBase64));
           frameEntries.push({ fPath, dur: durPerWord });
           currentElapsed += durPerWord;
         }
@@ -151,11 +167,15 @@ export async function startRender(jobId, data) {
     if (isPlayer) {
       progress(35, "توليد إطارات مشغل الشيخ المخصص...");
       const isMinshawi = videoTemplate === "minshawi_player";
-      const interval = (isMinshawi || videoTemplate === "dossary_player") ? 1.0 : 0.5;
+      const isDossary = videoTemplate === "dossary_player";
       let elapsed = 0;
       let frameIndex = 0;
 
       while (elapsed < audioTotal) {
+        // إذا كنا في أول 1.2 ثانية لتصميم الدوسري، نزيد الـ FPS لـ 25 (فريم كل 0.04 ثانية) لنعومة الحركة
+        const isIntro = isDossary && (elapsed < 1.2);
+        const interval = isIntro ? 0.04 : ((isMinshawi || isDossary) ? 1.0 : 0.5);
+
         const remaining = audioTotal - elapsed;
         const dur = Math.min(interval, remaining);
         const fPath = path.resolve(tempDir, `frame-${frameIndex}.${ext}`);
@@ -176,10 +196,10 @@ export async function startRender(jobId, data) {
 
         const startAyah = verses[0]?.id ?? 1;
         const endAyah = verses[verses.length - 1]?.id ?? 1;
-        const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, videoTemplate, reciterName, reciterId: data.reciterId, startAyah, endAyah, dossaryBgBase64, ayahProgress };
+        const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, videoTemplate, reciterName, reciterId: data.reciterId, startAyah, endAyah, dossaryBgBase64, ayahProgress, backgroundFit };
         const animState = { opacity: 1, offsetY: 0, scale: 1, activeWordIndex: -1 };
 
-        renderPromises.push(generateVerseFrame(activeVerse, fPath, settings, bgPath, isVideoBg, fonts, animState, elapsed, audioTotal, templatePhotoBase64));
+        renderTasks.push(() => generateVerseFrame(activeVerse, fPath, settings, bgPath, isVideoBg, fonts, animState, elapsed, audioTotal, templatePhotoBase64));
         frameEntries.push({ fPath, dur });
         elapsed += dur;
         frameIndex++;
@@ -217,8 +237,14 @@ export async function startRender(jobId, data) {
       }
     }
 
-    progress(45, "جاري معالجة ورسم نصوص الآيات...");
-    await Promise.all(renderPromises);
+    progress(45, "جاري معالجة ورسم نصوص الآيات بدقة وبدون استهلاك ذاكرة...");
+    const BATCH_SIZE = 4;
+    for (let b = 0; b < renderTasks.length; b += BATCH_SIZE) {
+      const batch = renderTasks.slice(b, b + BATCH_SIZE);
+      await Promise.all(batch.map(fn => fn()));
+      const pct = 45 + Math.round((b / Math.max(1, renderTasks.length)) * 10);
+      progress(pct, `معالجة الإطارات (${Math.min(b + BATCH_SIZE, renderTasks.length)}/${renderTasks.length})...`);
+    }
 
     const frameTotal = frameEntries.reduce((a, f) => a + f.dur, 0);
     const diff = audioTotal - frameTotal;
@@ -235,9 +261,10 @@ export async function startRender(jobId, data) {
     const concatIn = audioPaths.map((_, i) => `[a${i}]`).join("");
     const concatFilter = `${filterParts};${concatIn}concat=n=${audioPaths.length}:v=0:a=1[aout]`;
 
+    const audioTimeout = Math.max(300000, Math.ceil(totalDuration * 500));
     await execAsync(
       `ffmpeg -loglevel error ${audioInputs} -filter_complex "${concatFilter}" -map "[aout]" -c:a aac -b:a 192k -ar 44100 "${sl(mergedAudioPath)}" -y`,
-      { timeout: 90000 }
+      { timeout: audioTimeout, maxBuffer: 50 * 1024 * 1024 }
     );
 
     progress(70, "جاري دمج المقاطع وإنتاج الفيديو...");
@@ -249,18 +276,24 @@ export async function startRender(jobId, data) {
     const outPath = path.resolve(RENDERS_DIR, `${jobId}.mp4`);
     let ffmpegCmd;
 
+    const isWide = data.orientation === "landscape" || data.aspectRatio === "16:9";
+
     if (isVideoBg) {
-      progress(75, "جاري تهيئة فيديو الخلفية بمقاس الهاتف (كاش)...");
+      progress(75, isWide ? "تهيئة فيديو الخلفية بمقاس يوتيوب العريض (1920x1080)..." : "تهيئة فيديو الخلفية بمقاس الهاتف...");
       // بنستخدم كاش الخلفيات: لو نفس رابط الخلفية اتعمل له resize قبل كده، بيترجع فورًا
-      const bgResizedPath = await getResizedBackground(backgroundUrl, sl(bgPath));
+      const bgResizedPath = await getResizedBackground(backgroundUrl, sl(bgPath), backgroundFit, isWide);
 
       progress(85, "دمج الطبقات وإنتاج الفيديو النهائي...");
+      const filterComplex = isWide
+        ? `"[1:v]scale=-2:1080[vframe];[0:v][vframe]overlay=(main_w-overlay_w)/2:0:shortest=1,format=yuv420p[vout]"`
+        : `"[0:v][1:v]overlay=0:0:shortest=1,format=yuv420p[vout]"`;
+
       ffmpegCmd = [
         `ffmpeg`, `-loglevel error`,
         `-stream_loop -1 -i "${sl(bgResizedPath)}"`,
         `-f concat -safe 0 -i "${sl(frameListPath)}"`,
         `-i "${sl(mergedAudioPath)}"`,
-        `-filter_complex`, `"[0:v][1:v]overlay=0:0:shortest=1,format=yuv420p[vout]"`,
+        `-filter_complex`, filterComplex,
         `-map "[vout]" -map 2:a`,
         `-t ${totalDuration.toFixed(4)}`,
         `-c:v libx264 -preset ultrafast -crf 23`,
@@ -269,10 +302,13 @@ export async function startRender(jobId, data) {
         `-y "${sl(outPath)}"`,
       ].join(" ");
     } else {
-      ffmpegCmd = `ffmpeg -loglevel error -f concat -safe 0 -i "${sl(frameListPath)}" -i "${sl(mergedAudioPath)}" -c:v libx264 -preset ultrafast -crf 23 -pix_fmt yuv420p -c:a copy -t ${totalDuration.toFixed(4)} -movflags +faststart -y "${sl(outPath)}"`;
+      const vfArg = isWide ? `-vf "scale=-2:1080,pad=1920:1080:(1920-iw)/2:(1080-ih)/2:black,format=yuv420p"` : `-pix_fmt yuv420p`;
+      ffmpegCmd = `ffmpeg -loglevel error -f concat -safe 0 -i "${sl(frameListPath)}" -i "${sl(mergedAudioPath)}" -c:v libx264 -preset ultrafast -crf 23 ${vfArg} -c:a copy -t ${totalDuration.toFixed(4)} -movflags +faststart -y "${sl(outPath)}"`;
     }
 
-    await execAsync(ffmpegCmd, { timeout: 180000 });
+    // مهلة ديناميكية تتناسب مع طول الفيديو حتى لو كان فيديو يوتيوب طويل (ساعة أو أكثر)
+    const ffmpegTimeout = Math.max(900000, Math.ceil(totalDuration * 3000));
+    await execAsync(ffmpegCmd, { timeout: ffmpegTimeout, maxBuffer: 100 * 1024 * 1024 });
 
     setCompleted(jobId, `https://${HOST}/download/${jobId}.mp4`);
     logger.info("render_completed", { jobId, durationSec: totalDuration.toFixed(2) });

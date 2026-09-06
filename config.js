@@ -29,7 +29,7 @@ export const BG_CACHE_DIR = path.resolve(os.tmpdir(), "bg_cache");
 
 // حدود صحة الطلب — تحمي السيرفر من طلبات ضخمة تعلّقه أو تستهلك الديسك
 export const LIMITS = {
-  MAX_VERSES: 60,
+  MAX_VERSES: 300,
   MAX_VERSE_TEXT_LEN: 2000,
   MAX_TRANSLATION_LEN: 2000,
   MAX_HANDLE_LEN: 60,
@@ -59,7 +59,7 @@ export const FONT_MAP = {
   "Oi": "https://raw.githubusercontent.com/google/fonts/main/ofl/oi/Oi-Regular.ttf",
   "Rubik": "https://raw.githubusercontent.com/google/fonts/main/ofl/rubik/Rubik%5Bwght%5D.ttf",
   "Montserrat": "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/Montserrat%5Bwght%5D.ttf",
-  "Montserrat-Black": "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/static/Montserrat-Black.ttf",
+  "Montserrat-Black": "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/Montserrat%5Bwght%5D.ttf",
   "Inter": "https://raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf",
   "Anton": "https://raw.githubusercontent.com/google/fonts/main/ofl/anton/Anton-Regular.ttf",
   "Impact": "https://raw.githubusercontent.com/google/fonts/main/ofl/anton/Anton-Regular.ttf",
