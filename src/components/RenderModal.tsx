@@ -622,27 +622,6 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       canvas.width = isWide ? 1920 : 720;
       canvas.height = isWide ? 1080 : 1280;
 
-      let offscreenCanvas: HTMLCanvasElement | null = null;
-      let offscreenCtx: CanvasRenderingContext2D | null = null;
-      if (isWide && typeof document !== "undefined") {
-        offscreenCanvas = document.createElement("canvas");
-        offscreenCanvas.width = 720;
-        offscreenCanvas.height = 1280;
-        offscreenCtx = offscreenCanvas.getContext("2d", { alpha: false });
-      }
-      const activeCtx = (isWide && offscreenCtx) ? offscreenCtx : ctx;
-      const activeCanvas = (isWide && offscreenCanvas) ? offscreenCanvas : canvas;
-
-      const projectFrameToMainCanvas = () => {
-        if (isWide && offscreenCanvas) {
-          ctx.fillStyle = "#000000";
-          ctx.fillRect(0, 0, 1920, 1080);
-          const targetW = (1080 * 720) / 1280; // 607.5
-          const targetX = (1920 - targetW) / 2; // 656.25
-          ctx.drawImage(offscreenCanvas, targetX, 0, targetW, 1080);
-        }
-      };
-
       const verses = surahData.verses.filter((v: any) => v.id >= state.startAyah && v.id <= state.endAyah);
       const dest = audioCtx.createMediaStreamDestination();
       const stream = canvas.captureStream(30);
@@ -727,8 +706,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           while (isRenderingRef.current && !item.audio.ended && (Date.now() - startTime) < (item.duration * 1000 + 1000)) {
             analyser.getByteFrequencyData(dataArray);
             const ayahProgress = item.audio.currentTime / item.duration;
-            renderFrame(activeCtx, activeCanvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, dataArray, surahData?.name || "", templatePhoto, templateCalligraphy, elapsed + item.audio.currentTime, totalDuration);
-            projectFrameToMainCanvas();
+            renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, dataArray, surahData?.name || "", templatePhoto, templateCalligraphy, elapsed + item.audio.currentTime, totalDuration);
             const progress = Math.min(99, Math.round(((elapsed + item.audio.currentTime) / totalDuration) * 100));
             setProgressPct(progress);
             setMessage(`جاري التصميم: ${progress}%`);
@@ -741,8 +719,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           for (let s = 0; s < 5 * 30; s++) {
             if (!isRenderingRef.current) break;
             const ayahProgress = s / (5 * 30);
-            renderFrame(activeCtx, activeCanvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, null, surahData?.name || "", templatePhoto, templateCalligraphy, elapsed + (s/30), totalDuration);
-            projectFrameToMainCanvas();
+            renderFrame(ctx, canvas, bgImage, bgVideo, item.verse, state, userPlan, ayahProgress, null, surahData?.name || "", templatePhoto, templateCalligraphy, elapsed + (s/30), totalDuration);
             const progress = Math.min(99, Math.round(((elapsed + (s/30)) / totalDuration) * 100));
             setProgressPct(progress);
             await new Promise(r => setTimeout(r, 33));

@@ -74,11 +74,13 @@ export function VideoPreview() {
   const { data: surahData, loading: surahLoading } = useSurahData(state.surahId);
   const { backgrounds, videos } = useCustomBackgrounds();
   const isContainFit = useMemo(() => {
+    // في وضع يوتيوب العريض (16:9)، الفيديو يملأ الشاشة العريضة بالكامل بدون أي مساحات سوداء فوق وتحت
+    if (state.aspectRatio === "16:9") return false;
     if (state.backgroundFit === "contain") return true;
     const allBgs = [...backgrounds, ...videos];
     const currentItem = allBgs.find(b => b.src === state.backgroundUrl);
     return currentItem?.fit === "contain";
-  }, [backgrounds, videos, state.backgroundUrl, state.backgroundFit]);
+  }, [backgrounds, videos, state.backgroundUrl, state.backgroundFit, state.aspectRatio]);
 
   const [currentAyahIndex, setCurrentAyahIndex] = useState(state.startAyah);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -419,13 +421,8 @@ export function VideoPreview() {
         } group select-none font-['Tajawal'] gpu-layer border-[6px] border-[#18181b] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] overflow-hidden transition-all duration-500`} 
         id="video-render-container"
       >
-      {/* في وضع يوتيوب العريض، التصميم يكون في المنتصف مع حواف سوداء سينمائية على الجانبين */}
       <div 
-        className={`${
-          isLandscape 
-            ? "aspect-[9/16] h-full mx-auto relative shadow-[0_0_60px_rgba(0,0,0,0.9)] border-x border-white/5" 
-            : "absolute inset-0"
-        } overflow-hidden transition-colors duration-500 ${
+        className={`absolute inset-0 overflow-hidden transition-colors duration-500 ${
           (state.videoTemplate === "dossary_player" || state.videoTemplate === "youssef_player") ? "bg-gradient-to-b from-zinc-950 via-zinc-900 to-black" : ""
         }`} 
         style={{ backgroundColor: (state.videoTemplate === "minshawi_player" || state.videoTemplate === "dossary_player" || state.videoTemplate === "basit_player" || state.videoTemplate === "youssef_player" || state.videoTemplate === "brainrot_detox") ? "#000000" : "#0c0d10" }}
