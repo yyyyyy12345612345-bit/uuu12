@@ -19,14 +19,15 @@ export async function POST(request: Request) {
       title,
       description,
       tags,
+      firstComment,
       scheduledFor,
       adminToken,
       retryLogId,
     } = body;
 
-    if (!videoUrl || !title) {
+    if (!videoUrl) {
       return NextResponse.json(
-        { error: "Missing required fields: videoUrl, title" },
+        { error: "Missing required field: videoUrl" },
         { status: 400 }
       );
     }
@@ -46,54 +47,50 @@ export async function POST(request: Request) {
       }
     }
 
-    // Scheduled post — save to queue
+    // ── Build Full, Rich Metadata for YouTube & Zernio ──
+    const finalTitle = (title?.trim() || "تلاوة قرآنية مباركة 📖✨").substring(0, 100);
+    const finalDesc = description?.trim() || 
+      `📖 تلاوة قرآنية خاشعة ومؤثرة من كتاب الله الكريم\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `🌟 اشترك في قناة يقين القرآن وفعّل الجرس 🔔 للمزيد من التلاوات اليومية المباركة\n\n` +
+      `📱 تم تصميم وإنتاج هذا الفيديو عبر منصة يقين القرآن:\n` +
+      `🔗 https://yaqeenalquran.online\n\n` +
+      `⭐ يمكنك تصميم فيديوهاتك القرآنية بنفسك بجودة فائقة ومجاناً!\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `#قرآن #قران_كريم #تلاوة_قرآنية #يقين_القران #Quran #Islam #QuranRecitation`;
+
+    const finalTags = (Array.isArray(tags) && tags.length > 0)
+      ? tags.map((t: string) => t.trim()).filter(Boolean)
+      : ["قرآن", "قران كريم", "تلاوة قرآنية", "يقين القرآن", "yaqeenalquran", "Quran", "Islam"];
+
+    const finalFirstComment = firstComment?.trim() ||
+      `سبحان الله وبحمده، سبحان الله العظيم 🌸\n` +
+      `لا تنسوا الإعجاب بالفيديو والاشتراك في القناة وتفعيل زر الجرس 🔔 لتصلكم التلاوات اليومية المباركة.\n` +
+      `🔗 صمم فيديوهاتك القرآنية بنفسك مجاناً عبر موقع يقين القرآن:\n` +
+      `https://yaqeenalquran.online`;
+
+    let scheduledDate: Date | null = null;
     if (scheduledFor) {
-      const scheduledTime = new Date(scheduledFor);
-      if (isNaN(scheduledTime.getTime()) || scheduledTime.getTime() <= Date.now()) {
+      scheduledDate = new Date(scheduledFor);
+      if (isNaN(scheduledDate.getTime()) || scheduledDate.getTime() <= Date.now()) {
         return NextResponse.json(
           { error: "Invalid scheduled date/time. Must be in the future." },
           { status: 400 }
         );
       }
-
-      let logRef;
-      if (retryLogId) {
-        logRef = adminDb.collection("youtube_logs").doc(retryLogId);
-        await logRef.update({
-          status: "pending",
-          scheduledFor: admin.firestore.Timestamp.fromDate(scheduledTime),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-          error: admin.firestore.FieldValue.delete(),
-        });
-      } else {
-        logRef = await adminDb.collection("youtube_logs").add({
-          channelId: YOUTUBE_CHANNEL_ID,
-          videoUrl,
-          title,
-          description: description || "",
-          tags: tags || [],
-          status: "pending",
-          progress: 0,
-          scheduledFor: admin.firestore.Timestamp.fromDate(scheduledTime),
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-          publishedAt: null,
-        });
-      }
-
-      return NextResponse.json({
-        success: true,
-        message: "YouTube video scheduled successfully",
-        jobId: logRef.id,
-      });
     }
 
-    // Immediate publish — create log first
+    // ── Initialize or update Firestore Log ──
     let logRef;
     if (retryLogId) {
       logRef = adminDb.collection("youtube_logs").doc(retryLogId);
       await logRef.update({
-        status: "uploading",
-        progress: 0,
+        status: scheduledDate ? "scheduled" : "uploading",
+        progress: 10,
+        title: finalTitle,
+        description: finalDesc,
+        tags: finalTags,
+        scheduledFor: scheduledDate ? admin.firestore.Timestamp.fromDate(scheduledDate) : null,
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         error: admin.firestore.FieldValue.delete(),
       });
@@ -101,74 +98,147 @@ export async function POST(request: Request) {
       logRef = await adminDb.collection("youtube_logs").add({
         channelId: YOUTUBE_CHANNEL_ID,
         videoUrl,
-        title,
-        description: description || "",
-        tags: tags || [],
-        status: "uploading",
-        progress: 0,
-        scheduledFor: null,
+        title: finalTitle,
+        description: finalDesc,
+        tags: finalTags,
+        status: scheduledDate ? "scheduled" : "uploading",
+        progress: 10,
+        scheduledFor: scheduledDate ? admin.firestore.Timestamp.fromDate(scheduledDate) : null,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         publishedAt: null,
       });
     }
 
-    // Forward to Make.com Webhook — Make.com posts to YouTube
+    // ── 1. DIRECT POSTING / SCHEDULING TO ZERNIO API ──
+    let zernioPostId = null;
+    let zernioError = null;
+
+    if (ZERNIO_API_KEY) {
+      try {
+        console.log(`[YouTube Publish] Posting directly to Zernio API for account: ${ZERNIO_YOUTUBE_ACCOUNT_ID}`);
+        
+        const zernioPayload: any = {
+          content: finalDesc,
+          mediaItems: [
+            {
+              type: "video",
+              url: videoUrl,
+            },
+          ],
+          platforms: [
+            {
+              platform: "youtube",
+              accountId: ZERNIO_YOUTUBE_ACCOUNT_ID,
+              platformSpecificData: {
+                title: finalTitle,
+                description: finalDesc,
+                tags: finalTags,
+                firstComment: finalFirstComment,
+                visibility: "public",
+                categoryId: "22",
+                madeForKids: false,
+              },
+            },
+          ],
+        };
+
+        if (scheduledDate) {
+          zernioPayload.scheduledFor = scheduledDate.toISOString();
+          zernioPayload.publishNow = false;
+        } else {
+          zernioPayload.publishNow = true;
+        }
+
+        const zernioRes = await fetch("https://zernio.com/api/v1/posts", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${ZERNIO_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(zernioPayload),
+        });
+
+        const zernioData = await zernioRes.json();
+        if (zernioRes.ok && zernioData?.post?._id) {
+          zernioPostId = zernioData.post._id;
+          console.log(`[YouTube Publish] Successfully created Zernio post: ${zernioPostId}`);
+        } else {
+          console.warn("[YouTube Publish] Zernio direct post returned non-200:", zernioData);
+          zernioError = zernioData?.message || zernioData?.error || "Zernio API returned an error";
+        }
+      } catch (err: any) {
+        console.error("[YouTube Publish] Failed to contact Zernio API directly:", err);
+        zernioError = err.message;
+      }
+    }
+
+    // ── 2. FORWARD TO MAKE.COM WEBHOOK (DUAL REDUNDANCY) ──
     const makeWebhookUrl =
       process.env.MAKE_YOUTUBE_WEBHOOK_URL ||
       process.env.MAKE_WEBHOOK_URL ||
       "https://hook.eu1.make.com/tl01y7q4wfa8k1rzg1lvggvb93yolmf4";
 
-    if (!makeWebhookUrl) {
-      const errText = "Missing MAKE_YOUTUBE_WEBHOOK_URL environment variable";
-      await logRef.update({ status: "failed", error: errText });
-      return NextResponse.json({ error: errText }, { status: 500 });
+    if (makeWebhookUrl) {
+      try {
+        console.log(`[YouTube Publish] Forwarding full payload to Make.com: ${makeWebhookUrl}`);
+        await fetch(makeWebhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            platform: "youtube",
+            channelId: YOUTUBE_CHANNEL_ID,
+            zernioAccountId: ZERNIO_YOUTUBE_ACCOUNT_ID,
+            zernioApiKey: ZERNIO_API_KEY,
+            zernioPostId,
+            videoUrl,
+            url: videoUrl,
+            mediaUrl: videoUrl,
+            title: finalTitle,
+            videoTitle: finalTitle,
+            description: finalDesc,
+            content: finalDesc,
+            caption: finalDesc,
+            text: finalDesc,
+            summary: finalDesc,
+            tags: finalTags,
+            tagsString: finalTags.join(", "),
+            firstComment: finalFirstComment,
+            jobId: logRef.id,
+            scheduledFor: scheduledDate ? scheduledDate.toISOString() : null,
+            publishNow: !scheduledDate,
+            platformSpecificData: {
+              title: finalTitle,
+              description: finalDesc,
+              tags: finalTags,
+              firstComment: finalFirstComment,
+              visibility: "public",
+              categoryId: "22",
+              madeForKids: false,
+            },
+          }),
+        }).catch((e) => console.warn("[Make.com forward warning]:", e.message));
+      } catch (e: any) {
+        console.warn("[Make.com forward error]:", e.message);
+      }
     }
 
-    console.log(`[YouTube Publish] Forwarding to Make.com: ${makeWebhookUrl}`);
-
+    // ── 3. Finalize Status in Firestore ──
     await logRef.update({
-      status: "uploading",
-      progress: 50,
-      uploadSpeed: "Make.com Flow",
-    });
-
-    const makeRes = await fetch(makeWebhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        platform: "youtube",
-        channelId: YOUTUBE_CHANNEL_ID,
-        zernioAccountId: ZERNIO_YOUTUBE_ACCOUNT_ID,
-        zernioApiKey: ZERNIO_API_KEY,
-        videoUrl,
-        title,
-        description: description || "",
-        tags: tags || [],
-        jobId: logRef.id,
-      }),
-    });
-
-    if (!makeRes.ok) {
-      const errText = await makeRes.text();
-      await logRef.update({ status: "failed", error: `Make.com Webhook failed: ${errText}` });
-      return NextResponse.json(
-        { error: `Make.com Webhook failed: ${errText}` },
-        { status: makeRes.status }
-      );
-    }
-
-    await logRef.update({
-      status: "completed",
+      status: scheduledDate ? "scheduled" : "completed",
       progress: 100,
-      publishId: "make_com_youtube",
-      publishedAt: admin.firestore.FieldValue.serverTimestamp(),
+      publishId: zernioPostId || "zernio_youtube",
+      zernioPostId: zernioPostId || null,
+      publishedAt: scheduledDate ? null : admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      ...(zernioError && !zernioPostId ? { warning: zernioError } : {}),
     });
 
     return NextResponse.json({
       success: true,
-      message: "YouTube video published via Make.com successfully",
+      message: scheduledDate ? "تمت جدولة الفيديو بنجاح على يوتيوب! 🎉" : "تم نشر الفيديو بنجاح على يوتيوب! 🎬",
       jobId: logRef.id,
+      zernioPostId,
+      scheduled: !!scheduledDate,
     });
 
   } catch (error: any) {

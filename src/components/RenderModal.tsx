@@ -104,7 +104,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
   }, [isOpen]);
 
   useEffect(() => {
-    if (status === "success" && surahData) {
+    if (surahData) {
       const reciter = RECITERS.find(r => r.id === state.reciterId);
       const sName = surahData.name || "";
       const rName = reciter?.name || "";
@@ -117,33 +117,29 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       
       // TikTok caption (short + hashtags)
       const defaultCaption = `سورة ${sName} - ${ayahText} - الشيخ ${rName} 📖✨\nيقين القرآن | الرابط في البايو 🔗\n\n#يقين_القران #يقين__القران #yaqeenalquran #قرآن #قران #سورة_${sTag} #الشيخ_${rTag}`;
-      setTiktokCaption(defaultCaption);
-      setTiktokPublishSuccess(false);
-      setTiktokPublishError("");
-      setIsScheduled(false);
-      setScheduledTime("");
+      if (!tiktokCaption) setTiktokCaption(defaultCaption);
 
       // YouTube caption (strong + long description)
-      setYtTitle(`سورة ${sName} - ${ayahText} - الشيخ ${rName} 📖`);
-      setYtDescription(
-        `📖 سورة ${sName} | ${ayahText}\n` +
-        `🎙 تلاوة بصوت الشيخ ${rName}\n\n` +
-        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
-        `🌟 اشترك في القناة وفعّل الجرس 🔔 للمزيد من التلاوات القرآنية\n\n` +
-        `📱 صنع الفيديو مجاناً على موقع يقين القرآن:\n` +
-        `🔗 yaqeenalquran.online\n\n` +
-        `⭐ يمكنك تصميم فيديوهاتك القرآنية بنفسك في أقل من 3 دقائق!\n\n` +
-        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
-        `#قرآن #قران_كريم #تلاوة_قرآنية #سورة_${sTag} #${rTag} ` +
-        `#Quran #QuranRecitation #Islam #islamicvideo #يقين_القران`
-      );
-      setYtTags(`قرآن, قران كريم, تلاوة قرآنية, سورة ${sName}, ${rName}, Quran, QuranRecitation, Islam, يقين القران, yaqeenalquran`);
-      setYtPublishSuccess(false);
-      setYtPublishError("");
-      setYtScheduled(false);
-      setYtScheduledTime("");
+      if (!ytTitle) setYtTitle(`سورة ${sName} - ${ayahText} - الشيخ ${rName} 📖`);
+      if (!ytDescription) {
+        setYtDescription(
+          `📖 سورة ${sName} | ${ayahText}\n` +
+          `🎙 تلاوة بصوت الشيخ ${rName}\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `🌟 اشترك في القناة وفعّل الجرس 🔔 للمزيد من التلاوات القرآنية\n\n` +
+          `📱 صنع الفيديو مجاناً على موقع يقين القرآن:\n` +
+          `🔗 https://yaqeenalquran.online\n\n` +
+          `⭐ يمكنك تصميم فيديوهاتك القرآنية بنفسك في أقل من 3 دقائق!\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `#قرآن #قران_كريم #تلاوة_قرآنية #سورة_${sTag} #${rTag} ` +
+          `#Quran #QuranRecitation #Islam #islamicvideo #يقين_القران`
+        );
+      }
+      if (!ytTags) {
+        setYtTags(`قرآن, قران كريم, تلاوة قرآنية, سورة ${sName}, ${rName}, Quran, QuranRecitation, Islam, يقين القران, yaqeenalquran`);
+      }
     }
-  }, [status, surahData, state.reciterId, state.startAyah, state.endAyah]);
+  }, [surahData, state.reciterId, state.startAyah, state.endAyah]);
 
   const handlePublishToTikTok = async () => {
     if (!selectedAccountId) {
@@ -2173,15 +2169,38 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                         setYtPublishing(true); setYtPublishError(""); setYtPublishSuccess(false);
                         try {
                           const adminToken = (await auth?.currentUser?.getIdToken().catch(() => null)) || undefined;
+                          const reciter = RECITERS.find(r => r.id === state.reciterId);
+                          const sName = surahData?.name || "القرآن الكريم";
+                          const rName = reciter?.name || "";
+                          const ayahText = state.startAyah === state.endAyah ? `آية ${state.startAyah}` : `الآيات من ${state.startAyah} إلى ${state.endAyah}`;
+                          const fallbackTitle = `سورة ${sName} - ${ayahText} - الشيخ ${rName} 📖✨`.trim();
+                          const fallbackDesc = 
+                            `📖 سورة ${sName} | ${ayahText}\n` +
+                            `🎙 تلاوة عطرة بصوت الشيخ ${rName}\n\n` +
+                            `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+                            `🌟 اشترك في قناة يقين القرآن وفعّل الجرس 🔔 للمزيد من التلاوات اليومية المباركة\n\n` +
+                            `📱 تم تصميم هذا الفيديو بالكامل عبر منصة يقين القرآن:\n` +
+                            `🔗 https://yaqeenalquran.online\n\n` +
+                            `⭐ صمم فيديوهاتك القرآنية بنفسك مجاناً وبأعلى جودة!\n\n` +
+                            `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+                            `#قرآن #قران_كريم #تلاوة_قرآنية #سورة_${sName.replace(/\s+/g, "_")} #يقين_القران #Quran #Islam`;
+
                           const res = await fetch("/api/youtube/publish", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
                               channelId: ytChannelId || ytAccounts[0]?.id || "6a9cfafb77555aae01e37454",
                               videoUrl: downloadUrl,
-                              title: ytTitle.substring(0, 100),
-                              description: ytDescription,
-                              tags: ytTags.split(",").map((t: string) => t.trim()).filter(Boolean),
+                              title: (ytTitle.trim() || fallbackTitle).substring(0, 100),
+                              description: ytDescription.trim() || fallbackDesc,
+                              tags: ytTags.trim() 
+                                ? ytTags.split(",").map((t: string) => t.trim()).filter(Boolean)
+                                : ["قرآن", "قران كريم", `سورة ${sName}`, rName, "يقين القرآن", "Quran", "Islam"].filter(Boolean),
+                              firstComment: 
+                                `سبحان الله وبحمده، سبحان الله العظيم 🌸\n` +
+                                `لا تنسوا الإعجاب بالفيديو والاشتراك في القناة وتفعيل زر الجرس 🔔 لتصلكم التلاوات اليومية المباركة.\n` +
+                                `🔗 صمم فيديوهاتك القرآنية بنفسك مجاناً عبر موقع يقين القرآن:\n` +
+                                `https://yaqeenalquran.online`,
                               scheduledFor: ytScheduled ? ytScheduledTime : null,
                               adminToken,
                             }),
