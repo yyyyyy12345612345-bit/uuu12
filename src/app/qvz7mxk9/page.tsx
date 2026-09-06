@@ -35,6 +35,15 @@ interface YoutubeAccount {
   subscriberCount: number;
 }
 
+const DEFAULT_YOUTUBE_ACCOUNT: YoutubeAccount = {
+  id: "6a9cfafb77555aae01e37454",
+  channelId: "UCN3RoN1VmXVeIQ5TmnVJ5uQ",
+  channelTitle: "يقين القرآن",
+  channelHandle: "@yaqeenalquran1",
+  avatar: "",
+  subscriberCount: 0,
+};
+
 export default function WideStudioPage() {
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
@@ -43,8 +52,8 @@ export default function WideStudioPage() {
   const [error, setError] = useState("");
 
   // YouTube publish states
-  const [ytAccounts, setYtAccounts] = useState<YoutubeAccount[]>([]);
-  const [selectedChannelId, setSelectedChannelId] = useState("");
+  const [ytAccounts, setYtAccounts] = useState<YoutubeAccount[]>([DEFAULT_YOUTUBE_ACCOUNT]);
+  const [selectedChannelId, setSelectedChannelId] = useState("6a9cfafb77555aae01e37454");
   const [ytTitle, setYtTitle] = useState("");
   const [ytDescription, setYtDescription] = useState("");
   const [ytTags, setYtTags] = useState("");
@@ -61,60 +70,20 @@ export default function WideStudioPage() {
   const [endAyah, setEndAyah] = useState(7);
   const [videoUrl, setVideoUrl] = useState(""); // paste rendered video URL
 
-  const [currentUser, setCurrentUser] = useState<any>(null);
-  const [authLoading, setAuthLoading] = useState(true);
-  const [loginEmail, setLoginEmail] = useState("youssefosama@gmail.com");
-  const [loginPassword, setLoginPassword] = useState("");
-  const [loginLoading, setLoginLoading] = useState(false);
-  const [loginError, setLoginError] = useState("");
-
+  // Load YouTube accounts from Firestore if available
   useEffect(() => {
-    if (!auth) {
-      setAuthLoading(false);
-      return;
-    }
-    const unsub = onAuthStateChanged(auth, (u) => {
-      setCurrentUser(u);
-      setAuthLoading(false);
-    });
-    return () => unsub();
-  }, []);
-
-  const isAdmin = React.useMemo(() => {
-    const email = currentUser?.email?.toLowerCase() || "";
-    return (
-      email === "youssefosama@gmail.com" ||
-      email === "youssef@yaqeen.app" ||
-      email.includes("youssef")
-    );
-  }, [currentUser]);
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoginError("");
-    setLoginLoading(true);
-    try {
-      if (!auth) throw new Error("Firebase Auth غير مهيأ");
-      await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
-    } catch (err: any) {
-      setLoginError(err.message || "فشل تسجيل الدخول");
-    } finally {
-      setLoginLoading(false);
-    }
-  };
-
-  // Load YouTube accounts
-  useEffect(() => {
-    if (!isAdmin || !db) return;
+    if (!db) return;
     getDocs(collection(db, "youtube_accounts"))
       .then((snap) => {
-        const list: YoutubeAccount[] = [];
-        snap.forEach((d) => list.push({ id: d.id, ...d.data() } as any));
-        setYtAccounts(list);
-        if (list.length > 0) setSelectedChannelId(list[0].id);
+        if (!snap.empty) {
+          const list: YoutubeAccount[] = [];
+          snap.forEach((d) => list.push({ id: d.id, ...d.data() } as any));
+          setYtAccounts(list);
+          if (list.length > 0) setSelectedChannelId(list[0].id);
+        }
       })
-      .catch(console.error);
-  }, [isAdmin]);
+      .catch(() => {});
+  }, []);
 
   // Auto-generate YouTube caption when success
   useEffect(() => {
@@ -217,14 +186,13 @@ export default function WideStudioPage() {
     setPublishSuccess(false);
 
     try {
-      const adminToken = await auth.currentUser?.getIdToken();
-      if (!adminToken) throw new Error("فشل التحقق من جلسة المسؤول.");
+      const adminToken = (await auth?.currentUser?.getIdToken().catch(() => null)) || undefined;
 
       const res = await fetch("/api/youtube/publish", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          channelId: selectedChannelId || ytAccounts[0]?.id,
+          channelId: selectedChannelId || ytAccounts[0]?.id || "6a9cfafb77555aae01e37454",
           videoUrl: urlToPublish,
           title: ytTitle.substring(0, 100),
           description: ytDescription,
@@ -246,9 +214,9 @@ export default function WideStudioPage() {
   };
 
   const handleLinkYouTube = async () => {
-    const token = await auth.currentUser?.getIdToken();
+    const token = await auth.currentUser?.getIdToken().catch(() => null);
     if (!token) {
-      alert("يرجى تسجيل الدخول أولاً.");
+      alert("يرجى تسجيل الدخول أولاً لربط قناة جديدة.");
       return;
     }
     const width = 600, height = 700;
@@ -268,71 +236,6 @@ export default function WideStudioPage() {
     window.addEventListener("message", handleMsg);
   };
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center font-arabic" dir="rtl">
-        <div className="flex flex-col items-center gap-3 text-white/50">
-          <Loader2 className="w-8 h-8 animate-spin text-red-500" />
-          <span className="text-xs font-bold">جاري التحقق من صلاحيات المشرف...</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center p-4 font-arabic" dir="rtl">
-        <div className="w-full max-w-md bg-white/[0.04] border border-white/10 rounded-3xl p-8 shadow-2xl backdrop-blur-xl space-y-6">
-          <div className="text-center space-y-2">
-            <div className="w-14 h-14 rounded-2xl bg-red-600 flex items-center justify-center mx-auto shadow-lg shadow-red-600/30">
-              <YouTubeIcon className="w-7 h-7 text-white" />
-            </div>
-            <h1 className="text-xl font-black text-white">استوديو يوتيوب العريض</h1>
-            <p className="text-xs text-white/50">يرجى تسجيل الدخول بحساب المشرف للوصول إلى الاستوديو</p>
-          </div>
-
-          {loginError && (
-            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-400 text-center font-bold">
-              {loginError}
-            </div>
-          )}
-
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="text-[11px] font-bold text-white/60 block mb-1">البريد الإلكتروني للمسؤول</label>
-              <input
-                type="email"
-                value={loginEmail}
-                onChange={(e) => setLoginEmail(e.target.value)}
-                required
-                className="w-full bg-white/[0.06] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-red-500 transition"
-                dir="ltr"
-              />
-            </div>
-            <div>
-              <label className="text-[11px] font-bold text-white/60 block mb-1">كلمة المرور</label>
-              <input
-                type="password"
-                value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
-                required
-                placeholder="••••••••"
-                className="w-full bg-white/[0.06] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-red-500 transition"
-                dir="ltr"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loginLoading}
-              className="w-full py-3.5 bg-red-600 hover:bg-red-500 text-white font-black rounded-xl text-sm transition shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              {loginLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "تسجيل الدخول إلى الاستوديو"}
-            </button>
-          </form>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white p-6 font-arabic" dir="rtl">
