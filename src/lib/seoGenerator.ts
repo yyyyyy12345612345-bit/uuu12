@@ -457,9 +457,23 @@ export function generateIslamicSEO(params: SEOParams): GeneratedSEO {
     "yaqeenalquran"
   ];
 
-  // إزالة التكرار وتنقية الفراغات
-  const uniqueTags = Array.from(new Set(baseTags.map(t => t.trim()).filter(Boolean)));
-  const tags = uniqueTags.slice(0, 30);
+  // إزالة التكرار والتنقية وتطبيق حد أقصى تراكمي 400 حرف ليتوافق 100% مع شروط Zernio و YouTube (الحد الأقصى 500 حرف)
+  const uniqueTags = Array.from(
+    new Set(
+      baseTags
+        .map(t => t.replace(/[#,"'\n\r]/g, "").trim())
+        .filter(t => t.length > 0 && t.length <= 50)
+    )
+  );
+
+  const tags: string[] = [];
+  let totalLength = 0;
+  for (const t of uniqueTags) {
+    // 400 حرف كحد تراكمي آمن جداً لمنع رفض التاجز في Zernio و YouTube
+    if (totalLength + t.length + 1 > 400) break;
+    tags.push(t);
+    totalLength += t.length + 1;
+  }
   const tagsString = tags.join(", ");
 
   // ═════════════════════════════════════════════════════════

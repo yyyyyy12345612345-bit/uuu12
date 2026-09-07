@@ -126,6 +126,7 @@ export async function POST(request: Request) {
         
         const zernioPayload: any = {
           content: finalDesc,
+          tags: finalTags,
           mediaItems: [
             {
               type: "video",

@@ -182,9 +182,20 @@ export async function GET(request: Request) {
               },
               zernioPayload: {
                 content: jobData.caption,
+                tags: tags,
                 mediaItems: [{ type: "video", url: jobData.videoUrl }],
                 platforms: [
                   {
+                    platform: "tiktok",
+                    accountId: "6a4e3200bfae1bc97855b77e",
+                    platformSpecificData: {
+                      privacy_level: "PUBLIC_TO_EVERYONE",
+                      allow_comment: true,
+                      allow_duet: true,
+                      allow_stitch: true,
+                    },
+                  },
+                  ...(jobData.publishToYouTube !== false ? [{
                     platform: "youtube",
                     accountId: ytAccountId,
                     platformSpecificData: {
@@ -196,7 +207,7 @@ export async function GET(request: Request) {
                       categoryId: "22",
                       madeForKids: false,
                     },
-                  },
+                  }] : []),
                 ],
                 publishNow: true,
               },

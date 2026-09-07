@@ -76,6 +76,7 @@ async function getValidAccessToken(accountId: string, db: admin.firestore.Firest
   return access_token;
 }
 
+const ZERNIO_TIKTOK_ACCOUNT_ID = "6a4e3200bfae1bc97855b77e";
 const ZERNIO_YOUTUBE_ACCOUNT_ID = "6a9cfafb77555aae01e37454";
 const ZERNIO_API_KEY = process.env.ZERNIO_API_KEY || "sk_e79e01e86d0f0499e55b0e768b9287c194d4b5c4843ee49040220efc21186a42";
 
@@ -94,29 +95,41 @@ function extractSmartTitle(caption: string, fallbackTitle?: string): string {
 function extractSmartTags(caption: string, customTags?: any): string[] {
   let tags: string[] = [];
   if (Array.isArray(customTags) && customTags.length > 0) {
-    tags = customTags.map((t: string) => String(t).trim()).filter(Boolean);
+    tags = customTags.map((t: string) => String(t).replace(/[#,"'\n\r]/g, "").trim()).filter(Boolean);
   } else if (typeof customTags === "string" && customTags.trim()) {
-    tags = customTags.split(",").map((t: string) => t.trim()).filter(Boolean);
+    tags = customTags.split(",").map((t: string) => t.replace(/[#,"'\n\r]/g, "").trim()).filter(Boolean);
   }
 
-  // Extract hashtags from caption as well
-  const hashtags = (caption.match(/#([^\s#]+)/g) || []).map((h) =>
-    h.replace(/^#+/, "").replace(/_/g, " ").trim()
-  );
+  // Extract hashtags from caption if custom tags were empty
+  let hashtags: string[] = [];
+  if (tags.length === 0) {
+    hashtags = (caption.match(/#([^\s#]+)/g) || []).map((h) =>
+      h.replace(/^#+/, "").replace(/_/g, " ").trim()
+    );
+  }
 
   const baseTags = [
     "قرآن",
-    "قران",
     "قران كريم",
     "تلاوة قرآنية",
     "يقين القرآن",
-    "yaqeenalquran",
     "Quran",
     "Islam",
   ];
 
-  const combined = Array.from(new Set([...tags, ...hashtags, ...baseTags])).filter(Boolean);
-  return combined.slice(0, 25);
+  const combined = Array.from(new Set([...tags, ...hashtags, ...baseTags]))
+    .map(t => t.trim())
+    .filter(t => t.length > 0 && t.length <= 50);
+
+  const safeTags: string[] = [];
+  let currentChars = 0;
+  for (const t of combined) {
+    if (currentChars + t.length + 1 > 400) break;
+    safeTags.push(t);
+    currentChars += t.length + 1;
+  }
+
+  return safeTags;
 }
 
 export async function POST(request: Request) {
@@ -251,25 +264,52 @@ export async function POST(request: Request) {
       // If posting via Make.com or direct to Zernio API, schedule immediately on Zernio so it appears in Zernio Scheduled dashboard
       if (ZERNIO_API_KEY && (accountId === "make_com" || shouldPostToYouTube)) {
         try {
-          console.log(`[TikTok Publish] Scheduling post directly on Zernio API for YouTube: ${finalYtAccountId}`);
-          const zernioPayload: any = {
-            content: caption,
-            mediaItems: [{ type: "video", url: videoUrl }],
-            platforms: [
-              {
-                platform: "youtube",
-                accountId: finalYtAccountId,
-                platformSpecificData: {
-                  title: finalTitle,
-                  description: finalDesc,
-                  tags: finalTags,
-                  firstComment: finalFirstComment,
-                  visibility: "public",
-                  categoryId: "22",
-                  madeForKids: false,
+          console.log(`[TikTok Publish] Scheduling multi-platform post on Zernio API (TikTok: ${ZERNIO_TIKTOK_ACCOUNT_ID}, YouTube: ${finalYtAccountId})`);
+          
+          const zernioPlatforms: any[] = [
+            {
+              platform: "tiktok",
+              accountId: ZERNIO_TIKTOK_ACCOUNT_ID,
+              platformSpecificData: {
+                privacy_level: "PUBLIC_TO_EVERYONE",
+                privacyLevel: "PUBLIC_TO_EVERYONE",
+                allow_comment: true,
+                allow_duet: true,
+                allow_stitch: true,
+                disableComment: false,
+                disableDuet: false,
+                disableStitch: false,
+                tiktokSettings: {
+                  privacy_level: "PUBLIC_TO_EVERYONE",
+                  allow_comment: true,
+                  allow_duet: true,
+                  allow_stitch: true,
                 },
               },
-            ],
+            },
+          ];
+
+          if (shouldPostToYouTube) {
+            zernioPlatforms.push({
+              platform: "youtube",
+              accountId: finalYtAccountId,
+              platformSpecificData: {
+                title: finalTitle,
+                description: finalDesc,
+                tags: finalTags,
+                firstComment: finalFirstComment,
+                visibility: "public",
+                categoryId: "22",
+                madeForKids: false,
+              },
+            });
+          }
+
+          const zernioPayload: any = {
+            content: caption,
+            tags: finalTags,
+            mediaItems: [{ type: "video", url: videoUrl }],
+            platforms: zernioPlatforms,
             scheduledFor: scheduledTime.toISOString(),
             publishNow: false,
           };
@@ -306,7 +346,12 @@ export async function POST(request: Request) {
               videoTitle: finalTitle,
               tags: finalTags,
               tagsString: finalTagsString,
+              tagsCsv: finalTagsString,
+              videoTags: finalTags,
+              keywords: finalTags,
               description: finalDesc,
+              youtubeDescription: finalDesc,
+              ytDescription: finalDesc,
               firstComment: finalFirstComment,
               accountId,
               jobId: logRef.id,
@@ -318,6 +363,8 @@ export async function POST(request: Request) {
                 title: finalTitle,
                 tags: finalTags,
                 tagsString: finalTagsString,
+                videoTags: finalTags,
+                keywords: finalTags,
                 description: finalDesc,
                 firstComment: finalFirstComment,
                 visibility: "public",
@@ -328,10 +375,33 @@ export async function POST(request: Request) {
                 title: finalTitle,
                 description: finalDesc,
                 tags: finalTags,
+                tagsString: finalTagsString,
+                videoTags: finalTags,
+                keywords: finalTags,
                 firstComment: finalFirstComment,
                 visibility: "public",
                 categoryId: "22",
                 madeForKids: false,
+              },
+              zernioPayload: {
+                content: caption,
+                tags: finalTags,
+                mediaItems: [{ type: "video", url: videoUrl }],
+                platforms: [
+                  {
+                    platform: "youtube",
+                    accountId: finalYtAccountId,
+                    platformSpecificData: {
+                      title: finalTitle,
+                      description: finalDesc,
+                      tags: finalTags,
+                      firstComment: finalFirstComment,
+                      visibility: "public",
+                      categoryId: "22",
+                      madeForKids: false,
+                    },
+                  },
+                ],
               },
             }),
           }).catch((err) => console.warn("[Make.com forward warning]:", err.message));
@@ -484,9 +554,24 @@ export async function POST(request: Request) {
             },
             body: JSON.stringify({
               content: caption,
+              tags: finalTags,
               mediaItems: [{ type: "video", url: videoUrl }],
               platforms: [
                 {
+                  platform: "tiktok",
+                  accountId: ZERNIO_TIKTOK_ACCOUNT_ID,
+                  platformSpecificData: {
+                    privacy_level: "PUBLIC_TO_EVERYONE",
+                    privacyLevel: "PUBLIC_TO_EVERYONE",
+                    allow_comment: true,
+                    allow_duet: true,
+                    allow_stitch: true,
+                    disableComment: false,
+                    disableDuet: false,
+                    disableStitch: false,
+                  },
+                },
+                ...(shouldPostToYouTube ? [{
                   platform: "youtube",
                   accountId: finalYtAccountId,
                   platformSpecificData: {
@@ -498,7 +583,7 @@ export async function POST(request: Request) {
                     categoryId: "22",
                     madeForKids: false,
                   },
-                },
+                }] : []),
               ],
               publishNow: true,
             }),
