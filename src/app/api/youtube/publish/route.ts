@@ -125,6 +125,7 @@ export async function POST(request: Request) {
         console.log(`[YouTube Publish] Posting directly to Zernio API for account: ${ZERNIO_YOUTUBE_ACCOUNT_ID}`);
         
         const zernioPayload: any = {
+          title: finalTitle,
           content: finalDesc,
           tags: finalTags,
           mediaItems: [
@@ -153,8 +154,10 @@ export async function POST(request: Request) {
         if (scheduledDate) {
           zernioPayload.scheduledFor = scheduledDate.toISOString();
           zernioPayload.publishNow = false;
+          zernioPayload.isDraft = false;
         } else {
           zernioPayload.publishNow = true;
+          zernioPayload.isDraft = false;
         }
 
         const zernioRes = await fetch("https://zernio.com/api/v1/posts", {

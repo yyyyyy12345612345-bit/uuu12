@@ -47,16 +47,16 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
   // TikTok Publishing States
   const [tiktokAccounts, setTiktokAccounts] = useState<any[]>([]);
   const [selectedAccountId, setSelectedAccountId] = useState<string>("");
+  // Unified Publishing Destination: "both" | "youtube" | "tiktok"
+  const [publishDestination, setPublishDestination] = useState<"both" | "youtube" | "tiktok">("both");
   const [tiktokCaption, setTiktokCaption] = useState("");
   const [isScheduled, setIsScheduled] = useState(false);
   const [scheduledTime, setScheduledTime] = useState("");
-  const [tiktokPublishing, setTiktokPublishing] = useState(false);
-  const [tiktokPublishSuccess, setTiktokPublishSuccess] = useState(false);
-  const [tiktokPublishError, setTiktokPublishError] = useState("");
-  const [alsoPostToYouTube, setAlsoPostToYouTube] = useState(true);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishSuccess, setPublishSuccess] = useState(false);
+  const [publishError, setPublishError] = useState("");
 
-  // YouTube Publishing States
-  const [publishTab, setPublishTab] = useState<"tiktok" | "youtube">("tiktok");
+  // Accounts & Metadata
   const [ytAccounts, setYtAccounts] = useState<any[]>([
     {
       id: "6a9cfafb77555aae01e37454",
@@ -69,11 +69,6 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
   const [ytTitle, setYtTitle] = useState("");
   const [ytDescription, setYtDescription] = useState("");
   const [ytTags, setYtTags] = useState("");
-  const [ytScheduled, setYtScheduled] = useState(false);
-  const [ytScheduledTime, setYtScheduledTime] = useState("");
-  const [ytPublishing, setYtPublishing] = useState(false);
-  const [ytPublishSuccess, setYtPublishSuccess] = useState(false);
-  const [ytPublishError, setYtPublishError] = useState("");
 
   useEffect(() => {
     if (isOpen && db) {
@@ -140,29 +135,22 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     }
   }, [isOpen, state.surahId, state.reciterId, state.startAyah, state.endAyah, surahData]);
 
-  const handlePublishToTikTok = async () => {
-    if (!selectedAccountId) {
-      alert("يرجى اختيار حساب تيك توك أولاً.");
-      return;
-    }
-    if (!tiktokCaption.trim()) {
-      alert("يرجى كتابة وصف للفيديو.");
+  const handleUnifiedPublish = async () => {
+    if (!downloadUrl) {
+      alert("لا يوجد فيديو لنشره");
       return;
     }
     if (isScheduled && !scheduledTime) {
-      alert("يرجى تحديد وقت الجدولة.");
+      alert("يرجى تحديد وقت وتاريخ الجدولة.");
       return;
     }
 
-    setTiktokPublishing(true);
-    setTiktokPublishError("");
-    setTiktokPublishSuccess(false);
+    setIsPublishing(true);
+    setPublishError("");
+    setPublishSuccess(false);
 
     try {
       const adminToken = await auth.currentUser?.getIdToken();
-      if (!adminToken) {
-        throw new Error("فشل التحقق من جلسة المسؤول.");
-      }
 
       const surahEntry = surahsData.find(s => s.id.toString() === state.surahId?.toString());
       const sName = surahData?.name || surahEntry?.name || "القرآن الكريم";
@@ -184,60 +172,99 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         `لا تنسوا الإعجاب بالفيديو والاشتراك في القناة وتفعيل زر الجرس 🔔 لتصلكم التلاوات اليومية المباركة.\n` +
         `🔗 صمم فيديوهاتك القرآنية بنفسك مجاناً عبر موقع يقين القرآن:\n` +
         `https://yaqeenalquran.online`;
+      const finalCaption = tiktokCaption.trim() || `${sName} - ${ayahText} بصوت ${rName} 📖✨\n#يقين_القران #قرآن`;
 
-      const res = await fetch("/api/tiktok/publish", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          accountId: selectedAccountId,
-          videoUrl: downloadUrl,
-          caption: tiktokCaption,
-          scheduledFor: isScheduled ? scheduledTime : null,
-          adminToken,
-          // YouTube & Rich metadata
-          publishToYouTube: alsoPostToYouTube,
-          youtubeAccountId: ytChannelId || ytAccounts[0]?.id || "6a9cfafb77555aae01e37454",
-          title: finalYtTitle,
-          tags: finalYtTags,
-          tagsString: finalYtTagsString,
-          description: finalYtDesc,
-          firstComment: finalFirstComment,
-          // Video identity
-          surahName: sName,
-          surahNumber: sNumber,
-          reciterName: rName,
-          startAyah: state.startAyah,
-          endAyah: state.endAyah,
-        }),
-      });
-
-      const resData = await res.json();
-      if (!res.ok) {
-        throw new Error(resData.error || "فشل نشر الفيديو على تيك توك");
-      }
-
-      // If native TikTok account and alsoPostToYouTube is true, also trigger YouTube publish directly
-      if (selectedAccountId !== "make_com" && alsoPostToYouTube) {
-        try {
-          await fetch("/api/youtube/publish", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              channelId: ytChannelId || ytAccounts[0]?.id || "6a9cfafb77555aae01e37454",
-              videoUrl: downloadUrl,
-              title: finalYtTitle,
-              description: finalYtDesc,
-              tags: finalYtTags,
-              firstComment: finalFirstComment,
-              scheduledFor: isScheduled ? scheduledTime : null,
-              adminToken,
-            }),
-          });
-        } catch (ytErr) {
-          console.warn("YouTube parallel publish warning:", ytErr);
+      if (publishDestination === "youtube") {
+        // --- 1. YOUTUBE ONLY ---
+        if (!finalYtTitle) {
+          throw new Error("يرجى كتابة عنوان للفيديو");
         }
+
+        const res = await fetch("/api/youtube/publish", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            channelId: ytChannelId || ytAccounts[0]?.id || "6a9cfafb77555aae01e37454",
+            videoUrl: downloadUrl,
+            title: finalYtTitle,
+            description: finalYtDesc,
+            tags: finalYtTags,
+            firstComment: finalFirstComment,
+            scheduledFor: isScheduled ? scheduledTime : null,
+            adminToken,
+            surahName: sName,
+            surahNumber: sNumber,
+            reciterName: rName,
+            startAyah: state.startAyah,
+            endAyah: state.endAyah,
+          }),
+        });
+
+        const resData = await res.json();
+        if (!res.ok) throw new Error(resData.error || "فشل نشر الفيديو على يوتيوب");
+      } else if (publishDestination === "tiktok") {
+        // --- 2. TIKTOK ONLY ---
+        if (!finalCaption) {
+          throw new Error("يرجى كتابة وصف للفيديو");
+        }
+
+        const res = await fetch("/api/tiktok/publish", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            accountId: selectedAccountId || "6a4c75f09d9472faaea0b774",
+            videoUrl: downloadUrl,
+            caption: finalCaption,
+            scheduledFor: isScheduled ? scheduledTime : null,
+            adminToken,
+            publishToYouTube: false,
+            title: finalYtTitle,
+            tags: finalYtTags,
+            tagsString: finalYtTagsString,
+            description: finalYtDesc,
+            firstComment: finalFirstComment,
+            surahName: sName,
+            surahNumber: sNumber,
+            reciterName: rName,
+            startAyah: state.startAyah,
+            endAyah: state.endAyah,
+          }),
+        });
+
+        const resData = await res.json();
+        if (!res.ok) throw new Error(resData.error || "فشل نشر الفيديو على تيك توك");
+      } else {
+        // --- 3. BOTH PLATFORMS ---
+        if (!finalCaption) {
+          throw new Error("يرجى كتابة وصف لفيديو تيك توك");
+        }
+
+        const res = await fetch("/api/tiktok/publish", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            accountId: selectedAccountId || "6a4c75f09d9472faaea0b774",
+            videoUrl: downloadUrl,
+            caption: finalCaption,
+            scheduledFor: isScheduled ? scheduledTime : null,
+            adminToken,
+            publishToYouTube: true,
+            youtubeAccountId: ytChannelId || ytAccounts[0]?.id || "6a9cfafb77555aae01e37454",
+            title: finalYtTitle,
+            tags: finalYtTags,
+            tagsString: finalYtTagsString,
+            description: finalYtDesc,
+            firstComment: finalFirstComment,
+            surahName: sName,
+            surahNumber: sNumber,
+            reciterName: rName,
+            startAyah: state.startAyah,
+            endAyah: state.endAyah,
+          }),
+        });
+
+        const resData = await res.json();
+        if (!res.ok) throw new Error(resData.error || "فشل نشر الفيديو");
       }
 
       // Automatically add to Showcase collection on successful publish
@@ -245,18 +272,18 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         await addDoc(collection(db, "showcase"), {
           videoUrl: downloadUrl,
           userName: auth.currentUser?.displayName || "مشرف يقين",
-          surahName: surahData?.name || "تلاوة قرآنية",
+          surahName: surahData?.name || sName || "تلاوة قرآنية",
           createdAt: serverTimestamp()
         }).catch((err) => {
           console.error("Failed to auto-add to showcase:", err);
         });
       }
 
-      setTiktokPublishSuccess(true);
+      setPublishSuccess(true);
     } catch (e: any) {
-      setTiktokPublishError(e.message || "حدث خطأ غير متوقع.");
+      setPublishError(e.message || "حدث خطأ غير متوقع.");
     } finally {
-      setTiktokPublishing(false);
+      setIsPublishing(false);
     }
   };
 
@@ -2020,44 +2047,63 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
 
             {status === "success" && downloadUrl && (
               <div className="w-full mt-4 border-t border-white/10 pt-4 space-y-3 text-right">
-                {/* Platform Tabs */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setPublishTab("tiktok")}
-                    className={`flex-1 py-2 rounded-xl text-[11px] font-black transition border ${
-                      publishTab === "tiktok"
-                        ? "bg-[#fbbf24] text-black border-[#fbbf24]"
-                        : "bg-white/[0.03] text-white/50 border-white/[0.06] hover:bg-white/[0.06]"
-                    }`}
-                  >
-                    TikTok 🎵
-                  </button>
-                  <button
-                    onClick={() => setPublishTab("youtube")}
-                    className={`flex-1 py-2 rounded-xl text-[11px] font-black transition border ${
-                      publishTab === "youtube"
-                        ? "bg-red-600 text-white border-red-600"
-                        : "bg-white/[0.03] text-white/50 border-white/[0.06] hover:bg-white/[0.06]"
-                    }`}
-                  >
-                    YouTube 🎬
-                  </button>
+                {/* ── Destination Selector: YouTube Only / Both / TikTok Only ── */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-white/60 block">منصة النشر والجدولة:</label>
+                  <div className="grid grid-cols-3 gap-2 p-1 bg-white/[0.03] border border-white/[0.08] rounded-xl">
+                    <button
+                      type="button"
+                      onClick={() => setPublishDestination("youtube")}
+                      className={`py-2 px-1 rounded-lg text-[11px] font-black transition flex items-center justify-center gap-1.5 ${
+                        publishDestination === "youtube"
+                          ? "bg-red-600 text-white shadow-lg shadow-red-600/30"
+                          : "text-white/60 hover:text-white hover:bg-white/[0.04]"
+                      }`}
+                    >
+                      <span>يوتيوب فقط</span>
+                      <span>🎬</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPublishDestination("both")}
+                      className={`py-2 px-1 rounded-lg text-[11px] font-black transition flex items-center justify-center gap-1.5 ${
+                        publishDestination === "both"
+                          ? "bg-gradient-to-r from-red-600 to-amber-500 text-white shadow-lg shadow-amber-500/20"
+                          : "text-white/60 hover:text-white hover:bg-white/[0.04]"
+                      }`}
+                    >
+                      <span>المنصتين معاً</span>
+                      <span>🚀</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPublishDestination("tiktok")}
+                      className={`py-2 px-1 rounded-lg text-[11px] font-black transition flex items-center justify-center gap-1.5 ${
+                        publishDestination === "tiktok"
+                          ? "bg-[#fbbf24] text-black shadow-lg shadow-[#fbbf24]/30"
+                          : "text-white/60 hover:text-white hover:bg-white/[0.04]"
+                      }`}
+                    >
+                      <span>تيك توك فقط</span>
+                      <span>🎵</span>
+                    </button>
+                  </div>
                 </div>
 
-                {/* ── TikTok Tab ── */}
-                {publishTab === "tiktok" && (
-                  <div className="space-y-3">
+                {/* ── Account Selection ── */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {(publishDestination === "tiktok" || publishDestination === "both") && (
                     <div className="space-y-1">
-                      <label className="text-[9px] font-black text-white/40 block">حساب تيك توك</label>
+                      <label className="text-[9px] font-black text-white/40 block">حساب TikTok</label>
                       {tiktokAccounts.length === 0 ? (
                         <div className="w-full bg-white/[0.02] border border-white/[0.04] rounded-lg p-2.5 text-xs text-white/50 text-right font-bold">
-                          تلقائياً (عبر Make.com)
+                          تلقائياً (عبر Make.com / Zernio)
                         </div>
                       ) : (
                         <select
                           value={selectedAccountId}
                           onChange={(e) => setSelectedAccountId(e.target.value)}
-                          className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2.5 text-xs text-white outline-none text-right focus:border-[#fbbf24]/40"
+                          className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2 text-xs text-white outline-none text-right focus:border-[#fbbf24]/40"
                         >
                           {tiktokAccounts.map((acc) => (
                             <option key={acc.id} value={acc.id}>
@@ -2067,156 +2113,20 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                         </select>
                       )}
                     </div>
+                  )}
 
+                  {(publishDestination === "youtube" || publishDestination === "both") && (
                     <div className="space-y-1">
-                      <label className="text-[9px] font-black text-white/40 block">وصف الفيديو والهاشتاجات</label>
-                      <textarea
-                        value={tiktokCaption}
-                        onChange={(e) => setTiktokCaption(e.target.value)}
-                        rows={3}
-                        className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2.5 text-xs text-white outline-none resize-none text-right focus:border-[#fbbf24]/40 placeholder:text-white/20"
-                        placeholder="اكتب وصفاً جذاباً للفيديو..."
-                      />
-                    </div>
-
-                    {/* ── YouTube Companion (Shorts / Reels) ── */}
-                    <div className="bg-red-950/20 border border-red-500/20 rounded-xl p-3 space-y-2.5">
-                      <div className="flex items-center justify-between">
-                        <input
-                          type="checkbox"
-                          id="yt-companion-toggle"
-                          checked={alsoPostToYouTube}
-                          onChange={(e) => setAlsoPostToYouTube(e.target.checked)}
-                          className="w-4 h-4 rounded border-white/10 accent-red-600 cursor-pointer"
-                        />
-                        <label htmlFor="yt-companion-toggle" className="text-[11px] font-black text-white cursor-pointer flex items-center gap-1.5">
-                          <span className="text-red-400">نشر أيضاً كـ ريلز / شورتس على YouTube 🎬</span>
-                          <span className="text-[8px] bg-red-600/30 text-red-300 font-bold px-1.5 py-0.5 rounded-full border border-red-500/40">Shorts</span>
-                        </label>
-                      </div>
-
-                      {alsoPostToYouTube && (
-                        <div className="space-y-2.5 pt-2.5 border-t border-red-500/10 animate-in fade-in duration-200">
-                          <div className="flex justify-between items-center">
-                            <span className="text-[9px] font-bold text-red-400/80">خوارزميات يوتيوب والبحث</span>
-                            <button
-                              type="button"
-                              onClick={() => handleRegenerateSEO(true)}
-                              className="flex items-center gap-1 px-2 py-1 bg-red-600/20 border border-red-500/30 rounded-md text-[10px] font-black text-red-300 hover:bg-red-600/30 transition cursor-pointer"
-                              title="إعادة توليد وصف وكلمات مفتاحية ذكية على حسب السورة والقارئ"
-                            >
-                              <Sparkles className="w-3 h-3 text-red-400" />
-                              <span>توليد وصف وتاجز ذكية ⚡</span>
-                            </button>
-                          </div>
-
-                          <div className="space-y-1">
-                            <div className="flex justify-between items-center text-[9px] font-bold text-white/50">
-                              <span>{ytTitle.length}/100</span>
-                              <label className="text-white/70">عنوان فيديو يوتيوب (Title) *</label>
-                            </div>
-                            <input
-                              type="text"
-                              value={ytTitle}
-                              onChange={(e) => setYtTitle(e.target.value)}
-                              maxLength={100}
-                              className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg p-2 text-xs text-white outline-none text-right focus:border-red-500/50"
-                              placeholder="عنوان ريل يوتيوب..."
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <div className="flex justify-between items-center text-[9px] font-bold text-white/50">
-                              <span>مفصولة بفواصل ({ytTags ? ytTags.split(",").length : 0} كلمة)</span>
-                              <label className="text-white/70">الكلمات الدلالية والتاجز (High-Rank Tags)</label>
-                            </div>
-                            <input
-                              type="text"
-                              value={ytTags}
-                              onChange={(e) => setYtTags(e.target.value)}
-                              className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg p-2 text-xs text-white outline-none text-right focus:border-red-500/50 placeholder:text-white/20"
-                              placeholder="الكلمات المفتاحية الخارقة الخاصة بالسورة والقارئ..."
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <div className="flex justify-between items-center text-[9px] font-bold text-white/50">
-                              <span>{ytDescription.length} حرف (وصف شامل مع فضائل السورة والدعاء)</span>
-                              <label className="text-white/70">الوصف التفصيلي (SEO Description)</label>
-                            </div>
-                            <textarea
-                              value={ytDescription}
-                              onChange={(e) => setYtDescription(e.target.value)}
-                              rows={4}
-                              className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg p-2 text-xs text-white outline-none resize-none text-right focus:border-red-500/50 leading-relaxed placeholder:text-white/20"
-                              placeholder="وصف شامل وغني للفيديو..."
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between bg-white/[0.01] border border-white/[0.03] rounded-lg p-2.5">
-                      <input
-                        type="checkbox"
-                        id="schedule-toggle"
-                        checked={isScheduled}
-                        onChange={(e) => setIsScheduled(e.target.checked)}
-                        className="w-3.5 h-3.5 rounded border-white/10 accent-primary cursor-pointer"
-                      />
-                      <label htmlFor="schedule-toggle" className="text-[11px] font-bold text-white/80 cursor-pointer flex items-center gap-1.5">
-                        جدولة النشر لاحقاً
-                        <Clock className="w-3 h-3 text-primary" />
-                      </label>
-                    </div>
-
-                    {isScheduled && (
-                      <input
-                        type="datetime-local"
-                        value={scheduledTime}
-                        onChange={(e) => setScheduledTime(e.target.value)}
-                        className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2.5 text-xs text-white outline-none focus:border-[#fbbf24]/40"
-                      />
-                    )}
-
-                    {tiktokPublishError && (
-                      <p className="text-[10px] text-red-500 font-bold bg-red-500/10 border border-red-500/20 p-2.5 rounded-lg leading-relaxed">{tiktokPublishError}</p>
-                    )}
-                    {tiktokPublishSuccess && (
-                      <p className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-lg flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        {isScheduled ? "تمت الجدولة على تيك توك! 🎉" : "تم النشر على تيك توك! 🎉"}
-                      </p>
-                    )}
-
-                    <button
-                      onClick={handlePublishToTikTok}
-                      disabled={tiktokPublishing || tiktokPublishSuccess}
-                      className="w-full py-2.5 bg-primary hover:brightness-110 text-black font-black rounded-lg transition disabled:opacity-50 text-xs flex items-center justify-center gap-1.5 shadow-lg"
-                    >
-                      {tiktokPublishing ? (
-                        <><Loader2 className="w-3.5 h-3.5 animate-spin text-black" />جاري {isScheduled ? "الجدولة..." : "النشر..."}</>
-                      ) : (
-                        <><Send className="w-3.5 h-3.5" />{isScheduled ? "جدولة على TikTok" : "نشر على TikTok"}</>
-                      )}
-                    </button>
-                  </div>
-                )}
-
-                {/* ── YouTube Tab ── */}
-                {publishTab === "youtube" && (
-                  <div className="space-y-3">
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-black text-white/40 block">قناة يوتيوب</label>
+                      <label className="text-[9px] font-black text-white/40 block">قناة YouTube</label>
                       {ytAccounts.length === 0 ? (
-                        <div className="text-[10px] text-white/40 bg-white/[0.02] border border-white/[0.04] rounded-lg p-2.5 font-bold">
-                          لا يوجد حسابات يوتيوب — اذهب لصفحة الاستوديو السري لربط قناتك
+                        <div className="text-[10px] text-white/40 bg-white/[0.02] border border-white/[0.04] rounded-lg p-2 font-bold">
+                          يقين القرآن (@yaqeenalquran1)
                         </div>
                       ) : (
                         <select
                           value={ytChannelId}
                           onChange={(e) => setYtChannelId(e.target.value)}
-                          className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2.5 text-xs text-white outline-none text-right focus:border-red-500/40"
+                          className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2 text-xs text-white outline-none text-right focus:border-red-500/40"
                         >
                           {ytAccounts.map((acc: any) => (
                             <option key={acc.id} value={acc.id}>
@@ -2226,164 +2136,176 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                         </select>
                       )}
                     </div>
+                  )}
+                </div>
 
-                    <div className="flex justify-between items-center bg-red-950/20 border border-red-500/20 p-2.5 rounded-xl">
-                      <span className="text-[10px] font-black text-white/80">خوارزميات يوتيوب والبحث (SEO)</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRegenerateSEO(true)}
-                        className="flex items-center gap-1.5 px-3 py-1 bg-red-600/30 border border-red-500/40 rounded-lg text-xs font-black text-red-200 hover:bg-red-600/40 transition cursor-pointer"
-                      >
-                        <Sparkles className="w-3.5 h-3.5 text-red-400" />
-                        <span>توليد وصف وتاجز ذكية ⚡</span>
-                      </button>
+                {/* ── Smart SEO Generator Button ── */}
+                <div className="flex justify-between items-center bg-gradient-to-r from-red-950/30 to-amber-950/20 border border-white/10 p-2.5 rounded-xl">
+                  <span className="text-[10px] font-black text-white/80">خوارزميات السيو والبحث الذكية (SEO)</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRegenerateSEO(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-red-600/40 to-amber-500/40 border border-amber-500/40 rounded-lg text-xs font-black text-white hover:brightness-125 transition cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                    <span>توليد العناوين والتاجز الذكية ⚡</span>
+                  </button>
+                </div>
+
+                {/* ── Form Fields ── */}
+                {/* 1. YouTube Title (For YouTube or Both) */}
+                {(publishDestination === "youtube" || publishDestination === "both") && (
+                  <div className="space-y-1">
+                    <div className="flex justify-between items-center text-[9px] font-bold text-white/40">
+                      <span>{ytTitle.length}/100</span>
+                      <label className="text-[9px] font-black text-white/70 block">عنوان الفيديو لليوتيوب (Title) *</label>
                     </div>
+                    <input
+                      type="text"
+                      value={ytTitle}
+                      onChange={(e) => setYtTitle(e.target.value)}
+                      maxLength={100}
+                      className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2.5 text-xs text-white outline-none text-right focus:border-red-500/40 placeholder:text-white/20"
+                      placeholder="عنوان الفيديو المخصص ليوتيوب..."
+                    />
+                  </div>
+                )}
 
-                    <div className="space-y-1">
-                      <div className="flex justify-between items-center text-[9px] font-bold text-white/40">
-                        <span>{ytTitle.length}/100</span>
-                        <label className="text-[9px] font-black text-white/60 block">عنوان الفيديو (Title) *</label>
-                      </div>
-                      <input
-                        type="text"
-                        value={ytTitle}
-                        onChange={(e) => setYtTitle(e.target.value)}
-                        maxLength={100}
-                        className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2.5 text-xs text-white outline-none text-right focus:border-red-500/40 placeholder:text-white/20"
-                        placeholder="سورة الفاتحة - آية 1 - الشيخ مشاري العفاسي 📖"
-                      />
+                {/* 2. TikTok Caption (For TikTok or Both) */}
+                {(publishDestination === "tiktok" || publishDestination === "both") && (
+                  <div className="space-y-1">
+                    <div className="flex justify-between items-center text-[9px] font-bold text-white/40">
+                      <span>{tiktokCaption.length} حرف</span>
+                      <label className="text-[9px] font-black text-white/70 block">وصف تيك توك والهاشتاجات (Caption) *</label>
                     </div>
+                    <textarea
+                      value={tiktokCaption}
+                      onChange={(e) => setTiktokCaption(e.target.value)}
+                      rows={publishDestination === "both" ? 3 : 4}
+                      className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2.5 text-xs text-white outline-none resize-none text-right focus:border-[#fbbf24]/40 placeholder:text-white/20"
+                      placeholder="وصف تيك توك مع الهاشتاجات..."
+                    />
+                  </div>
+                )}
 
-                    <div className="space-y-1">
-                      <div className="flex justify-between items-center text-[9px] font-bold text-white/40">
-                        <span>{ytDescription.length} حرف (وصف كامل ومحكم)</span>
-                        <label className="text-[9px] font-black text-white/60 block">الوصف التفصيلي (SEO Description)</label>
-                      </div>
-                      <textarea
-                        value={ytDescription}
-                        onChange={(e) => setYtDescription(e.target.value)}
-                        rows={6}
-                        className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2.5 text-xs text-white outline-none resize-none text-right focus:border-red-500/40 placeholder:text-white/20 leading-relaxed font-sans"
-                        placeholder="وصف شامل للفيديو..."
-                      />
-                    </div>
-
+                {/* 3. YouTube Description & Tags (For YouTube or Both) */}
+                {(publishDestination === "youtube" || publishDestination === "both") && (
+                  <>
                     <div className="space-y-1">
                       <div className="flex justify-between items-center text-[9px] font-bold text-white/40">
                         <span>مفصولة بفاصلة ({ytTags ? ytTags.split(",").length : 0} كلمة مفتاحية)</span>
-                        <label className="text-[9px] font-black text-white/60 block">Tags (الكلمات المفتاحية الخارقة)</label>
+                        <label className="text-[9px] font-black text-white/70 block">Tags (الكلمات الدلالية الخارقة ليوتيوب)</label>
                       </div>
                       <input
                         type="text"
                         value={ytTags}
                         onChange={(e) => setYtTags(e.target.value)}
                         className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2.5 text-xs text-white outline-none text-right focus:border-red-500/40 placeholder:text-white/20"
-                        placeholder="قرآن, تلاوة, Quran..."
+                        placeholder="قرآن, تلاوة خاشعة, Quran..."
                       />
                     </div>
 
-                    <div className="flex items-center justify-between bg-white/[0.01] border border-white/[0.03] rounded-lg p-2.5">
-                      <input
-                        type="checkbox"
-                        id="yt-schedule"
-                        checked={ytScheduled}
-                        onChange={(e) => setYtScheduled(e.target.checked)}
-                        className="w-3.5 h-3.5 rounded border-white/10 accent-red-500 cursor-pointer"
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center text-[9px] font-bold text-white/40">
+                        <span>{ytDescription.length} حرف (وصف شامل مع الفضائل والدعاء)</span>
+                        <label className="text-[9px] font-black text-white/70 block">الوصف التفصيلي لليوتيوب (SEO Description)</label>
+                      </div>
+                      <textarea
+                        value={ytDescription}
+                        onChange={(e) => setYtDescription(e.target.value)}
+                        rows={publishDestination === "both" ? 4 : 5}
+                        className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2.5 text-xs text-white outline-none resize-none text-right focus:border-red-500/40 placeholder:text-white/20 leading-relaxed font-sans"
+                        placeholder="الوصف الشامل مع فضائل السورة والدعاء وروابط الحسابات..."
                       />
-                      <label htmlFor="yt-schedule" className="text-[11px] font-bold text-white/80 cursor-pointer flex items-center gap-1.5">
-                        جدولة على يوتيوب لاحقاً
-                        <Clock className="w-3 h-3 text-red-500" />
-                      </label>
                     </div>
-
-                    {ytScheduled && (
-                      <input
-                        type="datetime-local"
-                        value={ytScheduledTime}
-                        onChange={(e) => setYtScheduledTime(e.target.value)}
-                        className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2.5 text-xs text-white outline-none focus:border-red-500/40"
-                      />
-                    )}
-
-                    {ytPublishError && (
-                      <p className="text-[10px] text-red-500 font-bold bg-red-500/10 border border-red-500/20 p-2.5 rounded-lg">{ytPublishError}</p>
-                    )}
-                    {ytPublishSuccess && (
-                      <p className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-lg flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        {ytScheduled ? "تمت الجدولة على يوتيوب! 🎉" : "تم رفع الفيديو على يوتيوب! 🎉"}
-                      </p>
-                    )}
-
-                    <button
-                      onClick={async () => {
-                        if (!downloadUrl) { alert("لا يوجد فيديو لنشره"); return; }
-                        if (!ytTitle.trim()) { alert("يرجى كتابة عنوان الفيديو"); return; }
-                        if (ytScheduled && !ytScheduledTime) { alert("يرجى تحديد وقت الجدولة"); return; }
-                        setYtPublishing(true); setYtPublishError(""); setYtPublishSuccess(false);
-                        try {
-                          const adminToken = (await auth?.currentUser?.getIdToken().catch(() => null)) || undefined;
-                          const surahEntry = surahsData.find(s => s.id.toString() === state.surahId?.toString());
-                          const sName = surahData?.name || surahEntry?.name || "القرآن الكريم";
-                          const sNumber = surahData?.id || surahEntry?.id || parseInt(state.surahId) || 1;
-                          const reciter = RECITERS.find(r => r.id === state.reciterId);
-                          const rName = reciter?.name || "";
-
-                          const seo = generateIslamicSEO({
-                            surahName: sName,
-                            surahNumber: sNumber,
-                            reciterName: rName,
-                            reciterId: state.reciterId,
-                            startAyah: state.startAyah,
-                            endAyah: state.endAyah,
-                          });
-
-                          const finalTitle = (ytTitle.trim() || seo.title).substring(0, 100);
-                          const finalDesc = ytDescription.trim() || seo.description;
-                          const finalTags = ytTags.trim() 
-                            ? ytTags.split(",").map((t: string) => t.trim()).filter(Boolean)
-                            : seo.tags;
-                          const finalFirstComment = seo.firstComment;
-
-                          const res = await fetch("/api/youtube/publish", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                              channelId: ytChannelId || ytAccounts[0]?.id || "6a9cfafb77555aae01e37454",
-                              videoUrl: downloadUrl,
-                              title: finalTitle,
-                              description: finalDesc,
-                              tags: finalTags,
-                              firstComment: finalFirstComment,
-                              scheduledFor: ytScheduled ? ytScheduledTime : null,
-                              adminToken,
-                              surahName: sName,
-                              surahNumber: sNumber,
-                              reciterName: rName,
-                              startAyah: state.startAyah,
-                              endAyah: state.endAyah,
-                            }),
-                          });
-                          const resData = await res.json();
-                          if (!res.ok) throw new Error(resData.error || "فشل نشر الفيديو على يوتيوب");
-                          setYtPublishSuccess(true);
-                        } catch (e: any) {
-                          setYtPublishError(e.message || "حدث خطأ غير متوقع");
-                        } finally {
-                          setYtPublishing(false);
-                        }
-                      }}
-                      disabled={ytPublishing || ytPublishSuccess || ytAccounts.length === 0}
-                      className="w-full py-2.5 bg-red-600 hover:brightness-110 text-white font-black rounded-lg transition disabled:opacity-50 text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-red-600/20"
-                    >
-                      {ytPublishing ? (
-                        <><Loader2 className="w-3.5 h-3.5 animate-spin" />{ytScheduled ? "جاري الجدولة..." : "جاري الرفع على يوتيوب..."}</>
-                      ) : (
-                        <><Send className="w-3.5 h-3.5" />{ytScheduled ? "جدولة على YouTube" : "نشر على YouTube 🎬"}</>
-                      )}
-                    </button>
-                  </div>
+                  </>
                 )}
+
+                {/* ── Scheduling Section ── */}
+                <div className="flex items-center justify-between bg-white/[0.01] border border-white/[0.03] rounded-lg p-2.5">
+                  <input
+                    type="checkbox"
+                    id="unified-schedule-toggle"
+                    checked={isScheduled}
+                    onChange={(e) => setIsScheduled(e.target.checked)}
+                    className="w-3.5 h-3.5 rounded border-white/10 accent-primary cursor-pointer"
+                  />
+                  <label htmlFor="unified-schedule-toggle" className="text-[11px] font-bold text-white/80 cursor-pointer flex items-center gap-1.5">
+                    جدولة النشر لوقت لاحق ⏰
+                    <Clock className="w-3.5 h-3.5 text-primary" />
+                  </label>
+                </div>
+
+                {isScheduled && (
+                  <input
+                    type="datetime-local"
+                    value={scheduledTime}
+                    onChange={(e) => setScheduledTime(e.target.value)}
+                    className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2.5 text-xs text-white outline-none focus:border-primary"
+                  />
+                )}
+
+                {/* ── Status Messages ── */}
+                {publishError && (
+                  <p className="text-[10px] text-red-500 font-bold bg-red-500/10 border border-red-500/20 p-2.5 rounded-lg leading-relaxed">
+                    {publishError}
+                  </p>
+                )}
+                {publishSuccess && (
+                  <p className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-lg flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>
+                      {isScheduled
+                        ? publishDestination === "youtube"
+                          ? "تمت جدولة الفيديو على YouTube بنجاح! 🎉"
+                          : publishDestination === "tiktok"
+                          ? "تمت جدولة الفيديو على TikTok بنجاح! 🎉"
+                          : "تمت جدولة الفيديو على المنصتين معاً (YouTube + TikTok) بنجاح! 🎉"
+                        : publishDestination === "youtube"
+                        ? "تم نشر الفيديو على YouTube بنجاح! 🎉"
+                        : publishDestination === "tiktok"
+                        ? "تم نشر الفيديو على TikTok بنجاح! 🎉"
+                        : "تم نشر الفيديو على المنصتين معاً بنجاح! 🎉"}
+                    </span>
+                  </p>
+                )}
+
+                {/* ── Action Button ── */}
+                <button
+                  onClick={handleUnifiedPublish}
+                  disabled={isPublishing || publishSuccess}
+                  className={`w-full py-3 font-black rounded-xl transition disabled:opacity-50 text-xs flex items-center justify-center gap-2 shadow-xl ${
+                    publishDestination === "youtube"
+                      ? "bg-red-600 hover:bg-red-500 text-white shadow-red-600/20"
+                      : publishDestination === "tiktok"
+                      ? "bg-[#fbbf24] hover:bg-amber-400 text-black shadow-amber-500/20"
+                      : "bg-gradient-to-r from-red-600 via-amber-500 to-amber-400 hover:brightness-110 text-white shadow-amber-500/20"
+                  }`}
+                >
+                  {isPublishing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>{isScheduled ? "جاري الجدولة..." : "جاري النشر..."}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      <span>
+                        {isScheduled
+                          ? publishDestination === "youtube"
+                            ? "جدولة على YouTube فقط 🎬"
+                            : publishDestination === "tiktok"
+                            ? "جدولة على TikTok فقط 🎵"
+                            : "جدولة على المنصتين معاً (TikTok + YouTube) 🚀"
+                          : publishDestination === "youtube"
+                          ? "نشر الآن على YouTube 🎬"
+                          : publishDestination === "tiktok"
+                          ? "نشر الآن على TikTok 🎵"
+                          : "نشر الآن على المنصتين معاً 🚀"}
+                      </span>
+                    </>
+                  )}
+                </button>
               </div>
             )}
             

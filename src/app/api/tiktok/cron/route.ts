@@ -187,7 +187,7 @@ export async function GET(request: Request) {
                 platforms: [
                   {
                     platform: "tiktok",
-                    accountId: "6a4e3200bfae1bc97855b77e",
+                    accountId: "6a4c75f09d9472faaea0b774",
                     platformSpecificData: {
                       privacy_level: "PUBLIC_TO_EVERYONE",
                       allow_comment: true,

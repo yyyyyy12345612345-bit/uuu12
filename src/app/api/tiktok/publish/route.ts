@@ -76,7 +76,7 @@ async function getValidAccessToken(accountId: string, db: admin.firestore.Firest
   return access_token;
 }
 
-const ZERNIO_TIKTOK_ACCOUNT_ID = "6a4e3200bfae1bc97855b77e";
+const ZERNIO_TIKTOK_ACCOUNT_ID = "6a4c75f09d9472faaea0b774";
 const ZERNIO_YOUTUBE_ACCOUNT_ID = "6a9cfafb77555aae01e37454";
 const ZERNIO_API_KEY = process.env.ZERNIO_API_KEY || "sk_e79e01e86d0f0499e55b0e768b9287c194d4b5c4843ee49040220efc21186a42";
 
@@ -262,9 +262,9 @@ export async function POST(request: Request) {
       }
 
       // If posting via Make.com or direct to Zernio API, schedule immediately on Zernio so it appears in Zernio Scheduled dashboard
-      if (ZERNIO_API_KEY && (accountId === "make_com" || shouldPostToYouTube)) {
+      if (ZERNIO_API_KEY) {
         try {
-          console.log(`[TikTok Publish] Scheduling multi-platform post on Zernio API (TikTok: ${ZERNIO_TIKTOK_ACCOUNT_ID}, YouTube: ${finalYtAccountId})`);
+          console.log(`[TikTok Publish] Scheduling post on Zernio API (TikTok: ${ZERNIO_TIKTOK_ACCOUNT_ID}${shouldPostToYouTube ? `, YouTube: ${finalYtAccountId}` : ""})`);
           
           const zernioPlatforms: any[] = [
             {
@@ -306,12 +306,14 @@ export async function POST(request: Request) {
           }
 
           const zernioPayload: any = {
+            title: finalTitle,
             content: caption,
             tags: finalTags,
             mediaItems: [{ type: "video", url: videoUrl }],
             platforms: zernioPlatforms,
             scheduledFor: scheduledTime.toISOString(),
             publishNow: false,
+            isDraft: false,
           };
 
           const zernioRes = await fetch("https://zernio.com/api/v1/posts", {
