@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminApp } from "@/lib/firebaseAdmin";
 import admin from "firebase-admin";
+import { generateIslamicSEO } from "@/lib/seoGenerator";
 
 async function getValidAccessToken(accountId: string, db: admin.firestore.Firestore): Promise<string> {
   const accountRef = db.collection("tiktok_accounts").doc(accountId);
@@ -75,10 +76,73 @@ async function getValidAccessToken(accountId: string, db: admin.firestore.Firest
   return access_token;
 }
 
+const ZERNIO_YOUTUBE_ACCOUNT_ID = "6a9cfafb77555aae01e37454";
+const ZERNIO_API_KEY = process.env.ZERNIO_API_KEY || "sk_e79e01e86d0f0499e55b0e768b9287c194d4b5c4843ee49040220efc21186a42";
+
+function extractSmartTitle(caption: string, fallbackTitle?: string): string {
+  if (fallbackTitle && fallbackTitle.trim()) {
+    return fallbackTitle.trim().substring(0, 100);
+  }
+  const firstLine = caption.split("\n")[0] || "";
+  const cleaned = firstLine
+    .replace(/#[^\s]+/g, "")
+    .replace(/https?:\/\/[^\s]+/g, "")
+    .trim();
+  return (cleaned || "تلاوة قرآنية مباركة 📖✨").substring(0, 100);
+}
+
+function extractSmartTags(caption: string, customTags?: any): string[] {
+  let tags: string[] = [];
+  if (Array.isArray(customTags) && customTags.length > 0) {
+    tags = customTags.map((t: string) => String(t).trim()).filter(Boolean);
+  } else if (typeof customTags === "string" && customTags.trim()) {
+    tags = customTags.split(",").map((t: string) => t.trim()).filter(Boolean);
+  }
+
+  // Extract hashtags from caption as well
+  const hashtags = (caption.match(/#([^\s#]+)/g) || []).map((h) =>
+    h.replace(/^#+/, "").replace(/_/g, " ").trim()
+  );
+
+  const baseTags = [
+    "قرآن",
+    "قران",
+    "قران كريم",
+    "تلاوة قرآنية",
+    "يقين القرآن",
+    "yaqeenalquran",
+    "Quran",
+    "Islam",
+  ];
+
+  const combined = Array.from(new Set([...tags, ...hashtags, ...baseTags])).filter(Boolean);
+  return combined.slice(0, 25);
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { accountId, videoUrl, caption, scheduledFor, adminToken, retryLogId } = body;
+    const {
+      accountId,
+      videoUrl,
+      caption,
+      scheduledFor,
+      adminToken,
+      retryLogId,
+      // YouTube & rich metadata fields:
+      title,
+      tags,
+      tagsString,
+      description,
+      firstComment,
+      publishToYouTube,
+      youtubeAccountId,
+      surahName,
+      surahNumber,
+      reciterName,
+      startAyah,
+      endAyah,
+    } = body;
 
     if (!accountId || !videoUrl || !caption) {
       return NextResponse.json({ error: "Missing required fields: accountId, videoUrl, caption" }, { status: 400 });
@@ -110,6 +174,36 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: `Unauthorized session: ${e.message}` }, { status: 401 });
       }
     }
+
+    // ── Build Full, Rich Metadata for YouTube & Zernio via SEO Engine ──
+    let surahCandidate = surahName || "";
+    if (!surahCandidate) {
+      const surahMatch = caption.match(/سورة\s+([^\s\-\–\|\(\)]+)/);
+      if (surahMatch) surahCandidate = surahMatch[1];
+    }
+    
+    let reciterCandidate = reciterName || "";
+    if (!reciterCandidate) {
+      const reciterMatch = caption.match(/(?:الشيخ|بصوت|القارئ)\s+([^\s\-\–\|\(\)\n]+(?:\s+[^\s\-\–\|\(\)\n]+)?)/);
+      if (reciterMatch) reciterCandidate = reciterMatch[1];
+    }
+
+    const fallbackSEO = generateIslamicSEO({
+      surahName: surahCandidate,
+      surahNumber,
+      reciterName: reciterCandidate,
+      startAyah,
+      endAyah,
+    });
+
+    const finalTitle = extractSmartTitle(caption, title || fallbackSEO.title);
+    const finalTags = extractSmartTags(caption, tags || tagsString || fallbackSEO.tags);
+    const finalTagsString = finalTags.join(", ");
+    const finalDesc = (description && description.trim().length > 100) ? description.trim() : fallbackSEO.description;
+    const finalFirstComment = (firstComment && firstComment.trim()) || fallbackSEO.firstComment;
+    const finalYtAccountId = youtubeAccountId || ZERNIO_YOUTUBE_ACCOUNT_ID;
+    const shouldPostToYouTube = publishToYouTube !== false;
+
     // 1. If it's a scheduled post, save to Firestore queue
     if (scheduledFor) {
       const scheduledTime = new Date(scheduledFor);
@@ -122,6 +216,13 @@ export async function POST(request: Request) {
         logRef = adminDb.collection("tiktok_logs").doc(retryLogId);
         await logRef.update({
           status: "pending",
+          title: finalTitle,
+          tags: finalTags,
+          tagsString: finalTagsString,
+          description: finalDesc,
+          firstComment: finalFirstComment,
+          publishToYouTube: shouldPostToYouTube,
+          youtubeAccountId: finalYtAccountId,
           scheduledFor: admin.firestore.Timestamp.fromDate(scheduledTime),
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           error: admin.firestore.FieldValue.delete(),
@@ -131,6 +232,13 @@ export async function POST(request: Request) {
           videoUrl,
           accountId,
           caption,
+          title: finalTitle,
+          tags: finalTags,
+          tagsString: finalTagsString,
+          description: finalDesc,
+          firstComment: finalFirstComment,
+          publishToYouTube: shouldPostToYouTube,
+          youtubeAccountId: finalYtAccountId,
           status: "pending",
           progress: 0,
           uploadSpeed: "0 MB/s",
@@ -138,6 +246,96 @@ export async function POST(request: Request) {
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
           publishedAt: null,
         });
+      }
+
+      // If posting via Make.com or direct to Zernio API, schedule immediately on Zernio so it appears in Zernio Scheduled dashboard
+      if (ZERNIO_API_KEY && (accountId === "make_com" || shouldPostToYouTube)) {
+        try {
+          console.log(`[TikTok Publish] Scheduling post directly on Zernio API for YouTube: ${finalYtAccountId}`);
+          const zernioPayload: any = {
+            content: caption,
+            mediaItems: [{ type: "video", url: videoUrl }],
+            platforms: [
+              {
+                platform: "youtube",
+                accountId: finalYtAccountId,
+                platformSpecificData: {
+                  title: finalTitle,
+                  description: finalDesc,
+                  tags: finalTags,
+                  firstComment: finalFirstComment,
+                  visibility: "public",
+                  categoryId: "22",
+                  madeForKids: false,
+                },
+              },
+            ],
+            scheduledFor: scheduledTime.toISOString(),
+            publishNow: false,
+          };
+
+          const zernioRes = await fetch("https://zernio.com/api/v1/posts", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${ZERNIO_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(zernioPayload),
+          });
+          const zernioData = await zernioRes.json().catch(() => null);
+          console.log("[TikTok Publish] Direct Zernio schedule response:", zernioData);
+        } catch (zErr: any) {
+          console.warn("[TikTok Publish] Direct Zernio schedule warning:", zErr.message);
+        }
+      }
+
+      // Also forward scheduled info to Make.com Webhook if configured
+      if (accountId === "make_com") {
+        const makeWebhookUrl = process.env.MAKE_WEBHOOK_URL || "https://hook.eu1.make.com/tl01y7q4wfa8k1rzg1lvggvb93yolmf4";
+        if (makeWebhookUrl) {
+          fetch(makeWebhookUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              videoUrl,
+              url: videoUrl,
+              mediaUrl: videoUrl,
+              caption,
+              content: caption,
+              title: finalTitle,
+              videoTitle: finalTitle,
+              tags: finalTags,
+              tagsString: finalTagsString,
+              description: finalDesc,
+              firstComment: finalFirstComment,
+              accountId,
+              jobId: logRef.id,
+              scheduledFor: scheduledTime.toISOString(),
+              publishNow: false,
+              publishToYouTube: shouldPostToYouTube,
+              youtube: {
+                accountId: finalYtAccountId,
+                title: finalTitle,
+                tags: finalTags,
+                tagsString: finalTagsString,
+                description: finalDesc,
+                firstComment: finalFirstComment,
+                visibility: "public",
+                categoryId: "22",
+                madeForKids: false,
+              },
+              platformSpecificData: {
+                title: finalTitle,
+                description: finalDesc,
+                tags: finalTags,
+                firstComment: finalFirstComment,
+                visibility: "public",
+                categoryId: "22",
+                madeForKids: false,
+              },
+            }),
+          }).catch((err) => console.warn("[Make.com forward warning]:", err.message));
+        }
       }
 
       return NextResponse.json({ success: true, message: "Video scheduled successfully", jobId: logRef.id });
@@ -149,6 +347,13 @@ export async function POST(request: Request) {
       logRef = adminDb.collection("tiktok_logs").doc(retryLogId);
       await logRef.update({
         status: "uploading",
+        title: finalTitle,
+        tags: finalTags,
+        tagsString: finalTagsString,
+        description: finalDesc,
+        firstComment: finalFirstComment,
+        publishToYouTube: shouldPostToYouTube,
+        youtubeAccountId: finalYtAccountId,
         progress: 0,
         uploadSpeed: "0 MB/s",
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -159,6 +364,13 @@ export async function POST(request: Request) {
         videoUrl,
         accountId,
         caption,
+        title: finalTitle,
+        tags: finalTags,
+        tagsString: finalTagsString,
+        description: finalDesc,
+        firstComment: finalFirstComment,
+        publishToYouTube: shouldPostToYouTube,
+        youtubeAccountId: finalYtAccountId,
         status: "uploading",
         progress: 0,
         uploadSpeed: "0 MB/s",
@@ -187,6 +399,7 @@ export async function POST(request: Request) {
         uploadSpeed: "Make.com Flow",
       });
 
+      // Complete, multi-platform payload with full YouTube title, tags, description and comment
       const makeRes = await fetch(makeWebhookUrl, {
         method: "POST",
         headers: {
@@ -194,9 +407,62 @@ export async function POST(request: Request) {
         },
         body: JSON.stringify({
           videoUrl,
+          url: videoUrl,
+          mediaUrl: videoUrl,
           caption,
+          content: caption,
+          text: caption,
+          title: finalTitle,
+          videoTitle: finalTitle,
+          tags: finalTags,
+          tagsString: finalTagsString,
+          description: finalDesc,
+          firstComment: finalFirstComment,
           accountId,
           jobId: logRef.id,
+          scheduledFor: null,
+          publishNow: true,
+          publishToYouTube: shouldPostToYouTube,
+          youtube: {
+            accountId: finalYtAccountId,
+            title: finalTitle,
+            tags: finalTags,
+            tagsString: finalTagsString,
+            description: finalDesc,
+            firstComment: finalFirstComment,
+            visibility: "public",
+            categoryId: "22",
+            madeForKids: false,
+          },
+          platformSpecificData: {
+            title: finalTitle,
+            description: finalDesc,
+            tags: finalTags,
+            firstComment: finalFirstComment,
+            visibility: "public",
+            categoryId: "22",
+            madeForKids: false,
+          },
+          zernioPayload: {
+            content: caption,
+            mediaItems: [{ type: "video", url: videoUrl }],
+            platforms: [
+              {
+                platform: "youtube",
+                accountId: finalYtAccountId,
+                platformSpecificData: {
+                  title: finalTitle,
+                  description: finalDesc,
+                  tags: finalTags,
+                  firstComment: finalFirstComment,
+                  visibility: "public",
+                  categoryId: "22",
+                  madeForKids: false,
+                },
+              },
+            ],
+            publishNow: true,
+          },
         }),
       });
 
@@ -204,6 +470,42 @@ export async function POST(request: Request) {
         const errText = await makeRes.text();
         await logRef.update({ status: "failed", error: `Make.com Webhook failed: ${errText}` });
         return NextResponse.json({ error: `Make.com Webhook failed: ${errText}` }, { status: makeRes.status });
+      }
+
+      // Also directly post to Zernio API for YouTube if configured
+      if (ZERNIO_API_KEY && shouldPostToYouTube) {
+        try {
+          console.log(`[TikTok Publish] Creating immediate YouTube post on Zernio API`);
+          await fetch("https://zernio.com/api/v1/posts", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${ZERNIO_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              content: caption,
+              mediaItems: [{ type: "video", url: videoUrl }],
+              platforms: [
+                {
+                  platform: "youtube",
+                  accountId: finalYtAccountId,
+                  platformSpecificData: {
+                    title: finalTitle,
+                    description: finalDesc,
+                    tags: finalTags,
+                    firstComment: finalFirstComment,
+                    visibility: "public",
+                    categoryId: "22",
+                    madeForKids: false,
+                  },
+                },
+              ],
+              publishNow: true,
+            }),
+          }).catch((err) => console.warn("[Zernio direct post warning]:", err.message));
+        } catch (zErr: any) {
+          console.warn("[Zernio direct post error]:", zErr.message);
+        }
       }
 
       await logRef.update({

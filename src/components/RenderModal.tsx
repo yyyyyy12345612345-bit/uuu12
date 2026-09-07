@@ -10,6 +10,8 @@ import { useCustomBackgrounds } from "@/hooks/useCustomBackgrounds";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp, getDocs, collection, addDoc } from "firebase/firestore";
 import { incrementVideoRenderCount } from "@/lib/points";
+import { generateIslamicSEO } from "@/lib/seoGenerator";
+import surahsData from "@/data/surahs.json";
 
 
 export function RenderModal({ isOpen, onClose, onOpenSubscription }: { 
@@ -51,6 +53,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
   const [tiktokPublishing, setTiktokPublishing] = useState(false);
   const [tiktokPublishSuccess, setTiktokPublishSuccess] = useState(false);
   const [tiktokPublishError, setTiktokPublishError] = useState("");
+  const [alsoPostToYouTube, setAlsoPostToYouTube] = useState(true);
 
   // YouTube Publishing States
   const [publishTab, setPublishTab] = useState<"tiktok" | "youtube">("tiktok");
@@ -103,43 +106,39 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     }
   }, [isOpen]);
 
-  useEffect(() => {
-    if (surahData) {
-      const reciter = RECITERS.find(r => r.id === state.reciterId);
-      const sName = surahData.name || "";
-      const rName = reciter?.name || "";
-      const startAyah = state.startAyah || 1;
-      const endAyah = state.endAyah || 1;
-      const ayahText = startAyah === endAyah ? `آية ${startAyah}` : `الآيات من ${startAyah} إلى ${endAyah}`;
-      
-      const sTag = sName.replace(/\s+/g, "_");
-      const rTag = rName.split(" (")[0]?.trim().replace(/\s+/g, "_") || "";
-      
-      // TikTok caption (short + hashtags)
-      const defaultCaption = `سورة ${sName} - ${ayahText} - الشيخ ${rName} 📖✨\nيقين القرآن | الرابط في البايو 🔗\n\n#يقين_القران #يقين__القران #yaqeenalquran #قرآن #قران #سورة_${sTag} #الشيخ_${rTag}`;
-      if (!tiktokCaption) setTiktokCaption(defaultCaption);
+  const lastVideoIdentityRef = useRef<string>("");
 
-      // YouTube caption (strong + long description)
-      if (!ytTitle) setYtTitle(`سورة ${sName} - ${ayahText} - الشيخ ${rName} 📖`);
-      if (!ytDescription) {
-        setYtDescription(
-          `📖 سورة ${sName} | ${ayahText}\n` +
-          `🎙 تلاوة بصوت الشيخ ${rName}\n\n` +
-          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
-          `🌟 اشترك في القناة وفعّل الجرس 🔔 للمزيد من التلاوات القرآنية\n\n` +
-          `📱 صنع الفيديو مجاناً على موقع يقين القرآن:\n` +
-          `🔗 https://yaqeenalquran.online\n\n` +
-          `⭐ يمكنك تصميم فيديوهاتك القرآنية بنفسك في أقل من 3 دقائق!\n\n` +
-          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
-          `#قرآن #قران_كريم #تلاوة_قرآنية #سورة_${sTag} #${rTag} ` +
-          `#Quran #QuranRecitation #Islam #islamicvideo #يقين_القران`
-        );
-      }
-      if (!ytTags) {
-        setYtTags(`قرآن, قران كريم, تلاوة قرآنية, سورة ${sName}, ${rName}, Quran, QuranRecitation, Islam, يقين القران, yaqeenalquran`);
+  const handleRegenerateSEO = (force = true) => {
+    const surahEntry = surahsData.find(s => s.id.toString() === state.surahId?.toString());
+    const surahName = surahData?.name || surahEntry?.name || "القرآن الكريم";
+    const surahNumber = surahData?.id || surahEntry?.id || parseInt(state.surahId) || 1;
+    const reciter = RECITERS.find(r => r.id === state.reciterId);
+
+    const seo = generateIslamicSEO({
+      surahName: surahName,
+      surahNumber: surahNumber,
+      reciterName: reciter?.name,
+      reciterId: state.reciterId,
+      startAyah: state.startAyah,
+      endAyah: state.endAyah,
+    });
+
+    if (force || !tiktokCaption) setTiktokCaption(seo.tiktokCaption);
+    if (force || !ytTitle) setYtTitle(seo.title);
+    if (force || !ytDescription) setYtDescription(seo.description);
+    if (force || !ytTags) setYtTags(seo.tagsString);
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      const currentIdentity = `${state.surahId}_${state.reciterId}_${state.startAyah || 1}_${state.endAyah || 1}`;
+      if (lastVideoIdentityRef.current !== currentIdentity) {
+        lastVideoIdentityRef.current = currentIdentity;
+        // Video changed to a different Surah / Reciter / Ayah: force update all SEO fields!
+        handleRegenerateSEO(true);
       }
     }
-  }, [surahData, state.reciterId, state.startAyah, state.endAyah]);
+  }, [isOpen, state.surahId, state.reciterId, state.startAyah, state.endAyah, surahData]);
 
   const handlePublishToTikTok = async () => {
     if (!selectedAccountId) {
@@ -165,6 +164,27 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         throw new Error("فشل التحقق من جلسة المسؤول.");
       }
 
+      const surahEntry = surahsData.find(s => s.id.toString() === state.surahId?.toString());
+      const sName = surahData?.name || surahEntry?.name || "القرآن الكريم";
+      const sNumber = surahData?.id || surahEntry?.id || parseInt(state.surahId) || 1;
+      const reciter = RECITERS.find(r => r.id === state.reciterId);
+      const rName = reciter?.name || "";
+      const ayahText = state.startAyah === state.endAyah ? `آية ${state.startAyah}` : `الآيات من ${state.startAyah} إلى ${state.endAyah}`;
+      const defaultTitle = `سورة ${sName} - ${ayahText} - الشيخ ${rName} 📖✨`.trim();
+      const defaultTags = ["قرآن", "قران كريم", "تلاوة قرآنية", `سورة ${sName}`, rName, "يقين القرآن", "Quran", "Islam"].filter(Boolean);
+
+      const finalYtTitle = (ytTitle.trim() || defaultTitle).substring(0, 100);
+      const finalYtTags = ytTags.trim() 
+        ? ytTags.split(",").map((t: string) => t.trim()).filter(Boolean)
+        : defaultTags;
+      const finalYtTagsString = ytTags.trim() || defaultTags.join(", ");
+      const finalYtDesc = ytDescription.trim() || tiktokCaption;
+      const finalFirstComment = 
+        `سبحان الله وبحمده، سبحان الله العظيم 🌸\n` +
+        `لا تنسوا الإعجاب بالفيديو والاشتراك في القناة وتفعيل زر الجرس 🔔 لتصلكم التلاوات اليومية المباركة.\n` +
+        `🔗 صمم فيديوهاتك القرآنية بنفسك مجاناً عبر موقع يقين القرآن:\n` +
+        `https://yaqeenalquran.online`;
+
       const res = await fetch("/api/tiktok/publish", {
         method: "POST",
         headers: {
@@ -176,12 +196,48 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           caption: tiktokCaption,
           scheduledFor: isScheduled ? scheduledTime : null,
           adminToken,
+          // YouTube & Rich metadata
+          publishToYouTube: alsoPostToYouTube,
+          youtubeAccountId: ytChannelId || ytAccounts[0]?.id || "6a9cfafb77555aae01e37454",
+          title: finalYtTitle,
+          tags: finalYtTags,
+          tagsString: finalYtTagsString,
+          description: finalYtDesc,
+          firstComment: finalFirstComment,
+          // Video identity
+          surahName: sName,
+          surahNumber: sNumber,
+          reciterName: rName,
+          startAyah: state.startAyah,
+          endAyah: state.endAyah,
         }),
       });
 
       const resData = await res.json();
       if (!res.ok) {
         throw new Error(resData.error || "فشل نشر الفيديو على تيك توك");
+      }
+
+      // If native TikTok account and alsoPostToYouTube is true, also trigger YouTube publish directly
+      if (selectedAccountId !== "make_com" && alsoPostToYouTube) {
+        try {
+          await fetch("/api/youtube/publish", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              channelId: ytChannelId || ytAccounts[0]?.id || "6a9cfafb77555aae01e37454",
+              videoUrl: downloadUrl,
+              title: finalYtTitle,
+              description: finalYtDesc,
+              tags: finalYtTags,
+              firstComment: finalFirstComment,
+              scheduledFor: isScheduled ? scheduledTime : null,
+              adminToken,
+            }),
+          });
+        } catch (ytErr) {
+          console.warn("YouTube parallel publish warning:", ytErr);
+        }
       }
 
       // Automatically add to Showcase collection on successful publish
@@ -2023,6 +2079,83 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                       />
                     </div>
 
+                    {/* ── YouTube Companion (Shorts / Reels) ── */}
+                    <div className="bg-red-950/20 border border-red-500/20 rounded-xl p-3 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <input
+                          type="checkbox"
+                          id="yt-companion-toggle"
+                          checked={alsoPostToYouTube}
+                          onChange={(e) => setAlsoPostToYouTube(e.target.checked)}
+                          className="w-4 h-4 rounded border-white/10 accent-red-600 cursor-pointer"
+                        />
+                        <label htmlFor="yt-companion-toggle" className="text-[11px] font-black text-white cursor-pointer flex items-center gap-1.5">
+                          <span className="text-red-400">نشر أيضاً كـ ريلز / شورتس على YouTube 🎬</span>
+                          <span className="text-[8px] bg-red-600/30 text-red-300 font-bold px-1.5 py-0.5 rounded-full border border-red-500/40">Shorts</span>
+                        </label>
+                      </div>
+
+                      {alsoPostToYouTube && (
+                        <div className="space-y-2.5 pt-2.5 border-t border-red-500/10 animate-in fade-in duration-200">
+                          <div className="flex justify-between items-center">
+                            <span className="text-[9px] font-bold text-red-400/80">خوارزميات يوتيوب والبحث</span>
+                            <button
+                              type="button"
+                              onClick={() => handleRegenerateSEO(true)}
+                              className="flex items-center gap-1 px-2 py-1 bg-red-600/20 border border-red-500/30 rounded-md text-[10px] font-black text-red-300 hover:bg-red-600/30 transition cursor-pointer"
+                              title="إعادة توليد وصف وكلمات مفتاحية ذكية على حسب السورة والقارئ"
+                            >
+                              <Sparkles className="w-3 h-3 text-red-400" />
+                              <span>توليد وصف وتاجز ذكية ⚡</span>
+                            </button>
+                          </div>
+
+                          <div className="space-y-1">
+                            <div className="flex justify-between items-center text-[9px] font-bold text-white/50">
+                              <span>{ytTitle.length}/100</span>
+                              <label className="text-white/70">عنوان فيديو يوتيوب (Title) *</label>
+                            </div>
+                            <input
+                              type="text"
+                              value={ytTitle}
+                              onChange={(e) => setYtTitle(e.target.value)}
+                              maxLength={100}
+                              className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg p-2 text-xs text-white outline-none text-right focus:border-red-500/50"
+                              placeholder="عنوان ريل يوتيوب..."
+                            />
+                          </div>
+
+                          <div className="space-y-1">
+                            <div className="flex justify-between items-center text-[9px] font-bold text-white/50">
+                              <span>مفصولة بفواصل ({ytTags ? ytTags.split(",").length : 0} كلمة)</span>
+                              <label className="text-white/70">الكلمات الدلالية والتاجز (High-Rank Tags)</label>
+                            </div>
+                            <input
+                              type="text"
+                              value={ytTags}
+                              onChange={(e) => setYtTags(e.target.value)}
+                              className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg p-2 text-xs text-white outline-none text-right focus:border-red-500/50 placeholder:text-white/20"
+                              placeholder="الكلمات المفتاحية الخارقة الخاصة بالسورة والقارئ..."
+                            />
+                          </div>
+
+                          <div className="space-y-1">
+                            <div className="flex justify-between items-center text-[9px] font-bold text-white/50">
+                              <span>{ytDescription.length} حرف (وصف شامل مع فضائل السورة والدعاء)</span>
+                              <label className="text-white/70">الوصف التفصيلي (SEO Description)</label>
+                            </div>
+                            <textarea
+                              value={ytDescription}
+                              onChange={(e) => setYtDescription(e.target.value)}
+                              rows={4}
+                              className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg p-2 text-xs text-white outline-none resize-none text-right focus:border-red-500/50 leading-relaxed placeholder:text-white/20"
+                              placeholder="وصف شامل وغني للفيديو..."
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
                     <div className="flex items-center justify-between bg-white/[0.01] border border-white/[0.03] rounded-lg p-2.5">
                       <input
                         type="checkbox"
@@ -2094,8 +2227,23 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                       )}
                     </div>
 
+                    <div className="flex justify-between items-center bg-red-950/20 border border-red-500/20 p-2.5 rounded-xl">
+                      <span className="text-[10px] font-black text-white/80">خوارزميات يوتيوب والبحث (SEO)</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRegenerateSEO(true)}
+                        className="flex items-center gap-1.5 px-3 py-1 bg-red-600/30 border border-red-500/40 rounded-lg text-xs font-black text-red-200 hover:bg-red-600/40 transition cursor-pointer"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-red-400" />
+                        <span>توليد وصف وتاجز ذكية ⚡</span>
+                      </button>
+                    </div>
+
                     <div className="space-y-1">
-                      <label className="text-[9px] font-black text-white/40 block">عنوان الفيديو (Title)</label>
+                      <div className="flex justify-between items-center text-[9px] font-bold text-white/40">
+                        <span>{ytTitle.length}/100</span>
+                        <label className="text-[9px] font-black text-white/60 block">عنوان الفيديو (Title) *</label>
+                      </div>
                       <input
                         type="text"
                         value={ytTitle}
@@ -2107,18 +2255,24 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[9px] font-black text-white/40 block">الوصف التفصيلي (Description)</label>
+                      <div className="flex justify-between items-center text-[9px] font-bold text-white/40">
+                        <span>{ytDescription.length} حرف (وصف كامل ومحكم)</span>
+                        <label className="text-[9px] font-black text-white/60 block">الوصف التفصيلي (SEO Description)</label>
+                      </div>
                       <textarea
                         value={ytDescription}
                         onChange={(e) => setYtDescription(e.target.value)}
-                        rows={5}
-                        className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2.5 text-xs text-white outline-none resize-none text-right focus:border-red-500/40 placeholder:text-white/20 leading-relaxed"
+                        rows={6}
+                        className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2.5 text-xs text-white outline-none resize-none text-right focus:border-red-500/40 placeholder:text-white/20 leading-relaxed font-sans"
                         placeholder="وصف شامل للفيديو..."
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[9px] font-black text-white/40 block">Tags (مفصولة بفاصلة)</label>
+                      <div className="flex justify-between items-center text-[9px] font-bold text-white/40">
+                        <span>مفصولة بفاصلة ({ytTags ? ytTags.split(",").length : 0} كلمة مفتاحية)</span>
+                        <label className="text-[9px] font-black text-white/60 block">Tags (الكلمات المفتاحية الخارقة)</label>
+                      </div>
                       <input
                         type="text"
                         value={ytTags}
@@ -2169,21 +2323,27 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                         setYtPublishing(true); setYtPublishError(""); setYtPublishSuccess(false);
                         try {
                           const adminToken = (await auth?.currentUser?.getIdToken().catch(() => null)) || undefined;
+                          const surahEntry = surahsData.find(s => s.id.toString() === state.surahId?.toString());
+                          const sName = surahData?.name || surahEntry?.name || "القرآن الكريم";
+                          const sNumber = surahData?.id || surahEntry?.id || parseInt(state.surahId) || 1;
                           const reciter = RECITERS.find(r => r.id === state.reciterId);
-                          const sName = surahData?.name || "القرآن الكريم";
                           const rName = reciter?.name || "";
-                          const ayahText = state.startAyah === state.endAyah ? `آية ${state.startAyah}` : `الآيات من ${state.startAyah} إلى ${state.endAyah}`;
-                          const fallbackTitle = `سورة ${sName} - ${ayahText} - الشيخ ${rName} 📖✨`.trim();
-                          const fallbackDesc = 
-                            `📖 سورة ${sName} | ${ayahText}\n` +
-                            `🎙 تلاوة عطرة بصوت الشيخ ${rName}\n\n` +
-                            `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
-                            `🌟 اشترك في قناة يقين القرآن وفعّل الجرس 🔔 للمزيد من التلاوات اليومية المباركة\n\n` +
-                            `📱 تم تصميم هذا الفيديو بالكامل عبر منصة يقين القرآن:\n` +
-                            `🔗 https://yaqeenalquran.online\n\n` +
-                            `⭐ صمم فيديوهاتك القرآنية بنفسك مجاناً وبأعلى جودة!\n\n` +
-                            `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
-                            `#قرآن #قران_كريم #تلاوة_قرآنية #سورة_${sName.replace(/\s+/g, "_")} #يقين_القران #Quran #Islam`;
+
+                          const seo = generateIslamicSEO({
+                            surahName: sName,
+                            surahNumber: sNumber,
+                            reciterName: rName,
+                            reciterId: state.reciterId,
+                            startAyah: state.startAyah,
+                            endAyah: state.endAyah,
+                          });
+
+                          const finalTitle = (ytTitle.trim() || seo.title).substring(0, 100);
+                          const finalDesc = ytDescription.trim() || seo.description;
+                          const finalTags = ytTags.trim() 
+                            ? ytTags.split(",").map((t: string) => t.trim()).filter(Boolean)
+                            : seo.tags;
+                          const finalFirstComment = seo.firstComment;
 
                           const res = await fetch("/api/youtube/publish", {
                             method: "POST",
@@ -2191,18 +2351,17 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                             body: JSON.stringify({
                               channelId: ytChannelId || ytAccounts[0]?.id || "6a9cfafb77555aae01e37454",
                               videoUrl: downloadUrl,
-                              title: (ytTitle.trim() || fallbackTitle).substring(0, 100),
-                              description: ytDescription.trim() || fallbackDesc,
-                              tags: ytTags.trim() 
-                                ? ytTags.split(",").map((t: string) => t.trim()).filter(Boolean)
-                                : ["قرآن", "قران كريم", `سورة ${sName}`, rName, "يقين القرآن", "Quran", "Islam"].filter(Boolean),
-                              firstComment: 
-                                `سبحان الله وبحمده، سبحان الله العظيم 🌸\n` +
-                                `لا تنسوا الإعجاب بالفيديو والاشتراك في القناة وتفعيل زر الجرس 🔔 لتصلكم التلاوات اليومية المباركة.\n` +
-                                `🔗 صمم فيديوهاتك القرآنية بنفسك مجاناً عبر موقع يقين القرآن:\n` +
-                                `https://yaqeenalquran.online`,
+                              title: finalTitle,
+                              description: finalDesc,
+                              tags: finalTags,
+                              firstComment: finalFirstComment,
                               scheduledFor: ytScheduled ? ytScheduledTime : null,
                               adminToken,
+                              surahName: sName,
+                              surahNumber: sNumber,
+                              reciterName: rName,
+                              startAyah: state.startAyah,
+                              endAyah: state.endAyah,
                             }),
                           });
                           const resData = await res.json();

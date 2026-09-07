@@ -124,6 +124,20 @@ export async function GET(request: Request) {
             uploadSpeed: "Make.com Flow",
           });
 
+          const caption = jobData.caption || "";
+          const firstLine = caption.split("\n")[0] || "";
+          const title = jobData.title || firstLine.replace(/#[^\s]+/g, "").replace(/https?:\/\/[^\s]+/g, "").trim() || "تلاوة قرآنية مباركة 📖✨";
+          const tags = Array.isArray(jobData.tags) && jobData.tags.length > 0
+            ? jobData.tags
+            : (caption.match(/#([^\s#]+)/g) || []).map((h: string) => h.replace(/^#+/, "").replace(/_/g, " ").trim());
+          const tagsString = jobData.tagsString || tags.join(", ") || "قرآن, قران كريم, تلاوة قرآنية, يقين القرآن, yaqeenalquran";
+          const description = jobData.description || caption;
+          const firstComment = jobData.firstComment ||
+            `سبحان الله وبحمده، سبحان الله العظيم 🌸\n` +
+            `لا تنسوا الإعجاب بالفيديو والاشتراك في القناة وتفعيل زر الجرس 🔔 لتصلكم التلاوات اليومية المباركة.\n` +
+            `🔗 https://yaqeenalquran.online`;
+          const ytAccountId = jobData.youtubeAccountId || "6a9cfafb77555aae01e37454";
+
           const makeRes = await fetch(makeWebhookUrl, {
             method: "POST",
             headers: {
@@ -131,9 +145,61 @@ export async function GET(request: Request) {
             },
             body: JSON.stringify({
               videoUrl: jobData.videoUrl,
+              url: jobData.videoUrl,
+              mediaUrl: jobData.videoUrl,
               caption: jobData.caption,
+              content: jobData.caption,
+              text: jobData.caption,
+              title: title.substring(0, 100),
+              videoTitle: title.substring(0, 100),
+              tags: tags,
+              tagsString: tagsString,
+              description: description,
+              firstComment: firstComment,
               accountId: jobData.accountId,
               jobId: docSnap.id,
+              publishNow: true,
+              publishToYouTube: jobData.publishToYouTube !== false,
+              youtube: {
+                accountId: ytAccountId,
+                title: title.substring(0, 100),
+                tags: tags,
+                tagsString: tagsString,
+                description: description,
+                firstComment: firstComment,
+                visibility: "public",
+                categoryId: "22",
+                madeForKids: false,
+              },
+              platformSpecificData: {
+                title: title.substring(0, 100),
+                description: description,
+                tags: tags,
+                firstComment: firstComment,
+                visibility: "public",
+                categoryId: "22",
+                madeForKids: false,
+              },
+              zernioPayload: {
+                content: jobData.caption,
+                mediaItems: [{ type: "video", url: jobData.videoUrl }],
+                platforms: [
+                  {
+                    platform: "youtube",
+                    accountId: ytAccountId,
+                    platformSpecificData: {
+                      title: title.substring(0, 100),
+                      description: description,
+                      tags: tags,
+                      firstComment: firstComment,
+                      visibility: "public",
+                      categoryId: "22",
+                      madeForKids: false,
+                    },
+                  },
+                ],
+                publishNow: true,
+              },
             }),
           });
 

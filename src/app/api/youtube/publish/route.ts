@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminApp } from "@/lib/firebaseAdmin";
 import admin from "firebase-admin";
+import { generateIslamicSEO } from "@/lib/seoGenerator";
 
 // YouTube Channel ID (UCN3RoN1VmXVeIQ5TmnVJ5uQ = @yaqeenalquran1)
 const YOUTUBE_CHANNEL_ID = "UCN3RoN1VmXVeIQ5TmnVJ5uQ";
@@ -23,6 +24,11 @@ export async function POST(request: Request) {
       scheduledFor,
       adminToken,
       retryLogId,
+      surahName,
+      surahNumber,
+      reciterName,
+      startAyah,
+      endAyah,
     } = body;
 
     if (!videoUrl) {
@@ -47,27 +53,28 @@ export async function POST(request: Request) {
       }
     }
 
-    // ── Build Full, Rich Metadata for YouTube & Zernio ──
-    const finalTitle = (title?.trim() || "تلاوة قرآنية مباركة 📖✨").substring(0, 100);
-    const finalDesc = description?.trim() || 
-      `📖 تلاوة قرآنية خاشعة ومؤثرة من كتاب الله الكريم\n\n` +
-      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
-      `🌟 اشترك في قناة يقين القرآن وفعّل الجرس 🔔 للمزيد من التلاوات اليومية المباركة\n\n` +
-      `📱 تم تصميم وإنتاج هذا الفيديو عبر منصة يقين القرآن:\n` +
-      `🔗 https://yaqeenalquran.online\n\n` +
-      `⭐ يمكنك تصميم فيديوهاتك القرآنية بنفسك بجودة فائقة ومجاناً!\n\n` +
-      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
-      `#قرآن #قران_كريم #تلاوة_قرآنية #يقين_القران #Quran #Islam #QuranRecitation`;
+    // ── Build Full, Rich Metadata for YouTube & Zernio via Dynamic SEO Generator ──
+    const seoFallback = generateIslamicSEO({
+      surahName,
+      surahNumber,
+      reciterName,
+      startAyah,
+      endAyah,
+    });
 
-    const finalTags = (Array.isArray(tags) && tags.length > 0)
-      ? tags.map((t: string) => t.trim()).filter(Boolean)
-      : ["قرآن", "قران كريم", "تلاوة قرآنية", "يقين القرآن", "yaqeenalquran", "Quran", "Islam"];
+    const finalTitle = (title?.trim() || seoFallback.title).substring(0, 100);
+    const finalDesc = (description && description.trim().length > 50) ? description.trim() : seoFallback.description;
 
-    const finalFirstComment = firstComment?.trim() ||
-      `سبحان الله وبحمده، سبحان الله العظيم 🌸\n` +
-      `لا تنسوا الإعجاب بالفيديو والاشتراك في القناة وتفعيل زر الجرس 🔔 لتصلكم التلاوات اليومية المباركة.\n` +
-      `🔗 صمم فيديوهاتك القرآنية بنفسك مجاناً عبر موقع يقين القرآن:\n` +
-      `https://yaqeenalquran.online`;
+    let finalTags: string[] = [];
+    if (Array.isArray(tags) && tags.length > 0) {
+      finalTags = tags.map((t: string) => String(t).trim()).filter(Boolean);
+    } else if (typeof tags === "string" && tags.trim()) {
+      finalTags = tags.split(",").map((t: string) => t.trim()).filter(Boolean);
+    } else {
+      finalTags = seoFallback.tags;
+    }
+
+    const finalFirstComment = firstComment?.trim() || seoFallback.firstComment;
 
     let scheduledDate: Date | null = null;
     if (scheduledFor) {
