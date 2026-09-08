@@ -144,7 +144,7 @@ export async function POST(request: Request) {
                 tags: finalTags,
                 firstComment: finalFirstComment,
                 visibility: "public",
-                categoryId: "22",
+                categoryId: "27",
                 madeForKids: false,
               },
             },
@@ -183,15 +183,12 @@ export async function POST(request: Request) {
       }
     }
 
-    // ── 2. FORWARD TO MAKE.COM WEBHOOK (DUAL REDUNDANCY) ──
-    const makeWebhookUrl =
-      process.env.MAKE_YOUTUBE_WEBHOOK_URL ||
-      process.env.MAKE_WEBHOOK_URL ||
-      "https://hook.eu1.make.com/tl01y7q4wfa8k1rzg1lvggvb93yolmf4";
+    // ── 2. FORWARD TO DEDICATED YOUTUBE MAKE.COM WEBHOOK (ONLY IF EXPLICITLY CONFIGURED AND DIRECT ZERNIO NOT CREATED) ──
+    const makeWebhookUrl = process.env.MAKE_YOUTUBE_WEBHOOK_URL;
 
-    if (makeWebhookUrl) {
+    if (makeWebhookUrl && !zernioPostId) {
       try {
-        console.log(`[YouTube Publish] Forwarding full payload to Make.com: ${makeWebhookUrl}`);
+        console.log(`[YouTube Publish] Forwarding fallback payload to YouTube Make.com: ${makeWebhookUrl}`);
         await fetch(makeWebhookUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -223,7 +220,7 @@ export async function POST(request: Request) {
               tags: finalTags,
               firstComment: finalFirstComment,
               visibility: "public",
-              categoryId: "22",
+              categoryId: "27",
               madeForKids: false,
             },
           }),

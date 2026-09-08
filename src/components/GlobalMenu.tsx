@@ -4,7 +4,7 @@ import React from "react";
 import { 
   X, MessageCircle, Moon, Sun, BookOpen, ScrollText, 
   Calendar, Headphones, Timer, Video, Share2, Heart, Smartphone, Trophy, ShieldCheck,
-  ChevronLeft, LayoutDashboard, Settings, Info, LogOut, Map as MapIcon, Bell
+  ChevronLeft, LayoutDashboard, Settings, Info, LogOut, Map as MapIcon, Bell, Download
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/ThemeProvider";
@@ -65,7 +65,7 @@ export function GlobalMenu({ isOpen, onClose, onOpenFeedback, onOpenProfile, onO
         { id: "prayers", label: "مواقيت الصلاة والأذان", icon: Timer, path: "/prayers" },
         { id: "video", label: "استوديو الفيديو القرآني", icon: Video, path: "/video" },
         { id: "points-guide", label: "دليل النقاط والأوسمة", icon: MapIcon, onClick: onOpenPointsGuide },
-        { id: "install-apk", label: "تنزيل تطبيق الموبايل", icon: Smartphone, onClick: onOpenAppInstall },
+        { id: "install-app", label: "تثبيت التطبيق (سطح المكتب / الهاتف)", icon: Download, onClick: onOpenAppInstall },
       ]
     },
     {

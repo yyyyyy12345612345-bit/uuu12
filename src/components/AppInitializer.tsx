@@ -91,6 +91,27 @@ export default function AppInitializer({ children }: { children: React.ReactNode
     return () => window.removeEventListener("show_onboarding", handleShowOnboarding);
   }, []);
 
+  // Global PWA beforeinstallprompt capture
+  useEffect(() => {
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      (window as any).__deferredPWAInstallPrompt = e;
+      window.dispatchEvent(new CustomEvent("pwa-prompt-available"));
+    };
+    const handleAppInstalled = () => {
+      (window as any).__deferredPWAInstallPrompt = null;
+      window.dispatchEvent(new CustomEvent("pwa-installed"));
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+    window.addEventListener("appinstalled", handleAppInstalled);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+      window.removeEventListener("appinstalled", handleAppInstalled);
+    };
+  }, []);
+
   // Handle toast auto-dismiss
   useEffect(() => {
     if (toast) {
@@ -765,8 +786,8 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
       {children}
 
-      {/* Smart App Banner - Platform Aware (Disabled) */}
-      {/* <AppBanner apkDownloadUrl="https://yaqeenalquran.online/download/" /> */}
+      {/* Smart PWA Install Banner - Desktop & Mobile Aware */}
+      <AppBanner />
     </>
   );
 }

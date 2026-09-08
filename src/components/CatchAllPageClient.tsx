@@ -145,15 +145,20 @@ function CatchAllContent() {
     const handleOpenProfileSettings = () => {
       setIsProfileOpen(true);
     };
+    const handleOpenInstallModal = () => {
+      setIsAppInstallOpen(true);
+    };
     window.addEventListener('show_user_profile', handleShowProfile);
     window.addEventListener('open_direct_chat', handleOpenChat);
     window.addEventListener('open_subscription_modal', handleOpenSubscription);
     window.addEventListener('open_profile_settings', handleOpenProfileSettings);
+    window.addEventListener('open-app-install', handleOpenInstallModal);
     return () => {
       window.removeEventListener('show_user_profile', handleShowProfile);
       window.removeEventListener('open_direct_chat', handleOpenChat);
       window.removeEventListener('open_subscription_modal', handleOpenSubscription);
       window.removeEventListener('open_profile_settings', handleOpenProfileSettings);
+      window.removeEventListener('open-app-install', handleOpenInstallModal);
     };
   }, []);
 

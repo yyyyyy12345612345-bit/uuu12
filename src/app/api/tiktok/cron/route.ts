@@ -168,7 +168,7 @@ export async function GET(request: Request) {
                 description: description,
                 firstComment: firstComment,
                 visibility: "public",
-                categoryId: "22",
+                categoryId: "27",
                 madeForKids: false,
               },
               platformSpecificData: {
@@ -177,7 +177,7 @@ export async function GET(request: Request) {
                 tags: tags,
                 firstComment: firstComment,
                 visibility: "public",
-                categoryId: "22",
+                categoryId: "27",
                 madeForKids: false,
               },
               zernioPayload: {
@@ -204,7 +204,7 @@ export async function GET(request: Request) {
                       tags: tags,
                       firstComment: firstComment,
                       visibility: "public",
-                      categoryId: "22",
+                      categoryId: "27",
                       madeForKids: false,
                     },
                   }] : []),

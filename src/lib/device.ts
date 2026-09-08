@@ -53,6 +53,59 @@ export function isEmulatorOrDesktop(): boolean {
 }
 
 /**
+ * Detect desktop platform (Windows, Mac, Linux)
+ */
+export function isDesktop(): boolean {
+  if (typeof navigator === 'undefined') return true;
+  return !isAndroid() && !isIOS();
+}
+
+export function isWindows(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  return /windows/i.test(navigator.userAgent);
+}
+
+export function isMac(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  return /macintosh|mac os x/i.test(navigator.userAgent);
+}
+
+export function getDeviceType(): 'desktop' | 'android' | 'ios' {
+  if (isAndroid()) return 'android';
+  if (isIOS()) return 'ios';
+  return 'desktop';
+}
+
+export function isSamsungBrowser(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  return /samsungbrowser/i.test(navigator.userAgent);
+}
+
+export function isFirefoxMobile(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  return /firefox|fxios/i.test(navigator.userAgent);
+}
+
+export function isSafariMobile(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  return isIOS() && /safari/i.test(navigator.userAgent) && !/crios|fxios|opios/i.test(navigator.userAgent);
+}
+
+export function isChromeMobile(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  return /chrome|crios/i.test(navigator.userAgent) && !/samsungbrowser|edg|opr/i.test(navigator.userAgent);
+}
+
+export function getMobileBrowserType(): 'safari' | 'chrome' | 'samsung' | 'firefox' | 'other' {
+  if (isSamsungBrowser()) return 'samsung';
+  if (isSafariMobile()) return 'safari';
+  if (isFirefoxMobile()) return 'firefox';
+  if (isChromeMobile()) return 'chrome';
+  return 'other';
+}
+
+
+/**
  * Get the current platform
  */
 export function getPlatform(): DevicePlatform {

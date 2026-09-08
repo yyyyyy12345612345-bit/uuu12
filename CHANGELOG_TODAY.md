@@ -58,17 +58,47 @@
 
 ---
 
+## 🚀 6. نظام اختيار وجهة النشر والجدولة الموحد (YouTube / TikTok / Both)
+
+* **إتاحة 3 خيارات واضحة للمستخدم في نافذة الرندر (`RenderModal.tsx`)**:
+  1. **يوتيوب فقط 🎬**: حقول يوتيوب وقناته وزر جدولة ونشر مخصص لليوتيوب فقط دون أي مساس بتيك توك.
+  2. **المنصتين معاً 🚀**: نشر موحد وفوري أو مجدول لـ TikTok و YouTube بضغطة زر واحدة.
+  3. **تيك توك فقط 🎵**: نشر مخصص لحساب تيك توك فقط دون إرساله إلى يوتيوب.
+* **توحيد الجدولة وحالة الحفظ**:
+  - إرسال `isDraft: false` حتى لا يظهر المنشور كمسودة ناقصة في لوحة تحكم Zernio.
+  - إرسال العنوان والكلمات المفتاحية على المستوى الرئيسي (Root) والمستوى المخصص للمنصة.
+
+---
+
+## 🎯 7. ضبط الكلمات المفتاحية والوصف والتصنيف (SEO Engine)
+
+* **حصر الكلمات المفتاحية (Tags) في 15 كلمة فقط بدقة**:
+  - اختيار الكلمات الأكثر تأثيراً ورواجاً (اسم السورة، اسم القارئ، تلاوة خاشعة، راحة نفسية، shorts، quran...).
+* **اختصار وتنسيق وصف الريلز (Compact Reel Description)**:
+  - استبدال الوصف الطويل جداً (~2500 حرف) بوصف خفيف وموجز وأنيق يناسب مقاطع الريلز والشورتس مع آية السكينة، الدعاء القصير، ورابط المنصة.
+* **تحديث تصنيف يوتيوب التلقائي إلى Education (التعليم - 27)**:
+  - تغيير التصنيف الافتراضي من People & Blogs إلى **Education** وهو التصنيف الأقوى والأعلى وصولاً للمحتوى القرآني والإسلامي.
+
+---
+
+## 🛡️ 8. إصلاحات تكامل Make.com و Zernio API
+
+* **فصل ويب هوك Make.com الخاص بتيك توك عن يوتيوب**:
+  - حل مشكلة ظهور منشور تيك توك تلقائياً عند جدولة فيديو لليوتيوب بسبب إرسال إشعار للويب هوك المخصص لسيناريو تيك توك.
+* **تصحيح معرف حساب تيك توك النشط**:
+  - اعتماد الحساب الفعلي `@yaqeenalquran1` بمعرفه الصحيح `6a4c75f09d9472faaea0b774` في Zernio API.
+
+---
+
 ### 📁 قائمة الملفات المعدلة:
 1. [BrainrotDetoxDesign.tsx](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/src/components/BrainrotDetoxDesign.tsx)
 2. [VideoPreview.tsx](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/src/components/VideoPreview.tsx)
 3. [Controls.tsx](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/src/components/Controls.tsx)
 4. [TimelineVideoEditor.tsx](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/src/components/TimelineVideoEditor.tsx)
 5. [RenderModal.tsx](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/src/components/RenderModal.tsx)
-6. [VideoComposition.tsx](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/src/remotion/VideoComposition.tsx)
-7. [useEditor.tsx](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/src/store/useEditor.tsx)
-8. [render.mjs](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/render.mjs)
-9. [config.js](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/config.js)
-10. [lib/render.js](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/lib/render.js)
-11. [lib/frame.js](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/lib/frame.js)
-12. [lib/fonts.js](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/lib/fonts.js)
-13. [lib/templates/playerTemplates.js](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/lib/templates/playerTemplates.js)
+6. [seoGenerator.ts](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/src/lib/seoGenerator.ts)
+7. [api/youtube/publish/route.ts](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/src/app/api/youtube/publish/route.ts)
+8. [api/tiktok/publish/route.ts](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/src/app/api/tiktok/publish/route.ts)
+9. [api/tiktok/cron/route.ts](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/src/app/api/tiktok/cron/route.ts)
+10. [YOUTUBE_SYSTEM.md](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/YOUTUBE_SYSTEM.md)
+11. [CHANGELOG_TODAY.md](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/CHANGELOG_TODAY.md)
