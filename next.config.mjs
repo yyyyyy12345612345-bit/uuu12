@@ -50,6 +50,20 @@ const nextConfig = {
           { key: "Cache-Control", value: "public, max-age=3600" },
         ],
       },
+      {
+        source: "/apk/:path*",
+        headers: [
+          { key: "Content-Type", value: "application/vnd.android.package-archive" },
+          { key: "Cache-Control", value: "public, max-age=86400" },
+        ],
+      },
+      {
+        source: "/:path*.apk",
+        headers: [
+          { key: "Content-Type", value: "application/vnd.android.package-archive" },
+          { key: "Cache-Control", value: "public, max-age=86400" },
+        ],
+      },
     ];
   },
 };

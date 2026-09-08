@@ -415,7 +415,7 @@ export function AppInstallModal({ isOpen, onClose }: AppInstallModalProps) {
                         </button>
 
                         <a
-                          href="/download/yaqeen.apk"
+                          href="/apk/yaqeen.apk"
                           download="yaqeen.apk"
                           className="w-full py-3.5 px-6 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-[#d4af37]/30 text-white font-bold text-xs md:text-sm transition-all duration-300 flex items-center justify-center gap-2.5 hover:border-[#d4af37]"
                         >

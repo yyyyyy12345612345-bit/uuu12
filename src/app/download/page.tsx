@@ -244,7 +244,7 @@ export default function DownloadPage() {
             <div className="space-y-4 animate-in fade-in duration-200">
               {/* Primary Action Button */}
               <a
-                href="/download/yaqeen.apk"
+                href="/apk/yaqeen.apk"
                 download="yaqeen.apk"
                 className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-sm md:text-base shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2.5 no-underline"
               >
@@ -260,7 +260,7 @@ export default function DownloadPage() {
                 isDarkMode ? "bg-slate-900/40 border-slate-800" : "bg-slate-50 border-slate-200"
               }`}>
                 <a
-                  href="/download/yaqeen-v7a.apk"
+                  href="/apk/yaqeen-v7a.apk"
                   download="yaqeen-v7a.apk"
                   className="text-xs font-black text-amber-600 dark:text-amber-400 underline inline-flex items-center gap-1"
                 >
@@ -354,7 +354,7 @@ export default function DownloadPage() {
 
               <div className="pt-2 text-center">
                 <a
-                  href="/download/yaqeen.apk"
+                  href="/apk/yaqeen.apk"
                   download="yaqeen.apk"
                   className="text-xs font-black text-amber-600 dark:text-amber-400 underline"
                 >
