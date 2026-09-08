@@ -423,6 +423,14 @@ export function AppInstallModal({ isOpen, onClose }: AppInstallModalProps) {
                           <span>تحميل ملف APK المباشر للأندرويد (9.2 MB)</span>
                         </a>
 
+                        <a
+                          href="/download"
+                          className="text-[11px] text-[#fbf5b7]/75 hover:text-[#fbf5b7] underline flex items-center justify-center gap-1.5 transition-colors py-1 font-semibold"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5 text-[#d4af37]" />
+                          <span>مركز التحميل: تعرف على الفرق بين النسخ ومعمارية الهواتف</span>
+                        </a>
+
                         <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 text-right space-y-2">
                           <div className="flex items-center justify-end gap-2 text-xs font-black text-[#fbf5b7]">
                             <span>طريقة التثبيت اليدوية السريعة (كروم وأندرويد):</span>
