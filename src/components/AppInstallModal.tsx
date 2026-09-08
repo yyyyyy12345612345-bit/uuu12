@@ -424,7 +424,9 @@ export function AppInstallModal({ isOpen, onClose }: AppInstallModalProps) {
                         </a>
 
                         <a
-                          href="/download"
+                          href="/download/"
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="text-[11px] text-[#fbf5b7]/75 hover:text-[#fbf5b7] underline flex items-center justify-center gap-1.5 transition-colors py-1 font-semibold"
                         >
                           <ExternalLink className="w-3.5 h-3.5 text-[#d4af37]" />

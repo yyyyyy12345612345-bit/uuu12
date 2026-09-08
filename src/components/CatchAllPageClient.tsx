@@ -146,7 +146,7 @@ function CatchAllContent() {
       setIsProfileOpen(true);
     };
     const handleOpenInstallModal = () => {
-      setIsAppInstallOpen(true);
+      window.open('/download/', '_blank');
     };
     window.addEventListener('show_user_profile', handleShowProfile);
     window.addEventListener('open_direct_chat', handleOpenChat);
@@ -444,7 +444,7 @@ function CatchAllContent() {
         }}
         onOpenAppInstall={() => {
           setIsMenuOpen(false);
-          setIsAppInstallOpen(true);
+          window.open('/download/', '_blank');
         }}
       />
       <ProfileModal 
