@@ -145,7 +145,7 @@ export function ReflectionCardGenerator({
     ctx.font = "bold 28px Tajawal, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("وَتَدَبَّرُوا 🌟 خاطرة وتدبر آية كَرِيمة", W / 2, 110);
+    ctx.fillText("وَتَدَبَّرُوا 🌿 خاطرة وتدبر آية كَرِيمة", W / 2, 110);
 
     // 4. Draw Quranic symbol/divider
     ctx.strokeStyle = activeStyle.accentColor;
@@ -217,7 +217,7 @@ export function ReflectionCardGenerator({
     // 10. Draw Footer Signature
     ctx.fillStyle = activeStyle.accentColor + "90";
     ctx.font = "bold 20px Tajawal, sans-serif";
-    ctx.fillText("تطبيق ومجتمع يقين للهواتف الذكية ✨", W / 2, H - 90);
+    ctx.fillText("تطبيق ومجتمع يقين للهواتف الذكية 📱", W / 2, H - 90);
 
     // Generate preview URL
     setPreviewUrl(canvas.toDataURL("image/png"));

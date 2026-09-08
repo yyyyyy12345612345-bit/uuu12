@@ -16,7 +16,7 @@ import {
   Sun, Cloud, RotateCcw, RotateCw, 
   Play, Pause, Heart, Volume2, Maximize2, Trash2, Pin, Scissors, 
   Copy, Layers, Plus, Eye, Lock, Search, 
-  Loader2, Check, ChevronDown, Sparkles, Sliders, Info, Download,
+  Loader2, Check, ChevronDown, Sliders, Info, Download,
   Briefcase, Moon
 } from "lucide-react";
 

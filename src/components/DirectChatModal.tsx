@@ -199,7 +199,7 @@ export function DirectChatModal({ partnerId, onClose }: DirectChatModalProps) {
               <MessageCircle className="w-12 h-12" />
               <div>
                 <p className="text-sm font-black">لا توجد رسائل بينكما بعد</p>
-                <p className="text-[11px] font-bold mt-1">ابدأوا الآن بالسلام والكلمة الطيبة 🌟</p>
+                <p className="text-[11px] font-bold mt-1">ابدأوا الآن بالسلام والكلمة الطيبة 🌿</p>
               </div>
             </div>
           ) : (

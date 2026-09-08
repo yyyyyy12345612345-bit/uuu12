@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
   Download, Smartphone, Laptop, CheckCircle2, ShieldCheck, 
-  ArrowRight, Sparkles, BookOpen, Volume2, Compass, Bell,
+  ArrowRight, BookOpen, Volume2, Compass, Bell,
   Sun, Moon, Share2, HelpCircle
 } from "lucide-react";
 
@@ -142,7 +142,7 @@ export default function DownloadPage() {
               </div>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <span className="px-2.5 py-0.5 rounded-md text-[11px] font-black bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-300">
-                  ⭐ 4.9 تقييم ممتاز
+                  4.9 تقييم ممتاز
                 </span>
                 <span className="px-2.5 py-0.5 rounded-md text-[11px] font-black bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400">
                   🛡️ خالٍ من الإعلانات 100%

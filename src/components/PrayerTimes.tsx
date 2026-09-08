@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import {
   MapPin, Bell, BellOff,
   RefreshCw, X, Music, Wifi, WifiOff, Loader2, Navigation,
-  ChevronDown, Sparkles, Sun, Moon, Sunrise, Sunset,
+  ChevronDown, Sun, Moon, Sunrise, Sunset,
   Search, Globe, AlertCircle, Check
 } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
@@ -767,23 +767,6 @@ export function PrayerTimes() {
     >
       {/* ─── Animated celestial background ─── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        {/* Stars in Dark Moods */}
-        {isDark && Array.from({ length: 60 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              width: Math.random() * 2 + 1 + "px",
-              height: Math.random() * 2 + 1 + "px",
-              top: Math.random() * 100 + "%",
-              left: Math.random() * 100 + "%",
-              background: "white",
-              opacity: Math.random() * 0.6 + 0.1,
-              animation: `pulse ${Math.random() * 4 + 2}s ease-in-out infinite`,
-              animationDelay: Math.random() * 4 + "s",
-            }}
-          />
-        ))}
         {/* Nebula gradient blobs tailored to current day atmosphere */}
         <div
           className="absolute top-1/2 left-0 w-[350px] h-[350px] rounded-full blur-[130px] transition-all duration-1000"

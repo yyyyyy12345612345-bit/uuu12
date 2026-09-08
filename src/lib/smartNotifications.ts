@@ -217,7 +217,7 @@ function generateSmartMessage(ctx: SmartContext): { title: string; body: string 
   if (ctx.daysMissed === 2) {
     return {
       title: `📿 ${name}، عد إلينا!`,
-      body: `أمس والأمس قبله بدون قراءة. لا تكسر سلسلة حسناتك، آية واحدة تكفي ✨`,
+      body: `أمس والأمس قبله بدون قراءة. لا تكسر سلسلة حسناتك، آية واحدة تكفي 🤍`,
     };
   }
 
@@ -241,7 +241,7 @@ function generateSmartMessage(ctx: SmartContext): { title: string; body: string 
 
     if (yp >= 200) {
       return {
-        title: `⭐ ${name}، امس ${yp} نقطة!`,
+        title: `🏆 ${name}، امس ${yp} نقطة!`,
         body: `أداء ممتاز! اليوم ارفع السقف واجعله ${Math.round(yp * 1.3)} نقطة 🚀`,
       };
     }
@@ -256,7 +256,7 @@ function generateSmartMessage(ctx: SmartContext): { title: string; body: string 
     if (yp > 0 && yp < 50) {
       return {
         title: `💡 ${name}، امس ${yp} نقطة فقط`,
-        body: `ما شاء الله حتى ولو قليل! اليوم قرأ سورتين واكسب أضعافها 🌟`,
+        body: `ما شاء الله حتى ولو قليل! اليوم اقرأ سورتين واكسب أضعافها 🌙`,
       };
     }
   }
@@ -266,7 +266,7 @@ function generateSmartMessage(ctx: SmartContext): { title: string; body: string 
   if (tp >= 10000) {
     return {
       title: `👑 ${name}، ${tp.toLocaleString()} نقطة!`,
-      body: `أنت من النخبة! حافظ على تقدمك واقرأ القرآن اليوم 🌟`,
+      body: `أنت من النخبة! حافظ على تقدمك واقرأ القرآن اليوم ✅`,
     };
   }
 
@@ -284,8 +284,8 @@ function generateSmartMessage(ctx: SmartContext): { title: string; body: string 
       body: 'لم تقرأ القرآن اليوم بعد. ابدأ بسورة واحدة على الأقل 🌙',
     },
     {
-      title: '✨ ذكر الله',
-      body: 'اقرأ القرآن واكسب النقاط! كل حرف بعشر حسنات 📿',
+      title: '📿 ذكر الله',
+      body: 'اقرأ القرآن واكسب النقاط! كل حرف بعشر حسنات 🤍',
     },
     {
       title: '🌙 سكينة تنتظرك',
@@ -293,7 +293,7 @@ function generateSmartMessage(ctx: SmartContext): { title: string; body: string 
     },
     {
       title: '📿 لا تنسَ القرآن',
-      body: 'تلاوة يومية = قلب مطمئن. افتح سكينة الآن ✨',
+      body: 'تلاوة يومية = قلب مطمئن. افتح سكينة الآن 🤍',
     },
   ];
 
@@ -326,7 +326,7 @@ export async function checkDailyReminder(): Promise<void> {
     // Fallback for non-logged-in users
     const defaults = [
       { title: '📖 وقت القرآن', body: 'ابدأ يومك بآيات من القرآن الكريم 🌙' },
-      { title: '✨ سكينة تنتظرك', body: 'قراءة القرآن تجلب السكينة والراحة 💚' },
+      { title: '🌿 سكينة تنتظرك', body: 'قراءة القرآن تجلب السكينة والراحة 💚' },
     ];
     const msg = defaults[Math.floor(Math.random() * defaults.length)];
     title = msg.title;
@@ -378,13 +378,13 @@ const ATHKAR_REMINDERS = [
   {
     id: 'sleep',
     title: '😴 أذكار النوم',
-    body: 'قبل ما تنام، لا تنس أذكار النوم. تحميك طول الليل ✨',
+    body: 'قبل ما تنام، لا تنس أذكار النوم. تحميك طول الليل 🌙',
     timeRange: { start: 21, end: 24 }, // 9 PM - 12 AM
   },
   {
     id: 'wakeup',
     title: '☀️ أذكار الاستيقاظ',
-    body: 'صباح الخير! ابدأ يومك بأذكار الاستيقاظ والحمد لله 🌟',
+    body: 'صباح الخير! ابدأ يومك بأذكار الاستيقاظ والحمد لله ☀️',
     timeRange: { start: 5, end: 9 }, // 5 AM - 9 AM
   },
   {

@@ -191,7 +191,7 @@ export async function GET(request: Request) {
       </head>
       <body>
         <div class="card">
-          <div class="icon">✨</div>
+          <div class="icon">✅</div>
           <h1>تم ربط الحساب بنجاح!</h1>
           <p>تم ربط حساب تيك توك <strong>@${profile.username}</strong> بمدير منصة يقين بنجاح.</p>
           <button onclick="window.close()">إغلاق النافذة</button>

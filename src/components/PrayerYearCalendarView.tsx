@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { 
   ChevronLeft, ChevronRight, CalendarDays, CheckCircle2, 
-  Sparkles, Clock, Sun, Moon, Sunrise, Sunset, Compass
+  Clock, Sun, Moon, Sunrise, Sunset, Compass
 } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import {

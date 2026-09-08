@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { 
   X, Monitor, Smartphone, Download, Check, Zap, Info, 
-  Sparkles, CheckCircle2, Share2, PlusSquare, ExternalLink, Laptop,
+  CheckCircle2, Share2, PlusSquare, ExternalLink, Laptop,
   Compass, ShieldCheck, Volume2, Bell
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -248,7 +248,7 @@ export function AppInstallModal({ isOpen, onClose }: AppInstallModalProps) {
                   <div className="p-6 md:p-7 rounded-[2rem] bg-gradient-to-b from-white/[0.04] to-white/[0.01] border border-white/10 relative overflow-hidden text-right">
                     <div className="flex items-start justify-between gap-4 mb-4">
                       <span className="px-3 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[11px] font-black flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5" />
+                        <CheckCircle2 className="w-3.5 h-3.5" />
                         نسخة سطح المكتب الرسمية
                       </span>
                       <div className="text-right">
@@ -356,7 +356,7 @@ export function AppInstallModal({ isOpen, onClose }: AppInstallModalProps) {
                     {/* Header Info */}
                     <div className="flex items-start justify-between gap-4 mb-4">
                       <span className="px-3 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[11px] font-black flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5" />
+                        <CheckCircle2 className="w-3.5 h-3.5" />
                         تطبيق الموبايل فائق السرعة
                       </span>
                       <div className="text-right">

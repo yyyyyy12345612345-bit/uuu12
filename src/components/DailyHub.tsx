@@ -12,7 +12,7 @@ import {
   CheckCircle2, RotateCcw, Target, Fingerprint, 
   ArrowUpRight, ChevronRight, ChevronLeft, 
   Sun, Moon, Bed, BookOpen, Compass, MapPin, Search, Clock, Award, Video, Crown,
-  Sparkles, Heart, HandHeart, Brain, Trophy
+  Heart, HandHeart, Brain, Trophy
 } from "lucide-react";
 import { db, auth } from "@/lib/firebase";
 import { Capacitor } from '@capacitor/core';
@@ -383,9 +383,9 @@ export function DailyHub() {
       });
 
       if (showCongrats) {
-        alert(`🎉 مبارك مبارك! لقد أتممت خطتك القرآنية المخصصة كاملاً بنجاح! 📖✨\nحصدت مكافآت التزامك الإيماني ونقاطاً إضافية في لوحة الشرف!`);
+        alert(`🎉 مبارك مبارك! لقد أتممت خطتك القرآنية المخصصة كاملاً بنجاح! 📖\nحصدت مكافآت التزامك الإيماني ونقاطاً إضافية في لوحة الشرف!`);
       } else {
-        alert(`✅ تم إنجاز ورد اليوم ${dayToComplete} بنجاح! 🌟\nربحت +15 نقطة جديدة في رصيدك.`);
+        alert(`✅ تم إنجاز ورد اليوم ${dayToComplete} بنجاح! 🌿\nربحت +15 نقطة جديدة في رصيدك.`);
       }
     } catch (err) {
       console.error("Error updating plan day completion:", err);

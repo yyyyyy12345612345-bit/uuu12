@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { LayoutDashboard, BellRing, Activity, UserCircle, CreditCard, Swords, Settings, GalleryHorizontalEnd, BarChart3, History, HeadphonesIcon, Megaphone, AlertCircle, BookOpen, FlaskConical, Package, ShieldCheck, Loader2, X, MenuIcon, Users, UserCheck, Mail, TrendingUp, RefreshCw, Bell, Trophy, Ban, CheckCircle, Phone, AlertTriangle, Trash2, Copy, KeyRound, MessageSquare, Sparkles, Volume2, Play, Pause, Database, SkipForward, Image as ImageIcon, Video, Plus } from "lucide-react";
+import { LayoutDashboard, BellRing, Activity, UserCircle, CreditCard, Swords, Settings, GalleryHorizontalEnd, BarChart3, History, HeadphonesIcon, Megaphone, AlertCircle, BookOpen, FlaskConical, Package, ShieldCheck, Loader2, X, MenuIcon, Users, UserCheck, Mail, TrendingUp, RefreshCw, Bell, Trophy, Ban, CheckCircle, Phone, AlertTriangle, Trash2, Copy, KeyRound, MessageSquare, Volume2, Play, Pause, Database, SkipForward, Image as ImageIcon, Video, Plus } from "lucide-react";
 import { gsap } from "gsap";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -2294,7 +2294,7 @@ export function AdminPanel() {
                         {[
                           { label: '📖 تذكير يومي', title: '📖 وقت القرآن', body: 'لم تقرأ القرآن اليوم بعد. ابدأ بسورة واحدة على الأقل 🌙' },
                           { label: '🌿 سورة الكهف', title: '🌿 يوم الجمعة المبارك', body: 'لا تنسَ قراءة سورة الكهف اليوم! من قرأها أضاءت له نور بين الجمعتين 🤍' },
-                          { label: '✨ تحديث جديد', title: '✨ تحديث سكينة', body: 'ميزات جديدة رائعة متاحة الآن! اكتشفها الآن 🚀' },
+                          { label: '🚀 تحديث جديد', title: '🚀 تحديث سكينة', body: 'ميزات جديدة رائعة متاحة الآن! اكتشفها الآن 🚀' },
                           { label: '🎯 تحدي', title: '🎯 تحدي اليوم', body: 'اقرأ 10 آيات وافوز بـ 100 نقطة! هل أنت مستعد؟ 💪' },
                         ].map(t => (
                           <button key={t.label} onClick={() => { setPushTitle(t.title); setPushBody(t.body); }} className="rounded-xl bg-white/5 px-4 py-2 text-sm font-bold text-white/60 hover:bg-[#fbbf24]/10 hover:text-[#fbbf24] border border-white/5 transition">
@@ -3435,7 +3435,7 @@ export function AdminPanel() {
                                 }`}>
                                 {msg.sender === "bot" && (
                                   <div className="text-[9px] text-[#fbbf24] font-black mb-1 flex items-center gap-1">
-                                    <Sparkles className="w-2.5 h-2.5" /> المساعد الذكي
+                                    <MessageSquare className="w-2.5 h-2.5" /> المساعد الذكي
                                   </div>
                                 )}
                                 <p className="whitespace-pre-line">{msg.text}</p>
@@ -3730,7 +3730,7 @@ export function AdminPanel() {
                         {/* Dhikr, Tasbeeh & Counters Community Dashboard */}
                         <div className="rounded-[2rem] border border-white/[0.06] bg-gradient-to-br from-[#0c101d] to-[#080a13] p-8 relative overflow-hidden shadow-2xl">
                           <div className="absolute top-6 left-6 opacity-[0.03] pointer-events-none">
-                            <Sparkles className="w-32 h-32 text-amber-400 animate-pulse" />
+                            <Trophy className="w-32 h-32 text-amber-400" />
                           </div>
 
                           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-white/5 pb-6">

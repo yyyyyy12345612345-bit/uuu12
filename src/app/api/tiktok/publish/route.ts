@@ -89,7 +89,7 @@ function extractSmartTitle(caption: string, fallbackTitle?: string): string {
     .replace(/#[^\s]+/g, "")
     .replace(/https?:\/\/[^\s]+/g, "")
     .trim();
-  return (cleaned || "تلاوة قرآنية مباركة 📖✨").substring(0, 100);
+  return (cleaned || "تلاوة قرآنية مباركة 📖").substring(0, 100);
 }
 
 function extractSmartTags(caption: string, customTags?: any): string[] {

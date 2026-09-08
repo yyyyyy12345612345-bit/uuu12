@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Check, CreditCard, Send, Loader2, Crown, Zap, Gift, Smartphone, Copy, ArrowLeft, Sparkles, Trophy, User, Hash, FileText, Link2, DollarSign } from "lucide-react";
+import { X, Check, CreditCard, Send, Loader2, Crown, Zap, Gift, Smartphone, Copy, ArrowLeft, Trophy, User, Hash, FileText, Link2, DollarSign } from "lucide-react";
 import { db, auth, initFirebase } from "@/lib/firebase";
 import { doc, getDoc, addDoc, collection, serverTimestamp, query, where, getDocs, limit, setDoc } from "firebase/firestore";
 import { useUserPlan } from "@/hooks/useUserPlan";
@@ -221,7 +221,7 @@ export function SubscriptionModal({ isOpen, onClose, initialPlan }: Subscription
 
   const PLANS = [
     { id: "starter", name: "تبرع عادي", price: pricing.priceStarter, icon: Zap, color: "from-blue-500 to-cyan-600" },
-    { id: "supporter", name: "تبرع ذهبي", price: pricing.priceSupporter, icon: Sparkles, color: "from-emerald-500 to-teal-600" },
+    { id: "supporter", name: "تبرع ذهبي", price: pricing.priceSupporter, icon: Gift, color: "from-emerald-500 to-teal-600" },
     { id: "premium", name: "تبرع بريميوم", price: pricing.pricePremium, icon: Crown, color: "from-yellow-500 to-amber-600" },
     { id: "custom", name: "تبرع حر (مبلغ مخصص)", price: 0, icon: DollarSign, color: "from-purple-500 to-pink-600" },
   ];

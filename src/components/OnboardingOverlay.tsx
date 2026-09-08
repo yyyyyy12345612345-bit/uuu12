@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X, ArrowLeft, ArrowRight, BookOpen, Video, Trophy, Headphones,
-  Sparkles, ShieldCheck, UserCheck, Users, HelpCircle, CheckCircle, Info,
+  ShieldCheck, UserCheck, Users, HelpCircle, CheckCircle, Info,
   MapPin, Bell, MessageCircle, Heart, Share2, Compass, AlertCircle, Timer
 } from "lucide-react";
 import { navigateInstantly } from "@/lib/navigation";
@@ -182,7 +182,7 @@ export function OnboardingOverlay({ onClose }: OnboardingOverlayProps) {
     },
     chatbot: {
       title: "المساعد الذكي يقين",
-      icon: Sparkles,
+      icon: MessageCircle,
       color: "#e11d48", // Rose red
       bgColor: "rgba(225,29,72,0.06)",
       desc: "مساعدك الشخصي المبتكر المدعوم بالذكاء الاصطناعي للإجابة على الأسئلة الدينية وتوليد الخطط والاختبارات.",

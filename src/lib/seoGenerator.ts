@@ -1,5 +1,5 @@
 /**
- * 🌟 Islamic SEO & Content Generator Engine
+ * Islamic SEO & Content Generator Engine
  * محرك توليد الكلمات المفتاحية الذكية والوصف الشامل لفيديوهات القرآن الكريم
  */
 
@@ -392,10 +392,10 @@ export function generateIslamicSEO(params: SEOParams): GeneratedSEO {
   // ═════════════════════════════════════════════════════════
   // 1. عنوان جذاب وقوي (YouTube Title - Max 100 Chars)
   // ═════════════════════════════════════════════════════════
-  const primaryTitle = `سورة ${cleanSurahName} (${ayahText}) - ${reciterTitle} | تلاوة خاشعة تريح القلب 📖✨`;
+  const primaryTitle = `سورة ${cleanSurahName} (${ayahText}) - ${reciterTitle} | تلاوة خاشعة تريح القلب 📖`;
   const title = primaryTitle.length <= 100 
     ? primaryTitle 
-    : `سورة ${cleanSurahName} (${ayahText}) - ${reciterTitle} 📖✨`.substring(0, 100);
+    : `سورة ${cleanSurahName} (${ayahText}) - ${reciterTitle} 📖`.substring(0, 100);
 
   // ═════════════════════════════════════════════════════════
   // 2. الكلمات المفتاحية المركزة (15 كلمة مفتاحية قوية ومحددة)
@@ -437,7 +437,7 @@ export function generateIslamicSEO(params: SEOParams): GeneratedSEO {
   const description = 
 `📖 تلاوة قرآنية خاشعة ومباركة | سورة ${cleanSurahName} (${ayahText})
 🎙 تلاوة عطرة بصوت: ${reciterTitle}
-✨ «أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ» 🤍
+🤍 «أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ» 🤍
 
 🤲 اللهم اجعل القرآن ربيع قلوبنا ونور صدورنا وجلاء أحزاننا وذهاب همومنا.
 🔗 صمم فيديوهاتك القرآنية بنفسك مجاناً عبر منصة «يقين القرآن»:
@@ -452,7 +452,7 @@ https://yaqeenalquran.online
 `سبحان الله وبحمده، سبحان الله العظيم 🌸
 اللهم صلِّ وسلم وبارك على نبينا وحبيبنا محمد وعلى آله وصحبه أجمعين ﷺ.
 
-لا تنسوا دعم المقطع بالإعجاب والاشتراك في القناة لتصلكم التلاوات اليومية الخاشعة 🔔✨
+لا تنسوا دعم المقطع بالإعجاب والاشتراك في القناة لتصلكم التلاوات اليومية الخاشعة 🔔
 🔗 صمم فيديوهاتك القرآنية وتصفح المصحف الشريف مجاناً عبر منصة يقين القرآن:
 https://yaqeenalquran.online`;
 
@@ -462,7 +462,7 @@ https://yaqeenalquran.online`;
   const sTag = cleanSurahName.replace(/\s+/g, "_");
   const rTag = shortReciter.replace(/\s+/g, "_");
   const tiktokCaption = 
-`سورة ${cleanSurahName} - ${ayahText} 📖✨
+`سورة ${cleanSurahName} - ${ayahText} 📖
 تلاوة خاشعة بصوت ${reciterTitle} 🎙️
 «أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ» 🤍
 صمم فيديوهاتك القرآنية مجاناً عبر موقع يقين القرآن (الرابط في البايو 🔗)

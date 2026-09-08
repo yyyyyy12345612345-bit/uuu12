@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Brain, Trophy, CheckCircle2, AlertCircle, ArrowLeft, RefreshCw, Sparkles, Loader2, Clock } from "lucide-react";
+import { Brain, Trophy, CheckCircle2, AlertCircle, ArrowLeft, RefreshCw, Loader2, Clock } from "lucide-react";
 import { addPoints } from "@/lib/points";
 import { auth } from "@/lib/firebase";
 
@@ -596,7 +596,7 @@ export function DailyQuiz() {
   };
 
   const triggerConfetti = () => {
-    const emojis = ["🎉", "✨", "🧠", "🌟", "⭐", "💫", "💡"];
+    const emojis = ["🎉", "🎊", "🧠", "🏆", "💎", "💡", "💚"];
     const items = Array.from({ length: 40 }).map((_, idx) => ({
       id: idx,
       char: emojis[Math.floor(Math.random() * emojis.length)],
@@ -689,7 +689,7 @@ export function DailyQuiz() {
         <div className="py-24 flex flex-col items-center gap-6 relative z-10 animate-pulse">
           <Loader2 className="w-16 h-16 text-primary animate-spin" />
           <div className="space-y-2 text-center">
-            <p className="text-primary font-black text-lg">جاري استدعاء خبير الذكاء الاصطناعي (Gemini AI) 🧠✨</p>
+            <p className="text-primary font-black text-lg">جاري استدعاء خبير الذكاء الاصطناعي (Gemini AI) 🧠</p>
             <p className="text-white/40 text-xs font-bold">يتم صياغة سؤال ديني مميز من كتاب الله وسنة رسوله...</p>
           </div>
         </div>
@@ -783,7 +783,7 @@ export function DailyQuiz() {
               </div>
               <div>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/20 text-primary border border-primary/20 rounded-xl text-[9px] font-black uppercase tracking-wider mb-3">
-                  توليد فوري بالذكاء الاصطناعي 🧠✨
+                  توليد فوري بالذكاء الاصطناعي 🧠
                 </span>
                 <h4 className="text-lg font-black text-foreground dark:text-white group-hover:text-primary transition-colors">تحدي الذكاء الاصطناعي</h4>
                 <p className="text-foreground/50 dark:text-white/40 text-xs mt-1 leading-relaxed">
@@ -871,7 +871,7 @@ export function DailyQuiz() {
                   {mode === "ai" 
                     ? currentQ?.isFallback 
                       ? `نمط الذكاء الاصطناعي - الاحتياطي ⚠️ (${playedCount + 1}/20)` 
-                      : `تحدي الذكاء الاصطناعي (Gemini AI) 🧠✨ (${playedCount + 1}/20)`
+                      : `تحدي الذكاء الاصطناعي (Gemini AI) 🧠 (${playedCount + 1}/20)`
                     : `السؤال ${currentIdx + 1} من 20 (إجمالي اليوم: ${playedCount + 1}/20)`}
                 </span>
               </div>
@@ -957,7 +957,7 @@ export function DailyQuiz() {
                 {playedCount >= 20 
                   ? "عرض النتيجة الإجمالية 🏆" 
                   : mode === "ai" 
-                    ? "توليد سؤال ذكي جديد 🧠✨" 
+                    ? "توليد سؤال ذكي جديد 🧠" 
                     : "السؤال التالي"}
               </span>
               <ArrowLeft className="w-4 h-4 shrink-0 rotate-180" />

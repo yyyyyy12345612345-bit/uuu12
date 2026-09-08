@@ -134,7 +134,7 @@ export const SocialManagerPanel: React.FC = () => {
             </span>
           </div>
           <div className="text-center p-3 border-r border-white/5">
-            <span className="text-[10px] text-white/40 block font-black mb-1">إجمالي التفضيلات ⭐</span>
+            <span className="text-[10px] text-white/40 block font-black mb-1">إجمالي التفضيلات ❤️</span>
             <span className="text-lg font-black text-white">
               {tiktokLogs.reduce((acc, log) => acc + (log.favorites || 0), 0).toLocaleString("ar-EG")}
             </span>

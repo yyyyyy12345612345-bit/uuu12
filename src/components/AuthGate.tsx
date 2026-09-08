@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import {
   Loader2, User, KeyRound, Eye, EyeOff, Check, ArrowLeft,
-  Phone, Wrench, Mail, RefreshCw, ShieldCheck, Sparkles,
+  Phone, Wrench, Mail, RefreshCw, ShieldCheck,
   MessageSquare, Send, X, MessageCircle
 } from "lucide-react";
 import { auth, db, initFirebase, fetchFirestoreDoc } from "@/lib/firebase";

@@ -7,7 +7,7 @@ import {
   TrendingUp, Award, Crown, Phone, User, X,
   BookOpen, Headphones, Fingerprint, Calendar,
   ArrowLeft, LayoutDashboard, ChevronLeft,
-  Heart, HandHeart, Swords, Plus, Clock, Timer, Sparkles, Target
+  Heart, HandHeart, Swords, Plus, Clock, Timer, Target
 } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
 import { Capacitor } from '@capacitor/core';
@@ -1081,7 +1081,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
                             value={setupData.displayName}
                             onChange={e => setSetupData({...setupData, displayName: e.target.value})}
                             className="w-full bg-white/5 border border-white/10 rounded-3xl py-5 px-8 text-right outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-white font-black"
-                            placeholder="مثلاً: خادم القرآن ✨"
+                            placeholder="مثلاً: خادم القرآن 🤍"
                           />
                       </div>
 

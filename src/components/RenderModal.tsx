@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Download, Loader2, CheckCircle2, AlertCircle, Play, Crown, Lock, Info, Sparkles, ChevronLeft, X, Clock, Video, Send } from "lucide-react";
+import { Download, Loader2, CheckCircle2, AlertCircle, Play, Crown, Lock, Info, Zap, ChevronLeft, X, Clock, Video, Send } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
 import { useSurahData } from "@/hooks/useSurahData";
 import { RECITERS, getReciterEnglishName, getSheikhAsset } from "@/data/reciters";
@@ -158,7 +158,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       const reciter = RECITERS.find(r => r.id === state.reciterId);
       const rName = reciter?.name || "";
       const ayahText = state.startAyah === state.endAyah ? `آية ${state.startAyah}` : `الآيات من ${state.startAyah} إلى ${state.endAyah}`;
-      const defaultTitle = `سورة ${sName} - ${ayahText} - الشيخ ${rName} 📖✨`.trim();
+      const defaultTitle = `سورة ${sName} - ${ayahText} - الشيخ ${rName} 📖`.trim();
       const defaultTags = ["قرآن", "قران كريم", "تلاوة قرآنية", `سورة ${sName}`, rName, "يقين القرآن", "Quran", "Islam"].filter(Boolean);
 
       const finalYtTitle = (ytTitle.trim() || defaultTitle).substring(0, 100);
@@ -172,7 +172,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         `لا تنسوا الإعجاب بالفيديو والاشتراك في القناة وتفعيل زر الجرس 🔔 لتصلكم التلاوات اليومية المباركة.\n` +
         `🔗 صمم فيديوهاتك القرآنية بنفسك مجاناً عبر موقع يقين القرآن:\n` +
         `https://yaqeenalquran.online`;
-      const finalCaption = tiktokCaption.trim() || `${sName} - ${ayahText} بصوت ${rName} 📖✨\n#يقين_القران #قرآن`;
+      const finalCaption = tiktokCaption.trim() || `${sName} - ${ayahText} بصوت ${rName} 📖\n#يقين_القران #قرآن`;
 
       if (publishDestination === "youtube") {
         // --- 1. YOUTUBE ONLY ---
@@ -2147,7 +2147,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                     onClick={() => handleRegenerateSEO(true)}
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-red-600/40 to-amber-500/40 border border-amber-500/40 rounded-lg text-xs font-black text-white hover:brightness-125 transition cursor-pointer"
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                    <Zap className="w-3.5 h-3.5 text-amber-300" />
                     <span>توليد العناوين والتاجز الذكية ⚡</span>
                   </button>
                 </div>

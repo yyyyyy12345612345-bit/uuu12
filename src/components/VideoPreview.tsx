@@ -605,7 +605,7 @@ export function VideoPreview() {
           </div>
         )}
 
-        {/* ── Sparkle Overlay ── */}
+        {/* ── Luminous Dots Overlay ── */}
         {state.overlay === "sparkle" && (
           <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
             {[...Array(16)].map((_, i) => (
@@ -613,10 +613,10 @@ export function VideoPreview() {
                 position: 'absolute',
                 top: `${Math.random() * 90}%`,
                 left: `${Math.random() * 90}%`,
-                width: '10px', height: '10px',
+                width: '6px', height: '6px',
                 background: '#FFD700',
-                clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
-                boxShadow: '0 0 8px #FFD700',
+                borderRadius: '50%',
+                boxShadow: '0 0 10px #FFD700',
                 animation: `sparklePulse ${Math.random() * 3 + 2}s ease-in-out infinite`,
                 animationDelay: `-${Math.random() * 5}s`
               }} />

@@ -216,7 +216,7 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
       // 3. Create or initialize direct chat document
       await setDoc(doc(db, "chats", friendshipId), {
         participants: [myUid, userId],
-        lastMessage: "تم قبول طلب الصداقة، ابدأوا الآن كلامكم الطيب ✨",
+        lastMessage: "تم قبول طلب الصداقة، ابدأوا الآن كلامكم الطيب 🤍",
         lastMessageAt: serverTimestamp(),
         unreadCount: {
           [myUid]: 0,

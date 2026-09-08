@@ -614,7 +614,7 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                     </div>
                     <div className="grid grid-cols-4 gap-3">
                         {[
-                            { id: "none", icon: "✨", label: "بدون" },
+                            { id: "none", icon: "🚫", label: "بدون" },
                             { id: "vintage", icon: "🎞️", label: "قديم" },
                             { id: "cool", icon: "❄️", label: "بارد" },
                             { id: "warm", icon: "🔥", label: "دافئ" },
@@ -661,16 +661,16 @@ export function Controls({ onOpenSubscription }: { onOpenSubscription: () => voi
                     <div className="grid grid-cols-4 gap-3">
                         {[
                             { id: "none", icon: "🚫", label: "بدون" },
-                            { id: "dust", icon: "✨", label: "غبار" },
+                            { id: "dust", icon: "🌫️", label: "غبار" },
                             { id: "rays", icon: "☀️", label: "أشعة" },
                             { id: "bokeh", icon: "🔮", label: "بوكيه" },
                             { id: "snow", icon: "❄️", label: "ثلج" },
                             { id: "rain", icon: "🌧️", label: "مطر" },
                             { id: "fireflies", icon: "🪲", label: "يراعات" },
                             { id: "smoke", icon: "💨", label: "دخان" },
-                            { id: "sparkle", icon: "⭐", label: "بريق" },
+                            { id: "sparkle", icon: "💎", label: "بريق" },
                             { id: "film_grain", icon: "📽️", label: "حبيبات" },
-                            { id: "light_leak", icon: "🌟", label: "تسريب" },
+                            { id: "light_leak", icon: "💡", label: "تسريب" },
                             { id: "aurora", icon: "🌌", label: "شفق" },
                         ].map((o) => (
                         <button

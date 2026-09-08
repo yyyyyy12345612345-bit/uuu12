@@ -257,7 +257,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
          await deleteDoc(doc(db, "friend_requests", request.id));
          await setDoc(doc(db, "chats", friendshipId), {
             participants: [myUid, request.senderId],
-            lastMessage: "تم قبول طلب الصداقة، ابدأوا الآن كلامكم الطيب ✨",
+            lastMessage: "تم قبول طلب الصداقة، ابدأوا الآن كلامكم الطيب 🤍",
             lastMessageAt: serverTimestamp(),
             unreadCount: {
                [myUid]: 0,

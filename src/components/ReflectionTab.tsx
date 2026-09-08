@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { BookOpen, Save, Sparkles, Loader2, PenTool, CheckCircle } from "lucide-react";
+import { BookOpen, Save, Loader2, PenTool, CheckCircle } from "lucide-react";
 import { ReflectionCardGenerator } from "./ReflectionCardGenerator";
 
 interface ReflectionTabProps {

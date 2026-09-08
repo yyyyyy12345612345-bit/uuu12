@@ -126,7 +126,7 @@ export async function GET(request: Request) {
 
           const caption = jobData.caption || "";
           const firstLine = caption.split("\n")[0] || "";
-          const title = jobData.title || firstLine.replace(/#[^\s]+/g, "").replace(/https?:\/\/[^\s]+/g, "").trim() || "تلاوة قرآنية مباركة 📖✨";
+          const title = jobData.title || firstLine.replace(/#[^\s]+/g, "").replace(/https?:\/\/[^\s]+/g, "").trim() || "تلاوة قرآنية مباركة 📖";
           const tags = Array.isArray(jobData.tags) && jobData.tags.length > 0
             ? jobData.tags
             : (caption.match(/#([^\s#]+)/g) || []).map((h: string) => h.replace(/^#+/, "").replace(/_/g, " ").trim());

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, BookOpen, Sparkles, Check } from "lucide-react";
+import { X, BookOpen, Check } from "lucide-react";
 import { fetchVerseTafsir, fetchVerseDetails, ARABIC_TAFSIRS } from "@/lib/quranUtils";
 import { ReflectionTab } from "./ReflectionTab";
 

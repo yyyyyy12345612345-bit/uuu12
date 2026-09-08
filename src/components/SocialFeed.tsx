@@ -4,9 +4,9 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Send, Heart, MessageCircle, Share2, MoreHorizontal, Trash2,
   Loader2, User, EyeOff, X, AlertCircle, Bookmark, BookmarkCheck,
-  Crown, Sparkles, BookOpen, HandHeart, Award, Users, Search,
+  Crown, BookOpen, HandHeart, Award, Users, Search,
   Trophy, Shield, Ban, Flag, Check, Image as ImageIcon, Video, HelpCircle,
-  FileText, ArrowRight, Sparkle, UserCheck, UserPlus, LogOut, Info,
+  FileText, ArrowRight, UserCheck, UserPlus, LogOut, Info,
   Home, Folder, Menu
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -180,14 +180,14 @@ const CATEGORIES = [
   { id: "dua", label: "أدعية 🤲", icon: HandHeart },
   { id: "reflection", label: "تدبر آية 📖", icon: BookOpen },
   { id: "hadith", label: "حديث شريف 📚", icon: Award },
-  { id: "good", label: "كلمة طيبة 🌟", icon: Sparkles },
+  { id: "good", label: "كلمة طيبة 🌿", icon: Heart },
   { id: "saved", label: "المحفوظات 🔖", icon: Bookmark }
 ];
 
 const REACTION_EMOJIS = [
   { type: "like", emoji: "❤️", label: "أعجبني" },
   { type: "amin", emoji: "🤲", label: "آمين" },
-  { type: "inspired", emoji: "🌟", label: "ألهمتني" },
+  { type: "inspired", emoji: "💡", label: "ألهمتني" },
   { type: "reflected", emoji: "📖", label: "تدبرت" }
 ];
 
@@ -2544,7 +2544,7 @@ export function SocialFeed() {
                     <option value="reflection">تدبر آية 📖</option>
                     <option value="dua">أدعية 🤲</option>
                     <option value="hadith">حديث شريف 📚</option>
-                    <option value="good">كلمة طيبة 🌟</option>
+                    <option value="good">كلمة طيبة 🌿</option>
                   </select>
                 </div>
 
