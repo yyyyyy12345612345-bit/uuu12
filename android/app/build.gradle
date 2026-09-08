@@ -35,10 +35,29 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
     
-    // Enable R8 full mode for better optimization
     buildFeatures {
         viewBinding false
         dataBinding false
+    }
+
+    // Size Reduction: Split ABIs into lightweight per-architecture APKs
+    splits {
+        abi {
+            enable true
+            reset()
+            include "armeabi-v7a", "arm64-v8a"
+            universalApk true
+        }
+    }
+
+    // Strip unneeded license and meta files from APK
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE*'
+        exclude 'META-INF/NOTICE*'
+        exclude 'META-INF/*.version'
+        exclude '**/kotlin/**'
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
     }
 }
 

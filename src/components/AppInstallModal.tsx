@@ -411,8 +411,17 @@ export function AppInstallModal({ isOpen, onClose }: AppInstallModalProps) {
                           className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#BF953F] via-[#FCF6BA] to-[#B38728] text-black font-black text-sm md:text-base shadow-[0_10px_35px_rgba(212,175,55,0.25)] hover:shadow-[0_15px_45px_rgba(212,175,55,0.4)] hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 flex items-center justify-center gap-2.5"
                         >
                           <Download className="w-5 h-5 text-black" />
-                          <span>تثبيت التطبيق على الشاشة الرئيسية بنقرة واحدة</span>
+                          <span>تثبيت التطبيق على الشاشة الرئيسية (PWA)</span>
                         </button>
+
+                        <a
+                          href="/download/yaqeen.apk"
+                          download="yaqeen.apk"
+                          className="w-full py-3.5 px-6 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-[#d4af37]/30 text-white font-bold text-xs md:text-sm transition-all duration-300 flex items-center justify-center gap-2.5 hover:border-[#d4af37]"
+                        >
+                          <Download className="w-4 h-4 text-[#d4af37]" />
+                          <span>تحميل ملف APK المباشر للأندرويد (9.2 MB)</span>
+                        </a>
 
                         <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 text-right space-y-2">
                           <div className="flex items-center justify-end gap-2 text-xs font-black text-[#fbf5b7]">
