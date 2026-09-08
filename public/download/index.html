@@ -3,36 +3,31 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مركز تحميل تطبيق يقين القرآن | النسخ الرسمية الفاخرة</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تطبيق يقين القرآن الكريم | تحميل النسخة الرسمية</title>
     <meta name="description"
-        content="حمّل النسخة الرسمية المناسبة لجهازك من تطبيق يقين القرآن الكريم. اختر بين نسخة الأندرويد الأصلية الفائقة أو تطبيق الويب الذكي PWA. استقرار تام للصوتيات في الخلفية ومواقيت الأذان بدقة 100%.">
+        content="حمّل التطبيق الرسمي ليقين القرآن الكريم لهاتفك الأندرويد أو الآيفون. تلاوات خاشعة، صوت في الخلفية، أذان دقيق، وتجربة بدون إعلانات.">
     <link rel="icon" href="/logo/logo.png" type="image/png">
 
-    <!-- Google Fonts -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;900&display=swap"
-        rel="stylesheet">
-
-    <!-- Libraries -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
 
     <style>
         :root {
             --primary: #d4af37;
-            --primary-light: #f5df88;
-            --primary-dark: #99751e;
-            --primary-rgb: 212, 175, 55;
-            --bg-obsidian: #050608;
-            --bg-card: rgba(18, 20, 26, 0.85);
-            --bg-card-hover: rgba(28, 32, 42, 0.95);
-            --border-gold: rgba(212, 175, 55, 0.25);
-            --gold-gradient: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+            --primary-light: #fef08a;
+            --primary-dark: #a16207;
+            --gold-grad: linear-gradient(135deg, #d4af37 0%, #fef08a 50%, #b45309 100%);
             --emerald: #10b981;
-            --emerald-glow: rgba(16, 185, 129, 0.25);
+            --bg-body: #060709;
+            --bg-surface: #0f1117;
+            --bg-card: rgba(23, 26, 36, 0.7);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-gold: rgba(212, 175, 55, 0.3);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
         }
 
         * {
@@ -43,1037 +38,782 @@
         }
 
         body {
-            background-color: var(--bg-obsidian);
-            color: #f8fafc;
-            font-family: 'Cairo', 'Tajawal', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.5;
+            min-height: 100vh;
             overflow-x: hidden;
-            line-height: 1.6;
-            selection-background-color: var(--primary);
-        }
-
-        /* Ambient Glow & Backgrounds */
-        .ambient-glow {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-            background:
-                radial-gradient(circle at 15% 15%, rgba(var(--primary-rgb), 0.08) 0%, transparent 45%),
-                radial-gradient(circle at 85% 65%, rgba(var(--primary-rgb), 0.06) 0%, transparent 50%),
-                radial-gradient(circle at 50% 90%, rgba(16, 185, 129, 0.04) 0%, transparent 40%);
-        }
-
-        .pattern-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: radial-gradient(rgba(212, 175, 55, 0.12) 1px, transparent 1px);
-            background-size: 32px 32px;
-            opacity: 0.25;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        .container {
-            max-width: 1240px;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
-
-        /* Navigation */
-        nav {
-            height: 90px;
             display: flex;
+            flex-direction: column;
             justify-content: space-between;
+        }
+
+        /* Ambient Glow Background */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.12) 0%, transparent 55%),
+                radial-gradient(circle at 10% 40%, rgba(16, 185, 129, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.08) 0%, transparent 45%);
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        .pattern-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 32px 32px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* App Bar */
+        header.app-bar {
+            height: 64px;
+            display: flex;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-            backdrop-filter: blur(20px);
+            justify-content: space-between;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border-subtle);
+            backdrop-filter: blur(16px);
             position: sticky;
             top: 0;
-            z-index: 100;
-            background: rgba(5, 6, 8, 0.75);
+            z-index: 50;
+            background: rgba(6, 7, 9, 0.85);
         }
 
-        .nav-logo {
+        .bar-brand {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 10px;
             text-decoration: none;
             color: #fff;
         }
 
-        .nav-logo-icon {
-            width: 46px;
-            height: 46px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(0, 0, 0, 0.8));
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.25), rgba(0, 0, 0, 0.8));
             border: 1px solid var(--border-gold);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            box-shadow: 0 0 25px rgba(212, 175, 55, 0.2);
+            font-size: 18px;
         }
 
-        .nav-logo-text h1 {
-            font-size: 20px;
-            font-weight: 900;
-            letter-spacing: 0.5px;
-            background: var(--gold-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .nav-logo-text span {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.5);
-            display: block;
-        }
-
-        .nav-cta {
-            padding: 10px 22px;
-            border-radius: 100px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            color: #fbf5b7;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 700;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .nav-cta:hover {
-            background: rgba(212, 175, 55, 0.15);
-            border-color: var(--primary);
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-            transform: translateY(-2px);
-        }
-
-        /* Hero Section */
-        .hero {
-            padding: 70px 0 40px;
-            text-align: center;
-            position: relative;
-        }
-
-        .badge-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 22px;
-            border-radius: 100px;
-            background: rgba(212, 175, 55, 0.1);
-            border: 1px solid rgba(212, 175, 55, 0.35);
-            color: var(--primary-light);
-            font-size: 13px;
+        .brand-title {
+            font-size: 16px;
             font-weight: 800;
-            margin-bottom: 24px;
-            box-shadow: 0 0 25px rgba(212, 175, 55, 0.15);
-        }
-
-        .badge-pulse {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--emerald);
-            box-shadow: 0 0 10px var(--emerald);
-            animation: pulseDot 2s infinite;
-        }
-
-        @keyframes pulseDot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(1.3); }
-        }
-
-        .hero h2 {
-            font-size: clamp(2rem, 5vw, 3.4rem);
-            font-weight: 900;
-            line-height: 1.25;
-            margin-bottom: 18px;
-            color: #ffffff;
-        }
-
-        .hero h2 span.gold-text {
-            background: var(--gold-gradient);
+            background: var(--gold-grad);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .hero p.subtitle {
-            font-size: clamp(1rem, 2vw, 1.2rem);
-            color: rgba(255, 255, 255, 0.7);
-            max-width: 760px;
-            margin: 0 auto 35px;
-            line-height: 1.8;
-            font-weight: 500;
-        }
-
-        /* Device Detection Bar */
-        .device-detector-bar {
-            max-width: 720px;
-            margin: 0 auto 50px;
-            padding: 16px 24px;
-            border-radius: 20px;
-            background: rgba(16, 185, 129, 0.08);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .device-info {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            text-align: right;
-        }
-
-        .device-icon-box {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--emerald);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            shrink-0: 0;
-        }
-
-        .device-text strong {
-            display: block;
-            font-size: 14px;
-            color: #a7f3d0;
-        }
-
-        .device-text span {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.65);
-        }
-
-        .recommended-badge {
-            background: var(--emerald);
-            color: #000;
+        .bar-action {
             padding: 6px 14px;
             border-radius: 100px;
-            font-size: 11px;
-            font-weight: 900;
-            white-space: nowrap;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-subtle);
+            color: #cbd5e1;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: 0.2s;
         }
 
-        /* Edition Cards Grid */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 30px;
-            margin-bottom: 80px;
+        .bar-action:hover {
+            border-color: var(--primary);
+            color: #fff;
         }
 
-        .edition-card {
+        /* Main Container */
+        main.main-content {
+            flex: 1;
+            max-width: 580px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 24px 18px 40px;
+        }
+
+        /* Hero App Card (App Store / Play Store Style) */
+        .app-hero-card {
             background: var(--bg-card);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-subtle);
             border-radius: 28px;
-            padding: 36px 30px;
+            padding: 24px 20px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            margin-bottom: 24px;
             position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            backdrop-filter: blur(25px);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             overflow: hidden;
         }
 
-        .edition-card::before {
+        .app-hero-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
-            background: transparent;
-            transition: 0.3s;
+            height: 2px;
+            background: var(--gold-grad);
         }
 
-        .edition-card:hover {
-            transform: translateY(-8px);
-            background: var(--bg-card-hover);
-            border-color: rgba(212, 175, 55, 0.4);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(212, 175, 55, 0.15);
+        .app-header-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 18px;
         }
 
-        .edition-card.featured {
-            border-color: rgba(212, 175, 55, 0.45);
-            background: linear-gradient(180deg, rgba(30, 26, 16, 0.9) 0%, rgba(15, 17, 22, 0.95) 100%);
-            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6), 0 0 35px rgba(212, 175, 55, 0.18);
-        }
-
-        .edition-card.featured::before {
-            background: var(--gold-gradient);
-        }
-
-        .card-top-tag {
-            position: absolute;
-            top: 20px;
-            left: 24px;
-            padding: 5px 14px;
-            border-radius: 100px;
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-        }
-
-        .tag-gold {
-            background: rgba(212, 175, 55, 0.18);
-            border: 1px solid rgba(212, 175, 55, 0.4);
-            color: var(--primary-light);
-        }
-
-        .tag-blue {
-            background: rgba(59, 130, 246, 0.15);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            color: #93c5fd;
-        }
-
-        .tag-emerald {
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #6ee7b7;
-        }
-
-        .card-header {
-            margin-bottom: 24px;
-            text-align: right;
-            padding-top: 10px;
-        }
-
-        .card-icon-wrapper {
-            width: 60px;
-            height: 60px;
+        .app-avatar {
+            width: 76px;
+            height: 76px;
             border-radius: 20px;
+            background: linear-gradient(135deg, #1e1b12, #0c0d10);
+            border: 1.5px solid var(--border-gold);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
-            margin-bottom: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 38px;
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.2);
+            flex-shrink: 0;
         }
 
-        .icon-gold {
-            background: rgba(212, 175, 55, 0.12);
-            color: var(--primary);
-            border-color: rgba(212, 175, 55, 0.3);
+        .app-info {
+            flex: 1;
+            min-width: 0;
+            text-align: right;
         }
 
-        .icon-blue {
-            background: rgba(59, 130, 246, 0.12);
-            color: #60a5fa;
-            border-color: rgba(59, 130, 246, 0.3);
-        }
-
-        .icon-emerald {
-            background: rgba(16, 185, 129, 0.12);
-            color: var(--emerald);
-            border-color: rgba(16, 185, 129, 0.3);
-        }
-
-        .card-title {
-            font-size: 22px;
+        .app-name {
+            font-size: 20px;
             font-weight: 900;
             color: #ffffff;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+
+        .app-developer {
+            font-size: 12px;
+            color: var(--primary-light);
+            font-weight: 700;
             margin-bottom: 6px;
         }
 
-        .card-meta {
+        .app-badges {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 14px;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
-        .card-meta span.size-badge {
-            background: rgba(255, 255, 255, 0.08);
-            padding: 3px 10px;
+        .badge-pill {
+            padding: 3px 9px;
             border-radius: 6px;
-            font-weight: 700;
+            font-size: 10.5px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .badge-gold {
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: var(--primary-light);
+        }
+
+        .badge-emerald {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+        }
+
+        /* Stats Strip */
+        .stats-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 12px 14px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .stat-col strong {
+            display: block;
+            font-size: 14px;
+            font-weight: 900;
             color: #fff;
         }
 
-        .card-description {
-            font-size: 13.5px;
-            color: rgba(255, 255, 255, 0.7);
-            line-height: 1.7;
-            margin-bottom: 24px;
-            min-height: 46px;
+        .stat-col span {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 600;
         }
 
-        /* Features List */
-        .card-features {
-            list-style: none;
-            margin-bottom: 30px;
-            text-align: right;
-            border-top: 1px solid rgba(255, 255, 255, 0.07);
-            padding-top: 20px;
-        }
-
-        .card-features li {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.85);
-            margin-bottom: 12px;
+        /* Device Detection Notice */
+        .device-detected-notice {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: 14px;
+            padding: 10px 14px;
             display: flex;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: space-between;
             gap: 10px;
+            margin-bottom: 20px;
+            font-size: 11.5px;
         }
 
-        .card-features li span.bullet {
-            color: var(--emerald);
-            font-size: 16px;
+        .device-detected-notice .dev-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #a7f3d0;
+            font-weight: 700;
+        }
+
+        .device-detected-notice .dev-tag {
+            background: var(--emerald);
+            color: #000;
+            font-size: 10px;
             font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 100px;
+            white-space: nowrap;
         }
 
-        /* Card Action Buttons */
-        .download-btn {
+        /* Segmented OS Tabs */
+        .tab-switcher {
+            display: flex;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 4px;
+            margin-bottom: 22px;
+            gap: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 4px;
+            border-radius: 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 800;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.25s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 6px;
+        }
+
+        .tab-btn.active {
+            background: rgba(212, 175, 55, 0.18);
+            color: #fff;
+            border: 1px solid var(--border-gold);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.15);
+        }
+
+        /* Tab Content Panels */
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Download Primary Action Button */
+        .btn-download-primary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             width: 100%;
-            padding: 16px 24px;
-            border-radius: 18px;
-            font-size: 15px;
-            font-weight: 800;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: none;
-        }
-
-        .btn-gold {
-            background: var(--gold-gradient);
-            color: #000;
-            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.25);
-        }
-
-        .btn-gold:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(212, 175, 55, 0.4);
-            filter: brightness(1.05);
-        }
-
-        .btn-outline-gold {
-            background: rgba(255, 255, 255, 0.04);
-            color: #fbf5b7;
-            border: 1px solid rgba(212, 175, 55, 0.35);
-        }
-
-        .btn-outline-gold:hover {
-            background: rgba(212, 175, 55, 0.12);
-            border-color: var(--primary);
-            color: #fff;
-            transform: translateY(-2px);
-        }
-
-        .btn-emerald {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: #fff;
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.25);
-        }
-
-        .btn-emerald:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.4);
-            filter: brightness(1.08);
-        }
-
-        /* Comparison Table Section */
-        .comparison-section {
-            background: rgba(18, 20, 26, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            border-radius: 32px;
-            padding: 50px 40px;
-            margin-bottom: 80px;
-            backdrop-filter: blur(20px);
-        }
-
-        .section-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .section-header h3 {
-            font-size: 28px;
-            font-weight: 900;
-            color: #ffffff;
-            margin-bottom: 10px;
-        }
-
-        .section-header p {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .table-wrapper {
-            overflow-x: auto;
+            padding: 17px 20px;
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: var(--gold-grad);
+            color: #0c0a09;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 900;
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+            transition: all 0.25s;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
 
-        table.comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: right;
-            min-width: 600px;
+        .btn-download-primary:active {
+            transform: scale(0.98);
         }
 
-        table.comparison-table th, 
-        table.comparison-table td {
-            padding: 18px 24px;
-            font-size: 13.5px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        .btn-download-primary span.sub {
+            font-size: 11px;
+            opacity: 0.85;
+            font-weight: 700;
+            margin-right: 4px;
         }
 
-        table.comparison-table th {
-            background: rgba(255, 255, 255, 0.03);
-            font-weight: 800;
-            color: #fff;
-        }
-
-        table.comparison-table tr:hover td {
+        /* Secondary Alternative Link */
+        .alt-download-box {
+            margin-top: 14px;
+            padding: 12px 16px;
+            border-radius: 16px;
             background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-subtle);
+            text-align: center;
         }
 
-        .status-badge {
+        .alt-download-box a {
+            color: var(--primary-light);
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: underline;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 4px 12px;
-            border-radius: 100px;
+            gap: 5px;
+        }
+
+        .alt-download-box p {
             font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Features Mobile Grid */
+        .features-mobile-list {
+            margin-top: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .feature-item-row {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-align: right;
+        }
+
+        .feature-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .feature-item-row strong {
+            display: block;
+            font-size: 13.5px;
+            color: #ffffff;
             font-weight: 800;
         }
 
-        .status-perfect {
-            background: rgba(16, 185, 129, 0.15);
-            color: #6ee7b7;
-            border: 1px solid rgba(16, 185, 129, 0.3);
+        .feature-item-row span {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            display: block;
+            margin-top: 2px;
         }
 
-        .status-good {
-            background: rgba(59, 130, 246, 0.15);
-            color: #93c5fd;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-
-        /* How to Install Steps */
-        .install-guide {
-            margin-bottom: 80px;
-        }
-
-        .steps-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 24px;
-            margin-top: 35px;
-        }
-
-        .step-box {
+        /* Installation Steps Accordion */
+        .install-guide-card {
+            margin-top: 28px;
             background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 24px;
-            padding: 30px 24px;
+            border: 1px solid var(--border-subtle);
+            border-radius: 22px;
+            padding: 18px 18px;
+        }
+
+        .guide-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--primary-light);
+            margin-bottom: 14px;
             text-align: right;
-            position: relative;
-            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .step-box:hover {
-            border-color: rgba(212, 175, 55, 0.3);
-            background: rgba(212, 175, 55, 0.03);
-            transform: translateY(-4px);
+        .guide-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        .step-number {
-            width: 38px;
-            height: 38px;
-            border-radius: 12px;
+        .guide-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            text-align: right;
+            font-size: 12px;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+
+        .guide-step-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
             background: rgba(212, 175, 55, 0.15);
             color: var(--primary-light);
             border: 1px solid rgba(212, 175, 55, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 11px;
             font-weight: 900;
-            font-size: 16px;
-            margin-bottom: 18px;
+            flex-shrink: 0;
+            margin-top: 2px;
         }
 
-        .step-box h4 {
-            font-size: 16px;
-            font-weight: 800;
+        /* iOS Guidance Card */
+        .ios-guide-box {
+            background: rgba(212, 175, 55, 0.07);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 20px;
+            padding: 18px;
+            text-align: right;
+        }
+
+        .ios-guide-box h4 {
+            font-size: 14px;
             color: #fff;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
+            font-weight: 800;
         }
 
-        .step-box p {
-            font-size: 12.5px;
-            color: rgba(255, 255, 255, 0.65);
-            line-height: 1.7;
-        }
-
-        /* Guarantee Badges */
-        .guarantee-bar {
+        .ios-steps {
+            list-style: none;
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 24px;
-            margin-bottom: 70px;
-            padding: 24px;
-            border-radius: 24px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            flex-direction: column;
+            gap: 12px;
+            font-size: 12px;
+            color: #cbd5e1;
         }
 
-        .guarantee-item {
+        .ios-steps li {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 13px;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .guarantee-item span.icon {
-            font-size: 18px;
-            color: var(--primary);
+            gap: 8px;
         }
 
         /* Footer */
-        footer {
+        footer.app-footer {
+            padding: 24px 20px 30px;
             text-align: center;
-            padding: 50px 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.07);
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.4);
+            border-top: 1px solid var(--border-subtle);
+            font-size: 11.5px;
+            color: #64748b;
         }
 
-        footer a {
-            color: var(--primary);
+        footer.app-footer a {
+            color: var(--primary-light);
             text-decoration: none;
             font-weight: 700;
-        }
-
-        @media (max-width: 768px) {
-            .cards-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .device-detector-bar {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .device-info {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .comparison-section {
-                padding: 30px 20px;
-            }
         }
     </style>
 </head>
 
 <body>
-    <div class="ambient-glow"></div>
-    <div class="pattern-overlay"></div>
+    <div class="ambient-bg"></div>
+    <div class="pattern-grid"></div>
 
-    <div class="container">
-        <!-- Navigation -->
-        <nav>
-            <a href="/" class="nav-logo">
-                <div class="nav-logo-icon">📖</div>
-                <div class="nav-logo-text">
-                    <h1>يَقِين القُرْآن</h1>
-                    <span>مركز التحميل والنسخ الرسمية</span>
-                </div>
-            </a>
+    <!-- Top App Bar -->
+    <header class="app-bar">
+        <a href="/" class="bar-brand">
+            <div class="brand-icon">📖</div>
+            <div class="brand-title">يَقِين القُرْآن</div>
+        </a>
 
-            <a href="/" class="nav-cta">
-                <span>تصفح الموقع</span>
-                <span style="font-size: 16px;">←</span>
-            </a>
-        </nav>
+        <a href="/" class="bar-action">
+            <span>فتح الموقع ↗</span>
+        </a>
+    </header>
 
-        <!-- Hero Section -->
-        <section class="hero">
-            <div class="badge-pill" data-aos="fade-down">
-                <span class="badge-pulse"></span>
-                <span>الإصدار العالمي الفاخر V 22 · جاهز للتحميل</span>
-            </div>
+    <!-- Main Container -->
+    <main class="main-content">
 
-            <h2 data-aos="fade-up" data-aos-delay="100">
-                اختر النسخة المثالية <br>
-                <span class="gold-text">لتجربة إيمانية متكاملة على جهازك</span>
-            </h2>
-
-            <p class="subtitle" data-aos="fade-up" data-aos-delay="200">
-                صممنا تطبيق يقين القرآن بأحدث التقنيات مع دعم تشغيل التلاوات في الخلفية، الأذان الدقيق، والمصحف الشريف كاملاً بدون إنترنت وبحجم خفيف جداً.
-            </p>
-
-            <!-- Device Detection Notification Bar -->
-            <div class="device-detector-bar" id="deviceBar" data-aos="zoom-in" data-aos-delay="300">
-                <div class="device-info">
-                    <div class="device-icon-box" id="deviceIcon">📱</div>
-                    <div class="device-text">
-                        <strong id="deviceTitle">جاري فحص نظام جهازك...</strong>
-                        <span id="deviceSubtitle">نحدد لك النسخة الأنسب تلقائياً لتقديم أفضل أداء</span>
+        <!-- App Hero Card -->
+        <div class="app-hero-card">
+            <div class="app-header-row">
+                <div class="app-avatar">📖</div>
+                <div class="app-info">
+                    <h1 class="app-name">يقين القرآن الكريم</h1>
+                    <div class="app-developer">النسخة الرسمية الفاخرة V 22</div>
+                    <div class="app-badges">
+                        <span class="badge-pill badge-gold">⭐ 4.9 تقييم ممتاز</span>
+                        <span class="badge-pill badge-emerald">🛡️ خالٍ من الإعلانات 100%</span>
                     </div>
                 </div>
-                <div class="recommended-badge" id="deviceBadge">فحص تلقائي</div>
             </div>
-        </section>
 
-        <!-- The 3 Editions Grid -->
-        <div class="cards-grid">
-
-            <!-- Card 1: 64-bit Modern Android (Recommended) -->
-            <div class="edition-card featured" id="card-arm64" data-aos="fade-up" data-aos-delay="100">
-                <span class="card-top-tag tag-gold" id="tag-arm64">الأعلى طلباً · موصى به</span>
-                
-                <div>
-                    <div class="card-header">
-                        <div class="card-icon-wrapper icon-gold">⚡</div>
-                        <h3 class="card-title">أندرويد الحديث (64-bit)</h3>
-                        <div class="card-meta">
-                            <span class="size-badge">9.2 MB فقط</span>
-                            <span>•</span>
-                            <span>أندرويد 7.0 فأعلى</span>
-                            <span>•</span>
-                            <span>نسخة APK أصلية</span>
-                        </div>
-                        <p class="card-description">
-                            النسخة الأقوى والأكثر استقراراً لـ 95% من هواتف أندرويد الحديثة (سامسونج، شاومي، أوبو، ريلمي، فيفو، هواوي، وباقي الأجهزة).
-                        </p>
-                    </div>
-
-                    <ul class="card-features">
-                        <li>
-                            <span class="bullet">✓</span>
-                            <span>تشغيل الصوت في الخلفية وشاشة القفل 100% دون انقطاع</span>
-                        </li>
-                        <li>
-                            <span class="bullet">✓</span>
-                            <span>إشعارات الأذان والصلوات بدقة تامة تتجاوز قيود توفير الطاقة</span>
-                        </li>
-                        <li>
-                            <span class="bullet">✓</span>
-                            <span>المصحف العثماني كاملاً وتفاسير الآيات تعمل بدون إنترنت</span>
-                        </li>
-                        <li>
-                            <span class="bullet">✓</span>
-                            <span>بوصلة القبلة الدقيقة والسبحة الإلكترونية ومكتبة كبار القراء</span>
-                        </li>
-                    </ul>
+            <!-- Stats Strip -->
+            <div class="stats-strip">
+                <div class="stat-col">
+                    <strong>9.2 MB</strong>
+                    <span>حجم خفيف جداً</span>
                 </div>
+                <div class="stat-col">
+                    <strong>114 سورة</strong>
+                    <span>المصحف كاملاً</span>
+                </div>
+                <div class="stat-col">
+                    <strong>بدون إنترنت</strong>
+                    <span>يعمل في كل وقت</span>
+                </div>
+            </div>
 
-                <div>
-                    <a href="/download/yaqeen.apk" download="yaqeen.apk" class="download-btn btn-gold" id="btn-arm64">
-                        <span>تحميل تطبيق يقين APK (9.2 MB)</span>
-                        <span style="font-size: 18px;">⬇</span>
+            <!-- Real-time Device Detection Notice -->
+            <div class="device-detected-notice" id="devNotice">
+                <div class="dev-right">
+                    <span id="devIcon">📱</span>
+                    <span id="devText">جاري اكتشاف جهازك...</span>
+                </div>
+                <span class="dev-tag" id="devTag">موصى به</span>
+            </div>
+
+            <!-- Tab Switcher for OS -->
+            <div class="tab-switcher">
+                <button class="tab-btn active" id="tabBtnAndroid" onclick="switchTab('android')">
+                    <span>🤖</span>
+                    <span>أندرويد (APK)</span>
+                </button>
+                <button class="tab-btn" id="tabBtnIOS" onclick="switchTab('ios')">
+                    <span>🍏</span>
+                    <span>آيفون (Apple)</span>
+                </button>
+                <button class="tab-btn" id="tabBtnPC" onclick="switchTab('pc')">
+                    <span>💻</span>
+                    <span>الكمبيوتر</span>
+                </button>
+            </div>
+
+            <!-- TAB 1: ANDROID -->
+            <div class="tab-panel active" id="panelAndroid">
+                <!-- Primary Action Button -->
+                <a href="/download/yaqeen.apk" download="yaqeen.apk" class="btn-download-primary" id="mainDownloadBtn">
+                    <span style="font-size: 20px;">⬇</span>
+                    <div>
+                        <div>تحميل تطبيق أندرويد APK</div>
+                        <div style="font-size: 10.5px; opacity: 0.85; font-weight: 700;">نسخة 64-bit السريعة (9.2 MB) · موصى بها</div>
+                    </div>
+                </a>
+
+                <!-- Alternative 32-bit Link -->
+                <div class="alt-download-box">
+                    <a href="/download/yaqeen-v7a.apk" download="yaqeen-v7a.apk">
+                        <span>نسخة الهواتف الاقتصادية / الأقدم (8.8 MB) ↗</span>
                     </a>
-                    <p style="text-align: center; font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 10px;">
-                        معمارية: ARM64-v8a · فحص الأمان: آمن 100%
-                    </p>
+                    <p>مخصصة للهواتف المصنوعة قبل 2018 أو الأجهزة ذات الرامات المحدودة</p>
+                </div>
+
+                <!-- Android 4-Steps Guide -->
+                <div class="install-guide-card">
+                    <div class="guide-title">
+                        <span>⚡</span>
+                        <span>طريقة التثبيت السريعة في ثوانٍ:</span>
+                    </div>
+                    <div class="guide-steps">
+                        <div class="guide-step">
+                            <span class="guide-step-num">١</span>
+                            <span>اضغط على زر التحميل الذهبي بالأعلى.</span>
+                        </div>
+                        <div class="guide-step">
+                            <span class="guide-step-num">٢</span>
+                            <span>إذا ظهر تنبيه التحميل، اضغط <strong>«تنزيل على أي حال» (Download anyway)</strong> - الملف آمن 100%.</span>
+                        </div>
+                        <div class="guide-step">
+                            <span class="guide-step-num">٣</span>
+                            <span>افتح الملف من التنزيلات واضغط <strong>«تثبيت» (Install)</strong>.</span>
+                        </div>
+                        <div class="guide-step">
+                            <span class="guide-step-num">٤</span>
+                            <span>افتح التطبيق واستمتع بتشغيل التلاوات والأذان في الخلفية.</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Card 2: 32-bit Legacy / Budget Phones -->
-            <div class="edition-card" id="card-armeabi" data-aos="fade-up" data-aos-delay="200">
-                <span class="card-top-tag tag-blue">للهواتف الأقدم</span>
+            <!-- TAB 2: iOS / APPLE -->
+            <div class="tab-panel" id="panelIOS">
+                <div class="ios-guide-box">
+                    <h4>تثبيت يقين على iPhone و iPad (تطبيق ويب فوري PWA):</h4>
+                    <ol class="ios-steps">
+                        <li>
+                            <span style="font-size: 16px;">1️⃣</span>
+                            <span>افتح الموقع من متصفح <strong>Safari</strong> الأصلي.</span>
+                        </li>
+                        <li>
+                            <span style="font-size: 16px;">2️⃣</span>
+                            <span>اضغط على زر <strong>المشاركة (Share ⎋)</strong> في أسفل الشاشة.</span>
+                        </li>
+                        <li>
+                            <span style="font-size: 16px;">3️⃣</span>
+                            <span>مرر للأسفل واختر <strong>«إضافة إلى الشاشة الرئيسية» (Add to Home Screen ➕)</strong>.</span>
+                        </li>
+                        <li>
+                            <span style="font-size: 16px;">4️⃣</span>
+                            <span>اضغط <strong>«إضافة» (Add)</strong> وسيظهر التطبيق على شاشتك كأيقونة أصلية فوراً بدون تحميل ملفات.</span>
+                        </li>
+                    </ol>
 
-                <div>
-                    <div class="card-header">
-                        <div class="card-icon-wrapper icon-blue">📱</div>
-                        <h3 class="card-title">أندرويد الخفيف (32-bit)</h3>
-                        <div class="card-meta">
-                            <span class="size-badge">8.8 MB فقط</span>
-                            <span>•</span>
-                            <span>للهواتف الاقتصادية</span>
-                            <span>•</span>
-                            <span>نسخة APK أصلية</span>
-                        </div>
-                        <p class="card-description">
-                            مخصصة خصيصاً للهواتف القديمة أو الاقتصادية ذات المواصفات المحدودة لتعمل بخفة وسرعة متناهية دون أي استهلاك للذاكرة.
-                        </p>
-                    </div>
-
-                    <ul class="card-features">
-                        <li>
-                            <span class="bullet">✓</span>
-                            <span>حجم فائق الصغر (8.8 MB) لا يستهلك سعة التخزين</span>
-                        </li>
-                        <li>
-                            <span class="bullet">✓</span>
-                            <span>توافقية عالية مع الهواتف الاقتصادية ونظام أندرويد القديم</span>
-                        </li>
-                        <li>
-                            <span class="bullet">✓</span>
-                            <span>كافة السور الـ 114 والأذكار اليومية متوفرة بالكامل</span>
-                        </li>
-                        <li>
-                            <span class="bullet">✓</span>
-                            <span>استهلاك بطارية شبه معدوم وموفر للموارد</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <div>
-                    <a href="/download/yaqeen-v7a.apk" download="yaqeen-v7a.apk" class="download-btn btn-outline-gold" id="btn-armeabi">
-                        <span>تحميل النسخة الخفيفة APK (8.8 MB)</span>
-                        <span style="font-size: 18px;">⬇</span>
+                    <a href="/" class="btn-download-primary" style="margin-top: 16px;">
+                        <span>فتح الموقع في Safari لتثبيته 🚀</span>
                     </a>
-                    <p style="text-align: center; font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 10px;">
-                        معمارية: ARMv7a · للأجهزة قبل 2018
-                    </p>
                 </div>
             </div>
 
-            <!-- Card 3: PWA (Apple iOS & Desktop & Any Browser) -->
-            <div class="edition-card" id="card-pwa" data-aos="fade-up" data-aos-delay="300">
-                <span class="card-top-tag tag-emerald">للآيفون والكمبيوتر</span>
-
-                <div>
-                    <div class="card-header">
-                        <div class="card-icon-wrapper icon-emerald">🌐</div>
-                        <h3 class="card-title">تطبيق الويب الذكي (PWA)</h3>
-                        <div class="card-meta">
-                            <span class="size-badge">فوري (0 MB)</span>
-                            <span>•</span>
-                            <span>آيفون، ويندوز، ماك</span>
-                            <span>•</span>
-                            <span>تثبيت بنقرة واحدة</span>
-                        </div>
-                        <p class="card-description">
-                            الخيار المثالي لمستخدمي أجهزة Apple (iPhone & iPad) ومستخدمي الكمبيوتر وسطح المكتب، يثبت كأيقونة تطبيق دون تحميل ملفات.
-                        </p>
-                    </div>
-
-                    <ul class="card-features">
-                        <li>
-                            <span class="bullet">✓</span>
-                            <span>يعمل مباشرة على Safari (آيفون) و Chrome و Edge</span>
-                        </li>
-                        <li>
-                            <span class="bullet">✓</span>
-                            <span>لا يحتاج تحميل أي ملفات APK ولا يستهلك مساحة الهاتف</span>
-                        </li>
-                        <li>
-                            <span class="bullet">✓</span>
-                            <span>يتحدث تلقائياً وفورياً مع كل ميزة جديدة نضيفها للموقع</span>
-                        </li>
-                        <li>
-                            <span class="bullet">✓</span>
-                            <span>يفتح في شاشة كاملة وبسرعة فائقة مثل التطبيقات الأصلية</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <div>
-                    <a href="/" class="download-btn btn-emerald" id="btn-pwa">
-                        <span>فتح وتثبيت التطبيق فوراً</span>
-                        <span style="font-size: 18px;">🚀</span>
-                    </a>
-                    <p style="text-align: center; font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 10px;">
-                        متوافق مع: iOS (Safari) · Windows · Mac · Android
+            <!-- TAB 3: PC / DESKTOP -->
+            <div class="tab-panel" id="panelPC">
+                <div class="ios-guide-box">
+                    <h4>تثبيت يقين على الكمبيوتر (Windows / Mac):</h4>
+                    <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.6;">
+                        يمكنك تثبيت الموقع كتطبيق مستقل على سطح المكتب وشريط المهام بلمسة زر واحدة في متصفح Chrome أو Edge.
                     </p>
+                    <a href="/" class="btn-download-primary">
+                        <span>فتح وتثبيت تطبيق سطح المكتب 💻</span>
+                    </a>
+                    
+                    <div style="margin-top: 12px; text-align: center;">
+                        <a href="/download/yaqeen.apk" download="yaqeen.apk" style="color: var(--primary-light); font-size: 12px; text-decoration: underline;">
+                            أو حمّل ملف APK لنقله إلى هاتفك (9.2 MB)
+                        </a>
+                    </div>
                 </div>
             </div>
 
         </div>
 
-        <!-- Comparison Matrix Table -->
-        <section class="comparison-section" data-aos="fade-up">
-            <div class="section-header">
-                <h3>جدول مقارنة النسخ: ما الفرق بينهم؟</h3>
-                <p>اختر ما يناسب طبيعة جهازك واحتياجك اليومي للقرآن الكريم</p>
-            </div>
-
-            <div class="table-wrapper">
-                <table class="comparison-table">
-                    <thead>
-                        <tr>
-                            <th>الميزة والمقارنة</th>
-                            <th>تطبيق أندرويد الأصلي (APK)</th>
-                            <th>تطبيق الويب الذكي (PWA)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>نوع الجهاز المناسب</strong></td>
-                            <td>جميع هواتف أندرويد (سامسونج، شاومي، هواوي...)</td>
-                            <td>الآيفون (iOS)، الكمبيوتر، وأي متصفح</td>
-                        </tr>
-                        <tr>
-                            <td><strong>حجم التثبيت على الهاتف</strong></td>
-                            <td>خفيف جداً (8.8 - 9.2 ميجابايت فقط)</td>
-                            <td>فوري ومباشر (0 ميجابايت تنزيل)</td>
-                        </tr>
-                        <tr>
-                            <td><strong>استقرار الصوت في الخلفية</strong></td>
-                            <td><span class="status-badge status-perfect">✓ تام 100% ولا ينقطع أبداً</span></td>
-                            <td><span class="status-badge status-good">مدعوم عبر المتصفح</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>دقة إشعارات مواقيت الصلاة</strong></td>
-                            <td><span class="status-badge status-perfect">دقيقة 100% تتجاوز قفل الشاشة</span></td>
-                            <td><span class="status-badge status-good">تعتمد على إذونات المتصفح</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>العمل بدون إنترنت (Offline)</strong></td>
-                            <td><span class="status-badge status-perfect">كامل للمصحف والأذكار والمواقيت</span></td>
-                            <td><span class="status-badge status-good">مدعوم عبر الذاكرة المؤقتة</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>طريقة التحديث</strong></td>
-                            <td>تنزيل التحديثات الجديدة بضغطة زر</td>
-                            <td>تحديث تلقائي وفوري سحابياً</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Steps to Install APK -->
-        <section class="install-guide" data-aos="fade-up">
-            <div class="section-header">
-                <h3>كيفية تثبيت ملف الـ APK على هاتفك في 4 خطوات</h3>
-                <p>الملف آمن تماماً، معتمد، وخالٍ كلياً من أي برمجيات ضارة أو إعلانات</p>
-            </div>
-
-            <div class="steps-grid">
-                <div class="step-box">
-                    <div class="step-number">١</div>
-                    <h4>اضغط على زر التحميل</h4>
-                    <p>اضغط على زر تحميل APK (9.2 MB) بالأعلى، وسيبدأ التنزيل فوراً على هاتفك خلال ثوانٍ معدودة.</p>
-                </div>
-
-                <div class="step-box">
-                    <div class="step-number">٢</div>
-                    <h4>الموافقة على التنزيل الآمن</h4>
-                    <p>إذا أظهر هاتفك رسالة "قد يكون الملف ضاراً"، اضغط على <strong>«تنزيل على أي حال» (Download anyway)</strong>؛ لأن الملف يُثبت من خارج متجر جوجل بلاي.</p>
-                </div>
-
-                <div class="step-box">
-                    <div class="step-number">٣</div>
-                    <h4>السماح بالتثبيت من المتصفح</h4>
-                    <p>افتح الملف الذي تم تحميله، وإذا طلب الهاتف إذناً، فعّل خيار <strong>«السماح بالتثبيت من هذا المصدر»</strong> لمتصفح كروم أو المتصفح المستخدم.</p>
-                </div>
-
-                <div class="step-box">
-                    <div class="step-number">٤</div>
-                    <h4>فتح تطبيق يقين القرآن</h4>
-                    <p>اضغط <strong>«تثبيت» (Install)</strong> ثم <strong>«فتح» (Open)</strong> واستمتع بتجربة إيمانية متكاملة لا تنقطع في الخلفية.</p>
+        <!-- Highlights List (Mobile Friendly) -->
+        <div class="features-mobile-list">
+            <div class="feature-item-row">
+                <div class="feature-icon-box">🎧</div>
+                <div>
+                    <strong>استقرار كامل في الخلفية وشاشة القفل</strong>
+                    <span>تلاوات متواصلة بدون أي انقطاع حتى مع إغلاق الشاشة</span>
                 </div>
             </div>
-        </section>
 
-        <!-- Guarantees Bar -->
-        <div class="guarantee-bar" data-aos="fade-up">
-            <div class="guarantee-item">
-                <span class="icon">🛡️</span>
-                <span>خالٍ تماماً من أي إعلانات تجارية</span>
+            <div class="feature-item-row">
+                <div class="feature-icon-box">🕋</div>
+                <div>
+                    <strong>إشعارات الأذان والصلوات بدقة 100%</strong>
+                    <span>تنبيهات في موعدها الدقيق تتجاوز قيود توفير الطاقة في النظام</span>
+                </div>
             </div>
-            <div class="guarantee-item">
-                <span class="icon">📖</span>
-                <span>نص قرآني عثماني معتمد ومدقق</span>
+
+            <div class="feature-item-row">
+                <div class="feature-icon-box">📖</div>
+                <div>
+                    <strong>المصحف العثماني كاملاً بدون إنترنت</strong>
+                    <span>قراءة مريحة مع تفاسير الآيات، علامات الحفظ، والبحث السريع</span>
+                </div>
             </div>
-            <div class="guarantee-item">
-                <span class="icon">🔒</span>
-                <span>أمان وخصوصية 100% دون تتبع</span>
-            </div>
-            <div class="guarantee-item">
-                <span class="icon">⚡</span>
-                <span>حجم مضغوط فائق الخفة والسرعة</span>
+
+            <div class="feature-item-row">
+                <div class="feature-icon-box">🧭</div>
+                <div>
+                    <strong>القبلة التفاعلية والسبحة الإلكترونية</strong>
+                    <span>حساب دقيق لاتجاه الكعبة أينما كنت مع عداد التسبيح الذكي</span>
+                </div>
             </div>
         </div>
 
-        <!-- Footer -->
-        <footer>
-            <p>جميع الحقوق محفوظة © تطبيق يقين القرآن الكريم 2026</p>
-            <p style="margin-top: 8px;">
-                تم التطوير ابتغاء مرضاة الله تعالى ولخدمة أمة القرآن · 
-                <a href="/">العودة إلى الصفحة الرئيسية</a>
-            </p>
-        </footer>
-    </div>
+    </main>
 
-    <!-- AOS Script -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Footer -->
+    <footer class="app-footer">
+        <p>جميع الحقوق محفوظة © تطبيق يقين القرآن الكريم 2026</p>
+        <p style="margin-top: 4px;">
+            تطبيق إسلامي نقي 100% · <a href="/">الرئيسية</a>
+        </p>
+    </footer>
+
+    <!-- Smart Tabs & Detection Script -->
     <script>
-        AOS.init({
-            duration: 800,
-            once: true,
-            offset: 50
-        });
+        function switchTab(os) {
+            const tabs = ['android', 'ios', 'pc'];
+            tabs.forEach(t => {
+                const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+                const panel = document.getElementById('panel' + t.charAt(0).toUpperCase() + t.slice(1));
+                if (btn && panel) {
+                    if (t === os) {
+                        btn.classList.add('active');
+                        panel.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                        panel.classList.remove('active');
+                    }
+                }
+            });
+        }
 
-        // Smart Device Detection
-        (function detectUserDevice() {
-            const ua = navigator.userAgent || navigator.vendor || window.opera;
-            const deviceBar = document.getElementById('deviceBar');
-            const deviceTitle = document.getElementById('deviceTitle');
-            const deviceSubtitle = document.getElementById('deviceSubtitle');
-            const deviceBadge = document.getElementById('deviceBadge');
-            const deviceIcon = document.getElementById('deviceIcon');
-
-            const cardArm64 = document.getElementById('card-arm64');
-            const cardArmeabi = document.getElementById('card-armeabi');
-            const cardPwa = document.getElementById('card-pwa');
-
+        // Auto-detect device
+        (function initDevice() {
+            const ua = navigator.userAgent || '';
             const isAndroid = /android/i.test(ua);
             const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-            const isMac = /Macintosh|Mac OS X/i.test(ua);
-            const isWindows = /Windows/i.test(ua);
+            const isDesktop = !isAndroid && !isIOS;
+
+            const devIcon = document.getElementById('devIcon');
+            const devText = document.getElementById('devText');
+            const devTag = document.getElementById('devTag');
 
             if (isAndroid) {
-                deviceIcon.innerText = "🤖";
-                deviceTitle.innerText = "تم اكتشاف جهازك: هاتف أندرويد";
-                deviceSubtitle.innerText = "النسخة الأنسب لك: تطبيق يقين الأصلي (64-bit APK) لاستقرار الصوت في الخلفية والأذان";
-                deviceBadge.innerText = "موصى به لجهازك";
-                
-                // Highlight Arm64
-                if (cardArm64) {
-                    cardArm64.classList.add('featured');
-                    cardArm64.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
+                devIcon.innerText = "🤖";
+                devText.innerText = "هاتفك: أندرويد · تم تحديد ملف APK المناسب";
+                devTag.innerText = "موصى به لجهازك";
+                switchTab('android');
             } else if (isIOS) {
-                deviceIcon.innerText = "🍏";
-                deviceTitle.innerText = "تم اكتشاف جهازك: iPhone / iPad (Apple)";
-                deviceSubtitle.innerText = "النسخة الأنسب لك: تطبيق الويب الذكي (PWA) للتثبيت المباشر على الشاشة الرئيسية عبر Safari";
-                deviceBadge.innerText = "موصى به للآيفون";
-
-                if (cardPwa) {
-                    cardPwa.classList.add('featured');
-                    if (cardArm64) cardArm64.classList.remove('featured');
-                }
-            } else if (isWindows || isMac) {
-                deviceIcon.innerText = "💻";
-                deviceTitle.innerText = "تم اكتشاف جهازك: كمبيوتر / سطح المكتب (" + (isWindows ? "Windows" : "Mac") + ")";
-                deviceSubtitle.innerText = "يمكنك تثبيت تطبيق الويب الذكي (PWA) لسطح المكتب أو تحميل ملف الـ APK لنقله لهاتفك";
-                deviceBadge.innerText = "جهاز كمبيوتر";
+                devIcon.innerText = "🍏";
+                devText.innerText = "هاتفك: آيفون / آيباد (Apple iOS)";
+                devTag.innerText = "تطبيق الويب الفوري";
+                switchTab('ios');
+            } else {
+                devIcon.innerText = "💻";
+                devText.innerText = "جهازك: كمبيوتر / سطح المكتب";
+                devTag.innerText = "النسخة الذكية";
+                switchTab('pc');
             }
         })();
     </script>
