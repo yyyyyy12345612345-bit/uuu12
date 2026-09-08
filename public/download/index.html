@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>تطبيق يقين القرآن الكريم | تحميل النسخة الرسمية</title>
+    <title>تحميل تطبيق يقين القرآن الكريم | النسخة الرسمية</title>
     <meta name="description"
         content="حمّل التطبيق الرسمي ليقين القرآن الكريم لهاتفك الأندرويد أو الآيفون. تلاوات خاشعة، صوت في الخلفية، أذان دقيق، وتجربة بدون إعلانات.">
     <link rel="icon" href="/logo/logo.png" type="image/png">
@@ -15,19 +15,49 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
 
     <style>
-        :root {
+        /* ========================================================
+           THEME TOKENS: WHITE MODE (DEFAULT) & DARK MODE
+           ======================================================== */
+        :root, [data-theme="light"] {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-card-subtle: #f1f5f9;
+            --border-card: #e2e8f0;
+            --border-gold: rgba(180, 131, 22, 0.35);
+            --text-heading: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            --primary: #b48316;
+            --primary-light: #fef08a;
+            --primary-hover: #92630e;
+            --gold-gradient: linear-gradient(135deg, #d4af37 0%, #fef08a 45%, #b48316 100%);
+            --btn-gold-text: #1e1b12;
+            --emerald: #059669;
+            --emerald-bg: #ecfdf5;
+            --emerald-border: #a7f3d0;
+            --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
+            --header-bg: rgba(255, 255, 255, 0.9);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #090b10;
+            --bg-card: #12151f;
+            --bg-card-subtle: #1a1e2b;
+            --border-card: #272c3d;
+            --border-gold: rgba(212, 175, 55, 0.35);
+            --text-heading: #f8fafc;
+            --text-body: #cbd5e1;
+            --text-muted: #94a3b8;
             --primary: #d4af37;
             --primary-light: #fef08a;
-            --primary-dark: #a16207;
-            --gold-grad: linear-gradient(135deg, #d4af37 0%, #fef08a 50%, #b45309 100%);
+            --primary-hover: #b48316;
+            --gold-gradient: linear-gradient(135deg, #d4af37 0%, #fef08a 50%, #b45309 100%);
+            --btn-gold-text: #0a0a08;
             --emerald: #10b981;
-            --bg-body: #060709;
-            --bg-surface: #0f1117;
-            --bg-card: rgba(23, 26, 36, 0.7);
-            --border-subtle: rgba(255, 255, 255, 0.08);
-            --border-gold: rgba(212, 175, 55, 0.3);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
+            --emerald-bg: rgba(16, 185, 129, 0.12);
+            --emerald-border: rgba(16, 185, 129, 0.3);
+            --card-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            --header-bg: rgba(9, 11, 16, 0.9);
         }
 
         * {
@@ -39,7 +69,7 @@
 
         body {
             background-color: var(--bg-body);
-            color: var(--text-main);
+            color: var(--text-body);
             font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
             line-height: 1.5;
             min-height: 100vh;
@@ -47,178 +77,210 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Ambient Glow Background */
-        .ambient-bg {
+        /* Ambient Glow & Grid */
+        .ambient-glow {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: 
-                radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.12) 0%, transparent 55%),
-                radial-gradient(circle at 10% 40%, rgba(16, 185, 129, 0.06) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.08) 0%, transparent 45%);
+            pointer-events: none;
             z-index: -2;
-            pointer-events: none;
+            background: 
+                radial-gradient(circle at 50% -10%, rgba(212, 175, 55, 0.15) 0%, transparent 60%),
+                radial-gradient(circle at 10% 40%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 85%, rgba(212, 175, 55, 0.1) 0%, transparent 50%);
         }
 
-        .pattern-grid {
+        .bg-grid {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 32px 32px;
-            z-index: -1;
+            background-image: radial-gradient(rgba(180, 131, 22, 0.1) 1px, transparent 1px);
+            background-size: 28px 28px;
             pointer-events: none;
+            z-index: -1;
+            opacity: 0.6;
         }
 
-        /* App Bar */
-        header.app-bar {
-            height: 64px;
+        /* Top Bar */
+        header.top-bar {
+            height: 68px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 20px;
-            border-bottom: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-card);
             backdrop-filter: blur(16px);
             position: sticky;
             top: 0;
-            z-index: 50;
-            background: rgba(6, 7, 9, 0.85);
+            z-index: 100;
+            background: var(--header-bg);
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
 
-        .bar-brand {
+        .brand-link {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             text-decoration: none;
-            color: #fff;
         }
 
-        .brand-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.25), rgba(0, 0, 0, 0.8));
+        .brand-logo-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(0, 0, 0, 0.05));
             border: 1px solid var(--border-gold);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(180, 131, 22, 0.15);
         }
 
-        .brand-title {
-            font-size: 16px;
-            font-weight: 800;
-            background: var(--gold-grad);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .brand-text h1 {
+            font-size: 17px;
+            font-weight: 900;
+            color: var(--text-heading);
+            line-height: 1.1;
         }
 
-        .bar-action {
-            padding: 6px 14px;
-            border-radius: 100px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid var(--border-subtle);
-            color: #cbd5e1;
-            font-size: 12px;
+        .brand-text span {
+            font-size: 11px;
+            color: var(--primary);
             font-weight: 700;
-            text-decoration: none;
-            transition: 0.2s;
+            display: block;
         }
 
-        .bar-action:hover {
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-toggle-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: var(--bg-card-subtle);
+            border: 1px solid var(--border-card);
+            color: var(--text-heading);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle-btn:hover {
             border-color: var(--primary);
-            color: #fff;
+            transform: scale(1.05);
         }
 
-        /* Main Container */
+        .btn-site {
+            padding: 8px 16px;
+            border-radius: 100px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            color: var(--text-heading);
+            font-size: 12px;
+            font-weight: 800;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-site:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Main Content Container */
         main.main-content {
             flex: 1;
-            max-width: 580px;
+            max-width: 600px;
             margin: 0 auto;
             width: 100%;
-            padding: 24px 18px 40px;
+            padding: 24px 18px 45px;
         }
 
-        /* Hero App Card (App Store / Play Store Style) */
-        .app-hero-card {
+        /* Main Hero Card */
+        .download-hero-card {
             background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
+            border: 1px solid var(--border-card);
             border-radius: 28px;
             padding: 24px 20px;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            box-shadow: var(--card-shadow);
             margin-bottom: 24px;
             position: relative;
             overflow: hidden;
+            transition: all 0.3s ease;
         }
 
-        .app-hero-card::before {
-            content: '';
+        .card-top-glow {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            height: 2px;
-            background: var(--gold-grad);
+            height: 3px;
+            background: var(--gold-gradient);
         }
 
-        .app-header-row {
+        .app-meta-row {
             display: flex;
             align-items: center;
             gap: 16px;
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
 
-        .app-avatar {
+        .app-big-icon {
             width: 76px;
             height: 76px;
-            border-radius: 20px;
-            background: linear-gradient(135deg, #1e1b12, #0c0d10);
+            border-radius: 22px;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), var(--bg-card-subtle));
             border: 1.5px solid var(--border-gold);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 38px;
-            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.2);
+            font-size: 40px;
+            box-shadow: 0 8px 25px rgba(180, 131, 22, 0.18);
             flex-shrink: 0;
         }
 
-        .app-info {
+        .app-headings {
             flex: 1;
             min-width: 0;
             text-align: right;
         }
 
-        .app-name {
-            font-size: 20px;
+        .app-headings h2 {
+            font-size: 21px;
             font-weight: 900;
-            color: #ffffff;
-            line-height: 1.2;
+            color: var(--text-heading);
             margin-bottom: 4px;
         }
 
-        .app-developer {
+        .app-headings .tagline {
             font-size: 12px;
-            color: var(--primary-light);
-            font-weight: 700;
+            color: var(--primary);
+            font-weight: 800;
             margin-bottom: 6px;
         }
 
-        .app-badges {
+        .badge-row {
             display: flex;
             align-items: center;
             gap: 8px;
             flex-wrap: wrap;
         }
 
-        .badge-pill {
+        .badge {
             padding: 3px 9px;
             border-radius: 6px;
             font-size: 10.5px;
@@ -228,48 +290,48 @@
             gap: 4px;
         }
 
-        .badge-gold {
+        .badge-rating {
             background: rgba(212, 175, 55, 0.15);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            color: var(--primary-light);
+            border: 1px solid var(--border-gold);
+            color: var(--primary);
         }
 
-        .badge-emerald {
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #6ee7b7;
+        .badge-clean {
+            background: var(--emerald-bg);
+            border: 1px solid var(--emerald-border);
+            color: var(--emerald);
         }
 
-        /* Stats Strip */
-        .stats-strip {
+        /* Quick Specs Row */
+        .specs-bar {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
             padding: 12px 14px;
-            background: rgba(0, 0, 0, 0.3);
+            background: var(--bg-card-subtle);
             border-radius: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-card);
             text-align: center;
             margin-bottom: 20px;
         }
 
-        .stat-col strong {
+        .spec-item strong {
             display: block;
             font-size: 14px;
             font-weight: 900;
-            color: #fff;
+            color: var(--text-heading);
         }
 
-        .stat-col span {
-            font-size: 10px;
+        .spec-item span {
+            font-size: 10.5px;
             color: var(--text-muted);
             font-weight: 600;
         }
 
-        /* Device Detection Notice */
-        .device-detected-notice {
-            background: rgba(16, 185, 129, 0.08);
-            border: 1px solid rgba(16, 185, 129, 0.25);
+        /* Device Auto-Detect Banner */
+        .detect-banner {
+            background: var(--emerald-bg);
+            border: 1px solid var(--emerald-border);
             border-radius: 14px;
             padding: 10px 14px;
             display: flex;
@@ -277,70 +339,70 @@
             justify-content: space-between;
             gap: 10px;
             margin-bottom: 20px;
-            font-size: 11.5px;
+            font-size: 12px;
         }
 
-        .device-detected-notice .dev-right {
+        .detect-info {
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #a7f3d0;
-            font-weight: 700;
+            color: var(--emerald);
+            font-weight: 800;
         }
 
-        .device-detected-notice .dev-tag {
+        .detect-tag {
             background: var(--emerald);
-            color: #000;
+            color: #ffffff;
             font-size: 10px;
             font-weight: 900;
-            padding: 2px 8px;
+            padding: 3px 9px;
             border-radius: 100px;
             white-space: nowrap;
         }
 
-        /* Segmented OS Tabs */
-        .tab-switcher {
+        /* Segmented Buttons (Android / iOS / PC) */
+        .tabs-nav {
             display: flex;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--border-subtle);
+            background: var(--bg-card-subtle);
+            border: 1px solid var(--border-card);
             border-radius: 16px;
             padding: 4px;
             margin-bottom: 22px;
             gap: 4px;
         }
 
-        .tab-btn {
+        .tab-trigger {
             flex: 1;
-            padding: 10px 4px;
+            padding: 11px 4px;
             border-radius: 12px;
             border: none;
             background: transparent;
             color: var(--text-muted);
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 800;
             font-family: inherit;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
         }
 
-        .tab-btn.active {
-            background: rgba(212, 175, 55, 0.18);
-            color: #fff;
+        .tab-trigger.active {
+            background: var(--bg-card);
+            color: var(--text-heading);
             border: 1px solid var(--border-gold);
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.15);
+            box-shadow: 0 4px 12px rgba(180, 131, 22, 0.12);
         }
 
-        /* Tab Content Panels */
-        .tab-panel {
+        /* Tab Content */
+        .tab-content {
             display: none;
             animation: fadeIn 0.3s ease;
         }
 
-        .tab-panel.active {
+        .tab-content.active {
             display: block;
         }
 
@@ -349,90 +411,186 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Download Primary Action Button */
-        .btn-download-primary {
+        /* Primary Download Action */
+        .btn-primary-dl {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
             width: 100%;
-            padding: 17px 20px;
+            padding: 18px 20px;
             border-radius: 20px;
-            background: var(--gold-grad);
-            color: #0c0a09;
+            background: var(--gold-gradient);
+            color: var(--btn-gold-text);
             text-decoration: none;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 900;
-            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
-            transition: all 0.25s;
+            box-shadow: 0 10px 25px rgba(180, 131, 22, 0.25);
+            transition: all 0.2s;
             border: none;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-download-primary:active {
-            transform: scale(0.98);
-        }
-
-        .btn-download-primary span.sub {
-            font-size: 11px;
-            opacity: 0.85;
-            font-weight: 700;
-            margin-right: 4px;
-        }
-
-        /* Secondary Alternative Link */
-        .alt-download-box {
-            margin-top: 14px;
-            padding: 12px 16px;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--border-subtle);
             text-align: center;
         }
 
-        .alt-download-box a {
-            color: var(--primary-light);
-            font-size: 12px;
+        .btn-primary-dl:hover {
+            filter: brightness(1.04);
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(180, 131, 22, 0.35);
+        }
+
+        .btn-primary-dl:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary-dl .sub-text {
+            font-size: 11px;
+            opacity: 0.85;
             font-weight: 700;
+            display: block;
+            margin-top: 2px;
+        }
+
+        /* Secondary 32-bit Box */
+        .legacy-box {
+            margin-top: 14px;
+            padding: 12px 16px;
+            border-radius: 16px;
+            background: var(--bg-card-subtle);
+            border: 1px solid var(--border-card);
+            text-align: center;
+        }
+
+        .legacy-box a {
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 800;
             text-decoration: underline;
             display: inline-flex;
             align-items: center;
             gap: 5px;
         }
 
-        .alt-download-box p {
+        .legacy-box p {
             font-size: 11px;
             color: var(--text-muted);
             margin-top: 4px;
         }
 
-        /* Features Mobile Grid */
-        .features-mobile-list {
-            margin-top: 28px;
+        /* 3-Step Mini Guide */
+        .mini-guide {
+            margin-top: 24px;
+            background: var(--bg-card-subtle);
+            border: 1px solid var(--border-card);
+            border-radius: 20px;
+            padding: 16px 18px;
+        }
+
+        .guide-header {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 12px;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .guide-items {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+
+        .guide-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            text-align: right;
+            font-size: 12px;
+            color: var(--text-body);
+            line-height: 1.6;
+        }
+
+        .guide-item-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            color: var(--primary);
+            border: 1px solid var(--border-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 900;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* iOS Step Box */
+        .apple-box {
+            background: var(--bg-card-subtle);
+            border: 1px solid var(--border-card);
+            border-radius: 20px;
+            padding: 18px;
+            text-align: right;
+        }
+
+        .apple-box h3 {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 12px;
+        }
+
+        .apple-steps {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 12px;
+            color: var(--text-body);
+        }
+
+        .apple-steps li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Features Mobile List */
+        .features-card-group {
             display: flex;
             flex-direction: column;
             gap: 12px;
+            margin-bottom: 24px;
         }
 
-        .feature-item-row {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--border-subtle);
+        .feat-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
             border-radius: 18px;
-            padding: 14px 16px;
+            padding: 15px 16px;
             display: flex;
             align-items: center;
             gap: 14px;
             text-align: right;
+            box-shadow: var(--card-shadow);
+            transition: all 0.2s;
         }
 
-        .feature-icon-box {
+        .feat-item:hover {
+            border-color: var(--border-gold);
+            transform: translateY(-2px);
+        }
+
+        .feat-icon {
             width: 44px;
             height: 44px;
             border-radius: 14px;
-            background: rgba(212, 175, 55, 0.1);
-            border: 1px solid rgba(212, 175, 55, 0.25);
+            background: rgba(180, 131, 22, 0.12);
+            border: 1px solid var(--border-gold);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -440,282 +598,208 @@
             flex-shrink: 0;
         }
 
-        .feature-item-row strong {
+        .feat-text strong {
             display: block;
             font-size: 13.5px;
-            color: #ffffff;
             font-weight: 800;
+            color: var(--text-heading);
         }
 
-        .feature-item-row span {
+        .feat-text span {
             font-size: 11.5px;
             color: var(--text-muted);
             display: block;
             margin-top: 2px;
         }
 
-        /* Installation Steps Accordion */
-        .install-guide-card {
-            margin-top: 28px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--border-subtle);
-            border-radius: 22px;
-            padding: 18px 18px;
-        }
-
-        .guide-title {
-            font-size: 14px;
-            font-weight: 800;
-            color: var(--primary-light);
-            margin-bottom: 14px;
-            text-align: right;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .guide-steps {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .guide-step {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            text-align: right;
-            font-size: 12px;
-            color: #e2e8f0;
-            line-height: 1.6;
-        }
-
-        .guide-step-num {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: rgba(212, 175, 55, 0.15);
-            color: var(--primary-light);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 900;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-
-        /* iOS Guidance Card */
-        .ios-guide-box {
-            background: rgba(212, 175, 55, 0.07);
-            border: 1px solid rgba(212, 175, 55, 0.25);
-            border-radius: 20px;
-            padding: 18px;
-            text-align: right;
-        }
-
-        .ios-guide-box h4 {
-            font-size: 14px;
-            color: #fff;
-            margin-bottom: 12px;
-            font-weight: 800;
-        }
-
-        .ios-steps {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            font-size: 12px;
-            color: #cbd5e1;
-        }
-
-        .ios-steps li {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
         /* Footer */
-        footer.app-footer {
-            padding: 24px 20px 30px;
+        footer.page-footer {
+            padding: 24px 20px 32px;
             text-align: center;
-            border-top: 1px solid var(--border-subtle);
-            font-size: 11.5px;
-            color: #64748b;
+            border-top: 1px solid var(--border-card);
+            font-size: 12px;
+            color: var(--text-muted);
+            background: var(--bg-card);
         }
 
-        footer.app-footer a {
-            color: var(--primary-light);
+        footer.page-footer a {
+            color: var(--primary);
             text-decoration: none;
-            font-weight: 700;
+            font-weight: 800;
         }
     </style>
 </head>
 
 <body>
-    <div class="ambient-bg"></div>
-    <div class="pattern-grid"></div>
+    <div class="ambient-glow"></div>
+    <div class="bg-grid"></div>
 
-    <!-- Top App Bar -->
-    <header class="app-bar">
-        <a href="/" class="bar-brand">
-            <div class="brand-icon">📖</div>
-            <div class="brand-title">يَقِين القُرْآن</div>
+    <!-- Header Navigation -->
+    <header class="top-bar">
+        <a href="/" class="brand-link">
+            <div class="brand-logo-box">📖</div>
+            <div class="brand-text">
+                <h1>يَقِين القُرْآن</h1>
+                <span>تطبيق الموبايل الرسمي</span>
+            </div>
         </a>
 
-        <a href="/" class="bar-action">
-            <span>فتح الموقع ↗</span>
-        </a>
+        <div class="header-actions">
+            <!-- Light/Dark Mode Switcher -->
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="تبديل الوضع">
+                ☀️
+            </button>
+
+            <a href="/" class="btn-site">
+                الرئيسية ↗
+            </a>
+        </div>
     </header>
 
     <!-- Main Container -->
     <main class="main-content">
 
-        <!-- App Hero Card -->
-        <div class="app-hero-card">
-            <div class="app-header-row">
-                <div class="app-avatar">📖</div>
-                <div class="app-info">
-                    <h1 class="app-name">يقين القرآن الكريم</h1>
-                    <div class="app-developer">النسخة الرسمية الفاخرة V 22</div>
-                    <div class="app-badges">
-                        <span class="badge-pill badge-gold">⭐ 4.9 تقييم ممتاز</span>
-                        <span class="badge-pill badge-emerald">🛡️ خالٍ من الإعلانات 100%</span>
+        <!-- Main Hero Card (Light Mode Luxury) -->
+        <div class="download-hero-card">
+            <div class="card-top-glow"></div>
+
+            <div class="app-meta-row">
+                <div class="app-big-icon">📖</div>
+                <div class="app-headings">
+                    <h2>يقين القرآن الكريم</h2>
+                    <div class="tagline">النسخة الرسمية V 22 · جاهزة للتثبيت</div>
+                    <div class="badge-row">
+                        <span class="badge badge-rating">⭐ 4.9 تقييم ممتاز</span>
+                        <span class="badge badge-clean">🛡️ خالٍ من الإعلانات 100%</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Stats Strip -->
-            <div class="stats-strip">
-                <div class="stat-col">
+            <!-- Quick Specs Row -->
+            <div class="specs-bar">
+                <div class="spec-item">
                     <strong>9.2 MB</strong>
                     <span>حجم خفيف جداً</span>
                 </div>
-                <div class="stat-col">
+                <div class="spec-item">
                     <strong>114 سورة</strong>
                     <span>المصحف كاملاً</span>
                 </div>
-                <div class="stat-col">
-                    <strong>بدون إنترنت</strong>
-                    <span>يعمل في كل وقت</span>
+                <div class="spec-item">
+                    <strong>بدون نت</strong>
+                    <span>يعمل في كل مكان</span>
                 </div>
             </div>
 
-            <!-- Real-time Device Detection Notice -->
-            <div class="device-detected-notice" id="devNotice">
-                <div class="dev-right">
-                    <span id="devIcon">📱</span>
-                    <span id="devText">جاري اكتشاف جهازك...</span>
+            <!-- Auto-Detection Bar -->
+            <div class="detect-banner" id="detectBanner">
+                <div class="detect-info">
+                    <span id="detectIcon">📱</span>
+                    <span id="detectText">جاري فحص نظام هاتفك...</span>
                 </div>
-                <span class="dev-tag" id="devTag">موصى به</span>
+                <span class="detect-tag" id="detectTag">موصى به لجهازك</span>
             </div>
 
-            <!-- Tab Switcher for OS -->
-            <div class="tab-switcher">
-                <button class="tab-btn active" id="tabBtnAndroid" onclick="switchTab('android')">
+            <!-- Segmented OS Tabs -->
+            <div class="tabs-nav">
+                <button class="tab-trigger active" id="tabAndroid" onclick="selectTab('android')">
                     <span>🤖</span>
                     <span>أندرويد (APK)</span>
                 </button>
-                <button class="tab-btn" id="tabBtnIOS" onclick="switchTab('ios')">
+                <button class="tab-trigger" id="tabIOS" onclick="selectTab('ios')">
                     <span>🍏</span>
                     <span>آيفون (Apple)</span>
                 </button>
-                <button class="tab-btn" id="tabBtnPC" onclick="switchTab('pc')">
+                <button class="tab-trigger" id="tabPC" onclick="selectTab('pc')">
                     <span>💻</span>
                     <span>الكمبيوتر</span>
                 </button>
             </div>
 
-            <!-- TAB 1: ANDROID -->
-            <div class="tab-panel active" id="panelAndroid">
-                <!-- Primary Action Button -->
-                <a href="/download/yaqeen.apk" download="yaqeen.apk" class="btn-download-primary" id="mainDownloadBtn">
-                    <span style="font-size: 20px;">⬇</span>
+            <!-- TAB 1: ANDROID APK -->
+            <div class="tab-content active" id="contentAndroid">
+                <!-- Big Primary Action Button -->
+                <a href="/download/yaqeen.apk" download="yaqeen.apk" class="btn-primary-dl" id="dlBtnAndroid">
+                    <span style="font-size: 22px;">⬇</span>
                     <div>
-                        <div>تحميل تطبيق أندرويد APK</div>
-                        <div style="font-size: 10.5px; opacity: 0.85; font-weight: 700;">نسخة 64-bit السريعة (9.2 MB) · موصى بها</div>
+                        <div>تحميل تطبيق أندرويد (APK)</div>
+                        <span class="sub-text">نسخة 64-bit السريعة (9.2 MB) · معتمدة ومضغوطة</span>
                     </div>
                 </a>
 
-                <!-- Alternative 32-bit Link -->
-                <div class="alt-download-box">
+                <!-- Alternative 32-bit Legacy Phone -->
+                <div class="legacy-box">
                     <a href="/download/yaqeen-v7a.apk" download="yaqeen-v7a.apk">
                         <span>نسخة الهواتف الاقتصادية / الأقدم (8.8 MB) ↗</span>
                     </a>
                     <p>مخصصة للهواتف المصنوعة قبل 2018 أو الأجهزة ذات الرامات المحدودة</p>
                 </div>
 
-                <!-- Android 4-Steps Guide -->
-                <div class="install-guide-card">
-                    <div class="guide-title">
+                <!-- 3-Step Simple Guide -->
+                <div class="mini-guide">
+                    <div class="guide-header">
                         <span>⚡</span>
-                        <span>طريقة التثبيت السريعة في ثوانٍ:</span>
+                        <span>طريقة التثبيت السريعة:</span>
                     </div>
-                    <div class="guide-steps">
-                        <div class="guide-step">
-                            <span class="guide-step-num">١</span>
+                    <div class="guide-items">
+                        <div class="guide-item">
+                            <span class="guide-item-num">١</span>
                             <span>اضغط على زر التحميل الذهبي بالأعلى.</span>
                         </div>
-                        <div class="guide-step">
-                            <span class="guide-step-num">٢</span>
-                            <span>إذا ظهر تنبيه التحميل، اضغط <strong>«تنزيل على أي حال» (Download anyway)</strong> - الملف آمن 100%.</span>
+                        <div class="guide-item">
+                            <span class="guide-item-num">٢</span>
+                            <span>اضغط <strong>«تنزيل على أي حال»</strong> - التطبيق آمن وخالٍ من الإعلانات.</span>
                         </div>
-                        <div class="guide-step">
-                            <span class="guide-step-num">٣</span>
-                            <span>افتح الملف من التنزيلات واضغط <strong>«تثبيت» (Install)</strong>.</span>
-                        </div>
-                        <div class="guide-step">
-                            <span class="guide-step-num">٤</span>
-                            <span>افتح التطبيق واستمتع بتشغيل التلاوات والأذان في الخلفية.</span>
+                        <div class="guide-item">
+                            <span class="guide-item-num">٣</span>
+                            <span>افتح الملف واضغط <strong>«تثبيت»</strong> وسيعمل فوراً.</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- TAB 2: iOS / APPLE -->
-            <div class="tab-panel" id="panelIOS">
-                <div class="ios-guide-box">
-                    <h4>تثبيت يقين على iPhone و iPad (تطبيق ويب فوري PWA):</h4>
-                    <ol class="ios-steps">
+            <div class="tab-content" id="contentIOS">
+                <div class="apple-box">
+                    <h3>تثبيت فوري على iPhone و iPad (تطبيق ويب PWA):</h3>
+                    <ol class="apple-steps">
                         <li>
-                            <span style="font-size: 16px;">1️⃣</span>
-                            <span>افتح الموقع من متصفح <strong>Safari</strong> الأصلي.</span>
+                            <span>1️⃣</span>
+                            <span>افتح الموقع من متصفح <strong>Safari</strong>.</span>
                         </li>
                         <li>
-                            <span style="font-size: 16px;">2️⃣</span>
-                            <span>اضغط على زر <strong>المشاركة (Share ⎋)</strong> في أسفل الشاشة.</span>
+                            <span>2️⃣</span>
+                            <span>اضغط على زر <strong>المشاركة (Share ⎋)</strong> بالأسفل.</span>
                         </li>
                         <li>
-                            <span style="font-size: 16px;">3️⃣</span>
-                            <span>مرر للأسفل واختر <strong>«إضافة إلى الشاشة الرئيسية» (Add to Home Screen ➕)</strong>.</span>
+                            <span>3️⃣</span>
+                            <span>اختر <strong>«إضافة إلى الشاشة الرئيسية» ➕</strong>.</span>
                         </li>
                         <li>
-                            <span style="font-size: 16px;">4️⃣</span>
-                            <span>اضغط <strong>«إضافة» (Add)</strong> وسيظهر التطبيق على شاشتك كأيقونة أصلية فوراً بدون تحميل ملفات.</span>
+                            <span>4️⃣</span>
+                            <span>اضغط <strong>«إضافة»</strong> وسيظهر التطبيق على شاشتك فوراً بدون تحميل ملفات.</span>
                         </li>
                     </ol>
 
-                    <a href="/" class="btn-download-primary" style="margin-top: 16px;">
+                    <a href="/" class="btn-primary-dl" style="margin-top: 16px;">
                         <span>فتح الموقع في Safari لتثبيته 🚀</span>
                     </a>
                 </div>
             </div>
 
             <!-- TAB 3: PC / DESKTOP -->
-            <div class="tab-panel" id="panelPC">
-                <div class="ios-guide-box">
-                    <h4>تثبيت يقين على الكمبيوتر (Windows / Mac):</h4>
-                    <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.6;">
-                        يمكنك تثبيت الموقع كتطبيق مستقل على سطح المكتب وشريط المهام بلمسة زر واحدة في متصفح Chrome أو Edge.
+            <div class="tab-content" id="contentPC">
+                <div class="apple-box">
+                    <h3>تثبيت يقين على الكمبيوتر (Windows / Mac):</h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.6;">
+                        يمكنك تثبيت الموقع كتطبيق مستقل على سطح المكتب وشريط المهام بلمسة زر واحدة عبر متصفح Chrome أو Edge.
                     </p>
-                    <a href="/" class="btn-download-primary">
+                    <a href="/" class="btn-primary-dl">
                         <span>فتح وتثبيت تطبيق سطح المكتب 💻</span>
                     </a>
-                    
+
                     <div style="margin-top: 12px; text-align: center;">
-                        <a href="/download/yaqeen.apk" download="yaqeen.apk" style="color: var(--primary-light); font-size: 12px; text-decoration: underline;">
+                        <a href="/download/yaqeen.apk" download="yaqeen.apk" style="color: var(--primary); font-size: 12px; text-decoration: underline; font-weight: 700;">
                             أو حمّل ملف APK لنقله إلى هاتفك (9.2 MB)
                         </a>
                     </div>
@@ -724,35 +808,35 @@
 
         </div>
 
-        <!-- Highlights List (Mobile Friendly) -->
-        <div class="features-mobile-list">
-            <div class="feature-item-row">
-                <div class="feature-icon-box">🎧</div>
-                <div>
-                    <strong>استقرار كامل في الخلفية وشاشة القفل</strong>
-                    <span>تلاوات متواصلة بدون أي انقطاع حتى مع إغلاق الشاشة</span>
+        <!-- Features Showcase List -->
+        <div class="features-card-group">
+            <div class="feat-item">
+                <div class="feat-icon">🎧</div>
+                <div class="feat-text">
+                    <strong>استقرار كامل للصوت في الخلفية</strong>
+                    <span>تلاوات متواصلة بدون انقطاع حتى مع إغلاق شاشة الهاتف</span>
                 </div>
             </div>
 
-            <div class="feature-item-row">
-                <div class="feature-icon-box">🕋</div>
-                <div>
+            <div class="feat-item">
+                <div class="feat-icon">🕋</div>
+                <div class="feat-text">
                     <strong>إشعارات الأذان والصلوات بدقة 100%</strong>
                     <span>تنبيهات في موعدها الدقيق تتجاوز قيود توفير الطاقة في النظام</span>
                 </div>
             </div>
 
-            <div class="feature-item-row">
-                <div class="feature-icon-box">📖</div>
-                <div>
+            <div class="feat-item">
+                <div class="feat-icon">📖</div>
+                <div class="feat-text">
                     <strong>المصحف العثماني كاملاً بدون إنترنت</strong>
                     <span>قراءة مريحة مع تفاسير الآيات، علامات الحفظ، والبحث السريع</span>
                 </div>
             </div>
 
-            <div class="feature-item-row">
-                <div class="feature-icon-box">🧭</div>
-                <div>
+            <div class="feat-item">
+                <div class="feat-icon">🧭</div>
+                <div class="feat-text">
                     <strong>القبلة التفاعلية والسبحة الإلكترونية</strong>
                     <span>حساب دقيق لاتجاه الكعبة أينما كنت مع عداد التسبيح الذكي</span>
                 </div>
@@ -761,59 +845,82 @@
 
     </main>
 
-    <!-- Footer -->
-    <footer class="app-footer">
+    <!-- Page Footer -->
+    <footer class="page-footer">
         <p>جميع الحقوق محفوظة © تطبيق يقين القرآن الكريم 2026</p>
         <p style="margin-top: 4px;">
-            تطبيق إسلامي نقي 100% · <a href="/">الرئيسية</a>
+            تطبيق إسلامي نقي 100% بدون إعلانات · <a href="/">العودة للموقع الرئيسي</a>
         </p>
     </footer>
 
-    <!-- Smart Tabs & Detection Script -->
+    <!-- Smart Logic Script -->
     <script>
-        function switchTab(os) {
+        // Tab Switcher
+        function selectTab(os) {
             const tabs = ['android', 'ios', 'pc'];
             tabs.forEach(t => {
-                const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
-                const panel = document.getElementById('panel' + t.charAt(0).toUpperCase() + t.slice(1));
-                if (btn && panel) {
+                const btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+                const content = document.getElementById('content' + t.charAt(0).toUpperCase() + t.slice(1));
+                if (btn && content) {
                     if (t === os) {
                         btn.classList.add('active');
-                        panel.classList.add('active');
+                        content.classList.add('active');
                     } else {
                         btn.classList.remove('active');
-                        panel.classList.remove('active');
+                        content.classList.remove('active');
                     }
                 }
             });
         }
 
-        // Auto-detect device
-        (function initDevice() {
+        // Theme Toggle (Default is LIGHT MODE as requested)
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('yaqeen_dl_theme', next);
+            updateThemeIcon(next);
+        }
+
+        function updateThemeIcon(theme) {
+            const btn = document.getElementById('themeToggleBtn');
+            if (btn) {
+                btn.innerText = theme === 'light' ? '☀️' : '🌙';
+            }
+        }
+
+        // Initialize Theme from Storage or Default to Light Mode
+        (function initTheme() {
+            const saved = localStorage.getItem('yaqeen_dl_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+            updateThemeIcon(saved);
+        })();
+
+        // Auto-detect Device
+        (function detectDevice() {
             const ua = navigator.userAgent || '';
             const isAndroid = /android/i.test(ua);
             const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-            const isDesktop = !isAndroid && !isIOS;
 
-            const devIcon = document.getElementById('devIcon');
-            const devText = document.getElementById('devText');
-            const devTag = document.getElementById('devTag');
+            const icon = document.getElementById('detectIcon');
+            const text = document.getElementById('detectText');
+            const tag = document.getElementById('detectTag');
 
             if (isAndroid) {
-                devIcon.innerText = "🤖";
-                devText.innerText = "هاتفك: أندرويد · تم تحديد ملف APK المناسب";
-                devTag.innerText = "موصى به لجهازك";
-                switchTab('android');
+                icon.innerText = "🤖";
+                text.innerText = "هاتفك: أندرويد · تم تحديد ملف APK الأنسب";
+                tag.innerText = "موصى به لجهازك";
+                selectTab('android');
             } else if (isIOS) {
-                devIcon.innerText = "🍏";
-                devText.innerText = "هاتفك: آيفون / آيباد (Apple iOS)";
-                devTag.innerText = "تطبيق الويب الفوري";
-                switchTab('ios');
+                icon.innerText = "🍏";
+                text.innerText = "هاتفك: آيفون / آيباد (Apple iOS)";
+                tag.innerText = "تطبيق الويب الفوري";
+                selectTab('ios');
             } else {
-                devIcon.innerText = "💻";
-                devText.innerText = "جهازك: كمبيوتر / سطح المكتب";
-                devTag.innerText = "النسخة الذكية";
-                switchTab('pc');
+                icon.innerText = "💻";
+                text.innerText = "جهازك: كمبيوتر / سطح المكتب";
+                tag.innerText = "نسخة سطح المكتب";
+                selectTab('pc');
             }
         })();
     </script>

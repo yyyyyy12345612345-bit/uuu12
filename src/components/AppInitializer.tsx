@@ -11,7 +11,6 @@ import { auth, db, initFirebase } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { registerPlugin } from '@capacitor/core';
-import { AppBanner } from '@/components/AppBanner';
 import { initSmartNotifications, cleanupSmartNotifications } from '@/lib/smartNotifications';
 import { loadYearCalendar, getTodayTimes } from '@/lib/prayerCalendar';
 import { initGlobalErrorTracking } from '@/lib/errorTracker';
@@ -785,9 +784,6 @@ export default function AppInitializer({ children }: { children: React.ReactNode
       )}
 
       {children}
-
-      {/* Smart PWA Install Banner - Desktop & Mobile Aware */}
-      <AppBanner />
     </>
   );
 }
