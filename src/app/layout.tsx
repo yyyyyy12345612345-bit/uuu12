@@ -72,7 +72,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/logo/logo.png?v=25",
+        url: "/logo/logo.png",
         width: 512,
         height: 512,
         alt: "شعار يقين القران",
@@ -83,7 +83,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "يقين القران | Yaqeen AlQuran - القرآن الكريم",
     description: "رفيقك اليومي للقرآن والعبادة",
-    images: ["/logo/logo.png?v=25"],
+    images: ["/logo/logo.png"],
   },
   manifest: "/manifest.json",
   appleWebApp: {

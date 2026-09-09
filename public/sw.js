@@ -1,5 +1,5 @@
-const CACHE_NAME = 'quran-pwa-v23';
-const STATIC_CACHE_NAME = 'quran-static-assets-v3';
+const CACHE_NAME = 'quran-pwa-v25';
+const STATIC_CACHE_NAME = 'quran-static-assets-v4';
 const AUDIO_CACHE_NAME = 'quran-audio-v2';
 const FONT_CACHE_NAME = 'quran-fonts-v2';
 const API_CACHE_NAME = 'quran-api-v2';
@@ -161,7 +161,7 @@ self.addEventListener('fetch', (event) => {
 
   // 6. Default: Cache-First for static preloaded assets, otherwise Network-First
   event.respondWith(
-    caches.match(request).then((response) => {
+    caches.match(request, { ignoreSearch: true }).then((response) => {
       if (response) return response;
 
       return fetch(request).then((networkResponse) => {

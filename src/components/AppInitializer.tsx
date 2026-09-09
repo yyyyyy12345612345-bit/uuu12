@@ -142,6 +142,8 @@ export default function AppInitializer({ children }: { children: React.ReactNode
       return () => clearTimeout(timer);
     }
 
+    if (!overlayRef.current) return;
+
     // GSAP Intro Timeline
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
@@ -153,8 +155,9 @@ export default function AppInitializer({ children }: { children: React.ReactNode
       });
 
       // 1. Initially set element starting properties
-      gsap.set([textContainerRef.current, authorRef.current, skipBtnRef.current], { opacity: 0, y: 15 });
-      gsap.set(logoImgRef.current, { scale: 0.8, opacity: 0 });
+      const textTargets = [textContainerRef.current, authorRef.current, skipBtnRef.current].filter(Boolean);
+      if (textTargets.length > 0) gsap.set(textTargets, { opacity: 0, y: 15 });
+      if (logoImgRef.current) gsap.set(logoImgRef.current, { scale: 0.8, opacity: 0 });
 
       // Animate the SVG paths stroke drawing
       if (starPathRef.current && bookPathRef.current) {
@@ -173,14 +176,17 @@ export default function AppInitializer({ children }: { children: React.ReactNode
           strokeDashoffset: 0,
           duration: 0.8,
           ease: "power2.out"
-        }, "-=0.6")
-        .to(logoImgRef.current, {
-          scale: 1,
-          opacity: 1,
-          duration: 0.5,
-          ease: "back.out(1.5)"
-        }, "-=0.2");
-      } else {
+        }, "-=0.6");
+
+        if (logoImgRef.current) {
+          tl.to(logoImgRef.current, {
+            scale: 1,
+            opacity: 1,
+            duration: 0.5,
+            ease: "back.out(1.5)"
+          }, "-=0.2");
+        }
+      } else if (logoImgRef.current) {
         // Fallback if SVG paths not present/resolvable
         tl.to(logoImgRef.current, {
           scale: 1,
@@ -191,35 +197,43 @@ export default function AppInitializer({ children }: { children: React.ReactNode
       }
 
       // 2. Animate title, subtitle and author text
-      tl.to(textContainerRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease: "power2.out"
-      }, "-=0.2")
-      .to(authorRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.5,
-        ease: "power2.out"
-      }, "-=0.3")
-      .to(skipBtnRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.4,
-        ease: "power2.out"
-      }, "-=0.4");
+      if (textContainerRef.current) {
+        tl.to(textContainerRef.current, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: "power2.out"
+        }, "-=0.2");
+      }
+      if (authorRef.current) {
+        tl.to(authorRef.current, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          ease: "power2.out"
+        }, "-=0.3");
+      }
+      if (skipBtnRef.current) {
+        tl.to(skipBtnRef.current, {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+          ease: "power2.out"
+        }, "-=0.4");
+      }
 
       // 3. Pause momentarily for impact
       tl.to({}, { duration: 0.8 });
 
       // 4. Exit screen transition (fade out overlay)
-      tl.to(overlayRef.current, {
-        opacity: 0,
-        scale: 1.02,
-        duration: 0.6,
-        ease: "power3.inOut"
-      });
+      if (overlayRef.current) {
+        tl.to(overlayRef.current, {
+          opacity: 0,
+          scale: 1.02,
+          duration: 0.6,
+          ease: "power3.inOut"
+        });
+      }
     });
 
     return () => ctx.revert();

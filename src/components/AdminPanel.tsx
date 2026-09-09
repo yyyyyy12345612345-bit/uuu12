@@ -638,11 +638,14 @@ export function AdminPanel() {
   // Trigger card stagger animation when admin becomes logged in
   useEffect(() => {
     if (isAdmin) {
-      gsap.fromTo(
-        ".admin-stagger-card",
-        { y: 35, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.7, ease: "power2.out", stagger: 0.05, clearProps: "all" }
-      );
+      const cards = document.querySelectorAll(".admin-stagger-card");
+      if (cards.length > 0) {
+        gsap.fromTo(
+          cards,
+          { y: 35, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.7, ease: "power2.out", stagger: 0.05, clearProps: "all" }
+        );
+      }
     }
   }, [isAdmin]);
 
