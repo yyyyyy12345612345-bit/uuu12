@@ -405,6 +405,17 @@ export function SocialFeed() {
     if (!db) return;
     const fetchActivePeople = async () => {
       try {
+        const res = await fetch("/api/leaderboard?limit=5");
+        if (res.ok) {
+          const json = await res.json();
+          if (Array.isArray(json.users)) {
+            setDbActivePeople(json.users);
+            return;
+          }
+        }
+      } catch {}
+      if (!db) return;
+      try {
         const q = query(collection(db, "users"), orderBy("totalPoints", "desc"), limit(5));
         const snap = await getDocs(q);
         const usersList = snap.docs.map(d => ({ id: d.id, ...d.data() }));

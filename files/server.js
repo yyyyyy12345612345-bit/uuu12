@@ -26,7 +26,25 @@ import { startRender } from "./lib/render.js";
 import { startOutputCleanup } from "./lib/cleanup.js";
 
 const app = express();
-app.use(cors());
+
+const ALLOWED_ORIGINS = [
+  "https://yaqeenalquran.online",
+  "https://yaqeen-app.vercel.app",
+  "capacitor://localhost",
+  "http://localhost",
+  "http://localhost:3000",
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || ALLOWED_ORIGINS.includes(origin) || origin.endsWith(".vercel.app") || origin.endsWith(".yaqeenalquran.online")) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
+  credentials: true,
+}));
 
 // Hugging Face Space probe & root endpoints (prevents unhandled errors from Space healthcheck probes)
 app.all(["/", "/api/predict"], (req, res) => {
@@ -94,12 +112,7 @@ app.get("/telegram-proxy/:fileId", async (req, res) => {
 
 
 app.get("/health", (req, res) => {
-  res.json({
-    status: "ok",
-    queue: { pending: renderQueue.pending, size: renderQueue.size },
-    jobsTracked: jobs.size,
-    uptimeSec: Math.floor(process.uptime()),
-  });
+  res.json({ status: "ok" });
 });
 
 app.post("/render", renderLimiter, requireApiKey, (req, res) => {

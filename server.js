@@ -29,7 +29,25 @@ import { startOutputCleanup } from "./lib/cleanup.js";
 
 const app = express();
 app.set("trust proxy", 1);
-app.use(cors());
+
+const ALLOWED_ORIGINS = [
+  "https://yaqeenalquran.online",
+  "https://yaqeen-app.vercel.app",
+  "capacitor://localhost",
+  "http://localhost",
+  "http://localhost:3000",
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || ALLOWED_ORIGINS.includes(origin) || origin.endsWith(".vercel.app") || origin.endsWith(".yaqeenalquran.online")) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
+  credentials: true,
+}));
 
 // Hugging Face Space probe & root endpoints (prevents unhandled errors from Space healthcheck probes)
 app.all(["/", "/api/predict"], (req, res) => {

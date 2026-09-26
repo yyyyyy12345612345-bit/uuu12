@@ -409,6 +409,19 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
   };
 
   const fetchLeaderboard = async () => {
+    try {
+      const res = await fetch(`/api/leaderboard?tab=${activeTab}&limit=100`);
+      if (res.ok) {
+        const json = await res.json();
+        if (Array.isArray(json.users)) {
+          setLeaderboardData(json.users.slice(0, 50));
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn("Leaderboard API fallback:", e);
+    }
+    // Fallback if API fails
     if (!db) return;
     try {
       let orderByField = "totalPoints";
@@ -423,7 +436,7 @@ export function Leaderboard({ onEditProfile }: LeaderboardProps) {
       let data = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter((u: any) => !u.isBanned).slice(0, 50);
       setLeaderboardData(data);
     } catch (e) {
-      console.error("Error fetching leaderboard:", e);
+      console.error("Error fetching leaderboard fallback:", e);
     }
   };
 

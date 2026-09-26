@@ -5,13 +5,12 @@ service cloud.firestore {
     // Functions
     // ----------------------------------------------------------------------
     
-    // Check if the user has admin claim or is the admin email
+    // Check if user is authenticated and verified admin
     function isAdmin() {
       return request.auth != null && (
         request.auth.token.admin == true || 
         request.auth.token.email == "youssefosama@gmail.com" ||
-        request.auth.token.email == "youssef@yaqeen.app" ||
-        request.auth.token.email.matches("(?i).*youssef.*")
+        request.auth.token.email == "youssef@yaqeen.app"
       );
     }
     
@@ -19,21 +18,26 @@ service cloud.firestore {
     function isAuthenticated() {
       return request.auth != null;
     }
+
+    // Check if user owns the document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
     
     // ----------------------------------------------------------------------
     // Rules
     // ----------------------------------------------------------------------
 
-    // Users and their subcollections
+    // Users and their subcollections (Private data: emails, phones, passwords)
     match /users/{userId} {
-      allow read: if true; // Allows leaderboard to read totalPoints
-      allow create: if request.auth.uid == userId;
-      allow update, delete: if request.auth.uid == userId || isAdmin();
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId);
+      allow update, delete: if isOwner(userId) || isAdmin();
       
-      // Subcollections inside users (like completed_quests, completed_surahs)
+      // Subcollections inside users (completed_quests, completed_surahs, etc.)
       match /{subCollection}/{document=**} {
-        allow read: if true;
-        allow write: if request.auth.uid == userId || isAdmin();
+        allow read: if isOwner(userId) || isAdmin();
+        allow write: if isOwner(userId) || isAdmin();
       }
     }
 
@@ -46,13 +50,12 @@ service cloud.firestore {
     // Chatbot Logs
     match /chatbot_logs/{document=**} {
       allow read: if isAdmin();
-      allow write: if true; // Any user can add logs via the chatbot
+      allow write: if isAuthenticated();
     }
     
     // Admin Push Notifications
     match /admin_push_notifications/{document=**} {
-      allow read: if isAdmin();
-      allow write: if isAdmin();
+      allow read, write: if isAdmin();
     }
 
     // Settings
@@ -63,40 +66,35 @@ service cloud.firestore {
 
     // TikTok Accounts
     match /tiktok_accounts/{document=**} {
-      allow read: if isAdmin();
-      allow write: if isAdmin();
+      allow read, write: if isAdmin();
     }
 
     // TikTok Scheduled/Published Jobs
     match /tiktok_jobs/{document=**} {
-      allow read: if isAdmin();
-      allow write: if isAdmin();
+      allow read, write: if isAdmin();
     }
 
     // TikTok Logs
     match /tiktok_logs/{document=**} {
-      allow read: if isAdmin();
-      allow write: if isAdmin();
+      allow read, write: if isAdmin();
     }
-
-
 
     // Email Logs
     match /emailLogs/{document=**} {
-      allow read: if isAdmin(); // Stronger: only admin should read logs
-      allow write: if true;     // AuthGate writes here without auth
+      allow read: if isAdmin();
+      allow write: if isAuthenticated();
     }
 
     // Admin Logs
     match /admin_logs/{document=**} {
-      allow read: if isAdmin();
-      allow write: if isAdmin();
+      allow read, write: if isAdmin();
     }
 
     // Support Tickets
     match /support_tickets/{document=**} {
       allow read: if isAdmin();
-      allow write: if isAuthenticated(); // Only logged-in users can send tickets
+      allow write: if isAuthenticated();
+      allow update, delete: if isAdmin();
     }
 
     // Subscription Requests
@@ -109,15 +107,15 @@ service cloud.firestore {
     // Showcase
     match /showcase/{document=**} {
       allow read: if true;
-      allow write: if isAuthenticated();
-      allow update, delete: if request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if (isAuthenticated() && request.auth.uid == resource.data.userId) || isAdmin();
     }
 
     // Community Posts (Social Feed)
     match /posts/{postId} {
       allow read: if true;
       allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
+      allow update: if isAuthenticated() && (request.auth.uid == resource.data.userId || isAdmin());
       allow delete: if (isAuthenticated() && request.auth.uid == resource.data.userId) || isAdmin();
       
       match /likes/{likeId} {
@@ -127,7 +125,7 @@ service cloud.firestore {
       
       match /comments/{commentId} {
         allow read: if true;
-        allow create: if true; // Allow anonymous comments
+        allow create: if isAuthenticated();
         allow update, delete: if (isAuthenticated() && (request.auth.uid == resource.data.userId || request.auth.uid == resource.data.commenterId)) || isAdmin();
       }
 
@@ -162,8 +160,7 @@ service cloud.firestore {
       allow update: if isAuthenticated() && request.auth.uid in resource.data.participants;
 
       match /messages/{messageId} {
-        allow read: if isAuthenticated();
-        allow create: if isAuthenticated();
+        allow read, create: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
       }
     }
 
@@ -171,13 +168,12 @@ service cloud.firestore {
     match /duels/{duelId} {
       allow read: if true;
       allow create: if isAuthenticated() && request.auth.uid in request.resource.data.participants;
-      allow update: if isAuthenticated();
+      allow update: if isAuthenticated() && request.auth.uid in resource.data.participants;
     }
 
     // Admin configuration (maintenance status, etc.)
     match /admin/{document=**} {
-      allow read: if true;
-      allow write: if isAdmin();
+      allow read, write: if isAdmin();
     }
 
     // Backgrounds
@@ -189,13 +185,12 @@ service cloud.firestore {
     // Video Renders Logs
     match /video_renders/{jobId} {
       allow read: if isAdmin();
-      allow create, update: if true;
+      allow create, update: if isAuthenticated();
       allow delete: if isAdmin();
     }
 
-    // Default Fallback
+    // Default Fallback: DENY ALL BY DEFAULT FOR UNMATCHED PATHS
     match /{allPaths=**} {
-      // DENY ALL BY DEFAULT FOR UNMATCHED PATHS
       allow read, write: if false;
     }
   }
