@@ -37,11 +37,10 @@ graph TD
     ```
 
 ### 3. حظر جدار حماية Vercel لسيرفر الرندر (Vercel Firewall & AWS IPs)
-*   **المشكلة**: عند تصدير الفيديو، كان سيرفر الرندر (Hugging Face) يحاول تحميل الخلفية من `/api/background/[fileId].mp4`. جدار حماية Vercel يقوم بحجب خوادم Hugging Face (لأن آي بي الخوادم مشبوه كـ Bot/Scraper) مما سبب فشل التحميل بـ `fetch failed`. وعند محاولة التحميل مباشرة من تليجرام، تم الحظر أيضاً لأن Hugging Face يحظر الاتصال المباشر بـ `telegram.org`.
-*   **الحل**:
-    1. تحويل الـ API في Vercel ليقوم بعمل **بث مباشر (Stream Proxy)** لمحتوى الفيديو من تليجرام بدلاً من عمل إعادة توجيه (Redirect).
-    2. تعديل كود المتصفح ليمرر رابط السيرفر المطلق المبني على الدومين الرئيسي الموثوق (`yaqeen-app.vercel.app/api/background/...`) لسيرفر الرندر.
-    3. يقوم سيرفر الرندر بالتحميل مباشرة من Vercel، وVercel تجلب المحتوى من تليجرام وتمرره له، مما يحل مشاكل الحجب وDNS تماماً!
+*   **المشكلة**: عند تصدير الفيديو، كان بث محتوى الفيديو عبر Vercel يستهلك باقة النقل السحابي (Fast Origin Transfer) بسرعة خيالية تخطت سقف الـ 10GB شهرياً.
+*   **الحل الجذري المعتمد**:
+    1. تحويل مسار `/api/background/[fileId]` ليعمل كـ **تحويل فوري مباشر (302 Redirect)** إلى رابط تليجرام CDN المشفر، مما قلص حجم الاستجابة من 30MB إلى 200 بايت فقط، مانعاً استهلاك باندويث Vercel تماماً!
+    2. دعم معامل `?json=true` لإرجاع رابط التحميل المباشر للخدمات البرمجية وسيرفر الرندر.
 
 ### 4. صلاحيات Firestore ومفتاح الأدمن التالف
 *   **المشكلة**: قواعد الحماية لـ Firestore كانت تمنع كتابة الخلفيات بدون صلاحية الأدمن، ولم يكن البوت يستطيع الكتابة لعدم تطابق مفتاح الـ Firebase Admin SDK (بسبب حرف زائد `n` وتداخل سطور المفتاح أثناء التخزين).
@@ -107,15 +106,12 @@ export async function GET(
 
     if (returnJson) return NextResponse.json({ url: directDownloadUrl });
 
-    // البث المباشر للمحتوى (Stream Proxy)
-    const videoRes = await fetch(directDownloadUrl);
-    if (!videoRes.ok) return NextResponse.json({ error: "Failed to stream video" }, { status: videoRes.status });
-
-    return new Response(videoRes.body, {
+    // تحويل مباشر (302 Redirect) إلى رابط تليجرام لمنع استهلاك باندويث Vercel بالكامل
+    return NextResponse.redirect(directDownloadUrl, {
+      status: 302,
       headers: {
-        "Content-Type": videoRes.headers.get("content-type") || "video/mp4",
-        "Content-Length": videoRes.headers.get("content-length") || "",
-        "Cache-Control": "public, max-age=31536000, immutable",
+        "Cache-Control": "public, max-age=3600",
+        "Access-Control-Allow-Origin": "*",
       },
     });
   } catch (error: any) {
@@ -333,5 +329,15 @@ https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook?url=https://yaqeenal
 2. اكتب تفاصيل الفيديو في الوصف بشكل طبيعي تماماً بدون أي علامات هاشتاج (مثال):
    * `أمواج شاطئ البحر الهادئ` -> يذهب تلقائياً لقسم **بحار**
    * `المسجد النبوي الشريف وقت الصلاة` -> يذهب تلقائياً لقسم **مساجد**
-   * `شروق الشمس الساحر` -> يذهب تلقائياً لقسم **غروب**
 3. ستقوم الخلفية بالظهور في الموقع ولوحة الأدمن خلال ثوانٍ تحت القسم الصحيح وبتسمية نظيفة خالية من الهاشتاجات.
+
+---
+
+## 📤 6. نظام التخزين السحابي التلقائي للفيديوهات المنجزة وحذفها من السيرفر
+
+تم تطوير وحدة [`lib/telegram.js`](file:///c:/Users/youse/OneDrive/Desktop/New%20folder%20(2)/uuu12-main/uuu12-main/lib/telegram.js) لربط خادم الرندرة بقناة تليجرام تلقائياً:
+1. **الرفع الفوري**: فور انتهاء عملية دمج الفيديو عبر FFmpeg، يتم استدعاء دالة `uploadVideoToTelegram(outPath, caption)` لرفع ملف الـ MP4 مباشرة إلى قناة التخزين عبر البوت.
+2. **استخراج الرابط السحابي**: يتم استدعاء `getFile` وجلب رابط التحميل الدائم المباشر من تليجرام CDN.
+3. **الحذف الفوري من قرص السيرفر (Zero Disk Storage)**: يقوم السيرفر بمسح ملف الفيديو المحلي فوراً `fs.unlinkSync(filePath)`.
+4. **تحويل مسارات التحميل القديمة**: في حال طلب أي جهة خارجية أو مستخدم الرابط القديم `/download/:filename`، يقوم السيرفر بعمل `302 Redirect` مباشر إلى رابط تليجرام السحابي.
+
