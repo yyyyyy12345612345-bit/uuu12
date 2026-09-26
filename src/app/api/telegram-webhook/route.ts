@@ -84,8 +84,8 @@ export async function POST(request: Request) {
     const cleanWords = caption
       .replace(/[#،,.\-_:;!؟?()\[\]{}"'\\/]/g, " ")
       .split(/\s+/)
-      .map((w) => w.trim())
-      .filter((w) => w.length > 2 && !["هذا", "هذه", "التي", "الذي", "على", "إلى", "الى", "منه", "معها", "في", "من", "عن", "مع"].includes(w));
+      .map((w: string) => w.trim())
+      .filter((w: string) => w.length > 2 && !["هذا", "هذه", "التي", "الذي", "على", "إلى", "الى", "منه", "معها", "في", "من", "عن", "مع"].includes(w));
 
     for (const word of cleanWords) {
       if (!tags.includes(word)) {

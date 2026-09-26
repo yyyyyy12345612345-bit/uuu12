@@ -50,6 +50,11 @@ const renderLimiter = rateLimit({
 app.head("/download/:filename", (req, res) => {
   const filePath = path.resolve(RENDERS_DIR, req.params.filename);
   if (!fs.existsSync(filePath)) {
+    const jobId = req.params.filename.replace(/\.mp4$/, "");
+    const job = getJob(jobId);
+    if (job && job.url && job.url.startsWith("http") && !job.url.includes(`/download/${req.params.filename}`)) {
+      return res.redirect(302, job.url);
+    }
     return res.status(404).end();
   }
   const stat = fs.statSync(filePath);
@@ -65,6 +70,11 @@ app.head("/download/:filename", (req, res) => {
 app.get("/download/:filename", (req, res) => {
   const filePath = path.resolve(RENDERS_DIR, req.params.filename);
   if (!fs.existsSync(filePath)) {
+    const jobId = req.params.filename.replace(/\.mp4$/, "");
+    const job = getJob(jobId);
+    if (job && job.url && job.url.startsWith("http") && !job.url.includes(`/download/${req.params.filename}`)) {
+      return res.redirect(302, job.url);
+    }
     return res.status(404).json({ error: "الفيديو غير موجود أو انتهت صلاحيته" });
   }
 

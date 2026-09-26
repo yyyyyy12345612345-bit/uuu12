@@ -23,6 +23,10 @@ export const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 export const WIDTH = 720;
 export const HEIGHT = 1280;
 
+// إعدادات تليجرام للتخزين السحابي للفيديوهات
+export const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
+export const TELEGRAM_CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID || "-1004363174660";
+
 export const RENDERS_DIR = path.resolve(os.tmpdir(), "renders_output");
 export const FONTS_DIR = path.resolve(os.tmpdir(), "fonts_cache");
 export const BG_CACHE_DIR = path.resolve(os.tmpdir(), "bg_cache");

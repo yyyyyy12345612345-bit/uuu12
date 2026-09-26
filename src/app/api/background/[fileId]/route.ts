@@ -68,18 +68,13 @@ export async function GET(
       return NextResponse.json({ url: directDownloadUrl });
     }
 
-    // بدلاً من عمل إعادة توجيه (Redirect) قد تحجبه خوادم الرندرة أو جدران الحماية،
-    // نقوم بعمل بث (Stream) محتوى الفيديو مباشرة من تليجرام ليمر عبر Vercel
-    const videoRes = await fetch(directDownloadUrl);
-    if (!videoRes.ok) {
-      return NextResponse.json({ error: "Failed to stream video content" }, { status: videoRes.status });
-    }
-
-    return new Response(videoRes.body, {
+    // تحويل مباشر (302 Redirect) إلى رابط تليجرام CDN لمنع استهلاك باندويث Vercel بالكامل
+    // الطلب لا يمر كفيديو ثقيل عبر Vercel بل كتحويل فوري خفيف جداً (~200 بايت فقط)
+    return NextResponse.redirect(directDownloadUrl, {
+      status: 302,
       headers: {
-        "Content-Type": videoRes.headers.get("content-type") || "video/mp4",
-        "Content-Length": videoRes.headers.get("content-length") || "",
-        "Cache-Control": "public, max-age=31536000, immutable",
+        "Cache-Control": "public, max-age=3600",
+        "Access-Control-Allow-Origin": "*",
       },
     });
   } catch (error: any) {

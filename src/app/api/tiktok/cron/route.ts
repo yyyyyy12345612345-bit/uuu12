@@ -232,8 +232,68 @@ export async function GET(request: Request) {
         }
 
         // ------------------------------------------
-        // OPTION B: NATIVE CHUNK UPLOADER FOR SCHEDULED POSTS
+        // OPTION B: NATIVE TIKTOK API (PULL_FROM_URL FIRST)
         // ------------------------------------------
+        const accessToken = await getValidAccessToken(jobData.accountId, db);
+        const publishInitUrl = "https://open.tiktokapis.com/v2/post/publish/video/init/";
+
+        // 1. محاولة استخدام PULL_FROM_URL أولاً لتوفير استهلاك الباندويث 100%
+        let usedPullFromUrl = false;
+        try {
+          console.log(`[TikTok Cron] Attempting zero-bandwidth PULL_FROM_URL for scheduled job: ${docSnap.id}`);
+          const pullBody = {
+            post_info: {
+              title: jobData.caption,
+              privacy_level: "PUBLIC_TO_EVERYONE",
+              disable_comment: false,
+              disable_duet: false,
+              disable_stitch: false,
+              video_cover_timestamp_ms: 1500,
+            },
+            source_info: {
+              source: "PULL_FROM_URL",
+              video_url: jobData.videoUrl,
+            },
+          };
+
+          const pullRes = await fetch(publishInitUrl, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${accessToken}`,
+              "Content-Type": "application/json; charset=UTF-8",
+            },
+            body: JSON.stringify(pullBody),
+          });
+
+          const pullText = await pullRes.text();
+          if (pullRes.ok) {
+            const pullData = JSON.parse(pullText);
+            const publish_id = pullData.data?.publish_id;
+            if (publish_id) {
+              console.log(`[TikTok Cron] PULL_FROM_URL succeeded! Publish ID: ${publish_id}`);
+              await jobRef.update({
+                status: "completed",
+                publishId: publish_id,
+                progress: 100,
+                publishedAt: admin.firestore.FieldValue.serverTimestamp(),
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+              });
+              uploadResults.push({ id: docSnap.id, success: true, publishId: publish_id });
+              usedPullFromUrl = true;
+            }
+          } else {
+            console.warn("[TikTok Cron] PULL_FROM_URL fallback to chunked upload:", pullText);
+          }
+        } catch (pullErr: any) {
+          console.warn("[TikTok Cron] PULL_FROM_URL error, falling back:", pullErr.message);
+        }
+
+        if (usedPullFromUrl) {
+          continue;
+        }
+
+        // 2. البديل الثانوي (Chunked Upload)
+        console.log(`[TikTok Cron] Downloading video for chunked upload: ${jobData.videoUrl}`);
         const videoRes = await fetch(jobData.videoUrl);
         if (!videoRes.ok) throw new Error("Failed to download video file");
         const videoBuffer = Buffer.from(await videoRes.arrayBuffer());
@@ -242,9 +302,6 @@ export async function GET(request: Request) {
         const CHUNK_SIZE = 5 * 1024 * 1024;
         const totalChunks = Math.ceil(fileSize / CHUNK_SIZE);
 
-        const accessToken = await getValidAccessToken(jobData.accountId, db);
-
-        const publishInitUrl = "https://open.tiktokapis.com/v2/post/publish/video/init/";
         const publishBody = {
           post_info: {
             title: jobData.caption,

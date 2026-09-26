@@ -124,6 +124,88 @@ export async function GET(
 }
 ```
 
+### 5. إزالة الحاجة للهاشتاجات نهائياً ودعم استخراج الأقسام بالذكاء الدلالي
+*   **المشكلة**: كان النظام يشترط كتابة علامات الهاشتاج `#` في وصف الفيديو ليتم التعرف على القسم والتاغات. إذا رُفع الفيديو بدون `#` أو بدون كابشن كان يذهب دائماً للقسم الافتراضي دون تصنيف دقيق، كما كانت تُلغى الفيديوهات المرسلة كملفات (Document).
+*   **الحل**:
+    1. إضافة قاموس دلالي ذكي لمطابقة الكلمات الطبيعية (مثل: بحر، شاطئ، أمواج -> بحار | مسجد، كعبة، حرم -> مساجد | قمم، جبل -> جبال).
+    2. تنظيف العناوين وإزالة أي رموز `#` تلقائياً من العناوين والتاغات.
+    3. دعم استقبال مقاطع الفيديو المرسلة كملفات `document` (MIME: `video/*`) بجانب `video` العادي.
+
+---
+
+## 💾 الأكواد البرمجية المعتمدة (Source Code Reference)
+
+### 1. الـ API الرئيسي لبث محتوى الفيديوهات والكاش:
+**المسار**: `src/app/api/background/[fileId]/route.ts`
+
+```typescript
+import { NextResponse } from "next/server";
+
+interface CacheEntry {
+  url: string;
+  expiresAt: number;
+}
+const urlCache = new Map<string, CacheEntry>();
+const CACHE_DURATION_MS = 50 * 60 * 1000;
+
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ fileId: string }> }
+) {
+  try {
+    const { fileId } = await params;
+    if (!fileId) return NextResponse.json({ error: "Missing fileId" }, { status: 400 });
+
+    const { searchParams } = new URL(request.url);
+    const returnJson = searchParams.get("json") === "true";
+    const cleanFileId = fileId.replace(/\.mp4$/, "");
+
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+    if (!token) return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+
+    const now = Date.now();
+    const cached = urlCache.get(cleanFileId);
+
+    let directDownloadUrl = "";
+
+    if (cached && cached.expiresAt > now) {
+      directDownloadUrl = cached.url;
+    } else {
+      const getFileUrl = `https://api.telegram.org/bot${token}/getFile?file_id=${cleanFileId}`;
+      const fileRes = await fetch(getFileUrl, { next: { revalidate: 0 } });
+      
+      if (!fileRes.ok) return NextResponse.json({ error: "Failed to get file" }, { status: fileRes.status });
+
+      const fileData = await fileRes.json();
+      if (!fileData.ok || !fileData.result?.file_path) {
+        return NextResponse.json({ error: "Invalid file data" }, { status: 400 });
+      }
+
+      const filePath = fileData.result.file_path;
+      directDownloadUrl = `https://api.telegram.org/file/bot${token}/${filePath}`;
+
+      urlCache.set(cleanFileId, { url: directDownloadUrl, expiresAt: now + CACHE_DURATION_MS });
+    }
+
+    if (returnJson) return NextResponse.json({ url: directDownloadUrl });
+
+    // البث المباشر للمحتوى (Stream Proxy)
+    const videoRes = await fetch(directDownloadUrl);
+    if (!videoRes.ok) return NextResponse.json({ error: "Failed to stream video" }, { status: videoRes.status });
+
+    return new Response(videoRes.body, {
+      headers: {
+        "Content-Type": videoRes.headers.get("content-type") || "video/mp4",
+        "Content-Length": videoRes.headers.get("content-length") || "",
+        "Cache-Control": "public, max-age=31536000, immutable",
+      },
+    });
+  } catch (error: any) {
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+```
+
 ### 2. الـ Webhook الخاص بالاستقبال التلقائي من القناة:
 **المسار**: `src/app/api/telegram-webhook/route.ts`
 
@@ -133,7 +215,6 @@ import { getAdminApp } from "@/lib/firebaseAdmin";
 import admin from "firebase-admin";
 
 const EXPECTED_CHANNEL_ID = -1004363174660; 
-const ALLOWED_CATEGORIES = ["مساجد", "بحار", "جبال", "غابات", "الثلج", "غروب", "سماء", "طبيعة"];
 
 export async function POST(request: Request) {
   try {
@@ -144,32 +225,71 @@ export async function POST(request: Request) {
     const chatId = post.chat?.id;
     if (chatId !== EXPECTED_CHANNEL_ID) return NextResponse.json({ success: true });
 
-    const video = post.video;
+    // دعم الفيديو العادي أو المرفوع كملف
+    const video = post.video || (post.document && post.document.mime_type?.startsWith("video/") ? post.document : null);
     if (!video || !video.file_id) return NextResponse.json({ success: true });
 
     const fileId = video.file_id;
     const caption = post.caption || "";
     
-    const tags: string[] = [];
-    const hashtagRegex = /#(\S+)/g;
-    let match;
-    while ((match = hashtagRegex.exec(caption)) !== null) {
-      tags.push(match[1]);
-    }
+    // قاموس الكلمات الدلالية لكل تصنيف للتعرف التلقائي بدون أي هاشتاج
+    const CATEGORY_KEYWORDS: Record<string, string[]> = {
+      "مساجد": ["مسجد", "مساجد", "مكة", "كعبة", "المدينة", "الحرم", "حرم", "اذان", "أذان", "صلاة", "اسلام", "إسلام", "islamic", "mosque", "mecca", "kaaba", "quran", "قرآن", "جامع"],
+      "بحار": ["بحر", "بحار", "شاطئ", "شواطئ", "محيط", "محيطات", "أمواج", "موج", "ماء", "مياه", "نهر", "أنهار", "شلال", "شلالات", "sea", "ocean", "beach", "waves", "water", "lake", "بحيرة"],
+      "جبال": ["جبل", "جبال", "قمة", "قمم", "صخر", "صخور", "هضاب", "تلال", "mountain", "mountains", "rocks", "hills"],
+      "غابات": ["غابة", "غابات", "شجر", "أشجار", "أخضر", "خضار", "حديقة", "حدائق", "نبات", "نباتات", "ورود", "زهور", "forest", "trees", "nature", "green", "jungle"],
+      "الثلج": ["ثلج", "ثلوج", "جليد", "شتاء", "صقيع", "برد", "snow", "ice", "winter", "cold", "frost"],
+      "غروب": ["غروب", "شروق", "مغيب", "شمس", "أصيل", "شفق", "صباح", "sunset", "sunrise", "sun", "dawn", "dusk"],
+      "سماء": ["سماء", "سحب", "سحاب", "غيم", "غيوم", "مطر", "أمطار", "نجوم", "قمر", "فضاء", "ليل", "sky", "clouds", "rain", "stars", "moon", "night"],
+      "طبيعة": ["طبيعة", "طبيعي", "مناظر", "landscape", "nature"],
+    };
 
-    let title = caption.replace(hashtagRegex, "").trim();
-    if (!title) title = `فيديو سحابي ${new Date().toLocaleDateString("ar-EG")}`;
+    const normalizeArabic = (text: string) => {
+      return text
+        .toLowerCase()
+        .replace(/#/g, "")
+        .replace(/[أإآ]/g, "ا")
+        .replace(/ة/g, "ه")
+        .replace(/ى/g, "ي")
+        .replace(/[ًٌٍَُِّْ]/g, "")
+        .trim();
+    };
 
+    const normalizedCaption = normalizeArabic(caption);
+
+    // تحديد القسم المناسب من كلمات النص تلقائياً بدون الحاجة لأي هاشتاج
     let category = "طبيعة";
-    for (const tag of tags) {
-      if (ALLOWED_CATEGORIES.includes(tag)) {
-        category = tag;
+    for (const [catName, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+      if (keywords.some((kw) => normalizedCaption.includes(normalizeArabic(kw)))) {
+        category = catName;
         break;
       }
     }
 
-    if (!tags.includes(category)) tags.push(category);
-    if (!tags.includes("فيديو")) tags.push("فيديو");
+    // استخراج العنوان وتنظيفه نهائياً من أي علامات هاشتاج
+    let title = caption
+      .replace(/#/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (!title) {
+      title = `فيديو سحابي ${new Date().toLocaleDateString("ar-EG")}`;
+    }
+
+    // إنشاء الكلمات الدلالية كتاغات صافية بدون أي هاشتاجات
+    const tags: string[] = [category, "فيديو"];
+
+    const cleanWords = caption
+      .replace(/[#،,.\-_:;!؟?()\[\]{}"'\\/]/g, " ")
+      .split(/\s+/)
+      .map((w) => w.trim())
+      .filter((w) => w.length > 2 && !["هذا", "هذه", "التي", "الذي", "على", "إلى", "الى", "منه", "معها", "في", "من", "عن", "مع"].includes(w));
+
+    for (const word of cleanWords) {
+      if (!tags.includes(word)) {
+        tags.push(word);
+      }
+    }
 
     const adminDb = admin.firestore(getAdminApp());
     const backgroundsCol = adminDb.collection("backgrounds");
@@ -189,7 +309,7 @@ export async function POST(request: Request) {
       await querySnap.docs[0].ref.update(itemData);
       return NextResponse.json({ success: true, action: "updated" });
     } else {
-      await backgroundsCol.add({ ...itemData, createdAt: admin.firestore.FieldValue.serverTimestamp() });
+      await backgroundsCol.add({ ...itemData, fit: "cover", createdAt: admin.firestore.FieldValue.serverTimestamp() });
       return NextResponse.json({ success: true, action: "added" });
     }
   } catch (error: any) {
@@ -208,8 +328,10 @@ export async function POST(request: Request) {
 https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook?url=https://yaqeenalquran.online/api/telegram-webhook/
 ```
 
-### 2. رفع الفيديو وتلقي التفاصيل تلقائياً
-1. ارفع الفيديو بصيغة `.mp4` في القناة.
-2. اكتب تفاصيل الفيديو في الوصف (مثال):
-   `غروب الشمس على النيل #غروب #طبيعة`
-3. ستقوم الخلفية بالظهور في الموقع خلال 3 ثوانٍ تحت قسم **غروب** وتاغات **[غروب, طبيعة, فيديو]**.
+### 2. رفع الفيديو وتلقي التفاصيل تلقائياً (بدون أي هاشتاج)
+1. ارفع الفيديو بصيغة `.mp4` في القناة (سواء كفيديو أو كملف).
+2. اكتب تفاصيل الفيديو في الوصف بشكل طبيعي تماماً بدون أي علامات هاشتاج (مثال):
+   * `أمواج شاطئ البحر الهادئ` -> يذهب تلقائياً لقسم **بحار**
+   * `المسجد النبوي الشريف وقت الصلاة` -> يذهب تلقائياً لقسم **مساجد**
+   * `شروق الشمس الساحر` -> يذهب تلقائياً لقسم **غروب**
+3. ستقوم الخلفية بالظهور في الموقع ولوحة الأدمن خلال ثوانٍ تحت القسم الصحيح وبتسمية نظيفة خالية من الهاشتاجات.
