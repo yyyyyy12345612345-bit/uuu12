@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { verifyOtp, verifySignedToken } from "../otp-store";
+import { verifyOtp, verifySignedToken, createResetToken } from "../otp-store";
 
 // ✅ CORS headers to allow requests from Capacitor APK
 const CORS_HEADERS = {
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     if (verifyOtp(email.trim().toLowerCase(), code)) {
       const responseData: any = { success: true, message: "تم التحقق بنجاح" };
       if (uid) {
-        responseData.token = Buffer.from(`reset:${uid}:${process.env.OTP_SECRET || "quran-app-otp-secret-key-2026"}`).toString("base64");
+        responseData.token = createResetToken(uid);
       }
       return NextResponse.json(responseData, { headers: CORS_HEADERS });
     }

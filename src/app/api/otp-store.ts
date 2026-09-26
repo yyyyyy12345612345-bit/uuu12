@@ -45,3 +45,36 @@ export function verifySignedToken(token: string): { email: string; code: string 
   if (Date.now() > parseInt(expiryStr, 10)) return null;
   return { email, code };
 }
+
+/**
+ * 🔒 توكن استعادة كلمة المرور المشفر والموقّع رقمياً
+ * يمنع نهائياً تسريب مفتاح النظام أو تزوير التوكن لأي UID آخر
+ * صالح لمدة 15 دقيقة فقط من وقت التحقق من الكود
+ */
+const RESET_TOKEN_EXPIRY_MS = 15 * 60 * 1000;
+
+export function createResetToken(uid: string): string {
+  const expiry = Date.now() + RESET_TOKEN_EXPIRY_MS;
+  const payload = `reset:${uid}:${expiry}`;
+  const sig = crypto.createHmac("sha256", SECRET).update(payload).digest("hex");
+  const encoded = Buffer.from(payload).toString("base64url");
+  return `${encoded}.${sig}`;
+}
+
+export function verifyResetToken(token: string): string | null {
+  try {
+    if (!token || typeof token !== "string") return null;
+    const parts = token.split(".");
+    if (parts.length !== 2) return null;
+    const payload = Buffer.from(parts[0], "base64url").toString("utf-8");
+    const expectedSig = crypto.createHmac("sha256", SECRET).update(payload).digest("hex");
+    if (parts[1] !== expectedSig) return null;
+    const [prefix, uid, expiryStr] = payload.split(":");
+    if (prefix !== "reset" || !uid || !expiryStr) return null;
+    if (Date.now() > parseInt(expiryStr, 10)) return null;
+    return uid;
+  } catch {
+    return null;
+  }
+}
+

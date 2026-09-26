@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminAuth } from "@/lib/firebaseAdmin";
+import { verifyResetToken } from "../otp-store";
 import admin from "firebase-admin";
 
 const CORS_HEADERS = {
@@ -24,23 +25,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "كلمة المرور يجب أن تكون 6 أحرف على الأقل" }, { status: 400, headers: CORS_HEADERS });
     }
 
-    // Decode and verify reset token
-    let uid = "";
-    try {
-      const decoded = Buffer.from(token, "base64").toString("utf-8");
-      const parts = decoded.split(":");
-      if (parts[0] !== "reset" || parts.length < 3) {
-        return NextResponse.json({ success: false, error: "رمز الاستعادة غير صالح" }, { status: 400, headers: CORS_HEADERS });
-      }
-      uid = parts[1];
-      const tokenSecret = parts[2];
-      const systemSecret = process.env.OTP_SECRET || "quran-app-otp-secret-key-2026";
-
-      if (tokenSecret !== systemSecret) {
-        return NextResponse.json({ success: false, error: "رمز الاستعادة منتهي الصلاحية أو غير صالح" }, { status: 400, headers: CORS_HEADERS });
-      }
-    } catch (e) {
-      return NextResponse.json({ success: false, error: "رمز الاستعادة تالف" }, { status: 400, headers: CORS_HEADERS });
+    // 🔒 التحقق المشفر والموقّع رقمياً من التوكن وصلاحيته الزمنية (15 دقيقة)
+    const uid = verifyResetToken(token);
+    if (!uid) {
+      return NextResponse.json({ success: false, error: "رمز الاستعادة منتهي الصلاحية أو غير صالح" }, { status: 400, headers: CORS_HEADERS });
     }
 
     // Initialize admin auth and update user password

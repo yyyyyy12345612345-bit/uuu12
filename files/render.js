@@ -11,6 +11,7 @@ import { generateVerseFrame } from "./frame.js";
 import { wrapText } from "./svgUtils.js";
 import { setProgress, setCompleted, setFailed } from "./jobs.js";
 import { logger } from "./logger.js";
+import { uploadVideoToTelegram } from "./telegram.js";
 
 const execAsync = promisify(exec);
 if (!fs.existsSync(RENDERS_DIR)) fs.mkdirSync(RENDERS_DIR, { recursive: true });
@@ -306,12 +307,21 @@ export async function startRender(jobId, data) {
       ffmpegCmd = `ffmpeg -loglevel error -f concat -safe 0 -i "${sl(frameListPath)}" -i "${sl(mergedAudioPath)}" -c:v libx264 -preset ultrafast -crf 23 ${vfArg} -c:a copy -t ${totalDuration.toFixed(4)} -movflags +faststart -y "${sl(outPath)}"`;
     }
 
-    // مهلة ديناميكية تتناسب مع طول الفيديو حتى لو كان فيديو يوتيوب طويل (ساعة أو أكثر)
-    const ffmpegTimeout = Math.max(900000, Math.ceil(totalDuration * 3000));
-    await execAsync(ffmpegCmd, { timeout: ffmpegTimeout, maxBuffer: 100 * 1024 * 1024 });
+    let finalVideoUrl = `https://${HOST}/download/${jobId}.mp4`;
+    const caption = `📖 ${surahName || "تلاوة قرآنية"} | بصوت ${reciterName || "قارئ"}`;
 
-    setCompleted(jobId, `https://${HOST}/download/${jobId}.mp4`);
-    logger.info("render_completed", { jobId, durationSec: totalDuration.toFixed(2) });
+    try {
+      const tgResult = await uploadVideoToTelegram(outPath, caption);
+      if (tgResult && tgResult.fileId) {
+        finalVideoUrl = `https://${HOST}/telegram-proxy/${tgResult.fileId}.mp4`;
+        logger.info("render_uploaded_to_telegram", { jobId, directUrl: finalVideoUrl, fileId: tgResult.fileId });
+      }
+    } catch (uploadErr) {
+      logger.warn("telegram_upload_skip", { error: uploadErr.message });
+    }
+
+    setCompleted(jobId, finalVideoUrl);
+    logger.info("render_completed", { jobId, durationSec: totalDuration.toFixed(2), finalVideoUrl });
   } catch (e) {
     setFailed(jobId, e);
   } finally {

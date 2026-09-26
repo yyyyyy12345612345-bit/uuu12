@@ -64,13 +64,16 @@ export async function GET(
       });
     }
 
+    const proxyUrl = `https://yousef891238-render-server.hf.space/telegram-proxy/${cleanFileId}`;
+
     if (returnJson) {
-      return NextResponse.json({ url: directDownloadUrl });
+      return NextResponse.json({ url: proxyUrl });
     }
 
-    // تحويل مباشر (302 Redirect) إلى رابط تليجرام CDN لمنع استهلاك باندويث Vercel بالكامل
-    // الطلب لا يمر كفيديو ثقيل عبر Vercel بل كتحويل فوري خفيف جداً (~200 بايت فقط)
-    return NextResponse.redirect(directDownloadUrl, {
+    // 🔒 تحويل آمن (302 Redirect) إلى خادم Hugging Face المجاني
+    // 1. يمنع نهائياً تسريب توكن البوت في أدوات مطور المتصفح (DevTools)
+    // 2. يمنع استهلاك باندويث Vercel نهائياً (الرد 200 بايت فقط)
+    return NextResponse.redirect(proxyUrl, {
       status: 302,
       headers: {
         "Cache-Control": "public, max-age=3600",

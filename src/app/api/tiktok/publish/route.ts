@@ -78,7 +78,7 @@ async function getValidAccessToken(accountId: string, db: admin.firestore.Firest
 
 const ZERNIO_TIKTOK_ACCOUNT_ID = "6a4c75f09d9472faaea0b774";
 const ZERNIO_YOUTUBE_ACCOUNT_ID = "6a9cfafb77555aae01e37454";
-const ZERNIO_API_KEY = process.env.ZERNIO_API_KEY || "sk_e79e01e86d0f0499e55b0e768b9287c194d4b5c4843ee49040220efc21186a42";
+const ZERNIO_API_KEY = process.env.ZERNIO_API_KEY || "";
 
 function extractSmartTitle(caption: string, fallbackTitle?: string): string {
   if (fallbackTitle && fallbackTitle.trim()) {

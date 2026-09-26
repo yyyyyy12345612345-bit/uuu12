@@ -29,15 +29,15 @@ export async function GET(req: Request) {
   if (latitude && longitude) {
     params.set("latitude", latitude);
     params.set("longitude", longitude);
-    apiUrl = `http://api.aladhan.com/v1/calendar?${params.toString()}`;
+    apiUrl = `https://api.aladhan.com/v1/calendar?${params.toString()}`;
   } else {
     params.set("city", city || "Cairo");
     params.set("country", country || "Egypt");
-    apiUrl = `http://api.aladhan.com/v1/calendarByCity?${params.toString()}`;
+    apiUrl = `https://api.aladhan.com/v1/calendarByCity?${params.toString()}`;
   }
 
   try {
-    const response = await fetch(apiUrl, { cache: "no-store" });
+    const response = await fetch(apiUrl, { next: { revalidate: 86400 } });
     const contentType = response.headers.get("content-type") || "";
 
     if (!response.ok) {
@@ -67,7 +67,11 @@ export async function GET(req: Request) {
     }
 
     const data = await response.json();
-    return NextResponse.json(data);
+    return NextResponse.json(data, {
+      headers: {
+        "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=43200",
+      },
+    });
   } catch (error) {
     return NextResponse.json(
       {

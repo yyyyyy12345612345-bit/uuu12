@@ -118,7 +118,7 @@ export function SettingsModal({
   // Sound Tests
   const testNotificationSound = () => {
     setTestingSound(true);
-    const audio = new Audio("/audio/notification.mp3.mp3");
+    const audio = new Audio("/audio/notification.mp3");
     audio.volume = 0.7;
     audio.play().catch(() => {});
     setTimeout(() => setTestingSound(false), 2000);

@@ -9,8 +9,8 @@ const YOUTUBE_CHANNEL_ID = "UCN3RoN1VmXVeIQ5TmnVJ5uQ";
 // Zernio Account ID for YouTube (@yaqeenalquran1 on Zernio dashboard)
 const ZERNIO_YOUTUBE_ACCOUNT_ID = "6a9cfafb77555aae01e37454";
 
-// Zernio API Key (from Zernio dashboard API Keys)
-const ZERNIO_API_KEY = process.env.ZERNIO_API_KEY || "sk_e79e01e86d0f0499e55b0e768b9287c194d4b5c4843ee49040220efc21186a42";
+// Zernio API Key (from environment)
+const ZERNIO_API_KEY = process.env.ZERNIO_API_KEY || "";
 
 export async function POST(request: Request) {
   try {
@@ -41,15 +41,28 @@ export async function POST(request: Request) {
     const adminApp = getAdminApp();
     const adminDb = admin.firestore(adminApp);
 
-    const isCronBypass = !!body.isCronBypass || request.headers.get("x-cron-key") === process.env.CRON_SECRET;
+    const cronSecret = process.env.CRON_SECRET;
+    const isCronBypass = !!cronSecret && request.headers.get("x-cron-key") === cronSecret;
 
-    // Optional auth check: verify token if provided, but permit direct secret studio publish
-    if (adminToken && !isCronBypass) {
+    // 🔒 التحقق الصارم من صلاحيات الأدمن للنشر على يوتيوب
+    if (!adminToken && !isCronBypass) {
+      return NextResponse.json({ error: "Unauthorized: Missing admin token" }, { status: 401 });
+    }
+
+    if (!isCronBypass) {
+      const adminAuth = admin.auth(adminApp);
       try {
-        const adminAuth = admin.auth(adminApp);
-        await adminAuth.verifyIdToken(adminToken);
+        const decodedToken = await adminAuth.verifyIdToken(adminToken);
+        const emailLower = decodedToken.email?.toLowerCase() || "";
+        if (
+          emailLower !== "youssefosama@gmail.com" &&
+          emailLower !== "youssef@yaqeen.app" &&
+          !emailLower.includes("youssef")
+        ) {
+          return NextResponse.json({ error: "Forbidden: Admin access only" }, { status: 403 });
+        }
       } catch (e: any) {
-        console.warn("adminToken verification warning:", e.message);
+        return NextResponse.json({ error: `Unauthorized session: ${e.message}` }, { status: 401 });
       }
     }
 
