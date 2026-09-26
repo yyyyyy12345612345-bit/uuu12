@@ -63,27 +63,33 @@ async function doPush(customMessage) {
   console.log('🚀 بدء عملية رفع التحديثات إلى GitHub...');
   console.log('=============================================\n');
 
-  // Check git status
+  // Check git status and unpushed commits
   const status = run('git status --porcelain', false);
-  if (!status) {
+  const unpushed = run('git log origin/main..HEAD --oneline', false);
+
+  if (!status && !unpushed) {
     console.log('✨ كل الملفات محدثة بالفعل! لا توجد تعديلات جديدة للرفع.');
     return;
   }
 
-  console.log('📝 جاري تجهيز الملفات وتجهيز الحزمة...');
-  run('git add -A');
+  if (status) {
+    console.log('📝 جاري تجهيز الملفات وتجهيز الحزمة...');
+    run('git add -A');
 
-  const now = new Date();
-  const timeStr = now.toLocaleDateString('ar-EG', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }) + ' - ' + now.toLocaleTimeString('en-US');
+    const now = new Date();
+    const timeStr = now.toLocaleDateString('ar-EG', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }) + ' - ' + now.toLocaleTimeString('en-US');
 
-  const commitMsg = customMessage || `تحديث تلقائي - منصة يقين القرآن (${timeStr})`;
+    const commitMsg = customMessage || `تحديث تلقائي - منصة يقين القرآن (${timeStr})`;
 
-  console.log(`💬 رسالة الـ Commit: "${commitMsg}"`);
-  run(`git commit -m "${commitMsg}"`);
+    console.log(`💬 رسالة الـ Commit: "${commitMsg}"`);
+    run(`git commit -m "${commitMsg}"`);
+  } else if (unpushed) {
+    console.log(`📦 تم العثور على تحديثات محلية بانتظار الرفع: \n${unpushed}`);
+  }
 
   console.log('\n⬆️ جاري الرفع إلى GitHub (git push origin main)...');
   const pushOk = run('git push -u origin main');
