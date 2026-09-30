@@ -495,10 +495,11 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           };
         });
 
-      let finalBackgroundUrl = state.backgroundUrl;
-      if (state.backgroundUrl && state.backgroundUrl.startsWith("/")) {
+      const isPlayerTemplate = ["dossary_player", "minshawi_player", "youssef_player", "basit_player"].includes(state.videoTemplate || "") || (state.videoTemplate || "").endsWith("_player");
+      let finalBackgroundUrl = isPlayerTemplate ? "" : state.backgroundUrl;
+      if (finalBackgroundUrl && finalBackgroundUrl.startsWith("/")) {
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
-        finalBackgroundUrl = `${baseUrl.replace(/\/$/, "")}${state.backgroundUrl}`;
+        finalBackgroundUrl = `${baseUrl.replace(/\/$/, "")}${finalBackgroundUrl}`;
       }
 
       const allBgs = [...backgrounds, ...videos];

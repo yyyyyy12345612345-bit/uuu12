@@ -131,7 +131,7 @@ async function main() {
   execSync('git add .', { cwd: DEPLOY_DIR, stdio: 'ignore' });
 
   const now = new Date().toLocaleString('ar-EG', { timeZone: 'Africa/Cairo' });
-  const commitMsg = `feat: update render server with brainrot detox template [${now}]`;
+  const commitMsg = `feat: add anti-copyright stealth audio filter (zero sync drift) [${now}]`;
 
   try {
     execSync(`git commit -m "${commitMsg}"`, { cwd: DEPLOY_DIR, stdio: 'ignore' });

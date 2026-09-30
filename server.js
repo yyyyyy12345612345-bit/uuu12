@@ -17,6 +17,7 @@ import cors from "cors";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
+import { Readable } from "stream";
 import rateLimit from "express-rate-limit";
 
 import { PORT, RENDERS_DIR, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS } from "./config.js";
@@ -137,6 +138,49 @@ app.get("/download/:filename", (req, res) => {
   }
 });
 app.use("/download", express.static(RENDERS_DIR, { maxAge: "1h" }));
+
+// Secure Telegram Video Proxy (Streams video from Telegram without exposing Bot Token to client)
+app.get("/telegram-proxy/:fileId", async (req, res) => {
+  const fileId = req.params.fileId.replace(/\.mp4$/, "");
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token) {
+    return res.status(500).json({ error: "TELEGRAM_BOT_TOKEN not configured" });
+  }
+
+  try {
+    const getFileRes = await fetch(`https://api.telegram.org/bot${token}/getFile?file_id=${fileId}`);
+    const getFileData = await getFileRes.json();
+    if (!getFileRes.ok || !getFileData.ok || !getFileData.result?.file_path) {
+      return res.status(404).json({ error: "Telegram video not found" });
+    }
+
+    const tgFilePath = getFileData.result.file_path;
+    const tgDirectUrl = `https://api.telegram.org/file/bot${token}/${tgFilePath}`;
+
+    const headers = {};
+    if (req.headers.range) {
+      headers["Range"] = req.headers.range;
+    }
+
+    const videoRes = await fetch(tgDirectUrl, { headers });
+    res.status(videoRes.status);
+
+    for (const [key, value] of videoRes.headers.entries()) {
+      if (["content-type", "content-length", "content-range", "accept-ranges"].includes(key.toLowerCase())) {
+        res.setHeader(key, value);
+      }
+    }
+    res.setHeader("Cache-Control", "public, max-age=86400, immutable");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+
+    if (!videoRes.body) {
+      return res.end();
+    }
+    Readable.fromWeb(videoRes.body).pipe(res);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to stream telegram video" });
+  }
+});
 
 app.get("/health", (req, res) => {
   res.json({

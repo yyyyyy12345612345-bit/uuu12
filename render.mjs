@@ -99,7 +99,9 @@ async function main() {
         `[${i}:a]aresample=44100,aformat=sample_fmts=fltp:channel_layouts=stereo[a${i}]`
       ).join(";");
       const concatInputs = validAudioPaths.map((_, i) => `[a${i}]`).join("");
-      const concatFilter = `${filterParts};${concatInputs}concat=n=${validAudioPaths.length}:v=0:a=1[aout]`;
+      // 🛡️ درع كسر البصمة الرقمية لحقوق النشر (Anti-Copyright Stealth Filter)
+      const stealthChain = `;[raw_aout]asetrate=44629,atempo=0.988142,aresample=44100,equalizer=f=120:t=q:w=1.5:g=1.4,equalizer=f=3200:t=q:w=1.2:g=1.2,aecho=0.88:0.88:32|48:0.14|0.08,alimiter=limit_level=0.96[aout]`;
+      const concatFilter = `${filterParts};${concatInputs}concat=n=${validAudioPaths.length}:v=0:a=1[raw_aout]${stealthChain}`;
       
       await execAsync(
         `ffmpeg ${audioInputs} -filter_complex "${concatFilter}" -map "[aout]" -c:a aac -b:a 192k -ar 44100 "${mergedAudioPath}" -y`,
