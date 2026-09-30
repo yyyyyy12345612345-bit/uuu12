@@ -344,6 +344,6 @@ export async function startRender(jobId, data) {
   } finally {
     setTimeout(() => {
       try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch {}
-    }, 60000);
+    }, 30 * 60 * 1000); // 30 دقيقة
   }
 }

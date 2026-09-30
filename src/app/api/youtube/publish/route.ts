@@ -197,7 +197,7 @@ export async function POST(request: Request) {
     }
 
     // ── 2. FORWARD TO DEDICATED YOUTUBE MAKE.COM WEBHOOK (ONLY IF EXPLICITLY CONFIGURED AND DIRECT ZERNIO NOT CREATED) ──
-    const makeWebhookUrl = process.env.MAKE_YOUTUBE_WEBHOOK_URL;
+    const makeWebhookUrl = process.env.MAKE_YOUTUBE_WEBHOOK_URL || process.env.MAKE_WEBHOOK_URL || "https://hook.eu1.make.com/tl01y7q4wfa8k1rzg1lvggvb93yolmf4";
 
     if (makeWebhookUrl && !zernioPostId) {
       try {

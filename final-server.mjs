@@ -270,10 +270,10 @@ async function renderFinalStable(jobId, data) {
     });
     console.log(`✨ [${jobId}] COMPLETED SUCCESSFULLY!`);
 
-    // تنظيف بعد 60 ثانية
+    // تنظيف بعد 30 دقيقة (وقت كافي لـ Make.com/Zernio يحمّلوا الفيديو)
     setTimeout(() => {
       try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch(e) {}
-    }, 60000);
+    }, 30 * 60 * 1000);
 
   } catch (err) {
     console.error(`❌ [${jobId}] ERROR:`, err);
