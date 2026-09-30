@@ -137,7 +137,7 @@ async function renderFinalStable(jobId, data) {
     // 🛡️ درع كسر البصمة الرقمية لحقوق النشر (Anti-Copyright Stealth Filter)
     const isAntiCopyright = req.body?.antiCopyright !== false;
     const stealthChain = isAntiCopyright
-      ? `;[raw_aout]asetrate=44629,atempo=0.988142,aresample=44100,equalizer=f=120:t=q:w=1.5:g=1.4,equalizer=f=3200:t=q:w=1.2:g=1.2,aecho=0.88:0.88:32|48:0.14|0.08,alimiter=limit_level=0.96[aout]`
+      ? `;[raw_aout]asetrate=44629,atempo=0.988142,aresample=44100,equalizer=f=120:t=q:w=1.5:g=1.4,equalizer=f=3200:t=q:w=1.2:g=1.2,aecho=0.88:0.88:32|48:0.14|0.08,alimiter=limit=0.96[aout]`
       : ``;
     const outTag = isAntiCopyright ? `[raw_aout]` : `[aout]`;
     const concatFilter = `${filterParts};${concatInputs}concat=n=${audioPaths.length}:v=0:a=1${outTag}${stealthChain}`;

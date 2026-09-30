@@ -172,7 +172,13 @@ service cloud.firestore {
     }
 
     // Admin configuration (maintenance status, etc.)
-    match /admin/{document=**} {
+    // config doc is read by all visitors (AuthGate maintenance check)
+    match /admin/config {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    // All other admin docs — admin only
+    match /admin/{document} {
       allow read, write: if isAdmin();
     }
 
