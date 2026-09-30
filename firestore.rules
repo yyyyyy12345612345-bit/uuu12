@@ -195,6 +195,20 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // نظام تشخيص أخطاء النشر
+    match /publish_diagnostics/{docId} {
+      allow read: if isAdmin();
+      allow create: if true; // Server-side writes via Admin SDK bypass rules anyway
+      allow update, delete: if isAdmin();
+    }
+
+    // إشعارات الأخطاء
+    match /error_alerts/{docId} {
+      allow read, update: if isAdmin();
+      allow create: if true;
+      allow delete: if isAdmin();
+    }
+
     // Default Fallback: DENY ALL BY DEFAULT FOR UNMATCHED PATHS
     match /{allPaths=**} {
       allow read, write: if false;
