@@ -33,6 +33,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
   const [message, setMessage] = useState("");
   const [progressPct, setProgressPct] = useState(0);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [isDownloadingFile, setIsDownloadingFile] = useState(false);
 
   // Admin check
   const isAdmin = React.useMemo(() => {
@@ -663,6 +664,30 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       console.error(e);
       setStatus("error");
       setMessage(e.message || "حدث خطأ في السيرفر.");
+    }
+  };
+  const handleDownloadFile = async () => {
+    if (!downloadUrl) return;
+    setIsDownloadingFile(true);
+    try {
+      const directUrl = `${downloadUrl}${downloadUrl.includes("?") ? "&" : "?"}download=true`;
+      const res = await fetch(directUrl);
+      if (!res.ok) throw new Error("فشل تنزيل الملف من السيرفر");
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `quran-video-${Date.now()}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    } catch (err) {
+      console.warn("Blob download failed, falling back to direct navigation:", err);
+      const fallbackUrl = `${downloadUrl}${downloadUrl.includes("?") ? "&" : "?"}download=true`;
+      window.location.href = fallbackUrl;
+    } finally {
+      setIsDownloadingFile(false);
     }
   };
 
@@ -2034,16 +2059,24 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             )}
             
             {status === "success" && downloadUrl && (
-              <a 
-                href={downloadUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                download={`quran-video-${Date.now()}.mp4`} 
-                className="w-full bg-white text-black py-3 rounded-xl font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all shadow-xl"
+              <button 
+                type="button"
+                onClick={handleDownloadFile}
+                disabled={isDownloadingFile}
+                className="w-full bg-white text-black py-3 rounded-xl font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl disabled:opacity-75 disabled:cursor-wait cursor-pointer"
               >
-                <Download className="w-4 h-4" />
-                تحميل الملف النهائي
-              </a>
+                {isDownloadingFile ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                    <span>جاري تنزيل وحفظ الفيديو...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4" />
+                    <span>تحميل الملف النهائي (MP4)</span>
+                  </>
+                )}
+              </button>
             )}
 
             {status === "success" && downloadUrl && (

@@ -101,7 +101,9 @@ app.get("/download/:filename", (req, res) => {
   const fileSize = stat.size;
   const range = req.headers.range;
 
+  const isAttachment = req.query.download === "true" || req.query.dl === "1";
   res.setHeader("Content-Type", "video/mp4");
+  res.setHeader("Content-Disposition", isAttachment ? `attachment; filename="${req.params.filename}"` : `inline; filename="${req.params.filename}"`);
   res.setHeader("Accept-Ranges", "bytes");
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "*");

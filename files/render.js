@@ -324,14 +324,13 @@ export async function startRender(jobId, data) {
       ffmpegCmd = `ffmpeg -loglevel error -f concat -safe 0 -i "${sl(frameListPath)}" -i "${sl(mergedAudioPath)}" -c:v libx264 -preset ultrafast -crf 23 ${vfArg} -c:a copy -t ${totalDuration.toFixed(4)} -movflags +faststart -y "${sl(outPath)}"`;
     }
 
-    let finalVideoUrl = `https://${HOST}/download/${jobId}.mp4`;
+    const finalVideoUrl = `https://${HOST}/download/${jobId}.mp4`;
     const caption = `📖 ${surahName || "تلاوة قرآنية"} | بصوت ${reciterName || "قارئ"}`;
 
     try {
       const tgResult = await uploadVideoToTelegram(outPath, caption);
       if (tgResult && tgResult.fileId) {
-        finalVideoUrl = `https://${HOST}/telegram-proxy/${tgResult.fileId}.mp4`;
-        logger.info("render_uploaded_to_telegram", { jobId, directUrl: finalVideoUrl, fileId: tgResult.fileId });
+        logger.info("render_uploaded_to_telegram", { jobId, fileId: tgResult.fileId });
       }
     } catch (uploadErr) {
       logger.warn("telegram_upload_skip", { error: uploadErr.message });
