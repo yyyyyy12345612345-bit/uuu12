@@ -503,9 +503,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         finalBackgroundUrl = `${baseUrl.replace(/\/$/, "")}${finalBackgroundUrl}`;
       }
 
-      const allBgs = [...backgrounds, ...videos];
-      const currentBgItem = allBgs.find(b => b.src === state.backgroundUrl);
-      const resolvedFit = currentBgItem?.fit || state.backgroundFit || "cover";
+      const resolvedFit = state.aspectRatio === "16:9" ? "cover" : (state.backgroundFit === "cover" ? "cover" : "contain");
 
       const response = await fetch("https://yousef891238-render-server.hf.space/render", {
         method: "POST",

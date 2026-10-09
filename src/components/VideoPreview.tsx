@@ -74,13 +74,12 @@ export function VideoPreview() {
   const { data: surahData, loading: surahLoading } = useSurahData(state.surahId);
   const { backgrounds, videos } = useCustomBackgrounds();
   const isContainFit = useMemo(() => {
-    // في وضع يوتيوب العريض (16:9)، الفيديو يملأ الشاشة العريضة بالكامل بدون أي مساحات سوداء فوق وتحت
+    // معمارية الفصل: في وضع يوتيوب العريض (16:9) ملء كامل للشاشة (cover)
     if (state.aspectRatio === "16:9") return false;
-    if (state.backgroundFit === "contain") return true;
-    const allBgs = [...backgrounds, ...videos];
-    const currentItem = allBgs.find(b => b.src === state.backgroundUrl);
-    return currentItem?.fit === "contain";
-  }, [backgrounds, videos, state.backgroundUrl, state.backgroundFit, state.aspectRatio]);
+    // في وضع تيك توك الطولي (9:16) الفيديو في المنتصف ومساحة فوق وتحت (contain)
+    if (state.backgroundFit === "cover") return false;
+    return true;
+  }, [state.aspectRatio, state.backgroundFit]);
 
   const [currentAyahIndex, setCurrentAyahIndex] = useState(state.startAyah);
   const audioRef = useRef<HTMLAudioElement>(null);

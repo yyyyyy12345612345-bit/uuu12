@@ -137,7 +137,7 @@ export async function startRender(jobId, data) {
         showDetoxTimer: data.showDetoxTimer,
         showDetoxProgressBar: data.showDetoxProgressBar
       };
-      const hasTransition = animation && animation !== "none" && animation !== "fade";
+      const hasTransition = animation && animation !== "none";
       let remainingDur = lineDur;
 
       if (hasTransition && remainingDur > 0.4) {
@@ -146,11 +146,31 @@ export async function startRender(jobId, data) {
         for (let f = 0; f < transitionFrames; f++) {
           const p = f / (transitionFrames - 1);
           const animState = { opacity: 1, offsetY: 0, scale: 1, activeWordIndex: -1 };
-          if (animation === "fade") animState.opacity = p;
-          else if (animation === "slideUp") { animState.opacity = p; animState.offsetY = 30 * (1 - p); }
-          else if (animation === "slideDown") { animState.opacity = p; animState.offsetY = -30 * (1 - p); }
-          else if (animation === "zoomIn") { animState.opacity = p; animState.scale = 0.8 + (0.2 * p); }
-          else animState.opacity = p;
+          if (animation === "fade") {
+            animState.opacity = p;
+          } else if (animation === "slideUp" || animation === "slide") {
+            animState.opacity = p;
+            animState.offsetY = 30 * (1 - p);
+          } else if (animation === "slideDown") {
+            animState.opacity = p;
+            animState.offsetY = -30 * (1 - p);
+          } else if (animation === "zoomIn" || animation === "zoom" || animation === "scale") {
+            animState.opacity = p;
+            animState.scale = 0.8 + (0.2 * p);
+          } else if (animation === "bounce") {
+            animState.opacity = p;
+            animState.scale = 0.7 + (0.35 * Math.sin(p * Math.PI));
+            animState.offsetY = 20 * (1 - p);
+          } else if (animation === "flip") {
+            animState.opacity = p;
+            animState.scale = p;
+            animState.offsetY = -15 * (1 - p);
+          } else if (animation === "blur" || animation === "wave") {
+            animState.opacity = p * p;
+            animState.offsetY = 10 * (1 - p);
+          } else {
+            animState.opacity = p;
+          }
 
           const fPath = path.resolve(tempDir, `${fBaseName}-anim-${f}.${ext}`);
           const frameElapsed = currentElapsed;
