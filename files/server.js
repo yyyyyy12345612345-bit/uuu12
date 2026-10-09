@@ -231,6 +231,57 @@ app.get("/debug/last-errors", (req, res) => {
   res.json({ count: failedJobs.length, errors: failedJobs.slice(0, 15) });
 });
 
+// مسار تشخيص الاتصال والشبكة لفحص الاتصال بـ Telegram و CDN
+app.get("/debug/network-test", async (req, res) => {
+  const report = {};
+  const dns = await import("dns");
+  const dnsPromises = dns.promises;
+  const https = await import("https");
+
+  // Force IPv4 first order
+  dns.setDefaultResultOrder("ipv4first");
+
+  try {
+    report.dnsTelegram = await dnsPromises.lookup("api.telegram.org", { all: true });
+  } catch (e) {
+    report.dnsTelegramError = { message: e.message, code: e.code };
+  }
+
+  // Test IPv4 fetch
+  try {
+    const fetchRes = await fetch("https://api.telegram.org", { signal: AbortSignal.timeout(6000) });
+    report.fetchTelegramIpv4Status = fetchRes.status;
+  } catch (e) {
+    report.fetchTelegramIpv4Error = { 
+      message: e.message, 
+      cause: e.cause ? (e.cause.message || String(e.cause)) : null,
+      code: e.cause?.code || e.code 
+    };
+  }
+
+  // Direct TCP/TLS to 149.154.166.110
+  try {
+    report.tlsIpv4 = await new Promise((resolve, reject) => {
+      const req = https.request({
+        host: "149.154.166.110",
+        port: 443,
+        path: "/",
+        method: "HEAD",
+        servername: "api.telegram.org",
+        headers: { Host: "api.telegram.org" },
+        timeout: 5000,
+      }, (r) => resolve({ status: r.statusCode, headers: r.headers }));
+      req.on("error", (err) => reject({ message: err.message, code: err.code }));
+      req.on("timeout", () => { req.destroy(); reject({ message: "TCP IPv4 timeout" }); });
+      req.end();
+    });
+  } catch (e) {
+    report.tlsIpv4Error = e;
+  }
+
+  res.json(report);
+});
+
 app.use((err, req, res, next) => {
   logger.error("unhandled_error", { error: err.message, stack: err.stack, path: req.path });
   res.status(500).json({ error: "خطأ داخلي في السيرفر" });

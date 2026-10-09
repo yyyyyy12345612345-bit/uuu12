@@ -1,10 +1,10 @@
 import fs from "fs";
 import path from "path";
-import { TELEGRAM_BOT_TOKEN, TELEGRAM_CHANNEL_ID } from "./config.js";
+import { TELEGRAM_BOT_TOKEN, TELEGRAM_CHANNEL_ID } from "../config.js";
 import { logger } from "./logger.js";
 
 /**
- * 🚀 رفع الفيديو مباشرة إلى تليجرام واستخراج معرف الملف السحابي الدائم
+ * 🚀 رفع الفيديو مباشرة إلى تليجرام واستخراج رابط التحميل السحابي الدائم
  * ثم حذف الملف من السيرفر فوراً لتوفير مساحة التخزين وحماية السيرفر.
  */
 export async function uploadVideoToTelegram(filePath, caption = "") {
@@ -27,6 +27,7 @@ export async function uploadVideoToTelegram(filePath, caption = "") {
 
     const fileName = path.basename(filePath);
     
+    // إنشاء Blob للملف بشكل خفيف على الذاكرة
     let fileBlob;
     if (typeof fs.openAsBlob === "function") {
       fileBlob = await fs.openAsBlob(filePath);
@@ -46,6 +47,7 @@ export async function uploadVideoToTelegram(filePath, caption = "") {
     const sendRes = await fetch(`https://api.telegram.org/bot${token}/sendVideo`, {
       method: "POST",
       body: formData,
+      signal: AbortSignal.timeout(10000),
     });
 
     const sendData = await sendRes.json();
@@ -62,7 +64,19 @@ export async function uploadVideoToTelegram(filePath, caption = "") {
       return null;
     }
 
-    logger.info("telegram_upload_success", { fileId });
+    // استخراج مسار الملف ورابط التحميل المباشر من CDN تليجرام
+    const getFileRes = await fetch(`https://api.telegram.org/bot${token}/getFile?file_id=${fileId}`);
+    const getFileData = await getFileRes.json();
+
+    if (!getFileRes.ok || !getFileData.ok || !getFileData.result?.file_path) {
+      logger.error("telegram_get_file_failed", getFileData);
+      return null;
+    }
+
+    const filePathOnTg = getFileData.result.file_path;
+    const directUrl = `https://api.telegram.org/file/bot${token}/${filePathOnTg}`;
+
+    logger.info("telegram_upload_success", { fileId, directUrl });
 
     // ✅ مسح الملف من قرص السيرفر فوراً (Zero Server Storage)
     try {
@@ -77,6 +91,7 @@ export async function uploadVideoToTelegram(filePath, caption = "") {
     return {
       success: true,
       fileId,
+      directUrl,
       messageId: sendData.result?.message_id,
     };
   } catch (error) {

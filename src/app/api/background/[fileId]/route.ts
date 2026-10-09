@@ -64,35 +64,38 @@ export async function GET(
       });
     }
 
-    const isDirect = searchParams.get("direct") === "true";
-    const userAgent = request.headers.get("user-agent")?.toLowerCase() || "";
-    const isServerOrTool = isDirect || 
-      userAgent.includes("node") || 
-      userAgent.includes("undici") || 
-      userAgent.includes("axios") || 
-      userAgent.includes("curl") || 
-      userAgent.includes("ffmpeg") || 
-      userAgent.includes("python");
+    const isRenderServer = searchParams.get("stream") === "true" ||
+      searchParams.get("render") === "true" ||
+      searchParams.get("direct") === "true" ||
+      request.headers.get("x-render-server") === "true" ||
+      userAgent.includes("undici") ||
+      userAgent.includes("node");
 
     if (returnJson) {
-      return NextResponse.json({ url: isServerOrTool ? directDownloadUrl : proxyUrl });
+      return NextResponse.json({ url: directDownloadUrl });
     }
 
-    // إذا كان الطلب من سيرفر الرندر أو أداة آلية، تحويل مباشر فوري إلى CDN تليجرام
-    if (isServerOrTool) {
-      return NextResponse.redirect(directDownloadUrl, {
-        status: 302,
+    // 1. إذا كان الطلب من سيرفر الرندر على Hugging Face:
+    // نقوم ببث محتوى الفيديو عبر Vercel لأن خوادم Hugging Face محجوب عنها الاتصال بـ api.telegram.org
+    if (isRenderServer) {
+      const videoRes = await fetch(directDownloadUrl);
+      if (!videoRes.ok) {
+        return NextResponse.json({ error: "Failed to fetch video stream from Telegram" }, { status: videoRes.status });
+      }
+
+      return new Response(videoRes.body, {
+        status: 200,
         headers: {
-          "Cache-Control": "public, max-age=3600",
-          "Access-Control-Allow-Origin": "*",
+          "Content-Type": videoRes.headers.get("content-type") || "video/mp4",
+          "Content-Length": videoRes.headers.get("content-length") || "",
+          "Cache-Control": "public, max-age=86400",
         },
       });
     }
 
-    // 🔒 تحويل آمن (302 Redirect) إلى خادم Hugging Face المجاني للمتصفحات العادية
-    // 1. يمنع نهائياً تسريب توكن البوت في أدوات مطور المتصفح (DevTools)
-    // 2. يمنع استهلاك باندويث Vercel نهائياً (الرد 200 بايت فقط)
-    return NextResponse.redirect(proxyUrl, {
+    // 2. لجميع زوار المتصفحات (معاينة الموقع واستوديو الفيديو):
+    // تحويل مباشر وسريع (302 Redirect) إلى CDN تليجرام لمنع استهلاك باندويث Vercel
+    return NextResponse.redirect(directDownloadUrl, {
       status: 302,
       headers: {
         "Cache-Control": "public, max-age=3600",
