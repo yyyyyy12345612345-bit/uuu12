@@ -5,11 +5,16 @@ import { escapeXml, applyFilterToSVG, applyOverlayToSVG } from "./svgUtils.js";
 import { buildDefaultLayout } from "./templates/defaultTemplate.js";
 import { renderMinshawiPlayer, renderBasitPlayer, renderDossaryPlayer, renderBrainrotDetox } from "./templates/playerTemplates.js";
 
-function buildSvgBackground(backgroundUrl) {
+// حصر استهلاك الذاكرة لمكتبة Sharp لمنع خروج خطأ JavaScript heap out of memory
+sharp.cache({ memory: 128, files: 20, items: 100 });
+sharp.concurrency(2);
+sharp.simd(true);
+
+function buildSvgBackground(backgroundUrl, frameW = WIDTH, frameH = HEIGHT) {
   if (!backgroundUrl) {
     return {
       defs: "",
-      rect: `<rect width="${WIDTH}" height="${HEIGHT}" fill="url(#overlayGrad)"/>`
+      rect: `<rect width="${frameW}" height="${frameH}" fill="url(#overlayGrad)"/>`
     };
   }
 
@@ -17,7 +22,7 @@ function buildSvgBackground(backgroundUrl) {
     const color = backgroundUrl.substring(6);
     return {
       defs: "",
-      rect: `<rect width="${WIDTH}" height="${HEIGHT}" fill="${escapeXml(color)}"/>`
+      rect: `<rect width="${frameW}" height="${frameH}" fill="${escapeXml(color)}"/>`
     };
   }
 
@@ -31,21 +36,20 @@ function buildSvgBackground(backgroundUrl) {
         stops += `<stop offset="${offset}%" stop-color="${escapeXml(color)}"/>`;
       });
       const defs = `<linearGradient id="userBgGrad" x1="0%" y1="0%" x2="0%" y2="100%">${stops}</linearGradient>`;
-      const rect = `<rect width="${WIDTH}" height="${HEIGHT}" fill="url(#userBgGrad)"/>`;
+      const rect = `<rect width="${frameW}" height="${frameH}" fill="url(#userBgGrad)"/>`;
       return { defs, rect };
     }
   }
 
   return {
     defs: "",
-    rect: `<rect width="${WIDTH}" height="${HEIGHT}" fill="url(#overlayGrad)"/>`
+    rect: `<rect width="${frameW}" height="${frameH}" fill="url(#overlayGrad)"/>`
   };
 }
 
 // لو fontconfig شغال، مش محتاجين نضمّن @font-face أصلاً — الخط بيتلاقى بالاسم.
 // لو مش شغال (fallback)، بنضمّن الـ base64 اللي جالنا من ensureFont.
-function buildFontFaceBlock({ fontFamily, amiriFont, mainFont, naskhFont }) {
-  if (!amiriFont?.base64 && !mainFont?.base64 && !naskhFont?.base64) return "";
+function buildFontFaceBlock({ fontFamily, amiriFont, mainFont, naskhFont, rubikFont, montserratFont }) {
   let css = "<style>";
   if (amiriFont?.base64) {
     css += `@font-face{font-family:'Amiri';src:url(data:font/truetype;charset=utf-8;base64,${amiriFont.base64}) format('truetype');}`;
@@ -56,6 +60,13 @@ function buildFontFaceBlock({ fontFamily, amiriFont, mainFont, naskhFont }) {
   if (naskhFont?.base64) {
     css += `@font-face{font-family:'Noto Naskh Arabic';src:url(data:font/truetype;charset=utf-8;base64,${naskhFont.base64}) format('truetype');}`;
   }
+  if (rubikFont?.base64) {
+    css += `@font-face{font-family:'Rubik';src:url(data:font/truetype;charset=utf-8;base64,${rubikFont.base64}) format('truetype');}`;
+  }
+  if (montserratFont?.base64) {
+    css += `@font-face{font-family:'Montserrat';src:url(data:font/truetype;charset=utf-8;base64,${montserratFont.base64}) format('truetype');font-weight:900;}`;
+    css += `@font-face{font-family:'Montserrat-Black';src:url(data:font/truetype;charset=utf-8;base64,${montserratFont.base64}) format('truetype');}`;
+  }
   css += "</style>";
   return css;
 }
@@ -63,7 +74,15 @@ function buildFontFaceBlock({ fontFamily, amiriFont, mainFont, naskhFont }) {
 const overlayGradDef = `<linearGradient id="overlayGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(0,0,0,0.55)"/><stop offset="25%" stop-color="rgba(0,0,0,0.25)"/><stop offset="70%" stop-color="rgba(0,0,0,0.30)"/><stop offset="100%" stop-color="rgba(0,0,0,0.85)"/></linearGradient>`;
 
 export async function generateVerseFrame(verse, outputPath, settings, bgPath, isVideoBg, fonts, animState, elapsedSeconds, totalDuration, templatePhotoBase64 = "") {
-  const { videoTemplate = "default", instaHandle = "", tiktokHandle = "", filter = "none", overlay = "none", reciterName = "Sheikh Muhammad Siddiq Al-Minshawi", reciterId } = settings;
+  const {
+    videoTemplate = "default", instaHandle = "", tiktokHandle = "", filter = "none",
+    overlay = "none", reciterName = "Sheikh Muhammad Siddiq Al-Minshawi", reciterId,
+    isWide = false, showVerseText = true
+  } = settings;
+
+  const frameW = isWide ? 1920 : WIDTH;
+  const frameH = isWide ? 1080 : HEIGHT;
+
   const opacity = animState ? animState.opacity : 1;
   const verticalOffset = animState ? animState.offsetY : 0;
   const scale = animState ? animState.scale : 1;
@@ -71,21 +90,23 @@ export async function generateVerseFrame(verse, outputPath, settings, bgPath, is
 
   let socialSVG = "";
   if (instaHandle || tiktokHandle) {
-    let yPos = HEIGHT - 60;
+    let yPos = frameH - (isWide ? 40 : 60);
     if (instaHandle) {
-      socialSVG += `<text x="${WIDTH / 2}" y="${yPos}" font-family="Arial" font-size="20" font-weight="bold" fill="rgba(255,255,255,0.8)" text-anchor="middle">Insta: @${escapeXml(instaHandle)}</text>`;
-      yPos -= 30;
+      socialSVG += `<text x="${frameW / 2}" y="${yPos}" font-family="Arial" font-size="20" font-weight="bold" fill="rgba(255,255,255,0.8)" text-anchor="middle">Instagram: @${escapeXml(instaHandle)}</text>`;
+      yPos += 24;
     }
     if (tiktokHandle) {
-      socialSVG += `<text x="${WIDTH / 2}" y="${yPos}" font-family="Arial" font-size="20" font-weight="bold" fill="rgba(255,255,255,0.8)" text-anchor="middle">TikTok: @${escapeXml(tiktokHandle)}</text>`;
+      socialSVG += `<text x="${frameW / 2}" y="${yPos}" font-family="Arial" font-size="20" font-weight="bold" fill="rgba(255,255,255,0.8)" text-anchor="middle">TikTok: @${escapeXml(tiktokHandle)}</text>`;
     }
   }
 
   const fontFaceDef = buildFontFaceBlock({
     fontFamily: settings.fontFamily || "Amiri",
-    amiriFont: fonts.amiriFont,
-    mainFont: fonts.mainFont,
-    naskhFont: fonts.naskhFont,
+    amiriFont: fonts?.amiriFont,
+    mainFont: fonts?.mainFont,
+    naskhFont: fonts?.naskhFont,
+    rubikFont: fonts?.rubikFont,
+    montserratFont: fonts?.montserratFont,
   });
 
   let innerContent = "";
@@ -109,10 +130,10 @@ export async function generateVerseFrame(verse, outputPath, settings, bgPath, is
     innerContent = renderDossaryPlayer({
       verse, opacity, elapsed: elapsedSeconds || 0, total: totalDuration || 1,
       templatePhotoBase64, startAyah, endAyah, reciterId, ayahProgress: settings.ayahProgress,
-      fontFamily: settings.fontFamily
+      fontFamily: settings.fontFamily, showVerseText
     });
   } else {
-    const { inner } = buildDefaultLayout({ verse, settings, activeWordIdx, opacity, verticalOffset, scale });
+    const { inner } = buildDefaultLayout({ verse, settings: { ...settings, isWide, showVerseText }, activeWordIdx, opacity, verticalOffset, scale });
     innerContent = inner;
   }
 
@@ -120,30 +141,32 @@ export async function generateVerseFrame(verse, outputPath, settings, bgPath, is
   const isDossary = videoTemplate === "dossary_player";
   const isBasit = videoTemplate === "basit_player";
   const isDetox = videoTemplate === "brainrot_detox";
-  const bgSvg = buildSvgBackground(settings.backgroundUrl);
-  const bgRects = isMinshawi ? `
-    <rect x="0" y="0" width="${WIDTH}" height="380" fill="#000000" />
-    <rect x="0" y="380" width="${WIDTH}" height="520" fill="#383838" />
-    <rect x="0" y="900" width="${WIDTH}" height="380" fill="#000000" />
-  ` : (isDossary ? `
-    <rect x="0" y="0" width="${WIDTH}" height="380" fill="#000000" />
-    <image href="data:image/png;base64,${settings.dossaryBgBase64 || ""}" x="0" y="380" width="${WIDTH}" height="520" preserveAspectRatio="xMidYMid slice" />
-    <rect x="0" y="900" width="${WIDTH}" height="380" fill="#000000" />
-  ` : (isBasit ? `
-    <rect x="0" y="0" width="${WIDTH}" height="380" fill="#000000" />
-    <rect x="0" y="380" width="${WIDTH}" height="520" fill="#c5beb8" />
-    <rect x="0" y="900" width="${WIDTH}" height="380" fill="#000000" />
-  ` : (isDetox ? `
-    <rect x="0" y="0" width="${WIDTH}" height="${HEIGHT}" fill="#000000" />
-  ` : bgSvg.rect)));
+  const bgSvg = buildSvgBackground(settings.backgroundUrl, frameW, frameH);
+  const midH = isWide ? 520 : 520;
+  const topH = isWide ? Math.round((frameH - midH) / 2) : 380;
+  const botH = frameH - topH - midH;
 
-  const svg = `<svg width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
+  const bgRects = isMinshawi ? `
+    <rect x="0" y="0" width="${frameW}" height="${topH}" fill="#000000" />
+    <rect x="0" y="${topH}" width="${frameW}" height="${midH}" fill="#383838" />
+    <rect x="0" y="${topH + midH}" width="${frameW}" height="${botH}" fill="#000000" />
+  ` : (isDossary ? `
+    <rect x="0" y="0" width="${frameW}" height="${topH}" fill="#000000" />
+    <image href="data:image/png;base64,${settings.dossaryBgBase64 || ""}" x="0" y="${topH}" width="${frameW}" height="${midH}" preserveAspectRatio="xMidYMid slice" />
+    <rect x="0" y="${topH + midH}" width="${frameW}" height="${botH}" fill="#000000" />
+  ` : (isBasit ? `
+    <rect x="0" y="0" width="${frameW}" height="${topH}" fill="#000000" />
+    <rect x="0" y="${topH}" width="${frameW}" height="${midH}" fill="#c5beb8" />
+    <rect x="0" y="${topH + midH}" width="${frameW}" height="${botH}" fill="#000000" />
+  ` : (isDetox ? (isVideoBg ? "" : `<rect x="0" y="0" width="${frameW}" height="${frameH}" fill="rgba(0,0,0,0.3)" />`) : bgSvg.rect)));
+
+  const svg = `<svg width="${frameW}" height="${frameH}" viewBox="0 0 ${frameW} ${frameH}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     ${fontFaceDef}
-    <filter id="textGlow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="rgba(0,0,0,0.9)" flood-opacity="0.9"/></filter>
+    <filter id="textGlow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="rgba(0,0,0,0.95)" flood-opacity="0.95"/></filter>
     <filter id="softShadow" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="rgba(0,0,0,0.7)" flood-opacity="0.7"/></filter>
     <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#BF953F"/><stop offset="30%" stop-color="#FCF6BA"/><stop offset="50%" stop-color="#D4AF37"/><stop offset="70%" stop-color="#FCF6BA"/><stop offset="100%" stop-color="#AA771C"/></linearGradient>
-    <filter id="whiteGlow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#ffffff" flood-opacity="0.6"/></filter>
+    <filter id="whiteGlow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#ffffff" flood-opacity="0.8"/></filter>
     ${overlayGradDef}
     ${bgSvg.defs}
   </defs>
@@ -158,20 +181,25 @@ export async function generateVerseFrame(verse, outputPath, settings, bgPath, is
 
   const hasBgFile = bgPath && fs.existsSync(bgPath);
 
-  if (videoTemplate.endsWith("_player") || videoTemplate === "brainrot_detox" || !hasBgFile) {
-    await sharp({ create: { width: WIDTH, height: HEIGHT, channels: 3, background: { r: 0, g: 0, b: 0 } } })
+  if (videoTemplate.endsWith("_player")) {
+    await sharp({ create: { width: frameW, height: frameH, channels: 3, background: { r: 0, g: 0, b: 0 } } })
       .composite([{ input: svgBuffer, blend: "over" }])
       .jpeg({ quality: 85 })
       .toFile(outputPath);
   } else if (isVideoBg) {
-    await sharp({ create: { width: WIDTH, height: HEIGHT, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
+    await sharp({ create: { width: frameW, height: frameH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
       .composite([{ input: svgBuffer, blend: "over" }])
       .png({ compressionLevel: 1 })
       .toFile(outputPath);
-  } else {
-    const fit = settings.backgroundFit || "cover";
+  } else if (hasBgFile) {
+    const fit = isWide ? "cover" : (settings.backgroundFit || "cover");
     await sharp(bgPath)
-      .resize(WIDTH, HEIGHT, { fit, background: { r: 0, g: 0, b: 0 }, position: "center" })
+      .resize(frameW, frameH, { fit, background: { r: 0, g: 0, b: 0 }, position: "center" })
+      .composite([{ input: svgBuffer, blend: "over" }])
+      .jpeg({ quality: 85 })
+      .toFile(outputPath);
+  } else {
+    await sharp({ create: { width: frameW, height: frameH, channels: 3, background: { r: 0, g: 0, b: 0 } } })
       .composite([{ input: svgBuffer, blend: "over" }])
       .jpeg({ quality: 85 })
       .toFile(outputPath);

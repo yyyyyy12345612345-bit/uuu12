@@ -26,7 +26,12 @@ export async function startRender(jobId, data) {
     filter = "none", overlay = "none", animation = "fade", textPosition = "center",
     textVerticalOffset = 0, userPlan = "free", instaHandle = "", tiktokHandle = "",
     ayahDecoration = "bracket1", videoTemplate = "default",
+    showVerseText = true,
   } = data;
+
+  const isWide = data.orientation === "landscape" || data.aspectRatio === "16:9";
+  const frameW = isWide ? 1920 : WIDTH;
+  const frameH = isWide ? 1080 : HEIGHT;
 
   const tempDir = path.resolve(os.tmpdir(), jobId);
   fs.mkdirSync(tempDir, { recursive: true });
@@ -113,8 +118,8 @@ export async function startRender(jobId, data) {
 
     progress(35, "توليد إطارات سطر بسطر مع الحركات وتتبع الكلمات...");
 
-    const sf = Math.min(Math.max(fontSize * 1.6, 40), 110);
-    const tw = Math.floor(WIDTH * 0.82);
+    const sf = isWide ? Math.min(Math.max(fontSize * 1.3, 36), 90) : Math.min(Math.max(fontSize * 1.6, 40), 110);
+    const tw = Math.floor(frameW * (isWide ? 0.75 : 0.82));
     const frameEntries = [];
     const ext = isVideoBg ? "png" : "jpg";
     const renderTasks = [];
@@ -125,6 +130,8 @@ export async function startRender(jobId, data) {
         fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, 
         surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, 
         videoTemplate, reciterName, backgroundFit,
+        isWide,
+        showVerseText: data.showVerseText !== false,
         showDetoxTitle: data.showDetoxTitle,
         detoxTitleText: data.detoxTitleText,
         showDetoxTimer: data.showDetoxTimer,
@@ -203,7 +210,7 @@ export async function startRender(jobId, data) {
 
         const startAyah = verses[0]?.id ?? 1;
         const endAyah = verses[verses.length - 1]?.id ?? 1;
-        const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, videoTemplate, reciterName, reciterId: data.reciterId, startAyah, endAyah, dossaryBgBase64, ayahProgress, backgroundFit };
+        const settings = { fontSize, fontWeight, fontFamily, textColor, textPosition, textVerticalOffset, surahName, userPlan, instaHandle, tiktokHandle, filter, overlay, ayahDecoration, videoTemplate, reciterName, reciterId: data.reciterId, startAyah, endAyah, dossaryBgBase64, ayahProgress, backgroundFit, isWide, showVerseText: data.showVerseText !== false };
         const animState = { opacity: 1, offsetY: 0, scale: 1, activeWordIndex: -1 };
 
         renderTasks.push(() => generateVerseFrame(activeVerse, fPath, settings, bgPath, isVideoBg, fonts, animState, elapsed, audioTotal, templatePhotoBase64));
@@ -268,10 +275,6 @@ export async function startRender(jobId, data) {
     const concatIn = audioPaths.map((_, i) => `[a${i}]`).join("");
 
     // 🛡️ درع كسر البصمة الرقمية لحقوق الملكية (YouTube & Social Anti-Copyright Stealth Filter)
-    // 1. Pitch Shift (+1.2%) مع الحفاظ على مدة الفيديو والآيات بالمللي ثانية (Zero Duration/Sync Drift)
-    // 2. Parametric EQ: تعزيز الدفء والوضوح (Warmth & Presence)
-    // 3. Reverb: صدى الحرمين الناعم لتشتيت خوارزميات Landmark Matching
-    // 4. Limiter: ضبط مستوى الصوت ومنع أي Clipping
     const isAntiCopyright = data.antiCopyright !== false;
     const stealthChain = isAntiCopyright
       ? `;[raw_aout]asetrate=44629,atempo=0.988142,aresample=44100,equalizer=f=120:t=q:w=1.5:g=1.4,equalizer=f=3200:t=q:w=1.2:g=1.2,aecho=0.88:0.88:32|48:0.14|0.08,alimiter=limit=0.96[aout]`
@@ -294,8 +297,6 @@ export async function startRender(jobId, data) {
     const outPath = path.resolve(RENDERS_DIR, `${jobId}.mp4`);
     let ffmpegCmd;
 
-    const isWide = data.orientation === "landscape" || data.aspectRatio === "16:9";
-
     if (isVideoBg) {
       progress(75, isWide ? "تهيئة فيديو الخلفية بمقاس يوتيوب العريض (1920x1080)..." : "تهيئة فيديو الخلفية بمقاس الهاتف...");
       // حماية استباقية: لو فشل تحميل ملف الفيديو أو كان الرابط معطلاً، ننشئ فيديو بديل داكن أنيق لمنع انهيار FFmpeg
@@ -310,9 +311,7 @@ export async function startRender(jobId, data) {
       const bgResizedPath = await getResizedBackground(backgroundUrl, sl(bgPath), backgroundFit, isWide);
 
       progress(85, "دمج الطبقات وإنتاج الفيديو النهائي...");
-      const filterComplex = isWide
-        ? `"[1:v]scale=-2:1080[vframe];[0:v][vframe]overlay=(main_w-overlay_w)/2:0:shortest=1,format=yuv420p[vout]"`
-        : `"[0:v][1:v]overlay=0:0:shortest=1,format=yuv420p[vout]"`;
+      const filterComplex = `"[0:v][1:v]overlay=0:0:shortest=1,format=yuv420p[vout]"`;
 
       ffmpegCmd = [
         `ffmpeg`, `-loglevel error`,
@@ -328,9 +327,14 @@ export async function startRender(jobId, data) {
         `-y "${sl(outPath)}"`,
       ].join(" ");
     } else {
-      const vfArg = isWide ? `-vf "scale=-2:1080,pad=1920:1080:(1920-iw)/2:(1080-ih)/2:black,format=yuv420p"` : `-pix_fmt yuv420p`;
-      ffmpegCmd = `ffmpeg -loglevel error -f concat -safe 0 -i "${sl(frameListPath)}" -i "${sl(mergedAudioPath)}" -c:v libx264 -preset ultrafast -crf 23 ${vfArg} -c:a copy -t ${totalDuration.toFixed(4)} -movflags +faststart -y "${sl(outPath)}"`;
+      ffmpegCmd = `ffmpeg -loglevel error -f concat -safe 0 -i "${sl(frameListPath)}" -i "${sl(mergedAudioPath)}" -c:v libx264 -preset ultrafast -crf 23 -pix_fmt yuv420p -c:a copy -t ${totalDuration.toFixed(4)} -movflags +faststart -y "${sl(outPath)}"`;
     }
+
+    // مهلة ديناميكية تتناسب مع طول الفيديو حتى لو كان فيديو يوتيوب طويل (ساعة أو أكثر)
+    const ffmpegTimeout = Math.max(900000, Math.ceil(totalDuration * 3000));
+    await execAsync(ffmpegCmd, { timeout: ffmpegTimeout, maxBuffer: 100 * 1024 * 1024 });
+
+    progress(95, "جاري رفع الفيديو سحابياً إلى تليجرام وحذف النسخة المؤقتة...");
 
     const finalVideoUrl = `https://${HOST}/download/${jobId}.mp4`;
     const caption = `📖 ${surahName || "تلاوة قرآنية"} | بصوت ${reciterName || "قارئ"}`;
