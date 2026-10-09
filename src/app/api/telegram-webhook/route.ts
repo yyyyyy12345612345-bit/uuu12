@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getAdminApp } from "@/lib/firebaseAdmin";
 import admin from "firebase-admin";
 
-const EXPECTED_CHANNEL_ID = -1004363174660; // معرف قناة مخزن فيديوهات يقين
+const EXPECTED_CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID ? Number(process.env.TELEGRAM_CHANNEL_ID) : -1004363174660; // معرف قناة أو جروب مخزن فيديوهات يقين
 const ALLOWED_CATEGORIES = ["مساجد", "بحار", "جبال", "غابات", "الثلج", "غروب", "سماء", "طبيعة"];
 
 export async function POST(request: Request) {
@@ -10,17 +10,17 @@ export async function POST(request: Request) {
     const body = await request.json();
     console.log("[Telegram Webhook] Received update:", JSON.stringify(body));
 
-    // استخراج منشور القناة (سواء جديد أو معدل)
-    const post = body.channel_post || body.edited_channel_post;
+    // استخراج منشور القناة أو الجروب (سواء جديد أو معدل)
+    const post = body.channel_post || body.edited_channel_post || body.message || body.edited_message;
     if (!post) {
-      return NextResponse.json({ success: true, message: "No channel post found in update" });
+      return NextResponse.json({ success: true, message: "No post found in update" });
     }
 
-    // التحقق من أن المنشور قادم من القناة المحددة فقط لحماية البيانات
+    // التحقق من أن المنشور قادم من القناة أو الجروب المحدد فقط لحماية البيانات
     const chatId = post.chat?.id;
-    if (chatId !== EXPECTED_CHANNEL_ID) {
-      console.warn(`[Telegram Webhook] Ignored post from chat ID: ${chatId}`);
-      return NextResponse.json({ success: true, message: "Ignored unauthorized channel" });
+    if (EXPECTED_CHANNEL_ID && chatId !== EXPECTED_CHANNEL_ID) {
+      console.warn(`[Telegram Webhook] Ignored post from chat ID: ${chatId} (Expected: ${EXPECTED_CHANNEL_ID})`);
+      return NextResponse.json({ success: true, message: "Ignored unauthorized chat" });
     }
 
     // التحقق من وجود فيديو في المنشور (سواء فيديو عادي أو ملف فيديو document)
