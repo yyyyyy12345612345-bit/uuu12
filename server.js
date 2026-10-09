@@ -144,7 +144,7 @@ app.use("/download", express.static(RENDERS_DIR, { maxAge: "1h" }));
 // Secure Telegram Video Proxy (Streams video from Telegram without exposing Bot Token to client)
 app.get("/telegram-proxy/:fileId", async (req, res) => {
   const fileId = req.params.fileId.replace(/\.mp4$/, "");
-  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const token = process.env.TELEGRAM_BOT_TOKEN || "8884703655:AAEBNWXP8aLsmpWr2iZ9ZMfYtVs26TZG9UQ";
   if (!token) {
     return res.status(500).json({ error: "TELEGRAM_BOT_TOKEN not configured" });
   }
@@ -178,8 +178,13 @@ app.get("/telegram-proxy/:fileId", async (req, res) => {
     if (!videoRes.body) {
       return res.end();
     }
-    Readable.fromWeb(videoRes.body).pipe(res);
+    const stream = Readable.fromWeb(videoRes.body);
+    stream.on("error", (e) => {
+      logger.error("stream_pipe_error", { error: e.message });
+    });
+    stream.pipe(res);
   } catch (error) {
+    logger.error("telegram_proxy_error", { fileId, error: error.message });
     res.status(500).json({ error: "Failed to stream telegram video" });
   }
 });
@@ -212,6 +217,18 @@ app.get("/status/:jobId", requireApiKey, (req, res) => {
   const job = getJob(req.params.jobId);
   if (!job) return res.status(404).json({ error: "الطلب غير موجود" });
   res.json(job);
+});
+
+// مسار تشخيصي فوري يعرض آخر أخطاء الرندرة بالتفصيل والمراحل المحددة
+app.get("/debug/last-errors", (req, res) => {
+  const failedJobs = [];
+  for (const [id, job] of jobs.entries()) {
+    if (job.status === "failed") {
+      failedJobs.push({ jobId: id, ...job });
+    }
+  }
+  failedJobs.sort((a, b) => (b.failedAt || 0) - (a.failedAt || 0));
+  res.json({ count: failedJobs.length, errors: failedJobs.slice(0, 15) });
 });
 
 app.use((err, req, res, next) => {

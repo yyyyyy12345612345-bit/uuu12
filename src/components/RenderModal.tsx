@@ -502,6 +502,9 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
         finalBackgroundUrl = `${baseUrl.replace(/\/$/, "")}${finalBackgroundUrl}`;
       }
+      if (finalBackgroundUrl && finalBackgroundUrl.includes("/api/background/")) {
+        finalBackgroundUrl += (finalBackgroundUrl.includes("?") ? "&" : "?") + "direct=true";
+      }
 
       const resolvedFit = state.aspectRatio === "16:9" ? "cover" : (state.backgroundFit === "cover" ? "cover" : "contain");
 
@@ -637,20 +640,30 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
               await incrementVideoRenderCount();
             }
           } else if (jobData.status === "failed") {
-            const errMsg = jobData.error || "فشلت عملية الرندرة";
-            // Log failure in Firestore
+            let detailStr = "";
+            if (jobData.details) {
+              if (jobData.details.audioUrl) detailStr += ` (الرابط: ${jobData.details.audioUrl})`;
+              if (jobData.details.backgroundUrl) detailStr += ` (رابط الخلفية: ${jobData.details.backgroundUrl})`;
+              if (jobData.details.error) detailStr += ` - التفاصيل: ${jobData.details.error}`;
+            }
+            const errMsg = jobData.message || jobData.error || "فشلت عملية الرندرة";
+            const fullErrorText = `${errMsg}${detailStr}`;
+
+            // Log failure in Firestore with phase and details
             if (db) {
               try {
                 await updateDoc(doc(db, "video_renders", jobId), {
                   status: "failed",
                   completedAt: serverTimestamp(),
-                  error: errMsg
+                  error: fullErrorText,
+                  phase: jobData.phase || "UNKNOWN",
+                  details: jobData.details || {}
                 });
               } catch (err) {
                 console.error("Failed to update video_renders log for failure:", err);
               }
             }
-            throw new Error(errMsg);
+            throw new Error(fullErrorText);
           }
         } catch (e: any) {
           setStatus("error");

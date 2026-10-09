@@ -1,9 +1,9 @@
 import PQueue from "p-queue";
 import { RENDER_CONCURRENCY, LIMITS } from "../config.js";
 import { logger } from "./logger.js";
+import { RENDER_PHASES, PHASE_NAMES_AR, RenderError } from "./errors.js";
 
-// طابور بيحدد عدد الرندرات الشغالة في نفس الوقت. أي طلب زيادة عن السقف
-// يستنى في الطابور بدل ما يشتغل فورًا ويحمّل السيرفر فوق طاقته.
+// طابور بيحدد عدد الرندرات الشغالة في نفس الوقت.
 export const renderQueue = new PQueue({ concurrency: RENDER_CONCURRENCY });
 
 export const jobs = new Map();
@@ -12,34 +12,80 @@ export function createJob(jobId) {
   jobs.set(jobId, {
     status: "queued",
     progress: 0,
-    message: "الطلب في الطابور، هيبدأ قريب...",
+    phase: RENDER_PHASES.VALIDATION,
+    phaseAr: PHASE_NAMES_AR.VALIDATION,
+    message: "الطلب في الطابور، سيبدأ التجهيز فور توفر الموارد...",
     createdAt: Date.now(),
     queuePosition: renderQueue.size + renderQueue.pending,
   });
 }
 
-export function setProgress(jobId, pct, msg) {
+export function setProgress(jobId, pct, msg, phase = null) {
   const prev = jobs.get(jobId);
-  jobs.set(jobId, { status: "processing", progress: pct, message: msg, createdAt: prev?.createdAt });
-}
-
-export function setCompleted(jobId, url) {
+  const currentPhase = phase || prev?.phase || "PROCESSING";
+  const phaseAr = PHASE_NAMES_AR[currentPhase] || "";
   jobs.set(jobId, {
-    status: "completed",
-    progress: 100,
-    url,
-    message: "✅ تم رندرة وتصدير الفيديو بنجاح فائق!",
+    status: "processing",
+    progress: pct,
+    message: msg,
+    phase: currentPhase,
+    phaseAr,
+    createdAt: prev?.createdAt || Date.now(),
   });
 }
 
-// مهم: منسربش e.stack ولا تفاصيل داخلية للمستخدم. بيتسجلوا في اللوج بس
-// والمستخدم بياخد رسالة عامة + رمز مرجعي (jobId) يقدر يبعتهولنا لو محتاج دعم.
-export function setFailed(jobId, error) {
-  logger.error("render_job_failed", { jobId, error: error.message, stack: error.stack });
+export function setCompleted(jobId, url) {
+  const prev = jobs.get(jobId);
+  jobs.set(jobId, {
+    status: "completed",
+    progress: 100,
+    phase: "COMPLETED",
+    phaseAr: "مكتمل",
+    url,
+    message: "✅ تم رندرة وتصدير الفيديو بنجاح فائق!",
+    createdAt: prev?.createdAt,
+    completedAt: Date.now(),
+    renderTimeSec: prev?.createdAt ? Math.round((Date.now() - prev.createdAt) / 1000) : 0,
+  });
+}
+
+/**
+ * تسجيل فشل مع تشخيص دقيق يوضح المرحلة، سبب المشكلة، والتفاصيل التقنية
+ */
+export function setFailed(jobId, error, phaseOverride = null, detailsOverride = null) {
+  const isRenderError = error instanceof RenderError || error?.name === "RenderError";
+  const phase = phaseOverride || (isRenderError ? error.phase : RENDER_PHASES.UNKNOWN);
+  const phaseAr = PHASE_NAMES_AR[phase] || PHASE_NAMES_AR.UNKNOWN;
+  const userMessage = error?.message || "فشلت عملية الرندرة لسبب غير متوقع";
+  const details = detailsOverride || (isRenderError ? error.details : {}) || {};
+  const prev = jobs.get(jobId);
+
+  // تسجيل تقرير استقصائي شامل في اللوج
+  logger.error("render_job_failed", {
+    jobId,
+    phase,
+    phaseAr,
+    userMessage,
+    details,
+    rawError: error?.message,
+    stack: error?.stack,
+  });
+
   jobs.set(jobId, {
     status: "failed",
-    message: "فشلت عملية الرندرة. جرّب تاني، ولو المشكلة استمرت ابعتلنا رقم الطلب.",
+    progress: prev?.progress || 0,
+    phase,
+    phaseAr,
+    message: `[${phaseAr}] ${userMessage}`,
+    error: userMessage,
+    details: {
+      ...details,
+      errorMessage: error?.message || "",
+      lastKnownProgress: prev?.progress || 0,
+    },
     errorRef: jobId,
+    createdAt: prev?.createdAt,
+    failedAt: Date.now(),
   });
 }
 

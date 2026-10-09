@@ -9,6 +9,9 @@ export const maxDuration = 60;
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    if (body.backgroundUrl && body.backgroundUrl.includes("/api/background/")) {
+      body.backgroundUrl += (body.backgroundUrl.includes("?") ? "&" : "?") + "direct=true";
+    }
 
     const renderConfig = {
       ...body,

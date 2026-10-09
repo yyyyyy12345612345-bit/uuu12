@@ -64,13 +64,32 @@ export async function GET(
       });
     }
 
-    const proxyUrl = `https://yousef891238-render-server.hf.space/telegram-proxy/${cleanFileId}`;
+    const isDirect = searchParams.get("direct") === "true";
+    const userAgent = request.headers.get("user-agent")?.toLowerCase() || "";
+    const isServerOrTool = isDirect || 
+      userAgent.includes("node") || 
+      userAgent.includes("undici") || 
+      userAgent.includes("axios") || 
+      userAgent.includes("curl") || 
+      userAgent.includes("ffmpeg") || 
+      userAgent.includes("python");
 
     if (returnJson) {
-      return NextResponse.json({ url: proxyUrl });
+      return NextResponse.json({ url: isServerOrTool ? directDownloadUrl : proxyUrl });
     }
 
-    // 🔒 تحويل آمن (302 Redirect) إلى خادم Hugging Face المجاني
+    // إذا كان الطلب من سيرفر الرندر أو أداة آلية، تحويل مباشر فوري إلى CDN تليجرام
+    if (isServerOrTool) {
+      return NextResponse.redirect(directDownloadUrl, {
+        status: 302,
+        headers: {
+          "Cache-Control": "public, max-age=3600",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+    }
+
+    // 🔒 تحويل آمن (302 Redirect) إلى خادم Hugging Face المجاني للمتصفحات العادية
     // 1. يمنع نهائياً تسريب توكن البوت في أدوات مطور المتصفح (DevTools)
     // 2. يمنع استهلاك باندويث Vercel نهائياً (الرد 200 بايت فقط)
     return NextResponse.redirect(proxyUrl, {

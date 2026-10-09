@@ -12,6 +12,7 @@ import { wrapText } from "./svgUtils.js";
 import { setProgress, setCompleted, setFailed } from "./jobs.js";
 import { logger } from "./logger.js";
 import { uploadVideoToTelegram } from "./telegram.js";
+import { RENDER_PHASES, RenderError } from "./errors.js";
 
 const execAsync = promisify(exec);
 if (!fs.existsSync(RENDERS_DIR)) fs.mkdirSync(RENDERS_DIR, { recursive: true });
@@ -35,12 +36,22 @@ export async function startRender(jobId, data) {
 
   const tempDir = path.resolve(os.tmpdir(), jobId);
   fs.mkdirSync(tempDir, { recursive: true });
-  const progress = (pct, msg) => setProgress(jobId, pct, msg);
+  const progress = (pct, msg, phase = null) => setProgress(jobId, pct, msg, phase);
 
   try {
-    progress(5, "تحميل الخطوط والموارد...");
-    const mainFont = await ensureFont(fontFamily);
-    const amiriFont = await ensureFont("Amiri");
+    progress(5, "تحميل الخطوط والموارد...", RENDER_PHASES.FONTS);
+    let mainFont, amiriFont;
+    try {
+      mainFont = await ensureFont(fontFamily);
+      amiriFont = await ensureFont("Amiri");
+    } catch (fontErr) {
+      throw new RenderError(
+        RENDER_PHASES.FONTS,
+        `فشل تحميل الخط المطلوب (${fontFamily})`,
+        { fontFamily, error: fontErr.message },
+        fontErr
+      );
+    }
 
     const isMinshawiPlayer = videoTemplate === "minshawi_player";
     const isDossaryPlayer = videoTemplate === "dossary_player";
@@ -52,14 +63,18 @@ export async function startRender(jobId, data) {
     let rubikFont = null;
     let montserratFont = null;
 
-    if (isDossaryPlayer || isBasitPlayer) {
-      naskhFont = await ensureFont("Noto Naskh Arabic");
+    try {
+      if (isDossaryPlayer || isBasitPlayer) {
+        naskhFont = await ensureFont("Noto Naskh Arabic");
+      }
+      if (isDetox) {
+        rubikFont = await ensureFont("Rubik");
+        montserratFont = await ensureFont("Montserrat-Black");
+      }
+      await refreshFontCache();
+    } catch (fontErr2) {
+      logger.warn("extra_fonts_failed", { error: fontErr2.message });
     }
-    if (isDetox) {
-      rubikFont = await ensureFont("Rubik");
-      montserratFont = await ensureFont("Montserrat-Black");
-    }
-    await refreshFontCache();
 
     // قوالب المشغل (المنشاوي، الدوسري، الباسط... إلخ) مبنية بالكامل بتصميم خاص ولا تستخدم أي فيديو خلفية
     const effectiveBgUrl = isPlayerTemplate ? "" : (backgroundUrl || "");
@@ -71,6 +86,7 @@ export async function startRender(jobId, data) {
     const bgPath = path.resolve(tempDir, isVideoBg ? "bg.mp4" : "bg.jpg");
 
     // تحميل الخلفية + صورة الشيخ (لو قالب مشغل) بالتوازي
+    progress(15, "تحميل فيديو أو صورة الخلفية...", RENDER_PHASES.BACKGROUND_DOWNLOAD);
     const photoPath = path.resolve(tempDir, "template_photo.jpg");
     const dossaryBgPath = path.resolve(tempDir, "dossary_bg.png");
     const hasNetworkBg = !isPlayerTemplate && effectiveBgUrl && 
@@ -104,13 +120,29 @@ export async function startRender(jobId, data) {
     const templatePhotoBase64 = (isPlayerTemplate && fs.existsSync(photoPath)) ? fs.readFileSync(photoPath).toString("base64") : "";
     const dossaryBgBase64 = (isDossaryPlayer && fs.existsSync(dossaryBgPath)) ? fs.readFileSync(dossaryBgPath).toString("base64") : "";
 
-    progress(20, "تحميل وتحليل الملفات الصوتية...");
+    progress(25, "تحميل وتحليل الملفات الصوتية للآيات...", RENDER_PHASES.AUDIO_DOWNLOAD);
 
     // تحميل كل الصوتيات وحساب مددها بالتوازي بدل التتابع
     const audioPaths = verses.map((_, i) => path.resolve(tempDir, `a-${i}.mp3`));
     await Promise.all(verses.map(async (v, i) => {
-      await downloadFile(v.audio, audioPaths[i]);
+      try {
+        await downloadFile(v.audio, audioPaths[i], { timeoutMs: 60000 });
+      } catch (audioErr) {
+        throw new RenderError(
+          RENDER_PHASES.AUDIO_DOWNLOAD,
+          `فشل تحميل صوت الآية رقم ${i + 1} (${v.id || ""})`,
+          {
+            verseIndex: i,
+            verseId: v.id,
+            audioUrl: v.audio,
+            error: audioErr.message,
+          },
+          audioErr
+        );
+      }
     }));
+
+    progress(30, "حساب مدد التلاوة بدقة...", RENDER_PHASES.AUDIO_PROBE);
     const verseDurations = await Promise.all(verses.map((v, i) => getDurationCached(v.audio, audioPaths[i])));
 
     const audioTotal = verseDurations.reduce((a, b) => a + b, 0);
@@ -271,13 +303,22 @@ export async function startRender(jobId, data) {
       }
     }
 
-    progress(45, "جاري معالجة ورسم نصوص الآيات بدقة وبدون استهلاك ذاكرة...");
+    progress(45, "جاري معالجة ورسم نصوص الآيات بدقة وبدون استهلاك ذاكرة...", RENDER_PHASES.FRAME_RENDER);
     const BATCH_SIZE = 4;
     for (let b = 0; b < renderTasks.length; b += BATCH_SIZE) {
       const batch = renderTasks.slice(b, b + BATCH_SIZE);
-      await Promise.all(batch.map(fn => fn()));
+      try {
+        await Promise.all(batch.map(fn => fn()));
+      } catch (frameErr) {
+        throw new RenderError(
+          RENDER_PHASES.FRAME_RENDER,
+          "فشل رسم وتوليد إطارات الآيات (Canvas)",
+          { batchIndex: b, error: frameErr.message },
+          frameErr
+        );
+      }
       const pct = 45 + Math.round((b / Math.max(1, renderTasks.length)) * 10);
-      progress(pct, `معالجة الإطارات (${Math.min(b + BATCH_SIZE, renderTasks.length)}/${renderTasks.length})...`);
+      progress(pct, `معالجة الإطارات (${Math.min(b + BATCH_SIZE, renderTasks.length)}/${renderTasks.length})...`, RENDER_PHASES.FRAME_RENDER);
     }
 
     const frameTotal = frameEntries.reduce((a, f) => a + f.dur, 0);
@@ -288,7 +329,7 @@ export async function startRender(jobId, data) {
 
     const totalDuration = verseDurations.reduce((a, b) => a + b, 0);
 
-    progress(55, "دمج الصوت بدون تقطيع...");
+    progress(55, "دمج هندسة الصوت بدون تقطيع...", RENDER_PHASES.AUDIO_MERGE);
     const mergedAudioPath = path.resolve(tempDir, "merged-audio.aac");
     const audioInputs = audioPaths.map(p => `-i "${sl(p)}"`).join(" ");
     const filterParts = audioPaths.map((_, i) => `[${i}:a]aresample=44100,aformat=sample_fmts=fltp:channel_layouts=stereo[a${i}]`).join(";");
@@ -303,10 +344,23 @@ export async function startRender(jobId, data) {
     const concatFilter = `${filterParts};${concatIn}concat=n=${audioPaths.length}:v=0:a=1${outTag}${stealthChain}`;
 
     const audioTimeout = Math.max(300000, Math.ceil(totalDuration * 500));
-    await execAsync(
-      `ffmpeg -loglevel error ${audioInputs} -filter_complex "${concatFilter}" -map "[aout]" -c:a aac -b:a 192k -ar 44100 "${sl(mergedAudioPath)}" -y`,
-      { timeout: audioTimeout, maxBuffer: 50 * 1024 * 1024 }
-    );
+    try {
+      await execAsync(
+        `ffmpeg -loglevel error ${audioInputs} -filter_complex "${concatFilter}" -map "[aout]" -c:a aac -b:a 192k -ar 44100 "${sl(mergedAudioPath)}" -y`,
+        { timeout: audioTimeout, maxBuffer: 50 * 1024 * 1024 }
+      );
+    } catch (audioMergeErr) {
+      throw new RenderError(
+        RENDER_PHASES.AUDIO_MERGE,
+        "فشل دمج وتجهيز مسارات الصوتيات عبر FFmpeg",
+        {
+          audioCount: audioPaths.length,
+          stderr: (audioMergeErr.stderr || audioMergeErr.message || "").substring(0, 600),
+          exitCode: audioMergeErr.code,
+        },
+        audioMergeErr
+      );
+    }
 
     progress(70, "جاري دمج المقاطع وإنتاج الفيديو...");
     const frameListPath = path.resolve(tempDir, "frames.txt");
@@ -318,7 +372,7 @@ export async function startRender(jobId, data) {
     let ffmpegCmd;
 
     if (isVideoBg) {
-      progress(75, isWide ? "تهيئة فيديو الخلفية بمقاس يوتيوب العريض (1920x1080)..." : "تهيئة فيديو الخلفية بمقاس الهاتف...");
+      progress(75, isWide ? "تهيئة فيديو الخلفية بمقاس يوتيوب العريض (1920x1080)..." : "تهيئة فيديو الخلفية بمقاس الهاتف...", RENDER_PHASES.BACKGROUND_PROCESS);
       // حماية استباقية: لو فشل تحميل ملف الفيديو أو كان الرابط معطلاً، ننشئ فيديو بديل داكن أنيق لمنع انهيار FFmpeg
       if (!fs.existsSync(bgPath)) {
         logger.warn("bg_video_missing_creating_fallback", { bgPath, isWide });
@@ -330,7 +384,7 @@ export async function startRender(jobId, data) {
       // بنستخدم كاش الخلفيات: لو نفس رابط الخلفية اتعمل له resize قبل كده، بيترجع فورًا
       const bgResizedPath = await getResizedBackground(backgroundUrl, sl(bgPath), backgroundFit, isWide);
 
-      progress(85, "دمج الطبقات وإنتاج الفيديو النهائي...");
+      progress(85, "دمج الطبقات وإنتاج الفيديو النهائي...", RENDER_PHASES.FFMPEG_RENDER);
       const filterComplex = `"[0:v][1:v]overlay=0:0:shortest=1,format=yuv420p[vout]"`;
 
       ffmpegCmd = [
@@ -352,7 +406,22 @@ export async function startRender(jobId, data) {
 
     // مهلة ديناميكية تتناسب مع طول الفيديو حتى لو كان فيديو يوتيوب طويل (ساعة أو أكثر)
     const ffmpegTimeout = Math.max(900000, Math.ceil(totalDuration * 3000));
-    await execAsync(ffmpegCmd, { timeout: ffmpegTimeout, maxBuffer: 100 * 1024 * 1024 });
+    try {
+      await execAsync(ffmpegCmd, { timeout: ffmpegTimeout, maxBuffer: 100 * 1024 * 1024 });
+    } catch (ffmpegErr) {
+      throw new RenderError(
+        RENDER_PHASES.FFMPEG_RENDER,
+        "فشل إنتاج وتصدير الفيديو النهائي عبر محرك FFmpeg",
+        {
+          isWide,
+          isVideoBg,
+          totalDuration,
+          stderr: (ffmpegErr.stderr || ffmpegErr.message || "").substring(0, 800),
+          exitCode: ffmpegErr.code,
+        },
+        ffmpegErr
+      );
+    }
 
     progress(95, "جاري رفع الفيديو سحابياً إلى تليجرام وحذف النسخة المؤقتة...");
 

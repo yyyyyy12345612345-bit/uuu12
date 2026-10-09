@@ -15,6 +15,9 @@
 import express from "express";
 import cors from "cors";
 import crypto from "crypto";
+import fs from "fs";
+import path from "path";
+import { Readable } from "stream";
 import rateLimit from "express-rate-limit";
 
 import { PORT, RENDERS_DIR, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS } from "./config.js";
@@ -26,6 +29,7 @@ import { startRender } from "./lib/render.js";
 import { startOutputCleanup } from "./lib/cleanup.js";
 
 const app = express();
+app.set("trust proxy", 1);
 
 const ALLOWED_ORIGINS = [
   "https://yaqeenalquran.online",
@@ -51,7 +55,7 @@ app.all(["/", "/api/predict"], (req, res) => {
   res.json({ status: "ok", service: "hyper-render-v23" });
 });
 
-app.use(express.json({ limit: "5mb" })); // كان 50mb، مفيش داعي لحمولة JSON بالحجم ده لطلب رندرة نصوص وروابط
+app.use(express.json({ limit: "5mb" }));
 
 const renderLimiter = rateLimit({
   windowMs: RATE_LIMIT_WINDOW_MS,
@@ -61,12 +65,86 @@ const renderLimiter = rateLimit({
   message: { error: "طلبات كتير أوي، حاول تاني بعد شوية" },
 });
 
+// Video Streaming & Download handler with full Range and HEAD support for TikTok/Instagram/Zernio
+app.head("/download/:filename", (req, res) => {
+  const filePath = path.resolve(RENDERS_DIR, req.params.filename);
+  if (!fs.existsSync(filePath)) {
+    const jobId = req.params.filename.replace(/\.mp4$/, "");
+    const job = getJob(jobId);
+    if (job && job.url && job.url.startsWith("http") && !job.url.includes(`/download/${req.params.filename}`)) {
+      return res.redirect(302, job.url);
+    }
+    return res.status(404).end();
+  }
+  const stat = fs.statSync(filePath);
+  res.setHeader("Content-Type", "video/mp4");
+  res.setHeader("Content-Length", stat.size);
+  res.setHeader("Accept-Ranges", "bytes");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+  res.setHeader("Cache-Control", "public, max-age=86400, immutable");
+  res.status(200).end();
+});
+
+app.get("/download/:filename", (req, res) => {
+  const filePath = path.resolve(RENDERS_DIR, req.params.filename);
+  if (!fs.existsSync(filePath)) {
+    const jobId = req.params.filename.replace(/\.mp4$/, "");
+    const job = getJob(jobId);
+    if (job && job.url && job.url.startsWith("http") && !job.url.includes(`/download/${req.params.filename}`)) {
+      return res.redirect(302, job.url);
+    }
+    return res.status(404).json({ error: "الفيديو غير موجود أو انتهت صلاحيته" });
+  }
+
+  const stat = fs.statSync(filePath);
+  const fileSize = stat.size;
+  const range = req.headers.range;
+
+  const isAttachment = req.query.download === "true" || req.query.dl === "1";
+  res.setHeader("Content-Type", "video/mp4");
+  res.setHeader("Content-Disposition", isAttachment ? `attachment; filename="${req.params.filename}"` : `inline; filename="${req.params.filename}"`);
+  res.setHeader("Accept-Ranges", "bytes");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+  res.setHeader("Cache-Control", "public, max-age=86400, immutable");
+
+  if (range) {
+    const parts = range.replace(/bytes=/, "").split("-");
+    const start = parseInt(parts[0], 10);
+    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+
+    if (start >= fileSize || end >= fileSize) {
+      res.setHeader("Content-Range", `bytes */${fileSize}`);
+      return res.status(416).end();
+    }
+
+    const chunksize = end - start + 1;
+    res.writeHead(206, {
+      "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+      "Accept-Ranges": "bytes",
+      "Content-Length": chunksize,
+      "Content-Type": "video/mp4",
+    });
+
+    const fileStream = fs.createReadStream(filePath, { start, end });
+    fileStream.pipe(res);
+  } else {
+    res.writeHead(200, {
+      "Content-Length": fileSize,
+      "Content-Type": "video/mp4",
+      "Accept-Ranges": "bytes",
+    });
+    fs.createReadStream(filePath).pipe(res);
+  }
+});
 app.use("/download", express.static(RENDERS_DIR, { maxAge: "1h" }));
 
 // Secure Telegram Video Proxy (Streams video from Telegram without exposing Bot Token to client)
 app.get("/telegram-proxy/:fileId", async (req, res) => {
   const fileId = req.params.fileId.replace(/\.mp4$/, "");
-  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const token = process.env.TELEGRAM_BOT_TOKEN || "8884703655:AAEBNWXP8aLsmpWr2iZ9ZMfYtVs26TZG9UQ";
   if (!token) {
     return res.status(500).json({ error: "TELEGRAM_BOT_TOKEN not configured" });
   }
@@ -100,19 +178,24 @@ app.get("/telegram-proxy/:fileId", async (req, res) => {
     if (!videoRes.body) {
       return res.end();
     }
-
-    const { Readable } = await import("stream");
-    const nodeStream = Readable.fromWeb(videoRes.body);
-    nodeStream.pipe(res);
-  } catch (err) {
-    logger.error("telegram_proxy_error", { fileId, error: err.message });
-    res.status(500).json({ error: "Failed to proxy video from Telegram" });
+    const stream = Readable.fromWeb(videoRes.body);
+    stream.on("error", (e) => {
+      logger.error("stream_pipe_error", { error: e.message });
+    });
+    stream.pipe(res);
+  } catch (error) {
+    logger.error("telegram_proxy_error", { fileId, error: error.message });
+    res.status(500).json({ error: "Failed to stream telegram video" });
   }
 });
 
-
 app.get("/health", (req, res) => {
-  res.json({ status: "ok" });
+  res.json({
+    status: "ok",
+    queue: { pending: renderQueue.pending, size: renderQueue.size },
+    jobsTracked: jobs.size,
+    uptimeSec: Math.floor(process.uptime()),
+  });
 });
 
 app.post("/render", renderLimiter, requireApiKey, (req, res) => {
@@ -125,8 +208,6 @@ app.post("/render", renderLimiter, requireApiKey, (req, res) => {
   createJob(jobId);
   res.json({ jobId, queuePosition: renderQueue.size + renderQueue.pending });
 
-  // بيتنفذ لما يجيله دوره في الطابور، مش فورًا — كده أي عدد طلبات
-  // مايقدرش يخنق السيرفر لأن العدد المتزامن محدود بـ RENDER_CONCURRENCY
   renderQueue.add(() => startRender(jobId, req.body)).catch(e => {
     logger.error("queue_task_failed", { jobId, error: e.message });
   });
@@ -138,7 +219,18 @@ app.get("/status/:jobId", requireApiKey, (req, res) => {
   res.json(job);
 });
 
-// Handler عام لأي خطأ غير متوقع — مايسربش تفاصيل داخلية
+// مسار تشخيصي فوري يعرض آخر أخطاء الرندرة بالتفصيل والمراحل المحددة
+app.get("/debug/last-errors", (req, res) => {
+  const failedJobs = [];
+  for (const [id, job] of jobs.entries()) {
+    if (job.status === "failed") {
+      failedJobs.push({ jobId: id, ...job });
+    }
+  }
+  failedJobs.sort((a, b) => (b.failedAt || 0) - (a.failedAt || 0));
+  res.json({ count: failedJobs.length, errors: failedJobs.slice(0, 15) });
+});
+
 app.use((err, req, res, next) => {
   logger.error("unhandled_error", { error: err.message, stack: err.stack, path: req.path });
   res.status(500).json({ error: "خطأ داخلي في السيرفر" });
@@ -151,7 +243,6 @@ const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Hyper Render v23 Online on Port ${PORT}`);
 });
 
-// إغلاق نظيف عند إيقاف الكونتينر (بدل ما الطلبات الشغالة تتقطع فجأة)
 function shutdown(signal) {
   logger.info("shutdown_signal", { signal });
   server.close(() => {
