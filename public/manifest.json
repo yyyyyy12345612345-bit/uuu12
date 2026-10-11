@@ -27,12 +27,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    },
-    {
-      "src": "/logo/logo.png",
-      "sizes": "584x692",
-      "type": "image/png",
-      "purpose": "any"
     }
   ],
   "categories": ["utilities", "education", "lifestyle"],

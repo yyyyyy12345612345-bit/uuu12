@@ -64,6 +64,7 @@ export async function GET(
       });
     }
 
+    const userAgent = request.headers.get("user-agent")?.toLowerCase() || "";
     const isRenderServer = searchParams.get("stream") === "true" ||
       searchParams.get("render") === "true" ||
       searchParams.get("direct") === "true" ||
