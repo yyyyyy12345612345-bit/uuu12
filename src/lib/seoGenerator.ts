@@ -14,13 +14,15 @@ interface SEOParams {
   endAyah?: number;
 }
 
-interface GeneratedSEO {
+export interface GeneratedSEO {
   title: string;
+  titles: string[];
   tags: string[];
   tagsString: string;
   description: string;
   firstComment: string;
   tiktokCaption: string;
+  hashtags: string[];
 }
 
 // نبذة وفضائل مخصصة لسور القرآن لتعزيز خوارزميات محركات البحث (SEO & Algorithmic Relevance)
@@ -390,35 +392,83 @@ export function generateIslamicSEO(params: SEOParams): GeneratedSEO {
   const highlight = highlightKey ? SURAH_HIGHLIGHTS[highlightKey] : null;
 
   // ═════════════════════════════════════════════════════════
-  // 1. عنوان جذاب وقوي (YouTube Title - Max 100 Chars)
+  // 1. باقة عناوين جذابة ومتنوعة (Diverse Viral YouTube Titles - Max 100 Chars)
   // ═════════════════════════════════════════════════════════
-  const primaryTitle = `سورة ${cleanSurahName} (${ayahText}) - ${reciterTitle} | تلاوة خاشعة تريح القلب 📖`;
-  const title = primaryTitle.length <= 100 
-    ? primaryTitle 
-    : `سورة ${cleanSurahName} (${ayahText}) - ${reciterTitle} 📖`.substring(0, 100);
+  const sTag = cleanSurahName.replace(/\s+/g, "_");
+  const rTag = shortReciter.replace(/\s+/g, "_");
+
+  const rawTitles: string[] = [
+    // 1. خاشع ومؤثر (Emotional & Soul-touching)
+    `سورة ${cleanSurahName} (${ayahText}) بصوت ${reciterTitle} 🕊️ تلاوة خاشعة تذهب الهم والحزن`,
+    // 2. راحة نفسية وهدوء للنوم (Deep Calm & Sleep)
+    `راحة نفسية لا توصف 🌿 سورة ${cleanSurahName} (${ayahText}) - ${reciterTitle} | تلاوة هادئة للنوم`,
+    // 3. قشعريرة وهيبة (Awe & Chills)
+    `تلاوة خاشعة تقشعر لها الأبدان ⚡ سورة ${cleanSurahName} (${ayahText}) - ${reciterTitle}`,
+    // 4. تلاوة مبكية تأسر القلوب (Crying & Moving)
+    `تلاوة مبكية تأخذك لعالم آخر 💔 سورة ${cleanSurahName} (${ayahText}) بصوت الشيخ ${shortReciter}`,
+    // 5. علاج ضيق الصدر (Healing & Anxiety Relief)
+    `علاج ضيق الصدر والحزن بالقرآن 🤲 سورة ${cleanSurahName} (${ayahText}) - ${reciterTitle}`,
+    // 6. نمط ترند شورتس (Viral Shorts / Reels)
+    `أجمل ما ستسمع اليوم ✨ سورة ${cleanSurahName} بصوت ${reciterTitle} 📖 #shorts`,
+    // 7. تدبر كلام الله (Tadabbur)
+    `استمع وتدبر كلام الله 🤍 سورة ${cleanSurahName} (${ayahText}) - ${reciterTitle}`,
+    // 8. سكينة وطمأنينة (Serenity & Peace)
+    `سكينة وبركة تملأ بيتك 🌸 سورة ${cleanSurahName} (${ayahText}) - الشيخ ${shortReciter}`,
+    // 9. نمط السورة المخصص (بناءً على فضل السورة)
+    highlight ? `${highlight.theme.substring(0, 42)} ✨ سورة ${cleanSurahName} - ${reciterTitle}` : `تلاوة نادرة تهز القلوب 🎙️ سورة ${cleanSurahName} - ${reciterTitle}`,
+    // 10. ثنائي اللغة للانتشار العالمي (Global Discovery)
+    `Surah ${transliteration} (${ayahText}) | ${reciterTitle} - Most Peaceful Quran Recitation 💫`,
+    // 11. رسمي عالي الدقة (Majestic HD)
+    `سورة ${cleanSurahName} (${ayahText}) - القارئ ${shortReciter} | جودة صوتية عالية 4K 📖`,
+  ];
+
+  // تقليم العناوين بحيث لا تتجاوز 100 حرف (الحد الأقصى لليوتيوب)
+  const titles = rawTitles.map(t => t.length > 100 ? t.substring(0, 97) + "..." : t);
+  const title = titles[0]; // العنوان الافتراضي الأول
 
   // ═════════════════════════════════════════════════════════
-  // 2. الكلمات المفتاحية المركزة (15 كلمة مفتاحية قوية ومحددة)
+  // 2. الكلمات المفتاحية الضخمة (Massive SEO Tags - Up to 40 Tags)
   // ═════════════════════════════════════════════════════════
   const baseTags: string[] = [
     `سورة ${cleanSurahName}`,
     `${reciterTitle}`,
     `${shortReciter}`,
     `سورة ${cleanSurahName} ${shortReciter}`,
+    `سورة ${cleanSurahName} بصوت ${shortReciter}`,
     "تلاوة خاشعة",
-    "قرآن كريم",
     "تلاوة تريح القلب",
     "راحة نفسية",
+    "قرآن كريم",
     "قرآن بصوت جميل",
+    "تلاوة هادئة للنوم",
+    "علاج ضيق الصدر بالقرآن",
+    "تلاوة مبكية",
+    "تلاوة تقشعر لها الأبدان",
+    `أجمل تلاوة لسورة ${cleanSurahName}`,
+    `سورة ${cleanSurahName} كاملة`,
+    `سورة ${cleanSurahName} مكررة`,
     "يقين القرآن",
     "shorts",
+    "quran shorts",
     "quran",
+    "Holy Quran",
+    "Quran recitation",
     `Surah ${transliteration}`,
-    "Quran Recitation",
+    `Surah ${transliteration} recitation`,
+    "Peaceful Quran",
+    "Relaxing Quran",
     "Islam",
+    "تلاوات نادرة",
+    "تجويد القرآن",
+    "القرآن الكريم مباشر",
+    "استمع للقرآن",
+    "قران كريم بصوت هادئ",
+    "ايات قرآنية قصيرة",
+    "قرآن يريح النفس",
+    "علاج الحزن والاكتئاب بالقرآن",
   ];
 
-  // إزالة التكرار والتنقية واختيار 15 كلمة مفتاحية فقط
+  // إزالة التكرار والتنقية
   const uniqueTags = Array.from(
     new Set(
       baseTags
@@ -427,26 +477,83 @@ export function generateIslamicSEO(params: SEOParams): GeneratedSEO {
     )
   );
 
-  // 15 كلمة فقط بدقة
-  const tags: string[] = uniqueTags.slice(0, 15);
+  const tags = uniqueTags.slice(0, 35);
   const tagsString = tags.join(", ");
 
   // ═════════════════════════════════════════════════════════
-  // 3. وصف الريلز والشور تس المختصر والأنيق (Compact Reel Description)
+  // 3. باقة الهاشتاغات الفيروسية (30+ Viral Hashtags)
+  // ═════════════════════════════════════════════════════════
+  const viralHashtagsList: string[] = [
+    `#سورة_${sTag}`,
+    `#${rTag}`,
+    `#الشيخ_${rTag}`,
+    "#قرآن",
+    "#قران",
+    "#تلاوة_خاشعة",
+    "#راحة_نفسية",
+    "#يقين_القران",
+    "#تلاوات_خاشعة",
+    "#قرآن_كريم",
+    "#القرآن_الكريم",
+    "#تلاوة_مبكية",
+    "#آيات_قرآنية",
+    "#تدبر_القرآن",
+    "#إسلاميات",
+    "#دين_الحق",
+    "#ألا_بذكر_الله_تطمئن_القلوب",
+    "#استغفار",
+    "#دعاء",
+    "#راحة_البال",
+    "#قرآن_للنوم",
+    "#تلاوات_نادرة",
+    "#تجويد",
+    "#quran",
+    "#shorts",
+    "#islam",
+    "#quranrecitation",
+    "#foryou",
+    "#fyp",
+    "#viral",
+    "#trending",
+    "#peacefulquran",
+    `#surah_${transliteration.toLowerCase().replace(/\s+/g, "_")}`,
+    "#islamicvideo",
+    "#muslim",
+  ];
+
+  const hashtagsBlock = viralHashtagsList.join(" ");
+
+  // ═════════════════════════════════════════════════════════
+  // 4. الوصف التفصيلي الشامل (Deep Rich SEO Description)
   // ═════════════════════════════════════════════════════════
   const description = 
 `📖 تلاوة قرآنية خاشعة ومباركة | سورة ${cleanSurahName} (${ayahText})
-🎙 تلاوة عطرة بصوت: ${reciterTitle}
+🎙️ بصوت القارئ: ${reciterTitle}
 🤍 «أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ» 🤍
+${highlight ? `
+🌿 عن السورة وفضائلها العظيمة:
+• الموضوع: ${highlight.theme}
+• الفضل: ${highlight.virtue}
+` : ""}
+🤲 دعاء طيب مبارك:
+اللهم اجعل القرآن العظيم ربيع قلوبنا، ونور صدورنا، وجلاء أحزاننا، وذهاب همومنا وغمومنا. اللهم ذكّرنا منه ما نسينا، وعلّمنا منه ما جهلنا، وارزقنا تلاوته آناء الليل وأطراف النهار على الوجه الذي يرضيك عنا يا أرحم الراحمين.
 
-🤲 اللهم اجعل القرآن ربيع قلوبنا ونور صدورنا وجلاء أحزاننا وذهاب همومنا.
-🔗 صمم فيديوهاتك القرآنية بنفسك مجاناً عبر منصة «يقين القرآن»:
-https://yaqeenalquran.online
+✨ شارك المقطع مع أهلك وأحبابك لتنال أجر الصدقة الجارية.. فالدال على الخير كفاعله 🌸
+لا تنسَ الإعجاب بالفيديو والاشتراك في القناة وتفعيل زر الجرس 🔔 لتصلك التلاوات الخاشعة يومياً.
 
-#سورة_${cleanSurahName.replace(/\s+/g, "_")} #${shortReciter.replace(/\s+/g, "_")} #قرآن #تلاوة_خاشعة #يقين_القران #shorts #quran`;
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 صمم فيديوهاتك القرآنية بنفسك مجاناً وبجودة سينمائية 4K:
+🌐 منصة يقين القرآن: https://yaqeenalquran.online
+📖 تصفح المصحف الشريف كاملاً مع التفسير والترجمة ومكتبة تلاوات لأكثر من 50 قارئاً.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🏷️ كلمات مفتاحية دلالية (Search Keywords):
+سورة ${cleanSurahName}, ${reciterTitle}, تلاوة خاشعة تريح القلب, راحة نفسية, قرآن هادئ للنوم, علاج الاكتئاب والحزن بالقرآن, أجمل التلاوات القرآنية, تلاوة مبكية, قرآن كريم بصوت جميل, Surah ${transliteration}, Peaceful Quran Recitation, Relaxing Quran.
+
+${hashtagsBlock}`;
 
   // ═════════════════════════════════════════════════════════
-  // 4. التعليق الأول التثبيتي (Pinned First Comment)
+  // 5. التعليق الأول التثبيتي (Pinned First Comment)
   // ═════════════════════════════════════════════════════════
   const firstComment = 
 `سبحان الله وبحمده، سبحان الله العظيم 🌸
@@ -457,24 +564,24 @@ https://yaqeenalquran.online
 https://yaqeenalquran.online`;
 
   // ═════════════════════════════════════════════════════════
-  // 5. كابشن مخصص لتيك توك عالي التفاعل (TikTok Viral Caption)
+  // 6. كابشن مخصص لتيك توك عالي التفاعل (TikTok Viral Caption)
   // ═════════════════════════════════════════════════════════
-  const sTag = cleanSurahName.replace(/\s+/g, "_");
-  const rTag = shortReciter.replace(/\s+/g, "_");
   const tiktokCaption = 
 `سورة ${cleanSurahName} - ${ayahText} 📖
 تلاوة خاشعة بصوت ${reciterTitle} 🎙️
 «أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ» 🤍
 صمم فيديوهاتك القرآنية مجاناً عبر موقع يقين القرآن (الرابط في البايو 🔗)
 
-#سورة_${sTag} #${rTag} #قرآن #قران #تلاوة_خاشعة #راحة_نفسية #يقين_القران #قرآن_كريم #foryou #fyp #quran #islam`;
+#سورة_${sTag} #${rTag} #قرآن #قران #تلاوة_خاشعة #راحة_نفسية #يقين_القران #قرآن_كريم #foryou #fyp #quran #islam #viral`;
 
   return {
     title,
+    titles,
     tags,
     tagsString,
     description,
     firstComment,
     tiktokCaption,
+    hashtags: viralHashtagsList,
   };
 }

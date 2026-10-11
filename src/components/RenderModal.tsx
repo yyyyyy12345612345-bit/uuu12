@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Download, Loader2, CheckCircle2, AlertCircle, Play, Crown, Lock, Info, Zap, ChevronLeft, X, Clock, Video, Send } from "lucide-react";
+import { Download, Loader2, CheckCircle2, AlertCircle, Play, Crown, Lock, Info, Zap, ChevronLeft, X, Clock, Video, Send, Sparkles, Shuffle, Copy, Check, ChevronDown } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
 import { useSurahData } from "@/hooks/useSurahData";
 import { RECITERS, getReciterEnglishName, getSheikhAsset } from "@/data/reciters";
@@ -48,8 +48,8 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
   // TikTok Publishing States
   const [tiktokAccounts, setTiktokAccounts] = useState<any[]>([]);
   const [selectedAccountId, setSelectedAccountId] = useState<string>("");
-  // Unified Publishing Destination: "both" | "youtube" | "tiktok"
-  const [publishDestination, setPublishDestination] = useState<"both" | "youtube" | "tiktok">("both");
+  // Unified Publishing Destination: "both" | "youtube" | "tiktok" (default to youtube)
+  const [publishDestination, setPublishDestination] = useState<"both" | "youtube" | "tiktok">("youtube");
   const [tiktokCaption, setTiktokCaption] = useState("");
   const [isScheduled, setIsScheduled] = useState(false);
   const [scheduledTime, setScheduledTime] = useState("");
@@ -70,6 +70,50 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
   const [ytTitle, setYtTitle] = useState("");
   const [ytDescription, setYtDescription] = useState("");
   const [ytTags, setYtTags] = useState("");
+  const [availableTitles, setAvailableTitles] = useState<string[]>([]);
+  const [showTitlePicker, setShowTitlePicker] = useState<boolean>(false);
+  const [allHashtags, setAllHashtags] = useState<string[]>([]);
+  const [copiedTags, setCopiedTags] = useState<boolean>(false);
+
+  // Live Duration Calculation for RenderModal
+  const [modalVerseDurations, setModalVerseDurations] = useState<Record<number, number>>({});
+
+  useEffect(() => {
+    if (!isOpen || !surahData?.verses) return;
+    const versesToLoad = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
+    versesToLoad.forEach(v => {
+      const audio = new Audio();
+      audio.crossOrigin = "anonymous";
+      audio.src = getAudioUrl(Number(state.surahId), v.id, state.reciterId);
+      audio.preload = "metadata";
+      audio.onloadedmetadata = () => {
+        setModalVerseDurations(prev => ({ ...prev, [v.id]: audio.duration }));
+      };
+    });
+  }, [isOpen, state.surahId, state.startAyah, state.endAyah, state.reciterId, surahData]);
+
+  const { modalTotalDuration, modalIsOverThreeMinutes } = React.useMemo(() => {
+    const versesInRange = surahData?.verses?.filter(v => v.id >= state.startAyah && v.id <= state.endAyah) || [];
+    let sec = 0;
+    if (versesInRange.length === 0) {
+      sec = Math.max(1, state.endAyah - state.startAyah + 1) * 6;
+    } else {
+      versesInRange.forEach(v => {
+        const measured = modalVerseDurations[v.id];
+        if (measured) {
+          sec += measured;
+        } else {
+          const words = v.text ? v.text.trim().split(/\s+/).length : 5;
+          sec += Math.max(3, Math.round(words * 0.85));
+        }
+      });
+    }
+    const rounded = Math.round(sec);
+    return {
+      modalTotalDuration: rounded,
+      modalIsOverThreeMinutes: rounded > 180,
+    };
+  }, [surahData, state.startAyah, state.endAyah, modalVerseDurations]);
 
   useEffect(() => {
     if (isOpen && db) {
@@ -119,10 +163,36 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       endAyah: state.endAyah,
     });
 
+    const titleList = (seo as any).titles || [seo.title];
+    setAvailableTitles(titleList);
+    setAllHashtags((seo as any).hashtags || []);
+
     if (force || !tiktokCaption) setTiktokCaption(seo.tiktokCaption);
     if (force || !ytTitle) setYtTitle(seo.title);
     if (force || !ytDescription) setYtDescription(seo.description);
     if (force || !ytTags) setYtTags(seo.tagsString);
+  };
+
+  const handleShuffleTitle = () => {
+    if (!availableTitles.length) return;
+    const currentIndex = availableTitles.indexOf(ytTitle);
+    const nextIndex = (currentIndex + 1) % availableTitles.length;
+    setYtTitle(availableTitles[nextIndex]);
+  };
+
+  const handleCopyTags = () => {
+    if (!ytTags) return;
+    navigator.clipboard.writeText(ytTags);
+    setCopiedTags(true);
+    setTimeout(() => setCopiedTags(false), 2000);
+  };
+
+  const handleAppendViralHashtags = () => {
+    if (!allHashtags.length) return;
+    const block = "\n\n" + allHashtags.join(" ");
+    if (!ytDescription.includes(allHashtags[0])) {
+      setYtDescription((prev) => prev.trim() + block);
+    }
   };
 
   useEffect(() => {
@@ -1985,6 +2055,36 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             <h3 className="font-['Amiri'] text-4xl font-black text-white mb-2">تجهيز العمل الفني</h3>
             <p className="text-white/40 text-xs text-center mb-6 uppercase tracking-widest">اختر أبعاد الفيديو ودقة الإخراج</p>
             
+            {/* ⏱️ مدة الفيديو وتوافق YouTube Shorts */}
+            <div className="w-full mb-4 bg-white/[0.03] border border-white/10 rounded-[1.8rem] p-4 text-right space-y-2.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-primary" />
+                  <span className="text-xs font-black text-white">مدة الفيديو المقدرة:</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono font-black text-primary bg-primary/10 px-2.5 py-0.5 rounded-lg border border-primary/20">
+                    {Math.floor(modalTotalDuration / 60).toString().padStart(2, "0")}:{(modalTotalDuration % 60).toString().padStart(2, "0")}
+                  </span>
+                  <span className="text-[10px] text-white/50 font-bold">
+                    ({Math.floor(modalTotalDuration / 60) > 0 ? `${Math.floor(modalTotalDuration / 60)} دقيقة ` : ""}{modalTotalDuration % 60} ثانية)
+                  </span>
+                </div>
+              </div>
+
+              {!modalIsOverThreeMinutes ? (
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2 text-[10px] text-emerald-300 font-bold">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>✅ متوافق مع YouTube Shorts (المدة أقل من 3 دقائق 180ث)</span>
+                </div>
+              ) : (
+                <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center gap-2 text-[10px] text-amber-300 font-bold">
+                  <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>⚠️ يتجاوز 3 دقائق: سينشر كفيديو عادي كامل على يوتيوب وليس كـ Short (حد Shorts الأقصى 180 ثانية).</span>
+                </div>
+              )}
+            </div>
+
             {/* أبعاد ومقاس الفيديو (طولي 9:16 أو عرضي 16:9) */}
             <div className="w-full mb-6 bg-white/[0.03] border border-white/10 rounded-[1.8rem] p-3 text-right">
               <span className="text-[11px] font-black text-white/60 mb-2 block px-2">
@@ -2184,6 +2284,37 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                   )}
                 </div>
 
+                {/* ── YouTube Shorts vs Long Video Status Banner ── */}
+                {(publishDestination === "youtube" || publishDestination === "both") && (
+                  <div className={`p-2.5 rounded-xl border flex items-center gap-2.5 text-[10px] font-bold ${
+                    (state.aspectRatio || "9:16") === "9:16" && !modalIsOverThreeMinutes
+                      ? "bg-emerald-500/10 border-emerald-500/25 text-emerald-300"
+                      : "bg-amber-500/10 border-amber-500/25 text-amber-300"
+                  }`}>
+                    {(state.aspectRatio || "9:16") === "9:16" && !modalIsOverThreeMinutes ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-black text-emerald-200">⚡ سينشر كـ YouTube Short تلقائياً</span>
+                          <span className="text-[9px] text-emerald-400/80">المقطع طولي (9:16) ومدته أقل من 3 دقائق ({Math.floor(modalTotalDuration / 60)}:{(modalTotalDuration % 60).toString().padStart(2, "0")}) — مؤهل تماماً لخوارزميات الشورتس.</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-black text-amber-200">⚠️ سينشر كـ فيديو يوتيوب عادي كامل</span>
+                          <span className="text-[9px] text-amber-400/80">
+                            {modalIsOverThreeMinutes 
+                              ? `مدة الفيديو تتجاوز 3 دقائق (${Math.floor(modalTotalDuration / 60)}:{(modalTotalDuration % 60).toString().padStart(2, "0")}) — حد شورتس الأقصى هو 180 ثانية.`
+                              : "الفيديو بتنسيق عرضي (16:9)."}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
                 {/* ── Smart SEO Generator Button ── */}
                 <div className="flex justify-between items-center bg-gradient-to-r from-red-950/30 to-amber-950/20 border border-white/10 p-2.5 rounded-xl">
                   <span className="text-[10px] font-black text-white/80">خوارزميات السيو والبحث الذكية (SEO)</span>
@@ -2200,19 +2331,67 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                 {/* ── Form Fields ── */}
                 {/* 1. YouTube Title (For YouTube or Both) */}
                 {(publishDestination === "youtube" || publishDestination === "both") && (
-                  <div className="space-y-1">
+                  <div className="space-y-2 bg-white/[0.02] border border-white/[0.05] p-3 rounded-xl">
                     <div className="flex justify-between items-center text-[9px] font-bold text-white/40">
-                      <span>{ytTitle.length}/100</span>
-                      <label className="text-[9px] font-black text-white/70 block">عنوان الفيديو لليوتيوب (Title) *</label>
+                      <span>{ytTitle.length}/100 حرف</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={handleShuffleTitle}
+                          className="flex items-center gap-1 px-2 py-0.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded text-[10px] font-bold transition cursor-pointer"
+                          title="تغيير العنوان لنمط فيروسي آخر"
+                        >
+                          <Shuffle className="w-3 h-3" />
+                          <span>عنوان بديل 🎲</span>
+                        </button>
+                        {availableTitles.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setShowTitlePicker(!showTitlePicker)}
+                            className="flex items-center gap-1 px-2 py-0.5 bg-red-600/20 hover:bg-red-600/30 text-red-300 rounded text-[10px] font-bold transition cursor-pointer"
+                          >
+                            <Sparkles className="w-3 h-3 text-red-400" />
+                            <span>11 عنوان فيروسي ({showTitlePicker ? "إخفاء" : "عرض"})</span>
+                            <ChevronDown className={`w-3 h-3 transition-transform ${showTitlePicker ? "rotate-180" : ""}`} />
+                          </button>
+                        )}
+                        <label className="text-[10px] font-black text-white/80 block">عنوان الفيديو ليوتيوب *</label>
+                      </div>
                     </div>
+
                     <input
                       type="text"
                       value={ytTitle}
                       onChange={(e) => setYtTitle(e.target.value)}
                       maxLength={100}
-                      className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2.5 text-xs text-white outline-none text-right focus:border-red-500/40 placeholder:text-white/20"
+                      className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg p-2.5 text-xs text-white outline-none text-right focus:border-red-500/50 placeholder:text-white/20 font-medium"
                       placeholder="عنوان الفيديو المخصص ليوتيوب..."
                     />
+
+                    {/* قائمة العناوين الفيروسية المقترحة */}
+                    {showTitlePicker && availableTitles.length > 0 && (
+                      <div className="space-y-1.5 pt-2 border-t border-white/5 max-h-48 overflow-y-auto pr-1">
+                        <span className="text-[9px] text-white/40 block text-right">اضغط على أي عنوان لاختياره فوراً:</span>
+                        {availableTitles.map((t, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => {
+                              setYtTitle(t);
+                              setShowTitlePicker(false);
+                            }}
+                            className={`w-full text-right p-2 rounded-lg text-[11px] leading-relaxed transition cursor-pointer flex items-center justify-between gap-2 ${
+                              ytTitle === t
+                                ? "bg-red-600/30 border border-red-500/50 text-white font-bold"
+                                : "bg-white/[0.02] hover:bg-white/[0.06] text-white/80 border border-white/[0.03]"
+                            }`}
+                          >
+                            <span className="text-[9px] text-white/30 shrink-0 font-mono">#{idx + 1}</span>
+                            <span className="truncate">{t}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -2238,8 +2417,18 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                   <>
                     <div className="space-y-1">
                       <div className="flex justify-between items-center text-[9px] font-bold text-white/40">
-                        <span>مفصولة بفاصلة ({ytTags ? ytTags.split(",").length : 0} كلمة مفتاحية)</span>
-                        <label className="text-[9px] font-black text-white/70 block">Tags (الكلمات الدلالية الخارقة ليوتيوب)</label>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={handleCopyTags}
+                            className="flex items-center gap-1 text-[9px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] px-2 py-0.5 rounded transition cursor-pointer"
+                          >
+                            {copiedTags ? <Check className="w-2.5 h-2.5 text-emerald-400" /> : <Copy className="w-2.5 h-2.5" />}
+                            <span>{copiedTags ? "تم النسخ!" : "نسخ التاجز"}</span>
+                          </button>
+                          <span>{ytTags ? ytTags.split(",").length : 0} كلمة مفتاحية</span>
+                        </div>
+                        <label className="text-[9px] font-black text-white/70 block">Tags (الكلمات الدلالية لمحركات البحث)</label>
                       </div>
                       <input
                         type="text"
@@ -2252,15 +2441,24 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
 
                     <div className="space-y-1">
                       <div className="flex justify-between items-center text-[9px] font-bold text-white/40">
-                        <span>{ytDescription.length} حرف (وصف شامل مع الفضائل والدعاء)</span>
-                        <label className="text-[9px] font-black text-white/70 block">الوصف التفصيلي لليوتيوب (SEO Description)</label>
+                        <button
+                          type="button"
+                          onClick={handleAppendViralHashtags}
+                          className="flex items-center gap-1 text-[9px] text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 px-2 py-0.5 rounded transition cursor-pointer"
+                        >
+                          <span>#️⃣ إضافة 35+ هاشتاج فيروسي</span>
+                        </button>
+                        <div className="flex items-center gap-1.5">
+                          <span>{ytDescription.length} حرف (شامل الفضائل والدعاء)</span>
+                          <label className="text-[9px] font-black text-white/70 block">الوصف التفصيلي لليوتيوب (SEO)</label>
+                        </div>
                       </div>
                       <textarea
                         value={ytDescription}
                         onChange={(e) => setYtDescription(e.target.value)}
-                        rows={publishDestination === "both" ? 4 : 5}
+                        rows={publishDestination === "both" ? 4 : 6}
                         className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-2.5 text-xs text-white outline-none resize-none text-right focus:border-red-500/40 placeholder:text-white/20 leading-relaxed font-sans"
-                        placeholder="الوصف الشامل مع فضائل السورة والدعاء وروابط الحسابات..."
+                        placeholder="الوصف الشامل مع فضائل السورة والدعاء وروابط الحسابات والهاشتاغات..."
                       />
                     </div>
                   </>

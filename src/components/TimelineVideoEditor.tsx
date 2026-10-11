@@ -10,6 +10,8 @@ import { useUserPlan } from "@/hooks/useUserPlan";
 import surahsData from "@/data/surahs.json";
 import { VideoPreview } from "@/components/VideoPreview";
 import { AyahSearchModal } from "./AyahSearchModal";
+import { useSurahData } from "@/hooks/useSurahData";
+import { getAudioUrl } from "@/lib/quranUtils";
 import { 
   FolderOpen, ImageIcon, Wand2, Type, Layout, Music, 
   ArrowLeftRight, FileText, Bookmark, 
@@ -17,7 +19,7 @@ import {
   Play, Pause, Heart, Volume2, Maximize2, Trash2, Pin, Scissors, 
   Copy, Layers, Plus, Eye, Lock, Search, 
   Loader2, Check, ChevronDown, Sliders, Info, Download,
-  Briefcase, Moon
+  Briefcase, Moon, Clock, AlertTriangle, CheckCircle2
 } from "lucide-react";
 
 interface TimelineVideoEditorProps {
@@ -209,6 +211,131 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
     }
   }, [state.surahId, state.startAyah, state.endAyah, updateState]);
 
+  // Quran Verse Audio Durations & YouTube Shorts Duration Calculation
+  const { data: surahData } = useSurahData(state.surahId);
+  const [verseDurations, setVerseDurations] = useState<Record<number, number>>({});
+  const [isLoadingDuration, setIsLoadingDuration] = useState(false);
+
+  useEffect(() => {
+    if (!surahData?.verses) return;
+    const versesToLoad = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
+    let isMounted = true;
+    setIsLoadingDuration(true);
+
+    let loadedCount = 0;
+    const total = versesToLoad.length;
+    if (total === 0) {
+      setIsLoadingDuration(false);
+      return;
+    }
+
+    versesToLoad.forEach(v => {
+      if (verseDurations[v.id]) {
+        loadedCount++;
+        if (loadedCount >= total) setIsLoadingDuration(false);
+        return;
+      }
+
+      const audio = new Audio();
+      audio.crossOrigin = "anonymous";
+      audio.src = getAudioUrl(Number(state.surahId), v.id, state.reciterId);
+      audio.preload = "metadata";
+
+      const wordCount = v.text ? v.text.trim().split(/\s+/).length : 5;
+      const estimated = Math.max(3, Math.round(wordCount * 0.85));
+
+      audio.onloadedmetadata = () => {
+        if (!isMounted) return;
+        const dur = audio.duration && !isNaN(audio.duration) && isFinite(audio.duration) ? audio.duration : estimated;
+        setVerseDurations(prev => ({ ...prev, [v.id]: dur }));
+        loadedCount++;
+        if (loadedCount >= total) setIsLoadingDuration(false);
+      };
+
+      audio.onerror = () => {
+        if (!isMounted) return;
+        setVerseDurations(prev => ({ ...prev, [v.id]: estimated }));
+        loadedCount++;
+        if (loadedCount >= total) setIsLoadingDuration(false);
+      };
+
+      setTimeout(() => {
+        if (!isMounted) return;
+        setVerseDurations(prev => {
+          if (prev[v.id]) return prev;
+          return { ...prev, [v.id]: estimated };
+        });
+        loadedCount++;
+        if (loadedCount >= total) setIsLoadingDuration(false);
+      }, 3500);
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [state.surahId, state.startAyah, state.endAyah, state.reciterId, surahData]);
+
+  const { totalDurationSeconds, isOverThreeMinutes, suggestedEndAyah, versesCount } = useMemo(() => {
+    const vCount = Math.max(1, state.endAyah - state.startAyah + 1);
+    if (!surahData?.verses) {
+      const estimated = vCount * 6;
+      return {
+        totalDurationSeconds: estimated,
+        isOverThreeMinutes: estimated > 180,
+        suggestedEndAyah: Math.max(state.startAyah, state.startAyah + Math.floor(180 / 6) - 1),
+        versesCount: vCount,
+      };
+    }
+
+    const versesInRange = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
+    let totalSec = 0;
+    versesInRange.forEach(v => {
+      const measured = verseDurations[v.id];
+      if (measured) {
+        totalSec += measured;
+      } else {
+        const words = v.text ? v.text.trim().split(/\s+/).length : 5;
+        totalSec += Math.max(3, Math.round(words * 0.85));
+      }
+    });
+
+    // Determine max endAyah that fits within YouTube Shorts limit (180s / 3 minutes)
+    let runningSec = 0;
+    let suggested = state.startAyah;
+    for (const v of surahData.verses) {
+      if (v.id < state.startAyah) continue;
+      const dur = verseDurations[v.id] || Math.max(3, Math.round((v.text ? v.text.trim().split(/\s+/).length : 5) * 0.85));
+      if (runningSec + dur <= 180) {
+        runningSec += dur;
+        suggested = v.id;
+      } else {
+        break;
+      }
+    }
+
+    const roundedSec = Math.round(totalSec);
+    return {
+      totalDurationSeconds: roundedSec,
+      isOverThreeMinutes: roundedSec > 180,
+      suggestedEndAyah: Math.max(state.startAyah, suggested),
+      versesCount: vCount,
+    };
+  }, [surahData, state.startAyah, state.endAyah, verseDurations]);
+
+  const formatDurationDisplay = (totalSec: number) => {
+    const mins = Math.floor(totalSec / 60);
+    const secs = totalSec % 60;
+    if (mins === 0) return `${secs} ثانية`;
+    if (secs === 0) return `${mins} دقيقة`;
+    return `${mins} دقيقة و ${secs} ثانية`;
+  };
+
+  const formatDurationClock = (totalSec: number) => {
+    const mins = Math.floor(totalSec / 60);
+    const secs = totalSec % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
   const toggleSection = (section: string) => {
     setOpenSections(prev => ({
       ...prev,
@@ -272,9 +399,23 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
         </div>
 
         {/* Center Title or Indicator */}
-        <div className="hidden md:flex items-center gap-2 bg-white/5 px-4 py-1.5 rounded-full border border-white/5">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-[10px] font-black text-white/80 tracking-widest">منصة التصميم الاحترافي</span>
+        <div className="hidden md:flex items-center gap-2.5">
+          <div className="flex items-center gap-2 bg-white/5 px-3.5 py-1.5 rounded-full border border-white/5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[10px] font-black text-white/80 tracking-widest">منصة التصميم الاحترافي</span>
+          </div>
+
+          <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/5 text-[10px]">
+            <Clock className="w-3.5 h-3.5 text-primary" />
+            <span className="font-mono font-black text-white/95">{formatDurationClock(totalDurationSeconds)}</span>
+            <span className={`px-2 py-0.5 rounded-full text-[9px] font-black ${
+              isOverThreeMinutes 
+                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' 
+                : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+            }`}>
+              {isOverThreeMinutes ? '⚠️ فيديو طويل (>3د)' : '⚡ Shorts (≤3د)'}
+            </span>
+          </div>
         </div>
 
         {/* Right Tools / Action Buttons */}
@@ -957,10 +1098,17 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
           <div className="flex-1 flex flex-col items-center justify-center p-6 relative">
             
             {/* Aspect Ratio Display and Time */}
-            <div className="w-full max-w-[400px] flex items-center justify-between mb-3 text-[10px] text-white/30 font-bold px-2">
-              <div className="flex items-center gap-1.5">
+            <div className="w-full max-w-[400px] flex items-center justify-between mb-3 text-[10px] text-white/40 font-bold px-2">
+              <div className="flex items-center gap-2">
                 <span className="px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[9px]">FHD</span>
-                <span>1080 × 1920 (9:16)</span>
+                <span>{state.aspectRatio === "16:9" ? "1920 × 1080 (16:9)" : "1080 × 1920 (9:16)"}</span>
+                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${
+                  isOverThreeMinutes 
+                    ? 'bg-amber-500/15 text-amber-300 border-amber-500/30' 
+                    : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                }`}>
+                  ⏱️ {formatDurationClock(totalDurationSeconds)} • {isOverThreeMinutes ? 'فيديو طويل (>3د)' : 'Shorts (≤3د)'}
+                </span>
               </div>
               <span>معاينة فورية للتعديل</span>
             </div>
@@ -1089,6 +1237,82 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                             </button>
                           </div>
                         </div>
+                      </div>
+
+                      {/* ⏱️ بطاقة المدة الزمنية وتوافق يوتيوب شورتس (YouTube Shorts) */}
+                      <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-3.5 space-y-3 shadow-inner">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-4 h-4 text-primary" />
+                            <span className="text-[11px] font-black text-white">مدة الفيديو المقدرة</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-mono font-black text-primary bg-primary/10 px-2 py-0.5 rounded-lg border border-primary/20">
+                              {formatDurationClock(totalDurationSeconds)}
+                            </span>
+                            {isLoadingDuration && (
+                              <Loader2 className="w-3 h-3 text-white/40 animate-spin" />
+                            )}
+                          </div>
+                        </div>
+
+                        {/* شريط قياس حد الـ 3 دقائق (180 ثانية) ليوتيوب شورتس */}
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-[9px] font-bold">
+                            <span className="text-white/40">{versesCount} آيات مختارة ({formatDurationDisplay(totalDurationSeconds)})</span>
+                            <span className={isOverThreeMinutes ? "text-amber-400 font-black" : "text-emerald-400 font-bold"}>
+                              حد شورتس: 03:00 ({Math.min(100, Math.round((totalDurationSeconds / 180) * 100))}%)
+                            </span>
+                          </div>
+                          <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden relative">
+                            <div 
+                              className={`h-full transition-all duration-500 rounded-full ${
+                                isOverThreeMinutes ? "bg-amber-500" : "bg-emerald-500"
+                              }`}
+                              style={{ width: `${Math.min(100, (totalDurationSeconds / 180) * 100)}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* حالة التوافق مع YouTube Shorts */}
+                        {!isOverThreeMinutes ? (
+                          <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                            <div className="flex flex-col gap-0.5">
+                              <span className="text-[10px] font-black text-emerald-300">
+                                ✅ متوافق تماماً مع YouTube Shorts
+                              </span>
+                              <span className="text-[8.5px] text-emerald-400/80 leading-relaxed">
+                                أقل من 3 دقائق ({formatDurationDisplay(totalDurationSeconds)}) — سينتشر كفيديو Short طولي مع أعلى تفاعل.
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-2">
+                            <div className="flex items-start gap-2">
+                              <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                              <div className="flex flex-col gap-0.5">
+                                <span className="text-[10px] font-black text-amber-300">
+                                  ⚠️ يتخطى 3 دقائق (فيديو طويل وليس Short)
+                                </span>
+                                <span className="text-[8.5px] text-amber-400/90 leading-relaxed">
+                                  حد YouTube Shorts الأقصى هو 3 دقائق (180 ثانية). هذا الفيديو مدته {formatDurationDisplay(totalDurationSeconds)} وسينشر كفيديو عادي طويل.
+                                </span>
+                              </div>
+                            </div>
+
+                            {suggestedEndAyah >= state.startAyah && suggestedEndAyah < state.endAyah && (
+                              <button
+                                type="button"
+                                onClick={() => updateState({ endAyah: suggestedEndAyah })}
+                                className="w-full py-2 px-3 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 rounded-xl text-[10px] font-black flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-sm cursor-pointer"
+                              >
+                                <Scissors className="w-3.5 h-3.5" />
+                                <span>✂️ تقليص تلقائي لـ Shorts (ضبط النهاية لآية {suggestedEndAyah})</span>
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
