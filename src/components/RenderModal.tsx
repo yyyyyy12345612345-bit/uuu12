@@ -5,7 +5,7 @@ import { Download, Loader2, CheckCircle2, AlertCircle, Play, Crown, Lock, Info, 
 import { useEditor } from "@/store/useEditor";
 import { useSurahData } from "@/hooks/useSurahData";
 import { RECITERS, getReciterEnglishName, getSheikhAsset } from "@/data/reciters";
-import { getAudioUrl } from "@/lib/quranUtils";
+import { getAudioUrl, fetchExactVerseDuration, estimateVerseDurationFallback } from "@/lib/quranUtils";
 import { useCustomBackgrounds } from "@/hooks/useCustomBackgrounds";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp, getDocs, collection, addDoc } from "firebase/firestore";
@@ -75,36 +75,40 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
   const [allHashtags, setAllHashtags] = useState<string[]>([]);
   const [copiedTags, setCopiedTags] = useState<boolean>(false);
 
-  // Live Duration Calculation for RenderModal
-  const [modalVerseDurations, setModalVerseDurations] = useState<Record<number, number>>({});
+  // Live Duration Calculation for RenderModal (Reciter-Aware)
+  const [modalVerseDurations, setModalVerseDurations] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (!isOpen || !surahData?.verses) return;
     const versesToLoad = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
-    versesToLoad.forEach(v => {
-      const audio = new Audio();
-      audio.crossOrigin = "anonymous";
-      audio.src = getAudioUrl(Number(state.surahId), v.id, state.reciterId);
-      audio.preload = "metadata";
-      audio.onloadedmetadata = () => {
-        setModalVerseDurations(prev => ({ ...prev, [v.id]: audio.duration }));
-      };
-    });
+    let isMounted = true;
+    Promise.all(
+      versesToLoad.map(async (v) => {
+        const cacheKey = `${state.reciterId}_${state.surahId}_${v.id}`;
+        const dur = await fetchExactVerseDuration(Number(state.surahId), v.id, state.reciterId, v.text);
+        if (isMounted) {
+          setModalVerseDurations(prev => ({ ...prev, [cacheKey]: dur }));
+        }
+      })
+    );
+    return () => {
+      isMounted = false;
+    };
   }, [isOpen, state.surahId, state.startAyah, state.endAyah, state.reciterId, surahData]);
 
   const { modalTotalDuration, modalIsOverThreeMinutes } = React.useMemo(() => {
     const versesInRange = surahData?.verses?.filter(v => v.id >= state.startAyah && v.id <= state.endAyah) || [];
     let sec = 0;
     if (versesInRange.length === 0) {
-      sec = Math.max(1, state.endAyah - state.startAyah + 1) * 6;
+      sec = Math.max(1, state.endAyah - state.startAyah + 1) * (state.reciterId.includes("mjwd") ? 35 : 12);
     } else {
       versesInRange.forEach(v => {
-        const measured = modalVerseDurations[v.id];
+        const cacheKey = `${state.reciterId}_${state.surahId}_${v.id}`;
+        const measured = modalVerseDurations[cacheKey];
         if (measured) {
           sec += measured;
         } else {
-          const words = v.text ? v.text.trim().split(/\s+/).length : 5;
-          sec += Math.max(3, Math.round(words * 0.85));
+          sec += estimateVerseDurationFallback(v.text, state.reciterId);
         }
       });
     }
@@ -113,7 +117,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
       modalTotalDuration: rounded,
       modalIsOverThreeMinutes: rounded > 180,
     };
-  }, [surahData, state.startAyah, state.endAyah, modalVerseDurations]);
+  }, [surahData, state.startAyah, state.endAyah, state.reciterId, modalVerseDurations]);
 
   useEffect(() => {
     if (isOpen && db) {

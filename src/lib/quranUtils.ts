@@ -16,6 +16,86 @@ export const getAudioUrl = (surahId: number, ayahId: number, reciterId: string, 
   return `https://everyayah.com/data/Alafasy_128kbps/${ayahSlug}.mp3`;
 };
 
+// Global in-memory cache for verse durations by reciter
+const durationCache = new Map<string, number>();
+
+export function getReciterSpeedFactor(reciterId: string): { isMujawwad: boolean; secPerWord: number } {
+  const reciter = RECITERS.find(r => r.id === reciterId);
+  const isMujawwad = reciterId.includes("mjwd") || 
+                     reciterId.includes("mujawwad") || 
+                     Boolean(reciter?.name && reciter.name.includes("مجود"));
+  return {
+    isMujawwad,
+    secPerWord: isMujawwad ? 2.5 : 0.95
+  };
+}
+
+export function estimateVerseDurationFallback(text: string, reciterId: string): number {
+  const { isMujawwad, secPerWord } = getReciterSpeedFactor(reciterId);
+  const words = text ? text.trim().split(/\s+/).length : 5;
+  return Math.max(isMujawwad ? 16 : 4, Math.round(words * secPerWord));
+}
+
+export async function fetchExactVerseDuration(surahId: number, ayahId: number, reciterId: string, verseText?: string): Promise<number> {
+  const cacheKey = `${reciterId}:${surahId}:${ayahId}`;
+  if (durationCache.has(cacheKey)) {
+    return durationCache.get(cacheKey)!;
+  }
+
+  const audioUrl = getAudioUrl(surahId, ayahId, reciterId);
+  const reciter = RECITERS.find(r => r.id === reciterId);
+  const kbps = reciter?.everyAyahFolder?.includes("192kbps") ? 192 : reciter?.everyAyahFolder?.includes("64kbps") ? 64 : 128;
+  const bytesPerSec = (kbps * 1000) / 8;
+
+  // 1. Try fast HEAD request for content-length from EveryAyah CDN
+  try {
+    const res = await fetch(audioUrl, { method: "HEAD" });
+    if (res.ok) {
+      const len = res.headers.get("content-length");
+      if (len && Number(len) > 0) {
+        const dur = Math.max(3, Math.round(Number(len) / bytesPerSec));
+        durationCache.set(cacheKey, dur);
+        return dur;
+      }
+    }
+  } catch (e) {
+    // Ignore and proceed to fallback/audio
+  }
+
+  // 2. Try Audio object in browser
+  if (typeof window !== "undefined") {
+    try {
+      const dur = await new Promise<number>((resolve) => {
+        const audio = new Audio();
+        audio.preload = "metadata";
+        audio.src = audioUrl;
+        const timer = setTimeout(() => {
+          resolve(estimateVerseDurationFallback(verseText || "", reciterId));
+        }, 2000);
+        audio.onloadedmetadata = () => {
+          clearTimeout(timer);
+          if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
+            resolve(Math.round(audio.duration));
+          } else {
+            resolve(estimateVerseDurationFallback(verseText || "", reciterId));
+          }
+        };
+        audio.onerror = () => {
+          clearTimeout(timer);
+          resolve(estimateVerseDurationFallback(verseText || "", reciterId));
+        };
+        audio.load();
+      });
+      durationCache.set(cacheKey, dur);
+      return dur;
+    } catch {}
+  }
+
+  const fallback = estimateVerseDurationFallback(verseText || "", reciterId);
+  durationCache.set(cacheKey, fallback);
+  return fallback;
+}
+
 const API_ROOT = "https://api.quran.com/api/v4";
 
 export const ARABIC_TAFSIRS = [

@@ -11,7 +11,7 @@ import surahsData from "@/data/surahs.json";
 import { VideoPreview } from "@/components/VideoPreview";
 import { AyahSearchModal } from "./AyahSearchModal";
 import { useSurahData } from "@/hooks/useSurahData";
-import { getAudioUrl } from "@/lib/quranUtils";
+import { getAudioUrl, fetchExactVerseDuration, estimateVerseDurationFallback } from "@/lib/quranUtils";
 import { 
   FolderOpen, ImageIcon, Wand2, Type, Layout, Music, 
   ArrowLeftRight, FileText, Bookmark, 
@@ -211,9 +211,9 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
     }
   }, [state.surahId, state.startAyah, state.endAyah, updateState]);
 
-  // Quran Verse Audio Durations & YouTube Shorts Duration Calculation
+  // Quran Verse Audio Durations & YouTube Shorts Duration Calculation (Reciter-Aware)
   const { data: surahData } = useSurahData(state.surahId);
-  const [verseDurations, setVerseDurations] = useState<Record<number, number>>({});
+  const [verseDurations, setVerseDurations] = useState<Record<string, number>>({});
   const [isLoadingDuration, setIsLoadingDuration] = useState(false);
 
   useEffect(() => {
@@ -222,52 +222,21 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
     let isMounted = true;
     setIsLoadingDuration(true);
 
-    let loadedCount = 0;
-    const total = versesToLoad.length;
-    if (total === 0) {
+    if (versesToLoad.length === 0) {
       setIsLoadingDuration(false);
       return;
     }
 
-    versesToLoad.forEach(v => {
-      if (verseDurations[v.id]) {
-        loadedCount++;
-        if (loadedCount >= total) setIsLoadingDuration(false);
-        return;
-      }
-
-      const audio = new Audio();
-      audio.crossOrigin = "anonymous";
-      audio.src = getAudioUrl(Number(state.surahId), v.id, state.reciterId);
-      audio.preload = "metadata";
-
-      const wordCount = v.text ? v.text.trim().split(/\s+/).length : 5;
-      const estimated = Math.max(3, Math.round(wordCount * 0.85));
-
-      audio.onloadedmetadata = () => {
-        if (!isMounted) return;
-        const dur = audio.duration && !isNaN(audio.duration) && isFinite(audio.duration) ? audio.duration : estimated;
-        setVerseDurations(prev => ({ ...prev, [v.id]: dur }));
-        loadedCount++;
-        if (loadedCount >= total) setIsLoadingDuration(false);
-      };
-
-      audio.onerror = () => {
-        if (!isMounted) return;
-        setVerseDurations(prev => ({ ...prev, [v.id]: estimated }));
-        loadedCount++;
-        if (loadedCount >= total) setIsLoadingDuration(false);
-      };
-
-      setTimeout(() => {
-        if (!isMounted) return;
-        setVerseDurations(prev => {
-          if (prev[v.id]) return prev;
-          return { ...prev, [v.id]: estimated };
-        });
-        loadedCount++;
-        if (loadedCount >= total) setIsLoadingDuration(false);
-      }, 3500);
+    Promise.all(
+      versesToLoad.map(async (v) => {
+        const cacheKey = `${state.reciterId}_${state.surahId}_${v.id}`;
+        const dur = await fetchExactVerseDuration(Number(state.surahId), v.id, state.reciterId, v.text);
+        if (isMounted) {
+          setVerseDurations(prev => ({ ...prev, [cacheKey]: dur }));
+        }
+      })
+    ).finally(() => {
+      if (isMounted) setIsLoadingDuration(false);
     });
 
     return () => {
@@ -278,11 +247,11 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
   const { totalDurationSeconds, isOverThreeMinutes, suggestedEndAyah, versesCount } = useMemo(() => {
     const vCount = Math.max(1, state.endAyah - state.startAyah + 1);
     if (!surahData?.verses) {
-      const estimated = vCount * 6;
+      const estimated = vCount * (state.reciterId.includes("mjwd") ? 35 : 12);
       return {
         totalDurationSeconds: estimated,
         isOverThreeMinutes: estimated > 180,
-        suggestedEndAyah: Math.max(state.startAyah, state.startAyah + Math.floor(180 / 6) - 1),
+        suggestedEndAyah: Math.max(state.startAyah, state.startAyah + Math.floor(180 / 30) - 1),
         versesCount: vCount,
       };
     }
@@ -290,21 +259,22 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
     const versesInRange = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
     let totalSec = 0;
     versesInRange.forEach(v => {
-      const measured = verseDurations[v.id];
+      const cacheKey = `${state.reciterId}_${state.surahId}_${v.id}`;
+      const measured = verseDurations[cacheKey];
       if (measured) {
         totalSec += measured;
       } else {
-        const words = v.text ? v.text.trim().split(/\s+/).length : 5;
-        totalSec += Math.max(3, Math.round(words * 0.85));
+        totalSec += estimateVerseDurationFallback(v.text, state.reciterId);
       }
     });
 
-    // Determine max endAyah that fits within YouTube Shorts limit (180s / 3 minutes)
+    // Determine max endAyah that fits within YouTube Shorts limit (180s / 3 minutes) for this specific reciter
     let runningSec = 0;
     let suggested = state.startAyah;
     for (const v of surahData.verses) {
       if (v.id < state.startAyah) continue;
-      const dur = verseDurations[v.id] || Math.max(3, Math.round((v.text ? v.text.trim().split(/\s+/).length : 5) * 0.85));
+      const cacheKey = `${state.reciterId}_${state.surahId}_${v.id}`;
+      const dur = verseDurations[cacheKey] || estimateVerseDurationFallback(v.text, state.reciterId);
       if (runningSec + dur <= 180) {
         runningSec += dur;
         suggested = v.id;
@@ -320,7 +290,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
       suggestedEndAyah: Math.max(state.startAyah, suggested),
       versesCount: vCount,
     };
-  }, [surahData, state.startAyah, state.endAyah, verseDurations]);
+  }, [surahData, state.startAyah, state.endAyah, state.reciterId, verseDurations]);
 
   const formatDurationDisplay = (totalSec: number) => {
     const mins = Math.floor(totalSec / 60);
