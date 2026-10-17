@@ -95,7 +95,20 @@ export async function startRender(jobId, data) {
       effectiveBgUrl.trim().length > 0;
 
     const parallelDownloads = [];
-    if (hasNetworkBg) {
+    const multiBgUrls = Array.isArray(data.backgroundUrls) && data.backgroundUrls.length > 0 ? data.backgroundUrls : [];
+    const multiBgPaths = [];
+
+    if (multiBgUrls.length > 0) {
+      multiBgUrls.forEach((u, i) => {
+        const mPath = path.resolve(tempDir, `multi_bg_${i}.mp4`);
+        multiBgPaths.push(mPath);
+        parallelDownloads.push(
+          downloadFile(u, mPath, { timeoutMs: 120000 }).catch(err => {
+            logger.warn("multi_bg_download_fail", { error: err.message, url: u, index: i });
+          })
+        );
+      });
+    } else if (hasNetworkBg) {
       parallelDownloads.push(
         downloadFile(effectiveBgUrl, bgPath, { timeoutMs: 120000 }).catch(err => {
           logger.warn("bg_download_fallback", { error: err.message, url: effectiveBgUrl });
@@ -122,28 +135,57 @@ export async function startRender(jobId, data) {
 
     progress(25, "تحميل وتحليل الملفات الصوتية للآيات...", RENDER_PHASES.AUDIO_DOWNLOAD);
 
-    // تحميل كل الصوتيات وحساب مددها بالتوازي بدل التتابع
+    // فحص ما إذا كان الصوت هو سورة كاملة موحدة لجميع الآيات (مثل تلاوة الشيخ حسن صالح الأصلية)
+    const isSingleSurahAudio = verses.length > 0 && verses.every(v => v.audio === verses[0].audio);
+    let verseDurations = [];
     const audioPaths = verses.map((_, i) => path.resolve(tempDir, `a-${i}.mp3`));
-    await Promise.all(verses.map(async (v, i) => {
-      try {
-        await downloadFile(v.audio, audioPaths[i], { timeoutMs: 60000 });
-      } catch (audioErr) {
-        throw new RenderError(
-          RENDER_PHASES.AUDIO_DOWNLOAD,
-          `فشل تحميل صوت الآية رقم ${i + 1} (${v.id || ""})`,
-          {
-            verseIndex: i,
-            verseId: v.id,
-            audioUrl: v.audio,
-            error: audioErr.message,
-          },
-          audioErr
-        );
-      }
-    }));
 
-    progress(30, "حساب مدد التلاوة بدقة...", RENDER_PHASES.AUDIO_PROBE);
-    const verseDurations = await Promise.all(verses.map((v, i) => getDurationCached(v.audio, audioPaths[i])));
+    if (isSingleSurahAudio) {
+      // تحميل ملف السورة الأصلية مرة واحدة وتقسيمها زمنياً بين الآيات بنعومة
+      const fullSurahPath = path.resolve(tempDir, "full_surah.mp3");
+      await downloadFile(verses[0].audio, fullSurahPath, { timeoutMs: 120000 });
+      const totalSurahDuration = await getDurationCached(verses[0].audio, fullSurahPath);
+
+      // توزيع المدة على الآيات حسب عدد الكلمات
+      const verseWordCounts = verses.map(v => (v.text || "").trim().split(/\s+/).filter(Boolean).length || 5);
+      const totalWords = verseWordCounts.reduce((a, b) => a + b, 0) || 1;
+
+      // حساب وقت بداية ونهاية كل آية وتقطيعها
+      let cursor = 0;
+      for (let i = 0; i < verses.length; i++) {
+        const segDur = (verseWordCounts[i] / totalWords) * Math.min(totalSurahDuration, Math.max(15, totalWords * 1.6));
+        verseDurations.push(segDur);
+        await execAsync(`ffmpeg -loglevel error -ss ${cursor.toFixed(3)} -t ${segDur.toFixed(3)} -i "${sl(fullSurahPath)}" -c copy -y "${sl(audioPaths[i])}"`);
+        cursor += segDur;
+      }
+    } else {
+      // تحميل الصوتيات في مجموعات (10 بالتوازي) لتجنب الحظر أو إرهاق الشبكة مع المقاطع الكبيرة (+50 آية)
+      const AUDIO_BATCH = 10;
+      for (let b = 0; b < verses.length; b += AUDIO_BATCH) {
+        const batch = verses.slice(b, b + AUDIO_BATCH);
+        await Promise.all(batch.map(async (v, idx) => {
+          const i = b + idx;
+          try {
+            await downloadFile(v.audio, audioPaths[i], { timeoutMs: 60000 });
+          } catch (audioErr) {
+            throw new RenderError(
+              RENDER_PHASES.AUDIO_DOWNLOAD,
+              `فشل تحميل صوت الآية رقم ${i + 1} (${v.id || ""})`,
+              {
+                verseIndex: i,
+                verseId: v.id,
+                audioUrl: v.audio,
+                error: audioErr.message,
+              },
+              audioErr
+            );
+          }
+        }));
+      }
+
+      progress(30, "حساب مدد التلاوة بدقة...", RENDER_PHASES.AUDIO_PROBE);
+      verseDurations = await Promise.all(verses.map((v, i) => getDurationCached(v.audio, audioPaths[i])));
+    }
 
     const audioTotal = verseDurations.reduce((a, b) => a + b, 0);
     let currentElapsed = 0;
@@ -331,22 +373,20 @@ export async function startRender(jobId, data) {
 
     progress(55, "دمج هندسة الصوت بدون تقطيع...", RENDER_PHASES.AUDIO_MERGE);
     const mergedAudioPath = path.resolve(tempDir, "merged-audio.aac");
-    const audioInputs = audioPaths.map(p => `-i "${sl(p)}"`).join(" ");
-    const filterParts = audioPaths.map((_, i) => `[${i}:a]aresample=44100,aformat=sample_fmts=fltp:channel_layouts=stereo[a${i}]`).join(";");
-    const concatIn = audioPaths.map((_, i) => `[a${i}]`).join("");
+    const concatAudioFile = path.resolve(tempDir, "concat_audio.txt");
+    const concatListContent = audioPaths.map(p => `file '${sl(p)}'`).join("\n");
+    fs.writeFileSync(concatAudioFile, concatListContent);
 
     // 🛡️ درع كسر البصمة الرقمية لحقوق الملكية (YouTube & Social Anti-Copyright Stealth Filter)
     const isAntiCopyright = data.antiCopyright !== false;
-    const stealthChain = isAntiCopyright
-      ? `;[raw_aout]asetrate=44629,atempo=0.988142,aresample=44100,equalizer=f=120:t=q:w=1.5:g=1.4,equalizer=f=3200:t=q:w=1.2:g=1.2,aecho=0.88:0.88:32|48:0.14|0.08,alimiter=limit=0.96[aout]`
-      : ``;
-    const outTag = isAntiCopyright ? `[raw_aout]` : `[aout]`;
-    const concatFilter = `${filterParts};${concatIn}concat=n=${audioPaths.length}:v=0:a=1${outTag}${stealthChain}`;
+    const audioFilterChain = isAntiCopyright
+      ? `aresample=44100,aformat=sample_fmts=fltp:channel_layouts=stereo,asetrate=44629,atempo=0.988142,aresample=44100,equalizer=f=120:t=q:w=1.5:g=1.4,equalizer=f=3200:t=q:w=1.2:g=1.2,aecho=0.88:0.88:32|48:0.14|0.08,alimiter=limit=0.96`
+      : `aresample=44100,aformat=sample_fmts=fltp:channel_layouts=stereo`;
 
     const audioTimeout = Math.max(300000, Math.ceil(totalDuration * 500));
     try {
       await execAsync(
-        `ffmpeg -loglevel error ${audioInputs} -filter_complex "${concatFilter}" -map "[aout]" -c:a aac -b:a 192k -ar 44100 "${sl(mergedAudioPath)}" -y`,
+        `ffmpeg -loglevel error -f concat -safe 0 -i "${sl(concatAudioFile)}" -af "${audioFilterChain}" -c:a aac -b:a 192k -ar 44100 "${sl(mergedAudioPath)}" -y`,
         { timeout: audioTimeout, maxBuffer: 50 * 1024 * 1024 }
       );
     } catch (audioMergeErr) {
@@ -371,18 +411,52 @@ export async function startRender(jobId, data) {
     const outPath = path.resolve(RENDERS_DIR, `${jobId}.mp4`);
     let ffmpegCmd;
 
-    if (isVideoBg) {
-      progress(75, isWide ? "تهيئة فيديو الخلفية بمقاس يوتيوب العريض (1920x1080)..." : "تهيئة فيديو الخلفية بمقاس الهاتف...", RENDER_PHASES.BACKGROUND_PROCESS);
-      // حماية استباقية: لو فشل تحميل ملف الفيديو أو كان الرابط معطلاً، ننشئ فيديو بديل داكن أنيق لمنع انهيار FFmpeg
-      if (!fs.existsSync(bgPath)) {
-        logger.warn("bg_video_missing_creating_fallback", { bgPath, isWide });
-        const targetW = isWide ? 1920 : WIDTH;
-        const targetH = isWide ? 1080 : HEIGHT;
-        const dur = Math.max(1, Math.ceil(totalDuration || 60));
-        await execAsync(`ffmpeg -loglevel error -f lavfi -i color=c=0x0a0a0a:s=${targetW}x${targetH}:r=30:d=${dur} -c:v libx264 -pix_fmt yuv420p "${sl(bgPath)}" -y`);
+    if (isVideoBg || (multiBgPaths && multiBgPaths.length > 0)) {
+      progress(75, isWide ? "تهيئة فيديوهات الخلفية بمقاس يوتيوب العريض (1920x1080)..." : "تهيئة فيديوهات الخلفية بمقاس الهاتف...", RENDER_PHASES.BACKGROUND_PROCESS);
+      let bgResizedPath;
+
+      if (multiBgPaths && multiBgPaths.length > 0) {
+        // فلترة الفيديوهات التي تم تحميلها بنجاح
+        const validMultiBgs = multiBgPaths.filter(p => fs.existsSync(p));
+        if (validMultiBgs.length === 0) {
+          validMultiBgs.push(bgPath);
+        }
+
+        // تجهيز كل فيديو بالمقاس المطلوب وحفظه في قائمة concat
+        const resizedMultiPaths = [];
+        for (let idx = 0; idx < validMultiBgs.length; idx++) {
+          const vPath = validMultiBgs[idx];
+          const vUrl = multiBgUrls[idx] || backgroundUrl;
+          const rPath = await getResizedBackground(vUrl, sl(vPath), backgroundFit, isWide);
+          resizedMultiPaths.push(rPath);
+        }
+
+        const multiListFile = path.resolve(tempDir, "multi_bgs.txt");
+        let listContent = "";
+        // نكرر القائمة إذا كانت المدة الإجمالية تتطلب ذلك حتى لا تنتهي قبل الصوت
+        const repeatCount = Math.max(1, Math.ceil(totalDuration / (resizedMultiPaths.length * 5)));
+        for (let r = 0; r < repeatCount; r++) {
+          resizedMultiPaths.forEach(p => {
+            listContent += `file '${sl(p)}'\n`;
+          });
+        }
+        fs.writeFileSync(multiListFile, listContent);
+
+        const concatenatedBg = path.resolve(tempDir, "concatenated_bg.mp4");
+        await execAsync(`ffmpeg -loglevel error -f concat -safe 0 -i "${sl(multiListFile)}" -c copy -y "${sl(concatenatedBg)}"`);
+        bgResizedPath = concatenatedBg;
+      } else {
+        // حماية استباقية: لو فشل تحميل ملف الفيديو أو كان الرابط معطلاً، ننشئ فيديو بديل داكن أنيق لمنع انهيار FFmpeg
+        if (!fs.existsSync(bgPath)) {
+          logger.warn("bg_video_missing_creating_fallback", { bgPath, isWide });
+          const targetW = isWide ? 1920 : WIDTH;
+          const targetH = isWide ? 1080 : HEIGHT;
+          const dur = Math.max(1, Math.ceil(totalDuration || 60));
+          await execAsync(`ffmpeg -loglevel error -f lavfi -i color=c=0x0a0a0a:s=${targetW}x${targetH}:r=30:d=${dur} -c:v libx264 -pix_fmt yuv420p "${sl(bgPath)}" -y`);
+        }
+        // بنستخدم كاش الخلفيات: لو نفس رابط الخلفية اتعمل له resize قبل كده، بيترجع فورًا
+        bgResizedPath = await getResizedBackground(backgroundUrl, sl(bgPath), backgroundFit, isWide);
       }
-      // بنستخدم كاش الخلفيات: لو نفس رابط الخلفية اتعمل له resize قبل كده، بيترجع فورًا
-      const bgResizedPath = await getResizedBackground(backgroundUrl, sl(bgPath), backgroundFit, isWide);
 
       progress(85, "دمج الطبقات وإنتاج الفيديو النهائي...", RENDER_PHASES.FFMPEG_RENDER);
       const filterComplex = `"[0:v][1:v]overlay=0:0:shortest=1,format=yuv420p[vout]"`;

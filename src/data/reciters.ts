@@ -22,10 +22,9 @@ export const RECITERS: Reciter[] = [
   },
   {
     "id": "hassan_saleh",
-    "name": "الشيخ حسن صالح (بدون حقوق)",
+    "name": "الشيخ حسن صالح (بدون حقوق - تلاوة أصلية)",
     "folder": "hassan_saleh",
-    "mp3quranServer": "cdn.mp3quran.net/audio/hassan-saleh/r1",
-    "everyAyahFolder": "Sahl_Yassin_128kbps",
+    "mp3quranServer": "server16.mp3quran.net/h_saleh/Rewayat-Hafs-A-n-Assem",
     "isSpecialAdmin": true
   },
   {

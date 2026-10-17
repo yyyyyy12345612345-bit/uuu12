@@ -81,16 +81,22 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
   useEffect(() => {
     if (!isOpen || !surahData?.verses) return;
     const versesToLoad = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
-    let isMounted = true;
-    Promise.all(
-      versesToLoad.map(async (v) => {
-        const cacheKey = `${state.reciterId}_${state.surahId}_${v.id}`;
-        const dur = await fetchExactVerseDuration(Number(state.surahId), v.id, state.reciterId, v.text);
-        if (isMounted) {
-          setModalVerseDurations(prev => ({ ...prev, [cacheKey]: dur }));
-        }
-      })
-    );
+    const BATCH_CHUNK = 8;
+    (async () => {
+      for (let i = 0; i < versesToLoad.length; i += BATCH_CHUNK) {
+        if (!isMounted) break;
+        const chunk = versesToLoad.slice(i, i + BATCH_CHUNK);
+        await Promise.all(
+          chunk.map(async (v) => {
+            const cacheKey = `${state.reciterId}_${state.surahId}_${v.id}`;
+            const dur = await fetchExactVerseDuration(Number(state.surahId), v.id, state.reciterId, v.text);
+            if (isMounted) {
+              setModalVerseDurations(prev => ({ ...prev, [cacheKey]: dur }));
+            }
+          })
+        );
+      }
+    })();
     return () => {
       isMounted = false;
     };

@@ -35,6 +35,18 @@ export function validateRenderRequest(body) {
     }
   }
 
+  // backgroundUrls اختياري لتسلسل الخلفيات المتعددة (Multi-backgrounds)
+  if (body.backgroundUrls && Array.isArray(body.backgroundUrls)) {
+    body.backgroundUrls.forEach((u, idx) => {
+      if (typeof u === "string" && u.trim().length > 0) {
+        const isColorOrGrad = u.startsWith("color:") || u.startsWith("gradient:");
+        if (!isColorOrGrad && !validateUrl(u)) {
+          errors.push(`backgroundUrls[${idx}] رابط غير مسموح به`);
+        }
+      }
+    });
+  }
+
   if (body.instaHandle && String(body.instaHandle).length > LIMITS.MAX_HANDLE_LEN) {
     errors.push("instaHandle أطول من اللازم");
   }

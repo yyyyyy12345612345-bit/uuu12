@@ -3,7 +3,7 @@
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { useEditor } from "@/store/useEditor";
 import { useSurahData } from "@/hooks/useSurahData";
-import { getAudioUrl } from "@/lib/quranUtils";
+import { getAudioUrl, estimateVerseDurationFallback } from "@/lib/quranUtils";
 import { RECITERS, getReciterEnglishName, getSheikhAsset } from "@/data/reciters";
 import { Play, Pause, Loader2, BookOpen, AlertCircle } from "lucide-react";
 import { useCustomBackgrounds } from "@/hooks/useCustomBackgrounds";
@@ -97,17 +97,23 @@ export function VideoPreview() {
   useEffect(() => {
     if (!surahData) return;
     const versesToLoad = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
-    setVerseDurations({});
+    const initial: Record<number, number> = {};
     versesToLoad.forEach(v => {
+      initial[v.id] = estimateVerseDurationFallback(v.text, state.reciterId);
+    });
+    setVerseDurations(initial);
+
+    // Preload audio metadata safely for up to 15 verses without crashing browser
+    const preloadList = versesToLoad.slice(0, 15);
+    preloadList.forEach(v => {
       const audio = new Audio();
       audio.crossOrigin = "anonymous";
       audio.src = getAudioUrl(Number(state.surahId), v.id, state.reciterId);
       audio.preload = "metadata";
       audio.onloadedmetadata = () => {
-        setVerseDurations(prev => ({ ...prev, [v.id]: audio.duration }));
-      };
-      audio.onerror = () => {
-        setVerseDurations(prev => ({ ...prev, [v.id]: 5 }));
+        if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
+          setVerseDurations(prev => ({ ...prev, [v.id]: audio.duration }));
+        }
       };
     });
   }, [state.surahId, state.startAyah, state.endAyah, state.reciterId, surahData]);

@@ -12,9 +12,14 @@ export const getAudioUrl = (surahId: number, ayahId: number, reciterId: string, 
     return `https://everyayah.com/data/${reciter.everyAyahFolder}/${ayahSlug}.mp3`;
   }
 
-  // Support Direct Server / Archive.org / MP3Quran if audioDirectUrl exists
+  // Support Direct Server / Archive.org / MP3Quran surah audio
   if (reciter?.audioDirectUrl) {
     return reciter.audioDirectUrl;
+  }
+
+  if (reciter?.mp3quranServer) {
+    const srv = reciter.mp3quranServer.replace(/^https?:\/\//, "");
+    return `https://${srv}/${pad(surahId)}.mp3`;
   }
 
   // Fallback to Alafasy for Ayah-by-Ayah rendering
@@ -47,8 +52,15 @@ export async function fetchExactVerseDuration(surahId: number, ayahId: number, r
     return durationCache.get(cacheKey)!;
   }
 
-  const audioUrl = getAudioUrl(surahId, ayahId, reciterId);
   const reciter = RECITERS.find(r => r.id === reciterId);
+  const isSurahLevel = !reciter?.everyAyahFolder && (reciter?.mp3quranServer || reciter?.audioDirectUrl);
+  if (isSurahLevel) {
+    const dur = estimateVerseDurationFallback(verseText || "", reciterId);
+    durationCache.set(cacheKey, dur);
+    return dur;
+  }
+
+  const audioUrl = getAudioUrl(surahId, ayahId, reciterId);
   const kbps = reciter?.everyAyahFolder?.includes("192kbps") ? 192 : reciter?.everyAyahFolder?.includes("64kbps") ? 64 : 128;
   const bytesPerSec = (kbps * 1000) / 8;
 

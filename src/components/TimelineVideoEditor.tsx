@@ -236,15 +236,22 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
       return;
     }
 
-    Promise.all(
-      versesToLoad.map(async (v) => {
-        const cacheKey = `${state.reciterId}_${state.surahId}_${v.id}`;
-        const dur = await fetchExactVerseDuration(Number(state.surahId), v.id, state.reciterId, v.text);
-        if (isMounted) {
-          setVerseDurations(prev => ({ ...prev, [cacheKey]: dur }));
-        }
-      })
-    ).finally(() => {
+    const BATCH_CHUNK = 8;
+    (async () => {
+      for (let i = 0; i < versesToLoad.length; i += BATCH_CHUNK) {
+        if (!isMounted) break;
+        const chunk = versesToLoad.slice(i, i + BATCH_CHUNK);
+        await Promise.all(
+          chunk.map(async (v) => {
+            const cacheKey = `${state.reciterId}_${state.surahId}_${v.id}`;
+            const dur = await fetchExactVerseDuration(Number(state.surahId), v.id, state.reciterId, v.text);
+            if (isMounted) {
+              setVerseDurations(prev => ({ ...prev, [cacheKey]: dur }));
+            }
+          })
+        );
+      }
+    })().finally(() => {
       if (isMounted) setIsLoadingDuration(false);
     });
 
@@ -1405,10 +1412,12 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                               <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                               <div className="flex flex-col gap-0.5">
                                 <span className="text-[10px] font-black text-amber-300">
-                                  ⚠️ يتخطى 3 دقائق (فيديو طويل وليس Short)
+                                  {versesCount >= 50 ? "🎥 فيديو طويل كامل لليوتيوب (+50 آية متاح بنجاح)" : "🎥 فيديو طويل لليوتيوب (أكثر من 3 دقائق)"}
                                 </span>
                                 <span className="text-[8.5px] text-amber-400/90 leading-relaxed">
-                                  حد YouTube Shorts الأقصى هو 3 دقائق (180 ثانية). هذا الفيديو مدته {formatDurationDisplay(totalDurationSeconds)} وسينشر كفيديو عادي طويل.
+                                  {versesCount >= 50 
+                                    ? `تم اختيار ${versesCount} آية (${formatDurationDisplay(totalDurationSeconds)}). يدعم النظام إنتاج سور وتلاوات كاملة طويلة لليوتيوب بجودة عالية وبدون تقييد.`
+                                    : `حد YouTube Shorts هو 3 دقائق. هذا الفيديو مدته ${formatDurationDisplay(totalDurationSeconds)} وسينشر كفيديو يوتيوب كامل.`}
                                 </span>
                               </div>
                             </div>

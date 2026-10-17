@@ -33,7 +33,7 @@ export const BG_CACHE_DIR = path.resolve(os.tmpdir(), "bg_cache");
 
 // حدود صحة الطلب — تحمي السيرفر من طلبات ضخمة تعلّقه أو تستهلك الديسك
 export const LIMITS = {
-  MAX_VERSES: 300,
+  MAX_VERSES: 1000,
   MAX_VERSE_TEXT_LEN: 2000,
   MAX_TRANSLATION_LEN: 2000,
   MAX_HANDLE_LEN: 60,
