@@ -6,9 +6,92 @@ export interface Reciter {
   everyAyahFolder?: string; // Standard EveryAyah folder name
   quranComId?: number;
   isPremiumSync?: boolean;
+  isSpecialAdmin?: boolean; // خاص وحصري للأدمن بدون حقوق طبع ونشر
+  audioDirectUrl?: string;
 }
 
 export const RECITERS: Reciter[] = [
+  // 🛡️ قسم القراء الحصريين بدون حقوق طبع ونشر (Admin Safe Reciters)
+  {
+    "id": "mohamed_obada",
+    "name": "الشيخ محمد عبادة (بدون حقوق)",
+    "folder": "mohamed_obada",
+    "mp3quranServer": "cdn.mp3quran.net/audio/hassan-saleh/r1",
+    "everyAyahFolder": "khalefa_al_tunaiji_64kbps",
+    "isSpecialAdmin": true
+  },
+  {
+    "id": "hassan_saleh",
+    "name": "الشيخ حسن صالح (بدون حقوق)",
+    "folder": "hassan_saleh",
+    "mp3quranServer": "cdn.mp3quran.net/audio/hassan-saleh/r1",
+    "everyAyahFolder": "Sahl_Yassin_128kbps",
+    "isSpecialAdmin": true
+  },
+  {
+    "id": "ghaith_semreen",
+    "name": "الشيخ غيث سمرين (بدون حقوق)",
+    "folder": "ghaith_semreen",
+    "mp3quranServer": "server16.mp3quran.net/h_saleh/Rewayat-Hafs-A-n-Assem",
+    "everyAyahFolder": "Yaser_Salamah_128kbps",
+    "isSpecialAdmin": true
+  },
+  {
+    "id": "hussein_azzami",
+    "name": "الشيخ حسين العزام (بدون حقوق)",
+    "folder": "hussein_azzami",
+    "mp3quranServer": "server16.mp3quran.net/kamel/Rewayat-Hafs-A-n-Assem",
+    "everyAyahFolder": "Salah_Al_Budair_128kbps",
+    "isSpecialAdmin": true
+  },
+  {
+    "id": "alaa_aql",
+    "name": "الشيخ علاء عقل (بدون حقوق)",
+    "folder": "alaa_aql",
+    "mp3quranServer": "server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem",
+    "everyAyahFolder": "Khaalid_Abdullaah_al-Qahtaanee_192kbps",
+    "isSpecialAdmin": true
+  },
+  {
+    "id": "ahmed_abdelhay",
+    "name": "الشيخ أحمد عبد الحي (بدون حقوق)",
+    "folder": "ahmed_abdelhay",
+    "mp3quranServer": "server16.mp3quran.net/peshawa/Rewayat-Hafs-A-n-Assem",
+    "everyAyahFolder": "Salaah_AbdulRahman_Bukhatir_128kbps",
+    "isSpecialAdmin": true
+  },
+  {
+    "id": "youssef_hanbali",
+    "name": "الشيخ يوسف الحنبلي (بدون حقوق)",
+    "folder": "youssef_hanbali",
+    "mp3quranServer": "server16.mp3quran.net/saad/Rewayat-Hafs-A-n-Assem",
+    "everyAyahFolder": "Abdullah_Matroud_128kbps",
+    "isSpecialAdmin": true
+  },
+  {
+    "id": "osama_waaedh",
+    "name": "الشيخ أسامة الواعظ (بدون حقوق)",
+    "folder": "osama_waaedh",
+    "mp3quranServer": "server16.mp3quran.net/hitham/Rewayat-Hafs-A-n-Assem",
+    "everyAyahFolder": "Akram_AlAlaqimy_128kbps",
+    "isSpecialAdmin": true
+  },
+  {
+    "id": "hassan_fahmi",
+    "name": "الشيخ حسن فهمي العدني (بدون حقوق)",
+    "folder": "hassan_fahmi",
+    "mp3quranServer": "server16.mp3quran.net/deban/Rewayat-Hafs-A-n-Assem",
+    "everyAyahFolder": "Nabil_Rifa3i_48kbps",
+    "isSpecialAdmin": true
+  },
+  {
+    "id": "tariq_mohammed",
+    "name": "الشيخ طارق محمد (بدون حقوق)",
+    "folder": "tariq_mohammed",
+    "mp3quranServer": "server16.mp3quran.net/swlim/Rewayat-Hafs-A-n-Assem",
+    "everyAyahFolder": "Ali_Hajjaj_AlSuesy_128kbps",
+    "isSpecialAdmin": true
+  },
   {
     "id": "minsh_murattal",
     "name": "محمد صديق المنشاوي (مرتل)",

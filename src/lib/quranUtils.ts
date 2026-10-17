@@ -12,7 +12,12 @@ export const getAudioUrl = (surahId: number, ayahId: number, reciterId: string, 
     return `https://everyayah.com/data/${reciter.everyAyahFolder}/${ayahSlug}.mp3`;
   }
 
-  // Final Fallback to Alafasy (most reliable ayah-by-ayah reciter, as mp3quran servers only serve full surahs)
+  // Support Direct Server / Archive.org / MP3Quran if audioDirectUrl exists
+  if (reciter?.audioDirectUrl) {
+    return reciter.audioDirectUrl;
+  }
+
+  // Fallback to Alafasy for Ayah-by-Ayah rendering
   return `https://everyayah.com/data/Alafasy_128kbps/${ayahSlug}.mp3`;
 };
 

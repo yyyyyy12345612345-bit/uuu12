@@ -12,6 +12,7 @@ import { VideoPreview } from "@/components/VideoPreview";
 import { AyahSearchModal } from "./AyahSearchModal";
 import { useSurahData } from "@/hooks/useSurahData";
 import { getAudioUrl, fetchExactVerseDuration, estimateVerseDurationFallback } from "@/lib/quranUtils";
+import { auth } from "@/lib/firebase";
 import { 
   FolderOpen, ImageIcon, Wand2, Type, Layout, Music, 
   ArrowLeftRight, FileText, Bookmark, 
@@ -19,7 +20,7 @@ import {
   Play, Pause, Heart, Volume2, Maximize2, Trash2, Pin, Scissors, 
   Copy, Layers, Plus, Eye, Lock, Search, 
   Loader2, Check, ChevronDown, Sliders, Info, Download,
-  Briefcase, Moon, Clock, AlertTriangle, CheckCircle2
+  Briefcase, Moon, Clock, AlertTriangle, CheckCircle2, ShieldCheck, Film
 } from "lucide-react";
 
 interface TimelineVideoEditorProps {
@@ -66,7 +67,15 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
   const { theme, toggleTheme } = useTheme();
   const { isFeatureLocked } = useUserPlan();
   const { backgrounds, videos } = useCustomBackgrounds();
-  const isPlayerTemplate = ["minshawi_player", "dossary_player", "youssef_player", "basit_player"].includes(state.videoTemplate || "");
+  // Check Admin Access for Exclusive Safe Reciters & Multi-Video Background Studio
+  const isAdmin = useMemo(() => {
+    const email = auth?.currentUser?.email?.toLowerCase() || "";
+    return (
+      email === "youssefosama@gmail.com" ||
+      email === "youssef@yaqeen.app" ||
+      email.includes("youssef")
+    );
+  }, [auth?.currentUser]);
 
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -170,7 +179,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
       .replace(/[ًٌٍَُِّْ]/g, "");
 
     return RECITERS.filter(r => {
-      const isAvailable = !!r.everyAyahFolder || r.id === "omar_diaa";
+      const isAvailable = !!r.everyAyahFolder || r.id === "omar_diaa" || (isAdmin && r.isSpecialAdmin);
       if (!isAvailable) return false;
       if (!cleanSearch) return true;
       const cleanName = r.name.toLowerCase()
@@ -315,6 +324,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
 
   // Left Sidebar Tabs
   const leftTabs = [
+    ...(isAdmin ? [{ id: "admin_studio", label: "استوديو الإدمن 🛡️", icon: ShieldCheck }] : []),
     { id: "donation", label: "تبرع لدعمنا", icon: Heart },
     { id: "bg", label: "الخلفيات", icon: ImageIcon },
     { id: "effects", label: "المؤثرات", icon: Wand2 },
@@ -478,6 +488,138 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
               </h3>
               <span className="text-[9px] text-primary font-bold tracking-widest uppercase">مكتبة يقين</span>
             </div>
+
+            {/* TAB CONTENT: استوديو الإدمن الحصري (Admin Safe Reciters & Multi-Video Backgrounds) */}
+            {activeLeftTab === "admin_studio" && isAdmin && (
+              <div className="flex flex-col gap-5">
+                <div className="p-3.5 rounded-xl bg-gradient-to-r from-amber-500/10 via-primary/10 to-transparent border border-amber-500/20">
+                  <div className="flex items-center gap-2 text-amber-400 font-bold text-xs mb-1">
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>ميزة حصرية للمسؤولين</span>
+                  </div>
+                  <p className="text-[10px] text-white/60 leading-relaxed">
+                    صناعة فيديوهات يوتيوب آمنة 100% ضد حقوق الطبع والنشر بتسلسل خلفيات متعددة وقراء بدون Content ID.
+                  </p>
+                </div>
+
+                {/* 1. قسم تتابع الخلفيات المتعددة (Multi-Background Selector) */}
+                <div className="flex flex-col gap-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <Film className="w-3.5 h-3.5 text-primary" />
+                      <span className="text-xs font-bold text-white">خلفيات الفيديو المتعددة</span>
+                    </div>
+                    <span className="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-full font-mono font-bold">
+                      {(state.backgroundUrls || []).length} مختار
+                    </span>
+                  </div>
+
+                  <p className="text-[10px] text-white/40">
+                    حدد أي عدد تريده من الفيديوهات (5، 10، 20 أو أكثر) لتعمل بالتسلسل وراء الصوت دون تكرار فيديو واحد:
+                  </p>
+
+                  {(state.backgroundUrls || []).length > 0 && (
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5 text-[10px]">
+                      <span className="text-white/60">تطبيق التسلسل في الرندر:</span>
+                      <button
+                        onClick={() => updateState({ backgroundUrls: [] })}
+                        className="text-red-400 hover:text-red-300 font-bold"
+                      >
+                        إلغاء التحديد الكل
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Multi-Select Video Grid */}
+                  <div className="grid grid-cols-2 gap-2 max-h-[35vh] overflow-y-auto no-scrollbar p-1">
+                    {videos.map((vid, idx) => {
+                      const selectedList = state.backgroundUrls || [];
+                      const isSelected = selectedList.includes(vid.src);
+                      const orderNum = selectedList.indexOf(vid.src) + 1;
+
+                      return (
+                        <div
+                          key={`multi-${vid.src}-${idx}`}
+                          onClick={() => {
+                            if (isSelected) {
+                              const updated = selectedList.filter(u => u !== vid.src);
+                              updateState({
+                                backgroundUrls: updated,
+                                backgroundUrl: updated[0] || state.backgroundUrl
+                              });
+                            } else {
+                              const updated = [...selectedList, vid.src];
+                              updateState({
+                                backgroundUrls: updated,
+                                backgroundUrl: updated[0]
+                              });
+                            }
+                          }}
+                          className={`relative h-28 rounded-xl overflow-hidden border cursor-pointer transition-all ${
+                            isSelected 
+                              ? 'border-amber-400 ring-2 ring-amber-400/30 shadow-lg shadow-amber-400/10' 
+                              : 'border-white/5 hover:border-white/20'
+                          }`}
+                        >
+                          <video 
+                            src={vid.src}
+                            muted 
+                            loop 
+                            playsInline 
+                            className="h-full w-full object-cover" 
+                          />
+                          <div className={`absolute inset-0 bg-black/40 ${isSelected ? 'bg-black/10' : ''}`} />
+                          
+                          {isSelected ? (
+                            <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-amber-400 text-black flex items-center justify-center font-bold text-xs shadow-md">
+                              {orderNum}
+                            </div>
+                          ) : (
+                            <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white/50">
+                              <Plus className="w-3 h-3" />
+                            </div>
+                          )}
+
+                          <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded bg-black/70 px-1.5 py-0.5 text-[8px] font-bold text-white">
+                            <span>فيديو #{idx + 1}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 2. قسم شيوخ بدون حقوق (Safe Reciters) */}
+                <div className="flex flex-col gap-2.5 pt-3 border-t border-white/5">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+                    <Volume2 className="w-3.5 h-3.5 text-amber-400" />
+                    <span>قراء آمنون ضد حقوق الملكية (No-Copyright)</span>
+                  </div>
+                  <div className="flex flex-col gap-1.5 max-h-[30vh] overflow-y-auto no-scrollbar">
+                    {RECITERS.filter(r => r.isSpecialAdmin).map((r) => {
+                      const isSelected = state.reciterId === r.id;
+                      return (
+                        <button
+                          key={r.id}
+                          onClick={() => updateState({ reciterId: r.id })}
+                          className={`flex items-center justify-between p-2.5 rounded-xl border text-right transition-all ${
+                            isSelected 
+                              ? 'bg-amber-400/10 border-amber-400 text-amber-300' 
+                              : 'bg-white/5 border-white/5 text-white/80 hover:bg-white/10'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                            <span className="text-xs font-bold">{r.name}</span>
+                          </div>
+                          {isSelected && <Check className="w-4 h-4 text-amber-400" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* TAB CONTENT: الخلفيات / المكتبة */}
             {activeLeftTab === "bg" && (
@@ -1301,13 +1443,22 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
                     <div className="p-4 flex flex-col gap-3 border-t border-white/5 bg-black/10 text-xs text-white/60">
                       <div className="flex justify-between items-center bg-white/5 p-2 rounded-xl border border-white/5">
                         <span>نوع المشهد:</span>
-                        <span className="text-primary font-bold">{state.backgroundUrl.includes('.mp4') ? 'مقطع متحرك' : 'صورة ثابتة'}</span>
+                        <span className="text-primary font-bold">
+                          {(state.backgroundUrls || []).length > 1
+                            ? `تتابع (${state.backgroundUrls?.length} مقاطع فيديو)`
+                            : state.backgroundUrl.includes('.mp4') ? 'مقطع متحرك' : 'صورة ثابتة'}
+                        </span>
                       </div>
+                      {(state.backgroundUrls || []).length > 1 && (
+                        <div className="p-2 rounded-lg bg-amber-400/10 border border-amber-400/20 text-[10px] text-amber-300 font-bold">
+                          🛡️ نظام تسلسل الخلفيات نشط: سيتم تتابع {state.backgroundUrls?.length} فيديو تلقائياً طوال التلاوة.
+                        </div>
+                      )}
                       <button 
-                        onClick={() => setActiveLeftTab("bg")}
+                        onClick={() => setActiveLeftTab(isAdmin ? "admin_studio" : "bg")}
                         className="w-full py-2 bg-primary/10 border border-primary/20 text-primary text-[10px] font-black rounded-lg"
                       >
-                        تغيير الخلفية من المكتبة ←
+                        {isAdmin ? "إدارة الخلفيات والتسلسل ←" : "تغيير الخلفية من المكتبة ←"}
                       </button>
                     </div>
                   )}

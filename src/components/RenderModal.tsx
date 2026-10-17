@@ -572,13 +572,22 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
 
       const isPlayerTemplate = ["dossary_player", "minshawi_player", "youssef_player", "basit_player"].includes(state.videoTemplate || "") || (state.videoTemplate || "").endsWith("_player");
       let finalBackgroundUrl = isPlayerTemplate ? "" : state.backgroundUrl;
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+
       if (finalBackgroundUrl && finalBackgroundUrl.startsWith("/")) {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
         finalBackgroundUrl = `${baseUrl.replace(/\/$/, "")}${finalBackgroundUrl}`;
       }
       if (finalBackgroundUrl && finalBackgroundUrl.includes("/api/background/")) {
         finalBackgroundUrl += (finalBackgroundUrl.includes("?") ? "&" : "?") + "direct=true";
       }
+
+      // Format multi-background URLs if present
+      const finalBackgroundUrls = (state.backgroundUrls || []).map(url => {
+        let u = url;
+        if (u.startsWith("/")) u = `${baseUrl.replace(/\/$/, "")}${u}`;
+        if (u.includes("/api/background/")) u += (u.includes("?") ? "&" : "?") + "direct=true";
+        return u;
+      });
 
       const resolvedFit = state.aspectRatio === "16:9" ? "cover" : (state.backgroundFit === "cover" ? "cover" : "contain");
 
@@ -590,6 +599,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           surahName: surahData.name,
           verses,
           backgroundUrl: finalBackgroundUrl,
+          backgroundUrls: finalBackgroundUrls.length > 0 ? finalBackgroundUrls : undefined,
           backgroundFit: resolvedFit,
           aspectRatio: state.aspectRatio || "9:16",
           orientation: state.aspectRatio === "16:9" ? "landscape" : "portrait",

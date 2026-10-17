@@ -1,0 +1,26 @@
+[
+  {
+    "id": 212,
+    "name": "طارق عبدالغني دعوب",
+    "moshafs": [
+      {
+        "id": 212,
+        "name": "قالون عن نافع - مرتل",
+        "server": "https://cdn.mp3quran.net/audio/tareq-daawob/r1/",
+        "surah_total": 114
+      }
+    ]
+  },
+  {
+    "id": 286,
+    "name": "حسن صالح",
+    "moshafs": [
+      {
+        "id": 299,
+        "name": "حفص عن عاصم - مرتل",
+        "server": "https://cdn.mp3quran.net/audio/hassan-saleh/r1/",
+        "surah_total": 114
+      }
+    ]
+  }
+]
