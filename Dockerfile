@@ -1,20 +1,27 @@
-FROM node:18-bullseye-slim
+FROM node:20-slim
 
-RUN apt-get update && \
-    apt-get install -y chromium ffmpeg fonts-noto-core --no-install-recommends && \
-    rm -rf /var/lib/apt/lists/*
-
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-ENV CHROMIUM_PATH=/usr/bin/chromium
-ENV REMOTION_CHROME_EXECUTABLE=/usr/bin/chromium
+# fontconfig ضروري عشان الخطوط تتسجل بالاسم بدل ما نضمّنها base64 في كل فريم
+# ffmpeg/ffprobe ضروريين لدمج الصوت والفيديو
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    fontconfig \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# تهيئة مشروع npm جديد وتثبيت الحزم الأساسية فقط لخادم الرندرة لضمان عدم حدوث تداخل
-RUN npm init -y && npm install express cors sharp p-queue express-rate-limit
+COPY package*.json ./
+RUN npm install --omit=dev
 
 COPY . .
 
+ENV NODE_ENV=production
+ENV PORT=7860
+
 EXPOSE 7860
-CMD ["node", "--max-old-space-size=8192", "server.js"]
+
+# مستخدم غير root — ممارسة أمان أساسية
+RUN useradd -m appuser && chown -R appuser /app
+USER appuser
+
+CMD ["node", "server.js"]

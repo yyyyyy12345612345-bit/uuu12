@@ -79,6 +79,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
   const [modalVerseDurations, setModalVerseDurations] = useState<Record<string, number>>({});
 
   useEffect(() => {
+    let isMounted = true;
     if (!isOpen || !surahData?.verses) return;
     const versesToLoad = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
     const BATCH_CHUNK = 8;
@@ -607,6 +608,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
           backgroundUrl: finalBackgroundUrl,
           backgroundUrls: finalBackgroundUrls.length > 0 ? finalBackgroundUrls : undefined,
           backgroundFit: resolvedFit,
+          backgroundOnly: Boolean(state.backgroundOnly),
           aspectRatio: state.aspectRatio || "9:16",
           orientation: state.aspectRatio === "16:9" ? "landscape" : "portrait",
           width: state.aspectRatio === "16:9" ? 1920 : 720,
@@ -2106,7 +2108,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             </div>
 
             {/* أبعاد ومقاس الفيديو (طولي 9:16 أو عرضي 16:9) */}
-            <div className="w-full mb-6 bg-white/[0.03] border border-white/10 rounded-[1.8rem] p-3 text-right">
+            <div className="w-full mb-4 bg-white/[0.03] border border-white/10 rounded-[1.8rem] p-3 text-right">
               <span className="text-[11px] font-black text-white/60 mb-2 block px-2">
                 📐 أبعاد وتنسيق الفيديو:
               </span>
@@ -2134,6 +2136,34 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
                 >
                   <span className="text-sm">🖥️ عرضي (16:9)</span>
                   <span className="text-[9px] opacity-80">يوتيوب كامل • شاشات</span>
+                </button>
+              </div>
+            </div>
+
+            {/* ⚡ خيار وضع خلفية فقط (Hyper Render v24) */}
+            <div className={`w-full mb-6 border rounded-[1.8rem] p-4 text-right transition-all ${
+              state.backgroundOnly 
+                ? "bg-amber-500/10 border-amber-500/40 shadow-lg shadow-amber-500/5" 
+                : "bg-white/[0.02] border-white/10 hover:border-white/20"
+            }`}>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-col text-right">
+                  <span className="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-1.5">
+                    ⚡ وضع "خلفية فقط" (رندرة فائقة السرعة)
+                    <span className="text-[9px] bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">v24</span>
+                  </span>
+                  <span className="text-[10px] text-white/60 mt-1 leading-relaxed">
+                    دمج فيديو الخلفية مع الصوت فقط بدون نصوص (تلاوة 10 دقائق تنتهي في 20 ثانية فقط عبر Stream Copy).
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => updateState({ backgroundOnly: !state.backgroundOnly })}
+                  className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors shrink-0 ${
+                    state.backgroundOnly ? "bg-amber-500 justify-end" : "bg-white/20 justify-start"
+                  }`}
+                >
+                  <div className="w-4 h-4 bg-white rounded-full shadow-sm" />
                 </button>
               </div>
             </div>

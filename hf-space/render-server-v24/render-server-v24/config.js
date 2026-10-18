@@ -20,12 +20,46 @@ export const RENDER_CONCURRENCY = parseInt(process.env.RENDER_CONCURRENCY || "2"
 export const RATE_LIMIT_MAX = parseInt(process.env.RATE_LIMIT_MAX || "20", 10);
 export const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 
+// أقصى عدد طلبات في الانتظار (غير اللي شغالين). أكتر من كده السيرفر يرد 503 بدل ما يتراكم.
+export const MAX_QUEUE_SIZE = parseInt(process.env.MAX_QUEUE_SIZE || "20", 10);
+
+// عدد الفريمات اللي بتترسم بالتوازي جوه الرندرة الواحدة (الافتراضي = عدد الـ CPU، بين 2 و 6)
+export const FRAME_BATCH = parseInt(
+  process.env.FRAME_BATCH || String(Math.min(6, Math.max(2, os.cpus().length))), 10
+);
+
+// إعدادات x264. ultrafast = أسرع رندرة (الافتراضي زي v23). veryfast قلّل حجم الملف للنص تقريباً في القياس
+// (خصوصاً مع خلفية صورة/فيديو) مقابل ~+25% وقت. القيم تتغير من env بدون تعديل كود.
+export const X264_PRESET = process.env.X264_PRESET || "ultrafast";
+export const X264_CRF = process.env.X264_CRF || "23";
+export const FFMPEG_THREADS = process.env.FFMPEG_THREADS || ""; // فاضي = اختيار FFmpeg التلقائي
+
+// معدل الفريمات في الفيديو الناتج. 0 = سلوك v23 (FFmpeg بيطلّع 25fps). ممكن تحدد 30 لو عايز.
+export const OUTPUT_FPS = parseInt(process.env.OUTPUT_FPS || "0", 10);
+
+// مسارات /debug/* مقفولة افتراضياً. فعّلها بـ ENABLE_DEBUG=1 (وتتطلب API key لو متحدد).
+// أقصى حجم فيديو بنحاول نرفعه لتليجرام (بوت تليجرام حده 50MB). فوق كده بنتخطى الرفع بدل ما نضيّع وقت.
+export const TELEGRAM_MAX_MB = parseInt(process.env.TELEGRAM_MAX_MB || "49", 10);
+
+export const ENABLE_DEBUG = process.env.ENABLE_DEBUG === "1";
+
+// أقصى حجم تحميل لأي ملف (ميجابايت) — يحمي الديسك من روابط ضخمة
+export const MAX_DOWNLOAD_MB = parseInt(process.env.MAX_DOWNLOAD_MB || "400", 10);
+
+// نطاقات إضافية مسموحة بدون تعديل الكود (مفصولة بفاصلة) — مفيد للاختبار المحلي
+export const EXTRA_ALLOWED_DOMAINS = (process.env.EXTRA_ALLOWED_DOMAINS || "")
+  .split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+
+// يبقي نسخة الفيديو على السيرفر بعد الرفع لتليجرام (لحد ما التنظيف الدوري يمسحها).
+// كان v23 بيمسحها فوراً فكان رابط /download يطلع 404 بعد النجاح.
+export const KEEP_LOCAL_AFTER_TELEGRAM = process.env.KEEP_LOCAL_AFTER_TELEGRAM !== "0";
+
 export const WIDTH = 720;
 export const HEIGHT = 1280;
 
 // إعدادات تليجرام للتخزين السحابي للفيديوهات
 export const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
-export const TELEGRAM_CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID || "-1004363174660";
+export const TELEGRAM_CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID || "";
 
 export const RENDERS_DIR = path.resolve(os.tmpdir(), "renders_output");
 export const FONTS_DIR = path.resolve(os.tmpdir(), "fonts_cache");
@@ -40,6 +74,7 @@ export const LIMITS = {
   JOB_TTL_MS: 2 * 60 * 60 * 1000, // مدة بقاء الـ job في الذاكرة بعد اكتماله
   OUTPUT_TTL_MS: 2 * 60 * 60 * 1000, // مدة بقاء ملف الفيديو الناتج على الديسك
   BG_CACHE_MAX_FILES: 40, // أقصى عدد فيديوهات خلفية مخزّنة (LRU بسيط)
+  MAX_BACKGROUND_URLS: 30,
 };
 
 export const FONT_MAP = {
@@ -69,6 +104,14 @@ export const FONT_MAP = {
   "Impact": "https://raw.githubusercontent.com/google/fonts/main/ofl/anton/Anton-Regular.ttf",
 };
 
+// أسماء بتستخدمها القوالب مش هي نفس الاسم الداخلي للخط — fontconfig بيحوّلها
+export const FONT_ALIASES = {
+  "Impact": "Anton",
+  "Montserrat-Black": "Montserrat",
+  "BasmalahVer01": "KFGQPC Basmalah",
+  "SurahNameV2": "surah-name-v2",
+};
+
 export const ALLOWED_DOMAINS = [
   "everyayah.com", "quran.com", "cdn.islamic.network", "verses.quran.com",
   "quranicaudio.com", "mirrors.quranicaudio.com",
@@ -81,6 +124,11 @@ export const ALLOWED_DOMAINS = [
   "player.vimeo.com", "vimeo.com", "res.cloudinary.com", "cloudinary.com",
   "quranfonts.com", "dzcdn.net", "yaqeenalquran.online", "yaqeen-app.vercel.app"
 ];
+
+export function isDomainAllowed(hostname) {
+  const h = hostname.toLowerCase();
+  return [...ALLOWED_DOMAINS, ...EXTRA_ALLOWED_DOMAINS].some(d => h === d || h.endsWith(`.${d}`));
+}
 
 export const SHEIKH_ASSETS = {
   minsh: {

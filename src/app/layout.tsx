@@ -94,12 +94,11 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
-      { url: "/logo/logo.png", sizes: "32x32", type: "image/png" },
-      { url: "/logo/logo.png", sizes: "192x192", type: "image/png" },
-      { url: "/logo/logo.png", sizes: "512x512", type: "image/png" },
+      { url: "/logo/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/logo/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
     shortcut: "/favicon.ico",
-    apple: "/logo/logo.png",
+    apple: "/logo/icon-192.png",
   },
   verification: {
     google: "your-google-verification-code",
@@ -162,7 +161,7 @@ export default function RootLayout({
         {/* Static favicon links for Google crawler and browsers */}
         <link rel="icon" type="image/png" href="/favicon.ico" />
         <link rel="shortcut icon" type="image/png" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/logo/logo.png" />
+        <link rel="apple-touch-icon" href="/logo/icon-192.png" />
 
         {/* Structured Data for SEO */}
         <script

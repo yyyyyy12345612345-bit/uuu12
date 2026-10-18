@@ -1,5 +1,5 @@
-const CACHE_NAME = 'quran-pwa-v25';
-const STATIC_CACHE_NAME = 'quran-static-assets-v4';
+const CACHE_NAME = 'quran-pwa-v26';
+const STATIC_CACHE_NAME = 'quran-static-assets-v5';
 const AUDIO_CACHE_NAME = 'quran-audio-v2';
 const FONT_CACHE_NAME = 'quran-fonts-v2';
 const API_CACHE_NAME = 'quran-api-v2';
@@ -8,6 +8,8 @@ const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
   '/logo/logo.png',
+  '/logo/icon-192.png',
+  '/logo/icon-512.png',
   '/im/chat.png',
   '/data/surahs.json',
   '/mushaf-bg.jpg.png'
@@ -173,8 +175,12 @@ self.addEventListener('fetch', (event) => {
           });
         }
         return networkResponse;
-      }).catch(() => {
-        return new Response('Network error occurred', { status: 404, statusText: 'Network error' });
+      }).catch(async () => {
+        if (request.destination === 'image' || request.url.includes('/logo/')) {
+          const fallback = await caches.match('/logo/icon-192.png');
+          if (fallback) return fallback;
+        }
+        return new Response('Network error occurred', { status: 503, statusText: 'Service Unavailable' });
       });
     })
   );

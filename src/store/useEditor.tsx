@@ -78,6 +78,8 @@ export interface EditorState {
   backgroundUrls?: string[];
   /** مظهر الخلفية: ملء الشاشة أو احتواء */
   backgroundFit?: "cover" | "contain";
+  /** وضع خلفية فقط (فائق السرعة - بدون نصوص) */
+  backgroundOnly?: boolean;
   /** معرف القارئ */
   reciterId: string;
   /** لون النص */
@@ -175,6 +177,7 @@ const initialState: Omit<EditorState, 'isHydrated'> = {
   backgroundUrl: "/mushaf-bg.jpg.png",
   backgroundUrls: [],
   backgroundFit: "cover",
+  backgroundOnly: false,
   reciterId: "afasy",
   textColor: "#ffffff",
   fontSize: 50,

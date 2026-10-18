@@ -112,6 +112,11 @@ export function renderDossaryPlayer({ verse, opacity, elapsed, total, templatePh
   const activeLineText = verseLines[activeLineIdx] || verse.text || "";
   const naskhStartY = 480 + 150 / 2 + 10;
 
+  const introDuration = 1.2;
+  const t = elapsed < introDuration ? (elapsed / introDuration) : 1;
+  const ease = 1 - (1 - t) * (1 - t); // easeOutQuad
+  const translateX = -390 * (1 - ease);
+
   return `
     <g opacity="${opacity}">
       ${verse.text ? `
@@ -119,11 +124,13 @@ export function renderDossaryPlayer({ verse, opacity, elapsed, total, templatePh
         ${escapeXml(activeLineText)}
       </text>
       ` : ""}
-      <clipPath id="photoClip">
-        <rect x="70" y="480" width="240" height="320" rx="35" />
-      </clipPath>
-      <rect x="70" y="480" width="240" height="320" rx="35" fill="none" stroke="#ffffff" stroke-width="4" filter="url(#whiteGlow)" />
-      <image href="data:image/jpeg;base64,${templatePhotoBase64}" x="70" y="480" width="240" height="320" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)" />
+      <g transform="translate(${translateX.toFixed(2)}, 0)">
+        <clipPath id="photoClip">
+          <rect x="70" y="480" width="240" height="320" rx="35" />
+        </clipPath>
+        <rect x="70" y="480" width="240" height="320" rx="35" fill="none" stroke="#ffffff" stroke-width="4" filter="url(#whiteGlow)" />
+        <image href="data:image/jpeg;base64,${templatePhotoBase64}" x="70" y="480" width="240" height="320" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)" />
+      </g>
       <rect x="360" y="660" width="300" height="4" rx="2" fill="rgba(255, 255, 255, 0.2)" />
       <rect x="360" y="660" width="${300 * Math.min(1, Math.max(0, progressPct))}" height="4" rx="2" fill="#ffffff" />
       <circle cx="${360 + 300 * Math.min(1, Math.max(0, progressPct))}" cy="662" r="5" fill="#ffffff" />
@@ -170,22 +177,22 @@ export function renderBrainrotDetox({ opacity = 1, elapsed = 0, total = 300, sho
     <g opacity="${opacity}">
       ${showTitle ? `
       <!-- Title: علاج التعفن الدماغي -->
-      <text x="360" y="540" font-family="'Cairo', 'Amiri', sans-serif" font-size="48" font-weight="900" fill="#ffffff" text-anchor="middle" filter="url(#textGlow)">
+      <text x="360" y="560" font-family="'Rubik', 'Amiri', 'Noto Naskh Arabic', 'Cairo', sans-serif" font-size="32" font-weight="800" fill="#ffffff" text-anchor="middle" filter="url(#textGlow)">
         ${escapeXml(titleText || "علاج التعفن الدماغي")}
       </text>
       ` : ""}
 
       ${showTimer ? `
-      <!-- Huge Bold Countdown Timer in Impact / Anton font -->
-      <text x="360" y="700" font-family="'Impact', 'Anton', 'Bebas Neue', 'Oswald', sans-serif" font-size="145" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="2">
+      <!-- Huge Bold Modern Numbers (Moved down) -->
+      <text x="360" y="700" font-family="'Montserrat-Black', 'Montserrat', 'Impact', 'Arial Black', sans-serif" font-size="155" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="-1" filter="url(#textGlow)">
         ${timeStr}
       </text>
       ` : ""}
 
       ${showProgressBar ? `
-      <!-- Minimalist Progress Bar -->
-      <rect x="190" y="735" width="340" height="5" rx="2.5" fill="rgba(255, 255, 255, 0.25)" />
-      <rect x="190" y="735" width="${340 * progressRatio}" height="5" rx="2.5" fill="#ffffff" filter="url(#whiteGlow)" />
+      <!-- Sleek Minimalist Progress Bar -->
+      <rect x="240" y="735" width="240" height="4" rx="2" fill="rgba(255, 255, 255, 0.25)" />
+      <rect x="240" y="735" width="${240 * progressRatio}" height="4" rx="2" fill="#ffffff" filter="url(#whiteGlow)" />
       ` : ""}
     </g>
   `;

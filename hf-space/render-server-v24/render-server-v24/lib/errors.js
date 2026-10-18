@@ -32,6 +32,12 @@ export const PHASE_NAMES_AR = {
 };
 
 export class RenderError extends Error {
+  /**
+   * @param {string} phase المرحلة التي وقع فيها الخطأ من RENDER_PHASES
+   * @param {string} message رسالة الخطأ الواضحة الموجهة للمستخدم
+   * @param {Record<string, any>} details تفاصيل تقنية دقيقة تساعد في تتبع المشكلة
+   * @param {Error|null} originalError الخطأ البرمجي الأصلي
+   */
   constructor(phase, message, details = {}, originalError = null) {
     super(message);
     this.name = "RenderError";

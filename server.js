@@ -1,15 +1,15 @@
 /**
- * ⚡ HYPER RENDER v23 — HARDENED & OPTIMIZED
+ * ⚡ HYPER RENDER v24
  * ==================================================
- * التحسينات عن v22:
- * ✅ الخطوط متسجلة عبر fontconfig بدل تضمين base64 في كل فريم (أداء أعلى بكتير)
- * ✅ طابور رندرة (p-queue) بيمنع تحميل زيادة عن طاقة السيرفر
- * ✅ Rate limiting + مفتاح API اختياري لحماية /render
- * ✅ تحميل الصوتيات بالتوازي بدل التتابع
- * ✅ كاش حقيقي لمدد الصوتيات وخلفيات الفيديو المُعاد تحجيمها
- * ✅ تحقق من صحة المدخلات قبل قبول أي طلب رندرة
- * ✅ لا تسريب لتفاصيل الأخطاء الداخلية (stack traces) للمستخدم
- * ✅ تنظيف دوري للملفات المؤقتة والناتجة
+ * التحسينات عن v23 (أهمها):
+ * 🔒 إزالة توكن تليجرام المكتوب في الكود (لازم يتغيّر من BotFather لأنه كان ظاهر في ريبو عام)
+ * 🔒 مسارات /debug/* مقفولة افتراضياً (ENABLE_DEBUG=1 + API key)
+ * 🔒 حماية path traversal في /download، وتحقق من fileId في /telegram-proxy
+ * 🔒 تحقق من redirects وسقف حجم التحميل (SSRF / امتلاء الديسك)
+ * ⚡ الصور (صورة الشيخ/الخلفية) بتتصغّر مرة واحدة بدل كل فريم — القوالب أسرع ~2.5x
+ * ⚡ FFmpeg بدون shell (execFile) + preset/crf قابلين للضبط + -tune stillimage + 30fps ثابت
+ * 🐛 إصلاح: رابط /download كان يرجّع 404 بعد النجاح لأن الملف كان بيتمسح بعد رفعه لتليجرام
+ * 🧹 مسح الملفات المؤقتة فوراً بعد النجاح، وطابور له حد أقصى (503 بدل التراكم)
  */
 
 import express from "express";
@@ -20,16 +20,21 @@ import path from "path";
 import { Readable } from "stream";
 import rateLimit from "express-rate-limit";
 
-import { PORT, RENDERS_DIR, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS } from "./config.js";
+import {
+  PORT, RENDERS_DIR, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS,
+  MAX_QUEUE_SIZE, ENABLE_DEBUG,
+} from "./config.js";
 import { logger } from "./lib/logger.js";
 import { requireApiKey } from "./lib/auth.js";
 import { validateRenderRequest } from "./lib/validation.js";
 import { renderQueue, createJob, getJob, jobs } from "./lib/jobs.js";
 import { startRender } from "./lib/render.js";
 import { startOutputCleanup } from "./lib/cleanup.js";
+import { fontsReady } from "./lib/fonts.js";
 
 const app = express();
 app.set("trust proxy", 1);
+app.disable("x-powered-by");
 
 const ALLOWED_ORIGINS = [
   "https://yaqeenalquran.online",
@@ -50,9 +55,9 @@ app.use(cors({
   credentials: true,
 }));
 
-// Hugging Face Space probe & root endpoints (prevents unhandled errors from Space healthcheck probes)
+// Hugging Face Space probe & root endpoints
 app.all(["/", "/api/predict"], (req, res) => {
-  res.json({ status: "ok", service: "hyper-render-v23" });
+  res.json({ status: "ok", service: "hyper-render-v24" });
 });
 
 app.use(express.json({ limit: "5mb" }));
@@ -65,108 +70,58 @@ const renderLimiter = rateLimit({
   message: { error: "طلبات كتير أوي، حاول تاني بعد شوية" },
 });
 
-// Video Streaming & Download handler with full Range and HEAD support for TikTok/Instagram/Zernio
-app.head("/download/:filename", (req, res) => {
-  const filePath = path.resolve(RENDERS_DIR, req.params.filename);
-  if (!fs.existsSync(filePath)) {
-    const jobId = req.params.filename.replace(/\.mp4$/, "");
-    const job = getJob(jobId);
-    if (job && job.url && job.url.startsWith("http") && !job.url.includes(`/download/${req.params.filename}`)) {
-      return res.redirect(302, job.url);
-    }
-    return res.status(404).end();
-  }
-  const stat = fs.statSync(filePath);
-  res.setHeader("Content-Type", "video/mp4");
-  res.setHeader("Content-Length", stat.size);
-  res.setHeader("Accept-Ranges", "bytes");
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
-  res.setHeader("Cache-Control", "public, max-age=86400, immutable");
-  res.status(200).end();
-});
+// اسم الملف لازم يكون job-<رقم>-<6 hex>.mp4 بالظبط — أي حاجة تانية مرفوضة (path traversal)
+const FILENAME_RE = /^job-\d{10,16}-[a-f0-9]{6}\.mp4$/;
 
+// تحميل/بث الفيديو. res.sendFile بيتولى Range / HEAD / ETag / If-Modified-Since صح
+// (تيك توك وإنستجرام وZernio بيعتمدوا على Range + HEAD).
 app.get("/download/:filename", (req, res) => {
-  const filePath = path.resolve(RENDERS_DIR, req.params.filename);
+  const { filename } = req.params;
+  if (!FILENAME_RE.test(filename)) return res.status(400).json({ error: "اسم ملف غير صالح" });
+
+  const filePath = path.resolve(RENDERS_DIR, filename);
   if (!fs.existsSync(filePath)) {
-    const jobId = req.params.filename.replace(/\.mp4$/, "");
-    const job = getJob(jobId);
-    if (job && job.url && job.url.startsWith("http") && !job.url.includes(`/download/${req.params.filename}`)) {
-      return res.redirect(302, job.url);
-    }
+    // لو الملف المحلي اتمسح (TTL) لكن عندنا نسخة على تليجرام، نحوّل لها
+    const job = getJob(filename.replace(/\.mp4$/, ""));
+    if (job?.telegramUrl) return res.redirect(302, job.telegramUrl);
     return res.status(404).json({ error: "الفيديو غير موجود أو انتهت صلاحيته" });
   }
 
-  const stat = fs.statSync(filePath);
-  const fileSize = stat.size;
-  const range = req.headers.range;
-
   const isAttachment = req.query.download === "true" || req.query.dl === "1";
   res.setHeader("Content-Type", "video/mp4");
-  res.setHeader("Content-Disposition", isAttachment ? `attachment; filename="${req.params.filename}"` : `inline; filename="${req.params.filename}"`);
-  res.setHeader("Accept-Ranges", "bytes");
+  res.setHeader("Content-Disposition", `${isAttachment ? "attachment" : "inline"}; filename="${filename}"`);
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
-  res.setHeader("Cache-Control", "public, max-age=86400, immutable");
-
-  if (range) {
-    const parts = range.replace(/bytes=/, "").split("-");
-    const start = parseInt(parts[0], 10);
-    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-
-    if (start >= fileSize || end >= fileSize) {
-      res.setHeader("Content-Range", `bytes */${fileSize}`);
-      return res.status(416).end();
-    }
-
-    const chunksize = end - start + 1;
-    res.writeHead(206, {
-      "Content-Range": `bytes ${start}-${end}/${fileSize}`,
-      "Accept-Ranges": "bytes",
-      "Content-Length": chunksize,
-      "Content-Type": "video/mp4",
-    });
-
-    const fileStream = fs.createReadStream(filePath, { start, end });
-    fileStream.pipe(res);
-  } else {
-    res.writeHead(200, {
-      "Content-Length": fileSize,
-      "Content-Type": "video/mp4",
-      "Accept-Ranges": "bytes",
-    });
-    fs.createReadStream(filePath).pipe(res);
-  }
+  res.sendFile(filePath, { acceptRanges: true, maxAge: "1d", immutable: true, dotfiles: "deny" }, (err) => {
+    if (err && !res.headersSent) res.status(err.status || 500).end();
+  });
 });
-app.use("/download", express.static(RENDERS_DIR, { maxAge: "1h" }));
 
-// Secure Telegram Video Proxy (Streams video from Telegram without exposing Bot Token to client)
+// بث فيديو تليجرام بدون كشف التوكن للعميل
+const TG_FILE_ID_RE = /^[A-Za-z0-9_-]{10,250}$/;
 app.get("/telegram-proxy/:fileId", async (req, res) => {
   const fileId = req.params.fileId.replace(/\.mp4$/, "");
-  const token = process.env.TELEGRAM_BOT_TOKEN || "8884703655:AAEBNWXP8aLsmpWr2iZ9ZMfYtVs26TZG9UQ";
-  if (!token) {
-    return res.status(500).json({ error: "TELEGRAM_BOT_TOKEN not configured" });
-  }
+  if (!TG_FILE_ID_RE.test(fileId)) return res.status(400).json({ error: "fileId غير صالح" });
+
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token) return res.status(503).json({ error: "TELEGRAM_BOT_TOKEN not configured" });
 
   try {
-    const getFileRes = await fetch(`https://api.telegram.org/bot${token}/getFile?file_id=${fileId}`);
+    const getFileRes = await fetch(`https://api.telegram.org/bot${token}/getFile?file_id=${encodeURIComponent(fileId)}`, {
+      signal: AbortSignal.timeout(15000),
+    });
     const getFileData = await getFileRes.json();
     if (!getFileRes.ok || !getFileData.ok || !getFileData.result?.file_path) {
       return res.status(404).json({ error: "Telegram video not found" });
     }
 
-    const tgFilePath = getFileData.result.file_path;
-    const tgDirectUrl = `https://api.telegram.org/file/bot${token}/${tgFilePath}`;
-
+    const tgDirectUrl = `https://api.telegram.org/file/bot${token}/${getFileData.result.file_path}`;
     const headers = {};
-    if (req.headers.range) {
-      headers["Range"] = req.headers.range;
-    }
+    if (req.headers.range) headers["Range"] = req.headers.range;
 
     const videoRes = await fetch(tgDirectUrl, { headers });
     res.status(videoRes.status);
-
     for (const [key, value] of videoRes.headers.entries()) {
       if (["content-type", "content-length", "content-range", "accept-ranges"].includes(key.toLowerCase())) {
         res.setHeader(key, value);
@@ -175,24 +130,21 @@ app.get("/telegram-proxy/:fileId", async (req, res) => {
     res.setHeader("Cache-Control", "public, max-age=86400, immutable");
     res.setHeader("Access-Control-Allow-Origin", "*");
 
-    if (!videoRes.body) {
-      return res.end();
-    }
+    if (!videoRes.body) return res.end();
     const stream = Readable.fromWeb(videoRes.body);
-    stream.on("error", (e) => {
-      logger.error("stream_pipe_error", { error: e.message });
-    });
+    stream.on("error", (e) => logger.error("stream_pipe_error", { error: e.message }));
+    res.on("close", () => stream.destroy()); // العميل قفل الاتصال → وقّف التحميل
     stream.pipe(res);
   } catch (error) {
     logger.error("telegram_proxy_error", { fileId, error: error.message });
-    res.status(500).json({ error: "Failed to stream telegram video" });
+    if (!res.headersSent) res.status(500).json({ error: "Failed to stream telegram video" });
   }
 });
 
 app.get("/health", (req, res) => {
   res.json({
     status: "ok",
-    queue: { pending: renderQueue.pending, size: renderQueue.size },
+    queue: { pending: renderQueue.pending, size: renderQueue.size, max: MAX_QUEUE_SIZE },
     jobsTracked: jobs.size,
     uptimeSec: Math.floor(process.uptime()),
   });
@@ -202,6 +154,12 @@ app.post("/render", renderLimiter, requireApiKey, (req, res) => {
   const errors = validateRenderRequest(req.body);
   if (errors.length > 0) {
     return res.status(400).json({ error: "طلب غير صالح", details: errors });
+  }
+
+  // حد أقصى للطابور: بدل ما الطلبات تتراكم لحد ما السيرفر يقع، نرد 503 والعميل يعيد المحاولة
+  if (renderQueue.size >= MAX_QUEUE_SIZE) {
+    res.setHeader("Retry-After", "60");
+    return res.status(503).json({ error: "السيرفر مشغول حالياً، حاول بعد دقيقة", queueSize: renderQueue.size });
   }
 
   const jobId = `job-${Date.now()}-${crypto.randomBytes(3).toString("hex")}`;
@@ -215,74 +173,36 @@ app.post("/render", renderLimiter, requireApiKey, (req, res) => {
 
 app.get("/status/:jobId", requireApiKey, (req, res) => {
   const job = getJob(req.params.jobId);
-  if (!job) return res.status(404).json({ error: "الطلب غير موجود" });
+  if (!job) return res.status(404).json({ error: "الطلب غير موجود (ممكن السيرفر اتعمله إعادة تشغيل — ابعت الطلب تاني)" });
   res.json(job);
 });
 
-// مسار تشخيصي فوري يعرض آخر أخطاء الرندرة بالتفصيل والمراحل المحددة
-app.get("/debug/last-errors", (req, res) => {
-  const failedJobs = [];
-  for (const [id, job] of jobs.entries()) {
-    if (job.status === "failed") {
-      failedJobs.push({ jobId: id, ...job });
+// ─── مسارات التشخيص: مقفولة افتراضياً ───────────────────────────────
+if (ENABLE_DEBUG) {
+  app.get("/debug/last-errors", requireApiKey, (req, res) => {
+    const failedJobs = [];
+    for (const [id, job] of jobs.entries()) {
+      if (job.status === "failed") failedJobs.push({ jobId: id, ...job });
     }
-  }
-  failedJobs.sort((a, b) => (b.failedAt || 0) - (a.failedAt || 0));
-  res.json({ count: failedJobs.length, errors: failedJobs.slice(0, 15) });
-});
+    failedJobs.sort((a, b) => (b.failedAt || 0) - (a.failedAt || 0));
+    res.json({ count: failedJobs.length, errors: failedJobs.slice(0, 15) });
+  });
 
-// مسار تشخيص الاتصال والشبكة لفحص الاتصال بـ Telegram و CDN
-app.get("/debug/network-test", async (req, res) => {
-  const report = {};
-  const dns = await import("dns");
-  const dnsPromises = dns.promises;
-  const https = await import("https");
-
-  // Force IPv4 first order
-  dns.setDefaultResultOrder("ipv4first");
-
-  try {
-    report.dnsTelegram = await dnsPromises.lookup("api.telegram.org", { all: true });
-  } catch (e) {
-    report.dnsTelegramError = { message: e.message, code: e.code };
-  }
-
-  // Test IPv4 fetch
-  try {
-    const fetchRes = await fetch("https://api.telegram.org", { signal: AbortSignal.timeout(6000) });
-    report.fetchTelegramIpv4Status = fetchRes.status;
-  } catch (e) {
-    report.fetchTelegramIpv4Error = { 
-      message: e.message, 
-      cause: e.cause ? (e.cause.message || String(e.cause)) : null,
-      code: e.cause?.code || e.code 
-    };
-  }
-
-  // Direct TCP/TLS to 149.154.166.110
-  try {
-    report.tlsIpv4 = await new Promise((resolve, reject) => {
-      const req = https.request({
-        host: "149.154.166.110",
-        port: 443,
-        path: "/",
-        method: "HEAD",
-        servername: "api.telegram.org",
-        headers: { Host: "api.telegram.org" },
-        timeout: 5000,
-      }, (r) => resolve({ status: r.statusCode, headers: r.headers }));
-      req.on("error", (err) => reject({ message: err.message, code: err.code }));
-      req.on("timeout", () => { req.destroy(); reject({ message: "TCP IPv4 timeout" }); });
-      req.end();
-    });
-  } catch (e) {
-    report.tlsIpv4Error = e;
-  }
-
-  res.json(report);
-});
+  app.get("/debug/network-test", requireApiKey, async (req, res) => {
+    const report = {};
+    try {
+      const r = await fetch("https://api.telegram.org", { signal: AbortSignal.timeout(6000) });
+      report.telegramStatus = r.status;
+    } catch (e) {
+      report.telegramError = { message: e.message, code: e.cause?.code || e.code };
+    }
+    res.json(report);
+  });
+}
 
 app.use((err, req, res, next) => {
+  if (err?.type === "entity.parse.failed") return res.status(400).json({ error: "JSON غير صالح" });
+  if (err?.type === "entity.too.large") return res.status(413).json({ error: "الطلب كبير جداً" });
   logger.error("unhandled_error", { error: err.message, stack: err.stack, path: req.path });
   res.status(500).json({ error: "خطأ داخلي في السيرفر" });
 });
@@ -291,8 +211,9 @@ startOutputCleanup();
 
 const server = app.listen(PORT, "0.0.0.0", () => {
   logger.info("server_started", { port: PORT });
-  console.log(`🚀 Hyper Render v23 Online on Port ${PORT}`);
+  console.log(`🚀 Hyper Render v24 Online on Port ${PORT}`);
 });
+fontsReady.then(() => logger.info("fonts_ready"));
 
 function shutdown(signal) {
   logger.info("shutdown_signal", { signal });
@@ -304,3 +225,4 @@ function shutdown(signal) {
 }
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("unhandledRejection", (e) => logger.error("unhandled_rejection", { error: e?.message || String(e) }));

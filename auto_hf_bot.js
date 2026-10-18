@@ -95,23 +95,21 @@ async function main() {
   }
   fs.mkdirSync(DEPLOY_DIR, { recursive: true });
 
-  // 1. نسخ الملفات الأساسية للسيرفر
+  // 1. نسخ الملفات الأساسية لسيرفر الرندر (v24 Hyper Render)
   fs.copyFileSync(path.join(__dirname, 'server.js'), path.join(DEPLOY_DIR, 'server.js'));
   fs.copyFileSync(path.join(__dirname, 'config.js'), path.join(DEPLOY_DIR, 'config.js'));
-  fs.copyFileSync(path.join(__dirname, 'files', 'package.json'), path.join(DEPLOY_DIR, 'package.json'));
-  if (fs.existsSync(path.join(__dirname, 'files', 'package-lock.json'))) {
-    fs.copyFileSync(path.join(__dirname, 'files', 'package-lock.json'), path.join(DEPLOY_DIR, 'package-lock.json'));
+  fs.copyFileSync(path.join(__dirname, 'package-render-server.json'), path.join(DEPLOY_DIR, 'package.json'));
+  fs.copyFileSync(path.join(__dirname, 'Dockerfile'), path.join(DEPLOY_DIR, 'Dockerfile'));
+  if (fs.existsSync(path.join(__dirname, '.dockerignore'))) {
+    fs.copyFileSync(path.join(__dirname, '.dockerignore'), path.join(DEPLOY_DIR, '.dockerignore'));
   }
-  fs.copyFileSync(path.join(__dirname, 'files', 'Dockerfile'), path.join(DEPLOY_DIR, 'Dockerfile'));
 
   // 2. نسخ README مع بيانات Hugging Face Docker Space
   if (fs.existsSync(path.join(__dirname, 'README-hf.md'))) {
     fs.copyFileSync(path.join(__dirname, 'README-hf.md'), path.join(DEPLOY_DIR, 'README.md'));
-  } else {
-    fs.copyFileSync(path.join(__dirname, 'files', 'README.md'), path.join(DEPLOY_DIR, 'README.md'));
   }
 
-  // 3. نسخ مجلد lib بالكامل (المحتوي على قوالب وتعديلات علاج التعفن الدماغي)
+  // 3. نسخ مجلد lib بالكامل المحتوي على محرك v24 السريع
   copyFolderSync(path.join(__dirname, 'lib'), path.join(DEPLOY_DIR, 'lib'));
 
   console.log("✅ تم تجهيز جميع ملفات السيرفر بنجاح.");
