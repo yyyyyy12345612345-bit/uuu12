@@ -169,6 +169,7 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
   }, [libraryCategory, librarySearch, bgMode, backgrounds, videos]);
 
   const displayMedia = filteredLibrary;
+  const isPlayerTemplate = ["dossary_player", "minshawi_player", "youssef_player", "basit_player"].includes(state.videoTemplate || "") || (state.videoTemplate || "").endsWith("_player");
 
   const [reciterSearch, setReciterSearch] = useState("");
   const videoReciters = useMemo(() => {
