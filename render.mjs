@@ -74,21 +74,21 @@ async function main() {
       }
     }
 
-    // 2. Download Verse Audios
+    // 2. Download Verse Audios with strict index ordering
     const verses = config.verses || [];
-    const audioPaths = [];
     const audioResults = await Promise.all(verses.map(async (v, i) => {
       const aPath = path.join(tempWorkDir, `audio-${i}.mp3`);
       if (v.audio && (v.audio.startsWith("http://") || v.audio.startsWith("https://"))) {
         await downloadFile(v.audio, aPath);
-        audioPaths.push(aPath);
-        return { v, aPath, duration: await getAudioDuration(aPath) };
+        const duration = await getAudioDuration(aPath);
+        return { index: i, v, aPath, duration };
       }
-      return { v, aPath: "", duration: 4 };
+      return { index: i, v, aPath: "", duration: 4 };
     }));
 
-    // 3. Audio Merge (Gapless)
-    const validAudioPaths = audioPaths.filter(p => fs.existsSync(p));
+    // Ensure strict sequential order matching verses array
+    audioResults.sort((a, b) => a.index - b.index);
+    const validAudioPaths = audioResults.map(r => r.aPath).filter(p => p && fs.existsSync(p));
     let mergedAudioPath = "";
     let mergedDuration = 5;
 
@@ -125,7 +125,11 @@ async function main() {
       return res;
     });
 
-    const totalFrames = Math.ceil(mergedDuration * FPS) || cumulativeFrames || 300;
+    const totalFrames = Math.round(mergedDuration * FPS) || cumulativeFrames || 300;
+    if (processedVerses.length > 0 && cumulativeFrames !== totalFrames) {
+      const diff = totalFrames - cumulativeFrames;
+      processedVerses[processedVerses.length - 1].durationInFrames += diff;
+    }
 
     // 5. Bundle & Render Remotion
     console.log("📦 Bundling Remotion Root...");

@@ -112,15 +112,18 @@ async function renderFinalStable(jobId, data) {
     const bgPath = path.resolve(tempDir, isVideoBg ? "bg.mp4" : "bg.jpg");
     if (backgroundUrl) await downloadFile(backgroundUrl, bgPath);
 
-    // 2. تحميل الصوتيات بالتوازي
+    // 2. تحميل الصوتيات بالتوازي مع الحفاظ على الترتيب الصارم
     console.log(`🎵 [${jobId}] Downloading ${verses.length} audio files...`);
-    const audioPaths = [];
     const audioResults = await Promise.all(verses.map(async (v, i) => {
       const aPath = path.resolve(tempDir, `audio-${i}.mp3`);
       await downloadFile(v.audio, aPath);
-      audioPaths.push(aPath);
-      return { v, aPath, duration: await getAudioDuration(aPath) };
+      const duration = await getAudioDuration(aPath);
+      return { index: i, v, aPath, duration };
     }));
+
+    // ترتيب صارم حسب الترتيب الأصلي للآيات
+    audioResults.sort((a, b) => a.index - b.index);
+    const audioPaths = audioResults.map(r => r.aPath);
 
     jobs.set(jobId, { status: "processing", progress: 20, message: "🔊 دمج الصوت بدون تقطيع..." });
 
@@ -168,8 +171,12 @@ async function renderFinalStable(jobId, data) {
       return res;
     });
 
-    // ضمان أن إجمالي الإطارات يطابق مدة الصوت المدمج بدقة
-    const totalFrames = Math.ceil(mergedDuration * FPS);
+    // ضمان أن إجمالي الإطارات يطابق مدة الصوت المدمج بدقة متناهية
+    const totalFrames = Math.round(mergedDuration * FPS) || cumulativeFrames || 300;
+    if (processedVerses.length > 0 && cumulativeFrames !== totalFrames) {
+      const diff = totalFrames - cumulativeFrames;
+      processedVerses[processedVerses.length - 1].durationInFrames += diff;
+    }
 
     jobs.set(jobId, { status: "processing", progress: 35, message: "📦 تجهيز Bundle..." });
 

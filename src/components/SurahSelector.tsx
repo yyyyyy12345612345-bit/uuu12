@@ -7,7 +7,7 @@ import { ChevronDown, Search, Lock, Crown, Hash, Clock, CheckCircle2, AlertTrian
 import { AyahSearchModal } from "./AyahSearchModal";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import { useSurahData } from "@/hooks/useSurahData";
-import { fetchExactVerseDuration, estimateVerseDurationFallback, getShortsDurationInfo, findShortsOptimalEndAyah } from "@/lib/quranUtils";
+import { fetchBatchVerseDurations, estimateVerseDurationFallback, getShortsDurationInfo, findShortsOptimalEndAyah } from "@/lib/quranUtils";
 
 export function SurahSelector() {
   const { state, updateState } = useEditor();
@@ -17,6 +17,7 @@ export function SurahSelector() {
   const { isFeatureLocked } = useUserPlan();
 
   const [measuredDurations, setMeasuredDurations] = useState<Record<string, number>>({});
+  const [isLoadingDurations, setIsLoadingDurations] = useState(false);
 
   const isSearchLocked = isFeatureLocked("search");
 
@@ -57,27 +58,34 @@ export function SurahSelector() {
     setEndInput(state.endAyah.toString());
   }, [state.startAyah, state.endAyah]);
 
-  // Live Duration Calculation for selected range
+  // Live Duration Calculation — BATCH API (exact MP3 parsing server-side)
   useEffect(() => {
     let isMounted = true;
     if (!surahData?.verses) return;
-    const versesToLoad = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
-    const BATCH_CHUNK = 8;
+
+    const surahId = Number(state.surahId);
+    if (!surahId || surahId <= 0) return;
+
+    setIsLoadingDurations(true);
+
     (async () => {
-      for (let i = 0; i < versesToLoad.length; i += BATCH_CHUNK) {
-        if (!isMounted) break;
-        const chunk = versesToLoad.slice(i, i + BATCH_CHUNK);
-        await Promise.all(
-          chunk.map(async (v) => {
-            const cacheKey = `${state.reciterId}_${state.surahId}_${v.id}`;
-            const dur = await fetchExactVerseDuration(Number(state.surahId), v.id, state.reciterId, v.text);
-            if (isMounted) {
-              setMeasuredDurations(prev => ({ ...prev, [cacheKey]: dur }));
-            }
-          })
-        );
+      try {
+        const result = await fetchBatchVerseDurations(surahId, state.startAyah, state.endAyah, state.reciterId);
+        if (!isMounted) return;
+
+        const newDurations: Record<string, number> = {};
+        for (const [ayahIdStr, dur] of Object.entries(result.durations)) {
+          const cacheKey = `${state.reciterId}_${state.surahId}_${ayahIdStr}`;
+          newDurations[cacheKey] = dur as number;
+        }
+        setMeasuredDurations(prev => ({ ...prev, ...newDurations }));
+      } catch (e) {
+        console.warn("[SurahSelector] Batch duration fetch failed:", e);
+      } finally {
+        if (isMounted) setIsLoadingDurations(false);
       }
     })();
+
     return () => {
       isMounted = false;
     };

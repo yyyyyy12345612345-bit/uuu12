@@ -5,7 +5,7 @@ import { Download, Loader2, CheckCircle2, AlertCircle, Play, Crown, Lock, Info, 
 import { useEditor } from "@/store/useEditor";
 import { useSurahData } from "@/hooks/useSurahData";
 import { RECITERS, getReciterEnglishName, getSheikhAsset } from "@/data/reciters";
-import { getAudioUrl, fetchExactVerseDuration, estimateVerseDurationFallback, findShortsOptimalEndAyah, getShortsDurationInfo } from "@/lib/quranUtils";
+import { getAudioUrl, fetchBatchVerseDurations, estimateVerseDurationFallback, findShortsOptimalEndAyah, getShortsDurationInfo } from "@/lib/quranUtils";
 import { useCustomBackgrounds } from "@/hooks/useCustomBackgrounds";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp, getDocs, collection, addDoc } from "firebase/firestore";
@@ -75,29 +75,32 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
   const [allHashtags, setAllHashtags] = useState<string[]>([]);
   const [copiedTags, setCopiedTags] = useState<boolean>(false);
 
-  // Live Duration Calculation for RenderModal (Reciter-Aware)
+  // Live Duration Calculation for RenderModal (Exact — Batch API)
   const [modalVerseDurations, setModalVerseDurations] = useState<Record<string, number>>({});
 
   useEffect(() => {
     let isMounted = true;
     if (!isOpen || !surahData?.verses) return;
-    const versesToLoad = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
-    const BATCH_CHUNK = 8;
+
+    const surahId = Number(state.surahId);
+    if (!surahId || surahId <= 0) return;
+
     (async () => {
-      for (let i = 0; i < versesToLoad.length; i += BATCH_CHUNK) {
-        if (!isMounted) break;
-        const chunk = versesToLoad.slice(i, i + BATCH_CHUNK);
-        await Promise.all(
-          chunk.map(async (v) => {
-            const cacheKey = `${state.reciterId}_${state.surahId}_${v.id}`;
-            const dur = await fetchExactVerseDuration(Number(state.surahId), v.id, state.reciterId, v.text);
-            if (isMounted) {
-              setModalVerseDurations(prev => ({ ...prev, [cacheKey]: dur }));
-            }
-          })
-        );
+      try {
+        const result = await fetchBatchVerseDurations(surahId, state.startAyah, state.endAyah, state.reciterId);
+        if (!isMounted) return;
+
+        const newDurations: Record<string, number> = {};
+        for (const [ayahIdStr, dur] of Object.entries(result.durations)) {
+          const cacheKey = `${state.reciterId}_${state.surahId}_${ayahIdStr}`;
+          newDurations[cacheKey] = dur as number;
+        }
+        setModalVerseDurations(prev => ({ ...prev, ...newDurations }));
+      } catch (e) {
+        console.warn("[RenderModal] Batch duration fetch failed:", e);
       }
     })();
+
     return () => {
       isMounted = false;
     };
@@ -582,7 +585,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
             
           return {
             ...v,
-            audio: premiumAudio || getAudioUrl(Number(state.surahId), v.id, state.reciterId),
+            audio: getAudioUrl(Number(state.surahId), v.id, state.reciterId),
             words: quranComVerse?.words || undefined
           };
         });

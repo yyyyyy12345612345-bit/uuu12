@@ -11,7 +11,7 @@ import surahsData from "@/data/surahs.json";
 import { VideoPreview } from "@/components/VideoPreview";
 import { AyahSearchModal } from "./AyahSearchModal";
 import { useSurahData } from "@/hooks/useSurahData";
-import { getAudioUrl, fetchExactVerseDuration, estimateVerseDurationFallback } from "@/lib/quranUtils";
+import { getAudioUrl, fetchBatchVerseDurations, estimateVerseDurationFallback } from "@/lib/quranUtils";
 import { auth } from "@/lib/firebase";
 import { 
   FolderOpen, ImageIcon, Wand2, Type, Layout, Music, 
@@ -227,34 +227,31 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
   const [isLoadingDuration, setIsLoadingDuration] = useState(false);
 
   useEffect(() => {
-    if (!surahData?.verses) return;
-    const versesToLoad = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
     let isMounted = true;
+    if (!surahData?.verses) return;
+
+    const surahId = Number(state.surahId);
+    if (!surahId || surahId <= 0) return;
+
     setIsLoadingDuration(true);
 
-    if (versesToLoad.length === 0) {
-      setIsLoadingDuration(false);
-      return;
-    }
-
-    const BATCH_CHUNK = 8;
     (async () => {
-      for (let i = 0; i < versesToLoad.length; i += BATCH_CHUNK) {
-        if (!isMounted) break;
-        const chunk = versesToLoad.slice(i, i + BATCH_CHUNK);
-        await Promise.all(
-          chunk.map(async (v) => {
-            const cacheKey = `${state.reciterId}_${state.surahId}_${v.id}`;
-            const dur = await fetchExactVerseDuration(Number(state.surahId), v.id, state.reciterId, v.text);
-            if (isMounted) {
-              setVerseDurations(prev => ({ ...prev, [cacheKey]: dur }));
-            }
-          })
-        );
+      try {
+        const result = await fetchBatchVerseDurations(surahId, state.startAyah, state.endAyah, state.reciterId);
+        if (!isMounted) return;
+
+        const newDurations: Record<string, number> = {};
+        for (const [ayahIdStr, dur] of Object.entries(result.durations)) {
+          const cacheKey = `${state.reciterId}_${state.surahId}_${ayahIdStr}`;
+          newDurations[cacheKey] = dur as number;
+        }
+        setVerseDurations(prev => ({ ...prev, ...newDurations }));
+      } catch (e) {
+        console.warn("[TimelineVideoEditor] Batch duration fetch failed:", e);
+      } finally {
+        if (isMounted) setIsLoadingDuration(false);
       }
-    })().finally(() => {
-      if (isMounted) setIsLoadingDuration(false);
-    });
+    })();
 
     return () => {
       isMounted = false;

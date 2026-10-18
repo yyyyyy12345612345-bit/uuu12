@@ -53,6 +53,77 @@ export function estimateVerseDurationFallback(text: string, reciterId: string): 
   return Math.max(isMujawwad ? 16 : 4, Math.round(words * secPerWord + pauseSec));
 }
 
+/**
+ * جلب مدة مجموعة آيات مرة واحدة من الـ batch API (أدق طريقة)
+ * يحمّل كل ملف MP3 على السيرفر ويقرأ MPEG frames الفعلية
+ */
+export async function fetchBatchVerseDurations(
+  surahId: number,
+  startAyah: number,
+  endAyah: number,
+  reciterId: string
+): Promise<{ durations: Record<number, number>; totalDuration: number; exact: boolean }> {
+  // Check if all are cached
+  const allCached: Record<number, number> = {};
+  let allHit = true;
+  for (let i = startAyah; i <= endAyah; i++) {
+    const k = `${reciterId}:${surahId}:${i}`;
+    if (durationCache.has(k)) {
+      allCached[i] = durationCache.get(k)!;
+    } else {
+      allHit = false;
+      break;
+    }
+  }
+
+  if (allHit) {
+    const total = Object.values(allCached).reduce((s, d) => s + d, 0);
+    return { durations: allCached, totalDuration: Math.round(total * 100) / 100, exact: true };
+  }
+
+  // Call batch API
+  if (typeof window !== "undefined") {
+    try {
+      const res = await fetch("/api/verse-durations-batch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ surahId, startAyah, endAyah, reciterId }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.durations && data?.totalDuration != null) {
+          // Cache all results
+          for (const [ayahIdStr, dur] of Object.entries(data.durations)) {
+            const ayahId = parseInt(ayahIdStr, 10);
+            if (typeof dur === "number" && dur > 0) {
+              durationCache.set(`${reciterId}:${surahId}:${ayahId}`, dur as number);
+            }
+          }
+          return {
+            durations: data.durations,
+            totalDuration: data.totalDuration,
+            exact: data.exact,
+          };
+        }
+      }
+    } catch (e) {
+      console.warn("[fetchBatchVerseDurations] Batch API failed, falling back:", e);
+    }
+  }
+
+  // Fallback: fetch one by one
+  const durations: Record<number, number> = {};
+  let totalDuration = 0;
+  for (let i = startAyah; i <= endAyah; i++) {
+    const dur = await fetchExactVerseDuration(surahId, i, reciterId);
+    durations[i] = dur;
+    totalDuration += dur;
+  }
+
+  return { durations, totalDuration: Math.round(totalDuration * 100) / 100, exact: true };
+}
+
 export async function fetchExactVerseDuration(surahId: number, ayahId: number, reciterId: string, verseText?: string): Promise<number> {
   const cacheKey = `${reciterId}:${surahId}:${ayahId}`;
   if (durationCache.has(cacheKey)) {
@@ -67,7 +138,22 @@ export async function fetchExactVerseDuration(surahId: number, ayahId: number, r
     return dur;
   }
 
-  // 1. Try real Audio element in browser (highest precision via EveryAyah CORS)
+  // 1. PRIMARY: Server-side MP3 parser API (highest precision — downloads actual file)
+  const words = verseText ? verseText.trim().split(/\s+/).filter(Boolean).length : 5;
+  if (typeof window !== "undefined") {
+    try {
+      const res = await fetch(`/api/verse-duration?surah=${surahId}&ayah=${ayahId}&reciter=${reciterId}&words=${words}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.duration && typeof data.duration === "number" && data.exact) {
+          durationCache.set(cacheKey, data.duration);
+          return data.duration;
+        }
+      }
+    } catch {}
+  }
+
+  // 2. FALLBACK: Browser Audio element metadata
   const audioUrl = getAudioUrl(surahId, ayahId, reciterId);
   if (typeof window !== "undefined") {
     try {
@@ -78,11 +164,11 @@ export async function fetchExactVerseDuration(surahId: number, ayahId: number, r
         audio.src = audioUrl;
         const timer = setTimeout(() => {
           resolve(0);
-        }, 2500);
+        }, 4000);
         audio.onloadedmetadata = () => {
           clearTimeout(timer);
           if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration) && audio.duration > 0) {
-            resolve(Math.round(audio.duration * 10) / 10);
+            resolve(Math.round(audio.duration * 100) / 100);
           } else {
             resolve(0);
           }
@@ -101,21 +187,7 @@ export async function fetchExactVerseDuration(surahId: number, ayahId: number, r
     } catch {}
   }
 
-  // 2. Try Server-Side API endpoint fallback
-  const words = verseText ? verseText.trim().split(/\s+/).filter(Boolean).length : 5;
-  if (typeof window !== "undefined") {
-    try {
-      const res = await fetch(`/api/verse-duration?surah=${surahId}&ayah=${ayahId}&reciter=${reciterId}&words=${words}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.duration && typeof data.duration === "number") {
-          durationCache.set(cacheKey, data.duration);
-          return data.duration;
-        }
-      }
-    } catch {}
-  }
-
+  // 3. LAST RESORT: word-count estimation
   const fallback = estimateVerseDurationFallback(verseText || "", reciterId);
   durationCache.set(cacheKey, fallback);
   return fallback;
