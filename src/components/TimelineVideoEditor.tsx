@@ -285,14 +285,14 @@ export function TimelineVideoEditor({ onOpenSubscription, onOpenRender }: Timeli
       }
     });
 
-    // Determine max endAyah that fits within YouTube Shorts limit (180s / 3 minutes) for this specific reciter
+    // Determine max endAyah that fits within YouTube Shorts limit (179s / safe 3 minutes margin)
     let runningSec = 0;
     let suggested = state.startAyah;
     for (const v of surahData.verses) {
       if (v.id < state.startAyah) continue;
       const cacheKey = `${state.reciterId}_${state.surahId}_${v.id}`;
       const dur = verseDurations[cacheKey] || estimateVerseDurationFallback(v.text, state.reciterId);
-      if (runningSec + dur <= 180) {
+      if (runningSec + dur <= 179) {
         runningSec += dur;
         suggested = v.id;
       } else {

@@ -23,7 +23,11 @@ export const RemotionRoot: React.FC = () => {
         }}
         // Allow render.mjs to override duration via calculateMetadata
         calculateMetadata={async ({ props }) => {
-          const verses = (props as any).verses || [];
+          const p = props as any;
+          if (p.totalFrames && typeof p.totalFrames === "number" && p.totalFrames > 0) {
+            return { durationInFrames: p.totalFrames };
+          }
+          const verses = p.verses || [];
           // Default: 8 seconds per verse (240 frames at 30fps)
           const framesPerVerse = 240;
           const totalFrames = Math.max(300, verses.length * framesPerVerse);

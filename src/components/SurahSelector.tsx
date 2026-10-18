@@ -1,17 +1,22 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import surahsData from "@/data/surahs.json";
 import { useEditor } from "@/store/useEditor";
-import { ChevronDown, Search, Lock, Crown, Hash } from "lucide-react";
+import { ChevronDown, Search, Lock, Crown, Hash, Clock, CheckCircle2, AlertTriangle, Scissors } from "lucide-react";
 import { AyahSearchModal } from "./AyahSearchModal";
 import { useUserPlan } from "@/hooks/useUserPlan";
+import { useSurahData } from "@/hooks/useSurahData";
+import { fetchExactVerseDuration, estimateVerseDurationFallback, getShortsDurationInfo, findShortsOptimalEndAyah } from "@/lib/quranUtils";
 
 export function SurahSelector() {
   const { state, updateState } = useEditor();
+  const { data: surahData } = useSurahData(state.surahId);
   const [maxVerses, setMaxVerses] = useState(7);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { isFeatureLocked } = useUserPlan();
+
+  const [measuredDurations, setMeasuredDurations] = useState<Record<string, number>>({});
 
   const isSearchLocked = isFeatureLocked("search");
 
@@ -51,6 +56,71 @@ export function SurahSelector() {
     setStartInput(state.startAyah.toString());
     setEndInput(state.endAyah.toString());
   }, [state.startAyah, state.endAyah]);
+
+  // Live Duration Calculation for selected range
+  useEffect(() => {
+    let isMounted = true;
+    if (!surahData?.verses) return;
+    const versesToLoad = surahData.verses.filter(v => v.id >= state.startAyah && v.id <= state.endAyah);
+    const BATCH_CHUNK = 8;
+    (async () => {
+      for (let i = 0; i < versesToLoad.length; i += BATCH_CHUNK) {
+        if (!isMounted) break;
+        const chunk = versesToLoad.slice(i, i + BATCH_CHUNK);
+        await Promise.all(
+          chunk.map(async (v) => {
+            const cacheKey = `${state.reciterId}_${state.surahId}_${v.id}`;
+            const dur = await fetchExactVerseDuration(Number(state.surahId), v.id, state.reciterId, v.text);
+            if (isMounted) {
+              setMeasuredDurations(prev => ({ ...prev, [cacheKey]: dur }));
+            }
+          })
+        );
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, [state.surahId, state.startAyah, state.endAyah, state.reciterId, surahData]);
+
+  const { durationInfo, optimalEndAyah } = useMemo(() => {
+    const versesInRange = surahData?.verses?.filter(v => v.id >= state.startAyah && v.id <= state.endAyah) || [];
+    let sec = 0;
+    if (versesInRange.length === 0) {
+      sec = Math.max(1, state.endAyah - state.startAyah + 1) * (state.reciterId.includes("mjwd") ? 35 : 12);
+    } else {
+      versesInRange.forEach(v => {
+        const cacheKey = `${state.reciterId}_${state.surahId}_${v.id}`;
+        const measured = measuredDurations[cacheKey];
+        if (measured) {
+          sec += measured;
+        } else {
+          sec += estimateVerseDurationFallback(v.text, state.reciterId);
+        }
+      });
+    }
+
+    const info = getShortsDurationInfo(sec);
+    const { optimalEndAyah: optEnd } = findShortsOptimalEndAyah(
+      surahData?.verses || [],
+      state.startAyah,
+      state.reciterId,
+      measuredDurations,
+      179
+    );
+
+    return {
+      durationInfo: info,
+      optimalEndAyah: optEnd,
+    };
+  }, [surahData, state.startAyah, state.endAyah, state.reciterId, measuredDurations]);
+
+  const handleAutoFitShorts = () => {
+    if (optimalEndAyah >= state.startAyah) {
+      updateState({ endAyah: optimalEndAyah });
+      setEndInput(optimalEndAyah.toString());
+    }
+  };
 
   return (
     <div className={`flex flex-col gap-5 font-['Tajawal']`}>
@@ -191,18 +261,62 @@ export function SurahSelector() {
         </div>
       </div>
       
-      {/* Selected Ayahs Hint */}
-      <div className="flex items-center gap-4 px-4 py-3 bg-foreground/5 rounded-xl border border-foreground/5">
-        <div className="flex -space-x-1.5 rtl:space-x-reverse">
-            {[...Array(3)].map((_, i) => (
+      {/* Selected Ayahs Hint & Audio Duration Card */}
+      <div className="flex flex-col gap-2.5">
+        <div className="flex items-center justify-between px-4 py-3 bg-foreground/5 rounded-xl border border-foreground/5">
+          <div className="flex items-center gap-3">
+            <div className="flex -space-x-1.5 rtl:space-x-reverse">
+              {[...Array(Math.min(3, state.endAyah - state.startAyah + 1))].map((_, i) => (
                 <div key={i} className="w-5 h-5 rounded-full border-2 border-background bg-primary/20 flex items-center justify-center text-[7px] font-bold text-primary">
-                    {state.startAyah + i}
+                  {state.startAyah + i}
                 </div>
-            ))}
+              ))}
+            </div>
+            <span className="text-[9px] text-foreground/50 font-black uppercase tracking-[0.2em]">
+              {state.endAyah - state.startAyah + 1} آيات مختارة
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-foreground/5 border border-foreground/10 text-xs font-mono font-black text-primary">
+            <Clock className="w-3.5 h-3.5" />
+            <span>{durationInfo.formattedTime}</span>
+            <span className="text-[9px] text-foreground/40 font-normal">({durationInfo.totalSeconds}ث)</span>
+          </div>
         </div>
-        <span className="text-[9px] text-foreground/40 font-black uppercase tracking-[0.3em]">
-          {state.endAyah - state.startAyah + 1} آيات مختارة للتصميم
-        </span>
+
+        {/* ⏱️ بطاقة توافق YouTube Shorts */}
+        {!durationInfo.isOverThreeMinutes ? (
+          <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-between text-[10px] text-emerald-300 font-bold">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>✅ متوافق 100% مع YouTube Shorts (المدة أقل من 3 دقائق)</span>
+            </div>
+            <span className="text-[9px] font-mono opacity-80">{durationInfo.totalSeconds}/180ث</span>
+          </div>
+        ) : (
+          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-2">
+            <div className="flex items-start gap-2 text-[10px] text-amber-300 font-bold leading-relaxed">
+              <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              <div className="flex flex-col gap-0.5">
+                <span>⚠️ المدة ({durationInfo.formattedArabic}) تتجاوز حد YouTube Shorts (3 دقائق = 180ث)!</span>
+                <span className="text-[8.5px] text-amber-400/80 font-normal">
+                  سينشر كفيديو عادي طويل على يوتيوب ولن يظهر في خلاصة الشورتس.
+                </span>
+              </div>
+            </div>
+
+            {optimalEndAyah >= state.startAyah && optimalEndAyah < state.endAyah && (
+              <button
+                type="button"
+                onClick={handleAutoFitShorts}
+                className="w-full py-2 px-3 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 rounded-xl text-[10px] font-black flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-sm cursor-pointer"
+              >
+                <Scissors className="w-3.5 h-3.5" />
+                <span>✂️ ضبط تلقائي لـ Shorts (ضبط النهاية لآية {optimalEndAyah})</span>
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

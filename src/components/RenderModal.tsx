@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Download, Loader2, CheckCircle2, AlertCircle, Play, Crown, Lock, Info, Zap, ChevronLeft, X, Clock, Video, Send, Sparkles, Shuffle, Copy, Check, ChevronDown } from "lucide-react";
+import { Download, Loader2, CheckCircle2, AlertCircle, Play, Crown, Lock, Info, Zap, ChevronLeft, X, Clock, Video, Send, Sparkles, Shuffle, Copy, Check, ChevronDown, Scissors } from "lucide-react";
 import { useEditor } from "@/store/useEditor";
 import { useSurahData } from "@/hooks/useSurahData";
 import { RECITERS, getReciterEnglishName, getSheikhAsset } from "@/data/reciters";
-import { getAudioUrl, fetchExactVerseDuration, estimateVerseDurationFallback } from "@/lib/quranUtils";
+import { getAudioUrl, fetchExactVerseDuration, estimateVerseDurationFallback, findShortsOptimalEndAyah, getShortsDurationInfo } from "@/lib/quranUtils";
 import { useCustomBackgrounds } from "@/hooks/useCustomBackgrounds";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp, getDocs, collection, addDoc } from "firebase/firestore";
@@ -103,7 +103,7 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
     };
   }, [isOpen, state.surahId, state.startAyah, state.endAyah, state.reciterId, surahData]);
 
-  const { modalTotalDuration, modalIsOverThreeMinutes } = React.useMemo(() => {
+  const { modalTotalDuration, modalIsOverThreeMinutes, modalOptimalEndAyah, modalDurationInfo } = React.useMemo(() => {
     const versesInRange = surahData?.verses?.filter(v => v.id >= state.startAyah && v.id <= state.endAyah) || [];
     let sec = 0;
     if (versesInRange.length === 0) {
@@ -119,10 +119,20 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
         }
       });
     }
-    const rounded = Math.round(sec);
+    const info = getShortsDurationInfo(sec);
+    const { optimalEndAyah: optEnd } = findShortsOptimalEndAyah(
+      surahData?.verses || [],
+      state.startAyah,
+      state.reciterId,
+      modalVerseDurations,
+      179
+    );
+
     return {
-      modalTotalDuration: rounded,
-      modalIsOverThreeMinutes: rounded > 180,
+      modalTotalDuration: info.totalSeconds,
+      modalIsOverThreeMinutes: info.isOverThreeMinutes,
+      modalOptimalEndAyah: optEnd,
+      modalDurationInfo: info,
     };
   }, [surahData, state.startAyah, state.endAyah, state.reciterId, modalVerseDurations]);
 
@@ -2095,14 +2105,35 @@ export function RenderModal({ isOpen, onClose, onOpenSubscription }: {
               </div>
 
               {!modalIsOverThreeMinutes ? (
-                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2 text-[10px] text-emerald-300 font-bold">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>✅ متوافق مع YouTube Shorts (المدة أقل من 3 دقائق 180ث)</span>
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-[10px] text-emerald-300 font-bold">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>✅ متوافق 100% مع YouTube Shorts (المدة أقل من 3 دقائق)</span>
+                  </div>
+                  <span className="text-[9px] font-mono opacity-80">{modalTotalDuration}/180ث</span>
                 </div>
               ) : (
-                <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center gap-2 text-[10px] text-amber-300 font-bold">
-                  <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>⚠️ يتجاوز 3 دقائق: سينشر كفيديو عادي كامل على يوتيوب وليس كـ Short (حد Shorts الأقصى 180 ثانية).</span>
+                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-2 text-right">
+                  <div className="flex items-start gap-2 text-[10px] text-amber-300 font-bold leading-relaxed">
+                    <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                    <div className="flex flex-col gap-0.5">
+                      <span>⚠️ يتجاوز 3 دقائق ({modalDurationInfo.formattedArabic}): سينشر كفيديو عادي كامل على يوتيوب وليس كـ Short (حد Shorts الأقصى 180 ثانية).</span>
+                      <span className="text-[8.5px] text-amber-400/80 font-normal">
+                        يوتيوب لا يحتسب أي فيديو يزيد عن 180 ثانية كشورتس ويحوله لفيديو طويل عادي.
+                      </span>
+                    </div>
+                  </div>
+
+                  {modalOptimalEndAyah >= state.startAyah && modalOptimalEndAyah < state.endAyah && (
+                    <button
+                      type="button"
+                      onClick={() => updateState({ endAyah: modalOptimalEndAyah })}
+                      className="w-full py-2.5 px-3 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-sm cursor-pointer"
+                    >
+                      <Scissors className="w-3.5 h-3.5" />
+                      <span>✂️ ضبط فوري لـ Shorts (تقليص لآية {modalOptimalEndAyah} ليكون أقل من 3 دقائق)</span>
+                    </button>
+                  )}
                 </div>
               )}
             </div>

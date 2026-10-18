@@ -114,7 +114,7 @@ async function main() {
     const FPS = 30;
     let cumulativeFrames = 0;
     const processedVerses = audioResults.map(({ v, aPath, duration }) => {
-      const durFrames = Math.ceil((duration || 4) * FPS) + 1;
+      const durFrames = Math.round((duration || 4) * FPS);
       const res = {
         ...v,
         audio: aPath ? `file://${aPath}` : v.audio,
@@ -125,7 +125,7 @@ async function main() {
       return res;
     });
 
-    const totalFrames = Math.max(Math.ceil(mergedDuration * FPS), cumulativeFrames || 300);
+    const totalFrames = Math.ceil(mergedDuration * FPS) || cumulativeFrames || 300;
 
     // 5. Bundle & Render Remotion
     console.log("📦 Bundling Remotion Root...");

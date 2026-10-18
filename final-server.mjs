@@ -153,12 +153,11 @@ async function renderFinalStable(jobId, data) {
 
     jobs.set(jobId, { status: "processing", progress: 30, message: "⚙️ تجهيز الإطارات..." });
 
-    // 4. حساب الإطارات لكل آية
+    // 4. حساب الإطارات لكل آية بدقة تامة لتطابق مدة الصوت
     const FPS = 30;
     let cumulativeFrames = 0;
     const processedVerses = audioResults.map(({ v, aPath, duration }) => {
-      // إضافة 1 frame إضافي لضمان تغطية كاملة بدون فجوات
-      const durFrames = Math.ceil(duration * FPS) + 1;
+      const durFrames = Math.round(duration * FPS);
       const res = {
         ...v,
         audio: `http://localhost:7860/assets/work-${requestId}/${path.basename(aPath)}`,
@@ -169,8 +168,8 @@ async function renderFinalStable(jobId, data) {
       return res;
     });
 
-    // ضمان أن إجمالي الإطارات يغطي مدة الصوت المدمج تماماً
-    const totalFrames = Math.max(Math.ceil(mergedDuration * FPS), cumulativeFrames);
+    // ضمان أن إجمالي الإطارات يطابق مدة الصوت المدمج بدقة
+    const totalFrames = Math.ceil(mergedDuration * FPS);
 
     jobs.set(jobId, { status: "processing", progress: 35, message: "📦 تجهيز Bundle..." });
 

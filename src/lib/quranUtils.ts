@@ -67,9 +67,42 @@ export async function fetchExactVerseDuration(surahId: number, ayahId: number, r
     return dur;
   }
 
-  const words = verseText ? verseText.trim().split(/\s+/).filter(Boolean).length : 5;
+  // 1. Try real Audio element in browser (highest precision via EveryAyah CORS)
+  const audioUrl = getAudioUrl(surahId, ayahId, reciterId);
+  if (typeof window !== "undefined") {
+    try {
+      const dur = await new Promise<number>((resolve) => {
+        const audio = new Audio();
+        audio.preload = "metadata";
+        audio.crossOrigin = "anonymous";
+        audio.src = audioUrl;
+        const timer = setTimeout(() => {
+          resolve(0);
+        }, 2500);
+        audio.onloadedmetadata = () => {
+          clearTimeout(timer);
+          if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration) && audio.duration > 0) {
+            resolve(Math.round(audio.duration * 10) / 10);
+          } else {
+            resolve(0);
+          }
+        };
+        audio.onerror = () => {
+          clearTimeout(timer);
+          resolve(0);
+        };
+        audio.load();
+      });
 
-  // 1. Try our Server-Side API endpoint (reads exact EveryAyah Content-Length without browser CORS limits)
+      if (dur > 0) {
+        durationCache.set(cacheKey, dur);
+        return dur;
+      }
+    } catch {}
+  }
+
+  // 2. Try Server-Side API endpoint fallback
+  const words = verseText ? verseText.trim().split(/\s+/).filter(Boolean).length : 5;
   if (typeof window !== "undefined") {
     try {
       const res = await fetch(`/api/verse-duration?surah=${surahId}&ayah=${ayahId}&reciter=${reciterId}&words=${words}`);
@@ -80,44 +113,72 @@ export async function fetchExactVerseDuration(surahId: number, ayahId: number, r
           return data.duration;
         }
       }
-    } catch {
-      // Fallback below
-    }
-  }
-
-  // 2. Try Audio object in browser
-  const audioUrl = getAudioUrl(surahId, ayahId, reciterId);
-  if (typeof window !== "undefined") {
-    try {
-      const dur = await new Promise<number>((resolve) => {
-        const audio = new Audio();
-        audio.preload = "metadata";
-        audio.src = audioUrl;
-        const timer = setTimeout(() => {
-          resolve(estimateVerseDurationFallback(verseText || "", reciterId));
-        }, 3000);
-        audio.onloadedmetadata = () => {
-          clearTimeout(timer);
-          if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
-            resolve(Math.round(audio.duration));
-          } else {
-            resolve(estimateVerseDurationFallback(verseText || "", reciterId));
-          }
-        };
-        audio.onerror = () => {
-          clearTimeout(timer);
-          resolve(estimateVerseDurationFallback(verseText || "", reciterId));
-        };
-        audio.load();
-      });
-      durationCache.set(cacheKey, dur);
-      return dur;
     } catch {}
   }
 
   const fallback = estimateVerseDurationFallback(verseText || "", reciterId);
   durationCache.set(cacheKey, fallback);
   return fallback;
+}
+
+/**
+ * حساب حالة مدة الفيديو وتوافقه مع شورتس يوتيوب (الحد الأقصى 3 دقائق = 180 ثانية)
+ * نستخدم 179 ثانية كحد أمان فني لمنع يوتيوب من تصنيف الفيديو كـ 3:01 بسبب تقريب الإطارات
+ */
+export function getShortsDurationInfo(totalSeconds: number) {
+  const roundedSec = Math.round(totalSeconds);
+  const minutes = Math.floor(roundedSec / 60);
+  const seconds = roundedSec % 60;
+  const isShort = roundedSec <= 180;
+  const isSafeShort = roundedSec <= 179;
+  const isOverThreeMinutes = roundedSec > 180;
+  const formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  const formattedArabic = minutes > 0 
+    ? `${minutes} دقيقة و ${seconds} ثانية` 
+    : `${seconds} ثانية`;
+
+  return {
+    totalSeconds: roundedSec,
+    exactSeconds: totalSeconds,
+    minutes,
+    seconds,
+    isShort,
+    isSafeShort,
+    isOverThreeMinutes,
+    formattedTime,
+    formattedArabic,
+  };
+}
+
+/**
+ * إيجاد أفضل آية نهاية (endAyah) لتظل التلاوة أقل من 179 ثانية (ضمن شورتس يوتيوب بدقة تامة)
+ */
+export function findShortsOptimalEndAyah(
+  verses: Array<{ id: number; text?: string }>,
+  startAyah: number,
+  reciterId: string,
+  durationsCache: Record<string, number> = {},
+  maxTargetSec = 179
+): { optimalEndAyah: number; calculatedDuration: number } {
+  let runningSec = 0;
+  let optimalEndAyah = startAyah;
+
+  for (const v of verses) {
+    if (v.id < startAyah) continue;
+    const cacheKey = `${reciterId}_${v.id}`;
+    const dur = durationsCache[cacheKey] || estimateVerseDurationFallback(v.text || "", reciterId);
+    if (runningSec + dur <= maxTargetSec) {
+      runningSec += dur;
+      optimalEndAyah = v.id;
+    } else {
+      break;
+    }
+  }
+
+  return {
+    optimalEndAyah: Math.max(startAyah, optimalEndAyah),
+    calculatedDuration: Math.round(runningSec),
+  };
 }
 
 const API_ROOT = "https://api.quran.com/api/v4";
