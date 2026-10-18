@@ -45,7 +45,7 @@ export async function GET(
       if (!fileRes.ok) {
         const errText = await fileRes.text();
         console.error(`[Telegram API] getFile failed: status ${fileRes.status}`, errText);
-        return NextResponse.json({ error: "Failed to get file from Telegram" }, { status: fileRes.status });
+        return NextResponse.json({ error: "Failed to get file from Telegram", telegramError: errText }, { status: fileRes.status });
       }
 
       const fileData = await fileRes.json();

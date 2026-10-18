@@ -29,21 +29,28 @@ export const getAudioUrl = (surahId: number, ayahId: number, reciterId: string, 
 // Global in-memory cache for verse durations by reciter
 const durationCache = new Map<string, number>();
 
-export function getReciterSpeedFactor(reciterId: string): { isMujawwad: boolean; secPerWord: number } {
+export function getReciterSpeedFactor(reciterId: string): { isMujawwad: boolean; secPerWord: number; pauseSec: number } {
   const reciter = RECITERS.find(r => r.id === reciterId);
   const isMujawwad = reciterId.includes("mjwd") || 
                      reciterId.includes("mujawwad") || 
                      Boolean(reciter?.name && reciter.name.includes("مجود"));
+  let secPerWord = isMujawwad ? 3.8 : 1.75;
+  if (reciterId.includes("minsh")) secPerWord = isMujawwad ? 4.2 : 1.85;
+  if (reciterId.includes("basit")) secPerWord = isMujawwad ? 4.5 : 1.8;
+  if (reciterId.includes("husr")) secPerWord = isMujawwad ? 4.0 : 1.95;
+  if (reciterId.includes("dossary")) secPerWord = 1.65;
+  if (reciterId.includes("afasy")) secPerWord = 1.6;
   return {
     isMujawwad,
-    secPerWord: isMujawwad ? 2.5 : 0.95
+    secPerWord,
+    pauseSec: isMujawwad ? 3.0 : 1.5,
   };
 }
 
 export function estimateVerseDurationFallback(text: string, reciterId: string): number {
-  const { isMujawwad, secPerWord } = getReciterSpeedFactor(reciterId);
-  const words = text ? text.trim().split(/\s+/).length : 5;
-  return Math.max(isMujawwad ? 16 : 4, Math.round(words * secPerWord));
+  const { isMujawwad, secPerWord, pauseSec } = getReciterSpeedFactor(reciterId);
+  const words = text ? text.trim().split(/\s+/).filter(Boolean).length : 5;
+  return Math.max(isMujawwad ? 16 : 4, Math.round(words * secPerWord + pauseSec));
 }
 
 export async function fetchExactVerseDuration(surahId: number, ayahId: number, reciterId: string, verseText?: string): Promise<number> {
@@ -60,26 +67,26 @@ export async function fetchExactVerseDuration(surahId: number, ayahId: number, r
     return dur;
   }
 
-  const audioUrl = getAudioUrl(surahId, ayahId, reciterId);
-  const kbps = reciter?.everyAyahFolder?.includes("192kbps") ? 192 : reciter?.everyAyahFolder?.includes("64kbps") ? 64 : 128;
-  const bytesPerSec = (kbps * 1000) / 8;
+  const words = verseText ? verseText.trim().split(/\s+/).filter(Boolean).length : 5;
 
-  // 1. Try fast HEAD request for content-length from EveryAyah CDN
-  try {
-    const res = await fetch(audioUrl, { method: "HEAD" });
-    if (res.ok) {
-      const len = res.headers.get("content-length");
-      if (len && Number(len) > 0) {
-        const dur = Math.max(3, Math.round(Number(len) / bytesPerSec));
-        durationCache.set(cacheKey, dur);
-        return dur;
+  // 1. Try our Server-Side API endpoint (reads exact EveryAyah Content-Length without browser CORS limits)
+  if (typeof window !== "undefined") {
+    try {
+      const res = await fetch(`/api/verse-duration?surah=${surahId}&ayah=${ayahId}&reciter=${reciterId}&words=${words}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.duration && typeof data.duration === "number") {
+          durationCache.set(cacheKey, data.duration);
+          return data.duration;
+        }
       }
+    } catch {
+      // Fallback below
     }
-  } catch (e) {
-    // Ignore and proceed to fallback/audio
   }
 
   // 2. Try Audio object in browser
+  const audioUrl = getAudioUrl(surahId, ayahId, reciterId);
   if (typeof window !== "undefined") {
     try {
       const dur = await new Promise<number>((resolve) => {
@@ -88,7 +95,7 @@ export async function fetchExactVerseDuration(surahId: number, ayahId: number, r
         audio.src = audioUrl;
         const timer = setTimeout(() => {
           resolve(estimateVerseDurationFallback(verseText || "", reciterId));
-        }, 2000);
+        }, 3000);
         audio.onloadedmetadata = () => {
           clearTimeout(timer);
           if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {

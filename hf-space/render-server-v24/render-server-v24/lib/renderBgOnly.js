@@ -43,8 +43,9 @@ export async function startBackgroundOnlyRender(jobId, data) {
 
     // ── 2) تحميل الخلفية والصوت بالتوازي ─────────────────────────────
     progress(8, "تحميل الخلفية والصوت...", RENDER_PHASES.BACKGROUND_DOWNLOAD);
-    const audioUrls = verses.map(v => v.audio).filter((u, i, a) => i === 0 || u !== a[i - 1]);
-    const audioPaths = audioUrls.map((_, i) => path.resolve(tempDir, `a-${i}.mp3`));
+    const isSingleSurahAudio = verses.length > 0 && verses.every(v => v.audio === verses[0].audio);
+    const audioUrls = isSingleSurahAudio ? [verses[0].audio] : verses.map(v => v.audio).filter((u, i, a) => i === 0 || u !== a[i - 1]);
+    const audioPaths = isSingleSurahAudio ? verses.map((_, i) => path.resolve(tempDir, `a-${i}.mp3`)) : audioUrls.map((_, i) => path.resolve(tempDir, `a-${i}.mp3`));
     const multiPaths = multiUrls.map((_, i) => path.resolve(tempDir, `multi_bg_${i}.mp4`));
 
     const bgDownloads = [];
@@ -54,28 +55,44 @@ export async function startBackgroundOnlyRender(jobId, data) {
       }));
     } else if (kind === "multi") {
       multiUrls.forEach((u, i) => bgDownloads.push(downloadFile(u, multiPaths[i], { timeoutMs: 180000 }).catch(err => {
-        throw new RenderError(RENDER_PHASES.BACKGROUND_DOWNLOAD, `فشل تحميل الخلفية رقم ${i + 1}`, { url: u, error: err.message }, err);
+        logger.warn("multi_bg_download_failed", { index: i + 1, url: u, error: err.message });
+        return null;
       })));
     }
 
     const audioDownload = (async () => {
-      const BATCH = 10;
-      for (let b = 0; b < audioUrls.length; b += BATCH) {
-        await Promise.all(audioUrls.slice(b, b + BATCH).map(async (u, k) => {
-          const i = b + k;
-          try {
-            await downloadFile(u, audioPaths[i], { timeoutMs: 180000 });
-          } catch (e) {
-            throw new RenderError(RENDER_PHASES.AUDIO_DOWNLOAD, `فشل تحميل الصوت رقم ${i + 1}`, { audioUrl: u, error: e.message }, e);
-          }
-        }));
+      if (isSingleSurahAudio) {
+        const fullSurahPath = path.resolve(tempDir, "full_surah.mp3");
+        await downloadFile(verses[0].audio, fullSurahPath, { timeoutMs: 180000 });
+        const totalSurahDuration = await getDurationCached(verses[0].audio, fullSurahPath);
+        const verseWordCounts = verses.map(v => (v.text || "").trim().split(/\s+/).filter(Boolean).length || 5);
+        const totalWords = verseWordCounts.reduce((a, b) => a + b, 0) || 1;
+
+        let cursor = 0;
+        for (let i = 0; i < verses.length; i++) {
+          const segDur = (verseWordCounts[i] / totalWords) * Math.min(totalSurahDuration, Math.max(15, totalWords * 1.8));
+          await ffmpeg(["-ss", cursor.toFixed(3), "-t", segDur.toFixed(3), "-i", sl(fullSurahPath), "-c", "copy", "-y", sl(audioPaths[i])]);
+          cursor += segDur;
+        }
+      } else {
+        const BATCH = 10;
+        for (let b = 0; b < audioUrls.length; b += BATCH) {
+          await Promise.all(audioUrls.slice(b, b + BATCH).map(async (u, k) => {
+            const i = b + k;
+            try {
+              await downloadFile(u, audioPaths[i], { timeoutMs: 180000 });
+            } catch (e) {
+              throw new RenderError(RENDER_PHASES.AUDIO_DOWNLOAD, `فشل تحميل الصوت رقم ${i + 1}`, { audioUrl: u, error: e.message }, e);
+            }
+          }));
+        }
       }
     })();
     await Promise.all([...bgDownloads, audioDownload]);
 
     // ── 3) دمج الصوت (نفس فلتر v23) ──────────────────────────────────
     progress(30, "تجهيز الصوت...", RENDER_PHASES.AUDIO_PROBE);
-    const rawDurations = await Promise.all(audioUrls.map((u, i) => getDurationCached(u, audioPaths[i])));
+    const rawDurations = await Promise.all(audioPaths.map((p, i) => getDurationCached(verses[i]?.audio || p, p)));
     const rawTotal = rawDurations.reduce((a, b) => a + b, 0);
 
     progress(40, "دمج الصوت...", RENDER_PHASES.AUDIO_MERGE);
